@@ -591,26 +591,44 @@
             showCustomPopup(msg);
         });
 
-        // دالة تسجيل الدخول العادية بفيسبوك
+        // دالة تسجيل الدخول العادية بفيسبوك (النسخة المدرعة ضد مشاكل تعليق السوكيت بالخلفية)
         function loginWithFacebook() {
             if (typeof FB === 'undefined') {
                 showCustomPopup(currentLang === 'ar' ? "جاري الاتصال بخوادم فيسبوك، جرب مرة أخرى." : "Connecting to Facebook, try again.");
                 return;
             }
+
+            // 🛡️ فحص حالة اتصال السوكيت قبل فتح نافذة تسجيل الدخول لمنع تجميد المتصفح وضياع الرسائل
+            if (!socket || !socket.connected) {
+                console.warn("⚠️ السوكيت غير متصل حالياً! جاري إعادة الاتصال تلقائياً...");
+                showCustomPopup(currentLang === 'ar' ? "فشل الاتصال المؤقت بالسيرفر! جاري إعادة الاتصال، يرجى المحاولة مرة أخرى خلال ثوانٍ." : "Server connection lost! Reconnecting, please try again in a few seconds.");
+                socket.connect(); 
+                return;
+            }
+
             FB.login(function(response) {
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
                     socket.emit('login_facebook', { accessToken: accessToken });
                 }
-            }, {scope: 'public_profile'}); // 👈 قمنا بمسح كلمة email من هنا لضمان عمل الزر فوراً
+            }, {scope: 'public_profile'}); 
         }
 
-        // دالة الربط لحفظ الحساب
+        // دالة الربط لحفظ الحساب (النسخة المدرعة)
         function linkGuestWithFacebook() {
             if (typeof FB === 'undefined') {
                 showCustomPopup(currentLang === 'ar' ? "جاري الاتصال بخوادم فيسبوك، جرب مرة أخرى." : "Connecting to Facebook, try again.");
                 return;
             }
+
+            // 🛡️ حماية ضد Race Condition وضياع التوكن أثناء الربط السحابي
+            if (!socket || !socket.connected) {
+                console.warn("⚠️ السوكيت غير متصل حالياً! جاري إعادة الاتصال تلقائياً...");
+                showCustomPopup(currentLang === 'ar' ? "فشل الاتصال المؤقت بالسيرفر! جاري إعادة الاتصال، يرجى المحاولة مرة أخرى خلال ثوانٍ." : "Server connection lost! Reconnecting, please try again in a few seconds.");
+                socket.connect(); 
+                return;
+            }
+
             FB.login(function(response) {
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
@@ -620,7 +638,7 @@
                         guestId: profile.id 
                     });
                 }
-            }, {scope: 'public_profile'}); // 👈 وقمنا بمسحها من هنا أيضاً
+            }, {scope: 'public_profile'}); 
         }
 
         function safeParseAuthMessage(msgStr) {
@@ -832,7 +850,6 @@
             renderAvatar('hub-profile-avatar');
             renderAvatar('profile-display-avatar');
 
-            // التعديل هنا: إظهار زر الربط لأي لاعب لم يربط حسابه بفيسبوك بعد
             const linkFbBtn = document.getElementById('link-facebook-guest-btn');
             if (linkFbBtn) {
                 if (profile.id && !profile.id.startsWith('FB-')) {
@@ -966,24 +983,18 @@
             }
         });
 
-        // دالة موحدة لمعالجة الخروج أو التبديل بناءً على نوع الحساب
         function handleAccountExit(isSwitching) {
             const profileRaw = localStorage.getItem('hub_user_profile');
             if (!profileRaw) return;
             
             const profile = JSON.parse(profileRaw);
-            
-            // نتحقق إذا كان المعرف يبدأ بـ GUEST- (يعني زائر)
             const isGuest = profile.id && profile.id.startsWith('GUEST-');
 
             if (!isGuest) {
-                // [حساب فيسبوك أو حساب اسم ورمز]: خروج فوري بدون إشعار وبدون مسح من السيرفر
                 executeLogout(isSwitching);
             } else {
-                // [حساب زائر]: إظهار إشعار، وإذا وافق نحذف من Redis ثم نمسح بيانات الهاتف
                 showCustomPopup(translations[currentLang].msg_logout_confirm, false, "", true, (res) => {
                     if (res) {
-                        // إرسال طلب للسيرفر لحذف بيانات الزائر فقط
                         socket.emit('logout_guest_clean', { id: profile.id });
                         executeLogout(isSwitching);
                     }
@@ -991,16 +1002,13 @@
             }
         }
 
-        // دالة تنفيذ الخروج الفعلي (مشتركة للجميع)
         function executeLogout(isSwitching) {
             localStorage.removeItem('hub_user_profile');
             document.getElementById('profile-modal').style.display = 'none';
             checkUserAuthentication();
-            // إعادة تحميل الصفحة لضمان تنظيف حالة التطبيق
             location.reload();
         }
 
-        // الدوال التي تستدعيها الأزرار (لا حاجة لتغييرها)
         function triggerLogout() { handleAccountExit(false); }
         function triggerAccountSwitch() { handleAccountExit(true); }
 
