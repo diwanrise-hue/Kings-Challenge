@@ -435,7 +435,7 @@
 
             <button id="link-facebook-guest-btn" onclick="linkGuestWithFacebook()" class="btn" style="background:#1877f2; color:white; display:none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: 15px;">
                 <svg style="width:20px; height:20px; margin-left:8px; fill:currentColor;" viewBox="0 0 24 24">
-                    <path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96+C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/>
+                    <path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/>
                 </svg>
                 <span data-i18n="link_facebook_btn">حفظ الحساب عبر فيسبوك</span>
             </button>
@@ -445,6 +445,7 @@
 
     <script>
         // === تهيئة Facebook SDK بالطريقة الرسمية (الآمنة) ===
+        // 🛡️ ملاحظة للمطور: تأكد من ضبط FACEBOOK_APP_ID و FACEBOOK_APP_SECRET في ملف .env على الخادم (Hugging Face backend) لضمان التحقق السحابي الآمن.
         window.fbAsyncInit = function() {
             FB.init({
                 appId      : '2054342995162540', 
@@ -572,6 +573,38 @@
             }
         });
 
+        // 🛡️ دالة مساعدة لقراءة ومعالجة وتحليل بيانات الـ LocalStorage لتجنب تعطل التطبيق بالكامل
+        function getSafeProfile() {
+            const defaultProfile = {
+                id: "GUEST-DEFAULT",
+                name: currentLang === 'ar' ? "زائر" : "Guest",
+                avatar: '1000132081.webp',
+                isCustomAvatar: false,
+                tokens: 0,
+                gamesPlayed: 0,
+                wins: 0,
+                losses: 0,
+                friends: [],
+                purchasedItems: [],
+                equippedBg: 'bg_wood',
+                equippedFr: 'fr_classic',
+                equippedPc: 'pc_original'
+            };
+
+            try {
+                const profileRaw = localStorage.getItem('hub_user_profile');
+                if (!profileRaw) return defaultProfile;
+                
+                const parsed = JSON.parse(profileRaw);
+                if (parsed && typeof parsed === 'object') {
+                    return parsed;
+                }
+            } catch (e) {
+                console.error("🔒 خطأ في معالجة بيانات الملف الشخصي المحفوظة:", e);
+            }
+            return defaultProfile;
+        }
+
         socket.on('auth_success', (data) => {
             const msg = safeParseAuthMessage(data.message);
             showCustomPopup(msg);
@@ -632,7 +665,7 @@
             FB.login(function(response) {
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
-                    const profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+                    const profile = getSafeProfile();
                     socket.emit('link_facebook', { 
                         accessToken: accessToken, 
                         guestId: profile.id 
@@ -798,9 +831,17 @@
         function checkUserAuthentication() {
             let globalProfile = localStorage.getItem('hub_user_profile');
             if (globalProfile) {
-                document.getElementById('login-modal').style.display = 'none';
-                document.getElementById('game-selector').style.display = 'flex';
-                syncHubProfile();
+                try {
+                    JSON.parse(globalProfile);
+                    document.getElementById('login-modal').style.display = 'none';
+                    document.getElementById('game-selector').style.display = 'flex';
+                    syncHubProfile();
+                } catch (e) {
+                    console.error("⚠️ ملف التعريف مشوه ومخزن بشكل خاطئ، جاري إعادة الضبط:", e);
+                    localStorage.removeItem('hub_user_profile');
+                    document.getElementById('game-selector').style.display = 'none';
+                    document.getElementById('login-modal').style.display = 'flex';
+                }
             } else {
                 document.getElementById('game-selector').style.display = 'none';
                 document.getElementById('login-modal').style.display = 'flex';
@@ -827,14 +868,19 @@
                 equippedPc: 'pc_original'
             };
 
-            localStorage.setItem('hub_user_profile', JSON.stringify(guestProfile));
-            checkUserAuthentication();
+            try {
+                localStorage.setItem('hub_user_profile', JSON.stringify(guestProfile));
+                checkUserAuthentication();
+            } catch (err) {
+                console.error("⚠️ فشل في حفظ جلسة الزائر مؤقتاً:", err);
+            }
         }
 
         function syncHubProfile() {
             let globalProfile = localStorage.getItem('hub_user_profile');
             if (!globalProfile) return;
-            const profile = JSON.parse(globalProfile);
+            
+            const profile = getSafeProfile();
             
             const tokenVal = profile.tokens || 0;
             const tokenText = tokenVal + translations[currentLang].token_word;
@@ -877,65 +923,120 @@
         }
 
         function changePlayerName() {
-            let profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+            let profile = getSafeProfile();
             if(!profile) return;
             
             showCustomPopup(translations[currentLang].msg_prompt_name, true, profile.name, true, (newName) => {
                 if (newName && newName.trim() !== "") {
                     profile.name = newName.trim();
-                    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                    syncHubProfile();
+                    try {
+                        localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                        syncHubProfile();
+                    } catch (err) {
+                        console.error("⚠️ فشل تحديث الاسم وحفظه بالـ Storage:", err);
+                    }
                 }
             });
         }
 
         function changeAvatarFromDropdown(val) {
             if(!val) return;
-            let profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+            let profile = getSafeProfile();
             profile.avatar = val;
             profile.isCustomAvatar = false; 
-            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-            syncHubProfile();
-            document.getElementById('edit-avatar-select').selectedIndex = 0; 
-            showCustomPopup(translations[currentLang].msg_avatar_success);
+            try {
+                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                syncHubProfile();
+                document.getElementById('edit-avatar-select').selectedIndex = 0; 
+                showCustomPopup(translations[currentLang].msg_avatar_success);
+            } catch (err) {
+                console.error("⚠️ فشل تغيير الأفتار محلياً:", err);
+            }
         }
 
+        // 🛡️ الحل البرمجي لرفع وضغط الصور قبل تخزينها محلياً لحل مشكلة السعة
         function uploadImageFromPhone(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    let profile = JSON.parse(localStorage.getItem('hub_user_profile'));
-                    profile.avatar = e.target.result; 
-                    profile.isCustomAvatar = true; 
-                    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                    syncHubProfile();
-                    showCustomPopup(translations[currentLang].msg_img_success);
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // تصغير ذكي للأبعاد: الحد الأقصى للطول أو العرض هو 180 بكسل (أبعاد ممتازة للأفاتار)
+                        const maxDim = 180;
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        if (width > height) {
+                            if (width > maxDim) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            }
+                        } else {
+                            if (height > maxDim) {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // ضغط الصورة بصيغة JPEG وبنسبة جودة 70% لتقليص حجمها بشكل ضخم لتفادي QuotaExceededError
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        let profile = getSafeProfile();
+                        profile.avatar = compressedDataUrl;
+                        profile.isCustomAvatar = true; 
+                        
+                        try {
+                            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                            syncHubProfile();
+                            showCustomPopup(translations[currentLang].msg_img_success);
+                        } catch (error) {
+                            console.error("⚠️ فشل تخزين الصورة بالمتصفح:", error);
+                            showCustomPopup(currentLang === 'ar' ? "فشل حفظ الصورة، سعة التخزين ممتلئة بالمتصفح!" : "Failed to save image, local storage is full!");
+                        }
+                    };
+                    img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         }
 
+        // 🛡️ ترقية معالج نسخ المعرف بإضافة التحويل الاحتياطي في حال رفض الصلاحيات (Promise Rejection)
         function copyPlayerID() {
             const idText = document.getElementById('profile-display-id').innerText;
             if(navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(idText).then(() => {
                     showCustomPopup(translations[currentLang].msg_copy_success + idText);
+                }).catch((err) => {
+                    console.warn("⚠️ تم رفض صلاحية النسخ عبر الـ Clipboard API، التحويل للطريقة التقليدية الاحتياطية:", err);
+                    fallbackCopyText(idText);
                 });
             } else {
-                let textArea = document.createElement("textarea");
-                textArea.value = idText;
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    showCustomPopup(translations[currentLang].msg_copy_success + idText);
-                } catch (err) {
-                    showCustomPopup(translations[currentLang].msg_copy_fail);
-                }
-                document.body.removeChild(textArea);
+                fallbackCopyText(idText);
             }
+        }
+
+        // الطريقة التقليدية الآمنة للنسخ
+        function fallbackCopyText(text) {
+            let textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showCustomPopup(translations[currentLang].msg_copy_success + text);
+            } catch (err) {
+                showCustomPopup(translations[currentLang].msg_copy_fail);
+            }
+            document.body.removeChild(textArea);
         }
 
         function openProfileModal() { 
@@ -995,7 +1096,13 @@
             const profileRaw = localStorage.getItem('hub_user_profile');
             if (!profileRaw) return;
             
-            const profile = JSON.parse(profileRaw);
+            let profile;
+            try {
+                profile = JSON.parse(profileRaw);
+            } catch (e) {
+                profile = getSafeProfile();
+            }
+            
             const isGuest = profile.id && profile.id.startsWith('GUEST-');
 
             if (!isGuest) {
@@ -1010,7 +1117,7 @@
             }
         }
 
-        // 🛡️ التعديل الرئيسي: إجبار مكتبة فيسبوك على تسجيل خروج حقيقي لتدمير الكاش القديم ومنع تعليق التوكن
+        // 🛡️ إجبار مكتبة فيسبوك على تسجيل خروج حقيقي لتدمير الكاش القديم ومنع تعليق التوكن
         function executeLogout(isSwitching) {
             const profileRaw = localStorage.getItem('hub_user_profile');
             let isFacebookUser = false;
