@@ -1,9 +1,980 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
-    <meta http-equiv="refresh" content="0; url=./dama/dama.html">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="theme-color" content="#050507">
+    <link class="apple-touch-icon" href="1000127272.webp">
+    
+    <title>Dama Challenge - Premium Hub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+    
+    <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
+
+    <style>
+        /* ========================================== */
+        /* المتغيرات والتصميم النظيف (Clean)   */
+        /* ========================================== */
+        :root {
+            --bg-deep: #050507;
+            --glass-bg: rgba(25, 25, 30, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            
+            --accent: #f5a623; /* لون ذهبي أنيق */
+            --danger: #ff453a;
+            
+            --radius-pill: 50px;
+            --radius-card: 24px;
+            
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        html[lang="ar"] { font-family: 'Tajawal', sans-serif; }
+        html[lang="en"] { font-family: 'Outfit', sans-serif; }
+
+        body, html { 
+            margin: 0; padding: 0; height: 100%; 
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at 50% 0%, #1a1a24 0%, var(--bg-deep) 80%);
+            color: var(--text-primary);
+            overflow: hidden; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+
+        /* تأثيرات الدخول الناعمة */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========================================== */
+        /* شاشة الافتتاحية              */
+        /* ========================================== */
+        #splash-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg-deep); z-index: 99999; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; text-align: center; 
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+        #splash-screen svg { fill: var(--accent); width: 60px; height: 60px; margin-bottom: 20px; }
+        #splash-screen h1 { 
+            font-size: 24px; font-weight: 800; margin: 0; 
+            letter-spacing: 3px; color: var(--text-primary);
+        }
+
+        /* ========================================== */
+        /* المنصة الرئيسية               */
+        /* ========================================== */
+        #game-selector { 
+            display: none; width: 100%; height: 100%; 
+            flex-direction: column; justify-content: center; align-items: center; gap: 40px; 
+            position: absolute; top: 0; left: 0; z-index: 10;
+        }
+
+        /* الشريط العلوي */
+        .top-hud {
+            position: absolute; top: 30px; left: 25px; right: 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 20;
+        }
+        .hud-group { display: flex; align-items: center; gap: 12px; }
+
+        /* الأفتار الدائري النظيف */
+        .profile-avatar { 
+            width: 46px; height: 46px; border-radius: 50%; 
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; overflow: hidden; transition: var(--transition);
+        }
+        .profile-avatar:hover { transform: scale(1.05); border-color: rgba(255,255,255,0.2); }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* كبسولة التوكنات الانسيابية */
+        .hub-token-badge {
+            height: 46px; background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: var(--radius-pill); 
+            display: flex; align-items: center; padding: 0 20px; 
+            color: var(--accent); font-weight: 600; font-size: 15px; 
+            direction: ltr; transition: var(--transition); gap: 8px;
+        }
+
+        /* زر اللغة */
+        .lang-btn {
+            height: 46px; width: 46px; background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: var(--text-primary);
+            font-weight: 500; font-size: 14px; cursor: pointer; transition: var(--transition);
+        }
+        .lang-btn:hover { background: rgba(255,255,255,0.08); }
+
+        /* ========================================== */
+        /* كروت الألعاب                */
+        /* ========================================== */
+        .cards-container { display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; }
+
+        /* كرت الدامة */
+        .dama-card { 
+            width: 85%; max-width: 320px; height: 200px; 
+            border-radius: var(--radius-card); cursor: pointer; 
+            position: relative; overflow: hidden; 
+            border: 1px solid rgba(255,255,255,0.1); background: #111;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            transition: var(--transition);
+            display: flex; align-items: flex-end; justify-content: center;
+        }
+        
+        .dama-card img.card-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; transition: transform 0.5s ease; z-index: 1;
+            opacity: 0.85;
+        }
+        
+        .dama-card::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+            z-index: 2;
+        }
+
+        .dama-card-content {
+            position: relative; z-index: 3; padding-bottom: 30px; text-align: center; width: 100%;
+        }
+        .dama-card span {
+            color: #fff; font-size: 32px; font-weight: 800; 
+            letter-spacing: 1px; text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            transition: var(--transition);
+        }
+
+        .dama-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+        .dama-card:hover img.card-bg { transform: scale(1.05); opacity: 1; }
+        .dama-card:hover span { color: var(--accent); }
+
+        /* كرت (قريباً) */
+        .game-card-soon { 
+            width: 85%; max-width: 320px; padding: 22px; 
+            background: rgba(255,255,255,0.02); color: var(--text-secondary); 
+            border-radius: var(--radius-card); text-align: center; 
+            border: 1px solid rgba(255,255,255,0.05); cursor: pointer; 
+            transition: var(--transition); font-size: 18px; font-weight: 500; 
+        }
+        .game-card-soon:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+
+        /* ========================================== */
+        /* واجهة اللعب (Iframe)          */
+        /* ========================================== */
+        #game-interface { 
+            display: none; 
+            width: 100vw; 
+            height: 100dvh; 
+            background: #000; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            z-index: 99999; 
+        }
+
+        /* ========================================== */
+        /* النوافذ المنبثقة (Clean Modals)   */
+        /* ========================================== */
+        .modal-overlay { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); z-index: 99998; 
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        
+        .settings-card { 
+            background: #111115; 
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 30px; 
+            padding: 25px 20px; 
+            width: 100%; max-width: 350px; 
+            text-align: center; max-height: 95vh; overflow-y: auto; color: white;
+            position: relative; animation: fadeIn 0.4s ease-out;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+        }
+        .settings-card::-webkit-scrollbar { display: none; }
+
+        /* زر الإغلاق الأنيق */
+        .modal-close-btn {
+            position: absolute; top: 20px; left: 20px; background: transparent; 
+            border: none; color: var(--text-secondary); width: 30px; height: 30px; 
+            font-size: 18px; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: var(--transition);
+        }
+        .modal-close-btn:hover { color: var(--text-primary); }
+
+        .settings-card h3 { color: var(--text-primary); font-size: 22px; font-weight: 700; margin: 0 0 5px 0; }
+        .settings-card p.desc { color: var(--text-secondary); font-size: 13px; margin-bottom: 15px; line-height: 1.5; }
+
+        /* حقول الإدخال */
+        .input-group { text-align: start; margin-bottom: 15px; }
+        .settings-label { display: block; color: var(--text-secondary); font-size: 13px; font-weight: 500; margin-bottom: 6px; padding: 0 5px; }
+        
+        .clean-input { 
+            width: 100%; height: 46px; 
+            padding: 0 20px; border-radius: var(--radius-pill); 
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); 
+            color: var(--text-primary); font-weight: 500; font-size: 15px; 
+            transition: var(--transition);
+        }
+        .clean-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.06); }
+        .clean-input::placeholder { color: rgba(255,255,255,0.2); }
+
+        select.clean-input { 
+            appearance: none; 
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); 
+            background-repeat: no-repeat; background-position: left 1.2rem center; background-size: 1em; 
+        }
+        html[dir="ltr"] select.clean-input { background-position: right 1.2rem center; }
+        select.clean-input option { background: #111; color: white; }
+
+        /* الأزرار الانسيابية */
+        .btn { 
+            width: 100%; height: 46px; border: none; border-radius: var(--radius-pill); 
+            font-weight: 600; font-size: 15px; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: var(--transition); margin-bottom: 10px;
+        }
+        .btn:active { transform: scale(0.97); }
+        
+        .btn-primary { background: var(--text-primary); color: #000; }
+        .btn-primary:hover { opacity: 0.9; }
+        
+        .btn-secondary { background: rgba(255,255,255,0.08); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.05); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+        
+        .btn-danger { background: rgba(255, 69, 58, 0.1); color: var(--danger); border: 1px solid rgba(255, 69, 58, 0.2); }
+        .btn-danger:hover { background: rgba(255, 69, 58, 0.2); }
+
+        /* ========================================== */
+        /* تنسيقات نافذة الملف الشخصي            */
+        /* ========================================== */
+        .profile-display-avatar {
+            width: 85px; height: 85px; margin: 0 auto 15px auto; 
+            border-radius: 50%; padding: 3px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .profile-display-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        
+        #profile-display-name { color: var(--text-primary); margin: 0 0 5px 0; font-size: 24px; font-weight: 700; }
+        
+        .profile-id-box { 
+            font-size: 14px; margin-bottom: 30px; color: var(--text-secondary);
+        }
+        #profile-display-id { color: var(--text-primary); font-weight: 500; cursor: pointer; transition: var(--transition); padding: 5px; }
+        #profile-display-id:hover { color: var(--accent); }
+
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 30px; }
+        .action-grid .btn { height: 48px; font-size: 13px; font-weight: 500; margin: 0; }
+        .action-grid .full-width { grid-column: span 2; }
+
+        .stats-box { 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 20px; padding: 20px; 
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px;
+        }
+        .stats-box span:first-child { color: var(--text-secondary); font-size: 14px; font-weight: 500; }
+        .stats-box span:last-child { color: var(--accent); font-size: 20px; font-weight: 700; }
+
+        .bottom-actions { display: flex; gap: 10px; }
+        .bottom-actions .btn { height: 48px; margin: 0; font-size: 14px; }
+
+        /* نافذة التنبيهات المخصصة */
+        #custom-popup-modal .settings-card { padding: 35px 25px; border: 1px solid rgba(255,255,255,0.1); }
+        #custom-popup-msg { font-size: 15px; font-weight: 500; color: var(--text-primary); line-height: 1.6; margin-bottom: 25px; }
+
+        /* نمط رابط التبديل المطور لنموذج التسجيل */
+        .auth-toggle-link {
+            display: inline-block; margin-top: 5px; font-size: 13px; font-weight: 600;
+            color: var(--accent); cursor: pointer; transition: var(--transition); text-decoration: none;
+        }
+        .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }
+
+    </style>
 </head>
 <body>
-    <p>جاري تحويلك إلى اللعبة...</p>
+
+    <div id="splash-screen">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM5 18H19V20H5V18Z"/>
+        </svg>
+        <h1 data-i18n="app_title">DAMA CHALLENGE</h1>
+    </div>
+
+    <div id="game-selector">
+        <div class="top-hud">
+            <div class="hud-group">
+                <div class="profile-avatar" id="hub-profile-avatar" onclick="openProfileModal()"></div>
+                <div class="hub-token-badge">
+                    🪙 <span id="hub-token-count">0</span>
+                </div>
+            </div>
+            <div class="lang-btn" onclick="toggleLanguage()" id="lang-toggle-btn">EN</div>
+        </div>
+
+        <div class="cards-container">
+            <div class="dama-card" onclick="startGame()">
+                <img src="https://images.unsplash.com/photo-1610632380989-680fe40816c6?q=80&w=800&auto=format&fit=crop" alt="Dama Game" class="card-bg">
+                <div class="dama-card-content">
+                    <span id="dama-title-text" data-i18n="dama">دامة</span>
+                </div>
+            </div>
+            
+            <div class="game-card-soon" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</div>
+        </div>
+    </div>
+
+    <div id="game-interface">
+        <iframe id="game-frame" src="" allowfullscreen allow="fullscreen" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
+    </div>
+
+    <div id="custom-popup-modal" class="modal-overlay" style="z-index: 99999;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <p id="custom-popup-msg"></p>
+            <div class="input-group" id="custom-popup-input-group" style="display: none; margin-bottom: 25px;">
+                <input type="text" id="custom-popup-input" class="clean-input" style="text-align: center;">
+            </div>
+            <div style="display: flex; gap: 10px; width: 100%;">
+                <button id="custom-popup-ok" class="btn btn-primary" style="flex: 1; margin:0;" data-i18n="btn_ok">حسناً</button>
+                <button id="custom-popup-cancel" class="btn btn-secondary" style="flex: 1; display: none; margin:0;" data-i18n="btn_cancel">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto">
+            <h3 id="auth-modal-title" data-i18n="login_title">إنشاء حساب</h3>
+            <p id="auth-modal-desc" class="desc" data-i18n="login_desc">أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.</p>
+            
+            <div class="input-group">
+                <label class="settings-label" data-i18n="login_name_label">الاسم</label>
+                <input type="text" id="login-name-input" class="clean-input" data-i18n-placeholder="login_name_placeholder" placeholder="اكتب اسمك هنا">
+            </div>
+
+            <div class="input-group">
+                <label class="settings-label">كلمة المرور / Password</label>
+                <input type="password" id="login-password-input" class="clean-input" placeholder="••••••••">
+            </div>
+
+            <div class="input-group" id="avatar-select-group">
+                <label class="settings-label" data-i18n="login_avatar_label">الشخصية</label>
+                <select id="login-avatar-select" class="clean-input">
+                    <option value="1000132081.webp" data-i18n="avatar_1">الملك الشاب</option>
+                    <option value="1000132078.webp" data-i18n="avatar_2">الرجل الكردي</option>
+                    <option value="1000132080.webp" data-i18n="avatar_3">الملكة</option>
+                    <option value="1000132082.webp" data-i18n="avatar_4">الملك المسن</option>
+                    <option value="1000132077.webp" data-i18n="avatar_5">الرجل العربي</option>
+                    <option value="1000132079.webp" data-i18n="avatar_6">الأميرة الشقراء</option>
+                </select>
+            </div>
+            
+            <button id="auth-primary-submit-btn" onclick="submitManualAuthForm()" class="btn btn-primary" data-i18n="login_save">متابعة</button>
+
+            <button onclick="loginWithFacebook()" class="btn" style="background:#1877f2; color:white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-bottom: 10px;">
+                <svg style="width:20px; height:20px; margin-left:8px; fill:currentColor;" viewBox="0 0 24 24">
+                    <path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/>
+                </svg>
+                <span data-i18n="login_facebook_btn">تسجيل الدخول بـ فيسبوك</span>
+            </button>
+
+            <button onclick="loginAsGuest()" class="btn btn-secondary" data-i18n="login_guest">دخول كزائر</button>
+            
+            <div id="auth-toggle-mode-link" class="auth-toggle-link" onclick="toggleAuthMode()">امتلك حساباً بالفعل؟ تسجيل الدخول</div>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto">
+            <button class="modal-close-btn" onclick="closeProfileModal()">✕</button>
+
+            <h3 data-i18n="profile_title" style="margin-bottom: 25px;">الملف الشخصي</h3>
+            
+            <div class="profile-display-avatar" id="profile-display-avatar"></div>
+            
+            <h4 id="profile-display-name">الاسم</h4>
+            
+            <div class="profile-id-box">
+                <span data-i18n="profile_id">المعرف:</span> 
+                <span id="profile-display-id" onclick="copyPlayerID()" title="نسخ المعرف">#00000</span>
+            </div>
+
+            <div class="action-grid">
+                <select id="edit-avatar-select" class="btn btn-secondary" onchange="changeAvatarFromDropdown(this.value)">
+                    <option value="" disabled selected data-i18n="profile_change_avatar">الشخصية</option>
+                    <option value="1000132081.webp" data-i18n="avatar_1">الملك الشاب</option>
+                    <option value="1000132078.webp" data-i18n="avatar_2">الرجل الكردي</option>
+                    <option value="1000132080.webp" data-i18n="avatar_3">الملكة</option>
+                    <option value="1000132082.webp" data-i18n="avatar_4">الملك المسن</option>
+                    <option value="1000132077.webp" data-i18n="avatar_5">الرجل العربي</option>
+                    <option value="1000132079.webp" data-i18n="avatar_6">الأميرة الشقراء</option>
+                </select>
+                
+                <button onclick="document.getElementById('upload-phone-img').click()" class="btn btn-secondary" data-i18n="profile_phone_img">المعرض</button>
+                <input type="file" id="upload-phone-img" accept="image/*" style="display: none;" onchange="uploadImageFromPhone(event)">
+                
+                <button onclick="changePlayerName()" class="btn btn-secondary full-width" data-i18n="profile_change_name">تغيير الاسم</button>
+            </div>
+
+            <div class="stats-box">
+                <span data-i18n="profile_balance">🪙 الرصيد الكلي:</span>
+                <span id="profile-stat-tokens">0</span>
+            </div>
+
+            <div class="bottom-actions">
+                <button onclick="triggerAccountSwitch()" class="btn btn-secondary" style="flex:1;" data-i18n="profile_switch">تبديل الحساب</button>
+                <button onclick="triggerLogout()" class="btn btn-danger" style="flex:1;" data-i18n="profile_logout">تسجيل الخروج</button>
+            </div>
+
+            <button id="link-facebook-guest-btn" onclick="linkGuestWithFacebook()" class="btn" style="background:#1877f2; color:white; display:none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                <svg style="width:20px; height:20px; margin-left:8px; fill:currentColor;" viewBox="0 0 24 24">
+                    <path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/>
+                </svg>
+                <span data-i18n="link_facebook_btn">حفظ الحساب عبر فيسبوك</span>
+            </button>
+
+        </div>
+    </div>
+
+    <script>
+        // === تهيئة Facebook SDK ===
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '2054342995162540', // معرف التطبيق الخاص بك
+                cookie     : true,
+                xfbml      : true,
+                version    : 'v18.0'
+            });
+        };
+
+        // دالة تسجيل الدخول العادية بفيسبوك (لشاشة الدخول)
+        function loginWithFacebook() {
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    const accessToken = response.authResponse.accessToken;
+                    socket.emit('login_facebook', { accessToken: accessToken });
+                }
+            }, {scope: 'public_profile,email'});
+        }
+
+        // دالة الربط لحفظ الحساب (تنقل الرصيد)
+        function linkGuestWithFacebook() {
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    const accessToken = response.authResponse.accessToken;
+                    const profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+                    // إرسال التوكين مع آيدي اللاعب لدمج الرصيد
+                    socket.emit('link_facebook', { 
+                        accessToken: accessToken, 
+                        guestId: profile.id 
+                    });
+                }
+            }, {scope: 'public_profile,email'});
+        }
+
+
+        // === قاموس اللغات الشامل ===
+        const translations = {
+            ar: {
+                app_title: "DAMA CHALLENGE",
+                dama: "دامة",
+                soon: "قريباً",
+                login_title: "إنشاء حساب",
+                login_desc: "أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.",
+                login_name_label: "الاسم",
+                login_name_placeholder: "اكتب اسمك هنا",
+                login_avatar_label: "الشخصية",
+                avatar_1: "الملك الشاب",
+                avatar_2: "الرجل الكردي",
+                avatar_3: "الملكة",
+                avatar_4: "الملك المسن",
+                avatar_5: "الرجل العربي",
+                avatar_6: "الأميرة الشقراء",
+                login_save: "متابعة",
+                login_guest: "دخول كزائر",
+                login_facebook_btn: "تسجيل الدخول بـ فيسبوك",
+                link_facebook_btn: "حفظ الحساب عبر فيسبوك",
+                profile_title: "الملف الشخصي",
+                profile_id: "المعرف:",
+                profile_change_name: "تغيير الاسم",
+                profile_change_avatar: "الشخصية",
+                profile_phone_img: "المعرض",
+                profile_balance: "🪙 الرصيد الكلي:",
+                profile_switch: "تبديل الحساب",
+                profile_logout: "تسجيل الخروج",
+                btn_ok: "حسناً",
+                btn_cancel: "إلغاء",
+                token_word: " توكن",
+                msg_soon: "سيتم إضافة ألعاب وتحديات جديدة قريباً.",
+                msg_no_name: "يرجى كتابة الاسم أولاً للبدء.",
+                msg_no_pass: "يرجى كتابة كلمة المرور للاتصال الآمن.",
+                msg_prompt_name: "أدخل الاسم الجديد:",
+                msg_copy_success: "تم نسخ المعرف: ",
+                msg_copy_fail: "يرجى التحديد والنسخ يدوياً.",
+                msg_avatar_success: "تم تحديث الشخصية بنجاح.",
+                msg_img_success: "تم تعيين الصورة بنجاح.",
+                msg_logout_confirm: "هل أنت متأكد من تسجيل الخروج ومسح بيانات الحساب؟",
+                guest_name: "زائر_"
+            },
+            en: {
+                app_title: "DAMA CHALLENGE",
+                dama: "Dama",
+                soon: "Soon",
+                login_title: "Create Account",
+                login_desc: "Welcome. Create your account to collect tokens across all games.",
+                login_name_label: "Name",
+                login_name_placeholder: "Type your name",
+                login_avatar_label: "Avatar",
+                avatar_1: "Young King",
+                avatar_2: "Kurdish Man",
+                avatar_3: "Queen",
+                avatar_4: "Old King",
+                avatar_5: "Arab Man",
+                avatar_6: "Blonde Princess",
+                login_save: "Continue",
+                login_guest: "Guest Login",
+                login_facebook_btn: "Sign in with Facebook",
+                link_facebook_btn: "Save Account via Facebook",
+                profile_title: "Profile",
+                profile_id: "ID:",
+                profile_change_name: "Change Name",
+                profile_change_avatar: "Avatar",
+                profile_phone_img: "Gallery",
+                profile_balance: "🪙 Total Balance:",
+                profile_switch: "Switch",
+                profile_logout: "Logout",
+                btn_ok: "OK",
+                btn_cancel: "Cancel",
+                token_word: " Tokens",
+                msg_soon: "New games and challenges coming soon.",
+                msg_no_name: "Please enter a name to start.",
+                msg_no_pass: "Please type your password for authentication.",
+                msg_prompt_name: "Enter new name:",
+                msg_copy_success: "ID Copied: ",
+                msg_copy_fail: "Please select and copy manually.",
+                msg_avatar_success: "Avatar updated successfully.",
+                msg_img_success: "Image set successfully.",
+                msg_logout_confirm: "Are you sure you want to log out and clear account data?",
+                guest_name: "Guest_"
+            }
+        };
+
+        let currentLang = 'ar';
+        let isLoginMode = false; 
+
+        // 🔌 الاتصال الخارجي بالسيرفر المحرك للعبة (Hugging Face)
+        const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
+
+        // إضافة التعامل مع انقطاع الاتصال (الحل الأول الذي تحدثنا عنه لتعزيز تجربة المستخدم)
+        socket.on('disconnect', (reason) => {
+            console.warn('انقطع الاتصال:', reason);
+            const errorMsg = currentLang === 'ar' 
+                ? "⚠️ عذراً، انقطع الاتصال بالخادم أو الإنترنت ضعيف. يرجى الانتظار، جاري محاولة إعادة الاتصال..." 
+                : "⚠️ Connection lost. Server is down or internet is weak. Reconnecting...";
+            
+            showCustomPopup(errorMsg, false, "", false);
+        });
+
+        socket.on('connect', () => {
+            console.log('تم الاتصال بالسيرفر بنجاح!');
+            if (document.getElementById('custom-popup-modal').style.display === 'flex') {
+                closeCustomPopup(true);
+            }
+        });
+
+        socket.on('auth_success', (data) => {
+            const msg = safeParseAuthMessage(data.message);
+            showCustomPopup(msg);
+            
+            localStorage.setItem('hub_user_profile', JSON.stringify(data.profile));
+            
+            // تحديث الواجهة والزر مباشرة في حال كان فاتحاً للبروفايل
+            if(document.getElementById('profile-modal').style.display === 'flex') {
+                syncHubProfile();
+            } else {
+                checkUserAuthentication();
+            }
+        });
+
+        socket.on('auth_failed', (data) => {
+            const msg = safeParseAuthMessage(data.message);
+            showCustomPopup(msg);
+        });
+
+        function safeParseAuthMessage(msgStr) {
+            if (typeof msgStr === 'string' && msgStr.startsWith('{')) {
+                try {
+                    const parsed = JSON.parse(msgStr);
+                    return currentLang === 'ar' ? parsed.ar : parsed.en;
+                } catch(e) { return msgStr; }
+            }
+            return msgStr;
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            const titleEl = document.getElementById('auth-modal-title');
+            const descEl = document.getElementById('auth-modal-desc');
+            const submitBtn = document.getElementById('auth-primary-submit-btn');
+            const toggleLink = document.getElementById('auth-toggle-mode-link');
+            const avatarGroup = document.getElementById('avatar-select-group');
+
+            if (isLoginMode) {
+                titleEl.innerText = currentLang === 'ar' ? "تسجيل الدخول" : "Sign In";
+                descEl.innerText = currentLang === 'ar' ? "أدخل اسم المستخدم وكلمة المرور للعودة لرصيدك المزامَن." : "Enter your username and password to log back into your profile.";
+                submitBtn.innerText = currentLang === 'ar' ? "تسجيل الدخول" : "Sign In";
+                toggleLink.innerText = currentLang === 'ar' ? "لا تملك حساباً؟ إنشاء حساب جديد" : "Don't have an account? Create one";
+                avatarGroup.style.display = 'none'; 
+            } else {
+                titleEl.innerText = currentLang === 'ar' ? "إنشاء حساب" : "Create Account";
+                descEl.innerText = translations[currentLang].login_desc;
+                submitBtn.innerText = translations[currentLang].login_save;
+                toggleLink.innerText = currentLang === 'ar' ? "امتلك حساباً بالفعل؟ تسجيل الدخول" : "Already have an account? Sign In";
+                avatarGroup.style.display = 'block';
+            }
+        }
+
+        function updateTranslations() {
+            const t = translations[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.innerHTML = t[key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (t[key]) el.placeholder = t[key];
+            });
+            
+            const toggleLink = document.getElementById('auth-toggle-mode-link');
+            if(toggleLink) {
+                if(isLoginMode) {
+                    toggleLink.innerText = currentLang === 'ar' ? "لا تملك حساباً؟ إنشاء حساب جديد" : "Don't have an account? Create one";
+                } else {
+                    toggleLink.innerText = currentLang === 'ar' ? "امتلك حساباً بالفعل؟ تسجيل الدخول" : "Already have an account? Sign In";
+                }
+            }
+            syncHubProfile(); 
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('lang-toggle-btn').innerText = currentLang === 'ar' ? 'EN' : 'العربية';
+            updateTranslations();
+
+            const gameIframe = document.getElementById('game-frame');
+            if (gameIframe && gameIframe.contentWindow) {
+                gameIframe.contentWindow.postMessage({ 
+                    type: 'LANGUAGE_CHANGED', 
+                    lang: currentLang 
+                }, '*');
+            }
+        }
+
+        let customPopupCallback = null;
+
+        function showCustomPopup(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
+            document.getElementById('custom-popup-modal').style.display = 'flex';
+            document.getElementById('custom-popup-msg').innerText = msg;
+            
+            const inputContainer = document.getElementById('custom-popup-input-group');
+            const inputEl = document.getElementById('custom-popup-input');
+            const cancelBtn = document.getElementById('custom-popup-cancel');
+            
+            if (isPrompt) {
+                inputContainer.style.display = 'block';
+                inputEl.value = defaultValue;
+                inputEl.focus();
+                cancelBtn.style.display = 'block';
+            } else {
+                inputContainer.style.display = 'none';
+                cancelBtn.style.display = showCancel ? 'block' : 'none';
+            }
+            
+            document.getElementById('custom-popup-ok').innerHTML = translations[currentLang].btn_ok;
+            cancelBtn.innerHTML = translations[currentLang].btn_cancel;
+
+            customPopupCallback = callback;
+        }
+
+        function closeCustomPopup(isOk) {
+            document.getElementById('custom-popup-modal').style.display = 'none';
+            if (customPopupCallback) {
+                const isPrompt = document.getElementById('custom-popup-input-group').style.display === 'block';
+                const inputVal = document.getElementById('custom-popup-input').value;
+                
+                if (isPrompt) {
+                    customPopupCallback(isOk ? inputVal : null);
+                } else {
+                    customPopupCallback(isOk);
+                }
+            }
+        }
+
+        document.getElementById('custom-popup-ok').addEventListener('click', () => closeCustomPopup(true));
+        document.getElementById('custom-popup-cancel').addEventListener('click', () => closeCustomPopup(false));
+
+        function triggerAlertSoon() { showCustomPopup(translations[currentLang].msg_soon); }
+
+        function submitManualAuthForm() {
+            const nameInput = document.getElementById('login-name-input').value.trim();
+            const passInput = document.getElementById('login-password-input').value;
+            const avatarSelect = document.getElementById('login-avatar-select').value;
+
+            if (!nameInput) return showCustomPopup(translations[currentLang].msg_no_name);
+            if (!passInput) return showCustomPopup(translations[currentLang].msg_no_pass);
+
+            if (isLoginMode) {
+                socket.emit('login_manual', { username: nameInput, password: passInput });
+            } else {
+                socket.emit('register_manual', { username: nameInput, password: passInput, avatar: avatarSelect });
+            }
+        }
+
+        window.addEventListener('load', () => {
+            history.replaceState({ view: 'hub' }, '');
+            updateTranslations();
+
+            const splash = document.getElementById('splash-screen');
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                splash.style.visibility = 'hidden';
+                setTimeout(() => { 
+                    splash.style.display = 'none'; 
+                    checkUserAuthentication(); 
+                }, 800);
+            }, 2000);
+        });
+
+        function checkUserAuthentication() {
+            let globalProfile = localStorage.getItem('hub_user_profile');
+            if (globalProfile) {
+                document.getElementById('login-modal').style.display = 'none';
+                document.getElementById('game-selector').style.display = 'flex';
+                syncHubProfile();
+            } else {
+                document.getElementById('game-selector').style.display = 'none';
+                document.getElementById('login-modal').style.display = 'flex';
+            }
+        }
+
+        function loginAsGuest() {
+            const randomId = "GUEST-" + Math.floor(100000 + Math.random() * 900000);
+            const randomName = translations[currentLang].guest_name + Math.floor(1000 + Math.random() * 9000);
+            
+            const guestProfile = {
+                id: randomId,
+                name: randomName,
+                avatar: '1000132081.webp',
+                isCustomAvatar: false,
+                tokens: 1000, 
+                gamesPlayed: 0, 
+                wins: 0, 
+                losses: 0, 
+                friends: [],
+                purchasedItems: [], 
+                equippedBg: 'bg_wood', 
+                equippedFr: 'fr_classic',
+                equippedPc: 'pc_original'
+            };
+
+            localStorage.setItem('hub_user_profile', JSON.stringify(guestProfile));
+            checkUserAuthentication();
+        }
+
+        function syncHubProfile() {
+            let globalProfile = localStorage.getItem('hub_user_profile');
+            if (!globalProfile) return;
+            const profile = JSON.parse(globalProfile);
+            
+            const tokenVal = profile.tokens || 0;
+            const tokenText = tokenVal + translations[currentLang].token_word;
+
+            if (document.getElementById('hub-token-count')) document.getElementById('hub-token-count').innerText = tokenVal;
+            if (document.getElementById('profile-stat-tokens')) document.getElementById('profile-stat-tokens').innerText = tokenText;
+            if (document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = profile.name;
+            if (document.getElementById('profile-display-id')) document.getElementById('profile-display-id').innerText = profile.id;
+            
+            const renderAvatar = (elementId) => {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+                const avatarSrc = profile.avatar || '1000132081.webp';
+                const isImage = avatarSrc.endsWith('.png') || avatarSrc.endsWith('.webp') || avatarSrc.endsWith('.jpg') || avatarSrc.startsWith('data:image');
+                if (isImage || profile.isCustomAvatar) {
+                    el.innerHTML = `<img src="${avatarSrc}" alt="Avatar">`;
+                } else {
+                    el.innerHTML = avatarSrc; 
+                }
+            };
+            renderAvatar('hub-profile-avatar');
+            renderAvatar('profile-display-avatar');
+
+            // التعديل هنا: إظهار زر الربط لأي لاعب لم يربط حسابه بفيسبوك بعد
+            const linkFbBtn = document.getElementById('link-facebook-guest-btn');
+            if (linkFbBtn) {
+                if (profile.id && !profile.id.startsWith('FB-')) {
+                    linkFbBtn.style.display = 'flex';
+                } else {
+                    linkFbBtn.style.display = 'none';
+                }
+            }
+
+            const gameIframe = document.getElementById('game-frame');
+            if (gameIframe && gameIframe.contentWindow) {
+                gameIframe.contentWindow.postMessage({ 
+                    type: 'PROFILE_UPDATED', 
+                    profile: profile 
+                }, '*');
+            }
+        }
+
+        function changePlayerName() {
+            let profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+            if(!profile) return;
+            
+            showCustomPopup(translations[currentLang].msg_prompt_name, true, profile.name, true, (newName) => {
+                if (newName && newName.trim() !== "") {
+                    profile.name = newName.trim();
+                    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                    syncHubProfile();
+                }
+            });
+        }
+
+        function changeAvatarFromDropdown(val) {
+            if(!val) return;
+            let profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+            profile.avatar = val;
+            profile.isCustomAvatar = false; 
+            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+            syncHubProfile();
+            document.getElementById('edit-avatar-select').selectedIndex = 0; 
+            showCustomPopup(translations[currentLang].msg_avatar_success);
+        }
+
+        function uploadImageFromPhone(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+                    profile.avatar = e.target.result; 
+                    profile.isCustomAvatar = true; 
+                    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                    syncHubProfile();
+                    showCustomPopup(translations[currentLang].msg_img_success);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function copyPlayerID() {
+            const idText = document.getElementById('profile-display-id').innerText;
+            if(navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(idText).then(() => {
+                    showCustomPopup(translations[currentLang].msg_copy_success + idText);
+                });
+            } else {
+                let textArea = document.createElement("textarea");
+                textArea.value = idText;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showCustomPopup(translations[currentLang].msg_copy_success + idText);
+                } catch (err) {
+                    showCustomPopup(translations[currentLang].msg_copy_fail);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        function openProfileModal() { 
+            syncHubProfile();
+            document.getElementById('profile-modal').style.display = 'flex'; 
+            history.pushState({ view: 'profile' }, '');
+        }
+        
+        function closeProfileModal() { 
+            if (history.state && history.state.view === 'profile') {
+                history.back(); 
+            } else {
+                document.getElementById('profile-modal').style.display = 'none';
+            }
+        }
+
+        function startGame() {
+            document.getElementById('game-selector').style.display = 'none';
+            document.getElementById('game-interface').style.display = 'block';
+            document.getElementById('game-frame').src = 'dama/dama.html';
+            history.pushState({ view: 'game' }, '');
+        }
+        
+        function exitGame() {
+            document.getElementById('game-interface').style.display = 'none';
+            if(localStorage.getItem('hub_user_profile')) {
+                document.getElementById('game-selector').style.display = 'flex';
+            }
+            setTimeout(() => {
+                document.getElementById('game-frame').src = '';
+            }, 300);
+            history.pushState({ view: 'hub' }, '');
+            syncHubProfile();
+        }
+
+        window.addEventListener('popstate', function(e) {
+            if (document.getElementById('custom-popup-modal').style.display === 'flex') {
+                document.getElementById('custom-popup-modal').style.display = 'none';
+            }
+            if (document.getElementById('profile-modal').style.display === 'flex') {
+                document.getElementById('profile-modal').style.display = 'none';
+            }
+            
+            if (document.getElementById('game-interface').style.display === 'block') {
+                if (e.state && e.state.view === 'hub') {
+                    document.getElementById('game-interface').style.display = 'none';
+                    if(localStorage.getItem('hub_user_profile')) {
+                        document.getElementById('game-selector').style.display = 'flex';
+                    }
+                    setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
+                    syncHubProfile();
+                }
+            }
+        });
+
+        function triggerLogout() {
+            showCustomPopup(translations[currentLang].msg_logout_confirm, false, "", true, (res) => {
+                if(res) {
+                    localStorage.removeItem('hub_user_profile');
+                    document.getElementById('profile-modal').style.display = 'none';
+                    checkUserAuthentication();
+                }
+            });
+        }
+        
+        function triggerAccountSwitch() {
+            showCustomPopup(translations[currentLang].msg_logout_confirm, false, "", true, (res) => {
+                if(res) {
+                    localStorage.removeItem('hub_user_profile');
+                    document.getElementById('profile-modal').style.display = 'none';
+                    checkUserAuthentication();
+                }
+            });
+        }
+
+        window.syncHubProfile = syncHubProfile;
+        window.exitGame = exitGame; 
+    </script>
 </body>
 </html>
