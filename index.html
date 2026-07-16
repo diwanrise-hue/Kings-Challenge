@@ -602,7 +602,7 @@
                     const accessToken = response.authResponse.accessToken;
                     socket.emit('login_facebook', { accessToken: accessToken });
                 }
-            }, {scope: 'public_profile,email'});
+            }, {scope: 'public_profile'}); // 👈 قمنا بمسح كلمة email من هنا لضمان عمل الزر فوراً
         }
 
         // دالة الربط لحفظ الحساب
@@ -620,7 +620,7 @@
                         guestId: profile.id 
                     });
                 }
-            }, {scope: 'public_profile,email'});
+            }, {scope: 'public_profile'}); // 👈 وقمنا بمسحها من هنا أيضاً
         }
 
         function safeParseAuthMessage(msgStr) {
