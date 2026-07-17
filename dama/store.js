@@ -12,7 +12,7 @@ export const STORE_ITEMS = {
     'bg_malachite': { 
         type: 'bg', cost: 3000, isLegendary: true, nameAr: 'رخام الملاكيت الأخضر', nameEn: 'Malachite Green Marble',
         isImage: true, 
-        imagePath: '/assets/bgs/1000134548.webp'
+        imagePath: 'assets/bgs/1000134548.webp'
     },
 
     'bg_carved_wood': { 
@@ -49,7 +49,7 @@ export const STORE_ITEMS = {
         nameAr: 'ساحة الفيروز والزخارف الهندسية',
         nameEn: 'Geometric Turquoise & Gold Arena',
         isImage: true,
-        imagePath: '/assets/bgs/1000134417.webp',
+        imagePath: 'assets/bgs/1000134417.webp',
         hasPurpleBorder: true
     },
 
@@ -59,7 +59,7 @@ export const STORE_ITEMS = {
         nameAr: 'ساحة الرخام الأسود والعروق الذهبية',
         nameEn: 'Classic Black & Gold Marble Arena',
         isImage: true,
-        imagePath: '/assets/bgs/1000134427.webp',
+        imagePath: 'assets/bgs/1000134427.webp',
         hasPurpleBorder: true
     },
 
@@ -69,7 +69,7 @@ export const STORE_ITEMS = {
         nameAr: 'ساحة الرخام الأزرق الداكن والبيج',
         nameEn: 'Navy Blue & Beige Marble Arena',
         isImage: true,
-        imagePath: '/assets/bgs/1000136612.webp',
+        imagePath: 'assets/bgs/1000136612.webp',
         hasPurpleBorder: true
     },
 
@@ -79,7 +79,7 @@ export const STORE_ITEMS = {
         nameAr: 'ساحة الرخام البني والزخارف الذهبية',
         nameEn: 'Brown Marble & Golden Leaves Arena',
         isImage: true,
-        imagePath: '/assets/bgs/1000136622.webp',
+        imagePath: 'assets/bgs/1000136622.webp',
         hasPurpleBorder: true
     },
 
@@ -90,7 +90,7 @@ export const STORE_ITEMS = {
         nameAr: 'ساحة محاربي الساموراي الأسطورية',
         nameEn: 'Legendary Samurai Warriors Arena',
         isImage: true,
-        imagePath: '/assets/bgs/1000136302.webp'
+        imagePath: 'assets/bgs/1000136302.webp'
     },
 
     'bg_jester_theater': {
@@ -100,7 +100,7 @@ export const STORE_ITEMS = {
         nameAr: 'ساحة مسرح جيستر',
         nameEn: 'Jester Theater Arena',
         isImage: true,
-        imagePath: '/assets/bgs/1000136557.webp'
+        imagePath: 'assets/bgs/1000136557.webp'
     },
 
     // ===================================
@@ -134,11 +134,11 @@ export const STORE_ITEMS = {
     'fr_1000135477': { 
         type: 'fr', cost: 3500, isLegendary: true, nameAr: 'إطار كتيبة الأبطال', nameEn: 'Hero Battalion Frame',
         isImage: true, 
-        imagePath: '/assets/frames/1000135477.webp',
+        imagePath: 'assets/frames/1000135477.webp',
         customCSS: `
             #board { 
                 border: 5vw solid transparent !important; 
-                border-image: url('/assets/frames/1000135477.webp') 7.2% stretch !important; 
+                border-image: url('assets/frames/1000135477.webp') 7.2% stretch !important; 
                 border-image-outset: 0 !important; 
                 border-radius: 0 !important; 
                 background-clip: padding-box !important; 
@@ -169,11 +169,11 @@ export const STORE_ITEMS = {
     'fr_ruby_amber': { 
         type: 'fr', cost: 40000, isLegendary: true, nameAr: 'إطار الياقوت والكهرمان الملكي', nameEn: 'Royal Ruby & Amber Frame',
         isImage: true, 
-        imagePath: '/assets/frames/1000134883.webp',
+        imagePath: 'assets/frames/1000134883.webp',
         customCSS: `
             #board { 
                 border: 8vw solid transparent !important; 
-                border-image: url('/assets/frames/1000134883.webp') 9.5% stretch !important; 
+                border-image: url('assets/frames/1000134883.webp') 9.5% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
                 width: 100vw !important;
@@ -194,11 +194,11 @@ export const STORE_ITEMS = {
     'fr_mahogany': { 
         type: 'fr', cost: 2500, nameAr: 'إطار الماهوجني المرقم', nameEn: 'Numbered Mahogany Frame',
         isImage: true, 
-        imagePath: '/assets/frames/1000134904.webp',
+        imagePath: 'assets/frames/1000134904.webp',
         customCSS: `
             #board { 
                 border: 6vw solid transparent !important; 
-                border-image: url('/assets/frames/1000134904.webp') 5% stretch !important; 
+                border-image: url('assets/frames/1000134904.webp') 5% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
                 width: 100vw !important;
@@ -219,11 +219,11 @@ export const STORE_ITEMS = {
     'fr_samurai_warriors': { 
         type: 'fr', cost: 70000, isLegendary: true, nameAr: 'إطار محاربي الساموراي', nameEn: 'Samurai Warriors Frame',
         isImage: true, 
-        imagePath: '/assets/frames/1000136304.webp',
+        imagePath: 'assets/frames/1000136304.webp',
         customCSS: `
             #board { 
                 border: 4.5vw solid transparent !important; 
-                border-image: url('/assets/frames/1000136304.webp') 5% stretch !important; 
+                border-image: url('assets/frames/1000136304.webp') 5% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
                 width: 100vw !important;
@@ -244,11 +244,11 @@ export const STORE_ITEMS = {
     'fr_jester_theater': { 
         type: 'fr', cost: 85000, isLegendary: true, nameAr: 'إطار مسرح جيستر', nameEn: 'Jester Theater Frame',
         isImage: true, 
-        imagePath: '/assets/frames/1000136584.webp',
+        imagePath: 'assets/frames/1000136584.webp',
         customCSS: `
             #board { 
                 border: 6.5vw solid transparent !important; 
-                border-image: url('/assets/frames/1000136584.webp') 8% stretch !important; 
+                border-image: url('assets/frames/1000136584.webp') 8% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
                 width: 100vw !important;
@@ -269,11 +269,11 @@ export const STORE_ITEMS = {
     'fr_blue_navy_marble': { 
         type: 'fr', cost: 3000, nameAr: 'إطار الرخام الأزرق الداكن المرقم', nameEn: 'Numbered Navy Blue Marble Frame',
         isImage: true, 
-        imagePath: '/assets/frames/1000136630.webp',
+        imagePath: 'assets/frames/1000136630.webp',
         customCSS: `
             #board { 
                 border: 5.5vw solid transparent !important; 
-                border-image: url('/assets/frames/1000136630.webp') 6% stretch !important; 
+                border-image: url('assets/frames/1000136630.webp') 6% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
                 width: 100vw !important;
@@ -294,11 +294,11 @@ export const STORE_ITEMS = {
     'fr_royal_luxury': { 
         type: 'fr', cost: 6000, isLegendary: true, nameAr: 'الإطار الملكي الفاخر', nameEn: 'Royal Luxury Frame',
         isImage: true, 
-        imagePath: '/assets/frames/1000136629.webp',
+        imagePath: 'assets/frames/1000136629.webp',
         customCSS: `
             #board { 
                 border: 7vw solid transparent !important; 
-                border-image: url('/assets/frames/1000136629.webp') 8% stretch !important; 
+                border-image: url('assets/frames/1000136629.webp') 8% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
                 width: 100vw !important;
@@ -369,64 +369,64 @@ export const STORE_ITEMS = {
     'pc_custom_warrior': { 
         type: 'pc', cost: 2500, isLegendary: true, nameAr: 'كتيبة الأبطال', nameEn: 'Hero Battalion',
         isImage: true, 
-        imagePathWhite: '/assets/pieces/1000133464.webp', 
-        imagePathBlack: '/assets/pieces/1000133465.webp', 
-        damaImagePathWhite: '/assets/pieces/1000133463.webp', 
-        damaImagePathBlack: '/assets/pieces/1000133466.webp'  
+        imagePathWhite: 'assets/pieces/1000133464.webp', 
+        imagePathBlack: 'assets/pieces/1000133465.webp', 
+        damaImagePathWhite: 'assets/pieces/1000133463.webp', 
+        damaImagePathBlack: 'assets/pieces/1000133466.webp'  
     },
 
     'pc_samurai_legends': { 
         type: 'pc', cost: 5000, isLegendary: true, nameAr: 'نمط محاربي الساموراي', nameEn: 'Samurai Legends',
         isImage: true, 
-        imagePathWhite: '/assets/pieces/1000135430.webp', 
-        imagePathBlack: '/assets/pieces/1000135417.webp', 
-        damaImagePathWhite: '/assets/pieces/1000135428.webp', 
-        damaImagePathBlack: '/assets/pieces/1000135418.webp'  
+        imagePathWhite: 'assets/pieces/1000135430.webp', 
+        imagePathBlack: 'assets/pieces/1000135417.webp', 
+        damaImagePathWhite: 'assets/pieces/1000135428.webp', 
+        damaImagePathBlack: 'assets/pieces/1000135418.webp'  
     },
 
     'pc_death_skulls': { 
         type: 'pc', cost: 5500, isLegendary: true, nameAr: 'جماجم الموت الأسطورية', nameEn: 'Legendary Death Skulls',
         isImage: true, 
-        imagePathWhite: '/assets/pieces/1000135429.webp', 
-        imagePathBlack: '/assets/pieces/1000135421.webp', 
-        damaImagePathWhite: '/assets/pieces/1000135424.webp', 
-        damaImagePathBlack: '/assets/pieces/1000135420.webp'
+        imagePathWhite: 'assets/pieces/1000135429.webp', 
+        imagePathBlack: 'assets/pieces/1000135421.webp', 
+        damaImagePathWhite: 'assets/pieces/1000135424.webp', 
+        damaImagePathBlack: 'assets/pieces/1000135420.webp'
     },
 
     'pc_oak_leaf': { 
         type: 'pc', cost: 5000, isLegendary: true, nameAr: 'طاقم البلوط والتاج الملكي الأسطوري', nameEn: 'Royal Oak Leaf & Crown Set',
         isImage: true, 
-        imagePathWhite: '/assets/pieces/1000135694.webp',     
-        imagePathBlack: '/assets/pieces/1000135693.webp',     
-        damaImagePathWhite: '/assets/pieces/1000135689.webp',  
-        damaImagePathBlack: '/assets/pieces/1000135692.webp'   
+        imagePathWhite: 'assets/pieces/1000135694.webp',     
+        imagePathBlack: 'assets/pieces/1000135693.webp',     
+        damaImagePathWhite: 'assets/pieces/1000135689.webp',  
+        damaImagePathBlack: 'assets/pieces/1000135692.webp'   
     },
 
     'pc_crane_emerald': {
-        type: 'pc', cost: 6000, isLegendary: true, nameAr: 'طاقم طائر الكركي والزمرد الأسطوري', nameEn: 'Legendary Emerald & Tiger Eye Crane Set',
+        type: 'pc', cost: 6000, isLegendary: true, nameAr: 'طاقم طائر الكركي والزمرد الأسطوري', nameEn: 'Legendary Emerald & Tiger Eye Crown Set',
         isImage: true,
-        imagePathWhite: '/assets/pieces/1000135702.webp',     
-        imagePathBlack: '/assets/pieces/1000135701.webp',     
-        damaImagePathWhite: '/assets/pieces/1000135689.webp',  
-        damaImagePathBlack: '/assets/pieces/1000135692.webp'   
+        imagePathWhite: 'assets/pieces/1000135702.webp',     
+        imagePathBlack: 'assets/pieces/1000135701.webp',     
+        damaImagePathWhite: 'assets/pieces/1000135689.webp',  
+        damaImagePathBlack: 'assets/pieces/1000135692.webp'   
     },
 
     'pc_royal_sun': {
         type: 'pc', cost: 6500, isLegendary: true, nameAr: 'طاقم شمس الرخام والبرونز الأسطوري', nameEn: 'Legendary Marble & Bronze Sun Set',
         isImage: true,
-        imagePathWhite: '/assets/pieces/1000135759.webp',     
-        imagePathBlack: '/assets/pieces/1000135716.webp',     
-        damaImagePathWhite: '/assets/pieces/1000135689.webp',  
-        damaImagePathBlack: '/assets/pieces/1000135692.webp'   
+        imagePathWhite: 'assets/pieces/1000135759.webp',     
+        imagePathBlack: 'assets/pieces/1000135716.webp',     
+        damaImagePathWhite: 'assets/pieces/1000135689.webp',  
+        damaImagePathBlack: 'assets/pieces/1000135692.webp'   
     },
 
     'pc_broken_stone': {
         type: 'pc', cost: 7500, isLegendary: true, nameAr: 'طاقم الحجر المكسور الأسطوري', nameEn: 'Legendary Broken Stone Set',
         isImage: true,
-        imagePathWhite: '/assets/pieces/1000135713.webp',     
-        imagePathBlack: '/assets/pieces/1000135712.webp',     
-        damaImagePathWhite: '/assets/pieces/1000135689.webp',  
-        damaImagePathBlack: '/assets/pieces/1000135690.webp'   
+        imagePathWhite: 'assets/pieces/1000135713.webp',     
+        imagePathBlack: 'assets/pieces/1000135712.webp',     
+        damaImagePathWhite: 'assets/pieces/1000135689.webp',  
+        damaImagePathBlack: 'assets/pieces/1000135690.webp'   
     },
 
     'pc_marble_rose': {
@@ -436,10 +436,10 @@ export const STORE_ITEMS = {
         nameAr: 'طاقم الوردة الرخامية والذهب الأسطوري',
         nameEn: 'Legendary Marble Rose & Gold Set',
         isImage: true,
-        imagePathWhite: '/assets/pieces/1000135720.webp',     
-        imagePathBlack: '/assets/pieces/1000135743.webp',     
-        damaImagePathWhite: '/assets/pieces/1000135689.webp',  
-        damaImagePathBlack: '/assets/pieces/1000135690.webp'   
+        imagePathWhite: 'assets/pieces/1000135720.webp',     
+        imagePathBlack: 'assets/pieces/1000135743.webp',     
+        damaImagePathWhite: 'assets/pieces/1000135689.webp',  
+        damaImagePathBlack: 'assets/pieces/1000135690.webp'   
     },
     
     // ===================================
