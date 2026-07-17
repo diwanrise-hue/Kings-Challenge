@@ -56,7 +56,7 @@
         .cell.highlight::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(52, 152, 219, 0.4); border: 3px solid #2980b9; box-sizing: border-box; z-index: 5; pointer-events: none; }
         .cell.last-move::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1.5px solid #ffffff; background-color: transparent; box-sizing: border-box; z-index: 6; pointer-events: none; }
         
-        .piece { width: 80%; height: 80%; border-radius: 50%; cursor: pointer; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.4s, border 0.4s; display: flex; align-items: center; justify-content: center; position: relative; }
+        .piece { width: 80%; height: 80%; border-radius: 50%; cursor: pointer; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.25), 2px 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.4s, border 0.4s; display: flex; align-items: center; justify-content: center; position: relative; }
         .piece::before { content: ''; position: absolute; width: 45%; height: 45%; border-radius: 50%; pointer-events: none; border: 1px solid rgba(0,0,0,0.1); }
         .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6); border: 1px solid #bdc3c7; }
         .piece.white::before { background-color: rgba(0, 0, 0, 0.15); }
@@ -141,6 +141,11 @@
         .profile-badge-name { color: #ffffff; font-size: 13px; font-weight: 600; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .stat-item { color: #bdc3c7; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; direction: ltr; }
         .stat-item span { color: #f5a623; font-weight: 700; font-size: 12px; }
+
+        /* ستايل لضمان احتواء الصور الشخصية لجميع كبسولات الأفتار بالكامل ودائرياً */
+        .profile-avatar-capsule img, .match-players-avatar-me img, .match-players-avatar-opp img, .profile-display-avatar img {
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;
+        }
 
         #hamburger-menu-btn {
             position: fixed !important; top: 15px !important; right: 15px !important; left: auto !important;
@@ -444,6 +449,7 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
+    <!-- 🌟 كافة حقول الصور هنا أصبحت فارغة كلياً وتنتظر الحقن الخارجي -->
     <div class="profile-badge-container" id="profile-badge" onclick="openAppModal('in-game-profile-modal')">
         <div class="profile-avatar-capsule" id="badge-avatar"></div>
         <div class="profile-badge-info">
@@ -470,7 +476,7 @@
             </div>
             <span class="match-vs-text">VS</span>
             <div class="match-players-flex">
-                <div id="card-opp-avatar" class="match-players-avatar-opp">❓</div>
+                <div id="card-opp-avatar" class="match-players-avatar-opp"></div>
                 <span id="card-opp-name" class="match-players-name">الخصم</span>
             </div>
         </div>
@@ -708,11 +714,11 @@
             <h3 id="matchmaking-title">البحث</h3>
             <div style="display: flex; justify-content: space-around; align-items: center; margin: 30px 0;">
                 <div style="text-align: center;">
-                    <div id="mm-my-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05);"></div>
+                    <div id="mm-my-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); shadow: none;"></div>
                     <div id="mm-my-name" style="color: white; margin-top: 10px; font-weight: 500; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">أنت</div>
                 </div>
                 <div style="text-align: center;">
-                    <div id="mm-opp-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: rgba(255,255,255,0.02);">❓</div>
+                    <div id="mm-opp-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.02); overflow: hidden;"></div>
                     <div id="mm-opp-name" style="color: #a1a1aa; margin-top: 10px; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">جاري البحث...</div>
                 </div>
             </div>
@@ -775,6 +781,27 @@
         }
 
         window.modalStack = [];
+
+        // 📥 هذه الدالة أصبحت الآن نظيفة تماماً وتنتظر استقبال أمر الحقن من ملف index
+        let cachedAvatarHtml = '';
+        function forceLockedGlobalAvatar(injectedHtml) {
+            if (injectedHtml) cachedAvatarHtml = injectedHtml;
+            if (!cachedAvatarHtml) return;
+
+            // تحديد جميع حقول الأفاتار في صفحة اللعبة كلياً
+            const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
+
+            targetAvatars.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                
+                // حقن الصورة الجاهزة مباشرة داخل الحقل بدون أي حسابات مسارات
+                if (el.innerHTML !== cachedAvatarHtml) {
+                    el.style.backgroundImage = 'none';
+                    el.innerHTML = cachedAvatarHtml;
+                }
+            });
+        }
 
         function openAppModal(id) {
             const modal = document.getElementById(id);
@@ -1001,51 +1028,6 @@
             }
         }
 
-        function forceLockedGlobalAvatar() {
-            let globalProfile = localStorage.getItem('hub_user_profile');
-            if (!globalProfile) return;
-            const parsedHub = JSON.parse(globalProfile);
-            if (!parsedHub.avatar) return;
-
-            const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
-            
-            targetAvatars.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                
-                const isImage = parsedHub.avatar.endsWith('.png') || parsedHub.avatar.endsWith('.webp') || parsedHub.avatar.endsWith('.jpg') || parsedHub.avatar.startsWith('data:image');
-                const existingImg = el.querySelector('img');
-                
-                if (isImage) {
-                    if (!existingImg || existingImg.getAttribute('src') !== parsedHub.avatar) {
-                        el.style.backgroundImage = 'none';
-                        el.innerHTML = `<img src="${parsedHub.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
-                    }
-                } else {
-                    if (el.textContent !== parsedHub.avatar) {
-                        el.innerHTML = '';
-                        el.textContent = parsedHub.avatar;
-                    }
-                }
-            });
-        }
-
-        const avatarGuardObserver = new MutationObserver(() => {
-            avatarGuardObserver.disconnect();
-            forceLockedGlobalAvatar();
-            startAvatarGuard();
-        });
-
-        function startAvatarGuard() {
-            const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
-            targets.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    avatarGuardObserver.observe(el, { childList: true, attributes: true });
-                }
-            });
-        }
-
         window.applyProfileDataToUI = function(profile) {
             const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
             
@@ -1066,7 +1048,7 @@
                 if (el) { el.innerText = textElements[id]; }
             }
 
-            forceLockedGlobalAvatar();
+            forceLockedGlobalAvatar(); 
             if(window.updateInventoryUI) window.updateInventoryUI();
 
             window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
@@ -1086,6 +1068,11 @@
             window.addEventListener('message', (event) => {
                 if (!event.data) return;
                 
+                // 🚀 استقبال أمر الحقن المباشر من الـ Hub
+                if (event.data.type === 'INJECT_AVATAR_DIRECT' && event.data.avatarHtml) {
+                    forceLockedGlobalAvatar(event.data.avatarHtml);
+                }
+                
                 if (event.data.type === 'LANGUAGE_CHANGED') {
                     const newLang = event.data.lang;
                     document.documentElement.lang = newLang;
@@ -1104,15 +1091,6 @@
             let globalProfile = localStorage.getItem('hub_user_profile');
             if (globalProfile) window.applyProfileDataToUI(JSON.parse(globalProfile));
             
-            forceLockedGlobalAvatar();
-            startAvatarGuard();
-
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'hub_user_profile') {
-                    forceLockedGlobalAvatar();
-                }
-            });
-
             const sfxSlider = document.getElementById('sfx-volume');
             if(sfxSlider) {
                 const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
