@@ -86,7 +86,7 @@
             padding: 12px 15px; padding-bottom: calc(12px + env(safe-area-inset-bottom));
             box-sizing: border-box; display: flex; justify-content: center; 
             align-items: center; gap: 12px; border-radius: 24px 24px 0 0; 
-            z-index: 100; box-shadow: 0 -10px 30px rgba(0,0,0,0.15) !important; 
+            z-index: 9999; box-shadow: 0 -10px 30px rgba(0,0,0,0.15) !important; 
         }
         .control-panel button, .control-panel select { 
             height: 44px; padding: 0 15px; border-radius: 12px !important; 
@@ -128,7 +128,7 @@
         /* ========================================== */
         .profile-badge-container { 
             position: fixed !important; top: 15px !important; left: 15px !important; right: auto !important;
-            z-index: 200; display: flex !important; flex-direction: row !important; align-items: center; 
+            z-index: 10001; display: flex !important; flex-direction: row !important; align-items: center; 
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 4px 4px; border-radius: 50px; 
             gap: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); cursor: pointer; 
@@ -149,7 +149,7 @@
 
         #hamburger-menu-btn {
             position: fixed !important; top: 15px !important; right: 15px !important; left: auto !important;
-            z-index: 200;
+            z-index: 10001;
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             width: 44px; height: 44px; border-radius: 14px !important; color: white; 
             display: flex; align-items: center; justify-content: center; 
@@ -160,10 +160,10 @@
         }
         #hamburger-menu-btn:hover { background: rgba(255, 255, 255, 0.15); transform: scale(0.95); box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important; }
 
-        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .side-menu-overlay.open { opacity: 1; visibility: visible; }
         
-        .side-menu-panel { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(20px); border-left: 1px solid rgba(255, 255, 255, 0.1); box-shadow: -10px 0 30px rgba(0,0,0,0.5); z-index: 1010; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; }
+        .side-menu-panel { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(20px); border-left: 1px solid rgba(255, 255, 255, 0.1); box-shadow: -10px 0 30px rgba(0,0,0,0.5); z-index: 10000000; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; }
         .side-menu-overlay.open .side-menu-panel { right: 0; }
         
         .side-menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; }
@@ -239,10 +239,10 @@
         /* ========================================== */
         /* التصميم الداخلي للنوافذ الكبيرة              */
         /* ========================================== */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
         
-        #custom-alert-modal { z-index: 2200 !important; }
-        #purchase-modal { z-index: 2100 !important; }
+        #custom-alert-modal { z-index: 3000000 !important; }
+        #purchase-modal { z-index: 2000001 !important; }
         
         .settings-card { 
             background: rgba(45, 48, 55, 0.65) !important; 
@@ -391,7 +391,7 @@
             border-radius: 50px;
             font-weight: 700;
             font-size: 14px;
-            z-index: 3000;
+            z-index: 9999999;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
@@ -525,18 +525,18 @@
 
     <div id="toast-notification">✨ تم التغيير بنجاح</div>
 
-    <button id="online-toggle-btn" title="البحث العشوائي" style="position: fixed; bottom: 75px; left: 15px; z-index: 90; height: 46px; width: 102px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+    <button id="online-toggle-btn" title="البحث العشوائي" style="position: fixed; bottom: 75px; left: 15px; z-index: 9998; height: 46px; width: 102px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
         <span class="notification-badge"></span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path></svg>
         <span style="font-size: 13px; font-weight: 600;">اونلاين</span>
     </button>
 
-    <button id="chat-btn" title="الرسائل" style="display: none; position: fixed; bottom: 75px; right: 15px; z-index: 90; width: 46px; height: 46px; border-radius: 14px; background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(10px); color: white; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; border: 1px solid rgba(135, 206, 235, 0.4) !important; box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important; transition: all 0.3s;">
+    <button id="chat-btn" title="الرسائل" style="display: none; position: fixed; bottom: 75px; right: 15px; z-index: 9998; width: 46px; height: 46px; border-radius: 14px; background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(10px); color: white; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; border: 1px solid rgba(135, 206, 235, 0.4) !important; box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important; transition: all 0.3s;">
         💬
         <span id="chat-badge" style="display: none; position: absolute; top: -4px; right: -4px; background: #e74c3c; color: white; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 50%; border: 1px solid #282a32;">1</span>
     </button>
 
-    <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 130px; left: 15px; z-index: 90; width: 46px; height: 46px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي">
+    <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 130px; left: 15px; z-index: 9998; width: 46px; height: 46px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي">
         🛒
     </button>
 
@@ -604,9 +604,9 @@
         </div>
     </div>
 
-    <div id="leaderboard-modal" class="modal-overlay">
+    <div id="leaderboard-modal" class="modal-overlay" style="z-index: 9999999;">
         <div class="settings-card leaderboard-full-screen" dir="auto">
-            <button class="modal-close-btn" onclick="closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 2010;">✕</button>
+            <button class="modal-close-btn" onclick="closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000;">✕</button>
             <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px;">🏆 لوحة الشرف</h3>
             
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
@@ -655,7 +655,7 @@
     </div>
 
     <div id="custom-alert-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 300px;">
+        <div class="settings-card" dir="auto" style="max-width: 300px; z-index: 3000000 !important;">
             <h3 id="custom-alert-title">تنبيه</h3>
             <p id="custom-alert-message" style="color: #e0e0e0; margin: 20px 0; font-size: 15px; line-height: 1.6;"></p>
             <div style="display: flex; gap: 10px;">
@@ -1010,9 +1010,311 @@
             document.documentElement.style.setProperty('--dark-cell', darkHex);
             
             if (index !== -1) {
-                // باقي الدوال أو الشروط إن وجدت
+                const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item');
+                items.forEach((item, idx) => {
+                    if (idx === index) item.classList.add('active');
+                    else item.classList.remove('active');
+                });
+            }
+            
+            let p = localStorage.getItem('hub_user_profile');
+            if (p && index !== -1) {
+                let prof = JSON.parse(p);
+                prof.equippedBg = null; 
+                localStorage.setItem('hub_user_profile', JSON.stringify(prof));
+                if(window.updateInventoryUI) window.updateInventoryUI();
             }
         }
+
+        window.currentLang = 'ar';
+
+        const originalAudioPlay = HTMLAudioElement.prototype.play;
+        HTMLAudioElement.prototype.play = function() {
+            const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
+            this.volume = parseFloat(savedVol);
+            return originalAudioPlay.call(this);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            window.addEventListener('message', (event) => {
+                if (!event.data) return;
+                
+                // 🚀 استقبال أمر الرابط النقي وتمريره لدالة الحقن الذكية
+                if (event.data.type === 'INJECT_AVATAR_DIRECT' && event.data.avatarHtml) {
+                    forceLockedGlobalAvatar(event.data.avatarHtml);
+                }
+                
+                if (event.data.type === 'LANGUAGE_CHANGED') {
+                    const newLang = event.data.lang;
+                    document.documentElement.lang = newLang;
+                    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+                    window.currentLang = newLang;
+                    if (typeof window.updateUITranslations === 'function') {
+                        window.updateUITranslations();
+                    }
+                }
+                
+                if (event.data.type === 'PROFILE_UPDATED' && event.data.profile) {
+                    // مصفوفة تعبئة النصوص المباشرة في واجهة dama.html
+                    const textElements = {
+                        'badge-username-display-game': event.data.profile.name,
+                        'card-my-name': event.data.profile.name,
+                        'profile-stat-tokens-badge': event.data.profile.tokens !== undefined ? event.data.profile.tokens : 0,
+                        'profile-stat-tokens-store': event.data.profile.tokens !== undefined ? event.data.profile.tokens : 0,
+                        'igp-name': event.data.profile.name,
+                        'igp-games': event.data.profile.games !== undefined ? event.data.profile.games : 0,
+                        'igp-wins': event.data.profile.wins !== undefined ? event.data.profile.wins : 0,
+                        'igp-losses': event.data.profile.losses !== undefined ? event.data.profile.losses : 0
+                    };
+
+                    for (let id in textElements) {
+                        const el = document.getElementById(id);
+                        if (el) { el.innerText = textElements[id]; }
+                    }
+                    if(window.updateInventoryUI) window.updateInventoryUI();
+                }
+            });
+
+            const btnSaveSettings = document.getElementById('save-settings-btn');
+            if(btnSaveSettings) {
+                btnSaveSettings.onclick = () => closeAppModal('settings-overlay');
+            }
+        });
+
+        let isOnlineOrRoomActive = false;
+        let isResignModalOpen = false;
+
+        function uiStateChangeTracker() {
+            const matchCard = document.getElementById('match-players-card');
+            const resignBtn = document.getElementById('resign-btn');
+            const storeBtn = document.getElementById('store-portal-corner-btn');
+
+            isOnlineOrRoomActive = (matchCard && matchCard.style.display !== 'none') || 
+                                   (resignBtn && resignBtn.style.display !== 'none');
+            
+            if (isOnlineOrRoomActive) {
+                if (storeBtn) storeBtn.style.setProperty('display', 'none', 'important');
+            } else {
+                if (storeBtn) storeBtn.style.setProperty('display', 'flex', 'important');
+            }
+        }
+        
+        window.addEventListener('popstate', uiStateChangeTracker);
+        document.addEventListener('click', () => setTimeout(uiStateChangeTracker, 50));
+
+        window.addEventListener('load', () => {
+            history.replaceState({ screen: 'dama-game' }, '');
+        });
+
+        // نافذة تأكيد الخروج من اللعبة (زر الإلغاء متوفر فيها)
+        window.confirmExitToMainMenu = function() {
+            const alertModal = document.getElementById('custom-alert-modal');
+            const alertTitle = document.getElementById('custom-alert-title');
+            const alertMsg = document.getElementById('custom-alert-message');
+            const alertOk = document.getElementById('custom-alert-ok');
+            const alertCancel = document.getElementById('custom-alert-cancel');
+            
+            if (alertModal && alertMsg && alertOk && alertCancel) {
+                alertTitle.innerText = window.t ? window.t('confirm_exit_title') : "تأكيد الخروج";
+                alertMsg.innerText = window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟";
+                
+                alertOk.innerText = "تأكيد";
+                alertCancel.innerText = "إلغاء";
+                
+                openAppModal('custom-alert-modal');
+                alertCancel.style.display = 'flex';
+                
+                alertOk.onclick = () => {
+                    closeAppModal('custom-alert-modal');
+                    alertCancel.style.display = 'none';
+                    window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
+                };
+                
+                alertCancel.onclick = () => {
+                    closeAppModal('custom-alert-modal');
+                    alertCancel.style.display = 'none';
+                    history.pushState({ screen: 'dama-game' }, '');
+                };
+            }
+        }
+
+        window.addEventListener('popstate', function(event) {
+            if (window.modalStack.length > 0) {
+                const topModalId = window.modalStack.pop();
+                const topModal = document.getElementById(topModalId);
+                if (topModal) {
+                    topModal.style.display = 'none';
+                }
+                
+                if (topModalId === 'custom-alert-modal') {
+                    isResignModalOpen = false;
+                }
+                return; 
+            }
+
+            if (isOnlineOrRoomActive) {
+                if (isResignModalOpen) {
+                    document.getElementById('custom-alert-modal').style.display = 'none';
+                    isResignModalOpen = false;
+                    history.pushState({ screen: 'dama-game' }, ''); 
+                } else {
+                    triggerResignConfirmation();
+                    history.pushState({ screen: 'dama-game' }, ''); 
+                }
+                return;
+            }
+
+            window.confirmExitToMainMenu();
+        });
+
+        // نافذة تأكيد الانسحاب (زر الإلغاء متوفر فيها)
+        function triggerResignConfirmation() {
+            const alertModal = document.getElementById('custom-alert-modal');
+            const alertTitle = document.getElementById('custom-alert-title');
+            const alertMsg = document.getElementById('custom-alert-message');
+            const alertOk = document.getElementById('custom-alert-ok');
+            const alertCancel = document.getElementById('custom-alert-cancel');
+            
+            if (alertModal && alertMsg && alertOk && alertCancel) {
+                alertTitle.innerText = window.t ? window.t('confirm_resign_title') : "تأكيد الانسحاب";
+                alertMsg.innerText = window.t ? window.t('confirm_resign_msg') : "هل أنت متأكد من الانسحاب من المباراة الحالية؟";
+                
+                alertOk.innerText = "تأكيد";
+                alertCancel.innerText = "إلغاء";
+                
+                openAppModal('custom-alert-modal');
+                alertCancel.style.display = 'flex';
+                isResignModalOpen = true;
+                
+                alertOk.onclick = () => {
+                    closeAppModal('custom-alert-modal');
+                    alertCancel.style.display = 'none';
+                    isResignModalOpen = false;
+                    isOnlineOrRoomActive = false;
+                    
+                    const resignBtn = document.getElementById('resign-btn');
+                    if (resignBtn) resignBtn.click();
+                };
+                
+                alertCancel.onclick = () => {
+                    closeAppModal('custom-alert-modal');
+                    alertCancel.style.display = 'none';
+                    isResignModalOpen = false;
+                };
+            }
+        }
+
+        // نافذة الشراء تأكيد شراء المنتج (زر الإلغاء متوفر فيها)
+        window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
+            const nameEl = document.getElementById('modal-item-name');
+            const costEl = document.getElementById('modal-item-cost');
+            const previewEl = document.getElementById('modal-item-preview');
+            const buyBtn = document.getElementById('confirm-buy-btn');
+
+            nameEl.innerText = itemName;
+            costEl.innerText = '🪙 ' + cost;
+            
+            const itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null;
+
+            previewEl.innerHTML = ''; 
+            previewEl.style.background = 'rgba(255,255,255,0.05)';
+            previewEl.style.backgroundImage = 'none';
+
+            if(itemData) {
+                previewEl.style.border = itemData.isLegendary ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.1)';
+                previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
+
+                if (itemData.isImage) {
+                    let imgUrl = itemData.imagePath || itemData.imagePathWhite || '';
+                    previewEl.style.backgroundImage = `url('${imgUrl}')`;
+                    previewEl.style.backgroundSize = 'cover';
+                    previewEl.style.backgroundPosition = 'center';
+                } else if(itemType === 'pc') {
+                    previewEl.innerHTML = itemData.icon || '💎';
+                } else if(itemType === 'bg' || itemType === 'fr') {
+                    if (itemData.cssLight && itemData.cssDark) {
+                        previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`;
+                    } else if (itemData.cssBoard) {
+                        previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`;
+                    } else {
+                        previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`;
+                    }
+                }
+            } else {
+                previewEl.innerHTML = '🎁';
+                previewEl.className = 'purchase-preview-box';
+            }
+
+            buyBtn.onclick = () => {
+                if(window.socket && typeof getUserId === 'function') {
+                    window.socket.emit('requestPurchase', { userId: getUserId(), itemId: itemId });
+                } else {
+                    triggerCustomAlertNotification(window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى تسجيل الدخول أولاً.");
+                }
+                closeAppModal('purchase-modal'); 
+            };
+
+            openAppModal('purchase-modal');
+        };
+    </script>
+
+    <script type="module">
+        import { storeManager } from './store.js?v=999';
+        document.addEventListener('DOMContentLoaded', () => {
+            storeManager.init();
+        });
+    </script>
+
+    <script type="module" src="main.js"></script>
+
+    <script>
+        function requestFullScreen() {
+            const element = document.documentElement;
+            if (element.requestFullscreen) {
+                element.requestFullscreen().catch(err => console.warn("Fullscreen Error:", err));
+            } else if (element.webkitRequestFullscreen) { 
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { 
+                element.msRequestFullscreen();
+            }
+        }
+        ['click', 'touchstart'].forEach(eventType => {
+            document.body.addEventListener(eventType, requestFullScreen, { once: true });
+        });
+    </script>
+
+    <div id="purchase-modal" class="modal-overlay" style="z-index: 2000001;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <h3 id="modal-item-name">اسم المنتج</h3>
+            
+            <div id="modal-item-preview" class="purchase-preview-box" style="flex-direction: column; overflow: hidden;">
+            </div>
+            
+            <p id="modal-item-cost" style="color: #f5a623; font-weight: 700; font-size: 18px; margin-bottom: 25px;">🪙 السعر: 0</p>
+            
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button id="confirm-buy-btn" class="save-settings-btn" style="margin: 0; background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border-color: rgba(245, 166, 35, 0.4) !important;">شراء الآن</button>
+                <button onclick="closeAppModal('purchase-modal')" class="save-settings-btn" style="margin: 0; background: transparent !important;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const originalAudioPlay = HTMLAudioElement.prototype.play;
+        HTMLAudioElement.prototype.play = function() {
+            // جلب مستوى الصوت المحفوظ أو استخدام 0.7 كقيمة افتراضية
+            const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
+            this.volume = parseFloat(savedVol);
+            
+            // تشغيل الصوت مع معالجة قيود المتصفح (Autoplay Policy)
+            const playPromise = originalAudioPlay.call(this);
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.warn("Audio playback was prevented:", error);
+                });
+            }
+            return playPromise;
+        };
     </script>
 </body>
 </html>
