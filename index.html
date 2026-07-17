@@ -556,7 +556,6 @@
         // 🔌 الاتصال الخارجي بالسيرفر المحرك للعبة (Hugging Face)
         const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
 
-        // إضافة التعامل مع انقطاع الاتصال 
         socket.on('disconnect', (reason) => {
             console.warn('انقطع الاتصال:', reason);
             const errorMsg = currentLang === 'ar' 
@@ -890,12 +889,13 @@
                 let avatarSrc = profile.avatar || '1000132081.webp';
                 const isFullUrl = avatarSrc.startsWith('http://') || avatarSrc.startsWith('https://') || avatarSrc.startsWith('data:image');
                 
-                // 🚀 تحويل المسار النسبي إلى رابط مباشر للسيرفر فوراً لضمان تحميل الصورة دائماً كـ Image
+                // 🚀 تحويل المسار النسبي إلى رابط مباشر للسيرفر فوراً
                 if (!isFullUrl) {
                     avatarSrc = "https://diwanrise-dama-game-diwan.hf.space/" + avatarSrc;
                 }
                 el.innerHTML = `<img src="${avatarSrc}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
             };
+            
             renderAvatar('hub-profile-avatar');
             renderAvatar('profile-display-avatar');
 
@@ -910,6 +910,18 @@
 
             const gameIframe = document.getElementById('game-frame');
             if (gameIframe && gameIframe.contentWindow) {
+                // 1. تجهيز رابط الصورة الكامل أولاً هنا في الـ Hub
+                let finalAvatarSrc = profile.avatar || '1000132081.webp';
+                if (!finalAvatarSrc.startsWith('http://') && !finalAvatarSrc.startsWith('https://') && !finalAvatarSrc.startsWith('data:image')) {
+                    finalAvatarSrc = "https://diwanrise-dama-game-diwan.hf.space/" + finalAvatarSrc;
+                }
+
+                // 2. إرسال أمر حقن مباشر بكود الـ HTML الجاهز للصورة
+                gameIframe.contentWindow.postMessage({ 
+                    type: 'INJECT_AVATAR_DIRECT', 
+                    avatarHtml: `<img src="${finalAvatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`
+                }, '*');
+
                 gameIframe.contentWindow.postMessage({ 
                     type: 'PROFILE_UPDATED', 
                     profile: profile 
@@ -1046,8 +1058,14 @@
         function startGame() {
             document.getElementById('game-selector').style.display = 'none';
             document.getElementById('game-interface').style.display = 'block';
-            document.getElementById('game-frame').src = 'dama/dama.html';
+            const gameFrame = document.getElementById('game-frame');
+            gameFrame.src = 'dama/dama.html';
             history.pushState({ view: 'game' }, '');
+            
+            // 🚀 ضمان الحقن المباشر للصور فور اكتمال تحميل اللعبة
+            gameFrame.onload = function() {
+                syncHubProfile();
+            };
         }
         
         function exitGame() {
@@ -1055,9 +1073,7 @@
             if(localStorage.getItem('hub_user_profile')) {
                 document.getElementById('game-selector').style.display = 'flex';
             }
-            setTimeout(() => {
-                document.getElementById('game-frame').src = '';
-            }, 300);
+            setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
             history.pushState({ view: 'hub' }, '');
             syncHubProfile();
         }
@@ -1141,107 +1157,11 @@
         function triggerLogout() { handleAccountExit(false); }
         function triggerAccountSwitch() { handleAccountExit(true); }
 
-        // 🛡️ تعديل دالة forceLockedGlobalAvatar لتطابق المعرفات الحقيقية لهذا الملف وتجلب روابط الصور السحابية دون استخدام نصوص/إيموجيات
-        function forceLockedGlobalAvatar() {
-            let globalProfile = localStorage.getItem('hub_user_profile');
-            if (!globalProfile) return;
-            
-            let parsedHub;
-            try {
-                parsedHub = JSON.parse(globalProfile);
-            } catch(e) { return; }
-            if (!parsedHub || !parsedHub.avatar) return;
-
-            // تحديث العناصر الحقيقية المتواجدة في هذه الصفحة
-            const targetAvatars = ['hub-profile-avatar', 'profile-display-avatar'];
-            const ASSETS_BASE_URL = "https://diwanrise-dama-game-diwan.hf.space/";
-
-            targetAvatars.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                
-                let avatarPath = parsedHub.avatar;
-                const isFullUrl = avatarPath.startsWith('http://') || avatarPath.startsWith('https://') || avatarPath.startsWith('data:image');
-                
-                if (!isFullUrl) {
-                    avatarPath = ASSETS_BASE_URL + avatarPath;
-                }
-
-                const existingImg = el.querySelector('img');
-                
-                if (!existingImg || existingImg.getAttribute('src') !== avatarPath) {
-                    el.style.backgroundImage = 'none';
-                    el.innerHTML = `<img src="${avatarPath}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
-                }
-            });
-        }
-
-        const avatarGuardObserver = new MutationObserver(() => {
-            avatarGuardObserver.disconnect();
-            forceLockedGlobalAvatar();
-            startAvatarGuard();
-        });
-
-        function startAvatarGuard() {
-            const targets = ['hub-profile-avatar', 'profile-display-avatar'];
-            targets.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    avatarGuardObserver.observe(el, { childList: true, attributes: true });
-                }
-            });
-        }
-
-        window.applyProfileDataToUI = function(profile) {
-            const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
-            
-            const textElements = {
-                'hub-token-count': currentTokens,
-                'profile-stat-tokens': currentTokens + translations[currentLang].token_word,
-                'profile-display-name': profile.name,
-                'profile-display-id': profile.id
-            };
-
-            for (let id in textElements) {
-                const el = document.getElementById(id);
-                if (el) { el.innerText = textElements[id]; }
+        // 🔄 مستمع الرسائل القادمة من الألعاب لتحديث الصورة عند تغييرها من الداخل
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'SYNC_PROFILE') {
+                syncHubProfile();
             }
-
-            forceLockedGlobalAvatar();
-
-            window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            window.addEventListener('message', (event) => {
-                if (!event.data) return;
-                
-                if (event.data.type === 'LANGUAGE_CHANGED') {
-                    const newLang = event.data.lang;
-                    document.documentElement.lang = newLang;
-                    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-                    currentLang = newLang;
-                    updateTranslations();
-                }
-                
-                if (event.data.type === 'PROFILE_UPDATED' && event.data.profile) {
-                    window.applyProfileDataToUI(event.data.profile);
-                }
-            });
-
-            let globalProfile = localStorage.getItem('hub_user_profile');
-            if (globalProfile) {
-                try { window.applyProfileDataToUI(JSON.parse(globalProfile)); } catch(e){}
-            }
-            
-            forceLockedGlobalAvatar();
-            startAvatarGuard();
-
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'hub_user_profile') {
-                    forceLockedGlobalAvatar();
-                }
-            });
         });
 
         window.syncHubProfile = syncHubProfile;
