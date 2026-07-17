@@ -1001,21 +1001,29 @@
             }
         }
 
+        /* ========================================================================= */
+        /* 🛡️ فصل كود عرض صورة بروفايل فيسبوك والصور الخارجية عن باقي التعديلات */
+        /* ========================================================================= */
         function forceLockedGlobalAvatar() {
             let globalProfile = localStorage.getItem('hub_user_profile');
-            let avatarSrc = "👤"; 
-            let isImage = false;
+            let avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/1000132081.webp"; 
+            let isImage = true;
 
             if (globalProfile) {
                 try {
                     const parsedHub = JSON.parse(globalProfile);
                     if (parsedHub.avatar) {
                         avatarSrc = parsedHub.avatar;
-                        isImage = avatarSrc.endsWith('.png') || 
-                                  avatarSrc.endsWith('.webp') || 
-                                  avatarSrc.endsWith('.jpg') || 
-                                  avatarSrc.startsWith('data:image') || 
-                                  avatarSrc.startsWith('http');
+                        
+                        // فحص إذا كان الرابط مأخوذاً من فيسبوك (يحتوي على نطاق خارجي للملف الشخصي) أو DataURL
+                        const isExternalOrFb = avatarSrc.startsWith('http') || avatarSrc.startsWith('data:image');
+                        
+                        if (!isExternalOrFb) {
+                            // إذا لم تكن صورة مخصصة خارجية، نجلبها بصيغة webp من جيت هاب كباقي الصور المنتجات
+                            let baseName = avatarSrc.split('.')[0];
+                            avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/" + baseName + ".webp";
+                        }
+                        isImage = true;
                     }
                 } catch(e) { console.error(e); }
             }
@@ -1040,9 +1048,9 @@
                 }
             });
         }
+        /* ========================================================================= */
 
         const avatarGuardObserver = new MutationObserver((mutations) => {
-            // نتحقق من أن التغيير ليس الذي أحدثناه نحن لمنع اللوب اللانهائي
             let shouldProtect = false;
             for (let mutation of mutations) {
                 if (mutation.type === 'childList') {
@@ -1180,7 +1188,6 @@
             history.replaceState({ screen: 'dama-game' }, '');
         });
 
-        // نافذة تأكيد الخروج من اللعبة (زر الإلغاء متوفر فيها)
         window.confirmExitToMainMenu = function() {
             const alertModal = document.getElementById('custom-alert-modal');
             const alertTitle = document.getElementById('custom-alert-title');
@@ -1241,7 +1248,6 @@
             window.confirmExitToMainMenu();
         });
 
-        // نافذة تأكيد الانسحاب (زر الإلغاء متوفر فيها)
         function triggerResignConfirmation() {
             const alertModal = document.getElementById('custom-alert-modal');
             const alertTitle = document.getElementById('custom-alert-title');
@@ -1278,7 +1284,6 @@
             }
         }
 
-        // نافذة الشراء تأكيد شراء المنتج (زر الإلغاء متوفر فيها)
         window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
             const nameEl = document.getElementById('modal-item-name');
             const costEl = document.getElementById('modal-item-cost');
