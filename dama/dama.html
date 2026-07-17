@@ -1,4 +1,4 @@
-<!-- dama.html -->
+<!-- اسم الكود: dama.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -518,7 +518,7 @@
             <div style="flex-grow: 1;"></div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); window.confirmExitToMainMenu()" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
-                <span>⬅️</span> <span>رجوع الى قائمة</span>
+                <span>🚪</span> <span>إلغاء المباراة</span>
             </div>
         </div>
     </div>
@@ -547,6 +547,9 @@
             <div class="profile-display-avatar" id="igp-avatar" style="width: 80px; height: 80px; margin: 0 auto 15px auto; border-radius: 50%; padding: 2px; border: 1px solid rgba(255,255,255,0.2); position: relative;"></div>
             <h4 id="igp-name" style="margin: 0 0 25px 0; font-size: 22px; font-weight: 700; color: white;">الاسم</h4>
             
+            <!-- حقل عرض المعرف (ID) المضاف تحت اسم اللاعب مباشرة -->
+            <p id="igp-id-display" style="color: #a1a1aa; font-size: 12px; margin-top: -15px; margin-bottom: 20px;"></p>
+            
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
                 <div style="display: flex; flex-direction: column;">
                     <span id="igp-games" style="color: white; font-size: 22px; font-weight: 700;">0</span>
@@ -568,7 +571,7 @@
             </div>
 
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; text-align: start;">
-                <h5 id="igp-lbl-friends" style="margin: 0 0 10px 0; color: #a1a1aa; font-size: 13px; font-weight: 600;">الأصدقاء</h5>
+                <h5 id="igp-lbl-friends" style="margin: 0 0 10px 0; color: #a1a1aa; font-size: 13px; font-weight: 600;">الأصفاد</h5>
                 <div id="igp-friends-list" style="color: white; font-size: 13px; text-align: center; padding: 15px 0; font-weight: 500;">
                     لا يوجد أصدقاء حالياً
                 </div>
@@ -747,7 +750,7 @@
     </div>
     
     <div class="control-panel" id="bottom-control-panel">
-        <button id="reset-btn" title="Reset">ابداء</button>
+        <button id="reset-btn" title="Reset">🔄</button>
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px;">↩️</button>
         
         <button id="hint-btn" title="أفضل حركة" style="font-size: 18px; position: relative; overflow: visible;">
@@ -1028,6 +1031,35 @@
 
         window.currentLang = 'ar';
 
+        // 🌟 دالة استقبال وحقن بيانات الملف الشخصي الجديدة كلياً بالـ ID المدمج
+        window.applyProfileDataToUI = function(profile) {
+            const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
+            
+            const textElements = {
+                'badge-username-display-game': profile.name,
+                'card-my-name': profile.name,
+                'mm-my-name': profile.name,
+                'profile-stat-tokens-badge': currentTokens,
+                'profile-stat-tokens-store': currentTokens,
+                'igp-name': profile.name,
+                // ✅ إضافة حقن المعرف (ID) داخل البروفايل في اللعبة
+                'igp-id-display': profile.id || "N/A", 
+                'igp-games': profile.games !== undefined ? profile.games : 0,
+                'igp-wins': profile.wins !== undefined ? profile.wins : 0,
+                'igp-losses': profile.losses !== undefined ? profile.losses : 0
+            };
+
+            for (let id in textElements) {
+                const el = document.getElementById(id);
+                if (el) { el.innerText = textElements[id]; }
+            }
+
+            forceLockedGlobalAvatar(); 
+            if(window.updateInventoryUI) window.updateInventoryUI();
+
+            window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             
             window.addEventListener('message', (event) => {
@@ -1049,23 +1081,8 @@
                 }
                 
                 if (event.data.type === 'PROFILE_UPDATED' && event.data.profile) {
-                    // مصفوفة تعبئة النصوص المباشرة في واجهة dama.html
-                    const textElements = {
-                        'badge-username-display-game': event.data.profile.name,
-                        'card-my-name': event.data.profile.name,
-                        'profile-stat-tokens-badge': event.data.profile.tokens !== undefined ? event.data.profile.tokens : 0,
-                        'profile-stat-tokens-store': event.data.profile.tokens !== undefined ? event.data.profile.tokens : 0,
-                        'igp-name': event.data.profile.name,
-                        'igp-games': event.data.profile.games !== undefined ? event.data.profile.games : 0,
-                        'igp-wins': event.data.profile.wins !== undefined ? event.data.profile.wins : 0,
-                        'igp-losses': event.data.profile.losses !== undefined ? event.data.profile.losses : 0
-                    };
-
-                    for (let id in textElements) {
-                        const el = document.getElementById(id);
-                        if (el) { el.innerText = textElements[id]; }
-                    }
-                    if(window.updateInventoryUI) window.updateInventoryUI();
+                    // ترحيل البيانات المستلمة فوراً للدالة الرسمية الشاملة للـ ID
+                    window.applyProfileDataToUI(event.data.profile);
                 }
             });
 
