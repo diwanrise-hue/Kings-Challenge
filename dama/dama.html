@@ -56,7 +56,7 @@
         .cell.highlight::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(52, 152, 219, 0.4); border: 3px solid #2980b9; box-sizing: border-box; z-index: 5; pointer-events: none; }
         .cell.last-move::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1.5px solid #ffffff; background-color: transparent; box-sizing: border-box; z-index: 6; pointer-events: none; }
         
-        .piece { width: 80%; height: 80%; border-radius: 50%; cursor: pointer; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.25), 2px 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.4s, border 0.4s; display: flex; align-items: center; justify-content: center; position: relative; }
+        .piece { width: 80%; height: 80%; border-radius: 50%; cursor: pointer; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.4s, border 0.4s; display: flex; align-items: center; justify-content: center; position: relative; }
         .piece::before { content: ''; position: absolute; width: 45%; height: 45%; border-radius: 50%; pointer-events: none; border: 1px solid rgba(0,0,0,0.1); }
         .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6); border: 1px solid #bdc3c7; }
         .piece.white::before { background-color: rgba(0, 0, 0, 0.15); }
@@ -449,7 +449,7 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <!-- 🌟 كافة حقول الصور هنا أصبحت فارغة كلياً وتنتظر الحقن الخارجي -->
+    <!-- 🌟 حقول الأفاتار فارغة كلياً عند التشغيل وتنتظر كود الحقن القادم من index.html البطل -->
     <div class="profile-badge-container" id="profile-badge" onclick="openAppModal('in-game-profile-modal')">
         <div class="profile-avatar-capsule" id="badge-avatar"></div>
         <div class="profile-badge-info">
@@ -476,7 +476,7 @@
             </div>
             <span class="match-vs-text">VS</span>
             <div class="match-players-flex">
-                <div id="card-opp-avatar" class="match-players-avatar-opp"></div>
+                <div id="card-opp-avatar" class="match-players-avatar-opp">❓</div>
                 <span id="card-opp-name" class="match-players-name">الخصم</span>
             </div>
         </div>
@@ -782,24 +782,20 @@
 
         window.modalStack = [];
 
-        // 📥 هذه الدالة أصبحت الآن نظيفة تماماً وتنتظر استقبال أمر الحقن من ملف index
+        // 📥 الحقن النظيف والمدرع لكل أنواع الصور (محمية وثابتة)
         let cachedAvatarHtml = '';
         function forceLockedGlobalAvatar(injectedHtml) {
             if (injectedHtml) cachedAvatarHtml = injectedHtml;
             if (!cachedAvatarHtml) return;
 
-            // تحديد جميع حقول الأفاتار في صفحة اللعبة كلياً
             const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
 
             targetAvatars.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 
-                // حقن الصورة الجاهزة مباشرة داخل الحقل بدون أي حسابات مسارات
-                if (el.innerHTML !== cachedAvatarHtml) {
-                    el.style.backgroundImage = 'none';
-                    el.innerHTML = cachedAvatarHtml;
-                }
+                el.style.backgroundImage = 'none';
+                el.innerHTML = cachedAvatarHtml;
             });
         }
 
@@ -1048,6 +1044,7 @@
                 if (el) { el.innerText = textElements[id]; }
             }
 
+            // نقوم بالاستدعاء فقط لإبقاء التجهيز ولكن الحقن الفعلي يأتي من رسالة postMessage لمنع تشوه روابط الـ url
             forceLockedGlobalAvatar(); 
             if(window.updateInventoryUI) window.updateInventoryUI();
 
@@ -1068,7 +1065,7 @@
             window.addEventListener('message', (event) => {
                 if (!event.data) return;
                 
-                // 🚀 استقبال أمر الحقن المباشر من الـ Hub
+                // 🚀 استقبال الحقن المباشر والقاطع للصورة القادمة من الـ Hub الرئيسي
                 if (event.data.type === 'INJECT_AVATAR_DIRECT' && event.data.avatarHtml) {
                     forceLockedGlobalAvatar(event.data.avatarHtml);
                 }
@@ -1090,7 +1087,7 @@
 
             let globalProfile = localStorage.getItem('hub_user_profile');
             if (globalProfile) window.applyProfileDataToUI(JSON.parse(globalProfile));
-            
+
             const sfxSlider = document.getElementById('sfx-volume');
             if(sfxSlider) {
                 const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
