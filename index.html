@@ -892,7 +892,8 @@
             let finalAvatarSrc = profile.avatar || '1000132081.webp';
             const isFullUrl = finalAvatarSrc.startsWith('http://') || finalAvatarSrc.startsWith('https://') || finalAvatarSrc.startsWith('data:image');
             if (!isFullUrl) {
-                finalAvatarSrc = "https://diwanrise-dama-game-diwan.hf.space/" + finalAvatarSrc;
+                // تم تعديل المسار هنا فقط ليكون من المستودع المباشر في GitHub
+                finalAvatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/" + finalAvatarSrc;
             }
 
             // 2. تحديث الحقول المحلية في الـ Hub نفسه
