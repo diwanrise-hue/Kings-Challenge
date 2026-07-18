@@ -4,7 +4,7 @@
 
 // روابط بث حديثة، مستقرة، وتدعم بروتوكول HTTPS المشفر بالكامل لتفادي حظر المتصفحات
 const RADIO_STATIONS = {
-    kurdish: "https://stream.zeno.fm/3w6v088w0zhv", "https://stream-156.zeno.fm/x0xhw6c6g2zuv?zs=AfL9IRdsQ_qHIebZBo-9GA"  
+    kurdish: "https://stream-156.zeno.fm/x0xhw6c6g2zuv?zs=AfL9IRdsQ_qHIebZBo-9GA"  
       // إذاعة كردية
     arabic: "https://tatar.net.ua/radio/8000/radio.mp3",          // إذاعة للموسيقى العربية الكلاسيكية
     english: "https://icecast.walmradio.com:8443/classical",      // إذاعة أجنبية مستقرة جداً بدقة عالية
