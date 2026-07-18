@@ -1,5 +1,5 @@
 // ========================================== //
-//  radio.js - نسخة معكوسة الاتجاه للأسهم بصرياً
+//  radio.js - نسخة تبديل أماكن الأسهم الجانبية
 // ========================================== //
 
 // 1. هيكل البيانات للأصناف والقنوات الضمنية
@@ -184,17 +184,17 @@ function injectRadioUI() {
                     <button id="btn-station-kurdish" class="station-btn active" onclick="selectRadioCategory('kurdish')">الكردية</button>
                 </div>
 
-                <!-- تم عكس الرموز هنا برمجياً لتظهر الاتجاهات بشكل صحيح تماماً في المتصفح -->
+                <!-- تم تبديل أماكن الأزرار هنا (نقل الأيمن للأيسر والأيسر للأيمن برمجياً) -->
                 <div class="visualizer-container">
-                    <!-- سهم جهة اليمين: يشير الآن بصرياً إلى اليمين -->
-                    <button class="nav-arrow-btn" onclick="nextChannel()">❮</button>
+                    <!-- أصبح هذا الزر الآن على جهة اليمين (في واجهة RTL) للعودة للخلف -->
+                    <button class="nav-arrow-btn" onclick="prevChannel()">❯</button>
                     
                     <div id="visualizer" class="visualizer-box">
                         ` + barsHTML + `
                     </div>
                     
-                    <!-- سهم جهة اليسار: يشير الآن بصرياً إلى اليسار -->
-                    <button class="nav-arrow-btn" onclick="prevChannel()">❯</button>
+                    <!-- أصبح هذا الزر الآن على جهة اليسار (في واجهة RTL) للتقدم للأمام -->
+                    <button class="nav-arrow-btn" onclick="nextChannel()">❮</button>
                 </div>
 
                 <!-- اسم القناة الضمنية المختارة أسفل النبض مباشرة -->
@@ -353,6 +353,7 @@ function playRadio(url, category, index) {
     }
 }
 
+// 5. تهيئة وحفظ حالة الخروج
 function stopRadio() {
     const statusText = document.getElementById('radio-status');
     if (statusText) statusText.innerText = ""; 
@@ -367,7 +368,6 @@ function stopRadio() {
     updateRadioButtonsUI();
 }
 
-// 5. تهيئة وحفظ حالة الخروج
 document.addEventListener('DOMContentLoaded', () => {
     injectRadioUI(); 
 
