@@ -458,7 +458,7 @@
         </div>
     </div>
 
-    <!-- عنصر مشغل الراديو المخفي -->
+    <!-- تم الإبقاء على العنصر واستخدامه برمجياً للراديو -->
     <audio id="bg-music"></audio>
 
     <div id="game-interface">
@@ -666,10 +666,6 @@
                 profile_balance: "🪙 الرصيد الكلي:",
                 profile_logout: "تسجيل الخروج",
                 radio_title: "الراديو والموسيقى",
-                radio_kurdish: "📻 إذاعة كردية (كلاسيك)",
-                radio_arabic: "📻 إذاعة عربية (طرب)",
-                radio_english: "📻 إذاعة أجنبية (Lofi)",
-                radio_stop: "🛑 إيقاف الراديو",
                 btn_ok: "حسناً",
                 btn_cancel: "إلغاء",
                 token_word: " توكن",
@@ -716,10 +712,6 @@
                 profile_balance: "🪙 Total Balance:",
                 profile_logout: "Logout",
                 radio_title: "Radio & Music",
-                radio_kurdish: "📻 Kurdish Radio (Classic)",
-                radio_arabic: "📻 Arabic Radio (Tarab)",
-                radio_english: "📻 English Radio (Lofi)",
-                radio_stop: "🛑 Stop Radio",
                 btn_ok: "OK",
                 btn_cancel: "Cancel",
                 token_word: " Tokens",
@@ -743,11 +735,6 @@
 
         let currentLang = 'ar';
         let isLoginMode = false; 
-
-        // === متغيرات وإعدادات الراديو والموسيقى المحدثة ===
-        let isMusicPlaying = false;
-        let currentRadioId = localStorage.getItem('hub_radio_id') || 'kurdish';
-        let selectedRadioStation = localStorage.getItem('hub_radio_id') || 'kurdish';
 
         // 🔌 الاتصال الخارجي بالسيرفر المحرك للعبة (Hugging Face)
         const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
@@ -940,7 +927,21 @@
             }
         }
 
-        // === وظائف الراديو المتطورة والتصميم الجديد ===
+        // ========================================== 
+        // === وظائف الراديو والموسيقى المطورة 100% ===
+        // ========================================== 
+        
+        // تم إضافة الروابط الصحيحة (URLs) بدلاً من الكلمات النصية
+        const RADIO_STATIONS = {
+            english: "https://stream.zeno.fm/f3wvbbqmdg8uv", // إذاعة أجنبية (Lofi)
+            arabic: "https://stream.zeno.fm/vkm4wwawqzquv",  // إذاعة عربية (طرب)
+            kurdish: "https://n0a.radiojar.com/8w3d3tx37qruv" // إذاعة كردية
+        };
+
+        let isMusicPlaying = false;
+        let currentRadioId = localStorage.getItem('hub_radio_id') || 'kurdish';
+        let selectedRadioStation = localStorage.getItem('hub_radio_id') || 'kurdish';
+
         function openRadioModal() {
             document.getElementById('radio-modal').style.display = 'flex';
             updateRadioButtonsUI();
@@ -956,8 +957,11 @@
         }
 
         function triggerPlayRadio() {
-            // يتم تمرير المعرف كرابط وهوية بناءً على البنية الأصلية للكود الخاص بك لضمان العمل
-            playRadio(selectedRadioStation, selectedRadioStation);
+            // جلب الرابط الحقيقي للبث بناءً على المحطة المختارة
+            const streamUrl = RADIO_STATIONS[selectedRadioStation];
+            if (streamUrl) {
+                playRadio(streamUrl, selectedRadioStation);
+            }
         }
 
         function triggerStopRadio() {
@@ -974,7 +978,6 @@
                 musicBtn.classList.add('music-playing');
                 musicBtn.innerText = '🎵';
                 
-                localStorage.setItem('hub_radio_url', url);
                 localStorage.setItem('hub_radio_id', id);
                 localStorage.setItem('hub_music_enabled', 'true');
                 
@@ -1003,7 +1006,6 @@
         }
 
         function updateRadioButtonsUI() {
-            // تحديث أزرار القنوات العلوية الـ 3 النشطة والغير نشطة
             ['kurdish', 'arabic', 'english'].forEach(id => {
                 const btn = document.getElementById('btn-station-' + id);
                 if (btn) {
@@ -1015,7 +1017,6 @@
                 }
             });
 
-            // التحكم بحركة الـ Visualizer لتنطلق مع تشغيل الراديو وتتوقف عند إيقافه
             const visualizerContainer = document.getElementById('radio-visualizer-container');
             if (visualizerContainer) {
                 if (isMusicPlaying) {
@@ -1026,19 +1027,21 @@
             }
         }
 
-        // تشغيل تلقائي للراديو بعد أول ضغطة للمستخدم لتخطي حظر المتصفح
+        // التشغيل التلقائي الآمن (معدل لضمان توافق الروابط)
         window.addEventListener('click', () => {
             const savedMusicState = localStorage.getItem('hub_music_enabled');
-            const savedRadioUrl = localStorage.getItem('hub_radio_url');
-            const savedRadioId = localStorage.getItem('hub_radio_id');
+            const savedRadioId = localStorage.getItem('hub_radio_id') || 'kurdish';
             
-            if (savedMusicState === 'true' && savedRadioUrl && !isMusicPlaying) {
-                currentRadioId = savedRadioId;
-                selectedRadioStation = savedRadioId || 'kurdish';
-                playRadio(savedRadioUrl, savedRadioId);
+            if (savedMusicState === 'true' && !isMusicPlaying) {
+                const streamUrl = RADIO_STATIONS[savedRadioId];
+                if (streamUrl) {
+                    playRadio(streamUrl, savedRadioId);
+                }
             }
         }, { once: true });
 
+
+        // === باقي الأكواد والنوافذ تعمل بشكل طبيعي ===
 
         let customPopupCallback = null;
 
