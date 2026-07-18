@@ -420,7 +420,7 @@
         <div class="top-hud">
             <div class="hud-group">
                 <div class="profile-avatar" id="hub-profile-avatar" onclick="openProfileModal()"></div>
-                <div class="hud-token-badge">
+                <div class="hub-token-badge">
                     🪙 <span id="hub-token-count">0</span>
                 </div>
             </div>
@@ -593,9 +593,6 @@
 
         </div>
     </div>
-
-    <!-- ربط السكريبت البرمجي الخارجي المنفصل للراديو هنا -->
-    <script src="radio.js"></script>
 
     <script>
         // === دالة تشغيل / استئناف الراديو بناءً على آخر إذاعة تم اختيارها بشكل سليم ===
@@ -1261,5 +1258,8 @@
         window.syncHubProfile = syncHubProfile;
         window.exitGame = exitGame; 
     </script>
+    
+    <!-- 🌟 تم نقل الاستدعاء إلى نهاية الملف لحل مشكلة التوقف عند الشاشة الافتتاحية نهائياً -->
+    <script src="radio.js"></script>
 </body>
 </html>
