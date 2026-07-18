@@ -1,12 +1,12 @@
 // ========================================== //
-//  radio.js - نسخة القنوات الضمنية المتعددة داخل الأصناف
+//  radio.js - النسخة الاحترافية (أسهم مضبوطة وتنقل مغلق داخل الصنف)
 // ========================================== //
 
-// 1. هيكل البيانات الجديد: يمكنك إضافة أي عدد من القنوات والروابط داخل كل صنف هنا بسهولة
+// 1. هيكل البيانات للأصناف والقنوات الضمنية
 const RADIO_STATIONS = {
     kurdish: [
         { name: "كوردي 1", url: "https://stream-156.zeno.fm/x0xhw6c6g2zuv?zs=AfL9IRdsQ_qHIebZBo-9GA" },
-        { name: "كوردي 2", url: "https://تغيير_الرابط_هنا_مستقبلاً.mp3" }, // يمكنك تغيير الرابط أو إضافة المزيد
+        { name: "كوردي 2", url: "https://تغيير_الرابط_هنا_مستقبلاً.mp3" }, 
         { name: "كوردي 3", url: "https://تغيير_الرابط_هنا_مستقبلاً.mp3" }
     ],
     arabic: [
@@ -22,11 +22,11 @@ const RADIO_STATIONS = {
 let audioInstance = null;
 let isMusicPlaying = false;
 
-// إدارة الحالة: الصنف الحالي ورقم القناة الحالية داخل الصنف
+// إدارة الحالة
 let selectedCategory = localStorage.getItem('hub_radio_category') || 'kurdish';
 let currentChannelIndex = parseInt(localStorage.getItem('hub_radio_channel_index')) || 0;
 
-// التحقق من صحة الفهارس (حتى لا يحدث خطأ إذا قمت بتعديل المصفوفات)
+// فحص أمان الفهارس لمنع الأخطاء البرمجية
 if (!RADIO_STATIONS[selectedCategory] || !RADIO_STATIONS[selectedCategory][currentChannelIndex]) {
     selectedCategory = 'kurdish';
     currentChannelIndex = 0;
@@ -93,7 +93,7 @@ function injectRadioUI() {
             margin-bottom: 15px;
         }
 
-        /* أزرار الأسهم الجانبية للتنقل بين القنوات الضمنية */
+        /* أزرار الأسهم الجانبية للتنقل */
         .nav-arrow-btn {
             background: #2c2c2e;
             border: 1px solid #3a3a3c;
@@ -129,7 +129,7 @@ function injectRadioUI() {
             100% { height: 45px; }
         }
 
-        /* صندوق اسم القناة المختارة والحالة أسفل النبض */
+        /* صندوق اسم القناة والحالة */
         .channel-info-box {
             margin-bottom: 25px;
             min-height: 55px;
@@ -178,29 +178,33 @@ function injectRadioUI() {
                     <h3>الراديو والموسيقى</h3>
                 </div>
                 
-                <!-- 1. أزرار الأصناف الرئيسية في الأعلى -->
+                <!-- الأصناف في الأعلى -->
                 <div class="stations-list">
                     <button id="btn-station-english" class="station-btn" onclick="selectRadioCategory('english')">الإنجليزية</button>
                     <button id="btn-station-arabic" class="station-btn" onclick="selectRadioCategory('arabic')">العربية</button>
-                    <button id="btn-station-kurdish" class="station-btn" onclick="selectRadioCategory('kurdish')">الكردية</button>
+                    <button id="btn-station-kurdish" class="station-btn active" onclick="selectRadioCategory('kurdish')">الكردية</button>
                 </div>
 
-                <!-- 2. المؤشر النبضي مع الأسهم المعكوسة للتنقل بين قنوات الصنف الداخلي -->
+                <!-- المؤشر النبضي مع الأسهم المضبوطة بصرياً ووظيفياً لتطابق اتجاهاتها تماماً -->
                 <div class="visualizer-container">
-                    <button class="nav-arrow-btn" onclick="prevChannel()">❯</button>
+                    <!-- سهم اليمين: يقع على اليمين في واجهة RTL، يشير لليمين، وينتقل للقناة التالية -->
+                    <button class="nav-arrow-btn" onclick="nextChannel()">❯</button>
+                    
                     <div id="visualizer" class="visualizer-box">
                         ` + barsHTML + `
                     </div>
-                    <button class="nav-arrow-btn" onclick="nextChannel()">❮</button>
+                    
+                    <!-- سهم اليسار: يقع على اليسار في واجهة RTL، يشير لليسار، وينتقل للقناة السابقة -->
+                    <button class="nav-arrow-btn" onclick="prevChannel()">❮</button>
                 </div>
 
-                <!-- 3. اسم القناة الفرعية المختارة (مثال: كوردي 1) أسفل النبض مباشرة -->
+                <!-- اسم القناة الضمنية المختارة أسفل النبض مباشرة -->
                 <div class="channel-info-box">
                     <span id="channel-display-name" class="channel-name-text">---</span>
                     <div id="radio-status" class="radio-status-text"></div>
                 </div>
 
-                <!-- 4. زر التحكم الموحد الذكي -->
+                <!-- زر التحكم الموحد -->
                 <div class="radio-actions">
                     <button id="radio-toggle-action-btn" class="action-btn play-btn" onclick="toggleRadioPlayState()">تشغيل ▶</button>
                 </div>
@@ -220,11 +224,10 @@ function closeRadioModal() {
     document.getElementById('radio-modal').style.display = 'none';
 }
 
-// عند اختيار صنف رئيسي (عربي، كردي، إنجليزي)
 function selectRadioCategory(category) {
     if (RADIO_STATIONS[category]) {
         selectedCategory = category;
-        currentChannelIndex = 0; // إعادة التعيين لأول قناة في الصنف الجديد
+        currentChannelIndex = 0; // يرسو دائماً على أول قناة عند تغيير الصنف يدوياً
         updateRadioButtonsUI();
         
         if (isMusicPlaying) {
@@ -233,7 +236,7 @@ function selectRadioCategory(category) {
     }
 }
 
-// الأسهم الآن تبدل القنوات الضمنية الموجودة داخل الصنف
+// سهم اليمين: ينتقل للقناة التالية داخل نفس الصنف بشكل دائري مغلق
 function nextChannel() {
     const channels = RADIO_STATIONS[selectedCategory];
     currentChannelIndex = (currentChannelIndex + 1) % channels.length;
@@ -241,6 +244,7 @@ function nextChannel() {
     if (isMusicPlaying) triggerPlayRadio();
 }
 
+// سهم اليسار: يعود للقناة السابقة داخل نفس الصنف بشكل دائري مغلق
 function prevChannel() {
     const channels = RADIO_STATIONS[selectedCategory];
     currentChannelIndex = (currentChannelIndex - 1 + channels.length) % channels.length;
@@ -248,7 +252,6 @@ function prevChannel() {
     if (isMusicPlaying) triggerPlayRadio();
 }
 
-// زر التحكم الموحد
 function toggleRadioPlayState() {
     if (isMusicPlaying) {
         stopRadio();
@@ -258,7 +261,6 @@ function toggleRadioPlayState() {
 }
 
 function updateRadioButtonsUI() {
-    // تحديث الصنف النشط في الأعلى
     ['kurdish', 'arabic', 'english'].forEach(id => {
         const btn = document.getElementById('btn-station-' + id);
         if (btn) {
@@ -266,7 +268,6 @@ function updateRadioButtonsUI() {
         }
     });
 
-    // إظهار اسم القناة الضمنية المختارة أسفل النبض (مثل: كوردي 1)
     const currentChannel = RADIO_STATIONS[selectedCategory][currentChannelIndex];
     const nameDisplay = document.getElementById('channel-display-name');
     if (nameDisplay && currentChannel) {
@@ -304,7 +305,7 @@ function updateRadioButtonsUI() {
     }
 }
 
-// 4. دوال التحكم بالصوت
+// 4. دوال الصوت
 function triggerPlayRadio() {
     const currentChannel = RADIO_STATIONS[selectedCategory][currentChannelIndex];
     if (currentChannel && currentChannel.url) {
@@ -342,9 +343,8 @@ function playRadio(url, category, index) {
             updateRadioButtonsUI();
         }).catch(e => {
             if (e.name === 'AbortError' || e.message.includes('interrupted')) {
-                console.log("تغيير سريع بين المحطات الفضائية.");
+                console.log("تغيير خاطف للقنوات.");
             } else {
-                // استبدال نص الفشل بالطلب الجديد والمحفز للمستخدم
                 if (statusText) {
                     statusText.innerText = "( اضغط لإعادة التشغيل ↻ )";
                     statusText.style.color = "#ff9500";
@@ -370,7 +370,7 @@ function stopRadio() {
     updateRadioButtonsUI();
 }
 
-// 5. تهيئة السكربت وحفظ حالة الخروج
+// 5. تهيئة وحفظ حالة الخروج
 document.addEventListener('DOMContentLoaded', () => {
     injectRadioUI(); 
 
@@ -390,7 +390,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('click', handleFirstClick);
 });
 
-// عند الخروج من اللعبة: يتوقف الراديو تماماً ويتحول للتشغيل اليدوي في المرة القادمة
 const handleGameExitState = () => {
     localStorage.setItem('hub_music_enabled', 'false');
     if (audioInstance) {
@@ -400,7 +399,7 @@ const handleGameExitState = () => {
 window.addEventListener('beforeunload', handleGameExitState);
 window.addEventListener('pagehide', handleGameExitState);
 
-// تصدير الدوال للنطاق العالمي
+// تصدير الدوال
 window.openRadioModal = openRadioModal;
 window.closeRadioModal = closeRadioModal;
 window.selectRadioCategory = selectRadioCategory;
