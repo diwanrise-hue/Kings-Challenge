@@ -637,12 +637,13 @@
                 return;
             }
 
+            // تم إزالة كائن الـ scope تماماً لمنع تعارض المتصفحات وتوليد توكن بصلاحية نظيفة ومقبولة سيرفرات
             FB.login(function(response) {
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
                     socket.emit('login_facebook', { accessToken: accessToken });
                 }
-            }, {scope: 'public_profile'}); 
+            }); 
         }
 
         function linkGuestWithFacebook() {
@@ -658,6 +659,7 @@
                 return;
             }
 
+            // تم إزالة كائن الـ scope تماماً هنا أيضاً لضمان مطابقة التوكن للربط الآمن المستقر
             FB.login(function(response) {
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
@@ -667,7 +669,7 @@
                         guestId: profile.id 
                     });
                 }
-            }, {scope: 'public_profile'}); 
+            }); 
         }
 
         function safeParseAuthMessage(msgStr) {
