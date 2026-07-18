@@ -6,7 +6,8 @@
 const RADIO_STATIONS = {
     kurdish: [
         { name: "كوردي 1", url: "https://stream-156.zeno.fm/x0xhw6c6g2zuv?zs=AfL9IRdsQ_qHIebZBo-9GA" },
-        { name: "كوردي 2", url: "https://تغيير_الرابط_هنا_مستقبلاً.mp3" }, 
+        { name: "كوردي 2", url: "https://stream.zeno.fm/e87fd7r29f8uv
+" }, 
         { name: "كوردي 3", url: "https://تغيير_الرابط_هنا_مستقبلاً.mp3" }
     ],
     arabic: [
