@@ -8,6 +8,8 @@ const RADIO_STATIONS = {
         { name: "فين إف إم (Vin FM) - أغاني", url: "https://stream-162.zeno.fm/76g8t36751zuv?zs=StreamOK" },
         { name: "كورد إف إم (Kurd FM)", url: "https://stream-156.zeno.fm/4w208447eczuv?zs=RadioLive" },
         { name: "دينغي كوردسات (Dengi Kurdsat)", url: "https://stream.zeno.fm/e87fd7r29f8uv" }, 
+         { name: "kurd4", url: "https://stream.zeno.fm/624egn8hpm0uv" },
+        
         { name: "دهوك الموسيقية (Duhok Music)", url: "https://stream-142.zeno.fm/088y8wcae0zuv?zs=DuhokLive" },
         { name: "بادينان (Badinan FM)", url: "https://stream-156.zeno.fm/x0xhw6c6g2zuv?zs=AfL9IRdsQ_qHIebZBo-9GA" }
     ],
