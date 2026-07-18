@@ -291,10 +291,11 @@
             display: inline-block; margin-top: 5px; font-size: 13px; font-weight: 600;
             color: var(--accent); cursor: pointer; transition: var(--transition); text-decoration: none;
         }
-        .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }
-
+        .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }    
+    </style>
+  </head>
+  <body>
       
-
     <div id="splash-screen">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM5 18H19V20H5V18Z"/>
@@ -567,7 +568,6 @@
         socket.on('connect', () => {
             console.log('تم الاتصال بالسيرفر بنجاح!');
           
-            }
         });
 
         function getSafeProfile() {
