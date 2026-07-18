@@ -1,136 +1,171 @@
-/**
- * 📻 Dama Challenge - Dedicated Radio Module
- * كود مستقل بالكامل لإدارة وتشغيل قنوات البث الحي والموسيقى في الخلفية
- */
+// ========================================== //
+//  radio.js - نظام الراديو والموسيقى المطور  //
+// ========================================== //
 
-// 🌐 قاعدة بيانات قنوات البث الحي للراديو (تستدعى ذاتياً بناءً على المعرف المرسل)
-const RADIO_CHANNELS = {
-    kurdish: "https://yayin6.radyohizmeti.com:7050/;stream",
-    arabic: "https://stream.zeno.fm/67v6u6cc10etv",
-    english: "https://stream.zeno.fm/f3wvbbv8ca0uv"
+// 1. خريطة روابط بث الإذاعات الحية (يمكنك استبدالها بروابطك الخاصة لاحقاً)
+const RADIO_STATIONS = {
+    kurdish: "https://stream.zeno.fm/3w6v088w0zhv", // إذاعة كردية كلاسيك
+    arabic: "https://stream.radiojar.com/8s996shv0z3vv",  // إذاعة عربية طرب
+    english: "https://hyades.shoutca.st/8004/stream"     // إذاعة أجنبية Lofi/Chill
 };
 
-// المتغيرات التشغيلية الداخلية ونظام الذاكرة المحلية
+// 2. الحالات والمتغيرات الداخلية للنظام
 let isMusicPlaying = false;
-let currentRadioId = localStorage.getItem('hub_radio_id') || '';
+let selectedRadioStation = localStorage.getItem('hub_radio_id') || 'kurdish';
 
 /**
- * فتح النافذة المنبثقة للراديو وتحديث الواجهة
+ * فتح نافذة الراديو المنبثقة
  */
 function openRadioModal() {
-    document.getElementById('radio-modal').style.display = 'flex';
+    const modal = document.getElementById('radio-modal');
+    if (modal) modal.style.display = 'flex';
     updateRadioButtonsUI();
 }
 
 /**
- * إغلاق نافذة الراديو
+ * إغلاق نافذة الراديو المنبثقة
  */
 function closeRadioModal() {
-    document.getElementById('radio-modal').style.display = 'none';
+    const modal = document.getElementById('radio-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 /**
- * تشغيل الإذاعة المطلوبة بناءً على المعرّف
- * @param {string} id - معرف الإذاعة (kurdish, arabic, english)
+ * تحديد القناة المراد الاستماع إليها (تحضير التحديد)
+ * @param {string} stationId - معرف الإذاعة (arabic, english, kurdish)
  */
-function playRadio(id) {
-    const url = RADIO_CHANNELS[id];
-    if (!url) {
-        console.error(`⚠️ الإذاعة ذات المعرف "${id}" غير مسجلة في النظام.`);
-        return;
+function selectRadioStation(stationId) {
+    if (RADIO_STATIONS[stationId]) {
+        selectedRadioStation = stationId;
+        updateRadioButtonsUI();
     }
+}
 
+/**
+ * الضغط على زر التشغيل (Play) لتبدأ الإذاعة المحددة حالياً
+ */
+function triggerPlayRadio() {
+    const url = RADIO_STATIONS[selectedRadioStation];
+    if (url) {
+        playRadio(url, selectedRadioStation);
+    }
+}
+
+/**
+ * الضغط على زر الإيقاف (Stop) لإسكات الصوت
+ */
+function triggerStopRadio() {
+    stopRadio();
+}
+
+/**
+ * محرك تشغيل الصوت الأساسي والتعامل مع أذونات المتصفح
+ */
+function playRadio(url, id) {
     const audioEl = document.getElementById('bg-music');
     const musicBtn = document.getElementById('music-toggle-btn');
     
+    if (!audioEl) return;
+
     audioEl.src = url;
     audioEl.play().then(() => {
         isMusicPlaying = true;
-        musicBtn.classList.add('music-playing');
-        musicBtn.innerText = '🎵';
         
-        // حفظ تفضيلات التشغيل الحالية للمستخدم
+        if (musicBtn) {
+            musicBtn.classList.add('music-playing');
+            musicBtn.innerText = '🎵';
+        }
+        
+        // حفظ تفضيلات المستخدم في الذاكرة المحلية (Local Storage)
         localStorage.setItem('hub_radio_url', url);
         localStorage.setItem('hub_radio_id', id);
         localStorage.setItem('hub_music_enabled', 'true');
         
-        currentRadioId = id;
         updateRadioButtonsUI();
     }).catch(e => {
-        console.error("Radio Playback failed", e);
-        // التحقق من لغة المنصة وعرض التنبيه المناسب
-        const lang = window.currentLang || 'ar';
-        const errorMsg = lang === 'ar' 
-            ? "عذراً، فشل الاتصال بالإذاعة. تأكد من اتصالك بالإنترنت وصلاحية رابط البث." 
-            : "Failed to connect to the radio stream. Check your internet connection.";
+        console.error("🔒 فشل تشغيل الراديو بسبب قيود المتصفح أو الرابط:", e);
         
-        if (typeof window.showCustomPopup === 'function') {
-            window.showCustomPopup(errorMsg);
-        } else {
-            alert(errorMsg);
+        // استدعاء نافذة التنبيه المخصصة الموجودة في ملف الـ HTML الأساسي
+        if (typeof showCustomPopup === 'function') {
+            const lang = typeof currentLang !== 'undefined' ? currentLang : 'ar';
+            const msg = lang === 'ar' 
+                ? "عذراً، فشل الاتصال بالإذاعة. تأكد من اتصالك بالإنترنت أو جرب قناة أخرى." 
+                : "Failed to connect to the radio stream. Please check your connection.";
+            showCustomPopup(msg);
         }
     });
 }
 
 /**
- * إيقاف الراديو تماماً وتصفية الكاش لتوفير بيانات الإنترنت
+ * محرك إيقاف الصوت وتصفير العنوان المصدري لمنع استهلاك البيانات في الخلفية
  */
 function stopRadio() {
     const audioEl = document.getElementById('bg-music');
     const musicBtn = document.getElementById('music-toggle-btn');
     
+    if (!audioEl) return;
+
     audioEl.pause();
-    audioEl.src = ''; // مسح المصدر لمنع التحميل اللانهائي بالخلفية
+    audioEl.src = ''; 
     isMusicPlaying = false;
     
-    musicBtn.classList.remove('music-playing');
-    musicBtn.innerText = '🔇';
+    if (musicBtn) {
+        musicBtn.classList.remove('music-playing');
+        musicBtn.innerText = '🔇';
+    }
     
     localStorage.setItem('hub_music_enabled', 'false');
-    currentRadioId = '';
     updateRadioButtonsUI();
 }
 
 /**
- * تحديث الحالة الرسومية والألوان للأزرار داخل نافذة الراديو
+ * تحديث واجهة المستخدم الرسومية (الأزرار والـ Visualizer التموجي) بناءً على المتغيرات الحالية
  */
 function updateRadioButtonsUI() {
-    // إزالة ألوان التنشيط النشطة من جميع الأزرار كخطوة أولى
+    // تحديث كلاس النشاط (active) لقنوات التبديل الثلاثة
     ['kurdish', 'arabic', 'english'].forEach(id => {
-        const btn = document.getElementById('btn-radio-' + id);
+        const btn = document.getElementById('btn-station-' + id);
         if (btn) {
-            btn.classList.remove('radio-active', 'btn-primary');
-            btn.classList.add('btn-secondary');
+            if (id === selectedRadioStation) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
         }
     });
 
-    // إضاءة وتفعيل الزر المخصص للإذاعة التي تعمل حالياً
-    if (currentRadioId && isMusicPlaying) {
-        const activeBtn = document.getElementById('btn-radio-' + currentRadioId);
-        if (activeBtn) {
-            activeBtn.classList.remove('btn-secondary');
-            activeBtn.classList.add('btn-primary', 'radio-active');
+    // تشغيل أو إيقاف حركة تموجات الصوت البصرية (Visualizer)
+    const visualizerContainer = document.getElementById('radio-visualizer-container');
+    if (visualizerContainer) {
+        if (isMusicPlaying) {
+            visualizerContainer.classList.add('music-playing-visualizer');
+        } else {
+            visualizerContainer.classList.remove('music-playing-visualizer');
         }
     }
 }
 
 /**
- * التشغيل التلقائي الذكي: يتم استدعاؤه بعد أول تفاعل حقيقي للمستخدم بالصفحة
- * لتخطي شروط المتصفحات الصارمة التي تحظر التشغيل التلقائي للصوت (Autoplay Policy)
+ * تخطي قيود المتصفحات الحديثة (Autoplay Policy):
+ * يتم تفعيل الراديو تلقائياً إذا كان مفصلاً في الجلسة السابقة عند أول نقرة للمستخدم على الشاشة.
  */
 window.addEventListener('click', () => {
     const savedMusicState = localStorage.getItem('hub_music_enabled');
-    const savedRadioId = localStorage.getItem('hub_radio_id');
+    const savedRadioId = localStorage.getItem('hub_radio_id') || 'kurdish';
+    const savedRadioUrl = RADIO_STATIONS[savedRadioId];
     
-    if (savedMusicState === 'true' && savedRadioId && !isMusicPlaying) {
-        currentRadioId = savedRadioId;
-        playRadio(savedRadioId);
+    if (savedMusicState === 'true' && savedRadioUrl && !isMusicPlaying) {
+        selectedRadioStation = savedRadioId;
+        playRadio(savedRadioUrl, savedRadioId);
     }
 }, { once: true });
 
-// 🚀 تصدير وإتاحة الدوال برؤية عالمية (Global Window Scope) لتتطابق بسلاسة مع الـ HTML
+// --- ربط الدوال بالنطاق العالمي (window) لضمان عمل الـ onclick المباشر في الـ HTML ---
 window.openRadioModal = openRadioModal;
 window.closeRadioModal = closeRadioModal;
+window.selectRadioStation = selectRadioStation;
+window.triggerPlayRadio = triggerPlayRadio;
+window.triggerStopRadio = triggerStopRadio;
 window.playRadio = playRadio;
 window.stopRadio = stopRadio;
 window.updateRadioButtonsUI = updateRadioButtonsUI;
