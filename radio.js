@@ -2,7 +2,7 @@
 //  radio.js - النسخة المطابقة للتصميم المطلوب //
 // ========================================== //
 
-// 1. روابط البث (تم تصحيحها وإضافة الفاصلة)
+// 1. روابط البث
 const RADIO_STATIONS = {
     kurdish: "https://stream-156.zeno.fm/x0xhw6c6g2zuv?zs=AfL9IRdsQ_qHIebZBo-9GA",  
     arabic: "https://tatar.net.ua/radio/8000/radio.mp3",
@@ -23,7 +23,7 @@ function injectRadioUI() {
     style.innerHTML = `
         /* زر الراديو العائم */
         .radio-floating-btn {
-            position: fixed; bottom: 20px; left: 20px; /* يسار الشاشة ليتناسب مع الواجهة العربية */
+            position: fixed; bottom: 20px; left: 20px;
             background: #1c1c1e; border: 2px solid #333; color: white;
             font-size: 28px; width: 60px; height: 60px; border-radius: 50%;
             cursor: pointer; z-index: 9999; display: flex; justify-content: center; align-items: center;
@@ -89,6 +89,12 @@ function injectRadioUI() {
     `;
     document.head.appendChild(style);
 
+    // تجهيز أعمدة المؤشر البصري بدون استخدام علامة $
+    let barsHTML = '';
+    for(let i = 0; i < 30; i++) {
+        barsHTML += '<div class="bar"></div>';
+    }
+
     // --- بناء الواجهة (HTML) ---
     const uiHTML = `
         <!-- الزر العائم -->
@@ -114,7 +120,7 @@ function injectRadioUI() {
                 </div>
 
                 <div id="visualizer" class="visualizer-box">
-                    ${'<div class="bar"></div>'.repeat(30)}
+                    ` + barsHTML + `
                 </div>
             </div>
         </div>
@@ -138,8 +144,6 @@ function selectRadioStation(stationId) {
     if (RADIO_STATIONS[stationId]) {
         selectedRadioStation = stationId;
         updateRadioButtonsUI();
-        // اختياري: تشغيل المحطة فوراً عند اختيارها
-        // triggerPlayRadio(); 
     }
 }
 
@@ -160,10 +164,10 @@ function updateRadioButtonsUI() {
         if(visualizer) visualizer.classList.add('playing');
         if(toggleBtn) toggleBtn.classList.add('playing');
         
-        // توزيع حركات عشوائية للمؤشر البصري ليبدو طبيعياً (تم تصحيح الخطأ هنا)
+        // استخدام الطريقة التقليدية (بدون $) لضمان عدم ظهور أخطاء في المتصفح
         document.querySelectorAll('.visualizer-box .bar').forEach(bar => {
-            bar.style.animationDelay = `${Math.random() * 0.5}s`;
-            bar.style.animationDuration = `${0.5 + Math.random() * 0.5}s`;
+            bar.style.animationDelay = (Math.random() * 0.5) + "s";
+            bar.style.animationDuration = (0.5 + Math.random() * 0.5) + "s";
         });
     } else {
         if(visualizer) visualizer.classList.remove('playing');
@@ -171,7 +175,7 @@ function updateRadioButtonsUI() {
     }
 }
 
-// 4. دوال التحكم بالصوت (المحرك الأساسي)
+// 4. دوال التحكم بالصوت
 function triggerPlayRadio() {
     const url = RADIO_STATIONS[selectedRadioStation];
     if (url) playRadio(url, selectedRadioStation);
