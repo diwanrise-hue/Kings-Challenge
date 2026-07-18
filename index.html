@@ -471,7 +471,7 @@
             
             <!-- أزرار الأصناف المبسطة مصفوفة بجانب بعضها البعض -->
             <div class="radio-grid-row">
-                <button onclick="playRadio('https://yayin6.radyohizmeti.com:7050/;stream', 'kurdish')" class="btn btn-secondary" id="btn-radio-kurdish" data-i18n="radio_kurdish">الكردية</button>
+                <button onclick="playRadio('https://dengeqamishlo.stream.laut.fm/dengeqamishlo', 'kurdish')" class="btn btn-secondary" id="btn-radio-kurdish" data-i18n="radio_kurdish">الكردية</button>
                 <button onclick="playRadio('https://stream.zeno.fm/67v6u6cc10etv', 'arabic')" class="btn btn-secondary" id="btn-radio-arabic" data-i18n="radio_arabic">العربية</button>
                 <button onclick="playRadio('https://stream.zeno.fm/f3wvbbv8ca0uv', 'english')" class="btn btn-secondary" id="btn-radio-english" data-i18n="radio_english">الإنجليزية</button>
             </div>
@@ -564,7 +564,7 @@
                     <option value="1000132081.webp" data-i18n="avatar_1">الملك الشاب</option>
                     <option value="1000132078.webp" data-i18n="avatar_2">الرجل الكردي</option>
                     <option value="1000132080.webp" data-i18n="avatar_3">الملكة</option>
-                    <option value="1000132082.webp" data-i18n="avatar_4">الملك المسن</option>
+                    <option value="1000132082.webp" data-i18n="avatar_4">الملک المسن</option>
                     <option value="1000132077.webp" data-i18n="avatar_5">الرجل العربي</option>
                     <option value="1000132079.webp" data-i18n="avatar_6">الأميرة الشقراء</option>
                 </select>
@@ -598,123 +598,24 @@
     <script src="radio.js"></script>
 
     <script>
-        // === تهيئة Facebook SDK بالطريقة الرسمية (الآمنة) ===
-        window.fbAsyncInit = function() {
-            FB.init({
-                appId      : '2054342995162540', 
-                cookie     : true,
-                xfbml      : true,
-                version    : 'v18.0'
-            });
-        };
-
-        // تحميل مكتبة فيسبوك بشكل آمن بعد تحميل الصفحة
-        (function(d, s, id) {
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) return;
-            js = d.createElement(s); js.id = id;
-            js.src = "https://connect.facebook.net/en_US/sdk.js";
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-
-        // === قاموس اللغات الشامل ===
-        const translations = {
-            ar: {
-                app_title: "DAMA CHALLENGE",
-                dama: "دامة",
-                soon: "قريباً",
-                login_title: "إنشاء حساب",
-                login_desc: "أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.",
-                login_name_label: "الاسم",
-                login_name_placeholder: "اكتب اسمك هنا",
-                login_avatar_label: "الشخصية",
-                avatar_1: "الملك الشاب",
-                avatar_2: "الرجل الكردي",
-                avatar_3: "الملكة",
-                avatar_4: "الملك المسن",
-                avatar_5: "الرجل العربي",
-                avatar_6: "الأميرة الشقراء",
-                login_save: "متابعة",
-                login_guest: "دخول كزائر",
-                login_facebook_btn: "تسجيل الدخول بـ فيسبوك",
-                link_facebook_btn: "حفظ الحساب عبر فيسبوك",
-                profile_title: "الملف الشخصي",
-                profile_id: "المعرف:",
-                profile_change_name: "تغيير الاسم",
-                profile_change_avatar: "الشخصية",
-                profile_phone_img: "المعرض",
-                profile_balance: "🪙 الرصيد الكلي:",
-                profile_logout: "تسجيل الخروج",
-                radio_title: "الراديو والموسيقى",
-                radio_kurdish: "الكردية",
-                radio_arabic: "العربية",
-                radio_english: "الإنجليزية",
-                radio_stop: "🛑 إيقاف الراديو",
-                radio_resume: "▶️ تشغيل",
-                btn_ok: "حسناً",
-                btn_cancel: "إلغاء",
-                token_word: " توكن",
-                msg_soon: "سيتم إضافة ألعاب وتحديات جديدة قريباً.",
-                msg_no_name: "يرجى كتابة الاسم أولاً للبدء.",
-                msg_no_pass: "يرجى كتابة كلمة المرور للاتصال الآمن.",
-                msg_prompt_name: "أدخل الاسم الجديد:",
-                msg_copy_success: "تم نسخ المعرف: ",
-                msg_copy_fail: "يرجى التحديد والنسخ يدوياً.",
-                msg_avatar_success: "تم تحديث الشخصية بنجاح.",
-                msg_img_success: "تم تعيين الصورة بنجاح.",
-                msg_logout_confirm: "هل أنت متأكد من تسجيل الخروج ومسح بيانات الحساب? ",
-                guest_name: "زائر_"
-            },
-            en: {
-                app_title: "DAMA CHALLENGE",
-                dama: "Dama",
-                soon: "Soon",
-                login_title: "Create Account",
-                login_desc: "Welcome. Create your account to collect tokens across all games.",
-                login_name_label: "Name",
-                login_name_placeholder: "Type your name",
-                login_avatar_label: "Avatar",
-                avatar_1: "Young King",
-                avatar_2: "Kurdish Man",
-                avatar_3: "Queen",
-                avatar_4: "Old King",
-                avatar_5: "Arab Man",
-                avatar_6: "Blonde Princess",
-                login_save: "Continue",
-                login_guest: "Guest Login",
-                login_facebook_btn: "Sign in with Facebook",
-                link_facebook_btn: "Save Account via Facebook",
-                profile_title: "Profile",
-                profile_id: "ID:",
-                profile_change_name: "Change Name",
-                profile_change_avatar: "Avatar",
-                profile_phone_img: "Gallery",
-                profile_balance: "🪙 Total Balance:",
-                profile_logout: "Logout",
-                radio_title: "Radio & Music",
-                radio_kurdish: "Kurdish",
-                radio_arabic: "Arabic",
-                radio_english: "English",
-                radio_stop: "🛑 Stop Radio",
-                radio_resume: "▶️ Resume",
-                btn_ok: "OK",
-                btn_cancel: "Cancel",
-                token_word: " Tokens",
-                msg_soon: "New games and challenges coming soon.",
-                msg_no_name: "Please enter a name to start.",
-                msg_no_pass: "Please type your password for authentication.",
-                msg_prompt_name: "Enter new name:",
-                msg_copy_success: "ID Copied: ",
-                msg_copy_fail: "Please select and copy manually.",
-                msg_avatar_success: "Avatar updated successfully.",
-                msg_img_success: "Image set successfully.",
-                msg_logout_confirm: "Are you sure you want to log out and clear account data?",
-                guest_name: "Guest_"
+        // === دالة تشغيل / استئناف الراديو بناءً على آخر إذاعة تم اختيارها بشكل سليم ===
+        function resumeRadio() {
+            const savedRadioId = localStorage.getItem('hub_radio_id') || 'kurdish'; // الكردية كخيار افتراضي إذا كان فارغاً
+            
+            // التحقق من أن ملف radio.js محمل والمصفوفة موجودة
+            if (typeof RADIO_STATIONS !== 'undefined' && RADIO_STATIONS[savedRadioId]) {
+                const targetRadio = RADIO_STATIONS[savedRadioId];
+                if (targetRadio.url) {
+                    playRadio(targetRadio.url, savedRadioId);
+                } else {
+                    // حل طوارئ في حال كانت بقية الأزرار فارغة
+                    playRadio('https://dengeqamishlo.stream.laut.fm/dengeqamishlo', 'kurdish');
+                }
+            } else {
+                // استدعاء مباشر كحل احتياطي صارم
+                playRadio('https://dengeqamishlo.stream.laut.fm/dengeqamishlo', 'kurdish');
             }
-        };
-
-        let currentLang = 'ar';
-        let isLoginMode = false; 
+        }
 
         // === متغيرات وإعدادات الراديو الأساسية ===
         let isMusicPlaying = false;
@@ -850,7 +751,7 @@
             return msgStr;
         }
 
-        // === وظائف إدارة الراديو المضافة والمطورة لـ radio.js ومحاذاة التسميات ===
+        // === وظائف إدارة الراديو المضافة ===
         function openRadioModal() {
             document.getElementById('radio-modal').style.display = 'flex';
             updateRadioButtonsUI();
@@ -885,7 +786,6 @@
                 currentRadioId = id;
                 updateRadioButtonsUI();
 
-                // طباعة الاسم المطابق بدقة لتعريفات ملف radio.js
                 if (titleDisplay) {
                     if (id === 'kurdish') titleDisplay.innerText = "فۆلکلۆری کوردی";
                     else if (id === 'arabic') titleDisplay.innerText = "إذاعة عربية (طرب)";
@@ -895,19 +795,6 @@
                 console.error("Radio Playback failed", e);
                 showCustomPopup(currentLang === 'ar' ? "عذراً، فشل الاتصال بالإذاعة. تأكد من اتصالك بالإنترنت." : "Failed to connect to the radio stream. Check your connection.");
             });
-        }
-
-        // دالة تشغيل / استئناف الراديو بناءً على آخر إذاعة تم حفظها
-        function resumeRadio() {
-            const savedRadioUrl = localStorage.getItem('hub_radio_url');
-            const savedRadioId = localStorage.getItem('hub_radio_id');
-            
-            if (savedRadioUrl && savedRadioId) {
-                playRadio(savedRadioUrl, savedRadioId);
-            } else {
-                // تشغيل الإذاعة الافتراضية إذا لم يكن هناك شيء محفوظ مسبقاً
-                playRadio('https://yayin6.radyohizmeti.com:7050/;stream', 'kurdish');
-            }
         }
 
         function stopRadio() {
