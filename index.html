@@ -940,106 +940,6 @@
             }
         }
 
-        // === وظائف الراديو المتطورة والتصميم الجديد ===
-        function openRadioModal() {
-            document.getElementById('radio-modal').style.display = 'flex';
-            updateRadioButtonsUI();
-        }
-
-        function closeRadioModal() {
-            document.getElementById('radio-modal').style.display = 'none';
-        }
-
-        function selectRadioStation(id) {
-            selectedRadioStation = id;
-            updateRadioButtonsUI();
-        }
-
-        function triggerPlayRadio() {
-            // يتم تمرير المعرف كرابط وهوية بناءً على البنية الأصلية للكود الخاص بك لضمان العمل
-            playRadio(selectedRadioStation, selectedRadioStation);
-        }
-
-        function triggerStopRadio() {
-            stopRadio();
-        }
-
-        function playRadio(url, id) {
-            const audioEl = document.getElementById('bg-music');
-            const musicBtn = document.getElementById('music-toggle-btn');
-            
-            audioEl.src = url;
-            audioEl.play().then(() => {
-                isMusicPlaying = true;
-                musicBtn.classList.add('music-playing');
-                musicBtn.innerText = '🎵';
-                
-                localStorage.setItem('hub_radio_url', url);
-                localStorage.setItem('hub_radio_id', id);
-                localStorage.setItem('hub_music_enabled', 'true');
-                
-                currentRadioId = id;
-                selectedRadioStation = id;
-                updateRadioButtonsUI();
-            }).catch(e => {
-                console.error("Radio Playback failed", e);
-                showCustomPopup(currentLang === 'ar' ? "عذراً، فشل الاتصال بالإذاعة. تأكد من اتصالك بالإنترنت." : "Failed to connect to the radio stream. Check your connection.");
-            });
-        }
-
-        function stopRadio() {
-            const audioEl = document.getElementById('bg-music');
-            const musicBtn = document.getElementById('music-toggle-btn');
-            
-            audioEl.pause();
-            audioEl.src = ''; 
-            isMusicPlaying = false;
-            
-            musicBtn.classList.remove('music-playing');
-            musicBtn.innerText = '🔇';
-            
-            localStorage.setItem('hub_music_enabled', 'false');
-            updateRadioButtonsUI();
-        }
-
-        function updateRadioButtonsUI() {
-            // تحديث أزرار القنوات العلوية الـ 3 النشطة والغير نشطة
-            ['kurdish', 'arabic', 'english'].forEach(id => {
-                const btn = document.getElementById('btn-station-' + id);
-                if (btn) {
-                    if (id === selectedRadioStation) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
-                }
-            });
-
-            // التحكم بحركة الـ Visualizer لتنطلق مع تشغيل الراديو وتتوقف عند إيقافه
-            const visualizerContainer = document.getElementById('radio-visualizer-container');
-            if (visualizerContainer) {
-                if (isMusicPlaying) {
-                    visualizerContainer.classList.add('music-playing-visualizer');
-                } else {
-                    visualizerContainer.classList.remove('music-playing-visualizer');
-                }
-            }
-        }
-
-        // تشغيل تلقائي للراديو بعد أول ضغطة للمستخدم لتخطي حظر المتصفح
-        window.addEventListener('click', () => {
-            const savedMusicState = localStorage.getItem('hub_music_enabled');
-            const savedRadioUrl = localStorage.getItem('hub_radio_url');
-            const savedRadioId = localStorage.getItem('hub_radio_id');
-            
-            if (savedMusicState === 'true' && savedRadioUrl && !isMusicPlaying) {
-                currentRadioId = savedRadioId;
-                selectedRadioStation = savedRadioId || 'kurdish';
-                playRadio(savedRadioUrl, savedRadioId);
-            }
-        }, { once: true });
-
-
         let customPopupCallback = null;
 
         function showCustomPopup(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
@@ -1387,5 +1287,7 @@
         window.syncHubProfile = syncHubProfile;
         window.exitGame = exitGame; 
     </script>
+    
+    <script src="radio.js"></script>
 </body>
 </html>
