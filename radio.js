@@ -1,5 +1,5 @@
 // ========================================== //
-//  radio.js - النسخة الاحترافية (أسهم مضبوطة وتنقل مغلق داخل الصنف)
+//  radio.js - نسخة معكوسة الاتجاه للأسهم بصرياً
 // ========================================== //
 
 // 1. هيكل البيانات للأصناف والقنوات الضمنية
@@ -26,7 +26,6 @@ let isMusicPlaying = false;
 let selectedCategory = localStorage.getItem('hub_radio_category') || 'kurdish';
 let currentChannelIndex = parseInt(localStorage.getItem('hub_radio_channel_index')) || 0;
 
-// فحص أمان الفهارس لمنع الأخطاء البرمجية
 if (!RADIO_STATIONS[selectedCategory] || !RADIO_STATIONS[selectedCategory][currentChannelIndex]) {
     selectedCategory = 'kurdish';
     currentChannelIndex = 0;
@@ -185,17 +184,17 @@ function injectRadioUI() {
                     <button id="btn-station-kurdish" class="station-btn active" onclick="selectRadioCategory('kurdish')">الكردية</button>
                 </div>
 
-                <!-- المؤشر النبضي مع الأسهم المضبوطة بصرياً ووظيفياً لتطابق اتجاهاتها تماماً -->
+                <!-- تم عكس الرموز هنا برمجياً لتظهر الاتجاهات بشكل صحيح تماماً في المتصفح -->
                 <div class="visualizer-container">
-                    <!-- سهم اليمين: يقع على اليمين في واجهة RTL، يشير لليمين، وينتقل للقناة التالية -->
-                    <button class="nav-arrow-btn" onclick="nextChannel()">❯</button>
+                    <!-- سهم جهة اليمين: يشير الآن بصرياً إلى اليمين -->
+                    <button class="nav-arrow-btn" onclick="nextChannel()">❮</button>
                     
                     <div id="visualizer" class="visualizer-box">
                         ` + barsHTML + `
                     </div>
                     
-                    <!-- سهم اليسار: يقع على اليسار في واجهة RTL، يشير لليسار، وينتقل للقناة السابقة -->
-                    <button class="nav-arrow-btn" onclick="prevChannel()">❮</button>
+                    <!-- سهم جهة اليسار: يشير الآن بصرياً إلى اليسار -->
+                    <button class="nav-arrow-btn" onclick="prevChannel()">❯</button>
                 </div>
 
                 <!-- اسم القناة الضمنية المختارة أسفل النبض مباشرة -->
@@ -227,7 +226,7 @@ function closeRadioModal() {
 function selectRadioCategory(category) {
     if (RADIO_STATIONS[category]) {
         selectedCategory = category;
-        currentChannelIndex = 0; // يرسو دائماً على أول قناة عند تغيير الصنف يدوياً
+        currentChannelIndex = 0; 
         updateRadioButtonsUI();
         
         if (isMusicPlaying) {
@@ -236,7 +235,6 @@ function selectRadioCategory(category) {
     }
 }
 
-// سهم اليمين: ينتقل للقناة التالية داخل نفس الصنف بشكل دائري مغلق
 function nextChannel() {
     const channels = RADIO_STATIONS[selectedCategory];
     currentChannelIndex = (currentChannelIndex + 1) % channels.length;
@@ -244,7 +242,6 @@ function nextChannel() {
     if (isMusicPlaying) triggerPlayRadio();
 }
 
-// سهم اليسار: يعود للقناة السابقة داخل نفس الصنف بشكل دائري مغلق
 function prevChannel() {
     const channels = RADIO_STATIONS[selectedCategory];
     currentChannelIndex = (currentChannelIndex - 1 + channels.length) % channels.length;
@@ -343,7 +340,7 @@ function playRadio(url, category, index) {
             updateRadioButtonsUI();
         }).catch(e => {
             if (e.name === 'AbortError' || e.message.includes('interrupted')) {
-                console.log("تغيير خاطف للقنوات.");
+                console.log("تغيير سريع بين المحطات.");
             } else {
                 if (statusText) {
                     statusText.innerText = "( اضغط لإعادة التشغيل ↻ )";
