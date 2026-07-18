@@ -29,6 +29,7 @@
             
             --accent: #f5a623; /* لون ذهبي أنيق */
             --danger: #ff453a;
+            --success: #34c759;
             
             --radius-pill: 50px;
             --radius-card: 24px;
@@ -113,10 +114,9 @@
             height: 46px; width: 46px; background: var(--glass-bg); backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border); border-radius: 50%;
             display: flex; align-items: center; justify-content: center; color: var(--text-primary);
-            font-weight: 500; font-size: 14px; cursor: pointer; transition: var(--transition);
+            font-weight: 500; font-size: 16px; cursor: pointer; transition: var(--transition);
         }
         .lang-btn:hover { background: rgba(255,255,255,0.08); }
-        .lang-btn svg { width: 20px; height: 20px; fill: currentColor; transition: var(--transition); }
 
         /* تأثير التوهج الملوكي عند عمل الإذاعة */
         .music-playing {
@@ -158,38 +158,69 @@
             padding: 0 10px;
             white-space: nowrap;
         }
+        .radio-controls-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        .radio-controls-row .btn {
+            flex: 1;
+            margin-bottom: 0;
+        }
 
-        /* كود الخطوط النبضية السمعية المتحركة */
+        /* الإطار الزجاجي الجديد للنبض الصوتي المتكامل الفاخر */
+        .audio-spectrum-frame {
+            width: 100%;
+            background: rgba(25, 25, 30, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px 15px;
+            margin: 20px 0 10px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
         .audio-spectrum-container {
             display: flex;
             justify-content: center;
-            align-items: flex-end;
-            gap: 4px;
-            height: 40px;
+            align-items: center;
+            gap: 2.5px;
+            height: 36px;
             width: 100%;
-            margin: 25px 0 10px 0;
         }
         .spectrum-bar {
-            width: 4px;
-            height: 4px;
-            background-color: var(--accent);
-            border-radius: 2px;
-            transition: height 0.1s ease;
+            width: 2px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.25);
+            border-radius: 1px;
+            transition: all 0.15s ease-in-out;
         }
+        
+        /* تفعيل حركة الأمواج المتناسقة الدقيقة */
         .music-playing-bars .spectrum-bar {
-            animation: waveBounce 1.2s ease-in-out infinite alternate;
+            background-color: var(--accent);
+            animation: waveBounce 0.8s ease-in-out infinite alternate;
         }
-        .music-playing-bars .spectrum-bar:nth-child(2) { animation-delay: 0.1s; animation-duration: 0.9s; }
-        .music-playing-bars .spectrum-bar:nth-child(3) { animation-delay: 0.3s; animation-duration: 1.4s; }
-        .music-playing-bars .spectrum-bar:nth-child(4) { animation-delay: 0.0s; animation-duration: 1.1s; }
-        .music-playing-bars .spectrum-bar:nth-child(5) { animation-delay: 0.5s; animation-duration: 1.3s; }
-        .music-playing-bars .spectrum-bar:nth-child(6) { animation-delay: 0.2s; animation-duration: 1.0s; }
-        .music-playing-bars .spectrum-bar:nth-child(7) { animation-delay: 0.4s; animation-duration: 1.5s; }
-        .music-playing-bars .spectrum-bar:nth-child(8) { animation-delay: 0.1s; animation-duration: 0.8s; }
-
+        .music-playing-bars .spectrum-bar:nth-child(2n) { animation-delay: 0.15s; animation-duration: 0.6s; }
+        .music-playing-bars .spectrum-bar:nth-child(3n) { animation-delay: 0.3s; animation-duration: 0.9s; }
+        .music-playing-bars .spectrum-bar:nth-child(4n) { animation-delay: 0.05s; animation-duration: 0.7s; }
+        .music-playing-bars .spectrum-bar:nth-child(5n) { animation-delay: 0.4s; animation-duration: 0.8s; }
+        
         @keyframes waveBounce {
-            0% { height: 4px; }
-            100% { height: 38px; }
+            0% { height: 6px; transform: scaleY(0.4); }
+            100% { height: 32px; transform: scaleY(1); }
+        }
+
+        /* حقل نص اسم الإذاعة التفاعلي */
+        .radio-station-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent);
+            margin-top: 12px;
+            min-height: 18px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: var(--transition);
         }
 
         /* ========================================== */
@@ -394,12 +425,8 @@
                 </div>
             </div>
             <div style="display: flex; gap: 12px; align-items: center;">
-                <!-- زر راديو SVG أنيق ومتناسق -->
-                <div class="lang-btn" onclick="openRadioModal()" id="music-toggle-btn" title="الراديو والموسيقى">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M20 6H6.83l1.59-1.59L7 3 3 7l4 4 1.41-1.41L6.83 8H20v10H4V13H2v5c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM7 12c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm11 1h-4v2h4v-2zm0 3h-4v2h4v-2z"/>
-                    </svg>
-                </div>
+                <!-- زر راديو إيموجي مباشر ومبسط -->
+                <div class="lang-btn" onclick="openRadioModal()" id="music-toggle-btn" title="الراديو والموسيقى">📻</div>
                 <div class="lang-btn" onclick="toggleLanguage()" id="lang-toggle-btn">EN</div>
             </div>
         </div>
@@ -449,18 +476,27 @@
                 <button onclick="playRadio('https://stream.zeno.fm/f3wvbbv8ca0uv', 'english')" class="btn btn-secondary" id="btn-radio-english" data-i18n="radio_english">الإنجليزية</button>
             </div>
 
-            <button onclick="stopRadio()" class="btn btn-danger" data-i18n="radio_stop" style="width: 100%;">🛑 إيقاف الراديو</button>
+            <!-- أزرار التشغيل والإيقاف متراصفة أفقياً -->
+            <div class="radio-controls-row">
+                <button onclick="resumeRadio()" class="btn btn-primary" id="btn-radio-resume" style="background: var(--success); color: white;" data-i18n="radio_resume">▶️ تشغيل</button>
+                <button onclick="stopRadio()" class="btn btn-danger" data-i18n="radio_stop">🛑 إيقاف الراديو</button>
+            </div>
 
-            <!-- حاوية الخطوط النبضية السمعية تحت الأزرار -->
-            <div class="audio-spectrum-container" id="audio-spectrum">
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
+            <!-- إطار زجاجي داكن يحتوي على خطوط النبض العريضة المتلاصقة واسم الإذاعة الحالية -->
+            <div class="audio-spectrum-frame">
+                <div class="audio-spectrum-container" id="audio-spectrum">
+                    <!-- تم تكرار الأعمدة لتوليد خط تموج ممتد عريض وجميل ومكتظ يحاكي اللقطة المرفقة -->
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                    <div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div>
+                </div>
+                <!-- مكان ظهور اسم الإذاعة المباشر والحي التفاعلي -->
+                <div class="radio-station-title" id="radio-station-title-display"></div>
             </div>
         </div>
     </div>
@@ -614,6 +650,7 @@
                 radio_arabic: "العربية",
                 radio_english: "الإنجليزية",
                 radio_stop: "🛑 إيقاف الراديو",
+                radio_resume: "▶️ تشغيل",
                 btn_ok: "حسناً",
                 btn_cancel: "إلغاء",
                 token_word: " توكن",
@@ -659,6 +696,7 @@
                 radio_arabic: "Arabic",
                 radio_english: "English",
                 radio_stop: "🛑 Stop Radio",
+                radio_resume: "▶️ Resume",
                 btn_ok: "OK",
                 btn_cancel: "Cancel",
                 token_word: " Tokens",
@@ -769,7 +807,6 @@
                 return;
             }
 
-            // تم إزالة كائن الـ scope تماماً لمنع تعارض المتصفحات وتوليد توكن بصلاحية نظيفة ومقبولة سيرفرات
             FB.login(function(response) {
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
@@ -791,7 +828,6 @@
                 return;
             }
 
-            // تم إزالة كائن الـ scope تماماً هنا أيضاً لضمان مطابقة التوكن للربط الآمن المستقر
             FB.login(function(response) {
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
@@ -814,7 +850,7 @@
             return msgStr;
         }
 
-        // === وظائف إدارة الراديو المضافة ===
+        // === وظائف إدارة الراديو المضافة والمطورة لـ radio.js ومحاذاة التسميات ===
         function openRadioModal() {
             document.getElementById('radio-modal').style.display = 'flex';
             updateRadioButtonsUI();
@@ -834,6 +870,7 @@
             const audioEl = document.getElementById('bg-music');
             const musicBtn = document.getElementById('music-toggle-btn');
             const spectrumEl = document.getElementById('audio-spectrum');
+            const titleDisplay = document.getElementById('radio-station-title-display');
             
             audioEl.src = url;
             audioEl.play().then(() => {
@@ -847,16 +884,37 @@
                 
                 currentRadioId = id;
                 updateRadioButtonsUI();
+
+                // طباعة الاسم المطابق بدقة لتعريفات ملف radio.js
+                if (titleDisplay) {
+                    if (id === 'kurdish') titleDisplay.innerText = "فۆلکلۆری کوردی";
+                    else if (id === 'arabic') titleDisplay.innerText = "إذاعة عربية (طرب)";
+                    else if (id === 'english') titleDisplay.innerText = "إذاعة أجنبية (Lofi)";
+                }
             }).catch(e => {
                 console.error("Radio Playback failed", e);
                 showCustomPopup(currentLang === 'ar' ? "عذراً، فشل الاتصال بالإذاعة. تأكد من اتصالك بالإنترنت." : "Failed to connect to the radio stream. Check your connection.");
             });
         }
 
+        // دالة تشغيل / استئناف الراديو بناءً على آخر إذاعة تم حفظها
+        function resumeRadio() {
+            const savedRadioUrl = localStorage.getItem('hub_radio_url');
+            const savedRadioId = localStorage.getItem('hub_radio_id');
+            
+            if (savedRadioUrl && savedRadioId) {
+                playRadio(savedRadioUrl, savedRadioId);
+            } else {
+                // تشغيل الإذاعة الافتراضية إذا لم يكن هناك شيء محفوظ مسبقاً
+                playRadio('https://yayin6.radyohizmeti.com:7050/;stream', 'kurdish');
+            }
+        }
+
         function stopRadio() {
             const audioEl = document.getElementById('bg-music');
             const musicBtn = document.getElementById('music-toggle-btn');
             const spectrumEl = document.getElementById('audio-spectrum');
+            const titleDisplay = document.getElementById('radio-station-title-display');
             
             audioEl.pause();
             audioEl.src = '';
@@ -864,6 +922,7 @@
             
             if (musicBtn) musicBtn.classList.remove('music-playing');
             if (spectrumEl) spectrumEl.classList.remove('music-playing-bars');
+            if (titleDisplay) titleDisplay.innerText = '';
             
             localStorage.setItem('hub_music_enabled', 'false');
             currentRadioId = '';
