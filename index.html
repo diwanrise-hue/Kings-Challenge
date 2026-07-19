@@ -813,6 +813,24 @@
             }
         });
 
+        // 💰 الاستماع الدائم لتحديثات الملف الشخصي والرصيد من السيرفر
+        socket.on('profileUpdated', (updatedProfile) => {
+            // 1. حفظ الرصيد الجديد في الذاكرة المحلية
+            localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
+            
+            // 2. تحديث واجهة المنصة (Hub)
+            syncHubProfile();
+            
+            // 3. تحديث واجهة اللعبة المفتوحة حالياً (مثل الدامة أو أي لعبة أخرى)
+            const gameIframe = document.getElementById('game-frame');
+            if (gameIframe && gameIframe.contentWindow) {
+                gameIframe.contentWindow.postMessage({ type: 'PROFILE_UPDATED', profile: updatedProfile }, '*');
+            }
+            
+            // 4. إشعار منبثق (اختياري لمعرفة أن الرصيد زاد)
+            console.log("تم مزامنة الرصيد الموحد بنجاح:", updatedProfile.tokens);
+        });
+
         socket.on('auth_failed', (data) => {
             const msg = safeParseAuthMessage(data.message);
             showCustomPopup(msg);
