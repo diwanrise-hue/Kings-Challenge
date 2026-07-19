@@ -54,7 +54,7 @@
 
         /* تأثيرات الدخول الناعمة */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -111,42 +111,35 @@
         }
 
         /* زر اللغة الجديد والقائمة المنسدلة */
-        /* تعديلات لمنع الحركة والاهتزاز */
-        .lang-btn-container {
-            position: relative; 
-            display: inline-block;
-        }
-
         .lang-btn {
             height: 46px; padding: 0 20px; background: var(--glass-bg); backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border); border-radius: 25px;
             display: flex; align-items: center; justify-content: center; color: var(--text-primary);
             font-weight: 600; font-size: 14px; cursor: pointer; transition: var(--transition);
-            min-width: 80px; /* لضمان عدم تغير العرض بشكل كبير */
         }
         .lang-btn:hover { background: rgba(255,255,255,0.08); }
 
         .lang-dropdown-menu {
             display: none;
-            position: absolute;
-            top: calc(100% + 8px); /* وضع القائمة تحت الزر مباشرة بمسافة صغيرة */
+            position: fixed;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%); /* التمركز بالنسبة للزر فقط */
-            width: 120px;
+            transform: translate(-50%, -50%);
+            width: 200px;
             background: #111115;
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 15px;
+            border-radius: 20px;
             overflow: hidden;
-            z-index: 100;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 100000;
+            box-shadow: 0 0 0 100vw rgba(0,0,0,0.7), 0 20px 40px rgba(0,0,0,0.8);
             flex-direction: column;
         }
         .lang-dropdown-menu.show { display: flex; animation: fadeIn 0.2s ease; }
         .lang-dropdown-item {
-            padding: 12px 15px;
+            padding: 15px 20px;
             text-align: center;
             color: var(--text-primary);
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             transition: var(--transition);
@@ -350,17 +343,17 @@
                 </div>
             </div>
             
-            <div style="display: flex; gap: 12px; align-items: center;">
-                <div class="lang-btn-container">
-                    <div class="lang-btn" onclick="toggleLangMenu()" id="lang-toggle-btn">
-                        <span id="lang-text">عربي</span>
-                    </div>
-                    
-                    <div id="lang-dropdown" class="lang-dropdown-menu">
-                        <div class="lang-dropdown-item" onclick="selectLanguage('ar')">عربي</div>
-                        <div class="lang-dropdown-item" onclick="selectLanguage('ku')">کوردی</div>
-                        <div class="lang-dropdown-item" onclick="selectLanguage('en')">English</div>
-                    </div>
+            <div style="display: flex; gap: 12px; align-items: center; position: relative;">
+                <!-- زر اللغة يفتح القائمة المنسدلة -->
+                <div class="lang-btn" onclick="toggleLangMenu()" id="lang-toggle-btn">
+                    <span id="lang-text">عربي</span>
+                </div>
+                
+                <!-- القائمة المنسدلة للغات -->
+                <div id="lang-dropdown" class="lang-dropdown-menu">
+                    <div class="lang-dropdown-item" onclick="selectLanguage('ar')">عربي</div>
+                    <div class="lang-dropdown-item" onclick="selectLanguage('ku')">کوردی</div>
+                    <div class="lang-dropdown-item" onclick="selectLanguage('en')">English</div>
                 </div>
             </div>
         </div>
@@ -669,10 +662,10 @@
 
         // إغلاق القائمة عند النقر في أي مكان آخر بالصفحة
         window.addEventListener('click', function(e) {
-            const btnContainer = document.querySelector('.lang-btn-container');
-            if (btnContainer && !btnContainer.contains(e.target)) {
-                const dropdown = document.getElementById('lang-dropdown');
-                if (dropdown) dropdown.classList.remove('show');
+            const btn = document.getElementById('lang-toggle-btn');
+            const dropdown = document.getElementById('lang-dropdown');
+            if (btn && dropdown && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
             }
         });
 
