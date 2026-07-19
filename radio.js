@@ -15,6 +15,7 @@ const RADIO_STATIONS = {
     ],
     arabic: [
         { name: " نغم فيروز", url: "https://stream.zeno.fm/24ydgrmvpg8uv" },
+        { name: " اغاني  ", url: "https://stream.zeno.fm/bmccpngymc0vv" },
         { name: "عربي 2", url: "https://تغيير_الرابط_هنا_مستقبلاً.mp3" }
     ],
     english: [
