@@ -30,7 +30,7 @@
         }
         
         /* ========================================== */
-        /* رقعة اللعب واللوحات (تعديل ثلاثي الأبعاد)  */
+        /* رقعة اللعب والمشهد ثلاثي الأبعاد (الطاولة والكراسي) */
         /* ========================================== */
         .scoreboard { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; background: rgba(45, 48, 55, 0.6); padding: 15px; border-radius: 12px; align-items: center; width: 90%; max-width: 350px; transition: all 0.3s; }
         .score-row { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; width: 100%; }
@@ -38,29 +38,70 @@
         .mini-piece.active-white { background: #fff; border: 1px solid #bdc3c7; }
         .mini-piece.active-black { background: #2c2c35; border: 1px solid #1a1a24; }
         
-        /* إضافة عمق منظور ثلاثي الأبعاد للحاوية */
+        /* حاوية المشهد بالكامل لإعطاء المنظور */
         .game-container { 
             display: flex; flex-direction: row; justify-content: center; align-items: center; 
             width: 100%; box-sizing: border-box; 
             perspective: 1200px; 
-            padding: 20px 0 40px 0;
+            padding: 10px 0 50px 0;
         }
         
-        /* تحويل الرقعة لمنضدة ثلاثية الأبعاد */
-        #board { 
-            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
-            width: 95vw; max-width: 420px; aspect-ratio: 1 / 1; 
-            background-color: #3e2723;
-            border: 14px solid #5C3A21; border-radius: 12px;
-            
-            /* تأثير الميل والتجسيم */
+        /* المشهد ثلاثي الأبعاد الذي يجمع الطاولة والكراسي */
+        .scene {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             transform: rotateX(40deg) translateY(-10px);
             transform-style: preserve-3d;
+            gap: 15px;
+        }
+
+        /* الكراسي (المقاعد) */
+        .chair {
+            background: linear-gradient(135deg, #8B4513, #5C3A21);
+            border-radius: 12px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        .top-chair {
+            width: 40vw; max-width: 180px;
+            height: 35px;
+            transform: translateZ(-15px);
+            box-shadow: 0 12px 0 #3b2413, 0 20px 20px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .bottom-chair {
+            width: 50vw; max-width: 220px;
+            height: 45px;
+            transform: translateZ(40px);
+            box-shadow: 0 18px 0 #2a190b, 0 30px 25px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+
+        /* الطاولة */
+        .table-container {
+            background: linear-gradient(135deg, #5C3A21, #3b2413);
+            padding: 4vw; /* مسافة بين الرقعة وحافة الطاولة */
+            border-radius: 20px;
+            transform-style: preserve-3d;
             box-shadow: 
-                0 25px 0 #3b2413, /* سمك الطاولة (العمق) */
-                0 40px 30px rgba(0,0,0,0.8), /* ظل الطاولة على الأرض */
-                inset 0 0 15px rgba(0,0,0,0.9), /* تظليل داخلي */
-                inset 0 0 0 2px rgba(255,255,255,0.05); /* لمعة خفيفة */
+                0 25px 0 #2a190b, 
+                0 45px 35px rgba(0,0,0,0.8),
+                inset 0 0 20px rgba(0,0,0,0.6);
+            border: 2px solid rgba(255,255,255,0.05);
+        }
+
+        /* الرقعة */
+        #board { 
+            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
+            width: 82vw; max-width: 380px; aspect-ratio: 1 / 1; 
+            background-color: #3e2723;
+            border: 10px solid #4A2E1B; border-radius: 8px;
+            
+            /* رفع الرقعة فوق الطاولة قليلاً */
+            transform: translateZ(12px);
+            transform-style: preserve-3d;
+            box-shadow: 
+                0 10px 15px rgba(0,0,0,0.7), 
+                inset 0 0 10px rgba(0,0,0,0.9);
             border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
             transition: all 0.5s ease; 
         }
@@ -546,7 +587,16 @@
     </div>
     
     <div class="game-container">
-        <div id="board"></div> 
+        <!-- مشهد اللعب: الكرسي العلوي، ثم الطاولة، ثم الكرسي السفلي -->
+        <div class="scene">
+            <div class="chair top-chair"></div>
+            
+            <div class="table-container">
+                <div id="board"></div> 
+            </div>
+            
+            <div class="chair bottom-chair"></div>
+        </div>
     </div>
 
     <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
