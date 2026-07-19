@@ -38,7 +38,7 @@
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        html[lang="ar"] { font-family: 'Tajawal', sans-serif; }
+        html[lang="ar"], html[lang="ku"] { font-family: 'Tajawal', sans-serif; }
         html[lang="en"] { font-family: 'Outfit', sans-serif; }
 
         body, html { 
@@ -110,12 +110,12 @@
             direction: ltr; transition: var(--transition); gap: 8px;
         }
 
-        /* زر اللغة والراديو */
+        /* زر اللغة الجديد */
         .lang-btn {
-            height: 46px; width: 46px; background: var(--glass-bg); backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border); border-radius: 50%;
+            height: 46px; padding: 0 16px; background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 25px; gap: 6px;
             display: flex; align-items: center; justify-content: center; color: var(--text-primary);
-            font-weight: 500; font-size: 14px; cursor: pointer; transition: var(--transition);
+            font-weight: 600; font-size: 14px; cursor: pointer; transition: var(--transition);
         }
         .lang-btn:hover { background: rgba(255,255,255,0.08); }
 
@@ -315,7 +315,9 @@
             </div>
             <div style="display: flex; gap: 12px; align-items: center;">
                 
-                <div class="lang-btn" onclick="toggleLanguage()" id="lang-toggle-btn">EN</div>
+                <div class="lang-btn" onclick="toggleLanguage()" id="lang-toggle-btn">
+                    🌐 <span id="lang-text">عربي</span>
+                </div>
             </div>
         </div>
 
@@ -352,8 +354,8 @@
 
     <div id="login-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
-            <h3 id="auth-modal-title" data-i18n="login_title">إنشاء حساب</h3>
-            <p id="auth-modal-desc" class="desc" data-i18n="login_desc">أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.</p>
+            <h3 id="auth-modal-title" data-i18n="register_tab_title">إنشاء حساب</h3>
+            <p id="auth-modal-desc" class="desc" data-i18n="register_tab_desc">أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.</p>
             
             <div class="input-group">
                 <label class="settings-label" data-i18n="login_name_label">الاسم</label>
@@ -377,7 +379,7 @@
                 </select>
             </div>
             
-            <button id="auth-primary-submit-btn" onclick="submitManualAuthForm()" class="btn btn-primary" data-i18n="login_save">متابعة</button>
+            <button id="auth-primary-submit-btn" onclick="submitManualAuthForm()" class="btn btn-primary" data-i18n="register_tab_btn">متابعة</button>
 
             <button onclick="loginWithFacebook()" class="btn" style="background:#1877f2; color:white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-bottom: 10px;">
                 <svg style="width:20px; height:20px; margin-left:8px; fill:currentColor;" viewBox="0 0 24 24">
@@ -388,7 +390,7 @@
 
             <button onclick="loginAsGuest()" class="btn btn-secondary" data-i18n="login_guest">دخول كزائر</button>
             
-            <div id="auth-toggle-mode-link" class="auth-toggle-link" onclick="toggleAuthMode()">امتلك حساباً بالفعل؟ تسجيل الدخول</div>
+            <div id="auth-toggle-mode-link" class="auth-toggle-link" onclick="toggleAuthMode()" data-i18n="register_tab_toggle">امتلك حساباً بالفعل؟ تسجيل الدخول</div>
         </div>
     </div>
 
@@ -467,8 +469,6 @@
                 app_title: "DAMA CHALLENGE",
                 dama: "دامة",
                 soon: "قريباً",
-                login_title: "إنشاء حساب",
-                login_desc: "أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.",
                 login_name_label: "الاسم",
                 login_name_placeholder: "اكتب اسمك هنا",
                 login_avatar_label: "الشخصية",
@@ -478,7 +478,6 @@
                 avatar_4: "الملك المسن",
                 avatar_5: "الرجل العربي",
                 avatar_6: "الأميرة الشقراء",
-                login_save: "متابعة",
                 login_guest: "دخول كزائر",
                 login_facebook_btn: "تسجيل الدخول بـ فيسبوك",
                 link_facebook_btn: "حفظ الحساب عبر فيسبوك",
@@ -502,14 +501,22 @@
                 msg_img_success: "تم تعيين الصورة بنجاح.",
                 msg_logout_confirm: "هل أنت متأكد من تسجيل الخروج ومسح بيانات الحساب؟",
                 guest_name: "زائر_",
-                
+                msg_disconnect: "⚠️ عذراً، انقطع الاتصال بالخادم أو الإنترنت ضعيف. يرجى الانتظار، جاري محاولة إعادة الاتصال...",
+                msg_fb_connect: "جاري الاتصال بخوادم فيسبوك، جرب مرة أخرى.",
+                msg_server_fail: "فشل الاتصال بالسيرفر! جاري المحاولة...",
+                login_tab_title: "تسجيل الدخول",
+                login_tab_desc: "أدخل اسم المستخدم وكلمة المرور للعودة لرصيدك المزامَن.",
+                login_tab_btn: "تسجيل الدخول",
+                login_tab_toggle: "لا تملك حساباً؟ إنشاء حساب جديد",
+                register_tab_title: "إنشاء حساب",
+                register_tab_desc: "أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.",
+                register_tab_btn: "متابعة",
+                register_tab_toggle: "امتلك حساباً بالفعل؟ تسجيل الدخول"
             },
             en: {
                 app_title: "DAMA CHALLENGE",
                 dama: "Dama",
                 soon: "Soon",
-                login_title: "Create Account",
-                login_desc: "Welcome. Create your account to collect tokens across all games.",
                 login_name_label: "Name",
                 login_name_placeholder: "Type your name",
                 login_avatar_label: "Avatar",
@@ -519,7 +526,6 @@
                 avatar_4: "Old King",
                 avatar_5: "Arab Man",
                 avatar_6: "Blonde Princess",
-                login_save: "Continue",
                 login_guest: "Guest Login",
                 login_facebook_btn: "Sign in with Facebook",
                 link_facebook_btn: "Save Account via Facebook",
@@ -543,12 +549,170 @@
                 msg_img_success: "Image set successfully.",
                 msg_logout_confirm: "Are you sure you want to log out and clear account data?",
                 guest_name: "Guest_",
-              
+                msg_disconnect: "⚠️ Connection lost. Server is down or internet is weak. Reconnecting...",
+                msg_fb_connect: "Connecting to Facebook, try again.",
+                msg_server_fail: "Server connection lost! Retrying...",
+                login_tab_title: "Sign In",
+                login_tab_desc: "Enter your username and password to log back into your profile.",
+                login_tab_btn: "Sign In",
+                login_tab_toggle: "Don't have an account? Create one",
+                register_tab_title: "Create Account",
+                register_tab_desc: "Welcome. Create your account to collect tokens across all games.",
+                register_tab_btn: "Continue",
+                register_tab_toggle: "Already have an account? Sign In"
+            },
+            ku: {
+                app_title: "DAMA CHALLENGE",
+                dama: "دامە",
+                soon: "بەمنزیکانە",
+                login_name_label: "ناو",
+                login_name_placeholder: "ناوت لێرە بنووسە",
+                login_avatar_label: "کەسایەتی",
+                avatar_1: "پاشای گەنج",
+                avatar_2: "پیاوی کورد",
+                avatar_3: "شاژن",
+                avatar_4: "پاشای بەتەمەن",
+                avatar_5: "پیاوی عەرەب",
+                avatar_6: "شازادەی قژ زەرد",
+                login_guest: "چوونە ژوورەوە وەک میوان",
+                login_facebook_btn: "چوونە ژوورەوە بە فەیسبووک",
+                link_facebook_btn: "پاراستنی هەژمار بە فەیسبووک",
+                profile_title: "پڕۆفایل",
+                profile_id: "ئایدی:",
+                profile_change_name: "گۆڕینی ناو",
+                profile_change_avatar: "کەسایەتی",
+                profile_phone_img: "گەلەری",
+                profile_balance: "🪙 کۆی باڵانس:",
+                profile_logout: "چوونەدەرەوە",
+                btn_ok: "باشە",
+                btn_cancel: "هەڵوەشاندنەوە",
+                token_word: " تۆکن",
+                msg_soon: "یاری و ئاڵەنگاری نوێ بەمنزیکانە زیاد دەکرێن.",
+                msg_no_name: "تکایە سەرەتا ناوێک بنووسە بۆ دەستپێکردن.",
+                msg_no_pass: "تکایە تێپەڕوشە بنووسە بۆ چوونەژوورەوەی پارێزراو.",
+                msg_prompt_name: "ناوی نوێ بنووسە:",
+                msg_copy_success: "ئایدی کۆپی کرا: ",
+                msg_copy_fail: "تکایە دیاری بکە و بە دەست کۆپی بکە.",
+                msg_avatar_success: "کەسایەتی بە سەرکەوتوویی نوێکرایەوە.",
+                msg_img_success: "وێنە بە سەرکەوتوویی دانرا.",
+                msg_logout_confirm: "دڵنیایت دەتەوێت بچیتە دەرەوە و زانیارییەکانی هەژمار بسڕیتەوە؟",
+                guest_name: "میوان_",
+                msg_disconnect: "⚠️ پەیوەندی پچڕا. سێرڤەر کارناکات یان هێڵی ئینتەرنێت لاوازە. دووبارە هەوڵدەدرێتەوە...",
+                msg_fb_connect: "پەیوەندی بە فەیسبووکەوە دەکرێت، دووبارە هەوڵبدەرەوە.",
+                msg_server_fail: "پەیوەندی سێرڤەر شکستی هێنا! دووبارە هەوڵدەدرێتەوە...",
+                login_tab_title: "چوونە ژوورەوە",
+                login_tab_desc: "ناوی بەکارهێنەر و تێپەڕوشە بنووسە بۆ گەڕانەوە بۆ هەژمارەکەت.",
+                login_tab_btn: "چوونە ژوورەوە",
+                login_tab_toggle: "هەژمارت نییە؟ هەژمارێک دروست بکە",
+                register_tab_title: "دروستکردنی هەژمار",
+                register_tab_desc: "بەخێربێیت. هەژمارەکەت دروست بکە بۆ کۆکردنەوەی دراوەکان لە هەموو یارییەکاندا.",
+                register_tab_btn: "بەردەوام بە",
+                register_tab_toggle: "هەژمارت هەیە؟ چوونە ژوورەوە"
             }
         };
 
-        let currentLang = 'ar';
+        // === إعدادات اللغات والزر ===
+        const langs = ['ar', 'en', 'ku'];
+        // الأسماء التي ستظهر داخل الزر لتعبر عن اللغة الحالية بوضوح
+        const btnLabels = { 'ar': 'عربي', 'en': 'English', 'ku': 'کوردی' };
+        
+        let currentLang = localStorage.getItem('app_lang') || 'ar';
+        if (!langs.includes(currentLang)) currentLang = 'ar';
         let isLoginMode = false; 
+
+        function toggleLanguage() {
+            let currentIndex = langs.indexOf(currentLang);
+            currentLang = langs[(currentIndex + 1) % langs.length];
+            localStorage.setItem('app_lang', currentLang);
+
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
+            
+            updateTranslations();
+
+            // إشعار اللعبة الداخلية بتغير اللغة
+            const gameIframe = document.getElementById('game-frame');
+            if (gameIframe && gameIframe.contentWindow) {
+                gameIframe.contentWindow.postMessage({ type: 'LANGUAGE_CHANGED', lang: currentLang }, '*');
+            }
+            
+            // استدعاء دالة الراديو الأساسية إن وجدت
+            if (typeof window.setRadioLanguage === 'function') {
+                window.setRadioLanguage(currentLang);
+            }
+        }
+
+        function updateTranslations() {
+            const t = translations[currentLang];
+            
+            // 1. تحديث زر اللغة ليعرض اللغة الحالية بوضوح (مثال: عربي، English، کوردی)
+            const langTextEl = document.getElementById('lang-text');
+            if (langTextEl) langTextEl.innerText = btnLabels[currentLang];
+
+            // 2. تحديث نصوص الواجهة
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.innerHTML = t[key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (t[key]) el.placeholder = t[key];
+            });
+            
+            // 3. تحديث نصوص نافذة التسجيل
+            const toggleLink = document.getElementById('auth-toggle-mode-link');
+            if(toggleLink) {
+                if(isLoginMode) {
+                    document.getElementById('auth-modal-title').innerText = t.login_tab_title;
+                    document.getElementById('auth-modal-desc').innerText = t.login_tab_desc;
+                    document.getElementById('auth-primary-submit-btn').innerText = t.login_tab_btn;
+                    toggleLink.innerText = t.login_tab_toggle;
+                } else {
+                    document.getElementById('auth-modal-title').innerText = t.register_tab_title;
+                    document.getElementById('auth-modal-desc').innerText = t.register_tab_desc;
+                    document.getElementById('auth-primary-submit-btn').innerText = t.register_tab_btn;
+                    toggleLink.innerText = t.register_tab_toggle;
+                }
+            }
+
+            // 4. فرض تحديث الراديو يدوياً (لحل مشكلة عدم تغير الترجمة بداخله)
+            forceUpdateRadioUI();
+            
+            syncHubProfile(); 
+        }
+
+        function forceUpdateRadioUI() {
+            // يبحث عن الراديو ويجبره على تغيير نصوصه مباشرة من هنا 
+            const radioModal = document.getElementById('radio-modal');
+            if (radioModal && typeof RADIO_TRANSLATIONS !== 'undefined') {
+                const rt = RADIO_TRANSLATIONS[currentLang];
+                if (rt) {
+                    radioModal.setAttribute('dir', rt.direction);
+                    
+                    const titleEl = document.getElementById('ui-radio-title');
+                    if(titleEl) titleEl.innerText = rt.title;
+                    
+                    const enBtn = document.getElementById('btn-station-english');
+                    if(enBtn) enBtn.innerText = rt.cat_english;
+                    
+                    const arBtn = document.getElementById('btn-station-arabic');
+                    if(arBtn) arBtn.innerText = rt.cat_arabic;
+                    
+                    const kuBtn = document.getElementById('btn-station-kurdish');
+                    if(kuBtn) kuBtn.innerText = rt.cat_kurdish;
+                    
+                    // تحديث زر التشغيل والإيقاف حسب حالته
+                    const actionBtn = document.getElementById('radio-toggle-action-btn');
+                    if (actionBtn) {
+                        if (actionBtn.classList.contains('stop-btn')) {
+                            actionBtn.innerText = rt.stop_btn;
+                        } else {
+                            actionBtn.innerText = rt.play_btn;
+                        }
+                    }
+                }
+            }
+        }
 
         // 🔌 الاتصال بالسيرفر المحرك
         const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
@@ -561,21 +725,17 @@
 
         socket.on('disconnect', (reason) => {
             console.warn('انقطع الاتصال:', reason);
-            const errorMsg = currentLang === 'ar' 
-                ? "⚠️ عذراً، انقطع الاتصال بالخادم أو الإنترنت ضعيف. يرجى الانتظار، جاري محاولة إعادة الاتصال..." 
-                : "⚠️ Connection lost. Server is down or internet is weak. Reconnecting...";
-            showCustomPopup(errorMsg, false, "", false);
+            showCustomPopup(translations[currentLang].msg_disconnect, false, "", false);
         });
 
         socket.on('connect', () => {
             console.log('تم الاتصال بالسيرفر بنجاح!');
-          
         });
 
         function getSafeProfile() {
             const defaultProfile = {
                 id: "GUEST-DEFAULT",
-                name: currentLang === 'ar' ? "زائر" : "Guest",
+                name: translations[currentLang].guest_name + "0000",
                 avatar: '1000132081.webp',
                 isCustomAvatar: false,
                 tokens: 0,
@@ -618,11 +778,11 @@
 
         function loginWithFacebook() {
             if (typeof FB === 'undefined') {
-                showCustomPopup(currentLang === 'ar' ? "جاري الاتصال بخوادم فيسبوك، جرب مرة أخرى." : "Connecting to Facebook, try again.");
+                showCustomPopup(translations[currentLang].msg_fb_connect);
                 return;
             }
             if (!socket || !socket.connected) {
-                showCustomPopup(currentLang === 'ar' ? "فشل الاتصال بالسيرفر! جاري المحاولة..." : "Server connection lost!");
+                showCustomPopup(translations[currentLang].msg_server_fail);
                 socket.connect(); 
                 return;
             }
@@ -636,11 +796,11 @@
 
         function linkGuestWithFacebook() {
             if (typeof FB === 'undefined') {
-                showCustomPopup(currentLang === 'ar' ? "جاري الاتصال بخوادم فيسبوك، جرب مرة أخرى." : "Connecting to Facebook, try again.");
+                showCustomPopup(translations[currentLang].msg_fb_connect);
                 return;
             }
             if (!socket || !socket.connected) {
-                showCustomPopup(currentLang === 'ar' ? "فشل الاتصال بالسيرفر!" : "Server connection lost!");
+                showCustomPopup(translations[currentLang].msg_server_fail);
                 socket.connect(); 
                 return;
             }
@@ -657,7 +817,7 @@
             if (typeof msgStr === 'string' && msgStr.startsWith('{')) {
                 try {
                     const parsed = JSON.parse(msgStr);
-                    return currentLang === 'ar' ? parsed.ar : parsed.en;
+                    return parsed[currentLang] || parsed.en || msgStr;
                 } catch(e) { return msgStr; }
             }
             return msgStr;
@@ -671,53 +831,20 @@
             const toggleLink = document.getElementById('auth-toggle-mode-link');
             const avatarGroup = document.getElementById('avatar-select-group');
 
+            const t = translations[currentLang];
+
             if (isLoginMode) {
-                titleEl.innerText = currentLang === 'ar' ? "تسجيل الدخول" : "Sign In";
-                descEl.innerText = currentLang === 'ar' ? "أدخل اسم المستخدم وكلمة المرور للعودة لرصيدك المزامَن." : "Enter your username and password to log back into your profile.";
-                submitBtn.innerText = currentLang === 'ar' ? "تسجيل الدخول" : "Sign In";
-                toggleLink.innerText = currentLang === 'ar' ? "لا تملك حساباً؟ إنشاء حساب جديد" : "Don't have an account? Create one";
+                titleEl.innerText = t.login_tab_title;
+                descEl.innerText = t.login_tab_desc;
+                submitBtn.innerText = t.login_tab_btn;
+                toggleLink.innerText = t.login_tab_toggle;
                 avatarGroup.style.display = 'none'; 
             } else {
-                titleEl.innerText = currentLang === 'ar' ? "إنشاء حساب" : "Create Account";
-                descEl.innerText = translations[currentLang].login_desc;
-                submitBtn.innerText = translations[currentLang].login_save;
-                toggleLink.innerText = currentLang === 'ar' ? "امتلك حساباً بالفعل؟ تسجيل الدخول" : "Already have an account? Sign In";
+                titleEl.innerText = t.register_tab_title;
+                descEl.innerText = t.register_tab_desc;
+                submitBtn.innerText = t.register_tab_btn;
+                toggleLink.innerText = t.register_tab_toggle;
                 avatarGroup.style.display = 'block';
-            }
-        }
-
-        function updateTranslations() {
-            const t = translations[currentLang];
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) el.innerHTML = t[key];
-            });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                if (t[key]) el.placeholder = t[key];
-            });
-            
-            const toggleLink = document.getElementById('auth-toggle-mode-link');
-            if(toggleLink) {
-                if(isLoginMode) {
-                    toggleLink.innerText = currentLang === 'ar' ? "لا تملك حساباً؟ إنشاء حساب جديد" : "Don't have an account? Create one";
-                } else {
-                    toggleLink.innerText = currentLang === 'ar' ? "امتلك حساباً بالفعل؟ تسجيل الدخول" : "Already have an account? Sign In";
-                }
-            }
-            syncHubProfile(); 
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'ar' ? 'en' : 'ar';
-            document.documentElement.lang = currentLang;
-            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('lang-toggle-btn').innerText = currentLang === 'ar' ? 'EN' : 'العربية';
-            updateTranslations();
-
-            const gameIframe = document.getElementById('game-frame');
-            if (gameIframe && gameIframe.contentWindow) {
-                gameIframe.contentWindow.postMessage({ type: 'LANGUAGE_CHANGED', lang: currentLang }, '*');
             }
         }
 
@@ -773,7 +900,7 @@
             if (!passInput) return showCustomPopup(translations[currentLang].msg_no_pass);
 
             if (!socket || !socket.connected) {
-                showCustomPopup(currentLang === 'ar' ? "فشل الاتصال المؤقت بالسيرفر! جاري المحاولة..." : "Server connection lost!");
+                showCustomPopup(translations[currentLang].msg_server_fail);
                 socket.connect(); 
                 return;
             }
@@ -787,6 +914,10 @@
 
         window.addEventListener('load', () => {
             history.replaceState({ view: 'hub' }, '');
+            
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
+            
             updateTranslations();
 
             const splash = document.getElementById('splash-screen');
