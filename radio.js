@@ -2,10 +2,10 @@
 //  radio.js - النسخة النهائية المصححة والمطورة
 // ========================================== //
 
-// 1. هيكل البيانات للأصناف والقنوات
+// 1. هيكل البيانات للأصناف والقنوات (تم تنظيف المسافات الزائدة)
 const RADIO_STATIONS = {
     kurdish: [
-        { name: "Kurd floklore ", url: "https://stream.zeno.fm/gmdsp1mgs7zuv" },
+        { name: "Kurd floklore", url: "https://stream.zeno.fm/gmdsp1mgs7zuv" },
         { name: "دينغي كوردسات (Dengi Kurdsat)", url: "https://stream.zeno.fm/e87fd7r29f8uv" }, 
         { name: "Kamal Mohammad", url: "https://stream.zeno.fm/rex374xgr2zuv" },
         { name: "كمال كولجين", url: "https://stream.zeno.fm/624egn8hpm0uv" },
@@ -14,13 +14,13 @@ const RADIO_STATIONS = {
         { name: "بادينان (Badinan FM)", url: "https://stream-156.zeno.fm/x0xhw6c6g2zuv?zs=AfL9IRdsQ_qHIebZBo-9GA" }
     ],
     arabic: [
-        { name: " نغم فيروز", url: "https://stream.zeno.fm/24ydgrmvpg8uv" },
-        { name: " اغاني2", url: "https://stream.zeno.fm/17s3kijft2wtv" },
-        { name: " اغاني  ", url: "https://stream.zeno.fm/bmccpngymc0vv" },
+        { name: "نغم فيروز", url: "https://stream.zeno.fm/24ydgrmvpg8uv" },
+        { name: "اغاني 2", url: "https://stream.zeno.fm/17s3kijft2wtv" },
+        { name: "اغاني", url: "https://stream.zeno.fm/bmccpngymc0vv" },
         { name: "ميلوديات", url: "https://stream.zeno.fm/3gkedytbapbuv" }
     ],
     english: [
-        { name: " fm ", url: "https://stream.revma.ihrhls.com/zc185" },
+        { name: "FM", url: "https://stream.revma.ihrhls.com/zc185" },
         { name: "New York's", url: "https://stream.vovmedia.vn/vov247" }
     ]
 };
@@ -30,10 +30,14 @@ let isMusicPlaying = false;
 let failedAttempts = 0; 
 let stallTimeout = null; 
 
-// إدارة الحالة وإعدادات الصوت
+// إدارة الحالة وإعدادات الصوت (مع حماية إضافية من القيم الخاطئة في التخزين)
 let selectedCategory = localStorage.getItem('hub_radio_category') || 'kurdish';
-let currentChannelIndex = parseInt(localStorage.getItem('hub_radio_channel_index')) || 0;
-let radioVolume = localStorage.getItem('hub_radio_volume') !== null ? parseFloat(localStorage.getItem('hub_radio_volume')) : 0.3;
+
+let parsedIndex = parseInt(localStorage.getItem('hub_radio_channel_index'));
+let currentChannelIndex = !isNaN(parsedIndex) ? parsedIndex : 0;
+
+let savedVolume = localStorage.getItem('hub_radio_volume');
+let radioVolume = (savedVolume !== null && !isNaN(parseFloat(savedVolume))) ? parseFloat(savedVolume) : 0.3;
 
 if (!RADIO_STATIONS[selectedCategory] || !RADIO_STATIONS[selectedCategory][currentChannelIndex]) {
     selectedCategory = 'kurdish';
@@ -353,8 +357,15 @@ function updateRadioButtonsUI() {
     const toggleActionBtn = document.getElementById('radio-toggle-action-btn');
     
     if (isMusicPlaying) {
-        if(visualizer) visualizer.classList.add('playing');
         if(toggleBtn) toggleBtn.classList.add('playing');
+        
+        // التحقق مما إذا كان الصوت يعمل فعلياً لتشغيل المؤشر البصري
+        if(visualizer && audioInstance && !audioInstance.paused && audioInstance.readyState >= 3) {
+            visualizer.classList.add('playing');
+        } else if (visualizer) {
+            visualizer.classList.remove('playing');
+        }
+        
     } else {
         if(visualizer) visualizer.classList.remove('playing');
         if(toggleBtn) toggleBtn.classList.remove('playing');
@@ -377,13 +388,17 @@ function triggerPlayRadio() {
 function playRadio(url, category, index) {
     const statusText = document.getElementById('radio-status');
     const toggleActionBtn = document.getElementById('radio-toggle-action-btn');
+    const visualizer = document.getElementById('visualizer');
 
     if (statusText) {
         statusText.innerText = "( جاري الاتصال بالبث... 🔄 )";
         statusText.style.color = "#ff9500"; 
     }
+    
+    // إيقاف المؤشر البصري مؤقتاً لحين بدء الصوت الفعلي
+    if (visualizer) visualizer.classList.remove('playing');
 
-    // تفريغ الذاكرة وقطع الاتصال بالطريقة المعيارية الآمنة للمتصفحات (src = '')
+    // تفريغ الذاكرة وقطع الاتصال بالطريقة المعيارية الآمنة للمتصفحات
     if (audioInstance) {
         audioInstance.pause();
         audioInstance.onwaiting = null;
@@ -398,7 +413,7 @@ function playRadio(url, category, index) {
     const optimizedUrl = url.includes('?') ? `${url}&_live=${liveTimestamp}` : `${url}?_live=${liveTimestamp}`;
 
     audioInstance = new Audio(optimizedUrl);
-    audioInstance.crossOrigin = "anonymous";
+    // تم حذف audioInstance.crossOrigin لتفادي أخطاء CORS مع خوادم الراديو
     audioInstance.preload = "none"; 
     audioInstance.volume = radioVolume;
 
@@ -413,7 +428,7 @@ function playRadio(url, category, index) {
             if (isMusicPlaying) {
                 handleConnectionFailure(statusText);
             }
-        }, 4000);
+        }, 8000); // زيادة الوقت إلى 8 ثوانٍ لدعم الاتصالات البطيئة
     };
 
     audioInstance.onerror = () => {
@@ -434,6 +449,8 @@ function playRadio(url, category, index) {
             toggleActionBtn.innerText = "إيقاف الراديو 🔴";
             toggleActionBtn.className = "action-btn stop-btn";
         }
+        // تفعيل المؤشر البصري فقط عندما يعمل الصوت فعلياً
+        if (visualizer) visualizer.classList.add('playing');
     };
 
     const playPromise = audioInstance.play();
