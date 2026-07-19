@@ -105,15 +105,17 @@ function injectRadioUI() {
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* زر الراديو العائم */
-        .radio-floating-btn {
-            position: fixed; bottom: 20px; left: 20px;
-            background: #1c1c1e; border: 2px solid #333; color: white;
-            font-size: 28px; width: 60px; height: 60px; border-radius: 50%;
-            cursor: pointer; z-index: 9999; display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s;
+        /* زر الراديو بجوار زر اللغة */
+        .radio-hud-btn {
+            height: 46px; width: 46px;
+            background: rgba(25, 25, 30, 0.6); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 22px; cursor: pointer; padding: 0; outline: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        .radio-floating-btn.playing { border-color: #30d158; box-shadow: 0 0 15px rgba(48, 209, 88, 0.4); }
+        .radio-hud-btn:hover { background: rgba(255,255,255,0.08); transform: scale(1.05); }
+        .radio-hud-btn.playing { border-color: #30d158; box-shadow: 0 0 10px rgba(48, 209, 88, 0.4); }
 
         /* خلفية النافذة */
         .radio-modal-overlay {
@@ -234,9 +236,7 @@ function injectRadioUI() {
         barsHTML += `<div class="bar" style="animation-delay: ${randomDelay}s; animation-duration: ${randomDuration}s;"></div>`;
     }
 
-    const uiHTML = `
-        <button id="music-toggle-btn" class="radio-floating-btn" onclick="openRadioModal()">📻</button>
-
+    const modalHTML = `
         <div id="radio-modal" class="radio-modal-overlay" dir="${t('direction')}">
             <div class="radio-modal-content">
                 <div class="radio-header">
@@ -276,7 +276,17 @@ function injectRadioUI() {
             </div>
         </div>
     `;
-    document.body.insertAdjacentHTML('beforeend', uiHTML);
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // حقن زر الراديو ليكون مجاوراً لزر اللغة
+    const btnHTML = `<button id="music-toggle-btn" class="radio-hud-btn" onclick="openRadioModal()">📻</button>`;
+    const langBtn = document.getElementById('lang-toggle-btn');
+    if (langBtn && langBtn.parentElement) {
+        langBtn.parentElement.insertAdjacentHTML('afterbegin', btnHTML);
+    } else {
+        // حالة احتياطية في حال لم يتم العثور على زر اللغة لسبب ما
+        document.body.insertAdjacentHTML('beforeend', `<div style="position:fixed; top:30px; right:25px; z-index:20;">${btnHTML}</div>`);
+    }
     
     const modalOverlay = document.getElementById('radio-modal');
     if (modalOverlay) {
