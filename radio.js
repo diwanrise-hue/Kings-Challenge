@@ -5,6 +5,7 @@
 // 1. هيكل البيانات للأصناف والقنوات (تم تحديث القنوات الكردية بروابط مباشرة ومستقرة)
 const RADIO_STATIONS = {
     kurdish: [
+        { name: "KurdFlix FM", url: "https://stream.zeno.fm/gmdsp1mgs7zuv" },
         { name: "دينغي كوردسات (Dengi Kurdsat)", url: "https://stream.zeno.fm/e87fd7r29f8uv" }, 
         { name: "كمال كولجين", url: "https://stream.zeno.fm/624egn8hpm0uv" },
         { name: "احمد خليل", url: "https://stream.zeno.fm/uw3bpcdkpm0uv" },
