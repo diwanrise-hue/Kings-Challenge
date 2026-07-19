@@ -21,8 +21,8 @@ const RADIO_STATIONS = {
         { name: "ميلوديات", url: "https://stream.zeno.fm/3gkedytbapbuv" }
     ],
     english: [
-        { name: "إنجليزي 1", url: "https://icecast.walmradio.com:8443/classical" },
-        { name: "إنجليزي 2", url: "https://تغيير_الرابط_هنا_مستقبلاً.mp3" }
+        { name: " fm ", url: "https://stream.revma.ihrhls.com/zc185" },
+        { name: "New York's 2", url: "https://stream.revma.ihrhls.com/zc1469" }
     ]
 };
 
