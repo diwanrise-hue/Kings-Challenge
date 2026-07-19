@@ -124,11 +124,12 @@ function injectRadioUI() {
             z-index: 10000; font-family: 'Tajawal', sans-serif;
         }
 
-        /* صندوق النافذة الرئيسي */
+        /* صندوق النافذة الرئيسي - مع إضافة إطار نحيف جداً */
         .radio-modal-content {
             background: #1c1c1e; padding: 25px; border-radius: 20px; text-align: center;
             color: white; width: 90%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* إضافة الإطار النحيف */
         }
 
         .radio-header { display: flex; justify-content: center; align-items: center; margin-bottom: 25px; position: relative; }
