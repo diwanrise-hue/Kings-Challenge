@@ -18,7 +18,7 @@ const RADIO_STATIONS = {
         { name: " نغم فيروز", url: "https://stream.zeno.fm/24ydgrmvpg8uv" },
         { name: " اغاني2", url: "https://stream.zeno.fm/17s3kijft2wtv" },
         { name: " اغاني  ", url: "https://stream.zeno.fm/bmccpngymc0vv" },
-        { name: "عربي 2", url: "https://تغيير_الرابط_هنا_مستقبلاً.mp3" }
+        { name: "ميلوديات", url: "https://stream.zeno.fm/3gkedytbapbuv" }
     ],
     english: [
         { name: "إنجليزي 1", url: "https://icecast.walmradio.com:8443/classical" },
