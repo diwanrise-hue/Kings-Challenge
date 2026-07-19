@@ -264,14 +264,16 @@
             width: 95%; max-width: 480px; height: 90vh; max-height: 700px; padding-top: 30px;
         }
         
+        /* جعل أطراف لوحة الشرف تظهر في الشاشة بالكامل */
         .leaderboard-full-screen {
             width: 95% !important; 
-            height: 95vh !important;
+            height: 90vh !important;
             max-width: 500px !important; 
-            max-height: 95vh !important;
+            max-height: 90vh !important;
             border-radius: 32px !important; 
             padding: 35px 20px 20px 20px !important;
             display: flex; flex-direction: column;
+            margin: auto;
         }
 
         .settings-card::-webkit-scrollbar { display: none; }
@@ -526,7 +528,7 @@
             <div style="flex-grow: 1;"></div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); window.confirmExitToMainMenu()" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
-                <span>🚪</span> <span>إلغاء المباراة</span>
+                <span>🚪</span> <span>خروج</span>
             </div>
         </div>
     </div>
@@ -549,39 +551,40 @@
     </button>
 
     <div id="in-game-profile-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px;">
+        <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             <h3 id="igp-title" style="margin-bottom: 25px;">الملف الشخصي</h3>
             <div class="profile-display-avatar" id="igp-avatar" style="width: 80px; height: 80px; margin: 0 auto 15px auto; border-radius: 50%; padding: 2px; border: 1px solid rgba(255,255,255,0.2); position: relative;"></div>
             
-            <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white;">الاسم</h4>
+            <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%;">الاسم</h4>
             
-            <div onclick="copyMyId()" id="copy-id-btn" style="cursor: pointer; color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-family: monospace; background: rgba(255,255,255,0.08); padding: 6px 14px; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1);" title="نسخ المعرف" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+            <!-- جعل الـ ID في وسط أسفل الاسم وعائماً بدون إطار -->
+            <div onclick="copyMyId()" id="copy-id-btn" style="cursor: pointer; color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-family: monospace; padding: 4px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;" title="نسخ المعرف" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
                 <span>ID: <span id="igp-id-display" style="color: white; font-weight: bold;">...</span></span>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <svg width="14" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
-                <div style="display: flex; flex-direction: column;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; box-sizing: border-box;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
                     <span id="igp-games" style="color: white; font-size: 22px; font-weight: 700;">0</span>
                     <span id="igp-lbl-games" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">لعب</span>
                 </div>
-                <div style="display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); border-left: 1px solid rgba(255,255,255,0.05);">
+                <div style="display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); border-left: 1px solid rgba(255,255,255,0.05); align-items: center;">
                     <span id="igp-wins" style="color: #34c759; font-size: 22px; font-weight: 700;">0</span>
                     <span id="igp-lbl-wins" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">فوز</span>
                 </div>
-                <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
                     <span id="igp-losses" style="color: #ff453a; font-size: 22px; font-weight: 700;">0</span>
                     <span id="igp-lbl-losses" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">خسارة</span>
                 </div>
             </div>
 
-            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; box-sizing: border-box;">
                 <input type="text" id="friend-id-input" class="online-input" placeholder="معرف الصديق (ID)" style="margin-bottom: 0; height: 40px; font-size: 12px; width: 100%;">
                 <button id="add-friend-btn" class="save-settings-btn" style="margin-top: 0; height: 40px; padding: 0 30px; width: auto; font-size: 13px;">إضافة صديق</button>
             </div>
 
-            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; text-align: start;">
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; text-align: start; width: 100%; box-sizing: border-box;">
                 <h5 id="igp-lbl-friends" style="margin: 0 0 10px 0; color: #a1a1aa; font-size: 13px; font-weight: 600;">الأصدقاء</h5>
                 <div id="igp-friends-list" style="color: white; font-size: 13px; text-align: center; padding: 15px 0; font-weight: 500;">
                     لا يوجد أصدقاء حالياً
@@ -1244,7 +1247,7 @@
             
             if (alertModal && alertMsg && alertOk && alertCancel) {
                 alertTitle.innerText = window.t ? window.t('confirm_exit_title') : "تأكيد الخروج";
-                alertMsg.innerText = window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟";
+                alertMsg.innerText = window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة？";
                 
                 alertOk.innerText = "تأكيد";
                 alertCancel.innerText = "إلغاء";
@@ -1304,7 +1307,7 @@
             
             if (alertModal && alertMsg && alertOk && alertCancel) {
                 alertTitle.innerText = window.t ? window.t('confirm_resign_title') : "تأكيد الانسحاب";
-                alertMsg.innerText = window.t ? window.t('confirm_resign_msg') : "هل أنت متأكد من الانسحاب من المباراة الحالية؟";
+                alertMsg.innerText = window.t ? window.t('confirm_resign_msg') : "هل أنت متأكد من الانسحاب من المباراة الحالية？";
                 
                 alertOk.innerText = "تأكيد";
                 alertCancel.innerText = "إلغاء";
