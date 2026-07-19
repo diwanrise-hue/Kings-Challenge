@@ -1086,7 +1086,7 @@
                 'card-my-name': profile.name,
                 'mm-my-name': profile.name,
                 'profile-stat-tokens-badge': currentTokens,
-                'profile-stat-tokens-store': currentTokens,
+                'profile-stat-tokens-store': currentTokens, // تحديث رصيد المتجر
                 'igp-name': profile.name,
                 'igp-games': profile.games !== undefined ? profile.games : 0,
                 'igp-wins': profile.wins !== undefined ? profile.wins : 0,
@@ -1099,8 +1099,11 @@
             }
 
             forceLockedGlobalAvatar();
+            
+            // ♻️ تحديث واجهة المتجر الداخلي إذا كان مفتوحاً
             if(window.updateInventoryUI) window.updateInventoryUI();
 
+            // إرسال تأكيد للمنصة الأم (index.html)
             window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
         }
 
