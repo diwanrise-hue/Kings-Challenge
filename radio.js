@@ -6,8 +6,9 @@
 const RADIO_STATIONS = {
     kurdish: [
         { name: "دينغي كوردسات (Dengi Kurdsat)", url: "https://stream.zeno.fm/e87fd7r29f8uv" }, 
-        { name: "kurd4", url: "https://stream.zeno.fm/624egn8hpm0uv" },
-        { name: "دهوك الموسيقية (Duhok Music)", url: "https://stream-142.zeno.fm/088y8wcae0zuv?zs=DuhokLive" },
+        { name: "كمال كولجين", url: "https://stream.zeno.fm/624egn8hpm0uv" },
+        { name: "احمد خليل", url: "https://stream.zeno.fm/uw3bpcdkpm0uv" },
+        { name: "سانا برزنجي", url: "https://stream.zeno.fm/hrguyt6hpm0uv" },
         { name: "بادينان (Badinan FM)", url: "https://stream-156.zeno.fm/x0xhw6c6g2zuv?zs=AfL9IRdsQ_qHIebZBo-9GA" }
     ],
     arabic: [
