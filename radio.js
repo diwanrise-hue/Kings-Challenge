@@ -1,11 +1,10 @@
 // ========================================== //
-//  radio.js - النسخة النهائية المطورة بالكامل
+//  radio.js - النسخة النهائية المصححة والمطورة
 // ========================================== //
 
-// 1. هيكل البيانات للأصناف والقنوات (تم تحديث القنوات الكردية بروابط مباشرة ومستقرة)
+// 1. هيكل البيانات للأصناف والقنوات
 const RADIO_STATIONS = {
     kurdish: [
-        { name: "classyce", url: "https://stream.zeno.fm/gmdsp1mgs7zuv" },
         { name: "Kurd floklore ", url: "https://stream.zeno.fm/gmdsp1mgs7zuv" },
         { name: "دينغي كوردسات (Dengi Kurdsat)", url: "https://stream.zeno.fm/e87fd7r29f8uv" }, 
         { name: "Kamal Mohammad", url: "https://stream.zeno.fm/rex374xgr2zuv" },
@@ -28,9 +27,10 @@ const RADIO_STATIONS = {
 
 let audioInstance = null;
 let isMusicPlaying = false;
-let failedAttempts = 0; // متغيّر جديد لتتبع محاولات الاتصال الفاشلة المتتالية
+let failedAttempts = 0; 
+let stallTimeout = null; 
 
-// إدارة الحالة وإعدادات الصوت (تم تحديد القيمة الافتراضية هنا لتكون 0.3 أي 30%)
+// إدارة الحالة وإعدادات الصوت
 let selectedCategory = localStorage.getItem('hub_radio_category') || 'kurdish';
 let currentChannelIndex = parseInt(localStorage.getItem('hub_radio_channel_index')) || 0;
 let radioVolume = localStorage.getItem('hub_radio_volume') !== null ? parseFloat(localStorage.getItem('hub_radio_volume')) : 0.3;
@@ -60,7 +60,7 @@ function injectRadioUI() {
         .radio-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); display: none; justify-content: center; align-items: center;
-            z-index: 10000; direction: rtl; /* تم تصحيح الخطأ هنا */ font-family: 'Tajawal', sans-serif;
+            z-index: 10000; direction: rtl; font-family: 'Tajawal', sans-serif;
         }
 
         /* صندوق النافذة الرئيسي */
@@ -157,7 +157,7 @@ function injectRadioUI() {
             transition: 0.3s;
         }
 
-        /* حاوية شريط التحكم في الصوت المطور للتلوين الديناميكي */
+        /* حاوية شريط التحكم في الصوت المطور لتلوين ديناميكي */
         .radio-volume-container {
             display: flex;
             align-items: center;
@@ -181,7 +181,7 @@ function injectRadioUI() {
             border-radius: 3px;
             outline: none;
             cursor: pointer;
-            background: #3a3a3c; /* لون خلفية احتياطي */
+            background: #3a3a3c;
         }
         /* تصميم مقبض السحب ليتوافق مع الامتلاء */
         .radio-volume-slider::-webkit-slider-thumb {
@@ -217,7 +217,6 @@ function injectRadioUI() {
     `;
     document.head.appendChild(style);
 
-    // حساب الأوقات العشوائية لكل عمود مرة واحدة لراحة المعالج والتصفح السلس
     let barsHTML = '';
     for(let i = 0; i < 30; i++) {
         const randomDelay = (Math.random() * 0.5).toFixed(2);
@@ -226,10 +225,8 @@ function injectRadioUI() {
     }
 
     const uiHTML = `
-        <!-- الزر العائم -->
         <button id="music-toggle-btn" class="radio-floating-btn" onclick="openRadioModal()">📻</button>
 
-        <!-- النافذة المنبثقة -->
         <div id="radio-modal" class="radio-modal-overlay" dir="rtl">
             <div class="radio-modal-content">
                 <div class="radio-header">
@@ -237,39 +234,30 @@ function injectRadioUI() {
                     <h3>الراديو والموسيقى</h3>
                 </div>
                 
-                <!-- الأصناف في الأعلى -->
                 <div class="stations-list">
                     <button id="btn-station-english" class="station-btn" onclick="selectRadioCategory('english')">الإنجليزية</button>
                     <button id="btn-station-arabic" class="station-btn" onclick="selectRadioCategory('arabic')">العربية</button>
                     <button id="btn-station-kurdish" class="station-btn active" onclick="selectRadioCategory('kurdish')">الكردية</button>
                 </div>
 
-                <!-- إطار النبض مع الحفاظ على الأماكن المبدلة للأسهم الجانبية تماماً -->
                 <div class="visualizer-container">
-                    <!-- سهم العودة للخلف متموضع على اليمين برمجياً -->
                     <button class="nav-arrow-btn" onclick="prevChannel()">❮</button>
-                    
                     <div id="visualizer" class="visualizer-box">
-                        ` + barsHTML + `
+                        ${barsHTML}
                     </div>
-                    
-                    <!-- سهم التقدم للأمام متموضع على اليسار برمجياً -->
                     <button class="nav-arrow-btn" onclick="nextChannel()">❯</button>
                 </div>
 
-                <!-- اسم القناة المختارة أسفل النبض مباشرة -->
                 <div class="channel-info-box">
                     <span id="channel-display-name" class="channel-name-text">---</span>
                     <div id="radio-status" class="radio-status-text"></div>
                 </div>
 
-                <!-- شريط التحكم في الصوت (متموضع فوق زر التشغيل والإيقاف تماماً) -->
                 <div class="radio-volume-container">
                     <span class="radio-volume-icon">🔊</span>
                     <input type="range" id="radio-volume-slider" class="radio-volume-slider" min="0" max="1" step="0.01" oninput="changeRadioVolume(this.value)">
                 </div>
 
-                <!-- زر التحكم الموحد -->
                 <div class="radio-actions">
                     <button id="radio-toggle-action-btn" class="action-btn play-btn" onclick="toggleRadioPlayState()">تشغيل ▶</button>
                 </div>
@@ -278,7 +266,6 @@ function injectRadioUI() {
     `;
     document.body.insertAdjacentHTML('beforeend', uiHTML);
     
-    // المزامنة الأولية لمستوى الصوت ورسم خلفية شريط التلوين عند الإقلاع الأول
     const sliderElement = document.getElementById('radio-volume-slider');
     if (sliderElement) {
         sliderElement.value = radioVolume;
@@ -297,21 +284,16 @@ function closeRadioModal() {
     document.getElementById('radio-modal').style.display = 'none';
 }
 
-// اختيار القسم
 function selectRadioCategory(category) {
     if (RADIO_STATIONS[category]) {
         selectedCategory = category;
         currentChannelIndex = 0; 
-        failedAttempts = 0; // تصفير المحاولات الفاشلة عند تغيير القسم
+        failedAttempts = 0; 
         updateRadioButtonsUI();
-        
-        if (isMusicPlaying) {
-            triggerPlayRadio();
-        }
+        if (isMusicPlaying) triggerPlayRadio();
     }
 }
 
-// القناة التالية
 function nextChannel() {
     const channels = RADIO_STATIONS[selectedCategory];
     currentChannelIndex = (currentChannelIndex + 1) % channels.length;
@@ -319,7 +301,6 @@ function nextChannel() {
     if (isMusicPlaying) triggerPlayRadio();
 }
 
-// القناة السابقة
 function prevChannel() {
     const channels = RADIO_STATIONS[selectedCategory];
     currentChannelIndex = (currentChannelIndex - 1 + channels.length) % channels.length;
@@ -327,17 +308,16 @@ function prevChannel() {
     if (isMusicPlaying) triggerPlayRadio();
 }
 
-// تبديل حالة التشغيل والإيقاف
 function toggleRadioPlayState() {
     if (isMusicPlaying) {
         stopRadio();
     } else {
-        failedAttempts = 0; // تصفير المحاولات عند التشغيل اليدوي
+        failedAttempts = 0; 
         triggerPlayRadio();
     }
 }
 
-// دالة التحكم الديناميكي لامتلاء شريط مستوى الصوت بشكل تبايني دقيق ومبهر
+// تعديل اتجاه تعبئة الـ Gradient ليناسب الـ RTL بصرياً بشكل صحيح (to left)
 function changeRadioVolume(value) {
     radioVolume = parseFloat(value);
     localStorage.setItem('hub_radio_volume', value);
@@ -346,7 +326,6 @@ function changeRadioVolume(value) {
         audioInstance.volume = radioVolume;
     }
     
-    // آلية تلوين الجزء الممتلئ من اليمين للياسر بما يتوافق مع نمط واجهة الـ RTL للراديو
     const slider = document.getElementById('radio-volume-slider');
     if (slider) {
         const percentage = radioVolume * 100;
@@ -354,7 +333,6 @@ function changeRadioVolume(value) {
     }
 }
 
-// تحديث مظهر الواجهة الرسومية
 function updateRadioButtonsUI() {
     ['kurdish', 'arabic', 'english'].forEach(id => {
         const btn = document.getElementById('btn-station-' + id);
@@ -380,9 +358,7 @@ function updateRadioButtonsUI() {
     } else {
         if(visualizer) visualizer.classList.remove('playing');
         if(toggleBtn) toggleBtn.classList.remove('playing');
-        if (statusText) {
-            statusText.innerText = "";
-        }
+        if (statusText) statusText.innerText = "";
         if (toggleActionBtn) {
             toggleActionBtn.innerText = "تشغيل ▶";
             toggleActionBtn.className = "action-btn play-btn";
@@ -390,7 +366,7 @@ function updateRadioButtonsUI() {
     }
 }
 
-// 4. دوال الصوت المطورة (محدثة لحل مشكلة التقطيع والتعليق والانتقال التلقائي للقنوات المنقطعة)
+// 4. دوال الصوت المطورة
 function triggerPlayRadio() {
     const currentChannel = RADIO_STATIONS[selectedCategory][currentChannelIndex];
     if (currentChannel && currentChannel.url) {
@@ -407,62 +383,49 @@ function playRadio(url, category, index) {
         statusText.style.color = "#ff9500"; 
     }
 
-    // 1. إيقاف وتنظيف أي اتصال قديم تماماً وتفريغ الذاكرة المؤقتة لضمان استقرار الشبكة بطريقة معيارية
+    // تفريغ الذاكرة وقطع الاتصال بالطريقة المعيارية الآمنة للمتصفحات (src = '')
     if (audioInstance) {
         audioInstance.pause();
         audioInstance.onwaiting = null;
         audioInstance.onplaying = null;
         audioInstance.onerror = null;
-        audioInstance.src = ''; // صحيح ومعياري
-        audioInstance.load();   // قطع الاتصال فوراً بالبث القديم
+        audioInstance.src = ''; 
+        audioInstance.load();   
         audioInstance = null;
     }
 
-    // 2. كسر كاش المتصفح (Cache-Busting) بإضافة كود زمني عشوائي لضمان جلب البث الحي الطازج
     const liveTimestamp = Date.now();
     const optimizedUrl = url.includes('?') ? `${url}&_live=${liveTimestamp}` : `${url}?_live=${liveTimestamp}`;
 
-    // 3. إنشاء كائن صوتي جديد مع إعداد تيار مباشر حقيقي لمنع التخزين المسبق المفرط
     audioInstance = new Audio(optimizedUrl);
     audioInstance.crossOrigin = "anonymous";
     audioInstance.preload = "none"; 
-    
-    // تطبيق مستوى الصوت الحالي المحفوظ فوراً عند بدء البث الجديد
     audioInstance.volume = radioVolume;
 
-    // 4. آلية ذكية لمراقبة التقطيع التلقائي والإنعاش الفوري والانتقال للمحطة التالية عند الانقطاع النهائي
-    let stallTimeout;
-    
-    // عند تذبذب الشبكة ودخول الصوت في مرحلة تحميل معلق في المنتصف
     audioInstance.onwaiting = () => {
         if (isMusicPlaying && statusText) {
             statusText.innerText = "( جاري إنعاش البث... ⏳ )";
             statusText.style.color = "#ff9500";
         }
         
-        // إذا استمر التعليق لأكثر من 4 ثوانٍ، بدلاً من إيقاف الراديو ينتقل تلقائياً للقناة التالية لضمان استمرار العمل
         clearTimeout(stallTimeout);
         stallTimeout = setTimeout(() => {
             if (isMusicPlaying) {
-                console.log("استمر انقطاع البث لأكثر من 4 ثوانٍ، جاري الانتقال تلقائياً للقناة التالية.");
                 handleConnectionFailure(statusText);
             }
         }, 4000);
     };
 
-    // معالجة الانقطاع النهائي للبث أو الفشل المباشر في تحميل الرابط (روابط منقطعة نهائياً)
     audioInstance.onerror = () => {
         clearTimeout(stallTimeout);
         if (isMusicPlaying) {
-            console.log("حدث خطأ نهائي في القناة، جاري التبديل للمحطة التالية تلقائياً.");
              handleConnectionFailure(statusText);
         }
     };
 
-    // عندما يتم تحميل البيانات المباشرة بنجاح ويعود الصوت للعمل بسلاسة
     audioInstance.onplaying = () => {
         clearTimeout(stallTimeout);
-        failedAttempts = 0; // تصفير المحاولات الفاشلة عند النجاح
+        failedAttempts = 0; 
         if (statusText) {
             statusText.innerText = "( تعمل الآن 🟢 )";
             statusText.style.color = "#30d158";
@@ -473,23 +436,19 @@ function playRadio(url, category, index) {
         }
     };
 
-    // بدء تشغيل البث المباشر المطور
     const playPromise = audioInstance.play();
-
     if (playPromise !== undefined) {
         playPromise.then(() => {
             isMusicPlaying = true;
             localStorage.setItem('hub_radio_url', url);
             localStorage.setItem('hub_radio_category', category);
             localStorage.setItem('hub_radio_channel_index', index.toString());
-            localStorage.setItem('hub_music_enabled', 'true');
+            localStorage.setItem('hub_music_enabled', 'true'); // حفظ الحالة كـ مفعل للعودة لاحقاً
             updateRadioButtonsUI();
         }).catch(e => {
             if (e.name === 'AbortError' || e.message.includes('interrupted')) {
                 console.log("تغيير سريع بين المحطات الفضائية للراديو.");
             } else {
-                console.log("فشل تشغيل البث، الانتقال للقناة التالية تلقائياً.");
-                // الحفاظ على حالة التشغيل مفعلة للانتقال التلقائي دون انطفاء الراديو
                 isMusicPlaying = true;
                 handleConnectionFailure(statusText);
             }
@@ -497,20 +456,17 @@ function playRadio(url, category, index) {
     }
 }
 
-// دالة مساعدة للتعامل مع فشل الاتصال ومنع الحلقة اللانهائية
 function handleConnectionFailure(statusText) {
     failedAttempts++;
     const maxChannels = RADIO_STATIONS[selectedCategory].length;
 
     if (failedAttempts >= maxChannels) {
-         // إذا فشلت كل قنوات القسم، أوقف المحاولات لمنع حلقة لا نهائية
-         console.log("فشلت جميع المحاولات في هذا القسم. تم إيقاف الراديو لتجنب الحلقة اللانهائية.");
          if (statusText) {
              statusText.innerText = "( عذراً، لا يوجد اتصال بالبث حالياً ❌ )";
              statusText.style.color = "#ff453a";
          }
-         stopRadio(); // إيقاف الراديو
-         failedAttempts = 0; // تصفير العداد للمرات القادمة
+         stopRadio(); 
+         failedAttempts = 0; 
     } else {
          if (statusText) {
              statusText.innerText = "( فشل الاتصال.. ننتقل للتالية ⏩ )";
@@ -527,13 +483,15 @@ function stopRadio() {
     const statusText = document.getElementById('radio-status');
     if (statusText) statusText.innerText = ""; 
 
+    clearTimeout(stallTimeout); 
+
     if (audioInstance) {
         audioInstance.pause();
         audioInstance.onwaiting = null;
         audioInstance.onplaying = null;
         audioInstance.onerror = null;
-        audioInstance.src = ''; // صحيح ومعياري
-        audioInstance.load();   // قطع الاتصال فوراً
+        audioInstance.src = ''; // تفريغ المسار
+        audioInstance.load();   
         audioInstance = null;
     }
     isMusicPlaying = false;
@@ -541,7 +499,6 @@ function stopRadio() {
     updateRadioButtonsUI();
 }
 
-// تفعيل المحطات بعد التفاعل الأول للمستخدم تماشياً مع سياسات المتصفحات للوسائط
 document.addEventListener('DOMContentLoaded', () => {
     injectRadioUI(); 
 
@@ -550,20 +507,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedCategory = localStorage.getItem('hub_radio_category') || 'kurdish';
         const savedIndex = parseInt(localStorage.getItem('hub_radio_channel_index')) || 0;
         
+        // الآن ستعمل هذه الميزة بنجاح لأن التحديث لا يمسح الحالة المفعلة
         if (savedMusicState === 'true' && RADIO_STATIONS[savedCategory] && RADIO_STATIONS[savedCategory][savedIndex] && !isMusicPlaying) {
             selectedCategory = savedCategory;
             currentChannelIndex = savedIndex;
             triggerPlayRadio();
         }
-        window.removeEventListener('click', handleFirstClick);
+        window.removeEventListener('click', handleFirstClick); 
     };
 
     window.addEventListener('click', handleFirstClick);
 });
 
-// ضمان تنظيف البث وحفظ حالة الإيقاف عند غلق الصفحة أو اللعبة تماماً
+// عند مغادرة الصفحة نقوم بـ إيقاف البث الصوتي مؤقتاً لحماية المتصفح، دون تخريب بيانات الـ localStorage
 const handleGameExitState = () => {
-    localStorage.setItem('hub_music_enabled', 'false');
     if (audioInstance) {
         audioInstance.pause();
     }
@@ -571,7 +528,7 @@ const handleGameExitState = () => {
 window.addEventListener('beforeunload', handleGameExitState);
 window.addEventListener('pagehide', handleGameExitState);
 
-// تصدير الدوال للنافذة العالمية لتعمل مع الأحداث المباشرة (Inline events)
+// تصدير الدوال للنطاق العالمي (Global Scope)
 window.openRadioModal = openRadioModal;
 window.closeRadioModal = closeRadioModal;
 window.selectRadioCategory = selectRadioCategory;
