@@ -30,7 +30,7 @@
         }
         
         /* ========================================== */
-        /* رقعة اللعب واللوحات                        */
+        /* رقعة اللعب واللوحات (تعديل ثلاثي الأبعاد)  */
         /* ========================================== */
         .scoreboard { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; background: rgba(45, 48, 55, 0.6); padding: 15px; border-radius: 12px; align-items: center; width: 90%; max-width: 350px; transition: all 0.3s; }
         .score-row { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; width: 100%; }
@@ -38,42 +38,101 @@
         .mini-piece.active-white { background: #fff; border: 1px solid #bdc3c7; }
         .mini-piece.active-black { background: #2c2c35; border: 1px solid #1a1a24; }
         
-        .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
+        /* إضافة عمق منظور ثلاثي الأبعاد للحاوية */
+        .game-container { 
+            display: flex; flex-direction: row; justify-content: center; align-items: center; 
+            width: 100%; box-sizing: border-box; 
+            perspective: 1200px; 
+            padding: 20px 0 40px 0;
+        }
         
+        /* تحويل الرقعة لمنضدة ثلاثية الأبعاد */
         #board { 
             display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
             width: 95vw; max-width: 420px; aspect-ratio: 1 / 1; 
             background-color: #3e2723;
-            border: 12px solid #5C3A21; border-radius: 8px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.05), inset 0 0 15px rgba(0,0,0,0.9);
+            border: 14px solid #5C3A21; border-radius: 12px;
+            
+            /* تأثير الميل والتجسيم */
+            transform: rotateX(40deg) translateY(-10px);
+            transform-style: preserve-3d;
+            box-shadow: 
+                0 25px 0 #3b2413, /* سمك الطاولة (العمق) */
+                0 40px 30px rgba(0,0,0,0.8), /* ظل الطاولة على الأرض */
+                inset 0 0 15px rgba(0,0,0,0.9), /* تظليل داخلي */
+                inset 0 0 0 2px rgba(255,255,255,0.05); /* لمعة خفيفة */
             border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
             transition: all 0.5s ease; 
         }
 
-        .cell { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; border: 0.8px solid rgba(0,0,0,0.5); box-sizing: border-box; }
+        .cell { 
+            position: relative; width: 100%; height: 100%; display: flex; 
+            justify-content: center; align-items: center; border: 0.8px solid rgba(0,0,0,0.5); 
+            box-sizing: border-box; 
+            transform-style: preserve-3d; /* لتمرير الأبعاد للأحجار */
+        }
         .cell.light { background-color: var(--light-cell); transition: background-color 0.5s; }
         .cell.dark { background-color: var(--dark-cell); transition: background-color 0.5s; }
-        .cell.highlight::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(52, 152, 219, 0.4); border: 3px solid #2980b9; box-sizing: border-box; z-index: 5; pointer-events: none; }
-        .cell.last-move::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1.5px solid #ffffff; background-color: transparent; box-sizing: border-box; z-index: 6; pointer-events: none; }
+        .cell.highlight::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(52, 152, 219, 0.4); border: 3px solid #2980b9; box-sizing: border-box; z-index: 5; pointer-events: none; transform: translateZ(1px); }
+        .cell.last-move::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1.5px solid #ffffff; background-color: transparent; box-sizing: border-box; z-index: 6; pointer-events: none; transform: translateZ(2px); }
         
-        .piece { width: 80%; height: 80%; border-radius: 50%; cursor: pointer; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.4s, border 0.4s; display: flex; align-items: center; justify-content: center; position: relative; }
+        /* بروز الأحجار وتجسيمها */
+        .piece { 
+            width: 80%; height: 80%; border-radius: 50%; cursor: pointer; 
+            box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 0 6px 5px rgba(0,0,0,0.6); 
+            transition: transform 0.2s, background 0.4s, border 0.4s, box-shadow 0.2s; 
+            display: flex; align-items: center; justify-content: center; position: relative; 
+            transform: translateZ(5px); /* رفع الحجر عن السطح */
+        }
         .piece::before { content: ''; position: absolute; width: 45%; height: 45%; border-radius: 50%; pointer-events: none; border: 1px solid rgba(0,0,0,0.1); }
         .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6); border: 1px solid #bdc3c7; }
         .piece.white::before { background-color: rgba(0, 0, 0, 0.15); }
         .piece.black { background: radial-gradient(circle at 30% 30%, #68707a, #353b45, #1e1e24); border: 1px solid #1a1a24; }
         .piece.black::before { background-color: rgba(255, 255, 255, 0.15); }
-        .piece.selected { outline: 3px solid #2ecc71; transform: scale(1.1); }
         
-        .piece.white.dama { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #bdc3c7) !important; border: 3px solid #fff !important; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1), 0 0 10px rgba(255, 255, 255, 0.6) !important; z-index: 10; }
+        .piece.selected { 
+            outline: 3px solid #2ecc71; 
+            transform: translateZ(25px) scale(1.1) !important; /* قفز الحجر للأعلى عند تحديده */
+            box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 0 20px 10px rgba(0,0,0,0.5) !important;
+        }
+        
+        .piece.white.dama { 
+            background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #bdc3c7) !important; 
+            border: 3px solid #fff !important; 
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1), 0 12px 8px rgba(0,0,0,0.6), 0 0 10px rgba(255, 255, 255, 0.6) !important; 
+            z-index: 10; 
+            transform: translateZ(10px); /* الملوك أعلى قليلاً */
+        }
         .piece.white.dama::after { content: '👑'; color: #d4af37; text-shadow: 0 0 2px rgba(0,0,0,0.5); }
-        .piece.black.dama { background: radial-gradient(circle at 30% 30%, #555, #2b2b35, #1e1e24) !important; border: 2px solid #2b2b35 !important; box-shadow: inset -2px -2px 5px rgba(255,255,255,0.1), 0 0 10px rgba(0,0,0,0.5) !important; z-index: 10; }
+        
+        .piece.black.dama { 
+            background: radial-gradient(circle at 30% 30%, #555, #2b2b35, #1e1e24) !important; 
+            border: 2px solid #2b2b35 !important; 
+            box-shadow: inset -2px -2px 5px rgba(255,255,255,0.1), 0 12px 8px rgba(0,0,0,0.7), 0 0 10px rgba(0,0,0,0.5) !important; 
+            z-index: 10; 
+            transform: translateZ(10px); 
+        }
         .piece.black.dama::after { content: '👑'; color: #b0b0b8; text-shadow: 0 0 3px rgba(255,255,255,0.2); }
+        
         .piece.dama::before { fill: none; }
         .piece.dama::after { font-size: 80%; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; transition: text-shadow 0.3s, color 0.3s; }
         
-        .piece.forced { border: 2px solid #e74c3c !important; box-shadow: 0 0 18px #e74c3c, inset 0 0 8px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
-        .piece.dama.forced { border: 4px double #e74c3c !important; box-shadow: 0 0 25px #e74c3c, inset 0 0 12px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
-        @keyframes forcedPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+        .piece.white.dama.selected, .piece.black.dama.selected { 
+            transform: translateZ(35px) scale(1.15) !important; 
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1), 0 25px 15px rgba(0,0,0,0.6), 0 0 15px rgba(255, 255, 255, 0.6) !important;
+        }
+
+        .piece.forced { border: 2px solid #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out !important; }
+        .piece.dama.forced { border: 4px double #e74c3c !important; animation: forcedPulseDama 1.2s infinite ease-in-out !important; }
+        
+        @keyframes forcedPulse { 
+            0%, 100% { transform: translateZ(5px) scale(1); box-shadow: 0 6px 5px rgba(0,0,0,0.6), 0 0 18px #e74c3c, inset 0 0 8px #e74c3c; } 
+            50% { transform: translateZ(15px) scale(1.06); box-shadow: 0 15px 10px rgba(0,0,0,0.4), 0 0 25px #e74c3c, inset 0 0 12px #e74c3c; } 
+        }
+        @keyframes forcedPulseDama { 
+            0%, 100% { transform: translateZ(10px) scale(1); box-shadow: 0 12px 8px rgba(0,0,0,0.6), 0 0 25px #e74c3c, inset 0 0 12px #e74c3c; } 
+            50% { transform: translateZ(25px) scale(1.1); box-shadow: 0 20px 15px rgba(0,0,0,0.5), 0 0 35px #e74c3c, inset 0 0 18px #e74c3c; } 
+        }
         
         /* ========================================== */
         /* الشريط السفلي و الأزرار المربعة            */
