@@ -110,14 +110,43 @@
             direction: ltr; transition: var(--transition); gap: 8px;
         }
 
-        /* زر اللغة الجديد */
+        /* زر اللغة الجديد والقائمة المنسدلة */
         .lang-btn {
-            height: 46px; padding: 0 16px; background: var(--glass-bg); backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border); border-radius: 25px; gap: 6px;
+            height: 46px; padding: 0 20px; background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 25px;
             display: flex; align-items: center; justify-content: center; color: var(--text-primary);
             font-weight: 600; font-size: 14px; cursor: pointer; transition: var(--transition);
         }
         .lang-btn:hover { background: rgba(255,255,255,0.08); }
+
+        .lang-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            background: #111115;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 15px;
+            overflow: hidden;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            flex-direction: column;
+        }
+        .lang-dropdown-menu.show { display: flex; animation: fadeIn 0.2s ease; }
+        .lang-dropdown-item {
+            padding: 12px 15px;
+            text-align: center;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .lang-dropdown-item:last-child { border-bottom: none; }
+        .lang-dropdown-item:hover { background: rgba(255,255,255,0.1); color: var(--accent); }
 
 
         /* ========================================== */
@@ -313,10 +342,18 @@
                     🪙 <span id="hub-token-count">0</span>
                 </div>
             </div>
-            <div style="display: flex; gap: 12px; align-items: center;">
+            
+            <div style="display: flex; gap: 12px; align-items: center; position: relative;">
+                <!-- زر اللغة يفتح القائمة المنسدلة -->
+                <div class="lang-btn" onclick="toggleLangMenu()" id="lang-toggle-btn">
+                    <span id="lang-text">عربي</span>
+                </div>
                 
-                <div class="lang-btn" onclick="toggleLanguage()" id="lang-toggle-btn">
-                    🌐 <span id="lang-text">عربي</span>
+                <!-- القائمة المنسدلة للغات -->
+                <div id="lang-dropdown" class="lang-dropdown-menu">
+                    <div class="lang-dropdown-item" onclick="selectLanguage('ar')">عربي</div>
+                    <div class="lang-dropdown-item" onclick="selectLanguage('en')">English</div>
+                    <div class="lang-dropdown-item" onclick="selectLanguage('ku')">کوردی</div>
                 </div>
             </div>
         </div>
@@ -611,18 +648,31 @@
             }
         };
 
-        // === إعدادات اللغات والزر ===
         const langs = ['ar', 'en', 'ku'];
-        // الأسماء التي ستظهر داخل الزر لتعبر عن اللغة الحالية بوضوح
         const btnLabels = { 'ar': 'عربي', 'en': 'English', 'ku': 'کوردی' };
         
         let currentLang = localStorage.getItem('app_lang') || 'ar';
         if (!langs.includes(currentLang)) currentLang = 'ar';
         let isLoginMode = false; 
 
-        function toggleLanguage() {
-            let currentIndex = langs.indexOf(currentLang);
-            currentLang = langs[(currentIndex + 1) % langs.length];
+        // دالة لفتح وإغلاق القائمة المنسدلة
+        function toggleLangMenu() {
+            document.getElementById('lang-dropdown').classList.toggle('show');
+        }
+
+        // إغلاق القائمة عند النقر في أي مكان آخر بالصفحة
+        window.addEventListener('click', function(e) {
+            const btn = document.getElementById('lang-toggle-btn');
+            const dropdown = document.getElementById('lang-dropdown');
+            if (btn && dropdown && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // دالة لاختيار اللغة من القائمة
+        function selectLanguage(lang) {
+            if (!langs.includes(lang)) return;
+            currentLang = lang;
             localStorage.setItem('app_lang', currentLang);
 
             document.documentElement.lang = currentLang;
@@ -630,26 +680,24 @@
             
             updateTranslations();
 
-            // إشعار اللعبة الداخلية بتغير اللغة
             const gameIframe = document.getElementById('game-frame');
             if (gameIframe && gameIframe.contentWindow) {
                 gameIframe.contentWindow.postMessage({ type: 'LANGUAGE_CHANGED', lang: currentLang }, '*');
             }
             
-            // استدعاء دالة الراديو الأساسية إن وجدت
             if (typeof window.setRadioLanguage === 'function') {
                 window.setRadioLanguage(currentLang);
             }
+
+            document.getElementById('lang-dropdown').classList.remove('show');
         }
 
         function updateTranslations() {
             const t = translations[currentLang];
             
-            // 1. تحديث زر اللغة ليعرض اللغة الحالية بوضوح (مثال: عربي، English، کوردی)
             const langTextEl = document.getElementById('lang-text');
             if (langTextEl) langTextEl.innerText = btnLabels[currentLang];
 
-            // 2. تحديث نصوص الواجهة
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.innerHTML = t[key];
@@ -659,7 +707,6 @@
                 if (t[key]) el.placeholder = t[key];
             });
             
-            // 3. تحديث نصوص نافذة التسجيل
             const toggleLink = document.getElementById('auth-toggle-mode-link');
             if(toggleLink) {
                 if(isLoginMode) {
@@ -675,14 +722,11 @@
                 }
             }
 
-            // 4. فرض تحديث الراديو يدوياً (لحل مشكلة عدم تغير الترجمة بداخله)
             forceUpdateRadioUI();
-            
             syncHubProfile(); 
         }
 
         function forceUpdateRadioUI() {
-            // يبحث عن الراديو ويجبره على تغيير نصوصه مباشرة من هنا 
             const radioModal = document.getElementById('radio-modal');
             if (radioModal && typeof RADIO_TRANSLATIONS !== 'undefined') {
                 const rt = RADIO_TRANSLATIONS[currentLang];
@@ -701,7 +745,6 @@
                     const kuBtn = document.getElementById('btn-station-kurdish');
                     if(kuBtn) kuBtn.innerText = rt.cat_kurdish;
                     
-                    // تحديث زر التشغيل والإيقاف حسب حالته
                     const actionBtn = document.getElementById('radio-toggle-action-btn');
                     if (actionBtn) {
                         if (actionBtn.classList.contains('stop-btn')) {
@@ -714,7 +757,6 @@
             }
         }
 
-        // 🔌 الاتصال بالسيرفر المحرك
         const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
 
         window.addEventListener('message', (event) => {
@@ -848,9 +890,6 @@
             }
         }
 
-        // ==========================================
-        // === النوافذ المنبثقة التنبيهية والتحكم ===
-        // ==========================================
         let customPopupCallback = null;
 
         function showCustomPopup(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
