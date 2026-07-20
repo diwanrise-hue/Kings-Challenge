@@ -45,6 +45,9 @@
         /* الأشرطة النحيفة الخاصة باللاعب والخصم      */
         /* ========================================== */
         .player-bar {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(45, 48, 55, 0.7);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -54,7 +57,7 @@
             align-items: center;
             padding: 3px 12px;
             gap: 8px;
-            z-index: 10;
+            z-index: 100;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             width: auto;
             min-width: 140px;
@@ -63,8 +66,8 @@
             height: 32px; /* شريط نحيف جداً */
         }
 
-        #opponent-bar { margin-bottom: 10px; } /* مسافة أسفل شريط الخصم */
-        #my-player-bar { margin-top: 15px; } /* مسافة أعلى شريط اللاعب */
+        #opponent-bar { top: 15px; } /* شريط الخصم بالأعلى */
+        #my-player-bar { bottom: 85px; } /* شريط اللاعب بالأسفل وفوق لوحة التحكم */
 
         .bar-avatar { width: 24px; height: 24px; border-radius: 50%; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 13px; border: 1px solid rgba(255,255,255,0.15); overflow: hidden; background-color: rgba(255,255,255,0.05); }
         .bar-name { color: #ffffff; font-size: 13px; font-weight: 700; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -461,18 +464,20 @@
         </svg>
     </button>
 
-    <!-- الترتيب الجديد المطلوب للعناصر الثابتة في المنتصف -->
-
-    <!-- 1. شريط / كبسولة الخصم (تظهر في اللعب الأونلاين فقط) -->
+    <!-- الأشرطة النحيفة الخاصة باللاعب والخصم (تظهر في اللعب الأونلاين فقط) -->
     <div id="opponent-bar" class="player-bar" style="display: none;">
         <div id="card-opp-avatar" class="bar-avatar">❓</div>
         <span id="card-opp-name" class="bar-name">الخصم</span>
     </div>
 
-    <!-- حاوية خفية للتوافق مع ملف الجافاسكريبت الرئيسي -->
+    <div id="my-player-bar" class="player-bar" style="display: none;">
+        <div id="card-my-avatar" class="bar-avatar"></div>
+        <span id="card-my-name" class="bar-name">أنت</span>
+    </div>
+
+    <!-- حاوية خفية للتوافق مع main.js -->
     <div id="match-players-card"></div>
 
-    <!-- 2. شريط الدور -->
     <div id="status-area">
         <div id="turn-box-container">
             <h3 id="turn-indicator">Your Turn</h3>
@@ -480,21 +485,13 @@
         </div>
     </div>
 
-    <!-- 3. شريط عدد الأحجار المتبقية (النتيجة) -->
     <div class="scoreboard">
         <div id="opponent-score-row" class="score-row"></div>
         <div id="my-score-row" class="score-row"></div>
     </div>
     
-    <!-- 4. الساحة (رقعة اللعب) -->
     <div class="game-container">
         <div id="board"></div> 
-    </div>
-
-    <!-- 5. شريط / كبسولة اللاعب (أنت) (تظهر في اللعب الأونلاين فقط) -->
-    <div id="my-player-bar" class="player-bar" style="display: none;">
-        <div id="card-my-avatar" class="bar-avatar"></div>
-        <span id="card-my-name" class="bar-name">أنت</span>
     </div>
 
     <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
@@ -569,6 +566,30 @@
     </div>
 
     <!-- النوافذ المنبثقة -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto">
+            <button class="modal-close-btn" onclick="closeAppModal('auth-modal')">✕</button>
+            <h3 id="auth-modal-title" data-i18n="register_tab_title">إنشاء حساب</h3>
+            <p id="auth-modal-desc" class="desc" data-i18n="register_tab_desc">أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب</p>
+            <div class="input-group">
+                <!-- التعديل 1: إضافة خاصية for لحقل الاسم -->
+                <label class="settings-label" for="login-name-input" data-i18n="login_name_label">الاسم</label>
+                <input type="text" id="login-name-input" class="clean-input" data-i18n-placeholder="login_name_placeholder" placeholder="اكتب اسمك هنا">
+            </div>
+            <div class="input-group">
+                <!-- التعديل 2: إضافة خاصية for لحقل كلمة المرور -->
+                <label class="settings-label" for="login-password-input">كلمة المرور / Password</label>
+                <input type="password" id="login-password-input" class="clean-input" placeholder="••••••••">
+            </div>
+            <div class="input-group" id="avatar-select-group">
+                <!-- التعديل 3: إضافة خاصية for لحقل اختيار الشخصية -->
+                <label class="settings-label" for="login-avatar-select" data-i18n="login_avatar_label">الشخصية</label>
+                <select id="login-avatar-select" class="clean-input"></select>
+            </div>
+            <button id="auth-primary-submit-btn" class="save-settings-btn">تسجيل</button>
+        </div>
+    </div>
+
     <div id="in-game-profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
@@ -598,7 +619,6 @@
             </div>
 
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; box-sizing: border-box;">
-                <label for="friend-id-input" style="display:none;">معرف الصديق</label>
                 <input type="text" id="friend-id-input" class="online-input" placeholder="معرف الصديق (ID)" style="margin-bottom: 0; height: 40px; font-size: 12px; width: 100%;">
                 <button id="add-friend-btn" class="save-settings-btn" style="margin-top: 0; height: 40px; padding: 0 30px; width: auto; font-size: 13px;">إضافة صديق</button>
             </div>
@@ -731,12 +751,11 @@
             <button class="modal-close-btn" onclick="closeAppModal('online-modal')" style="left:15px; right:auto;">✕</button>
             <h3 id="create-room-title">الغرف الخاصة</h3>
             <div id="online-setup-box">
-                <!-- تم إضافة for هنا -->
-                <label for="online-room-input" class="settings-label" id="room-id-label">رقم أو اسم الغرفة:</label>
+                <!-- التعديل 4: إضافة خاصية for لحقل إعدادات الغرف -->
+                <label class="settings-label" id="room-id-label" for="online-room-input">رقم أو اسم الغرفة:</label>
                 <input type="text" id="online-room-input" class="online-input" placeholder="مثال: 12345">
                 
-                <!-- تم إضافة for هنا -->
-                <label for="online-password-input" class="settings-label" id="room-password-label">كلمة السر (اختياري):</label>
+                <label class="settings-label" id="room-password-label" for="online-password-input">كلمة السر (اختياري):</label>
                 <input type="password" id="online-password-input" class="online-input" placeholder="اتركها فارغة للعام">
 
                 <button id="online-create-btn" class="save-settings-btn" style="background: rgba(255,255,255,0.15) !important;">إنشاء غرفة</button>
@@ -778,8 +797,8 @@
             <button class="modal-close-btn" onclick="closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
             <h3 id="set-title">الإعدادات</h3>
             <div class="audio-controls">
-                <!-- تم إضافة for هنا -->
-                <label for="sfx-volume" id="sfx-lbl">مستوى صوت التحريك</label>
+                <!-- التعديل 5: إضافة خاصية for لحقل مستوى الصوت -->
+                <label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label>
                 <input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7">
             </div>
             <button id="save-settings-btn" class="save-settings-btn" style="margin-top: 25px;">حفظ</button>
@@ -1241,7 +1260,7 @@
                                    (resignBtn && resignBtn.style.display !== 'none');
             
             if (isOnlineOrRoomActive) {
-                // إخفاء كبسولة البروفايل وزر الخيارات والمتجر أثناء اللعب أونلاين
+                // إخفاء كبسولة البروفايل وزر الخيارات ومتجر أثناء اللعب أونلاين
                 if (storeBtn) storeBtn.style.setProperty('display', 'none', 'important');
                 if (profileBadge) profileBadge.style.setProperty('display', 'none', 'important');
                 if (hamburgerBtn) hamburgerBtn.style.setProperty('display', 'none', 'important');
