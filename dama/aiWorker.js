@@ -61,7 +61,9 @@ function getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = n
                         } else {
                             paths.push([stepObj]);
                         }
-                        break; 
+                        // 💡 السماح للملك بالهبوط في أي مربع فارغ بعد الأكل (مثلما أصلحناها في المحرك الأساسي)
+                        step++; 
+                        continue;
                     } else break;
                 }
             }
@@ -133,16 +135,15 @@ function generateAllTurnMoves(color, bState) {
     let maxJumps = 0;
     const pureColor = color.split('-')[0];
 
+    // ✅ تم تصحيح حلقة التكرار لمنع الانهيار (Infinite Loop)
     for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; r++) { // تصحيح الفحص الشامل لـ 64 مربعاً
-            for(let c = 0; c < 8; c++) {
-                const piece = bState[r][c];
-                if (piece && piece.startsWith(pureColor)) {
-                    const paths = getPieceCapturePaths(r, c, color, bState, null, null);
-                    for (const p of paths) {
-                        if (p.length > maxJumps) maxJumps = p.length;
-                        allCapturePaths.push(p);
-                    }
+        for (let c = 0; c < 8; c++) {
+            const piece = bState[r][c];
+            if (piece && piece.startsWith(pureColor)) {
+                const paths = getPieceCapturePaths(r, c, color, bState, null, null);
+                for (const p of paths) {
+                    if (p.length > maxJumps) maxJumps = p.length;
+                    allCapturePaths.push(p);
                 }
             }
         }
