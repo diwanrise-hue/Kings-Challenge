@@ -19,6 +19,29 @@
             -webkit-tap-highlight-color: transparent; transition: background 0.3s ease; 
         }
 
+        /* ========================================== */
+        /* تخصيصات وضع الأونلاين (Online Mode Styles) */
+        /* ========================================== */
+        body.online-mode-active {
+            padding-top: 15px !important;
+            justify-content: flex-start;
+        }
+        
+        body.online-mode-active #profile-badge,
+        body.online-mode-active #hamburger-menu-btn,
+        body.online-mode-active #undo-btn {
+            display: none !important;
+        }
+
+        body.online-mode-active #status-area {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        body.online-mode-active .scoreboard {
+            margin-bottom: 15px;
+        }
+
         #status-area {
             width: 100%;
             display: flex;
@@ -109,8 +132,6 @@
         #online-toggle-btn:hover, #store-portal-corner-btn:hover {
             background: rgba(255,255,255,0.15) !important; transform: scale(1.05);
         }
-
-        #chat-btn:hover { background: rgba(255,255,255,0.15) !important; transform: scale(1.05); }
 
         @keyframes magicGlow {
             0% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; transform: scale(1); }
@@ -378,7 +399,7 @@
         button, select, .control-panel button, .control-panel select, 
         .scoreboard, .settings-card, 
         .save-settings-btn, .store-buy-btn, .custom-tab-button, 
-        .modal-close-btn, #hamburger-menu-btn, #online-toggle-btn, #store-portal-corner-btn, #chat-btn {
+        .modal-close-btn, #hamburger-menu-btn, #online-toggle-btn, #store-portal-corner-btn {
             border: 1px solid rgba(135, 206, 235, 0.4) !important;
             box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important;
             outline: none !important;
@@ -539,11 +560,6 @@
         <span class="notification-badge"></span>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="rgba(52, 152, 219, 0.2)" stroke="#3498db" stroke-width="2" style="margin-left: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path></svg>
         <span style="font-size: 13px; font-weight: 600;">اونلاين</span>
-    </button>
-
-    <button id="chat-btn" title="الرسائل" style="display: none; position: fixed; bottom: 130px; right: 15px; z-index: 9998; width: 46px; height: 46px; border-radius: 14px; background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(10px); color: white; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; border: 1px solid rgba(135, 206, 235, 0.4) !important; box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important; transition: all 0.3s;">
-        💬
-        <span id="chat-badge" style="display: none; position: absolute; top: -4px; right: -4px; background: #e74c3c; color: white; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 50%; border: 1px solid #282a32;">1</span>
     </button>
 
     <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 75px; right: 15px; z-index: 9998; width: 46px; height: 46px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي">
@@ -1245,8 +1261,10 @@
                                    (resignBtn && resignBtn.style.display !== 'none');
             
             if (isOnlineOrRoomActive) {
+                document.body.classList.add('online-mode-active');
                 if (storeBtn) storeBtn.style.setProperty('display', 'none', 'important');
             } else {
+                document.body.classList.remove('online-mode-active');
                 if (storeBtn) storeBtn.style.setProperty('display', 'flex', 'important');
             }
         }
@@ -1267,7 +1285,7 @@
             
             if (alertModal && alertMsg && alertOk && alertCancel) {
                 alertTitle.innerText = window.t ? window.t('confirm_exit_title') : "تأكيد الخروج";
-                alertMsg.innerText = window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة？";
+                alertMsg.innerText = window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟";
                 
                 alertOk.innerText = "تأكيد";
                 alertCancel.innerText = "إلغاء";
@@ -1327,7 +1345,7 @@
             
             if (alertModal && alertMsg && alertOk && alertCancel) {
                 alertTitle.innerText = window.t ? window.t('confirm_resign_title') : "تأكيد الانسحاب";
-                alertMsg.innerText = window.t ? window.t('confirm_resign_msg') : "هل أنت متأكد من الانسحاب من المباراة الحالية？";
+                alertMsg.innerText = window.t ? window.t('confirm_resign_msg') : "هل أنت متأكد من الانسحاب من المباراة الحالية؟";
                 
                 alertOk.innerText = "تأكيد";
                 alertCancel.innerText = "إلغاء";
