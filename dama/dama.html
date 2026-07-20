@@ -550,6 +550,26 @@
         🛒
     </button>
 
+    <div id="login-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto">
+            <button class="modal-close-btn" onclick="closeAppModal('login-modal')" style="left:15px; right:auto;">✕</button>
+            <h3>تسجيل الدخول</h3>
+            
+            <label class="settings-label" for="login-name-input">الاسم</label>
+            <input type="text" id="login-name-input" class="online-input" placeholder="أدخل اسمك">
+
+            <label class="settings-label" for="login-password-input">كلمة المرور / Password</label>
+            <input type="password" id="login-password-input" class="online-input" placeholder="كلمة المرور">
+
+            <label class="settings-label" for="login-avatar-select">الشخصية</label>
+            <select id="login-avatar-select" class="online-input">
+                <option value="avatar1">شخصية 1</option>
+            </select>
+
+            <button id="login-submit-btn" class="save-settings-btn">دخول</button>
+        </div>
+    </div>
+
     <div id="in-game-profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
@@ -711,10 +731,10 @@
             <button class="modal-close-btn" onclick="closeAppModal('online-modal')" style="left:15px; right:auto;">✕</button>
             <h3 id="create-room-title">الغرف الخاصة</h3>
             <div id="online-setup-box">
-                <label class="settings-label" id="room-id-label">رقم أو اسم الغرفة:</label>
+                <label class="settings-label" id="room-id-label" for="online-room-input">رقم أو اسم الغرفة:</label>
                 <input type="text" id="online-room-input" class="online-input" placeholder="مثال: 12345">
                 
-                <label class="settings-label" id="room-password-label">كلمة السر (اختياري):</label>
+                <label class="settings-label" id="room-password-label" for="online-password-input">كلمة السر (اختياري):</label>
                 <input type="password" id="online-password-input" class="online-input" placeholder="اتركها فارغة للعام">
 
                 <button id="online-create-btn" class="save-settings-btn" style="background: rgba(255,255,255,0.15) !important;">إنشاء غرفة</button>
@@ -756,7 +776,7 @@
             <button class="modal-close-btn" onclick="closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
             <h3 id="set-title">الإعدادات</h3>
             <div class="audio-controls">
-                <label id="sfx-lbl">مستوى صوت التحريك</label>
+                <label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label>
                 <input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7">
             </div>
             <button id="save-settings-btn" class="save-settings-btn" style="margin-top: 25px;">حفظ</button>
@@ -1428,4 +1448,4 @@
         </div>
     </div>
 </body>
-                                                                                                                                                                                                                               </html>
+</html>
