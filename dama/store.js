@@ -828,8 +828,50 @@ export const storeManager = {
             socketAttempts++;
             if (window['socket']) {
                 clearInterval(socketCheck); 
-                window['socket'].off('profileUpdated'); window['socket'].off('purchaseFailed'); window['socket'].off('purchaseSuccess');
                 
+                // إزالة المستمعين القدامى لضمان عدم التكرار
+                window['socket'].off('profileUpdated'); 
+                window['socket'].off('purchaseFailed'); 
+                window['socket'].off('purchaseSuccess');
+                window['socket'].off('disconnect');
+                window['socket'].off('connect_error');
+                window['socket'].off('connect');
+                
+                // إضافة أحداث النافذة الجميلة لانقطاع وعودة الإنترنت
+                window['socket'].on('disconnect', (reason) => {
+                    console.warn('Disconnected:', reason);
+                    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                        const title = window.gameState && window.gameState.lang === 'en' ? "Connection Lost" : "انقطاع الاتصال";
+                        const msg = window.gameState && window.gameState.lang === 'en' 
+                            ? "⚠️ Connection lost. Retrying..." 
+                            : "⚠️ عذراً، انقطع الاتصال بالخادم أو الإنترنت ضعيف. يرجى الانتظار، جاري محاولة إعادة الاتصال...";
+                        
+                        window.ui.showCustomAlert(msg, title, null, false);
+                    }
+                });
+
+                window['socket'].on('connect_error', (err) => {
+                    console.warn('Connection Error:', err);
+                    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                        const title = window.gameState && window.gameState.lang === 'en' ? "Connection Error" : "ضعف الإنترنت";
+                        const msg = window.gameState && window.gameState.lang === 'en' 
+                            ? "⚠️ Internet connection is weak. Retrying..." 
+                            : "⚠️ جاري محاولة استعادة الاتصال بالإنترنت، يرجى الانتظار...";
+                        
+                        window.ui.showCustomAlert(msg, title, null, false);
+                    }
+                });
+
+                window['socket'].on('connect', () => {
+                    console.log('Connected to server successfully');
+                    if (window.ui && typeof window.ui.setDisplay === 'function') {
+                        window.ui.setDisplay('custom-alert-modal', 'none');
+                    } else if (typeof window.closeAppModal === 'function') {
+                        window.closeAppModal('custom-alert-modal');
+                    }
+                });
+
+                // متابعة باقي أحداث السوكيت الأصلية
                 window['socket'].on('profileUpdated', (updatedProfile) => {
                     localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
                     
@@ -853,7 +895,10 @@ export const storeManager = {
                     if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
                 });
                 
-            } else if (socketAttempts >= maxAttempts) { clearInterval(socketCheck); console.warn("Store.js: لم يتم العثور على السوكيت بعد 10 ثوانٍ. سيعمل المتجر في وضع الأوفلاين."); }
+            } else if (socketAttempts >= maxAttempts) { 
+                clearInterval(socketCheck); 
+                console.warn("Store.js: لم يتم العثور على السوكيت بعد 10 ثوانٍ. سيعمل المتجر في وضع الأوفلاين."); 
+            }
         }, 500);
 
         setTimeout(() => { this.renderUI(); }, 200);
