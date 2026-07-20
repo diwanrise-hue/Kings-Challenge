@@ -58,7 +58,7 @@ export const ui = {
         let playPromise = audio.play();
         if (playPromise !== undefined) {
             playPromise.catch(err => {
-                // تجاهل الخطأ بصمت إذا منع المتصفح (مثل سفاري) التشغيل التلقائي للصوت
+                // تجاهل الخطأ بصمت إذا منع المتصفح التشغيل التلقائي للصوت
             });
         }
     },
@@ -145,19 +145,15 @@ export const ui = {
         
         Object.keys(idToKeyMap).forEach(id => setHtml(id, tObj[idToKeyMap[id]] || idToKeyMap[id]));
         
-        // الأزرار المطلوبة بدقة: "الخروج"
         setHtml('exit-game-btn', this.translate("الخروج", "Exit"));
         setHtml('store-return-btn', this.translate("الخروج", "Exit"));
         setHtml('theme-close-btn', this.translate("الخروج", "Exit"));
         
-        // الأزرار المطلوبة بدقة: "إلغاء"
         setHtml('online-close-btn', this.translate("إلغاء", "Cancel"));
         setHtml('custom-alert-cancel', this.translate("إلغاء", "Cancel"));
         
-        // زر إعادة اللعب (أوفلاين) في الشريط السفلي بدلاً من النص القديم ليصبح "(ابداء)"
         setHtml('reset-btn', this.translate("(ابداء)", "(Start)"));
 
-        // الأزرار المطلوبة بدقة: "الانسحاب"
         const resignBtn = this.getEl('resign-btn');
         if (resignBtn) {
             resignBtn.title = this.translate("الانسحاب", "Resign");
@@ -849,41 +845,39 @@ export const ui = {
         box.appendChild(btns); 
         container.appendChild(box); 
         document.body.appendChild(container);
-        
-        // 💡 تطبيق نظام الجوائز مع التحقق من الإنترنت (مكافحة الغش الأوفلاين) 💡
+
+        // 💡 تطبيق النظام المركزي: اللعبة لا تمتلك الأموال، بل تطلبها من السيرفر (Hub) 💡
         if (gameState.userProfile) { 
-            gameState.userProfile.gamesPlayed++; 
-            
             const isServerConnected = (typeof socket !== 'undefined' && socket && socket.connected);
 
             if (isServerConnected) {
-                // اللاعب متصل: امنحه الأموال وأرسلها للسيرفر
+                // عرض رسالة بصرية فقط، والسيرفر المركزي هو من سيضيف الرصيد
                 if (isMeWin) {
-                    gameState.userProfile.wins++; 
-                    gameState.userProfile.tokens = (gameState.userProfile.tokens || 0) + 50;
-                    box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", (translations[gameState.lang]?.tokenReward || "لقد ربحت 🪙") + " 50"));
+                    box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", (translations[gameState.lang]?.tokenReward || "مكافأة الفوز 🪙") + " 50"));
                 } else { 
-                    gameState.userProfile.losses++; 
-                    gameState.userProfile.tokens = (gameState.userProfile.tokens || 0) + 10;
-                    box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", (translations[gameState.lang]?.tokenReward || "لقد ربحت 🪙") + " 10"));
+                    box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", (translations[gameState.lang]?.tokenReward || "مكافأة اللعب 🪙") + " 10"));
                 }
                 
+                // إرسال طلب للسيرفر المركزي (damaserver.js) ليتحقق ويضيف الرصيد إلى المحفظة (index.html)
                 if (!gameState.isOnlineMode) {
                     socket.emit('claimBotReward', { isWin: isMeWin });
                 }
             } else {
-                // اللاعب أوفلاين: لا توجد أموال، يظهر له تنبيه
+                // اللاعب أوفلاين: تنبيه بأنه في وضع التدريب ولا توجد أموال
                 const offlineMsg = gameState.lang === 'ar' ? "الإنترنت مفصول (وضع التدريب) 🚫🪙" : "Offline mode (No rewards) 🚫🪙";
                 box.appendChild(this.makeEl('div', 'offline-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", offlineMsg));
                 
+                // تحديث الإحصائيات المحلية (للتسلية فقط) دون المساس بالمال
+                gameState.userProfile.gamesPlayed++;
                 if (isMeWin) gameState.userProfile.wins++;
                 else gameState.userProfile.losses++;
+                
+                if (gameState.userProfile.id) {
+                    gameState.userProfile.id = gameState.userProfile.id.toUpperCase();
+                }
+                localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
             }
-
-            if (gameState.userProfile.id) {
-                gameState.userProfile.id = gameState.userProfile.id.toUpperCase();
-            }
-            localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+            
             this.updateProfileUI(); 
         }
         this.toggleOnlineUILayout(false);
@@ -1117,15 +1111,15 @@ ui.onClick('hint-btn', () => {
 
         if (!moveObj || moveObj.length === 0) return;
         
-        profile.hints--;
-        localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-        
-        const counterEl = document.getElementById('hint-counter');
-        if (counterEl) counterEl.textContent = profile.hints;
-
-        // 💡 التعديل الهام: نظام حماية المصباح لمنع الاختراق
+        // إذا كان الجهاز متصلاً بالإنترنت نطلب من السيرفر خصم المصباح بصمت
         if (socket && socket.connected) {
             socket.emit('useHint'); 
+        } else {
+            // إذا كان أوفلاين، نخصم المصباح محلياً لكي يستمتع به
+            profile.hints--;
+            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+            const counterEl = document.getElementById('hint-counter');
+            if (counterEl) counterEl.textContent = profile.hints;
         }
 
         let from = { r: moveObj[0].fromR, c: moveObj[0].fromC };
