@@ -16,7 +16,6 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     <script src="radio.js" defer></script>
 
-
     <style>
         /* ========================================== */
         /* المتغيرات والتصميم النظيف (Clean)   */
@@ -324,8 +323,8 @@
         }
         .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }    
     </style>
-  </head>
-  <body>
+</head>
+<body>
       
     <div id="splash-screen">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -370,7 +369,6 @@
         </div>
     </div>
 
-
     <div id="game-interface">
         <iframe id="game-frame" src="" allowfullscreen allow="fullscreen" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
     </div>
@@ -388,7 +386,6 @@
         </div>
     </div>
       
-
     <div id="login-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <h3 id="auth-modal-title" data-i18n="register_tab_title">إنشاء حساب</h3>
@@ -673,7 +670,10 @@
         function selectLanguage(lang) {
             if (!langs.includes(lang)) return;
             currentLang = lang;
+            
+            // 💡 تحديث: حفظ اللغة بمفتاحين للتوافق التام مع لعبة الدامة
             localStorage.setItem('app_lang', currentLang);
+            localStorage.setItem('appLang', currentLang);
 
             document.documentElement.lang = currentLang;
             document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
@@ -759,9 +759,14 @@
 
         const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
 
+        // 💡 التحديث الهام: إضافة الاستماع لحدث EXIT_GAME ليتمكن زر الخروج من العمل
         window.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'SYNC_PROFILE') {
-                syncHubProfile();
+            if (event.data) {
+                if (event.data.type === 'SYNC_PROFILE') {
+                    syncHubProfile();
+                } else if (event.data.type === 'EXIT_GAME') {
+                    exitGame();
+                }
             }
         });
 
@@ -971,6 +976,11 @@
 
         window.addEventListener('load', () => {
             history.replaceState({ view: 'hub' }, '');
+            
+            // تهيئة متغيرات التخزين
+            if (!localStorage.getItem('appLang')) {
+                localStorage.setItem('appLang', currentLang);
+            }
             
             document.documentElement.lang = currentLang;
             document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
