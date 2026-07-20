@@ -84,7 +84,7 @@ export function loadGameState() {
     return false;
 }
 
-window.onload = () => {
+window.addEventListener('load', () => {
     ui.initProfileSystem();
     socketManager.init();
     
@@ -105,7 +105,7 @@ window.onload = () => {
             socket.emit('syncProfile', JSON.parse(profileStr));
         }
     }, 1000);
-};
+});
 
 window.challengeFriend = function(friendId) {
     if (!gameState.userProfile) return;
@@ -119,17 +119,16 @@ window.challengeFriend = function(friendId) {
     }
 };
 
-ui.onClick('game-mode', e => { gameState.currentOpponentName = ""; gameState.currentOpponentAvatar = "❓"; ui.toggleOnlineUILayout(false); ui.setDisplay('friend-menu', e.target.value === 'pvp' ? 'flex' : 'none'); });
 ui.onClick('diff-quick-select', saveGameState);
 
 ui.onClick('reset-btn', () => { 
     ui.toggleOnlineUILayout(false); 
     gameState.isOnlineMode ? ui.showCustomAlert(gameState.lang === 'ar' ? "مغادرة الأونلاين؟" : "Leave online?", null, () => { 
-        gameState.isOnlineMode=false; 
+        gameState.isOnlineMode = false; 
         clearTimeout(gameState.aiTimeout); 
         if(socket && socket.connected) socket.emit('leaveMatchmakingPool'); 
-        ui.setDisplay('new-game-modal','flex'); 
-    }, true) : ui.setDisplay('new-game-modal','flex'); 
+        ui.setDisplay('new-game-modal', 'flex'); 
+    }, true) : ui.setDisplay('new-game-modal', 'flex'); 
 });
 
 ui.onClick('start-white-btn', () => { gameState.playerColor = 'white'; localStorage.removeItem('dama_saved_game'); ui.initBoard(); ui.setDisplay('new-game-modal', 'none'); });
@@ -227,7 +226,8 @@ ui.onClick('add-friend-btn', () => { let fId = ui.getVal('friend-id-input').trim
 
 document.getElementById('avatar-upload-input')?.addEventListener('change', e => { 
     const file = e.target.files[0]; 
-    if (!file || !file.type.startsWith('image/') || file.size > 1.5 * 1024 * 1024) return ui.showCustomAlert(gameState.lang === 'en' ? "Invalid/Large image." : "صورة غير صالحة/كبيرة."); 
+    // تم تعديل حجم الصورة إلى 800KB كحد أقصى لتجنب خطأ QuotaExceededError في الـ LocalStorage
+    if (!file || !file.type.startsWith('image/') || file.size > 800 * 1024) return ui.showCustomAlert(gameState.lang === 'en' ? "Image too large (Max 800KB)." : "حجم الصورة كبير جداً (الأقصى 800KB)."); 
     const reader = new FileReader(); 
     reader.onload = ev => { 
         gameState.userProfile.avatar = ev.target.result; 
@@ -313,7 +313,6 @@ ui.onClick('board', e => {
                 tempBoard[midRow][midCol] = null; tempBoard[toRow][toCol] = tempBoard[fromRow][fromCol]; tempBoard[fromRow][fromCol] = null;
                 if (1 + gameEngine.findMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
                     if (typeof ui.playSound === 'function') {
-                        // الاعتماد على الكاش لتجنب Memory Leaks
                         ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied);
                     }
                     ui.getEl('board').querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`)?.replaceChildren();
@@ -366,31 +365,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (storedUser) {
         let userObj = JSON.parse(storedUser);
         userObj.avatar = initialAvatar;
-        if (typeof applyProfileDataToUI === 'function') {
-            applyProfileDataToUI(userObj);
-        } else if (window.applyProfileDataToUI) {
+        if (typeof window.applyProfileDataToUI === 'function') {
             window.applyProfileDataToUI(userObj);
         }
     } else {
         let defaultProfile = { id: '#00000', name: 'اسم اللاعب', avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0 };
-        if (typeof applyProfileDataToUI === 'function') {
-            applyProfileDataToUI(defaultProfile);
-        } else if (window.applyProfileDataToUI) {
+        if (typeof window.applyProfileDataToUI === 'function') {
             window.applyProfileDataToUI(defaultProfile);
         }
-    }
-
-    const profileIdContainer = document.getElementById('profile-display-id');
-    if (profileIdContainer) {
-        profileIdContainer.addEventListener('click', function() {
-            const idTextToCopy = this.innerText.trim();
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(idTextToCopy)
-                    .then(() => triggerCustomAlertNotification(`📋 تم نسخ معرف اللاعب (${idTextToCopy}) بنجاح!`))
-                    .catch(() => { if (typeof fallbackCopyTextAction === 'function') fallbackCopyTextAction(idTextToCopy); });
-            } else {
-                if (typeof fallbackCopyTextAction === 'function') fallbackCopyTextAction(idTextToCopy);
-            }
-        });
     }
 });
