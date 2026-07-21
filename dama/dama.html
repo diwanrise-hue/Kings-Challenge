@@ -627,7 +627,6 @@
             
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%;">الاسم</h4>
             
-            <!-- جعل الـ ID في وسط أسفل الاسم وعائماً بدون إطار -->
             <div onclick="copyMyId()" id="copy-id-btn" style="cursor: pointer; color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-family: monospace; padding: 4px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;" title="نسخ المعرف" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
                 <span>ID: <span id="igp-id-display" style="color: white; font-weight: bold;">...</span></span>
                 <svg width="14" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
@@ -1499,12 +1498,25 @@
             }
 
             buyBtn.onclick = () => {
-                closeAppModal('purchase-modal');
+                closeAppModal('purchase-modal'); // إغلاق نافذة التأكيد
+                
                 setTimeout(() => {
-                    if(window.socket && typeof getUserId === 'function' && window.socket.connected) {
-                        window.socket.emit('requestPurchase', { userId: getUserId(), itemId: itemId });
+                    // 1. فحص الإنترنت
+                    if (window.socket && typeof getUserId === 'function' && window.socket.connected) {
+                        // 2. إرسال الطلب للسيرفر
+                        window.socket.emit('requestPurchase', { 
+                            userId: getUserId(), 
+                            itemId: itemId 
+                        });
                     } else {
-                        triggerCustomAlertNotification(window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى تسجيل الدخول أولاً.");
+                        // 3. أوفلاين: منع الشراء
+                        const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً.";
+                        
+                        if (typeof triggerCustomAlertNotification === 'function') {
+                            triggerCustomAlertNotification(msg);
+                        } else {
+                            alert(msg);
+                        }
                     }
                 }, 120);
             };
