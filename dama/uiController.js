@@ -14,21 +14,15 @@ export const sfx = {
     clock: new Audio('clock.mp3')
 };
 
-// ==========================================
-// 🧠 مدير الـ Web Worker للذكاء الاصطناعي
-// ==========================================
 let aiSharedWorker = null;
 function getAiWorker() {
     if (window.Worker) {
-        if (!aiSharedWorker) {
-            aiSharedWorker = new Worker('aiWorker.js');
-        }
+        if (!aiSharedWorker) { aiSharedWorker = new Worker('aiWorker.js'); }
         return aiSharedWorker;
     }
     return null;
 }
 
-// 🕹️ متغير عام لمعرفة حالة المباراة ومنع فتح القوائم
 window.isMatchRunning = false;
 
 export const ui = {
@@ -59,11 +53,7 @@ export const ui = {
         if (!audio) return;
         audio.currentTime = 0;
         let playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(err => {
-                // تجاهل الخطأ بصمت
-            });
-        }
+        if (playPromise !== undefined) { playPromise.catch(err => {}); }
     },
     
     getVal(id, defaultValue = "") {
@@ -151,10 +141,8 @@ export const ui = {
         setHtml('exit-game-btn', this.translate("الخروج", "Exit"));
         setHtml('store-return-btn', this.translate("الخروج", "Exit"));
         setHtml('theme-close-btn', this.translate("الخروج", "Exit"));
-        
         setHtml('online-close-btn', this.translate("إلغاء", "Cancel"));
         setHtml('custom-alert-cancel', this.translate("إلغاء", "Cancel"));
-        
         setHtml('reset-btn', this.translate("(ابداء)", "(Start)"));
 
         const resignBtn = this.getEl('resign-btn');
@@ -185,6 +173,7 @@ export const ui = {
         this.startTurn();
     },
 
+    // 🛡️ التعديل الجذري الأول: فصل التنبيه عن المتصفح لمنع التداخل والتعليق
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null) {
         title = title || this.translate("تنبيه", "Alert");
         
@@ -197,28 +186,22 @@ export const ui = {
         if (okBtn) okBtn.style.display = 'inline-block'; 
         
         const modalEl = this.getEl('custom-alert-modal');
-        if (modalEl) modalEl.style.setProperty('z-index', '9999999', 'important');
-
-        if (typeof window.openAppModal === 'function') {
-            window.openAppModal('custom-alert-modal');
-        } else {
-            this.setDisplay('custom-alert-modal', 'flex');
+        if (modalEl) {
+            modalEl.style.setProperty('z-index', '9999999', 'important');
+            modalEl.style.display = 'flex'; // إظهار مباشر آمن بدون التدخل في سجل الهاتف
         }
         
         this.setDisplay('custom-alert-cancel', showCancel ? 'block' : 'none');
         
         this.clickHandlers.set('custom-alert-ok', () => {
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
-            else this.setDisplay('custom-alert-modal', 'none'); 
-            
+            if (modalEl) modalEl.style.display = 'none'; 
             if (onConfirm) {
                 try { onConfirm(); } catch(err) { console.error("Error executing confirm action:", err); }
             }
         });
 
         this.clickHandlers.set('custom-alert-cancel', () => {
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
-            else this.setDisplay('custom-alert-modal', 'none');
+            if (modalEl) modalEl.style.display = 'none';
         });
     },
 
@@ -242,7 +225,6 @@ export const ui = {
         }, 3000);
     },
 
-    // 🎭 ترتيب الشاشة أثناء اللعب أوفلاين (ضد البوت) - المنظف تماماً
     toggleOfflineInMatchUI(active) {
         if (gameState.isOnlineMode) return;
         window.isMatchRunning = active;
@@ -1007,7 +989,7 @@ export const ui = {
     },
 
     updateLeaderboardUI(data) {
-        // ... (كود القائمة كما هو)
+        // قائمة الترتيب
     },
 
     initProfileSystem() {
@@ -1028,7 +1010,7 @@ export const ui = {
     },
 
     startMatchmakingQueue() {
-        // ... (كود الأونلاين كما هو)
+        // الأونلاين
     },
 
     startOnlineGame() {
@@ -1049,7 +1031,7 @@ ui.onClick('reset-btn', () => {
         ui.showCustomAlert(
             ui.translate("بدء لعبة جديدة الآن سيعتبر انسحاباً وخسارة. هل توافق؟", "Starting a new game counts as resignation. Agree?"),
             ui.translate("تنبيه", "Warning"),
-            () => {
+            () => { // عند الضغط على تأكيد الانسحاب للبدء من جديد
                 if (!gameState.isTutorialMode && gameState.userProfile) {
                     gameState.userProfile.losses++;
                     gameState.userProfile.gamesPlayed++;
@@ -1059,6 +1041,7 @@ ui.onClick('reset-btn', () => {
                 }
                 ui.drawEmptyBoard();
                 if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal');
+                else document.getElementById('new-game-modal').style.display = 'flex';
             },
             true,
             ui.translate("إلغاء", "Cancel"),
@@ -1066,6 +1049,7 @@ ui.onClick('reset-btn', () => {
         );
     } else {
         if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal');
+        else document.getElementById('new-game-modal').style.display = 'flex';
     }
 });
 
@@ -1088,7 +1072,7 @@ ui.onClick('resign-btn', () => {
         ui.showCustomAlert(
             ui.translate("هل أنت متأكد من الانسحاب؟ سيتم احتساب خسارة.", "Are you sure you want to resign? It counts as a loss."),
             ui.translate("تأكيد الانسحاب", "Confirm Resign"),
-            () => {
+            () => { // عند الضغط على تأكيد الانسحاب الفوري
                 if (!gameState.isTutorialMode && gameState.userProfile) {
                     gameState.userProfile.losses++;
                     gameState.userProfile.gamesPlayed++;
