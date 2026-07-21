@@ -937,8 +937,107 @@
                     </svg>
                 </span> <span>الحقيبة والأزياء</span>
             </div>
+            
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('settings-overlay')">
-                <span>⚙️</span> <span>الضبط وإعدادات الصوت</span>
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="24" height="24" style="vertical-align: middle; display: inline-block;">
+                      <defs>
+                        <!-- Master Gear Gradient & Effects -->
+                        <radialGradient id="goldCoreGrad" cx="35%" cy="35%" r="65%">
+                          <stop offset="0%" stop-color="#fbbf24" />
+                          <stop offset="60%" stop-color="#d97706" />
+                          <stop offset="100%" stop-color="#78350f" />
+                        </radialGradient>
+                        
+                        <linearGradient id="gearBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#475569" />
+                          <stop offset="100%" stop-color="#0f172a" />
+                        </linearGradient>
+
+                        <linearGradient id="toothGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stop-color="#1e293b" />
+                          <stop offset="25%" stop-color="#64748b" />
+                          <stop offset="50%" stop-color="#f8fafc" />
+                          <stop offset="75%" stop-color="#475569" />
+                          <stop offset="100%" stop-color="#0f172a" />
+                        </linearGradient>
+
+                        <!-- Button & Panel Filters -->
+                        <filter id="buttonShadow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/>
+                        </filter>
+
+                        <filter id="gearShadow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.35"/>
+                        </filter>
+
+                        <style>
+                          .gear-group {
+                            transform-origin: 60px 60px;
+                            animation: spinClockwise 12s linear infinite;
+                          }
+                          .gear-group:hover {
+                            animation-duration: 3s;
+                          }
+                          .gold-core:hover {
+                            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8));
+                          }
+                          @keyframes spinClockwise {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                          }
+                        </style>
+                      </defs>
+
+                      <!-- Button Background / Game Plate -->
+                      <g filter="url(#buttonShadow)">
+                        <rect x="10" y="10" width="100" height="100" rx="20" fill="url(#gearBodyGrad)" stroke="#64748b" stroke-width="2"/>
+                        <rect x="12" y="12" width="96" height="96" rx="18" fill="none" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.5"/>
+                      </g>
+
+                      <!-- Gear System Group -->
+                      <g class="gear-group" filter="url(#gearShadow)">
+                        <!-- 12 Trapezoidal Teeth -->
+                        <g fill="url(#toothGrad)">
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(0 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(30 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(60 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(90 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(120 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(150 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(180 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(210 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(240 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(270 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(300 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(330 60 60)"/>
+                        </g>
+
+                        <!-- Master Gear Outer Rim -->
+                        <circle cx="60" cy="60" r="22" fill="#334155" stroke="#94a3b8" stroke-width="1"/>
+                        <circle cx="60" cy="60" r="21" fill="url(#gearBodyGrad)" />
+
+                        <!-- Gear Body Inner Structure & Spokes -->
+                        <circle cx="60" cy="60" r="16" fill="#0f172a" />
+                        <g fill="#475569" opacity="0.6">
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(0 60 60)"/>
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(60 60 60)"/>
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(120 60 60)"/>
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(180 60 60)"/>
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(240 60 60)"/>
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(300 60 60)"/>
+                        </g>
+
+                        <!-- Gold Core Center -->
+                        <circle class="gold-core" cx="60" cy="60" r="8" fill="url(#goldCoreGrad)" stroke="#b45309" stroke-width="0.5"/>
+
+                        <!-- Recessed Center Screw -->
+                        <circle cx="60" cy="60" r="3.5" fill="#e0e5ec"/>
+                        <line x1="58" y1="58" x2="62" y2="62" stroke="#475569" stroke-width="1" stroke-linecap="round"/>
+                      </g>
+                    </svg>
+                </span> 
+                <span>الضبط وإعدادات الصوت</span>
             </div>
             
             <div style="flex-grow: 1;"></div>
@@ -953,12 +1052,115 @@
 
     <button id="online-toggle-btn" title="البحث العشوائي" style="position: fixed; bottom: 75px; left: 15px; z-index: 9998; height: 46px; width: 102px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
         <span class="notification-badge"></span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="rgba(52, 152, 219, 0.2)" stroke="#3498db" stroke-width="2" style="margin-left: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        <svg viewBox="0 0 100 100" width="20" height="20" style="vertical-align: middle; display: inline-block; margin-left: 2px;">
+          <defs>
+            <radialGradient id="oceanBlueBtn" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="45%" stop-color="#0284c7"/>
+              <stop offset="80%" stop-color="#1d4ed8"/>
+              <stop offset="100%" stop-color="#0f172a"/>
+            </radialGradient>
+            <linearGradient id="landGradBtn" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="40%" stop-color="#bae6fd"/>
+              <stop offset="100%" stop-color="#38bdf8"/>
+            </linearGradient>
+            <radialGradient id="atmosphereGlowBtn" cx="50%" cy="50%" r="50%">
+              <stop offset="70%" stop-color="#38bdf8" stop-opacity="0"/>
+              <stop offset="92%" stop-color="#38bdf8" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#0284c7" stop-opacity="0.9"/>
+            </radialGradient>
+            <linearGradient id="glossHighlightBtn" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+            <clipPath id="globeClipBtn">
+              <circle cx="50" cy="50" r="36"/>
+            </clipPath>
+          </defs>
+          <circle cx="50" cy="50" r="36" fill="url(#oceanBlueBtn)"/>
+          <g clip-path="url(#globeClipBtn)">
+            <g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3">
+              <line x1="10" y1="50" x2="90" y2="50"/>
+              <ellipse cx="50" cy="50" rx="36" ry="18"/>
+              <ellipse cx="50" cy="50" rx="36" ry="30"/>
+              <line x1="50" y1="10" x2="50" y2="90"/>
+              <ellipse cx="50" cy="50" rx="18" ry="36"/>
+              <ellipse cx="50" cy="50" rx="30" ry="36"/>
+            </g>
+            <g fill="url(#landGradBtn)" stroke="#0284c7" stroke-width="0.3" opacity="0.92">
+              <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
+              <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
+              <path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/>
+              <circle cx="72" cy="68" r="3"/>
+              <circle cx="38" cy="23" r="1.8"/>
+              <circle cx="62" cy="58" r="1.5"/>
+            </g>
+          </g>
+          <circle cx="50" cy="50" r="36" fill="url(#atmosphereGlowBtn)"/>
+          <path d="M 20 32 A 34 34 0 0 1 80 32 A 36 36 0 0 0 20 32 Z" fill="url(#glossHighlightBtn)"/>
+        </svg>
         <span style="font-size: 13px; font-weight: 600;">اونلاين</span>
     </button>
 
     <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 75px; right: 15px; z-index: 9998; width: 46px; height: 46px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي">
-        🛒
+        <svg viewBox="0 0 100 100" width="22" height="22" style="vertical-align: middle; display: inline-block;">
+          <defs>
+            <linearGradient id="chromeGradientBtn" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="30%" stop-color="#cbd5e1"/>
+              <stop offset="60%" stop-color="#94a3b8"/>
+              <stop offset="85%" stop-color="#64748b"/>
+              <stop offset="100%" stop-color="#e2e8f0"/>
+            </linearGradient>
+            <linearGradient id="redHandleGradBtn" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f87171"/>
+              <stop offset="50%" stop-color="#dc2626"/>
+              <stop offset="100%" stop-color="#991b1b"/>
+            </linearGradient>
+            <linearGradient id="wireGradientBtn" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#94a3b8"/>
+              <stop offset="50%" stop-color="#475569"/>
+              <stop offset="100%" stop-color="#334155"/>
+            </linearGradient>
+            <linearGradient id="rubberGradientBtn" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="100%" stop-color="#1e293b"/>
+            </linearGradient>
+          </defs>
+          <!-- ظل الأرضية -->
+          <ellipse cx="50" cy="90" rx="30" ry="3.5" fill="#000" opacity="0.15"/>
+          <!-- هيكل الدفع والمقبض -->
+          <path d="M 82 25 L 75 60 L 25 60 L 18 25" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="3" stroke-linecap="round"/>
+          <rect x="74" y="21.5" width="12" height="4.5" rx="2.2" fill="url(#redHandleGradBtn)" stroke="#7f1d1d" stroke-width="0.5"/>
+          <line x1="76" y1="23" x2="84" y2="23" stroke="#fca5a5" stroke-width="1" stroke-linecap="round"/>
+          <!-- الشبكة السلكية -->
+          <g stroke="url(#wireGradientBtn)" stroke-width="1.5" stroke-linecap="round">
+            <path d="M 19 32 H 81 M 20 39 H 80 M 21 46 H 79 M 23 53 H 77"/>
+            <path d="M 25 25 L 28 60 M 35 25 L 36 60 M 45 25 L 44 60 M 55 25 L 52 60 M 65 25 L 60 60 M 75 25 L 68 60"/>
+          </g>
+          <!-- الحافة العلوية والمصدات -->
+          <rect x="16" y="22.5" width="68" height="5" rx="2.5" fill="url(#redHandleGradBtn)" stroke="#7f1d1d" stroke-width="0.5"/>
+          <line x1="18" y1="24" x2="82" y2="24" stroke="#fca5a5" stroke-width="1" stroke-linecap="round"/>
+          <circle cx="17.5" cy="25" r="3" fill="#1e293b"/>
+          <circle cx="17.5" cy="25" r="1.2" fill="#cbd5e1"/>
+          <circle cx="82.5" cy="25" r="3" fill="#1e293b"/>
+          <circle cx="82.5" cy="25" r="1.2" fill="#cbd5e1"/>
+          <!-- الهيكل السفلي والعجلات -->
+          <path d="M 28 60 L 25 75 L 70 75 L 72 60" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="2.5" stroke-linecap="round"/>
+          <g transform="translate(68, 75)">
+            <path d="M 0 0 L 2 12" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="2"/>
+            <circle cx="2" cy="12" r="5" fill="url(#rubberGradientBtn)"/>
+            <circle cx="2" cy="12" r="2.5" fill="url(#chromeGradientBtn)"/>
+            <circle cx="2" cy="12" r="1" fill="#1e293b"/>
+          </g>
+          <g transform="translate(26, 75)">
+            <path d="M 0 0 L 2 12" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="2"/>
+            <circle cx="2" cy="12" r="5" fill="url(#rubberGradientBtn)"/>
+            <circle cx="2" cy="12" r="2.5" fill="url(#chromeGradientBtn)"/>
+            <circle cx="2" cy="12" r="1" fill="#1e293b"/>
+          </g>
+        </svg>
     </button>
 
     <div id="login-modal" class="modal-overlay">
