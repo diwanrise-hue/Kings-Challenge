@@ -30,33 +30,42 @@
         }
         
         /* ========================================== */
-        /* رقعة اللعب واللوحات (مع التوريث البصري)    */
+        /* رقعة اللعب ولوحات النقاط ذات الأشرطة الذكية */
         /* ========================================== */
         .scoreboard { 
-            display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; 
-            background: rgba(30, 32, 40, 0.85); padding: 10px 15px; border-radius: 12px; 
-            align-items: center; width: 90%; max-width: 350px; transition: all 0.3s ease; 
-            box-sizing: border-box; border: 2px solid rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; 
+            background: rgba(30, 32, 40, 0.5); padding: 12px 15px; border-radius: 16px; 
+            align-items: center; width: 90%; max-width: 350px; transition: all 0.4s ease; 
+            box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05);
             min-height: auto !important;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
-        .score-row { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; width: 100%; align-items: center; }
         
-        /* 🌟 الدوائر الفارغة (مكان الأحجار المفقودة) محمية من التمطيط */
+        /* تصميم الشريط الموحد الذي سيأخذ لونه برمجياً من الساحة */
+        .score-row { 
+            display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; 
+            width: 100%; align-items: center; 
+            padding: 8px 12px; border-radius: 50px; min-height: 30px;
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
+        }
+        
+        /* الدوائر الفارغة */
         .mini-piece-empty { 
             width: 14px; height: 14px; border-radius: 50%; 
-            background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.15); 
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
             flex: 0 0 14px; margin: 1px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
         
-        /* 🌟 الأحجار المصغرة الذكية محمية بقفل (Flex: 0 0 14px) */
+        /* الأحجار المصغرة الذكية محمية بقفل */
         .piece.mini { 
             width: 14px !important; height: 14px !important; 
-            flex: 0 0 14px !important; /* قفل يمنع التشوه والتمطيط نهائياً */
+            flex: 0 0 14px !important; 
             min-width: 14px !important; min-height: 14px !important; 
             max-width: 14px !important; max-height: 14px !important;
             margin: 1px !important; padding: 0 !important; 
             cursor: default; transform: none !important; 
-            animation: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.5) !important; 
+            animation: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.6) !important; 
             background-size: cover !important; background-position: center !important; 
             border-width: 1px !important;
             border-radius: 50% !important;
@@ -147,7 +156,6 @@
             animation: magicGlow 0.8s ease-in-out;
         }
 
-        /* توهج زر المتجر بشكل مريح للعين */
         @keyframes storeGlowEffect {
             0% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.3), inset 0 0 5px rgba(241, 196, 15, 0.2); }
             50% { box-shadow: 0 0 15px rgba(241, 196, 15, 0.7), inset 0 0 10px rgba(241, 196, 15, 0.5); border-color: rgba(241, 196, 15, 0.8) !important; transform: scale(1.04); }
