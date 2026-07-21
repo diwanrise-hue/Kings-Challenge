@@ -579,7 +579,7 @@
             
             <div style="flex-grow: 1;"></div>
             
-            <div class="side-menu-item" onclick="toggleSideMenu(); window.confirmExitToMainMenu()" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
+            <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.postMessage({ type: 'EXIT_GAME' }, '*');" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
                 <span>🚪</span> <span>خروج</span>
             </div>
         </div>
@@ -756,7 +756,6 @@
                 <button id="start-black-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #626270, #2c2c35) !important; color: #fff !important; font-size: 24px; width: 64px; height: 64px; padding: 0; margin: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important;">⚫</button>
             </div>
 
-            <!-- ✨ مربع الاختيار للعبة التعليمية ✨ -->
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
                 <input type="checkbox" id="tutorial-mode-checkbox" style="width: 18px; height: 18px; accent-color: #f5a623; cursor: pointer;">
                 <label for="tutorial-mode-checkbox" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0;">لعبة تعليمية (مصباح مجاني / بدون جوائز)</label>
@@ -851,7 +850,6 @@
     </div>
     
     <div class="control-panel" id="bottom-control-panel">
-        <!-- 💡 تمت إزالة الأحداث الخاطئة من الأزرار (سيتم التحكم بها من uiController.js بأمان) -->
         <button id="reset-btn" title="Reset">ابداء</button>
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none;">↩️</button>
         
@@ -1332,58 +1330,35 @@
             }
         });
 
+        // 🧠 المنطق الجديد لتعقب حالة الأونلاين
+        function uiStateChangeTracker() {
+            const matchCard = document.getElementById('match-players-card');
+            const isOnline = (matchCard && matchCard.style.display !== 'none');
+            
+            if (isOnline) {
+                document.body.classList.add('online-mode-active');
+            } else {
+                document.body.classList.remove('online-mode-active');
+            }
+        }
+        
+        window.addEventListener('popstate', uiStateChangeTracker);
+        document.addEventListener('click', () => setTimeout(uiStateChangeTracker, 50));
+
         window.addEventListener('load', () => {
             history.replaceState({ screen: 'dama-game' }, '');
         });
 
-        window.confirmExitToMainMenu = function() {
-            const alertModal = document.getElementById('custom-alert-modal');
-            const alertTitle = document.getElementById('custom-alert-title');
-            const alertMsg = document.getElementById('custom-alert-message');
-            const alertOk = document.getElementById('custom-alert-ok');
-            const alertCancel = document.getElementById('custom-alert-cancel');
-            
-            if (alertModal && alertMsg && alertOk && alertCancel) {
-                alertTitle.innerText = window.t ? window.t('confirm_exit_title') : "تأكيد الخروج";
-                alertMsg.innerText = window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟";
-                
-                alertOk.innerText = "تأكيد";
-                alertCancel.innerText = "إلغاء";
-                
-                openAppModal('custom-alert-modal');
-                alertCancel.style.display = 'flex';
-                
-                alertOk.onclick = () => {
-                    closeAppModal('custom-alert-modal');
-                    alertCancel.style.display = 'none';
-                    window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
-                };
-                
-                alertCancel.onclick = () => {
-                    closeAppModal('custom-alert-modal');
-                    alertCancel.style.display = 'none';
-                    history.pushState({ screen: 'dama-game' }, '');
-                };
-            }
-        }
-
-        // 🛡️ زر الرجوع في الهاتف أصبح ذكياً ومحمياً تماماً
+        // 🛡️ زر الرجوع في الهاتف أصبح ذكياً ومحمياً تماماً ويتعامل مع الأزرار المركزية بأمان
         window.addEventListener('popstate', function(event) {
-            const alertCancel = document.getElementById('custom-alert-cancel');
-
             if (window.modalStack.length > 0) {
                 const topModalId = window.modalStack.pop();
                 const topModal = document.getElementById(topModalId);
-                if (topModal) {
-                    topModal.style.display = 'none';
-                }
-                if (topModalId === 'custom-alert-modal' && alertCancel) {
-                    alertCancel.style.display = 'none';
-                }
+                if (topModal) topModal.style.display = 'none';
                 return; 
             }
 
-            // إذا كان هناك مباراة تلعب حالياً، نطلب من uiController.js محاكاة ضغطة زر الانسحاب الآمنة
+            // إذا كان هناك مباراة تلعب حالياً، نطلب محاكاة ضغطة زر الانسحاب
             if (window.isMatchRunning) {
                 const resignBtn = document.getElementById('resign-btn');
                 if (resignBtn) resignBtn.click();
@@ -1391,7 +1366,16 @@
                 return;
             }
 
-            window.confirmExitToMainMenu();
+            // تأكيد الخروج للمنصة الأم إذا لم يكن هناك مباراة
+            if (window.ui && window.ui.showCustomAlert) {
+                window.ui.showCustomAlert(
+                    window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟",
+                    window.t ? window.t('confirm_exit_title') : "تأكيد الخروج",
+                    () => { window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); },
+                    true, "إلغاء", "تأكيد"
+                );
+            }
+            history.pushState({ screen: 'dama-game' }, '');
         });
 
         window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
