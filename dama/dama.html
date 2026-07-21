@@ -19,22 +19,16 @@
             -webkit-tap-highlight-color: transparent; transition: background 0.3s ease, padding 0.4s ease; 
         }
 
-        #status-area { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 45px; margin-bottom: 10px; }
-        
-        /* ========================================== */
-        /* إعدادات مكتبة الأيقونات الاحترافية (تم التكبير) */
-        /* ========================================== */
-        .svg-icon {
-            display: inline-flex; align-items: center; justify-content: center;
-            flex-shrink: 0; line-height: 0;
+        #status-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 45px;
+            margin-bottom: 10px;
         }
-        .svg-icon svg { width: 100%; height: 100%; display: block; object-fit: contain; }
-        .icon-28 { width: 28px; height: 28px; min-width: 28px; }
-        .icon-34 { width: 34px; height: 34px; min-width: 34px; }
-        .icon-36 { width: 36px; height: 36px; min-width: 36px; }
-        .icon-38 { width: 38px; height: 38px; min-width: 38px; }
-        .icon-42 { width: 42px; height: 42px; min-width: 42px; }
-
+        
         /* ========================================== */
         /* رقعة اللعب ولوحات النقاط ذات الأشرطة الذكية */
         /* ========================================== */
@@ -46,15 +40,46 @@
             backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         }
         
-        .score-row { display: flex; gap: 2px; flex-wrap: nowrap; justify-content: center; width: 100%; align-items: center; padding: 5px 2px; border-radius: 10px; transition: background-color 0.5s ease, box-shadow 0.5s ease; box-sizing: border-box; }
+        .score-row { 
+            display: flex; gap: 2px; flex-wrap: nowrap; 
+            justify-content: center; width: 100%; align-items: center; 
+            padding: 5px 2px; border-radius: 10px; 
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
+            box-sizing: border-box;
+        }
         
-        .mini-piece-empty { width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); flex: 0 0 18px; margin: 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
-        .piece.mini { width: 18px !important; height: 18px !important; flex: 0 0 18px !important; min-width: 18px !important; min-height: 18px !important; max-width: 18px !important; max-height: 18px !important; margin: 0 !important; padding: 0 !important; cursor: default; transform: none !important; animation: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.6) !important; border-radius: 50% !important; display: inline-block !important; }
+        .mini-piece-empty { 
+            width: 18px; height: 18px; border-radius: 50%; 
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
+            flex: 0 0 18px; margin: 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .piece.mini { 
+            width: 18px !important; height: 18px !important; 
+            flex: 0 0 18px !important; 
+            min-width: 18px !important; min-height: 18px !important; 
+            max-width: 18px !important; max-height: 18px !important;
+            margin: 0 !important; padding: 0 !important; 
+            cursor: default; transform: none !important; 
+            animation: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.6) !important; 
+            border-radius: 50% !important;
+            display: inline-block !important;
+        }
         .piece.mini::before, .piece.mini::after { display: none !important; }
         
         .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
         
-        #board { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); width: 95vw; max-width: 420px; aspect-ratio: 1 / 1; background-color: #3e2723; border: 12px solid #5C3A21; border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.05), inset 0 0 15px rgba(0,0,0,0.9); border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12; transition: all 0.5s ease; }
+        #board { 
+            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
+            width: 95vw; max-width: 420px; aspect-ratio: 1 / 1; 
+            background-color: #3e2723;
+            border: 12px solid #5C3A21; border-radius: 8px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.05), inset 0 0 15px rgba(0,0,0,0.9);
+            border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
+            transition: all 0.5s ease; 
+        }
+
         .cell { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; border: 0.8px solid rgba(0,0,0,0.5); box-sizing: border-box; }
         .cell.light { background-color: var(--light-cell); transition: background-color 0.5s; }
         .cell.dark { background-color: var(--dark-cell); transition: background-color 0.5s; }
@@ -94,22 +119,26 @@
             z-index: 9999; box-shadow: 0 -10px 30px rgba(0,0,0,0.15) !important; 
         }
         .control-panel button, .control-panel select { 
-            height: 48px; padding: 0 15px; border-radius: 14px !important; 
+            height: 44px; padding: 0 15px; border-radius: 12px !important; 
             background: rgba(255, 255, 255, 0.08) !important; 
-            color: white !important; font-weight: 600; font-size: 15px; 
+            color: white !important; font-weight: 600; font-size: 14px; 
             cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
             text-align: center; appearance: none; box-shadow: none !important;
         }
-        .control-panel button:hover, .control-panel select:hover { background: rgba(255, 255, 255, 0.15) !important; transform: scale(0.96); }
+        .control-panel button:hover, .control-panel select:hover { 
+            background: rgba(255, 255, 255, 0.15) !important; transform: scale(0.96); 
+        }
         .control-panel select { width: 90px; }
         #resign-btn { background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; }
         #resign-btn:hover { background: rgba(255, 69, 58, 0.25) !important; }
 
         #online-toggle-btn, #store-portal-corner-btn {
             background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(10px);
-            border-radius: 16px !important; transition: all 0.3s !important;
+            border-radius: 14px !important; transition: all 0.3s !important;
         }
-        #online-toggle-btn:hover, #store-portal-corner-btn:hover { background: rgba(255,255,255,0.15) !important; transform: scale(1.05); }
+        #online-toggle-btn:hover, #store-portal-corner-btn:hover {
+            background: rgba(255,255,255,0.15) !important; transform: scale(1.05);
+        }
 
         @keyframes magicGlow {
             0% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; transform: scale(1); }
@@ -117,14 +146,19 @@
             70% { box-shadow: 0 0 20px #f1c40f, inset 0 0 10px #f1c40f; transform: scale(1.1) rotate(5deg); background: rgba(241, 196, 15, 0.2) !important; }
             100% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; transform: scale(1); }
         }
-        .lamp-active { animation: magicGlow 0.8s ease-in-out; }
+
+        .lamp-active {
+            animation: magicGlow 0.8s ease-in-out;
+        }
 
         @keyframes storeGlowEffect {
             0% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.3), inset 0 0 5px rgba(241, 196, 15, 0.2); }
             50% { box-shadow: 0 0 15px rgba(241, 196, 15, 0.7), inset 0 0 10px rgba(241, 196, 15, 0.5); border-color: rgba(241, 196, 15, 0.8) !important; transform: scale(1.04); }
             100% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.3), inset 0 0 5px rgba(241, 196, 15, 0.2); }
         }
-        #store-portal-corner-btn { animation: storeGlowEffect 2.5s infinite ease-in-out; }
+        #store-portal-corner-btn {
+            animation: storeGlowEffect 2.5s infinite ease-in-out;
+        }
 
         /* ========================================== */
         /* القائمة الجانبية وزر الهامبرغر والبروفايل  */
@@ -134,7 +168,9 @@
             z-index: 10001; display: flex !important; flex-direction: row !important; align-items: center; 
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 4px 4px; border-radius: 50px; 
-            gap: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); direction: ltr !important; 
+            gap: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
+            direction: ltr !important; 
         }
         .profile-badge-container:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); transform: scale(0.98); }
         .profile-avatar-capsule { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
@@ -145,64 +181,132 @@
 
         #hamburger-menu-btn {
             position: fixed !important; top: 15px !important; right: 15px !important; left: auto !important;
-            z-index: 10001; background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            width: 48px; height: 48px; border-radius: 16px !important; color: white; display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0;
+            z-index: 10001;
+            background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            width: 44px; height: 44px; border-radius: 14px !important; color: white; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            border: 1px solid rgba(135, 206, 235, 0.4) !important;
+            padding: 0;
         }
         #hamburger-menu-btn:hover { background: rgba(255, 255, 255, 0.15); transform: scale(0.95); box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important; }
 
         .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .side-menu-overlay.open { opacity: 1; visibility: visible; }
         
-        .side-menu-panel { position: fixed; top: 0; right: -300px; width: 300px; height: 100%; background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(20px); border-left: 1px solid rgba(255, 255, 255, 0.1); box-shadow: -10px 0 30px rgba(0,0,0,0.5); z-index: 10000000; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; }
+        .side-menu-panel { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(20px); border-left: 1px solid rgba(255, 255, 255, 0.1); box-shadow: -10px 0 30px rgba(0,0,0,0.5); z-index: 10000000; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; }
         .side-menu-overlay.open .side-menu-panel { right: 0; }
         
         .side-menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; }
-        .side-menu-title { color: #fff; font-size: 20px; font-weight: 700; margin: 0; }
-        .side-menu-close { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 34px; height: 34px; display: flex; justify-content: center; align-items: center; color: white; font-size: 18px; cursor: pointer; transition: 0.3s; }
+        .side-menu-title { color: #fff; font-size: 18px; font-weight: 700; margin: 0; }
+        .side-menu-close { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: white; font-size: 16px; cursor: pointer; transition: 0.3s; }
         .side-menu-close:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
         
-        .side-menu-item { display: flex; align-items: center; gap: 18px; padding: 15px 18px; margin-bottom: 14px; border-radius: 16px; background: rgba(255,255,255,0.04); color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        .side-menu-item { display: flex; align-items: center; gap: 15px; padding: 10px 15px; min-height: 54px; box-sizing: border-box; margin-bottom: 12px; border-radius: 14px; background: rgba(255,255,255,0.04); color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); }
         .side-menu-item:hover { background: rgba(255,255,255,0.1); border-color: rgba(135,206,235,0.4); transform: translateX(-5px); }
+        .side-menu-item span:first-child { font-size: 20px; }
 
         /* ========================================== */
-        /* إطار الدور (Turn Box)                      */
+        /* إطار الدور (Turn Box) ثابت الحجم كلياً     */
         /* ========================================== */
         #turn-box-container {
             display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
             border: 1px solid rgba(135,206,235,0.4); box-shadow: 0 0 4px rgba(135,206,235,0.3); 
-            padding: 8px 16px; border-radius: 20px; width: 190px !important; height: 55px !important; 
-            min-width: 190px !important; max-width: 190px !important; min-height: 55px !important; max-height: 55px !important;
-            box-sizing: border-box; overflow: hidden; background: rgba(255, 255, 255, 0.05); transition: opacity 0.4s ease, visibility 0.4s ease;
-            margin: 0 !important; visibility: hidden; opacity: 0;
+            padding: 8px 16px; border-radius: 20px; 
+            width: 190px !important; height: 55px !important; 
+            min-width: 190px !important; max-width: 190px !important;
+            min-height: 55px !important; max-height: 55px !important;
+            box-sizing: border-box; overflow: hidden;
+            background: rgba(255, 255, 255, 0.05); transition: opacity 0.4s ease, visibility 0.4s ease;
+            margin: 0 !important; 
+            visibility: hidden; 
+            opacity: 0;
         }
-        body.game-active #turn-box-container { visibility: visible; opacity: 1; }
-        #turn-indicator { text-align: center; color: white; transition: all 0.3s; margin: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; max-width: 100%; display: block; }
-        #turn-countdown { text-align: center; color: #a1a1aa; font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; max-width: 100%; height: 15px; display: block; }
+
+        body.game-active #turn-box-container {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #turn-indicator {
+            text-align: center; color: white; transition: all 0.3s; 
+            margin: 0; font-size: 15px; font-weight: 600;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            width: 100%; max-width: 100%; display: block;
+        }
+
+        #turn-countdown {
+            text-align: center; color: #a1a1aa; font-weight: 600; font-size: 12px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            width: 100%; max-width: 100%; height: 15px; display: block;
+        }
 
         /* ========================================== */
-        /* نقاط التفكير (Thinking Dots)               */
+        /* نقاط التفكير الخاصة بالبوت (Thinking Dots) */
         /* ========================================== */
-        .thinking-dots { display: flex; align-items: center; justify-content: center; gap: 5px; height: 20px; }
-        .thinking-dots span { display: inline-block; width: 7px; height: 7px; background-color: #87ceeb; border-radius: 50%; animation: thinkPulse 1.4s infinite ease-in-out both; }
+        .thinking-dots {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            height: 20px;
+        }
+        .thinking-dots span {
+            display: inline-block;
+            width: 7px; height: 7px; background-color: #87ceeb; border-radius: 50%;
+            animation: thinkPulse 1.4s infinite ease-in-out both;
+        }
         .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
         .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes thinkPulse { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+        
+        @keyframes thinkPulse {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
 
         /* ========================================== */
-        /* النوافذ الكبيرة والمودال (Modals)            */
+        /* التصميم الداخلي للنوافذ الكبيرة              */
         /* ========================================== */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        
+        /* رفع Z-Index لتستقر فوق كل الطبقات والقوائم */
         #custom-alert-modal { z-index: 20000000 !important; }
         #purchase-modal { z-index: 20000001 !important; }
         
-        .settings-card { background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(35px) !important; -webkit-backdrop-filter: blur(35px) !important; border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05) !important; text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); transition: all 0.3s ease; display: flex; flex-direction: column; }
-        #store-modal .settings-card, #themes-grid-overlay .settings-card { width: 95%; max-width: 480px; height: 90vh; max-height: 700px; padding-top: 30px; }
-        .leaderboard-full-screen { width: 95% !important; height: 90vh !important; max-width: 500px !important; max-height: 90vh !important; border-radius: 32px !important; padding: 35px 20px 20px 20px !important; display: flex; flex-direction: column; margin: auto; }
+        .settings-card { 
+            background: rgba(45, 48, 55, 0.65) !important; 
+            backdrop-filter: blur(35px) !important; -webkit-backdrop-filter: blur(35px) !important;
+            border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05) !important; 
+            text-align: center; max-height: 90vh; overflow-y: auto; 
+            animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+            transition: all 0.3s ease;
+            display: flex; flex-direction: column; 
+        }
+
+        #store-modal .settings-card, #themes-grid-overlay .settings-card {
+            width: 95%; max-width: 480px; height: 90vh; max-height: 700px; padding-top: 30px;
+        }
+        
+        /* جعل أطراف لوحة الشرف تظهر في الشاشة بالكامل */
+        .leaderboard-full-screen {
+            width: 95% !important; 
+            height: 90vh !important;
+            max-width: 500px !important; 
+            max-height: 90vh !important;
+            border-radius: 32px !important; 
+            padding: 35px 20px 20px 20px !important;
+            display: flex; flex-direction: column;
+            margin: auto;
+        }
+
         .settings-card::-webkit-scrollbar { display: none; }
         @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
         
-        .scrollable-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 5px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
+        .scrollable-content {
+            flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 5px; margin-bottom: 15px; -webkit-overflow-scrolling: touch;
+        }
         .scrollable-content::-webkit-scrollbar { width: 5px; }
         .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .scrollable-content::-webkit-scrollbar-thumb { background: rgba(135, 206, 235, 0.5); border-radius: 10px; }
@@ -213,11 +317,24 @@
         .settings-card h3 { color: #fff; margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 700; }
         .settings-label { display: block; color: #a1a1aa; font-size: 13px; font-weight: 500; margin-bottom: 8px; text-align: start; padding: 0 10px; }
         
-        .settings-card .online-input, .settings-card select { width: 100%; height: 50px; margin-bottom: 15px; padding: 0 20px; border-radius: 50px !important; border: 1px solid rgba(255,255,255,0.1) !important; background: rgba(255, 255, 255, 0.06) !important; color: white; font-weight: 500; font-size: 14px; box-sizing: border-box; text-align: center; transition: all 0.3s ease; appearance: none; box-shadow: none !important; }
+        .settings-card .online-input, .settings-card select { 
+            width: 100%; height: 50px; margin-bottom: 15px; padding: 0 20px; 
+            border-radius: 50px !important; border: 1px solid rgba(255,255,255,0.1) !important; 
+            background: rgba(255, 255, 255, 0.06) !important; color: white; font-weight: 500; font-size: 14px; 
+            box-sizing: border-box; text-align: center; transition: all 0.3s ease; appearance: none;
+            box-shadow: none !important;
+        }
         .settings-card .online-input:focus, .settings-card select:focus { border-color: rgba(255,255,255,0.3) !important; background: rgba(255,255,255,0.1) !important; outline: none; }
         
-        .settings-card .save-settings-btn, .settings-card .store-buy-btn { width: 100%; height: 50px; padding: 0 20px; background: rgba(255,255,255,0.08) !important; border-radius: 50px !important; color: white !important; font-weight: 600; font-size: 15px; margin-top: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important; box-shadow: none !important; display: flex; align-items: center; justify-content: center; }
+        .settings-card .save-settings-btn, .settings-card .store-buy-btn { 
+            width: 100%; height: 50px; padding: 0 20px; background: rgba(255,255,255,0.08) !important; 
+            border-radius: 50px !important; color: white !important; font-weight: 600; font-size: 15px; 
+            margin-top: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important; 
+            box-shadow: none !important; display: flex; align-items: center; justify-content: center;
+        }
         .settings-card .save-settings-btn:hover, .settings-card .store-buy-btn:hover { background: rgba(255, 255, 255, 0.15) !important; transform: scale(0.98); }
+
+        .settings-card .store-buy-btn-small { height: 32px !important; padding: 0 10px !important; font-size: 12px !important; width: 85% !important; border-radius: 10px !important; margin-top: 5px !important; }
 
         .audio-controls { background: rgba(255, 255, 255, 0.04); padding: 15px; border-radius: 20px; margin-top: 10px; text-align: start; border: 1px solid rgba(255,255,255,0.05); }
         .audio-controls label { display: block; margin-bottom: 8px; font-weight: 500; color: #a1a1aa; font-size: 13px; }
@@ -228,21 +345,32 @@
         .custom-tab-button.active { background: rgba(255,255,255,0.1); color: white; }
 
         /* ========================================== */
-        /* تنسيقات عناصر لوحة الشرف والمتجر            */
+        /* تنسيقات عناصر لوحة الشرف (Leaderboard Items) */
         /* ========================================== */
-        .lb-list-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
-        .lb-item { display: flex; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
+        .lb-list-container {
+            display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;
+        }
+
+        .lb-item {
+            display: flex; align-items: center; padding: 12px;
+            background: rgba(255,255,255,0.05); border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease;
+        }
+        
         .lb-rank { font-size: 16px; font-weight: 800; width: 35px; text-align: center; color: #a1a1aa; }
         .lb-avatar { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,0.05); overflow: hidden; margin-left: 12px; margin-right: 5px; }
         .lb-info { flex: 1; text-align: right; display: flex; flex-direction: column; }
         .lb-name { font-size: 15px; font-weight: 700; color: white; transition: all 0.3s; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
         .lb-score { font-size: 13px; font-weight: 600; color: #f5a623; margin-top: 4px; }
+
         .lb-item:nth-child(1) .lb-rank { color: #FFD700; font-size: 20px; }
         .lb-item:nth-child(1) .lb-avatar { border-color: #FFD700; box-shadow: 0 0 15px rgba(255,215,0,0.4), inset 0 0 10px rgba(255,215,0,0.2); }
         .lb-item:nth-child(1) .lb-name { color: #FFD700; text-shadow: 0 0 8px rgba(255,215,0,0.4); }
+
         .lb-item:nth-child(2) .lb-rank { color: #FF453A; font-size: 18px; }
         .lb-item:nth-child(2) .lb-avatar { border-color: #FF453A; box-shadow: 0 0 15px rgba(255,69,58,0.4), inset 0 0 10px rgba(255,69,58,0.2); }
         .lb-item:nth-child(2) .lb-name { color: #FF453A; text-shadow: 0 0 8px rgba(255,69,58,0.4); }
+
         .lb-item:nth-child(3) .lb-rank { color: #9B59B6; font-size: 18px; }
         .lb-item:nth-child(3) .lb-avatar { border-color: #9B59B6; box-shadow: 0 0 15px rgba(155,89,182,0.4), inset 0 0 10px rgba(155,89,182,0.2); }
         .lb-item:nth-child(3) .lb-name { color: #9B59B6; text-shadow: 0 0 8px rgba(155,89,182,0.4); }
@@ -263,7 +391,7 @@
         .loading-dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes dotFade { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
 
-        .notification-badge { position: absolute; top: -2px; left: -2px; width: 12px; height: 12px; background-color: #ff453a; border-radius: 50%; box-shadow: 0 0 10px #ff453a; animation: badgePulse 1.5s infinite ease-in-out; }
+        .notification-badge { position: absolute; top: -2px; left: -2px; width: 10px; height: 10px; background-color: #ff453a; border-radius: 50%; box-shadow: 0 0 10px #ff453a; animation: badgePulse 1.5s infinite ease-in-out; }
         @keyframes badgePulse { 0% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.8; } }
 
         #match-players-card { background: rgba(45, 48, 55, 0.6) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important; }
@@ -272,14 +400,46 @@
         .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ffffff !important; }
         .match-vs-text { color: #a1a1aa; font-weight: 300; font-size: 16px; }
 
-        button, select, .control-panel button, .control-panel select, .scoreboard, .settings-card, .save-settings-btn, .store-buy-btn, .custom-tab-button, .modal-close-btn, #hamburger-menu-btn, #online-toggle-btn, #store-portal-corner-btn { border: 1px solid rgba(135, 206, 235, 0.4) !important; box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important; outline: none !important; }
-        button:hover, select:hover, .scoreboard:hover, .settings-card:hover { box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important; }
+        button, select, .control-panel button, .control-panel select, 
+        .scoreboard, .settings-card, 
+        .save-settings-btn, .store-buy-btn, .custom-tab-button, 
+        .modal-close-btn, #hamburger-menu-btn, #online-toggle-btn, #store-portal-corner-btn {
+            border: 1px solid rgba(135, 206, 235, 0.4) !important;
+            box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important;
+            outline: none !important;
+        }
+        button:hover, select:hover, .scoreboard:hover, .settings-card:hover {
+            box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important;
+        }
 
         .purchase-preview-box { width: 100px; height: 100px; margin: 20px auto; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
         .legendary-icon { box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); }
 
-        #toast-notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: rgba(46, 204, 113, 0.95); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 14px; z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.3); backdrop-filter: blur(10px); pointer-events: none; white-space: nowrap; }
-        #toast-notification.show { opacity: 1; visibility: visible; bottom: 120px; }
+        #toast-notification {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(46, 204, 113, 0.95);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 14px;
+            z-index: 9999999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        #toast-notification.show {
+            opacity: 1;
+            visibility: visible;
+            bottom: 120px;
+        }
 
         /* ========================================== */
         /* النافذة الزجاجية للنتائج (Minimalist UI) */
@@ -287,22 +447,90 @@
         #game-over-modal > div { background: rgba(30, 32, 40, 0.75) !important; backdrop-filter: blur(40px) saturate(180%) !important; -webkit-backdrop-filter: blur(40px) saturate(180%) !important; border: 1px solid rgba(135, 206, 235, 0.2) !important; border-radius: 36px !important; box-shadow: 0 30px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08) !important; padding: 35px 25px !important; }
         #game-over-modal div[style*="border"], #game-over-modal div[style*="#f1c40f"], #game-over-modal div[style*="gold"] { border: none !important; }
         #game-over-modal h2, #game-over-modal h3 { color: #ffffff !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: none !important; }
-        #game-over-modal div[style*="green"], #game-over-modal span[style*="green"] { background: rgba(48, 209, 88, 0.15) !important; color: #30d158 !important; border: 1px solid rgba(48, 209, 88, 0.3) !important; border-radius: 50px !important; padding: 5px 16px !important; display: inline-block !important; margin-top: 10px !important; font-weight: 600 !important; font-size: 13px !important; box-shadow: none !important; }
-        #game-over-modal div[style*="red"], #game-over-modal span[style*="red"] { background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; border: 1px solid rgba(255, 69, 58, 0.3) !important; border-radius: 50px !important; padding: 5px 16px !important; display: inline-block !important; margin-top: 10px !important; font-weight: 600 !important; font-size: 13px !important; box-shadow: none !important; }
+        #game-over-modal div[style*="green"], #game-over-modal span[style*="green"], #game-over-modal div[style*="#2ecc71"], #game-over-modal span[style*="#2ecc71"] { background: rgba(48, 209, 88, 0.15) !important; color: #30d158 !important; border: 1px solid rgba(48, 209, 88, 0.3) !important; border-radius: 50px !important; padding: 5px 16px !important; box-shadow: none !important; display: inline-block !important; margin-top: 10px !important; font-weight: 600 !important; font-size: 13px !important; }
+        #game-over-modal div[style*="red"], #game-over-modal span[style*="red"], #game-over-modal div[style*="#e74c3c"], #game-over-modal span[style*="#e74c3c"] { background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; border: 1px solid rgba(255, 69, 58, 0.3) !important; border-radius: 50px !important; padding: 5px 16px !important; box-shadow: none !important; display: inline-block !important; margin-top: 10px !important; font-weight: 600 !important; font-size: 13px !important; }
         #game-over-modal button { border-radius: 50px !important; height: 50px !important; font-weight: 600 !important; font-size: 16px !important; margin-top: 12px !important; box-shadow: none !important; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important; width: 100% !important; }
-        #game-over-modal button[style*="green"], #rematch-btn { background: rgba(48, 209, 88, 0.12) !important; color: #30d158 !important; border: 1px solid rgba(48, 209, 88, 0.25) !important; }
-        #game-over-modal button[style*="red"], #exit-game-btn { background: rgba(255, 69, 58, 0.12) !important; color: #ff453a !important; border: 1px solid rgba(255, 69, 58, 0.25) !important; }
+        #game-over-modal button[style*="green"], #game-over-modal button[style*="#2ecc71"], #rematch-btn { background: rgba(48, 209, 88, 0.12) !important; color: #30d158 !important; border: 1px solid rgba(48, 209, 88, 0.25) !important; }
+        #game-over-modal button[style*="red"], #game-over-modal button[style*="#e74c3c"], #exit-game-btn { background: rgba(255, 69, 58, 0.12) !important; color: #ff453a !important; border: 1px solid rgba(255, 69, 58, 0.25) !important; }
         #game-over-modal button:hover { transform: scale(0.96) !important; }
         #game-over-modal img { border: 1px solid rgba(255, 255, 255, 0.15) !important; border-radius: 50% !important; background: rgba(255, 255, 255, 0.05) !important; padding: 4px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important; }
         
-        body.online-mode-active { padding-top: 15px !important; }
-        body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #undo-btn { display: none !important; visibility: hidden !important; pointer-events: none !important; }
-        body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
-        body.online-mode-active #match-players-card { width: 95vw !important; max-width: 500px !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; padding: 10px 30px !important; margin-bottom: 15px !important; box-sizing: border-box !important; }
-        body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #a1a1aa !important; }
-        body.online-mode-active #turn-box-container { margin-bottom: 15px !important; }
-        body.online-mode-active .scoreboard { order: 2 !important; }
-        body.online-mode-active .game-container { order: 3 !important; }
+        /* ========================================== */
+        /* ستايل صورة البوت العصرية (الذكاء الاصطناعي) */
+        /* ========================================== */
+        .modern-bot-avatar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+            box-shadow: 0 8px 20px rgba(42, 82, 152, 0.5), inset 0 0 12px rgba(255,255,255,0.3) !important;
+            border: 2px solid #87ceeb !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: white !important;
+            border-radius: 50% !important;
+        }
+        .modern-bot-avatar svg {
+            width: 55%;
+            height: 55%;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
+            animation: botFloat 3s ease-in-out infinite;
+        }
+        @keyframes botFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        /* ========================================== */
+        /* تعديلات وضع الأونلاين الحصرية (Online Mode Only) */
+        /* ========================================== */
+        body.online-mode-active {
+            padding-top: 15px !important;
+        }
+
+        body.online-mode-active #profile-badge,
+        body.online-mode-active #hamburger-menu-btn,
+        body.online-mode-active #undo-btn {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        body.online-mode-active #status-area {
+            margin-top: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            width: 100% !important;
+            order: 1 !important;
+        }
+
+        body.online-mode-active #match-players-card {
+            width: 95vw !important;
+            max-width: 500px !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 10px 30px !important;
+            margin-bottom: 15px !important;
+            box-sizing: border-box !important;
+        }
+
+        body.online-mode-active .match-vs-text {
+            font-size: 24px !important;
+            font-weight: 800 !important;
+            color: #a1a1aa !important;
+        }
+
+        body.online-mode-active #turn-box-container {
+            margin-bottom: 15px !important;
+        }
+
+        body.online-mode-active .scoreboard {
+            order: 2 !important;
+        }
+
+        body.online-mode-active .game-container {
+            order: 3 !important;
+        }
     </style>
 </head>
 <body data-piece-style="pc_original">
@@ -314,18 +542,122 @@
         <div class="profile-avatar-capsule" id="badge-avatar"></div>
         <div class="profile-badge-info">
             <span id="badge-username-display-game" class="profile-badge-name">أنت</span>
-            <div class="stat-item">🪙 <span id="profile-stat-tokens-badge">0</span></div>
+            <div class="stat-item">
+                🪙 <span id="profile-stat-tokens-badge">0</span>
+            </div>
         </div>
     </div>
     
     <!-- زر القائمة -->
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية">
-        <span class="svg-icon icon-36" data-icon="menu"></span>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+        </svg>
     </button>
     
-    <!-- زر الحقيبة السريع -->
-    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none; position: fixed; top: 15px; right: 15px; z-index: 10001; background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); width: 48px; height: 48px; border-radius: 16px !important; color: white; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0;">
-        <span class="svg-icon icon-38" data-icon="bag"></span>
+    <!-- 🎒 زر الحقيبة السريع -->
+    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none; position: fixed; top: 15px; right: 15px; z-index: 10001; background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); width: 44px; height: 44px; border-radius: 14px !important; color: white; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0; font-size: 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="32" height="32" style="vertical-align: middle; display: inline-block;">
+          <defs>
+            <linearGradient id="bagGold" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#fef08a"/>
+              <stop offset="25%" stop-color="#f59e0b"/>
+              <stop offset="50%" stop-color="#d97706"/>
+              <stop offset="75%" stop-color="#b45309"/>
+              <stop offset="100%" stop-color="#78350f"/>
+            </linearGradient>
+            <linearGradient id="bagBody" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#334155"/>
+              <stop offset="40%" stop-color="#1e293b"/>
+              <stop offset="85%" stop-color="#0f172a"/>
+              <stop offset="100%" stop-color="#020617"/>
+            </linearGradient>
+            <linearGradient id="bagIvory" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="70%" stop-color="#fef3c7"/>
+              <stop offset="100%" stop-color="#fde68a"/>
+            </linearGradient>
+            <linearGradient id="bagRuby" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f87171"/>
+              <stop offset="50%" stop-color="#dc2626"/>
+              <stop offset="100%" stop-color="#991b1b"/>
+            </linearGradient>
+            <radialGradient id="bagGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="bagShadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.35"/>
+            </filter>
+            <style>
+              @keyframes luxuryFloat {
+                0%, 100% { transform: translateY(0) rotate(0deg); }
+                50% { transform: translateY(-7px) rotate(-1deg); }
+              }
+              .anim-luxury { 
+                transform-origin: 60px 60px;
+                animation: luxuryFloat 4s ease-in-out infinite; 
+              }
+            </style>
+          </defs>
+          <g class="anim-luxury">
+            <circle cx="60" cy="60" r="54" fill="url(#bagGlow)"/>
+            <ellipse cx="60" cy="108" rx="34" ry="4" fill="#000000" opacity="0.22"/>
+            <g filter="url(#bagShadow)">
+              <path d="M 44 32 C 44 18 76 18 76 32" fill="none" stroke="url(#bagGold)" stroke-width="4.5" stroke-linecap="round"/>
+              <rect x="52" y="20" width="16" height="5" rx="2.5" fill="url(#bagBody)" stroke="url(#bagGold)" stroke-width="1"/>
+              <rect x="22" y="32" width="76" height="66" rx="14" fill="url(#bagBody)" stroke="url(#bagGold)" stroke-width="1.8"/>
+              <path d="M 22 46 L 22 38 C 22 34.7 24.7 32 28 32 L 36 32" fill="none" stroke="url(#bagGold)" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M 84 32 L 92 32 C 95.3 32 98 34.7 98 38 L 98 46" fill="none" stroke="url(#bagGold)" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M 22 84 L 22 92 C 22 95.3 24.7 98 28 98 L 36 98" fill="none" stroke="url(#bagGold)" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M 84 98 L 92 98 C 95.3 98 98 95.3 98 92 L 98 84" fill="none" stroke="url(#bagGold)" stroke-width="3.5" stroke-linecap="round"/>
+              <rect x="36" y="38" width="6" height="10" rx="1.5" fill="url(#bagGold)"/>
+              <circle cx="39" cy="45" r="1" fill="#0f172a"/>
+              <rect x="78" y="38" width="6" height="10" rx="1.5" fill="url(#bagGold)"/>
+              <circle cx="81" cy="45" r="1" fill="#0f172a"/>
+              <line x1="22" y1="48" x2="98" y2="48" stroke="url(#bagGold)" stroke-width="1.5" stroke-dasharray="8,2,2,2"/>
+              <g transform="translate(32, 52) rotate(-18)">
+                <rect x="0" y="0" width="22" height="30" rx="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
+                <path d="M 11 19 L 7 13 L 15 13 Z" fill="#1e293b"/>
+                <circle cx="11" cy="13" r="2.5" fill="#1e293b"/>
+              </g>
+              <g transform="translate(38, 50) rotate(-6)">
+                <rect x="0" y="0" width="22" height="30" rx="3" fill="url(#bagIvory)" stroke="url(#bagGold)" stroke-width="1"/>
+                <text x="3" y="7" font-family="Arial" font-size="5" font-weight="bold" fill="url(#bagRuby)">A</text>
+                <path d="M 11 20 C 11 20 5 14 5 10 C 5 7.5 7 6 9.2 6 C 10.6 6 11 6.8 11 6.8 C 11 6.8 11.4 6 12.8 6 C 15 6 17 7.5 17 10 C 17 14 11 20 11 20 Z" fill="url(#bagRuby)"/>
+              </g>
+              <g transform="translate(64, 52) rotate(12)">
+                <rect x="0" y="0" width="19" height="32" rx="3.5" fill="url(#bagIvory)" stroke="#1e293b" stroke-width="1.2"/>
+                <line x1="3" y1="16" x2="16" y2="16" stroke="#475569" stroke-width="1.2"/>
+                <circle cx="9.5" cy="16" r="1.2" fill="url(#bagGold)"/>
+                <circle cx="5.5" cy="5.5" r="1.3" fill="#0f172a"/>
+                <circle cx="13.5" cy="5.5" r="1.3" fill="#0f172a"/>
+                <circle cx="5.5" cy="10.5" r="1.3" fill="#0f172a"/>
+                <circle cx="13.5" cy="10.5" r="1.3" fill="#0f172a"/>
+                <circle cx="5.5" cy="21.5" r="1.3" fill="#0f172a"/>
+                <circle cx="13.5" cy="21.5" r="1.3" fill="#0f172a"/>
+                <circle cx="5.5" cy="26.5" r="1.3" fill="#0f172a"/>
+                <circle cx="13.5" cy="26.5" r="1.3" fill="#0f172a"/>
+              </g>
+              <g transform="translate(34, 76) rotate(8)">
+                <rect x="0" y="0" width="15" height="15" rx="3.5" fill="url(#bagIvory)" stroke="url(#bagGold)" stroke-width="1"/>
+                <circle cx="4" cy="4" r="1.2" fill="#0f172a"/>
+                <circle cx="11" cy="4" r="1.2" fill="#0f172a"/>
+                <circle cx="7.5" cy="7.5" r="1.4" fill="url(#bagRuby)"/>
+                <circle cx="4" cy="11" r="1.2" fill="#0f172a"/>
+                <circle cx="11" cy="11" r="1.2" fill="#0f172a"/>
+              </g>
+              <g transform="translate(70, 78)">
+                <circle cx="10" cy="10" r="10" fill="url(#bagGold)" stroke="#78350f" stroke-width="1"/>
+                <circle cx="10" cy="10" r="7" fill="url(#bagBody)" stroke="url(#bagGold)" stroke-width="1"/>
+                <circle cx="10" cy="10" r="3.5" fill="url(#bagGold)"/>
+                <circle cx="10" cy="10" r="1.5" fill="#ffffff" opacity="0.6"/>
+              </g>
+            </g>
+          </g>
+        </svg>
     </button>
 
     <div id="status-area">
@@ -357,7 +689,6 @@
         <div id="board"></div> 
     </div>
 
-    <!-- القائمة الجانبية -->
     <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
         <div class="side-menu-panel">
             <div class="side-menu-header">
@@ -366,58 +697,486 @@
             </div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('online-modal')">
-              <span class="svg-icon icon-42" data-icon="door"></span>
+              <span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block;">
+                  <defs>
+                    <linearGradient id="doorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#8d6e63"/>
+                      <stop offset="100%" stop-color="#5d4037"/>
+                    </linearGradient>
+                    <radialGradient id="handleGrad" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#fde047"/>
+                      <stop offset="100%" stop-color="#ca8a04"/>
+                    </radialGradient>
+                    <filter id="doorShadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#000" flood-opacity="0.3"/>
+                    </filter>
+                    <style>
+                      @keyframes floatDoor {
+                        0%, 100% { transform: translateY(0); }
+                        50% { transform: translateY(-2px); }
+                      }
+                      .anim-door { 
+                        transform-origin: 50px 50px;
+                        animation: floatDoor 3s ease-in-out infinite; 
+                      }
+                    </style>
+                  </defs>
+                  <g class="anim-door">
+                    <!-- ظل أسفل الباب -->
+                    <ellipse cx="50" cy="88" rx="24" ry="3.5" fill="#000" opacity="0.2"/>
+                    
+                    <!-- إطار الباب الخارجي -->
+                    <path d="M 22 84 L 22 24 C 22 17, 78 17, 78 24 L 78 84 Z" fill="#3e2723" filter="url(#doorShadow)"/>
+                    
+                    <!-- جسم الباب الخشبي -->
+                    <path d="M 26 84 L 26 27 C 26 22, 74 22, 74 27 L 74 84 Z" fill="url(#doorGrad)"/>
+                    
+                    <!-- الألواح المحفورة (لوح علوي وسفلي) -->
+                    <rect x="31" y="31" width="38" height="22" rx="2" fill="rgba(0,0,0,0.15)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+                    <rect x="31" y="58" width="38" height="22" rx="2" fill="rgba(0,0,0,0.15)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+                    
+                    <!-- مقبض الباب الذهبي -->
+                    <circle cx="65" cy="55" r="3.5" fill="url(#handleGrad)" filter="url(#doorShadow)"/>
+                    
+                    <!-- شارة الإضافة (+) الخضراء -->
+                    <g transform="translate(62, 12)" filter="url(#doorShadow)">
+                      <circle cx="12" cy="12" r="12" fill="#22c55e"/>
+                      <path d="M 12 6 L 12 18 M 6 12 L 18 12" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+                    </g>
+                  </g>
+                </svg>
+              </span>
               <span>الغرف الخاصة (روم)</span>
             </div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); window.showLeaderboard()">
-                <span class="svg-icon icon-42" data-icon="medal"></span>
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block;">
+                      <defs>
+                        <linearGradient id="medalGm" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stop-color="#fffbeb"/>
+                          <stop offset="15%" stop-color="#fef08a"/>
+                          <stop offset="35%" stop-color="#eab308"/>
+                          <stop offset="60%" stop-color="#ca8a04"/>
+                          <stop offset="85%" stop-color="#854d0e"/>
+                          <stop offset="100%" stop-color="#451a03"/>
+                        </linearGradient>
+                        <linearGradient id="medalGe" x1="0" y1="1" x2="1" y2="0">
+                          <stop offset="0%" stop-color="#78350f"/>
+                          <stop offset="50%" stop-color="#fde047"/>
+                          <stop offset="100%" stop-color="#fff"/>
+                        </linearGradient>
+                        <linearGradient id="medalRb" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stop-color="#991b1b"/>
+                          <stop offset="40%" stop-color="#dc2626"/>
+                          <stop offset="100%" stop-color="#7f1d1d"/>
+                        </linearGradient>
+                        <linearGradient id="medalRs" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="rgba(0,0,0,0.1)"/>
+                          <stop offset="100%" stop-color="rgba(0,0,0,0.5)"/>
+                        </linearGradient>
+                        <radialGradient id="medalMg" cx="50%" cy="62%" r="45%">
+                          <stop offset="0%" stop-color="#fde047" stop-opacity="0.6"/>
+                          <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
+                        </radialGradient>
+                        <filter id="medalUs" x="-30%" y="-30%" width="160%" height="160%">
+                          <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/>
+                        </filter>
+                        <filter id="medalTd" x="-20%" y="-20%" width="140%" height="140%">
+                          <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#b45309" flood-opacity="0.35"/>
+                        </filter>
+                        <style>
+                          @keyframes medalFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.03); } }
+                          @keyframes medalSparkle { 0%, 100% { opacity: 0.2; transform: scale(0.7) rotate(0deg); } 50% { opacity: 1; transform: scale(1.4) rotate(180deg); } }
+                          .medal-am { animation: medalFloat 3s ease-in-out infinite; transform-origin: 50px 50px; }
+                          .medal-s1 { animation: medalSparkle 2.2s ease-in-out infinite; transform-origin: 25px 25px; }
+                          .medal-s2 { animation: medalSparkle 2.8s ease-in-out infinite 0.7s; transform-origin: 75px 25px; }
+                        </style>
+                      </defs>
+            
+                      <g class="medal-am" filter="url(#medalTd)">
+                        <circle cx="50" cy="62" r="32" fill="url(#medalMg)"/>
+                        <g filter="url(#medalUs)">
+                          <path d="M36 10 L18 30 L30 35 L44 14 Z" fill="#581c87" opacity="0.3"/>
+                          <path d="M64 10 L82 30 L70 35 L56 14 Z" fill="#581c87" opacity="0.3"/>
+                          <path d="M38 10 L22 28 L32 33 L46 14 Z" fill="#7f1d1d"/>
+                          <path d="M62 10 L78 28 L68 33 L54 14 Z" fill="#7f1d1d"/>
+                          <path d="M38 10 L50 26 L62 10 L54 6 L50 12 L46 6 Z" fill="url(#medalRb)"/>
+                          <path d="M33 10 L50 31 L67 10 L63 6 L50 22 L37 6 Z" fill="url(#medalRb)"/>
+                          <line x1="43" y1="8" x2="47" y2="22" stroke="#fde047" stroke-width="1.5" opacity="0.8"/>
+                          <line x1="57" y1="8" x2="53" y2="22" stroke="#fde047" stroke-width="1.5" opacity="0.8"/>
+                          <path d="M33 10 L50 31 L67 10 L50 16 Z" fill="url(#medalRs)"/>
+                        </g>
+                        <g filter="url(#medalUs)">
+                          <ellipse cx="50" cy="33" rx="6" ry="3.5" fill="#451a03"/>
+                          <path d="M43 33 C43 28 57 28 57 33 C57 38 43 38 43 33 Z" fill="none" stroke="url(#medalGm)" stroke-width="3"/>
+                          <ellipse cx="50" cy="33" rx="3.5" ry="1.8" fill="#eab308"/>
+                        </g>
+                        <circle cx="50" cy="63" r="27" fill="#000" opacity="0.35"/>
+                        <g filter="url(#medalUs)">
+                          <circle cx="50" cy="62" r="27" fill="url(#medalGm)"/>
+                          <circle cx="50" cy="62" r="26" fill="none" stroke="url(#medalGe)" stroke-width="1.5"/>
+                          <circle cx="50" cy="62" r="23.5" fill="none" stroke="#78350f" stroke-width="0.8" stroke-dasharray="1.5 3" opacity="0.85"/>
+                          <circle cx="50" cy="62" r="22" fill="#78350f"/>
+                          <circle cx="50" cy="62" r="21" fill="url(#medalGm)"/>
+                        </g>
+                        <path d="M34 65 C34 52 42 45 50 45 C58 45 66 52 66 65" opacity="0.4" stroke="#78350f" stroke-width="1" fill="none"/>
+                        <g transform="translate(50, 62) scale(1.05)" filter="url(#medalUs)">
+                          <polygon points="0,-13.5 4,-4 13.5,-4 6,-0.5 8.5,9.5 0,4 -8.5,9.5 -6,-0.5 -13.5,-4 -4,-4" fill="#78350f"/>
+                          <polygon points="0,-13.5 0,2 4,-4" fill="#fef08a"/>
+                          <polygon points="0,-13.5 0,2 -4,-4" fill="#ca8a04"/>
+                          <polygon points="13.5,-4 0,2 4,-4" fill="#eab308"/>
+                          <polygon points="13.5,-4 0,2 8.5,9.5" fill="#a16207"/>
+                          <polygon points="8.5,9.5 0,2 6,-0.5" fill="#ca8a04"/>
+                          <polygon points="8.5,9.5 0,2 0,4" fill="#854d0e"/>
+                          <polygon points="0,4 0,2 -6,-0.5" fill="#eab308"/>
+                          <polygon points="0,4 0,2 -8.5,9.5" fill="#ca8a04"/>
+                          <polygon points="-8.5,9.5 0,2 -4,-4" fill="#a16207"/>
+                          <polygon points="-13.5,-4 0,2 -4,-4" fill="#fef08a"/>
+                          <circle cx="0" cy="2" r="1.5" fill="#fff"/>
+                        </g>
+                        <path class="medal-s1" d="M25 25 L26.5 21 L28 25 L32 26.5 L28 28 L26.5 32 L25 28 L21 26.5 Z" fill="#fff"/>
+                        <path class="medal-s2" d="M75 25 L76 22 L77 25 L80 26 L77 27 L76 30 L75 27 L72 26 Z" fill="#fffbeb"/>
+                      </g>
+                    </svg>
+                </span>
                 <span>كأس الشرف (الترتيب)</span>
             </div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
-                <span class="svg-icon icon-42" data-icon="bag"></span> 
-                <span>الحقيبة والأزياء</span>
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="34" height="34" style="vertical-align: middle; display: inline-block;">
+                      <defs>
+                        <linearGradient id="bagGoldSide" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fef08a"/>
+                          <stop offset="25%" stop-color="#f59e0b"/>
+                          <stop offset="50%" stop-color="#d97706"/>
+                          <stop offset="75%" stop-color="#b45309"/>
+                          <stop offset="100%" stop-color="#78350f"/>
+                        </linearGradient>
+                        <linearGradient id="bagBodySide" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#334155"/>
+                          <stop offset="40%" stop-color="#1e293b"/>
+                          <stop offset="85%" stop-color="#0f172a"/>
+                          <stop offset="100%" stop-color="#020617"/>
+                        </linearGradient>
+                        <linearGradient id="bagIvorySide" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#ffffff"/>
+                          <stop offset="70%" stop-color="#fef3c7"/>
+                          <stop offset="100%" stop-color="#fde68a"/>
+                        </linearGradient>
+                        <linearGradient id="bagRubySide" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f87171"/>
+                          <stop offset="50%" stop-color="#dc2626"/>
+                          <stop offset="100%" stop-color="#991b1b"/>
+                        </linearGradient>
+                        <radialGradient id="bagGlowSide" cx="50%" cy="50%" r="50%">
+                          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/>
+                          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                        </radialGradient>
+                        <filter id="bagShadowSide" x="-30%" y="-30%" width="160%" height="160%">
+                          <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.35"/>
+                        </filter>
+                      </defs>
+                      <g class="anim-luxury">
+                        <circle cx="60" cy="60" r="54" fill="url(#bagGlowSide)"/>
+                        <ellipse cx="60" cy="108" rx="34" ry="4" fill="#000000" opacity="0.22"/>
+                        <g filter="url(#bagShadowSide)">
+                          <path d="M 44 32 C 44 18 76 18 76 32" fill="none" stroke="url(#bagGoldSide)" stroke-width="4.5" stroke-linecap="round"/>
+                          <rect x="52" y="20" width="16" height="5" rx="2.5" fill="url(#bagBodySide)" stroke="url(#bagGoldSide)" stroke-width="1"/>
+                          <rect x="22" y="32" width="76" height="66" rx="14" fill="url(#bagBodySide)" stroke="url(#bagGoldSide)" stroke-width="1.8"/>
+                          <path d="M 22 46 L 22 38 C 22 34.7 24.7 32 28 32 L 36 32" fill="none" stroke="url(#bagGoldSide)" stroke-width="3.5" stroke-linecap="round"/>
+                          <path d="M 84 32 L 92 32 C 95.3 32 98 34.7 98 38 L 98 46" fill="none" stroke="url(#bagGoldSide)" stroke-width="3.5" stroke-linecap="round"/>
+                          <path d="M 22 84 L 22 92 C 22 95.3 24.7 98 28 98 L 36 98" fill="none" stroke="url(#bagGoldSide)" stroke-width="3.5" stroke-linecap="round"/>
+                          <path d="M 84 98 L 92 98 C 95.3 98 98 95.3 98 92 L 98 84" fill="none" stroke="url(#bagGoldSide)" stroke-width="3.5" stroke-linecap="round"/>
+                          <rect x="36" y="38" width="6" height="10" rx="1.5" fill="url(#bagGoldSide)"/>
+                          <circle cx="39" cy="45" r="1" fill="#0f172a"/>
+                          <rect x="78" y="38" width="6" height="10" rx="1.5" fill="url(#bagGoldSide)"/>
+                          <circle cx="81" cy="45" r="1" fill="#0f172a"/>
+                          <line x1="22" y1="48" x2="98" y2="48" stroke="url(#bagGoldSide)" stroke-width="1.5" stroke-dasharray="8,2,2,2"/>
+                          <g transform="translate(32, 52) rotate(-18)">
+                            <rect x="0" y="0" width="22" height="30" rx="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/>
+                            <path d="M 11 19 L 7 13 L 15 13 Z" fill="#1e293b"/>
+                            <circle cx="11" cy="13" r="2.5" fill="#1e293b"/>
+                          </g>
+                          <g transform="translate(38, 50) rotate(-6)">
+                            <rect x="0" y="0" width="22" height="30" rx="3" fill="url(#bagIvorySide)" stroke="url(#bagGoldSide)" stroke-width="1"/>
+                            <text x="3" y="7" font-family="Arial" font-size="5" font-weight="bold" fill="url(#bagRubySide)">A</text>
+                            <path d="M 11 20 C 11 20 5 14 5 10 C 5 7.5 7 6 9.2 6 C 10.6 6 11 6.8 11 6.8 C 11 6.8 11.4 6 12.8 6 C 15 6 17 7.5 17 10 C 17 14 11 20 11 20 Z" fill="url(#bagRubySide)"/>
+                          </g>
+                          <g transform="translate(64, 52) rotate(12)">
+                            <rect x="0" y="0" width="19" height="32" rx="3.5" fill="url(#bagIvorySide)" stroke="#1e293b" stroke-width="1.2"/>
+                            <line x1="3" y1="16" x2="16" y2="16" stroke="#475569" stroke-width="1.2"/>
+                            <circle cx="9.5" cy="16" r="1.2" fill="url(#bagGoldSide)"/>
+                            <circle cx="5.5" cy="5.5" r="1.3" fill="#0f172a"/>
+                            <circle cx="13.5" cy="5.5" r="1.3" fill="#0f172a"/>
+                            <circle cx="5.5" cy="10.5" r="1.3" fill="#0f172a"/>
+                            <circle cx="13.5" cy="10.5" r="1.3" fill="#0f172a"/>
+                            <circle cx="5.5" cy="21.5" r="1.3" fill="#0f172a"/>
+                            <circle cx="13.5" cy="21.5" r="1.3" fill="#0f172a"/>
+                            <circle cx="5.5" cy="26.5" r="1.3" fill="#0f172a"/>
+                            <circle cx="13.5" cy="26.5" r="1.3" fill="#0f172a"/>
+                          </g>
+                          <g transform="translate(34, 76) rotate(8)">
+                            <rect x="0" y="0" width="15" height="15" rx="3.5" fill="url(#bagIvorySide)" stroke="url(#bagGoldSide)" stroke-width="1"/>
+                            <circle cx="4" cy="4" r="1.2" fill="#0f172a"/>
+                            <circle cx="11" cy="4" r="1.2" fill="#0f172a"/>
+                            <circle cx="7.5" cy="7.5" r="1.4" fill="url(#bagRubySide)"/>
+                            <circle cx="4" cy="11" r="1.2" fill="#0f172a"/>
+                            <circle cx="11" cy="11" r="1.2" fill="#0f172a"/>
+                          </g>
+                          <g transform="translate(70, 78)">
+                            <circle cx="10" cy="10" r="10" fill="url(#bagGoldSide)" stroke="#78350f" stroke-width="1"/>
+                            <circle cx="10" cy="10" r="7" fill="url(#bagBodySide)" stroke="url(#bagGoldSide)" stroke-width="1"/>
+                            <circle cx="10" cy="10" r="3.5" fill="url(#bagGoldSide)"/>
+                            <circle cx="10" cy="10" r="1.5" fill="#ffffff" opacity="0.6"/>
+                          </g>
+                        </g>
+                      </g>
+                    </svg>
+                </span> <span>الحقيبة والأزياء</span>
             </div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('settings-overlay')">
-                <span class="svg-icon icon-42" data-icon="gear"></span> 
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="34" height="34" style="vertical-align: middle; display: inline-block;">
+                      <defs>
+                        <!-- Master Gear Gradient & Effects -->
+                        <radialGradient id="goldCoreGrad" cx="35%" cy="35%" r="65%">
+                          <stop offset="0%" stop-color="#fbbf24" />
+                          <stop offset="60%" stop-color="#d97706" />
+                          <stop offset="100%" stop-color="#78350f" />
+                        </radialGradient>
+                        
+                        <linearGradient id="gearBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#475569" />
+                          <stop offset="100%" stop-color="#0f172a" />
+                        </linearGradient>
+
+                        <linearGradient id="toothGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stop-color="#1e293b" />
+                          <stop offset="25%" stop-color="#64748b" />
+                          <stop offset="50%" stop-color="#f8fafc" />
+                          <stop offset="75%" stop-color="#475569" />
+                          <stop offset="100%" stop-color="#0f172a" />
+                        </linearGradient>
+
+                        <!-- Button & Panel Filters -->
+                        <filter id="buttonShadow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/>
+                        </filter>
+
+                        <filter id="gearShadow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.35"/>
+                        </filter>
+
+                        <style>
+                          .gear-group {
+                            transform-origin: 60px 60px;
+                            animation: spinClockwise 12s linear infinite;
+                          }
+                          .gear-group:hover {
+                            animation-duration: 3s;
+                          }
+                          .gold-core:hover {
+                            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8));
+                          }
+                          @keyframes spinClockwise {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                          }
+                        </style>
+                      </defs>
+
+                      <!-- Button Background / Game Plate -->
+                      <g filter="url(#buttonShadow)">
+                        <rect x="10" y="10" width="100" height="100" rx="20" fill="url(#gearBodyGrad)" stroke="#64748b" stroke-width="2"/>
+                        <rect x="12" y="12" width="96" height="96" rx="18" fill="none" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.5"/>
+                      </g>
+
+                      <!-- Gear System Group -->
+                      <g class="gear-group" filter="url(#gearShadow)">
+                        <!-- 12 Trapezoidal Teeth -->
+                        <g fill="url(#toothGrad)">
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(0 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(30 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(60 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(90 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(120 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(150 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(180 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(210 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(240 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(270 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(300 60 60)"/>
+                          <polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(330 60 60)"/>
+                        </g>
+
+                        <!-- Master Gear Outer Rim -->
+                        <circle cx="60" cy="60" r="22" fill="#334155" stroke="#94a3b8" stroke-width="1"/>
+                        <circle cx="60" cy="60" r="21" fill="url(#gearBodyGrad)" />
+
+                        <!-- Gear Body Inner Structure & Spokes -->
+                        <circle cx="60" cy="60" r="16" fill="#0f172a" />
+                        <g fill="#475569" opacity="0.6">
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(0 60 60)"/>
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(60 60 60)"/>
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(120 60 60)"/>
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(180 60 60)"/>
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(240 60 60)"/>
+                          <path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(300 60 60)"/></g>
+
+                        <!-- Gold Core Center -->
+                        <circle class="gold-core" cx="60" cy="60" r="8" fill="url(#goldCoreGrad)" stroke="#b45309" stroke-width="0.5"/>
+
+                        <!-- Recessed Center Screw -->
+                        <circle cx="60" cy="60" r="3.5" fill="#e0e5ec"/>
+                        <line x1="58" y1="58" x2="62" y2="62" stroke="#475569" stroke-width="1" stroke-linecap="round"/>
+                      </g>
+                    </svg>
+                </span> 
                 <span>الضبط وإعدادات الصوت</span>
             </div>
             
             <div style="flex-grow: 1;"></div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.postMessage({ type: 'EXIT_GAME' }, '*');" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
-                <span style="font-size: 32px;">🚪</span> 
-                <span>خروج</span>
+                <span style="font-size: 28px; line-height: 1;">🚪</span> <span>خروج</span>
             </div>
         </div>
     </div>
 
     <div id="toast-notification">✨ تم التغيير بنجاح</div>
 
-    <!-- أزرار الواجهة العائمة -->
-    <button id="online-toggle-btn" title="البحث العشوائي" style="position: fixed; bottom: 75px; left: 15px; z-index: 9998; height: 50px; width: 115px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+    <button id="online-toggle-btn" title="البحث العشوائي" style="position: fixed; bottom: 75px; left: 15px; z-index: 9998; height: 46px; width: 102px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
         <span class="notification-badge"></span>
-        <span class="svg-icon icon-34" data-icon="globe"></span>
-        <span style="font-size: 14px; font-weight: 700;">اونلاين</span>
+        <svg viewBox="0 0 100 100" width="28" height="28" style="vertical-align: middle; display: inline-block; margin-left: 2px;">
+          <defs>
+            <radialGradient id="oceanBlueBtn" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="45%" stop-color="#0284c7"/>
+              <stop offset="80%" stop-color="#1d4ed8"/>
+              <stop offset="100%" stop-color="#0f172a"/>
+            </radialGradient>
+            <linearGradient id="landGradBtn" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="40%" stop-color="#bae6fd"/>
+              <stop offset="100%" stop-color="#38bdf8"/>
+            </linearGradient>
+            <radialGradient id="atmosphereGlowBtn" cx="50%" cy="50%" r="50%">
+              <stop offset="70%" stop-color="#38bdf8" stop-opacity="0"/>
+              <stop offset="92%" stop-color="#38bdf8" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#0284c7" stop-opacity="0.9"/>
+            </radialGradient>
+            <linearGradient id="glossHighlightBtn" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+            <clipPath id="globeClipBtn">
+              <circle cx="50" cy="50" r="36"/>
+            </clipPath>
+          </defs>
+          <circle cx="50" cy="50" r="36" fill="url(#oceanBlueBtn)"/>
+          <g clip-path="url(#globeClipBtn)">
+            <g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3">
+              <line x1="10" y1="50" x2="90" y2="50"/>
+              <ellipse cx="50" cy="50" rx="36" ry="18"/>
+              <ellipse cx="50" cy="50" rx="36" ry="30"/>
+              <line x1="50" y1="10" x2="50" y2="90"/>
+              <ellipse cx="50" cy="50" rx="18" ry="36"/>
+              <ellipse cx="50" cy="50" rx="30" ry="36"/>
+            </g>
+            <g fill="url(#landGradBtn)" stroke="#0284c7" stroke-width="0.3" opacity="0.92">
+              <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
+              <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
+              <path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/>
+              <circle cx="72" cy="68" r="3"/>
+              <circle cx="38" cy="23" r="1.8"/>
+              <circle cx="62" cy="58" r="1.5"/>
+            </g>
+          </g>
+          <circle cx="50" cy="50" r="36" fill="url(#atmosphereGlowBtn)"/><path d="M 20 32 A 34 34 0 0 1 80 32 A 36 36 0 0 0 20 32 Z" fill="url(#glossHighlightBtn)"/>
+        </svg>
+        <span style="font-size: 13px; font-weight: 600;">اونلاين</span>
     </button>
 
-    <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 75px; right: 15px; z-index: 9998; width: 50px; height: 50px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي">
-        <span class="svg-icon icon-38" data-icon="cart"></span>
+    <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 75px; right: 15px; z-index: 9998; width: 46px; height: 46px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي">
+        <svg viewBox="0 0 100 100" width="32" height="32" style="vertical-align: middle; display: inline-block;">
+          <defs>
+            <linearGradient id="chromeGradientBtn" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="30%" stop-color="#cbd5e1"/>
+              <stop offset="60%" stop-color="#94a3b8"/>
+              <stop offset="85%" stop-color="#64748b"/>
+              <stop offset="100%" stop-color="#e2e8f0"/>
+            </linearGradient>
+            <linearGradient id="redHandleGradBtn" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f87171"/>
+              <stop offset="50%" stop-color="#dc2626"/>
+              <stop offset="100%" stop-color="#991b1b"/>
+            </linearGradient>
+            <linearGradient id="wireGradientBtn" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#94a3b8"/>
+              <stop offset="50%" stop-color="#475569"/>
+              <stop offset="100%" stop-color="#334155"/>
+            </linearGradient>
+            <linearGradient id="rubberGradientBtn" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="100%" stop-color="#1e293b"/>
+            </linearGradient>
+          </defs>
+          <!-- ظل الأرضية -->
+          <ellipse cx="50" cy="90" rx="30" ry="3.5" fill="#000" opacity="0.15"/>
+          <!-- هيكل الدفع والمقبض -->
+          <path d="M 82 25 L 75 60 L 25 60 L 18 25" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="3" stroke-linecap="round"/>
+          <rect x="74" y="21.5" width="12" height="4.5" rx="2.2" fill="url(#redHandleGradBtn)" stroke="#7f1d1d" stroke-width="0.5"/>
+          <line x1="76" y1="23" x2="84" y2="23" stroke="#fca5a5" stroke-width="1" stroke-linecap="round"/>
+          <!-- الشبكة السلكية -->
+          <g stroke="url(#wireGradientBtn)" stroke-width="1.5" stroke-linecap="round">
+            <path d="M 19 32 H 81 M 20 39 H 80 M 21 46 H 79 M 23 53 H 77"/>
+            <path d="M 25 25 L 28 60 M 35 25 L 36 60 M 45 25 L 44 60 M 55 25 L 52 60 M 65 25 L 60 60 M 75 25 L 68 60"/>
+          </g>
+          <!-- الحافة العلوية والمصدات -->
+          <rect x="16" y="22.5" width="68" height="5" rx="2.5" fill="url(#redHandleGradBtn)" stroke="#7f1d1d" stroke-width="0.5"/>
+          <line x1="18" y1="24" x2="82" y2="24" stroke="#fca5a5" stroke-width="1" stroke-linecap="round"/>
+          <circle cx="17.5" cy="25" r="3" fill="#1e293b"/>
+          <circle cx="17.5" cy="25" r="1.2" fill="#cbd5e1"/>
+          <circle cx="82.5" cy="25" r="3" fill="#1e293b"/>
+          <circle cx="82.5" cy="25" r="1.2" fill="#cbd5e1"/>
+          <!-- الهيكل السفلي والعجلات -->
+          <path d="M 28 60 L 25 75 L 70 75 L 72 60" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="2.5" stroke-linecap="round"/>
+          <g transform="translate(68, 75)">
+            <path d="M 0 0 L 2 12" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="2"/>
+            <circle cx="2" cy="12" r="5" fill="url(#rubberGradientBtn)"/>
+            <circle cx="2" cy="12" r="2.5" fill="url(#chromeGradientBtn)"/>
+            <circle cx="2" cy="12" r="1" fill="#1e293b"/>
+          </g>
+          <g transform="translate(26, 75)">
+            <path d="M 0 0 L 2 12" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="2"/>
+            <circle cx="2" cy="12" r="5" fill="url(#rubberGradientBtn)"/>
+            <circle cx="2" cy="12" r="2.5" fill="url(#chromeGradientBtn)"/>
+            <circle cx="2" cy="12" r="1" fill="#1e293b"/>
+          </g>
+        </svg>
     </button>
 
-    <!-- النوافذ (Modals) -->
     <div id="login-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('login-modal')" style="left:15px; right:auto;">✕</button>
             <h3>تسجيل الدخول</h3>
+            
             <label class="settings-label" for="login-name-input">الاسم</label>
             <input type="text" id="login-name-input" class="online-input" placeholder="أدخل اسمك">
+
             <label class="settings-label" for="login-password-input">كلمة المرور / Password</label>
             <input type="password" id="login-password-input" class="online-input" placeholder="كلمة المرور">
+
             <label class="settings-label" for="login-avatar-select">الشخصية</label>
-            <select id="login-avatar-select" class="online-input"><option value="avatar1">شخصية 1</option></select>
+            <select id="login-avatar-select" class="online-input">
+                <option value="avatar1">شخصية 1</option>
+            </select>
+
             <button id="login-submit-btn" class="save-settings-btn">دخول</button>
         </div>
     </div>
@@ -427,47 +1186,67 @@
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             <h3 id="igp-title" style="margin-bottom: 25px;">الملف الشخصي</h3>
             <div class="profile-display-avatar" id="igp-avatar" style="width: 80px; height: 80px; margin: 0 auto 15px auto; border-radius: 50%; padding: 2px; border: 1px solid rgba(255,255,255,0.2); position: relative;"></div>
+            
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%;">الاسم</h4>
             
             <div onclick="copyMyId()" id="copy-id-btn" style="cursor: pointer; color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-family: monospace; padding: 4px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;" title="نسخ المعرف" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
                 <span>ID: <span id="igp-id-display" style="color: white; font-weight: bold;">...</span></span>
-                <span class="svg-icon icon-28" data-icon="copy"></span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             </div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; box-sizing: border-box;">
-                <div style="display: flex; flex-direction: column; align-items: center;"><span id="igp-games" style="color: white; font-size: 22px; font-weight: 700;">0</span><span id="igp-lbl-games" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">لعب</span></div>
-                <div style="display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); border-left: 1px solid rgba(255,255,255,0.05); align-items: center;"><span id="igp-wins" style="color: #34c759; font-size: 22px; font-weight: 700;">0</span><span id="igp-lbl-wins" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">فوز</span></div>
-                <div style="display: flex; flex-direction: column; align-items: center;"><span id="igp-losses" style="color: #ff453a; font-size: 22px; font-weight: 700;">0</span><span id="igp-lbl-losses" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">خسارة</span></div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <span id="igp-games" style="color: white; font-size: 22px; font-weight: 700;">0</span>
+                    <span id="igp-lbl-games" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">لعب</span>
+                </div>
+                <div style="display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); border-left: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                    <span id="igp-wins" style="color: #34c759; font-size: 22px; font-weight: 700;">0</span>
+                    <span id="igp-lbl-wins" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">فوز</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <span id="igp-losses" style="color: #ff453a; font-size: 22px; font-weight: 700;">0</span>
+                    <span id="igp-lbl-losses" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">خسارة</span>
+                </div>
             </div>
+
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; box-sizing: border-box;">
                 <input type="text" id="friend-id-input" class="online-input" placeholder="معرف الصديق (ID)" style="margin-bottom: 0; height: 40px; font-size: 12px; width: 100%;">
                 <button id="add-friend-btn" class="save-settings-btn" style="margin-top: 0; height: 40px; padding: 0 30px; width: auto; font-size: 13px;">إضافة صديق</button>
             </div>
+
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; text-align: start; width: 100%; box-sizing: border-box;">
                 <h5 id="igp-lbl-friends" style="margin: 0 0 10px 0; color: #a1a1aa; font-size: 13px; font-weight: 600;">الأصدقاء</h5>
-                <div id="igp-friends-list" style="color: white; font-size: 13px; text-align: center; padding: 15px 0; font-weight: 500;">لا يوجد أصدقاء حالياً</div>
+                <div id="igp-friends-list" style="color: white; font-size: 13px; text-align: center; padding: 15px 0; font-weight: 500;">
+                    لا يوجد أصدقاء حالياً
+                </div>
             </div>
         </div>
     </div>
 
     <div id="store-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
-            <div style="position: absolute; top: 18px; right: 20px;" class="stat-item">🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
+            <div style="position: absolute; top: 18px; right: 20px;" class="stat-item">
+                🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span>
+            </div>
             <button onclick="closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto;">✕</button>
+
             <h3 id="store-title" style="margin-bottom: 5px; font-size: 20px;">المتجر الملكي</h3>
             <p id="store-desc" class="settings-label" style="text-align: center; margin-bottom: 15px; font-size: 12px;">استبدل رصيدك بملحقات حصرية عصرية!</p>
+
             <div class="custom-nav-tabs">
                 <button id="store-btn-tab-bg" class="custom-tab-button active" onclick="switchStoreTabCategory('bg')">خلفيات</button>
                 <button id="store-btn-tab-frames" class="custom-tab-button" onclick="switchStoreTabCategory('frames')">إطارات</button>
                 <button id="store-btn-tab-pieces" class="custom-tab-button" onclick="switchStoreTabCategory('pieces')">أحجار</button>
                 <button id="store-btn-tab-offers" class="custom-tab-button" onclick="switchStoreTabCategory('offers')">عروضات</button>
             </div>
+
             <div class="scrollable-content">
                 <div id="store-section-bg" class="store-items-grid"></div>
                 <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
                 <div id="store-section-pieces" class="store-items-grid" style="display: none;"></div>
                 <div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
             </div>
+            
             <button id="store-return-btn" onclick="closeAppModal('store-modal')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">الخروج</button>
         </div>
     </div>
@@ -476,11 +1255,14 @@
         <div class="settings-card leaderboard-full-screen" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000;">✕</button>
             <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px;">🏆 لوحة الشرف</h3>
+            
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="lb-tab-wins" class="custom-tab-button active" onclick="switchLbTab('wins')">الأكثر فوزاً</button>
                 <button id="lb-tab-tokens" class="custom-tab-button" onclick="switchLbTab('tokens')">الأغنى (المال)</button>
             </div>
+
             <div class="scrollable-content lb-list-container" id="leaderboard-list-wins"></div>
+            
             <div class="scrollable-content lb-list-container" id="leaderboard-list-tokens" style="display: none;"></div>
         </div>
     </div>
@@ -488,11 +1270,13 @@
     <div id="themes-grid-overlay" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <h3 id="themes-grid-title" style="margin-bottom: 15px; font-size: 20px;">المظهر والأزياء</h3>
+            
             <div class="custom-nav-tabs">
                 <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="switchThemeGridTabCategory('bg')">خلفيات</button>
                 <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="switchThemeGridTabCategory('frames')">إطارات</button>
                 <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="switchThemeGridTabCategory('pieces')">احجار</button>
             </div>
+
             <div class="scrollable-content">
                 <div class="themes-grid-container" id="theme-grid-section-bg">
                     <div class="theme-grid-item active" onclick="triggerGridThemeChange(0, '#DEB887', '#8B4513'); window.storeManager.equipItem('bg_wood');">
@@ -500,7 +1284,9 @@
                         <span id="theme-bg-0" class="theme-grid-title">الخشب الفاخر</span>
                     </div>
                 </div>
+
                 <div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div>
+
                 <div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;">
                     <div class="theme-grid-item active" id="grid-pc-original" onclick="window.storeManager.equipItem('pc_original')">
                         <div style="font-size: 24px; transition: all 0.3s;">⚪</div>
@@ -508,6 +1294,7 @@
                     </div>
                 </div>
             </div>
+
             <button id="theme-close-btn" onclick="closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">الخروج</button>
         </div>
     </div>
@@ -529,14 +1316,17 @@
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 id="new-game-title">لعبة جديدة</h3>
             <p id="choose-color-label" class="settings-label" style="text-align: center; margin-bottom: 20px;">اختر اللون للبدء</p>
+            
             <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;">
                 <button id="start-white-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #ffffff, #e0e0e0) !important; color: #000 !important; font-size: 24px; width: 64px; height: 64px; padding: 0; margin: 0; box-shadow: 0 4px 15px rgba(255,255,255,0.2) !important;">⚪</button>
                 <button id="start-black-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #626270, #2c2c35) !important; color: #fff !important; font-size: 24px; width: 64px; height: 64px; padding: 0; margin: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important;">⚫</button>
             </div>
+
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
                 <input type="checkbox" id="tutorial-mode-checkbox" style="width: 18px; height: 18px; accent-color: #f5a623; cursor: pointer;">
                 <label for="tutorial-mode-checkbox" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0;">لعبة تعليمية (مصباح مجاني / بدون جوائز)</label>
             </div>
+
             <button id="cancel-new-game-btn" onclick="closeAppModal('new-game-modal')" class="save-settings-btn" style="background: transparent !important;">إلغاء</button>
         </div>
     </div>
@@ -562,8 +1352,10 @@
             <div id="online-setup-box">
                 <label class="settings-label" id="room-id-label" for="online-room-input">رقم أو اسم الغرفة:</label>
                 <input type="text" id="online-room-input" class="online-input" placeholder="مثال: 12345">
+                
                 <label class="settings-label" id="room-password-label" for="online-password-input">كلمة السر (اختياري):</label>
                 <input type="password" id="online-password-input" class="online-input" placeholder="اتركها فارغة للعام">
+
                 <button id="online-create-btn" class="save-settings-btn" style="background: rgba(255,255,255,0.15) !important;">إنشاء غرفة</button>
                 <button id="online-join-btn" class="save-settings-btn">انضمام لغرفة</button>
             </div>
@@ -588,7 +1380,11 @@
             </div>
             <div style="margin: 20px 0;">
                 <div id="mm-status-label" class="settings-label" style="text-align: center;">جاري البحث عن خصم...</div>
-                <div class="loading-dots-container"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
+                <div class="loading-dots-container">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                </div>
                 <div id="mm-timer" style="color: white; font-weight: 600; font-size: 18px; margin-top: 15px;">00:00</div>
             </div>
             <button id="mm-cancel-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important;">إلغاء البحث</button>
@@ -612,8 +1408,11 @@
     <div id="purchase-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 id="modal-item-name">اسم المنتج</h3>
+            
             <div id="modal-item-preview" class="purchase-preview-box" style="flex-direction: column; overflow: hidden;"></div>
+            
             <p id="modal-item-cost" style="color: #f5a623; font-weight: 700; font-size: 18px; margin-bottom: 25px;">🪙 السعر: 0</p>
+            
             <div style="display: flex; gap: 10px; flex-direction: column;">
                 <button id="confirm-buy-btn" class="save-settings-btn" style="margin: 0; background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border-color: rgba(245, 166, 35, 0.4) !important;">شراء الآن</button>
                 <button onclick="closeAppModal('purchase-modal')" class="save-settings-btn" style="margin: 0; background: transparent !important;">إلغاء</button>
@@ -626,70 +1425,145 @@
         <button id="reset-btn" title="Reset">ابداء</button>
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none;">↩️</button>
         
-        <button id="hint-btn" title="أفضل حركة" style="position: relative; overflow: visible;">
-            <span class="svg-icon icon-36" data-icon="bulb"></span>
+        <button id="hint-btn" title="أفضل حركة" style="font-size: 18px; position: relative; overflow: visible;">
+            <svg viewBox="0 0 100 100" width="32" height="32" style="vertical-align: middle; display: inline-block;">
+              <defs>
+                <filter id="bulbGlow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+                <radialGradient id="glassBodyGrad" cx="40%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#ffffff"/>
+                  <stop offset="35%" stop-color="#fef08a"/>
+                  <stop offset="70%" stop-color="#f59e0b"/>
+                  <stop offset="100%" stop-color="#d97706"/>
+                </radialGradient>
+                <linearGradient id="filamentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#ffffff"/>
+                  <stop offset="50%" stop-color="#fef08a"/>
+                  <stop offset="100%" stop-color="#f97316"/>
+                </linearGradient>
+                <linearGradient id="metalBase" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#64748b"/>
+                  <stop offset="25%" stop-color="#f1f5f9"/>
+                  <stop offset="50%" stop-color="#94a3b8"/>
+                  <stop offset="75%" stop-color="#cbd5e1"/>
+                  <stop offset="100%" stop-color="#334155"/>
+                </linearGradient>
+                <linearGradient id="contactPoint" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#475569"/>
+                  <stop offset="100%" stop-color="#0f172a"/>
+                </linearGradient>
+                <style>
+                  @keyframes pulseGlow {
+                    0%, 100% { transform: scale(1); filter: drop-shadow(0px 0px 2px rgba(251, 191, 36, 0.4)); }
+                    50% { transform: scale(1.05); filter: drop-shadow(0px 0px 8px rgba(245, 158, 11, 0.8)); }
+                  }
+                  .anim-p { 
+                    transform-origin: 50px 50px;
+                    animation: pulseGlow 3s ease-in-out infinite; 
+                  }
+                </style>
+              </defs>
+              <g class="anim-p">
+                <!-- أشعة الإضاءة الخارجية -->
+                <g stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+                  <line x1="50" y1="6" x2="50" y2="11" />
+                  <line x1="22" y1="18" x2="26" y2="22" />
+                  <line x1="78" y1="18" x2="74" y2="22" />
+                  <line x1="12" y1="42" x2="17" y2="42" />
+                  <line x1="88" y1="42" x2="83" y2="42" />
+                </g>
+                <!-- توهج خلفي للمبة -->
+                <circle cx="50" cy="42" r="28" fill="#fef08a" opacity="0.25" filter="url(#bulbGlow)" />
+                <!-- جسم المبة الزجاجي -->
+                <path d="M 50 14 C 33 14 22 27 22 42 C 22 53 31 60 36 67 C 38 70 38 74 38 75 L 62 75 C 62 74 62 70 64 67 C 69 60 78 53 78 42 C 78 27 67 14 50 14 Z" fill="url(#glassBodyGrad)" />
+                <!-- أسلاك التوصيل الداخلية -->
+                <path d="M 44 72 L 44 50 L 47 44 M 56 72 L 56 50 L 53 44" stroke="#94a3b8" stroke-width="1" fill="none" opacity="0.8"/>
+                <!-- فتيل الإضاءة -->
+                <path d="M 46 44 C 42 36 46 28 50 28 C 54 28 58 36 54 44 Z" fill="none" stroke="url(#filamentGrad)" stroke-width="2.5" stroke-linecap="round" filter="url(#bulbGlow)"/>
+                <circle cx="50" cy="36" r="3" fill="#ffffff" filter="url(#bulbGlow)"/>
+                <!-- لمعة الزجاج -->
+                <path d="M 30 32 C 28 38 31 46 33 49 C 30 45 28 38 32 30 C 36 22 45 18 50 17 C 42 18 33 24 30 32 Z" fill="#ffffff" opacity="0.65"/>
+                <!-- قاعدة المصباح المعدنية -->
+                <rect x="38" y="75" width="24" height="4" rx="2" fill="url(#metalBase)"/>
+                <rect x="39" y="79" width="22" height="4" rx="2" fill="url(#metalBase)"/>
+                <rect x="40" y="83" width="20" height="4" rx="2" fill="url(#metalBase)"/>
+                <!-- نقطة التلامس السفلیة -->
+                <path d="M 42 87 C 42 91 58 91 58 87 Z" fill="url(#contactPoint)"/></g>
+            </svg>
             <span id="hint-counter" style="position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 50%; border: 1.5px solid #282a32; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10;">0</span>
         </button>
         
         <select id="diff-quick-select" title="Difficulty">
-            <option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option><option value="7">L7</option><option value="8">L8</option><option value="9">L9</option>
+            <option value="1">L1</option>
+            <option value="2">L2</option>
+            <option value="3">L3</option>
+            <option value="4">L4</option>
+            <option value="5">L5</option>
+            <option value="6">L6</option>
+            <option value="7">L7</option>
+            <option value="8">L8</option>
+            <option value="9">L9</option>
         </select>
+        
         <button id="resign-btn" title="الانسحاب" style="display: none; font-weight: bold;">الانسحاب</button>
     </div>
 
-    <!-- ========================================================================= -->
-    <!-- سكربتات اللعبة والمكونات (Scripts & Component Library)                        -->
-    <!-- ========================================================================= -->
+    <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
+    
     <script>
-        // 1. مكتبة الأيقونات الاحترافية (SVG Component Injection)
-        const SVG_ASSETS = {
-            menu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>`,
-            copy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`,
-            bulb: `<svg viewBox="0 0 100 100" width="100%" height="100%"><defs><filter id="bulbGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter><radialGradient id="glassBodyGrad" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="#fef08a"/><stop offset="70%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></radialGradient><linearGradient id="filamentGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="50%" stop-color="#fef08a"/><stop offset="100%" stop-color="#f97316"/></linearGradient><linearGradient id="metalBase" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#64748b"/><stop offset="25%" stop-color="#f1f5f9"/><stop offset="50%" stop-color="#94a3b8"/><stop offset="75%" stop-color="#cbd5e1"/><stop offset="100%" stop-color="#334155"/></linearGradient><linearGradient id="contactPoint" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#475569"/><stop offset="100%" stop-color="#0f172a"/></linearGradient><style>@keyframes pulseGlow { 0%, 100% { transform: scale(1); filter: drop-shadow(0px 0px 2px rgba(251, 191, 36, 0.4)); } 50% { transform: scale(1.05); filter: drop-shadow(0px 0px 8px rgba(245, 158, 11, 0.8)); } } .anim-p { transform-origin: 50px 50px; animation: pulseGlow 3s ease-in-out infinite; }</style></defs><g class="anim-p"><g stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" opacity="0.6"><line x1="50" y1="6" x2="50" y2="11" /><line x1="22" y1="18" x2="26" y2="22" /><line x1="78" y1="18" x2="74" y2="22" /><line x1="12" y1="42" x2="17" y2="42" /><line x1="88" y1="42" x2="83" y2="42" /></g><circle cx="50" cy="42" r="28" fill="#fef08a" opacity="0.25" filter="url(#bulbGlow)" /><path d="M 50 14 C 33 14 22 27 22 42 C 22 53 31 60 36 67 C 38 70 38 74 38 75 L 62 75 C 62 74 62 70 64 67 C 69 60 78 53 78 42 C 78 27 67 14 50 14 Z" fill="url(#glassBodyGrad)" /><path d="M 44 72 L 44 50 L 47 44 M 56 72 L 56 50 L 53 44" stroke="#94a3b8" stroke-width="1" fill="none" opacity="0.8"/><path d="M 46 44 C 42 36 46 28 50 28 C 54 28 58 36 54 44 Z" fill="none" stroke="url(#filamentGrad)" stroke-width="2.5" stroke-linecap="round" filter="url(#bulbGlow)"/><circle cx="50" cy="36" r="3" fill="#ffffff" filter="url(#bulbGlow)"/><path d="M 30 32 C 28 38 31 46 33 49 C 30 45 28 38 32 30 C 36 22 45 18 50 17 C 42 18 33 24 30 32 Z" fill="#ffffff" opacity="0.65"/><rect x="38" y="75" width="24" height="4" rx="2" fill="url(#metalBase)"/><rect x="39" y="79" width="22" height="4" rx="2" fill="url(#metalBase)"/><rect x="40" y="83" width="20" height="4" rx="2" fill="url(#metalBase)"/><path d="M 42 87 C 42 91 58 91 58 87 Z" fill="url(#contactPoint)"/></g></svg>`,
-            bag: `<svg viewBox="0 0 120 120" width="100%" height="100%"><defs><linearGradient id="bagGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="25%" stop-color="#f59e0b"/><stop offset="50%" stop-color="#d97706"/><stop offset="75%" stop-color="#b45309"/><stop offset="100%" stop-color="#78350f"/></linearGradient><linearGradient id="bagBody" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#334155"/><stop offset="40%" stop-color="#1e293b"/><stop offset="85%" stop-color="#0f172a"/><stop offset="100%" stop-color="#020617"/></linearGradient><linearGradient id="bagIvory" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="70%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fde68a"/></linearGradient><linearGradient id="bagRuby" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="50%" stop-color="#dc2626"/><stop offset="100%" stop-color="#991b1b"/></linearGradient><radialGradient id="bagGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient><filter id="bagShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.35"/></filter><style>@keyframes luxuryFloat { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-7px) rotate(-1deg); } } .anim-luxury { transform-origin: 60px 60px; animation: luxuryFloat 4s ease-in-out infinite; }</style></defs><g class="anim-luxury"><circle cx="60" cy="60" r="54" fill="url(#bagGlow)"/><ellipse cx="60" cy="108" rx="34" ry="4" fill="#000000" opacity="0.22"/><g filter="url(#bagShadow)"><path d="M 44 32 C 44 18 76 18 76 32" fill="none" stroke="url(#bagGold)" stroke-width="4.5" stroke-linecap="round"/><rect x="52" y="20" width="16" height="5" rx="2.5" fill="url(#bagBody)" stroke="url(#bagGold)" stroke-width="1"/><rect x="22" y="32" width="76" height="66" rx="14" fill="url(#bagBody)" stroke="url(#bagGold)" stroke-width="1.8"/><path d="M 22 46 L 22 38 C 22 34.7 24.7 32 28 32 L 36 32" fill="none" stroke="url(#bagGold)" stroke-width="3.5" stroke-linecap="round"/><path d="M 84 32 L 92 32 C 95.3 32 98 34.7 98 38 L 98 46" fill="none" stroke="url(#bagGold)" stroke-width="3.5" stroke-linecap="round"/><path d="M 22 84 L 22 92 C 22 95.3 24.7 98 28 98 L 36 98" fill="none" stroke="url(#bagGold)" stroke-width="3.5" stroke-linecap="round"/><path d="M 84 98 L 92 98 C 95.3 98 98 95.3 98 92 L 98 84" fill="none" stroke="url(#bagGold)" stroke-width="3.5" stroke-linecap="round"/><rect x="36" y="38" width="6" height="10" rx="1.5" fill="url(#bagGold)"/><circle cx="39" cy="45" r="1" fill="#0f172a"/><rect x="78" y="38" width="6" height="10" rx="1.5" fill="url(#bagGold)"/><circle cx="81" cy="45" r="1" fill="#0f172a"/><line x1="22" y1="48" x2="98" y2="48" stroke="url(#bagGold)" stroke-width="1.5" stroke-dasharray="8,2,2,2"/><g transform="translate(32, 52) rotate(-18)"><rect x="0" y="0" width="22" height="30" rx="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/><path d="M 11 19 L 7 13 L 15 13 Z" fill="#1e293b"/><circle cx="11" cy="13" r="2.5" fill="#1e293b"/></g><g transform="translate(38, 50) rotate(-6)"><rect x="0" y="0" width="22" height="30" rx="3" fill="url(#bagIvory)" stroke="url(#bagGold)" stroke-width="1"/><text x="3" y="7" font-family="Arial" font-size="5" font-weight="bold" fill="url(#bagRuby)">A</text><path d="M 11 20 C 11 20 5 14 5 10 C 5 7.5 7 6 9.2 6 C 10.6 6 11 6.8 11 6.8 C 11 6.8 11.4 6 12.8 6 C 15 6 17 7.5 17 10 C 17 14 11 20 11 20 Z" fill="url(#bagRuby)"/></g><g transform="translate(64, 52) rotate(12)"><rect x="0" y="0" width="19" height="32" rx="3.5" fill="url(#bagIvory)" stroke="#1e293b" stroke-width="1.2"/><line x1="3" y1="16" x2="16" y2="16" stroke="#475569" stroke-width="1.2"/><circle cx="9.5" cy="16" r="1.2" fill="url(#bagGold)"/><circle cx="5.5" cy="5.5" r="1.3" fill="#0f172a"/><circle cx="13.5" cy="5.5" r="1.3" fill="#0f172a"/><circle cx="5.5" cy="10.5" r="1.3" fill="#0f172a"/><circle cx="13.5" cy="10.5" r="1.3" fill="#0f172a"/><circle cx="5.5" cy="21.5" r="1.3" fill="#0f172a"/><circle cx="13.5" cy="21.5" r="1.3" fill="#0f172a"/><circle cx="5.5" cy="26.5" r="1.3" fill="#0f172a"/><circle cx="13.5" cy="26.5" r="1.3" fill="#0f172a"/></g><g transform="translate(34, 76) rotate(8)"><rect x="0" y="0" width="15" height="15" rx="3.5" fill="url(#bagIvory)" stroke="url(#bagGold)" stroke-width="1"/><circle cx="4" cy="4" r="1.2" fill="#0f172a"/><circle cx="11" cy="4" r="1.2" fill="#0f172a"/><circle cx="7.5" cy="7.5" r="1.4" fill="url(#bagRuby)"/><circle cx="4" cy="11" r="1.2" fill="#0f172a"/><circle cx="11" cy="11" r="1.2" fill="#0f172a"/></g><g transform="translate(70, 78)"><circle cx="10" cy="10" r="10" fill="url(#bagGold)" stroke="#78350f" stroke-width="1"/><circle cx="10" cy="10" r="7" fill="url(#bagBody)" stroke="url(#bagGold)" stroke-width="1"/><circle cx="10" cy="10" r="3.5" fill="url(#bagGold)"/><circle cx="10" cy="10" r="1.5" fill="#ffffff" opacity="0.6"/></g></g></g></svg>`,
-            door: `<svg viewBox="0 0 100 100" width="100%" height="100%"><defs><linearGradient id="doorGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8d6e63"/><stop offset="100%" stop-color="#5d4037"/></linearGradient><radialGradient id="handleGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#ca8a04"/></radialGradient><filter id="doorShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#000" flood-opacity="0.3"/></filter><style>@keyframes floatDoor { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } } .anim-door { transform-origin: 50px 50px; animation: floatDoor 3s ease-in-out infinite; }</style></defs><g class="anim-door"><ellipse cx="50" cy="88" rx="24" ry="3.5" fill="#000" opacity="0.2"/><path d="M 22 84 L 22 24 C 22 17, 78 17, 78 24 L 78 84 Z" fill="#3e2723" filter="url(#doorShadow)"/><path d="M 26 84 L 26 27 C 26 22, 74 22, 74 27 L 74 84 Z" fill="url(#doorGrad)"/><rect x="31" y="31" width="38" height="22" rx="2" fill="rgba(0,0,0,0.15)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><rect x="31" y="58" width="38" height="22" rx="2" fill="rgba(0,0,0,0.15)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/><circle cx="65" cy="55" r="3.5" fill="url(#handleGrad)" filter="url(#doorShadow)"/><g transform="translate(62, 12)" filter="url(#doorShadow)"><circle cx="12" cy="12" r="12" fill="#22c55e"/><path d="M 12 6 L 12 18 M 6 12 L 18 12" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/></g></g></svg>`,
-            medal: `<svg viewBox="0 0 100 100" width="100%" height="100%"><defs><linearGradient id="medalGm" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fffbeb"/><stop offset="15%" stop-color="#fef08a"/><stop offset="35%" stop-color="#eab308"/><stop offset="60%" stop-color="#ca8a04"/><stop offset="85%" stop-color="#854d0e"/><stop offset="100%" stop-color="#451a03"/></linearGradient><linearGradient id="medalGe" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#78350f"/><stop offset="50%" stop-color="#fde047"/><stop offset="100%" stop-color="#fff"/></linearGradient><linearGradient id="medalRb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#991b1b"/><stop offset="40%" stop-color="#dc2626"/><stop offset="100%" stop-color="#7f1d1d"/></linearGradient><linearGradient id="medalRs" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,0,0,0.1)"/><stop offset="100%" stop-color="rgba(0,0,0,0.5)"/></linearGradient><radialGradient id="medalMg" cx="50%" cy="62%" r="45%"><stop offset="0%" stop-color="#fde047" stop-opacity="0.6"/><stop offset="100%" stop-color="#fde047" stop-opacity="0"/></radialGradient><filter id="medalUs" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/></filter><filter id="medalTd" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#b45309" flood-opacity="0.35"/></filter><style>@keyframes medalFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.03); } } @keyframes medalSparkle { 0%, 100% { opacity: 0.2; transform: scale(0.7) rotate(0deg); } 50% { opacity: 1; transform: scale(1.4) rotate(180deg); } } .medal-am { animation: medalFloat 3s ease-in-out infinite; transform-origin: 50px 50px; } .medal-s1 { animation: medalSparkle 2.2s ease-in-out infinite; transform-origin: 25px 25px; } .medal-s2 { animation: medalSparkle 2.8s ease-in-out infinite 0.7s; transform-origin: 75px 25px; }</style></defs><g class="medal-am" filter="url(#medalTd)"><circle cx="50" cy="62" r="32" fill="url(#medalMg)"/><g filter="url(#medalUs)"><path d="M36 10 L18 30 L30 35 L44 14 Z" fill="#581c87" opacity="0.3"/><path d="M64 10 L82 30 L70 35 L56 14 Z" fill="#581c87" opacity="0.3"/><path d="M38 10 L22 28 L32 33 L46 14 Z" fill="#7f1d1d"/><path d="M62 10 L78 28 L68 33 L54 14 Z" fill="#7f1d1d"/><path d="M38 10 L50 26 L62 10 L54 6 L50 12 L46 6 Z" fill="url(#medalRb)"/><path d="M33 10 L50 31 L67 10 L63 6 L50 22 L37 6 Z" fill="url(#medalRb)"/><line x1="43" y1="8" x2="47" y2="22" stroke="#fde047" stroke-width="1.5" opacity="0.8"/><line x1="57" y1="8" x2="53" y2="22" stroke="#fde047" stroke-width="1.5" opacity="0.8"/><path d="M33 10 L50 31 L67 10 L50 16 Z" fill="url(#medalRs)"/></g><g filter="url(#medalUs)"><ellipse cx="50" cy="33" rx="6" ry="3.5" fill="#451a03"/><path d="M43 33 C43 28 57 28 57 33 C57 38 43 38 43 33 Z" fill="none" stroke="url(#medalGm)" stroke-width="3"/><ellipse cx="50" cy="33" rx="3.5" ry="1.8" fill="#eab308"/></g><circle cx="50" cy="63" r="27" fill="#000" opacity="0.35"/><g filter="url(#medalUs)"><circle cx="50" cy="62" r="27" fill="url(#medalGm)"/><circle cx="50" cy="62" r="26" fill="none" stroke="url(#medalGe)" stroke-width="1.5"/><circle cx="50" cy="62" r="23.5" fill="none" stroke="#78350f" stroke-width="0.8" stroke-dasharray="1.5 3" opacity="0.85"/><circle cx="50" cy="62" r="22" fill="#78350f"/><circle cx="50" cy="62" r="21" fill="url(#medalGm)"/></g><path d="M34 65 C34 52 42 45 50 45 C58 45 66 52 66 65" opacity="0.4" stroke="#78350f" stroke-width="1" fill="none"/><g transform="translate(50, 62) scale(1.05)" filter="url(#medalUs)"><polygon points="0,-13.5 4,-4 13.5,-4 6,-0.5 8.5,9.5 0,4 -8.5,9.5 -6,-0.5 -13.5,-4 -4,-4" fill="#78350f"/><polygon points="0,-13.5 0,2 4,-4" fill="#fef08a"/><polygon points="0,-13.5 0,2 -4,-4" fill="#ca8a04"/><polygon points="13.5,-4 0,2 4,-4" fill="#eab308"/><polygon points="13.5,-4 0,2 8.5,9.5" fill="#a16207"/><polygon points="8.5,9.5 0,2 6,-0.5" fill="#ca8a04"/><polygon points="8.5,9.5 0,2 0,4" fill="#854d0e"/><polygon points="0,4 0,2 -6,-0.5" fill="#eab308"/><polygon points="0,4 0,2 -8.5,9.5" fill="#ca8a04"/><polygon points="-8.5,9.5 0,2 -4,-4" fill="#a16207"/><polygon points="-13.5,-4 0,2 -4,-4" fill="#fef08a"/><circle cx="0" cy="2" r="1.5" fill="#fff"/></g><path class="medal-s1" d="M25 25 L26.5 21 L28 25 L32 26.5 L28 28 L26.5 32 L25 28 L21 26.5 Z" fill="#fff"/><path class="medal-s2" d="M75 25 L76 22 L77 25 L80 26 L77 27 L76 30 L75 27 L72 26 Z" fill="#fffbeb"/></g></svg>`,
-            globe: `<svg viewBox="0 0 100 100" width="100%" height="100%"><defs><radialGradient id="oceanBlueBtn" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="45%" stop-color="#0284c7"/><stop offset="80%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#0f172a"/></radialGradient><linearGradient id="landGradBtn" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient><radialGradient id="atmosphereGlowBtn" cx="50%" cy="50%" r="50%"><stop offset="70%" stop-color="#38bdf8" stop-opacity="0"/><stop offset="92%" stop-color="#38bdf8" stop-opacity="0.5"/><stop offset="100%" stop-color="#0284c7" stop-opacity="0.9"/></radialGradient><linearGradient id="glossHighlightBtn" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient><clipPath id="globeClipBtn"><circle cx="50" cy="50" r="36"/></clipPath></defs><circle cx="50" cy="50" r="36" fill="url(#oceanBlueBtn)"/><g clip-path="url(#globeClipBtn)"><g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3"><line x1="10" y1="50" x2="90" y2="50"/><ellipse cx="50" cy="50" rx="36" ry="18"/><ellipse cx="50" cy="50" rx="36" ry="30"/><line x1="50" y1="10" x2="50" y2="90"/><ellipse cx="50" cy="50" rx="18" ry="36"/><ellipse cx="50" cy="50" rx="30" ry="36"/></g><g fill="url(#landGradBtn)" stroke="#0284c7" stroke-width="0.3" opacity="0.92"><path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/><path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/><path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/><circle cx="72" cy="68" r="3"/><circle cx="38" cy="23" r="1.8"/><circle cx="62" cy="58" r="1.5"/></g></g><circle cx="50" cy="50" r="36" fill="url(#atmosphereGlowBtn)"/><path d="M 20 32 A 34 34 0 0 1 80 32 A 36 36 0 0 0 20 32 Z" fill="url(#glossHighlightBtn)"/></svg>`,
-            cart: `<svg viewBox="0 0 100 100" width="100%" height="100%"><defs><linearGradient id="chromeGradientBtn" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="30%" stop-color="#cbd5e1"/><stop offset="60%" stop-color="#94a3b8"/><stop offset="85%" stop-color="#64748b"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient><linearGradient id="redHandleGradBtn" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="50%" stop-color="#dc2626"/><stop offset="100%" stop-color="#991b1b"/></linearGradient><linearGradient id="wireGradientBtn" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="50%" stop-color="#475569"/><stop offset="100%" stop-color="#334155"/></linearGradient><linearGradient id="rubberGradientBtn" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#475569"/><stop offset="100%" stop-color="#1e293b"/></linearGradient></defs><ellipse cx="50" cy="90" rx="30" ry="3.5" fill="#000" opacity="0.15"/><path d="M 82 25 L 75 60 L 25 60 L 18 25" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="3" stroke-linecap="round"/><rect x="74" y="21.5" width="12" height="4.5" rx="2.2" fill="url(#redHandleGradBtn)" stroke="#7f1d1d" stroke-width="0.5"/><line x1="76" y1="23" x2="84" y2="23" stroke="#fca5a5" stroke-width="1" stroke-linecap="round"/><g stroke="url(#wireGradientBtn)" stroke-width="1.5" stroke-linecap="round"><path d="M 19 32 H 81 M 20 39 H 80 M 21 46 H 79 M 23 53 H 77"/><path d="M 25 25 L 28 60 M 35 25 L 36 60 M 45 25 L 44 60 M 55 25 L 52 60 M 65 25 L 60 60 M 75 25 L 68 60"/></g><rect x="16" y="22.5" width="68" height="5" rx="2.5" fill="url(#redHandleGradBtn)" stroke="#7f1d1d" stroke-width="0.5"/><line x1="18" y1="24" x2="82" y2="24" stroke="#fca5a5" stroke-width="1" stroke-linecap="round"/><circle cx="17.5" cy="25" r="3" fill="#1e293b"/><circle cx="17.5" cy="25" r="1.2" fill="#cbd5e1"/><circle cx="82.5" cy="25" r="3" fill="#1e293b"/><circle cx="82.5" cy="25" r="1.2" fill="#cbd5e1"/><path d="M 28 60 L 25 75 L 70 75 L 72 60" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="2.5" stroke-linecap="round"/><g transform="translate(68, 75)"><path d="M 0 0 L 2 12" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="2"/><circle cx="2" cy="12" r="5" fill="url(#rubberGradientBtn)"/><circle cx="2" cy="12" r="2.5" fill="url(#chromeGradientBtn)"/><circle cx="2" cy="12" r="1" fill="#1e293b"/></g><g transform="translate(26, 75)"><path d="M 0 0 L 2 12" fill="none" stroke="url(#chromeGradientBtn)" stroke-width="2"/><circle cx="2" cy="12" r="5" fill="url(#rubberGradientBtn)"/><circle cx="2" cy="12" r="2.5" fill="url(#chromeGradientBtn)"/><circle cx="2" cy="12" r="1" fill="#1e293b"/></g></svg>`,
-            gear: `<svg viewBox="0 0 120 120" width="100%" height="100%"><defs><radialGradient id="goldCoreGrad" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="60%" stop-color="#d97706" /><stop offset="100%" stop-color="#78350f" /></radialGradient><linearGradient id="gearBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#475569" /><stop offset="100%" stop-color="#0f172a" /></linearGradient><linearGradient id="toothGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#1e293b" /><stop offset="25%" stop-color="#64748b" /><stop offset="50%" stop-color="#f8fafc" /><stop offset="75%" stop-color="#475569" /><stop offset="100%" stop-color="#0f172a" /></linearGradient><filter id="buttonShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/></filter><filter id="gearShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.35"/></filter><style>.gear-group { transform-origin: 60px 60px; animation: spinClockwise 12s linear infinite; } .gear-group:hover { animation-duration: 3s; } .gold-core:hover { filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8)); } @keyframes spinClockwise { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }</style></defs><g filter="url(#buttonShadow)"><rect x="10" y="10" width="100" height="100" rx="20" fill="url(#gearBodyGrad)" stroke="#64748b" stroke-width="2"/><rect x="12" y="12" width="96" height="96" rx="18" fill="none" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.5"/></g><g class="gear-group" filter="url(#gearShadow)"><g fill="url(#toothGrad)"><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(0 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(30 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(60 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(90 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(120 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(150 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(180 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(210 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(240 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(270 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(300 60 60)"/><polygon points="56,6 64,6 65.6,12.4 65.6,53.6 64,60 56,60 54.4,53.6 54.4,12.4" transform="rotate(330 60 60)"/></g><circle cx="60" cy="60" r="22" fill="#334155" stroke="#94a3b8" stroke-width="1"/><circle cx="60" cy="60" r="21" fill="url(#gearBodyGrad)" /><circle cx="60" cy="60" r="16" fill="#0f172a" /><g fill="#475569" opacity="0.6"><path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(0 60 60)"/><path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(60 60 60)"/><path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(120 60 60)"/><path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(180 60 60)"/><path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(240 60 60)"/><path d="M60 60 L68 48 A16 16 0 0 0 52 48 Z" transform="rotate(300 60 60)"/></g><circle class="gold-core" cx="60" cy="60" r="8" fill="url(#goldCoreGrad)" stroke="#b45309" stroke-width="0.5"/><circle cx="60" cy="60" r="3.5" fill="#e0e5ec"/><line x1="58" y1="58" x2="62" y2="62" stroke="#475569" stroke-width="1" stroke-linecap="round"/></g></svg>`
-        };
-
-        // دالة حقن المكونات (Component Injector)
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll('.svg-icon[data-icon]').forEach(el => {
-                const iconName = el.getAttribute('data-icon');
-                if (SVG_ASSETS[iconName]) { el.innerHTML = SVG_ASSETS[iconName]; }
-            });
-        });
-
-        // 2. الكود البرمجي الأصلي للمتغيرات (Original Script Core)
         let guestId = localStorage.getItem('guestId');
-        if (!guestId) { guestId = 'guest_' + Date.now() + Math.random(); localStorage.setItem('guestId', guestId); }
+        if (!guestId) {
+            guestId = 'guest_' + Date.now() + Math.random();
+            localStorage.setItem('guestId', guestId);
+        }
+
         window.modalStack = [];
 
         function openAppModal(id) {
             const modal = document.getElementById(id);
-            if (modal) { modal.style.display = 'flex'; window.modalStack.push(id); history.pushState({ modalOpen: id }, ''); }
+            if (modal) {
+                modal.style.display = 'flex';
+                window.modalStack.push(id);
+                history.pushState({ modalOpen: id }, '');
+            }
         }
 
         function closeAppModal(id) {
             const modal = document.getElementById(id);
             if (modal && modal.style.display === 'flex') {
-                if (window.modalStack[window.modalStack.length - 1] === id) { history.back(); } 
-                else { modal.style.display = 'none'; window.modalStack = window.modalStack.filter(m => m !== id); }
+                if (window.modalStack[window.modalStack.length - 1] === id) {
+                    history.back(); 
+                } else {
+                    modal.style.display = 'none';
+                    window.modalStack = window.modalStack.filter(m => m !== id);
+                }
             }
         }
 
         const boardObserver = new MutationObserver(() => {
-            if (document.querySelector('.piece:not(.mini)')) document.body.classList.add('game-active');
-            else document.body.classList.remove('game-active');
+            if (document.querySelector('.piece:not(.mini)')) {
+                document.body.classList.add('game-active');
+            } else {
+                document.body.classList.remove('game-active');
+            }
         });
-        document.addEventListener('DOMContentLoaded', () => { const boardEl = document.getElementById('board'); if (boardEl) boardObserver.observe(boardEl, { childList: true, subtree: true }); });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const boardEl = document.getElementById('board');
+            if (boardEl) {
+                boardObserver.observe(boardEl, { childList: true, subtree: true });
+            }
+        });
 
         function toggleSideMenu() {
             const overlay = document.getElementById('side-menu-overlay');
-            if (overlay.classList.contains('open')) overlay.classList.remove('open');
-            else overlay.classList.add('open');
+            if (overlay.classList.contains('open')) {
+                overlay.classList.remove('open');
+            } else {
+                overlay.classList.add('open');
+            }
         }
 
         function switchLbTab(tab) {
@@ -697,182 +1571,529 @@
             document.getElementById('lb-tab-tokens').classList.remove('active');
             document.getElementById('leaderboard-list-wins').style.display = 'none';
             document.getElementById('leaderboard-list-tokens').style.display = 'none';
+            
             document.getElementById('lb-tab-' + tab).classList.add('active');
             document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
         }
 
         function createLbItemHTML(rank, name, score, type) {
-            let prefix = type === 'wins' ? '' : '🪙 '; let suffix = type === 'wins' ? ' فوز' : '';
-            const div = document.createElement('div'); div.className = 'lb-item';
-            const nameEl = document.createElement('div'); nameEl.className = 'lb-name'; nameEl.textContent = name;
-            div.innerHTML = `<div class="lb-rank">#${rank}</div><div class="lb-avatar">👤</div><div class="lb-info"><div class="lb-name-container"></div><div class="lb-score">${prefix}${score}${suffix}</div></div>`;
+            let prefix = type === 'wins' ? '' : '🪙 ';
+            let suffix = type === 'wins' ? ' فوز' : '';
+            
+            const div = document.createElement('div');
+            div.className = 'lb-item';
+            
+            const nameEl = document.createElement('div');
+            nameEl.className = 'lb-name';
+            nameEl.textContent = name;
+            
+            div.innerHTML = `
+                <div class="lb-rank">#${rank}</div>
+                <div class="lb-avatar">👤</div>
+                <div class="lb-info">
+                    <div class="lb-name-container"></div>
+                    <div class="lb-score">${prefix}${score}${suffix}</div>
+                </div>
+            `;
             div.querySelector('.lb-name-container').replaceWith(nameEl);
+            
             return div;
         }
 
         function populateLeaderboards(winsData, tokensData) {
             const winsList = document.getElementById('leaderboard-list-wins');
             const tokensList = document.getElementById('leaderboard-list-tokens');
-            winsList.innerHTML = ''; tokensList.innerHTML = '';
-            for(let i = 0; i < 20; i++) { let wPlayer = winsData && winsData[i] ? winsData[i].name : `لاعب مجهول ${i+1}`; let wScore = winsData && winsData[i] ? winsData[i].score : (100 - (i * 2)); winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins')); }
-            for(let i = 0; i < 20; i++) { let tPlayer = tokensData && tokensData[i] ? tokensData[i].name : `لاعب مجهول ${i+1}`; let tScore = tokensData && tokensData[i] ? tokensData[i].score : (10000 - (i * 300)); tokensList.appendChild(createLbItemHTML(i+1, tPlayer, tScore, 'tokens')); }
+            
+            winsList.innerHTML = '';
+            tokensList.innerHTML = '';
+            
+            for(let i = 0; i < 20; i++) {
+                let wPlayer = winsData && winsData[i] ? winsData[i].name : `لاعب مجهول ${i+1}`;
+                let wScore = winsData && winsData[i] ? winsData[i].score : (100 - (i * 2));
+                winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins'));
+            }
+
+            for(let i = 0; i < 20; i++) {
+                let tPlayer = tokensData && tokensData[i] ? tokensData[i].name : `لاعب مجهول ${i+1}`;
+                let tScore = tokensData && tokensData[i] ? tokensData[i].score : (10000 - (i * 300));
+                tokensList.appendChild(createLbItemHTML(i+1, tPlayer, tScore, 'tokens'));
+            }
         }
 
         function setupSocketListeners() {
             if (window.socket) {
                 window.socket.off('leaderboardData');
                 window.socket.on('leaderboardData', (data) => {
-                    let formattedWins = []; let formattedTokens = [];
-                    if(Array.isArray(data)) { for(let i=0; i<data.length; i+=2) { formattedWins.push({ name: data[i], score: data[i+1] }); formattedTokens.push({ name: data[i], score: data[i+1] * 125 }); } } 
-                    else { formattedWins = data.wins || null; formattedTokens = data.tokens || null; }
+                    let formattedWins = [];
+                    let formattedTokens = [];
+                    
+                    if(Array.isArray(data)) {
+                        for(let i=0; i<data.length; i+=2) {
+                            formattedWins.push({ name: data[i], score: data[i+1] });
+                            formattedTokens.push({ name: data[i], score: data[i+1] * 125 }); 
+                        }
+                    } else {
+                        formattedWins = data.wins || null;
+                        formattedTokens = data.tokens || null;
+                    }
                     populateLeaderboards(formattedWins, formattedTokens);
                 });
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            window.showLeaderboard = function() { openAppModal('leaderboard-modal'); if(window.socket && window.socket.connected) { window.socket.emit('getLeaderboard'); } else { populateLeaderboards(null, null); } };
+            window.showLeaderboard = function() {
+                openAppModal('leaderboard-modal');
+                if(window.socket && window.socket.connected) {
+                    window.socket.emit('getLeaderboard');
+                } else {
+                    populateLeaderboards(null, null);
+                }
+            };
+
             setupSocketListeners();
-            let socketCheckInterval = setInterval(() => { if (window.socket) { setupSocketListeners(); clearInterval(socketCheckInterval); } }, 300);
+            let socketCheckInterval = setInterval(() => {
+                if (window.socket) {
+                    setupSocketListeners();
+                    clearInterval(socketCheckInterval);
+                }
+            }, 300);
         });
 
-        function getUserId() { try { let profile = JSON.parse(localStorage.getItem('hub_user_profile')); return profile ? profile.id : guestId; } catch(e) { return guestId; } }
+        function getUserId() {
+            try {
+                let profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+                return profile ? profile.id : guestId;
+            } catch(e) {
+                return guestId;
+            }
+        }
 
         function fallbackCopyText(text, callback) {
-            const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.focus(); textArea.select();
-            try { document.execCommand('copy'); if (callback) callback(); } catch (err) { console.error('فشل في نسخ المعرف: ', err); } document.body.removeChild(textArea);
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                if (callback) callback();
+            } catch (err) {
+                console.error('فشل في نسخ المعرف: ', err);
+            }
+            document.body.removeChild(textArea);
         }
 
         window.copyMyId = function() {
             const idText = document.getElementById('igp-id-display').innerText;
             if (idText && idText !== '...') {
-                const showToast = () => { const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '📋 تم نسخ الـ ID بنجاح'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); } };
-                if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(idText).then(showToast).catch(() => { fallbackCopyText(idText, showToast); }); } else { fallbackCopyText(idText, showToast); }
+                const showToast = () => {
+                    const toast = document.getElementById('toast-notification');
+                    if (toast) {
+                        toast.innerText = '📋 تم نسخ الـ ID بنجاح';
+                        toast.classList.add('show');
+                        setTimeout(() => toast.classList.remove('show'), 2500);
+                    }
+                };
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(idText).then(showToast).catch(() => {
+                        fallbackCopyText(idText, showToast);
+                    });
+                } else {
+                    fallbackCopyText(idText, showToast);
+                }
             }
         };
 
         window.showEquipNotification = function(itemType) {
-            const toast = document.getElementById('toast-notification'); if (!toast) return;
+            const toast = document.getElementById('toast-notification');
+            if (!toast) return;
+            
             let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
-            if (itemType === 'bg') msg = window.t ? window.t('toast_bg') : "تم تغيير الساحة بنجاح"; else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح"; else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
-            toast.innerText = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
+            if (itemType === 'bg') msg = window.t ? window.t('toast_bg') : "تم تغيير الساحة بنجاح";
+            else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
+            else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
+            
+            toast.innerText = '✨ ' + msg;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
         };
 
         window.triggerCustomAlertNotification = function(msg) {
-            if (typeof showCustomAlert === 'function') { showCustomAlert(msg); } else {
-                const alertModal = document.getElementById('custom-alert-modal'); const alertMsg = document.getElementById('custom-alert-message'); const alertOk = document.getElementById('custom-alert-ok'); const alertCancel = document.getElementById('custom-alert-cancel');
-                if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.innerText = msg; if(alertCancel) alertCancel.style.display = 'none'; openAppModal('custom-alert-modal'); alertOk.onclick = () => closeAppModal('custom-alert-modal'); } else { alert(msg); }
+            if (typeof showCustomAlert === 'function') {
+                showCustomAlert(msg);
+            } else {
+                const alertModal = document.getElementById('custom-alert-modal');
+                const alertMsg = document.getElementById('custom-alert-message');
+                const alertOk = document.getElementById('custom-alert-ok');
+                const alertCancel = document.getElementById('custom-alert-cancel');
+                if (alertModal && alertMsg && alertOk) {
+                    document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر';
+                    alertMsg.innerText = msg;
+                    if(alertCancel) alertCancel.style.display = 'none';
+                    openAppModal('custom-alert-modal'); 
+                    alertOk.onclick = () => closeAppModal('custom-alert-modal');
+                } else {
+                    alert(msg);
+                }
             }
         }
 
         function switchStoreTabCategory(category) {
             const tabs = ['bg', 'frames', 'pieces', 'offers'];
-            tabs.forEach(tab => { const btn = document.getElementById('store-btn-tab-' + tab); const sec = document.getElementById('store-section-' + tab); if(btn) btn.classList.remove('active'); if(sec) sec.style.display = 'none'; });
-            const activeBtn = document.getElementById('store-btn-tab-' + category); const activeSec = document.getElementById('store-section-' + category); if(activeBtn) activeBtn.classList.add('active'); if(activeSec) activeSec.style.display = 'grid';
+            tabs.forEach(tab => {
+                const btn = document.getElementById('store-btn-tab-' + tab);
+                const sec = document.getElementById('store-section-' + tab);
+                if(btn) btn.classList.remove('active');
+                if(sec) sec.style.display = 'none';
+            });
+            const activeBtn = document.getElementById('store-btn-tab-' + category);
+            const activeSec = document.getElementById('store-section-' + category);
+            if(activeBtn) activeBtn.classList.add('active');
+            if(activeSec) activeSec.style.display = 'grid';
         }
 
         function switchThemeGridTabCategory(category) {
             const tabs = ['bg', 'frames', 'pieces'];
-            tabs.forEach(tab => { const btn = document.getElementById('theme-btn-tab-' + tab); const sec = document.getElementById('theme-grid-section-' + tab); if(btn) btn.classList.remove('active'); if(sec) sec.style.display = 'none'; });
-            const activeBtn = document.getElementById('theme-btn-tab-' + category); const activeSec = document.getElementById('theme-grid-section-' + category); if(activeBtn) activeBtn.classList.add('active'); if(activeSec) activeSec.style.display = 'grid';
+            tabs.forEach(tab => {
+                const btn = document.getElementById('theme-btn-tab-' + tab);
+                const sec = document.getElementById('theme-grid-section-' + tab);
+                if(btn) btn.classList.remove('active');
+                if(sec) sec.style.display = 'none';
+            });
+            const activeBtn = document.getElementById('theme-btn-tab-' + category);
+            const activeSec = document.getElementById('theme-grid-section-' + category);
+            if(activeBtn) activeBtn.classList.add('active');
+            if(activeSec) activeSec.style.display = 'grid';
         }
 
         window.triggerGridThemeChange = function(index, lightHex, darkHex) {
-            document.documentElement.style.setProperty('--light-cell', lightHex); document.documentElement.style.setProperty('--dark-cell', darkHex);
-            if (index !== -1) { const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item'); items.forEach((item, idx) => { if (idx === index) item.classList.add('active'); else item.classList.remove('active'); }); }
-            let p = localStorage.getItem('hub_user_profile'); if (p && index !== -1) { let prof = JSON.parse(p); prof.equippedBg = null; localStorage.setItem('hub_user_profile', JSON.stringify(prof)); if(window.updateInventoryUI) window.updateInventoryUI(); }
+            document.documentElement.style.setProperty('--light-cell', lightHex);
+            document.documentElement.style.setProperty('--dark-cell', darkHex);
+            
+            if (index !== -1) {
+                const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item');
+                items.forEach((item, idx) => {
+                    if (idx === index) item.classList.add('active');
+                    else item.classList.remove('active');
+                });
+            }
+            
+            let p = localStorage.getItem('hub_user_profile');
+            if (p && index !== -1) {
+                let prof = JSON.parse(p);
+                prof.equippedBg = null; 
+                localStorage.setItem('hub_user_profile', JSON.stringify(prof));
+                if(window.updateInventoryUI) window.updateInventoryUI();
+            }
         }
 
         function forceLockedGlobalAvatar() {
-            let globalProfile = localStorage.getItem('hub_user_profile'); let avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/1000132081.webp"; let isImage = true;
+            let globalProfile = localStorage.getItem('hub_user_profile');
+            let avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/1000132081.webp"; 
+            let isImage = true;
+
             if (globalProfile) {
-                try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; const isExternalOrFb = avatarSrc.startsWith('http') || avatarSrc.startsWith('data:image'); const isFilePath = avatarSrc.includes('.');
-                if (!isExternalOrFb && isFilePath) { let baseName = avatarSrc.split('.')[0]; avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/" + baseName + ".webp"; isImage = true; } else if (!isExternalOrFb && !isFilePath) { isImage = false; } else { isImage = true; } } } catch(e) { console.error(e); }
+                try {
+                    const parsedHub = JSON.parse(globalProfile);
+                    if (parsedHub.avatar) {
+                        avatarSrc = parsedHub.avatar;
+                        
+                        const isExternalOrFb = avatarSrc.startsWith('http') || avatarSrc.startsWith('data:image');
+                        const isFilePath = avatarSrc.includes('.');
+
+                        if (!isExternalOrFb && isFilePath) {
+                            let baseName = avatarSrc.split('.')[0];
+                            avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/" + baseName + ".webp";
+                            isImage = true;
+                        } else if (!isExternalOrFb && !isFilePath) {
+                            isImage = false;
+                        } else {
+                            isImage = true;
+                        }
+                    }
+                } catch(e) { console.error(e); }
             }
+
             const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
+            
             targetAvatars.forEach(id => {
-                const el = document.getElementById(id); if (!el) return;
-                if (isImage) { const existingImg = el.querySelector('img'); if (!existingImg || existingImg.getAttribute('src') !== avatarSrc) { el.style.backgroundImage = 'none'; el.innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`; } } else { if (el.textContent !== avatarSrc) { el.innerHTML = ''; el.textContent = avatarSrc; } }
+                const el = document.getElementById(id);
+                if (!el) return;
+                
+                if (isImage) {
+                    const existingImg = el.querySelector('img');
+                    if (!existingImg || existingImg.getAttribute('src') !== avatarSrc) {
+                        el.style.backgroundImage = 'none';
+                        el.innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
+                    }
+                } else {
+                    if (el.textContent !== avatarSrc) {
+                        el.innerHTML = '';
+                        el.textContent = avatarSrc;
+                    }
+                }
             });
         }
 
         const avatarGuardObserver = new MutationObserver((mutations) => {
             let shouldProtect = false;
-            for (let mutation of mutations) { if (mutation.type === 'childList') { const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG'); if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; } } }
-            if (shouldProtect) { avatarGuardObserver.disconnect(); forceLockedGlobalAvatar(); startAvatarGuard(); }
+            for (let mutation of mutations) {
+                if (mutation.type === 'childList') {
+                    const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG');
+                    if (!hasImg && mutation.target.textContent !== "👤") {
+                        shouldProtect = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldProtect) {
+                avatarGuardObserver.disconnect();
+                forceLockedGlobalAvatar();
+                startAvatarGuard();
+            }
         });
-        function startAvatarGuard() { const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar']; targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } }); }
+
+        function startAvatarGuard() {
+            const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
+            targets.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    avatarGuardObserver.observe(el, { childList: true, attributes: false });
+                }
+            });
+        }
 
         window.applyProfileDataToUI = function(profile) {
-            const currentTokens = profile.tokens !== undefined ? profile.tokens : 0; const currentId = profile.id || getUserId();
-            const textElements = { 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 'igp-id-display': currentId, 'igp-games': profile.games !== undefined ? profile.games : 0, 'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 };
-            for (let id in textElements) { const el = document.getElementById(id); if (el) { el.innerText = textElements[id]; } }
+            const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
+            const currentId = profile.id || getUserId();
+            
+            const textElements = {
+                'badge-username-display-game': profile.name,
+                'card-my-name': profile.name,
+                'mm-my-name': profile.name,
+                'profile-stat-tokens-badge': currentTokens,
+                'profile-stat-tokens-store': currentTokens, 
+                'igp-name': profile.name,
+                'igp-id-display': currentId,
+                'igp-games': profile.games !== undefined ? profile.games : 0,
+                'igp-wins': profile.wins !== undefined ? profile.wins : 0,
+                'igp-losses': profile.losses !== undefined ? profile.losses : 0
+            };
+
+            for (let id in textElements) {
+                const el = document.getElementById(id);
+                if (el) { el.innerText = textElements[id]; }
+            }
+
             forceLockedGlobalAvatar();
+            
             if(window.updateInventoryUI) window.updateInventoryUI();
+
             window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
         }
 
         window.currentLang = 'ar';
+
         const originalAudioPlay = HTMLAudioElement.prototype.play;
-        HTMLAudioElement.prototype.play = function() { const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7'; this.volume = parseFloat(savedVol); return originalAudioPlay.call(this); };
+        HTMLAudioElement.prototype.play = function() {
+            const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
+            this.volume = parseFloat(savedVol);
+            return originalAudioPlay.call(this);
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
+            
             let savedAppLang = localStorage.getItem('appLang') || localStorage.getItem('lang') || 'ar';
-            document.documentElement.lang = savedAppLang; document.documentElement.dir = savedAppLang === 'ar' ? 'rtl' : 'ltr'; window.currentLang = savedAppLang;
-            window.addEventListener('message', (event) => { if (!event.data) return; if (event.data.type === 'LANGUAGE_CHANGED') { const newLang = event.data.lang; document.documentElement.lang = newLang; document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr'; window.currentLang = newLang; if (typeof window.updateUITranslations === 'function') { window.updateUITranslations(); } } if (event.data.type === 'PROFILE_UPDATED' && event.data.profile) { window.applyProfileDataToUI(event.data.profile); } });
-            let globalProfile = localStorage.getItem('hub_user_profile'); if (globalProfile) window.applyProfileDataToUI(JSON.parse(globalProfile));
-            forceLockedGlobalAvatar(); startAvatarGuard();
-            window.addEventListener('storage', (e) => { if (e.key === 'hub_user_profile') { forceLockedGlobalAvatar(); } });
-            const sfxSlider = document.getElementById('sfx-volume'); if(sfxSlider) { const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7'; sfxSlider.value = savedVol; sfxSlider.addEventListener('input', (e) => { const vol = parseFloat(e.target.value); localStorage.setItem('sfx_volume', vol); localStorage.setItem('dama_sfx_volume', vol); }); }
-            const btnSaveSettings = document.getElementById('save-settings-btn'); if(btnSaveSettings) { btnSaveSettings.onclick = () => closeAppModal('settings-overlay'); }
+            document.documentElement.lang = savedAppLang;
+            document.documentElement.dir = savedAppLang === 'ar' ? 'rtl' : 'ltr';
+            window.currentLang = savedAppLang;
+
+            window.addEventListener('message', (event) => {
+                if (!event.data) return;
+                
+                if (event.data.type === 'LANGUAGE_CHANGED') {
+                    const newLang = event.data.lang;
+                    document.documentElement.lang = newLang;
+                    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+                    window.currentLang = newLang;
+                    if (typeof window.updateUITranslations === 'function') {
+                        window.updateUITranslations();
+                    }
+                }
+                
+                if (event.data.type === 'PROFILE_UPDATED' && event.data.profile) {
+                    window.applyProfileDataToUI(event.data.profile);
+                }
+            });
+
+            let globalProfile = localStorage.getItem('hub_user_profile');
+            if (globalProfile) window.applyProfileDataToUI(JSON.parse(globalProfile));
+            
+            forceLockedGlobalAvatar();
+            startAvatarGuard();
+
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'hub_user_profile') {
+                    forceLockedGlobalAvatar();
+                }
+            });
+
+            const sfxSlider = document.getElementById('sfx-volume');
+            if(sfxSlider) {
+                const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
+                sfxSlider.value = savedVol;
+                
+                sfxSlider.addEventListener('input', (e) => {
+                    const vol = parseFloat(e.target.value);
+                    localStorage.setItem('sfx_volume', vol);
+                    localStorage.setItem('dama_sfx_volume', vol);
+                });
+            }
+
+            const btnSaveSettings = document.getElementById('save-settings-btn');
+            if(btnSaveSettings) {
+                btnSaveSettings.onclick = () => closeAppModal('settings-overlay');
+            }
         });
 
         function uiStateChangeTracker() {
-            const matchCard = document.getElementById('match-players-card'); const isOnline = (matchCard && matchCard.style.display !== 'none');
-            if (isOnline) { document.body.classList.add('online-mode-active'); } else { document.body.classList.remove('online-mode-active'); }
+            const matchCard = document.getElementById('match-players-card');
+            const isOnline = (matchCard && matchCard.style.display !== 'none');
+            
+            if (isOnline) {
+                document.body.classList.add('online-mode-active');
+            } else {
+                document.body.classList.remove('online-mode-active');
+            }
         }
+        
         window.addEventListener('popstate', uiStateChangeTracker);
         document.addEventListener('click', () => setTimeout(uiStateChangeTracker, 50));
-        window.addEventListener('load', () => { history.replaceState({ screen: 'dama-game' }, ''); });
+
+        window.addEventListener('load', () => {
+            history.replaceState({ screen: 'dama-game' }, '');
+        });
 
         window.addEventListener('popstate', function(event) {
-            if (window.modalStack.length > 0) { const topModalId = window.modalStack.pop(); const topModal = document.getElementById(topModalId); if (topModal) topModal.style.display = 'none'; return; }
-            if (window.isMatchRunning) { const resignBtn = document.getElementById('resign-btn'); if (resignBtn) resignBtn.click(); history.pushState({ screen: 'dama-game' }, ''); return; }
-            if (window.ui && window.ui.showCustomAlert) { window.ui.showCustomAlert( window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟", window.t ? window.t('confirm_exit_title') : "تأكيد الخروج", () => { window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); }, true, "إلغاء", "تأكيد" ); }
+            if (window.modalStack.length > 0) {
+                const topModalId = window.modalStack.pop();
+                const topModal = document.getElementById(topModalId);
+                if (topModal) topModal.style.display = 'none';
+                return; 
+            }
+
+            if (window.isMatchRunning) {
+                const resignBtn = document.getElementById('resign-btn');
+                if (resignBtn) resignBtn.click();
+                history.pushState({ screen: 'dama-game' }, ''); 
+                return;
+            }
+
+            if (window.ui && window.ui.showCustomAlert) {
+                window.ui.showCustomAlert(
+                    window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟",
+                    window.t ? window.t('confirm_exit_title') : "تأكيد الخروج",
+                    () => { window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); },
+                    true, "إلغاء", "تأكيد"
+                );
+            }
             history.pushState({ screen: 'dama-game' }, '');
         });
 
         window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
-            const nameEl = document.getElementById('modal-item-name'); const costEl = document.getElementById('modal-item-cost'); const previewEl = document.getElementById('modal-item-preview'); const buyBtn = document.getElementById('confirm-buy-btn');
-            nameEl.innerText = itemName; costEl.innerText = '🪙 ' + cost;
+            const nameEl = document.getElementById('modal-item-name');
+            const costEl = document.getElementById('modal-item-cost');
+            const previewEl = document.getElementById('modal-item-preview');
+            const buyBtn = document.getElementById('confirm-buy-btn');
+
+            nameEl.innerText = itemName;
+            costEl.innerText = '🪙 ' + cost;
+            
             const itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null;
-            previewEl.innerHTML = ''; previewEl.style.background = 'rgba(255,255,255,0.05)'; previewEl.style.backgroundImage = 'none';
+
+            previewEl.innerHTML = ''; 
+            previewEl.style.background = 'rgba(255,255,255,0.05)';
+            previewEl.style.backgroundImage = 'none';
+
             if(itemData) {
-                previewEl.style.border = itemData.isLegendary ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.1)'; previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
-                if (itemData.isImage) { let imgUrl = itemData.imagePath || itemData.imagePathWhite || ''; previewEl.style.backgroundImage = `url('${imgUrl}')`; previewEl.style.backgroundSize = 'cover'; previewEl.style.backgroundPosition = 'center'; } else if(itemType === 'pc') { previewEl.innerHTML = itemData.icon || '💎'; } else if(itemType === 'bg' || itemType === 'fr') { if (itemData.cssLight && itemData.cssDark) { previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`; } else if (itemData.cssBoard) { previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`; } else { previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`; } }
-            } else { previewEl.innerHTML = '🎁'; previewEl.className = 'purchase-preview-box'; }
+                previewEl.style.border = itemData.isLegendary ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.1)';
+                previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
+
+                if (itemData.isImage) {
+                    let imgUrl = itemData.imagePath || itemData.imagePathWhite || '';
+                    previewEl.style.backgroundImage = `url('${imgUrl}')`;
+                    previewEl.style.backgroundSize = 'cover';
+                    previewEl.style.backgroundPosition = 'center';
+                } else if(itemType === 'pc') {
+                    previewEl.innerHTML = itemData.icon || '💎';
+                } else if(itemType === 'bg' || itemType === 'fr') {
+                    if (itemData.cssLight && itemData.cssDark) {
+                        previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`;
+                    } else if (itemData.cssBoard) {
+                        previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`;
+                    } else {
+                        previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`;
+                    }
+                }
+            } else {
+                previewEl.innerHTML = '🎁';
+                previewEl.className = 'purchase-preview-box';
+            }
+
             buyBtn.onclick = () => {
                 closeAppModal('purchase-modal'); 
+                
                 setTimeout(() => {
-                    if (window.socket && typeof getUserId === 'function' && window.socket.connected) { window.socket.emit('requestPurchase', { userId: getUserId(), itemId: itemId }); } else { const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً."; if (typeof triggerCustomAlertNotification === 'function') { triggerCustomAlertNotification(msg); } else { alert(msg); } }
+                    if (window.socket && typeof getUserId === 'function' && window.socket.connected) {
+                        window.socket.emit('requestPurchase', { 
+                            userId: getUserId(), 
+                            itemId: itemId 
+                        });
+                    } else {
+                        const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً.";
+                        if (typeof triggerCustomAlertNotification === 'function') {
+                            triggerCustomAlertNotification(msg);
+                        } else {
+                            alert(msg);
+                        }
+                    }
                 }, 120);
             };
+
             openAppModal('purchase-modal');
         };
     </script>
 
     <script type="module">
         import { storeManager } from './store.js?v=999';
-        document.addEventListener('DOMContentLoaded', () => { storeManager.init(); });
+        document.addEventListener('DOMContentLoaded', () => {
+            storeManager.init();
+        });
     </script>
+
     <script type="module" src="main.js"></script>
 
     <script>
         function requestFullScreen() {
             const element = document.documentElement;
-            if (element.requestFullscreen) { element.requestFullscreen().catch(err => console.warn("Fullscreen Error:", err)); } else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); } else if (element.msRequestFullscreen) { element.msRequestFullscreen(); }
+            if (element.requestFullscreen) {
+                element.requestFullscreen().catch(err => console.warn("Fullscreen Error:", err));
+            } else if (element.webkitRequestFullscreen) { 
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { 
+                element.msRequestFullscreen();
+            }
         }
-        ['click', 'touchstart'].forEach(eventType => { document.body.addEventListener(eventType, requestFullScreen, { once: true }); });
+        ['click', 'touchstart'].forEach(eventType => {
+            document.body.addEventListener(eventType, requestFullScreen, { once: true });
+        });
     </script>
 </body>
 </html>
