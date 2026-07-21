@@ -460,6 +460,15 @@
             padding-top: 15px !important;
         }
 
+        /* إخفاء كبسولة البروفايل وزر الخيارات وزر التراجع كلياً في الأونلاين */
+        body.online-mode-active #profile-badge,
+        body.online-mode-active #hamburger-menu-btn,
+        body.online-mode-active #undo-btn {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
         /* ترتيب العناصر بشكل ثابت: 1.إطار اللاعبين 2.الدور 3.النتيجة 4.الساحة */
         body.online-mode-active #status-area {
             margin-top: 0 !important;
@@ -735,6 +744,7 @@
         </div>
     </div>
 
+    <!-- نافذة التنبيهات المخصصة -->
     <div id="custom-alert-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 id="custom-alert-title">تنبيه</h3>
@@ -746,6 +756,7 @@
         </div>
     </div>
 
+    <!-- نافذة لعبة جديدة -->
     <div id="new-game-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 id="new-game-title">لعبة جديدة</h3>
@@ -765,6 +776,7 @@
         </div>
     </div>
 
+    <!-- نافذة انتهاء اللعبة -->
     <div id="game-over-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <h3 id="game-over-title">Match Results</h3>
@@ -777,6 +789,7 @@
         </div>
     </div>
 
+    <!-- نافذة الأونلاين -->
     <div id="online-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('online-modal')" style="left:15px; right:auto;">✕</button>
@@ -796,6 +809,7 @@
         </div>
     </div>
 
+    <!-- نافذة البحث عن خصم -->
     <div id="matchmaking-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 350px;">
             <h3 id="matchmaking-title">البحث</h3>
@@ -822,6 +836,7 @@
         </div>
     </div>
 
+    <!-- نافذة الإعدادات -->
     <div id="settings-overlay" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
@@ -834,6 +849,7 @@
         </div>
     </div>
 
+    <!-- نافذة المتجر المصغرة (التأكيد) -->
     <div id="purchase-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 id="modal-item-name">اسم المنتج</h3>
@@ -849,6 +865,7 @@
         </div>
     </div>
     
+    <!-- الأزرار السفلية (تم إزالة onclick منها لمنع التضارب) -->
     <div class="control-panel" id="bottom-control-panel">
         <button id="reset-btn" title="Reset">ابداء</button>
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none;">↩️</button>
@@ -1330,7 +1347,6 @@
             }
         });
 
-        // 🧠 المنطق الجديد لتعقب حالة الأونلاين
         function uiStateChangeTracker() {
             const matchCard = document.getElementById('match-players-card');
             const isOnline = (matchCard && matchCard.style.display !== 'none');
@@ -1349,7 +1365,7 @@
             history.replaceState({ screen: 'dama-game' }, '');
         });
 
-        // 🛡️ زر الرجوع في الهاتف أصبح ذكياً ومحمياً تماماً ويتعامل مع الأزرار المركزية بأمان
+        // 🛡️ زر الرجوع في الهاتف أصبح ذكياً ومحمياً تماماً
         window.addEventListener('popstate', function(event) {
             if (window.modalStack.length > 0) {
                 const topModalId = window.modalStack.pop();
@@ -1358,7 +1374,6 @@
                 return; 
             }
 
-            // إذا كان هناك مباراة تلعب حالياً، نطلب محاكاة ضغطة زر الانسحاب
             if (window.isMatchRunning) {
                 const resignBtn = document.getElementById('resign-btn');
                 if (resignBtn) resignBtn.click();
@@ -1366,7 +1381,6 @@
                 return;
             }
 
-            // تأكيد الخروج للمنصة الأم إذا لم يكن هناك مباراة
             if (window.ui && window.ui.showCustomAlert) {
                 window.ui.showCustomAlert(
                     window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟",
