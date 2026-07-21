@@ -343,12 +343,10 @@
             </div>
             
             <div style="display: flex; gap: 12px; align-items: center; position: relative;">
-                <!-- زر اللغة يفتح القائمة المنسدلة -->
                 <div class="lang-btn" onclick="toggleLangMenu()" id="lang-toggle-btn">
                     <span id="lang-text">عربي</span>
                 </div>
                 
-                <!-- القائمة المنسدلة للغات -->
                 <div id="lang-dropdown" class="lang-dropdown-menu">
                     <div class="lang-dropdown-item" onclick="selectLanguage('ar')">عربي</div>
                     <div class="lang-dropdown-item" onclick="selectLanguage('ku')">کوردی</div>
@@ -759,7 +757,7 @@
 
         const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
 
-        // 💡 التحديث الهام: إضافة الاستماع لحدث EXIT_GAME ليتمكن زر الخروج من العمل
+        // 💡 التحديث الهام: الاستماع لرسائل اللعبة لتحديث الرصيد فوراً عند الشراء
         window.addEventListener('message', (event) => {
             if (event.data) {
                 if (event.data.type === 'SYNC_PROFILE') {
@@ -775,8 +773,20 @@
             showCustomPopup(translations[currentLang].msg_disconnect, false, "", false);
         });
 
+        // 🟢 التحديث الأهم: تعريف السيرفر بهوية المنصة عند الاتصال، لكي تُقبل طلبات الشراء
         socket.on('connect', () => {
             console.log('تم الاتصال بالسيرفر بنجاح!');
+            
+            // تعريف السيرفر بهوية المحفظة لكي تُقبل عمليات الشراء بدون رفض
+            const profileRaw = localStorage.getItem('hub_user_profile');
+            if (profileRaw) {
+                try {
+                    const profile = JSON.parse(profileRaw);
+                    if (profile && profile.id) {
+                        socket.emit('deviceFingerprint', { guestId: profile.id });
+                    }
+                } catch(e) {}
+            }
         });
 
         function getSafeProfile() {
