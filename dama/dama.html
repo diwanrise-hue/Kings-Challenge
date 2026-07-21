@@ -203,7 +203,8 @@
         .side-menu-close { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: white; font-size: 16px; cursor: pointer; transition: 0.3s; }
         .side-menu-close:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
         
-        .side-menu-item { display: flex; align-items: center; gap: 15px; padding: 10px 15px; min-height: 54px; box-sizing: border-box; margin-bottom: 12px; border-radius: 14px; background: rgba(255,255,255,0.04); color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        /* تعديل الحشو الداخلي (padding) ليصبح أصغر ويسمح بتكبير الأيقونة دون تكبير الزر */
+        .side-menu-item { display: flex; align-items: center; gap: 15px; padding: 6px 15px; min-height: 54px; box-sizing: border-box; margin-bottom: 12px; border-radius: 14px; background: rgba(255,255,255,0.04); color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); }
         .side-menu-item:hover { background: rgba(255,255,255,0.1); border-color: rgba(135,206,235,0.4); transform: translateX(-5px); }
         .side-menu-item span:first-child { font-size: 20px; }
 
@@ -550,7 +551,7 @@
     
     <!-- زر القائمة -->
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="4" y1="12" x2="20" y2="12"></line>
             <line x1="4" y1="6" x2="20" y2="6"></line>
             <line x1="4" y1="18" x2="20" y2="18"></line>
@@ -559,7 +560,7 @@
     
     <!-- 🎒 زر الحقيبة السريع -->
     <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none; position: fixed; top: 15px; right: 15px; z-index: 10001; background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); width: 44px; height: 44px; border-radius: 14px !important; color: white; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0; font-size: 20px;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="32" height="32" style="vertical-align: middle; display: inline-block;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="38" height="38" style="vertical-align: middle; display: inline-block;">
           <defs>
             <linearGradient id="bagGold" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#fef08a"/>
@@ -698,7 +699,7 @@
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('online-modal')">
               <span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="42" height="42" style="vertical-align: middle; display: inline-block;">
                   <defs>
                     <linearGradient id="doorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stop-color="#8d6e63"/>
@@ -752,7 +753,7 @@
             
             <div class="side-menu-item" onclick="toggleSideMenu(); window.showLeaderboard()">
                 <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="42" height="42" style="vertical-align: middle; display: inline-block;">
                       <defs>
                         <linearGradient id="medalGm" x1="0" y1="0" x2="1" y2="1">
                           <stop offset="0%" stop-color="#fffbeb"/>
@@ -806,8 +807,7 @@
                           <path d="M33 10 L50 31 L67 10 L63 6 L50 22 L37 6 Z" fill="url(#medalRb)"/>
                           <line x1="43" y1="8" x2="47" y2="22" stroke="#fde047" stroke-width="1.5" opacity="0.8"/>
                           <line x1="57" y1="8" x2="53" y2="22" stroke="#fde047" stroke-width="1.5" opacity="0.8"/>
-                          <path d="M33 10 L50 31 L67 10 L50 16 Z" fill="url(#medalRs)"/>
-                        </g>
+                          <path d="M33 10 L50 31 L67 10 L50 16 Z" fill="url(#medalRs)"/></g>
                         <g filter="url(#medalUs)">
                           <ellipse cx="50" cy="33" rx="6" ry="3.5" fill="#451a03"/>
                           <path d="M43 33 C43 28 57 28 57 33 C57 38 43 38 43 33 Z" fill="none" stroke="url(#medalGm)" stroke-width="3"/>
@@ -846,7 +846,7 @@
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
                 <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="34" height="34" style="vertical-align: middle; display: inline-block;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="42" height="42" style="vertical-align: middle; display: inline-block;">
                       <defs>
                         <linearGradient id="bagGoldSide" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#fef08a"/>
@@ -940,7 +940,7 @@
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('settings-overlay')">
                 <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="34" height="34" style="vertical-align: middle; display: inline-block;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="42" height="42" style="vertical-align: middle; display: inline-block;">
                       <defs>
                         <!-- Master Gear Gradient & Effects -->
                         <radialGradient id="goldCoreGrad" cx="35%" cy="35%" r="65%">
@@ -1042,7 +1042,7 @@
             <div style="flex-grow: 1;"></div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.postMessage({ type: 'EXIT_GAME' }, '*');" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
-                <span style="font-size: 28px; line-height: 1;">🚪</span> <span>خروج</span>
+                <span style="font-size: 34px; line-height: 1;">🚪</span> <span>خروج</span>
             </div>
         </div>
     </div>
@@ -1051,7 +1051,7 @@
 
     <button id="online-toggle-btn" title="البحث العشوائي" style="position: fixed; bottom: 75px; left: 15px; z-index: 9998; height: 46px; width: 102px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
         <span class="notification-badge"></span>
-        <svg viewBox="0 0 100 100" width="28" height="28" style="vertical-align: middle; display: inline-block; margin-left: 2px;">
+        <svg viewBox="0 0 100 100" width="36" height="36" style="vertical-align: middle; display: inline-block; margin-left: 2px;">
           <defs>
             <radialGradient id="oceanBlueBtn" cx="35%" cy="30%" r="70%">
               <stop offset="0%" stop-color="#38bdf8"/>
@@ -1102,7 +1102,7 @@
     </button>
 
     <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 75px; right: 15px; z-index: 9998; width: 46px; height: 46px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي">
-        <svg viewBox="0 0 100 100" width="32" height="32" style="vertical-align: middle; display: inline-block;">
+        <svg viewBox="0 0 100 100" width="38" height="38" style="vertical-align: middle; display: inline-block;">
           <defs>
             <linearGradient id="chromeGradientBtn" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#ffffff"/>
@@ -1191,7 +1191,7 @@
             
             <div onclick="copyMyId()" id="copy-id-btn" style="cursor: pointer; color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-family: monospace; padding: 4px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;" title="نسخ المعرف" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
                 <span>ID: <span id="igp-id-display" style="color: white; font-weight: bold;">...</span></span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             </div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; box-sizing: border-box;">
@@ -1426,7 +1426,7 @@
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none;">↩️</button>
         
         <button id="hint-btn" title="أفضل حركة" style="font-size: 18px; position: relative; overflow: visible;">
-            <svg viewBox="0 0 100 100" width="32" height="32" style="vertical-align: middle; display: inline-block;">
+            <svg viewBox="0 0 100 100" width="38" height="38" style="vertical-align: middle; display: inline-block;">
               <defs>
                 <filter id="bulbGlow" x="-30%" y="-30%" width="160%" height="160%">
                   <feGaussianBlur stdDeviation="3" result="blur" />
