@@ -33,41 +33,43 @@
         /* رقعة اللعب ولوحات النقاط ذات الأشرطة الذكية */
         /* ========================================== */
         .scoreboard { 
-            display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; 
-            background: rgba(30, 32, 40, 0.6); padding: 12px 10px; border-radius: 16px; 
+            display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; 
+            background: rgba(30, 32, 40, 0.6); padding: 8px 4px; border-radius: 12px; 
             align-items: center; width: 95%; max-width: 380px; transition: all 0.4s ease; 
             box-sizing: border-box; border: 1px solid rgba(255,255,255,0.08);
             backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         }
         
-        /* الأشرطة (Trays) التي ستحمل الأحجار */
+        /* تصميم الشريط الممتد على الأطراف */
         .score-row { 
-            display: flex; gap: 3px; flex-wrap: nowrap; /* منع الانقسام لسطرين نهائياً */
+            display: flex; gap: 2px; flex-wrap: nowrap; 
             justify-content: center; width: 100%; align-items: center; 
-            padding: 6px 8px; border-radius: 12px;
+            padding: 5px 2px; border-radius: 10px; 
             transition: background-color 0.5s ease, box-shadow 0.5s ease;
+            box-sizing: border-box;
         }
         
-        /* الدوائر الفارغة */
+        /* الدوائر الفارغة (تم تكبيرها إلى 18 بكسل) */
         .mini-piece-empty { 
-            width: 14px; height: 14px; border-radius: 50%; 
+            width: 18px; height: 18px; border-radius: 50%; 
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
-            flex: 0 0 14px; margin: 0;
+            flex: 0 0 18px; margin: 0;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
         
-        /* 🌟 الأحجار المصغرة الذكية (الآن ترث الشكل ثلاثي الأبعاد بفضل حذف قيود الإخفاء) */
+        /* الأحجار المصغرة الذكية (تم تكبيرها إلى 18 بكسل لتبدو أوضح) */
         .piece.mini { 
-            width: 14px !important; height: 14px !important; 
-            flex: 0 0 14px !important; 
-            min-width: 14px !important; min-height: 14px !important; 
-            max-width: 14px !important; max-height: 14px !important;
+            width: 18px !important; height: 18px !important; 
+            flex: 0 0 18px !important; 
+            min-width: 18px !important; min-height: 18px !important; 
+            max-width: 18px !important; max-height: 18px !important;
             margin: 0 !important; padding: 0 !important; 
             cursor: default; transform: none !important; 
             animation: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.6) !important; 
             border-radius: 50% !important;
             display: inline-block !important;
         }
+        .piece.mini::before, .piece.mini::after { display: none !important; }
         
         .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
         
