@@ -517,7 +517,6 @@ export const ui = {
             return; 
         }
 
-        // 💡 التعديل الهام لمنع تلوث السجل أثناء القفزات المتعددة
         if (!gameState.isOnlineMode && !gameState.isMultiJumping) {
             if (!gameState.boardHistory) gameState.boardHistory = [];
             let currentBoardStr = JSON.stringify(gameState.virtualBoard);
@@ -1024,36 +1023,35 @@ export const ui = {
 };
 
 // ==========================================
-// 🌟 وظائف التراجع والتلميحات 🌟
+// 🌟 التراجع الدقيق والمصباح الذكي (المتكيف) 🌟
 // ==========================================
 
 ui.onClick('undo-btn', () => {
     if (gameState.isOnlineMode || !gameState.boardHistory || gameState.boardHistory.length <= 1) return;
 
-    // 1. إيقاف الذكاء الاصطناعي فوراً لتجنب التداخل
+    // إيقاف تفكير البوت فوراً لتجنب تداخل الحركات
     gameState.gameId = Date.now();
     if (gameState.aiTimeout) {
         clearTimeout(gameState.aiTimeout);
         gameState.aiTimeout = null;
     }
 
-    // 2. إزالة اللوحة الحالية من السجل
+    // 1. حذف الحالة الحالية من السجل (خطوة واحدة للوراء)
     gameState.boardHistory.pop();
 
-    // 3. التراجع الذكي: نستمر بالحذف حتى نجد آخر لوحة كان فيها الدور للاعب
-    while (gameState.boardHistory.length > 1 && 
-           gameState.boardHistory[gameState.boardHistory.length - 1].turn !== gameState.playerColor) {
+    // 2. فحص الحالة السابقة: إذا كانت "دور البوت"، يجب أن نعود خطوة إضافية ليكون الدور للاعب
+    if (gameState.boardHistory.length > 1 && 
+        gameState.boardHistory[gameState.boardHistory.length - 1].turn !== gameState.playerColor) {
         gameState.boardHistory.pop();
     }
 
+    // 3. جلب الحالة النهائية المطلوبة
     let prevState = gameState.boardHistory[gameState.boardHistory.length - 1];
 
     if (prevState) {
-        // استعادة اللوحة والدور
         gameState.virtualBoard = JSON.parse(JSON.stringify(prevState.board));
         gameState.currentTurn = prevState.turn;
         
-        // تنظيف التحديدات والقفزات
         ui.clearHighlights();
         document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
         if (gameState.selectedPiece) {
@@ -1062,7 +1060,6 @@ ui.onClick('undo-btn', () => {
         }
         gameState.isMultiJumping = false;
         
-        // إعادة رسم اللوحة وبدء الدور
         ui.renderBoard();
         ui.playSound(ui.sfx.move);
         ui.startTurn();
@@ -1095,7 +1092,22 @@ ui.onClick('hint-btn', () => {
         hintBtn.style.opacity = '0.5';
     }
     
-    ui.setTxt('turn-countdown', ui.translate("👁️ المصباح يحسب حركتك الأسطورية القادمة...", "👁️ Lamp is calculating your next legendary move..."));
+    // 🧠 منطق "المصباح المتكيف الديناميكي"
+    let currentLevel = parseInt(document.getElementById('diff-quick-select')?.value || '3');
+    let botDepthArray = [1, 1, 2, 2, 3, 4, 5, 6, 7]; 
+    let botDepth = botDepthArray[Math.max(0, Math.min(currentLevel - 1, 8))];
+
+    // جعل المصباح أذكى من الخصم بخطوة واحدة دائماً (بحد أدنى 5 لضمان جودة الحركات في المستويات السهلة)
+    let hintDepth = Math.max(5, botDepth + 1);
+    
+    // نضع الحد الأقصى 8 لحماية معالج الهاتف من الاحتراق أو التجمد الطويل
+    if (hintDepth > 8) hintDepth = 8;
+
+    if (hintDepth >= 7) {
+        ui.setTxt('turn-countdown', ui.translate("👁️ المصباح يقوم بحسابات معقدة جداً لكسر تكتيك الخصم... يرجى الانتظار ⏳", "👁️ Lamp calculating complex tactics... Please wait ⏳"));
+    } else {
+        ui.setTxt('turn-countdown', ui.translate("👁️ المصباح يحسب حركتك الأسطورية القادمة...", "👁️ Lamp is calculating your next legendary move..."));
+    }
 
     const showGlow = (moveObj) => {
         if (hintBtn) {
@@ -1106,18 +1118,18 @@ ui.onClick('hint-btn', () => {
 
         if (!moveObj || moveObj.length === 0) return;
         
-        // 1. الخصم المحلي الفوري (التحديث الأنيق والمباشر)
+        // 1. الخصم المحلي الفوري
         profile.hints--;
         const counterEl = document.getElementById('hint-counter');
         if (counterEl) counterEl.textContent = profile.hints;
         
-        // 2. الحفظ في الذاكرة ومزامنة المحفظة الأم (index.html)
+        // 2. الحفظ في الذاكرة ومزامنة المحفظة الأم
         localStorage.setItem('hub_user_profile', JSON.stringify(profile));
         if (window.parent) {
             window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
         }
 
-        // 3. إرسال الطلب الصامت للسيرفر المركزي لخصمه من قاعدة البيانات
+        // 3. إرسال الطلب للسيرفر
         if (socket && socket.connected) {
             socket.emit('useHint'); 
         }
@@ -1146,13 +1158,14 @@ ui.onClick('hint-btn', () => {
         worker.onerror = () => {
             worker.onmessage = null;
             worker.onerror = null;
-            let syncMove = gameAI.minimax(gameState.virtualBoard, 6, -Infinity, Infinity, true, myColor).move;
+            let syncMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 6 ? 6 : hintDepth, -Infinity, Infinity, true, myColor).move;
             showGlow(syncMove || eleganceMoves[0]);
         }
-        worker.postMessage({ board: gameState.virtualBoard, depth: 8, aiColor: myColor });
+        // إرسال العمق الديناميكي الدقيق للخوارزمية
+        worker.postMessage({ board: gameState.virtualBoard, depth: hintDepth, aiColor: myColor });
     } else {
         setTimeout(() => {
-            let bestMove = gameAI.minimax(gameState.virtualBoard, 6, -Infinity, Infinity, true, myColor).move || eleganceMoves[0];
+            let bestMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 6 ? 6 : hintDepth, -Infinity, Infinity, true, myColor).move || eleganceMoves[0];
             showGlow(bestMove);
         }, 50);
     }
