@@ -33,19 +33,18 @@
         /* رقعة اللعب ولوحات النقاط ذات الأشرطة الذكية */
         /* ========================================== */
         .scoreboard { 
-            display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; 
-            background: rgba(30, 32, 40, 0.5); padding: 12px 15px; border-radius: 16px; 
-            align-items: center; width: 90%; max-width: 350px; transition: all 0.4s ease; 
-            box-sizing: border-box; border: 1px solid rgba(255,255,255,0.05);
-            min-height: auto !important;
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; 
+            background: rgba(30, 32, 40, 0.6); padding: 12px 10px; border-radius: 16px; 
+            align-items: center; width: 95%; max-width: 380px; transition: all 0.4s ease; 
+            box-sizing: border-box; border: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         }
         
-        /* تصميم الشريط الموحد الذي سيأخذ لونه برمجياً من الساحة */
+        /* الأشرطة (Trays) التي ستحمل الأحجار */
         .score-row { 
-            display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; 
-            width: 100%; align-items: center; 
-            padding: 8px 12px; border-radius: 50px; min-height: 30px;
+            display: flex; gap: 3px; flex-wrap: nowrap; /* منع الانقسام لسطرين نهائياً */
+            justify-content: center; width: 100%; align-items: center; 
+            padding: 6px 8px; border-radius: 12px;
             transition: background-color 0.5s ease, box-shadow 0.5s ease;
         }
         
@@ -53,25 +52,22 @@
         .mini-piece-empty { 
             width: 14px; height: 14px; border-radius: 50%; 
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
-            flex: 0 0 14px; margin: 1px;
+            flex: 0 0 14px; margin: 0;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
         
-        /* الأحجار المصغرة الذكية محمية بقفل */
+        /* 🌟 الأحجار المصغرة الذكية (الآن ترث الشكل ثلاثي الأبعاد بفضل حذف قيود الإخفاء) */
         .piece.mini { 
             width: 14px !important; height: 14px !important; 
             flex: 0 0 14px !important; 
             min-width: 14px !important; min-height: 14px !important; 
             max-width: 14px !important; max-height: 14px !important;
-            margin: 1px !important; padding: 0 !important; 
+            margin: 0 !important; padding: 0 !important; 
             cursor: default; transform: none !important; 
             animation: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.6) !important; 
-            background-size: cover !important; background-position: center !important; 
-            border-width: 1px !important;
             border-radius: 50% !important;
             display: inline-block !important;
         }
-        .piece.mini::before, .piece.mini::after { display: none !important; }
         
         .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
         
