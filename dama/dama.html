@@ -460,15 +460,6 @@
             padding-top: 15px !important;
         }
 
-        /* إخفاء كبسولة البروفايل وزر الخيارات وزر التراجع كلياً في الأونلاين */
-        body.online-mode-active #profile-badge,
-        body.online-mode-active #hamburger-menu-btn,
-        body.online-mode-active #undo-btn {
-            display: none !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-        }
-
         /* ترتيب العناصر بشكل ثابت: 1.إطار اللاعبين 2.الدور 3.النتيجة 4.الساحة */
         body.online-mode-active #status-area {
             margin-top: 0 !important;
@@ -513,7 +504,8 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <div class="profile-badge-container" id="profile-badge" onclick="openAppModal('in-game-profile-modal')">
+    <!-- كبسولة البروفايل محمية من النقر أثناء اللعب -->
+    <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
         <div class="profile-avatar-capsule" id="badge-avatar"></div>
         <div class="profile-badge-info">
             <span id="badge-username-display-game" class="profile-badge-name">أنت</span>
@@ -523,12 +515,18 @@
         </div>
     </div>
     
+    <!-- زر القائمة (يختفي أثناء اللعب) -->
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="4" y1="12" x2="20" y2="12"></line>
             <line x1="4" y1="6" x2="20" y2="6"></line>
             <line x1="4" y1="18" x2="20" y2="18"></line>
         </svg>
+    </button>
+    
+    <!-- 🎒 زر الحقيبة السريع (يظهر مكان القائمة أثناء اللعب) -->
+    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none; position: fixed; top: 15px; right: 15px; z-index: 10001; background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); width: 44px; height: 44px; border-radius: 14px !important; color: white; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0; font-size: 20px;">
+        🎒
     </button>
 
     <div id="status-area">
@@ -853,8 +851,8 @@
     </div>
     
     <div class="control-panel" id="bottom-control-panel">
-        <button id="reset-btn" title="Reset">ابداء</button>
-        <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px;">↩️</button>
+        <button id="reset-btn" title="Reset" onclick="window.handleStartClick()">ابداء</button>
+        <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none;">↩️</button>
         
         <button id="hint-btn" title="أفضل حركة" style="font-size: 18px; position: relative; overflow: visible;">
             💡
@@ -873,7 +871,7 @@
             <option value="9">L9</option>
         </select>
         
-        <button id="resign-btn" title="الانسحاب" style="display: none; font-weight: bold;">الانسحاب</button>
+        <button id="resign-btn" title="الانسحاب" onclick="window.handleResignClick()" style="display: none; font-weight: bold;">الانسحاب</button>
     </div>
 
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
@@ -1035,7 +1033,6 @@
             }
         }
 
-        // دالة مخصصة للنسخ الاحتياطي في حالة عدم دعم Clipboard API أو وجود قيود HTTPS
         function fallbackCopyText(text, callback) {
             const textArea = document.createElement("textarea");
             textArea.value = text;
@@ -1053,7 +1050,6 @@
             document.body.removeChild(textArea);
         }
 
-        // دالة نسخ الـ ID للمستخدم المحدثة بدعم الشاشات المضمنة والقديمة
         window.copyMyId = function() {
             const idText = document.getElementById('igp-id-display').innerText;
             if (idText && idText !== '...') {
@@ -1266,10 +1262,8 @@
 
             forceLockedGlobalAvatar();
             
-            // ♻️ تحديث واجهة المتجر الداخلي إذا كان مفتوحاً
             if(window.updateInventoryUI) window.updateInventoryUI();
 
-            // إرسال تأكيد للمنصة الأم (index.html)
             window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
         }
 
@@ -1284,7 +1278,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             
-            // تهيئة اللغة بناءً على إعدادات index.html المحفوظة
             let savedAppLang = localStorage.getItem('appLang') || localStorage.getItem('lang') || 'ar';
             document.documentElement.lang = savedAppLang;
             document.documentElement.dir = savedAppLang === 'ar' ? 'rtl' : 'ltr';
@@ -1338,23 +1331,15 @@
             }
         });
 
-        let isOnlineOrRoomActive = false;
-        let isResignModalOpen = false;
-
+        // 🧠 المنطق الجديد لتعقب حالة الأونلاين بدون التأثير على الأوفلاين
         function uiStateChangeTracker() {
             const matchCard = document.getElementById('match-players-card');
-            const resignBtn = document.getElementById('resign-btn');
-            const storeBtn = document.getElementById('store-portal-corner-btn');
-
-            isOnlineOrRoomActive = (matchCard && matchCard.style.display !== 'none') || 
-                                   (resignBtn && resignBtn.style.display !== 'none');
+            const isOnline = (matchCard && matchCard.style.display !== 'none');
             
-            if (isOnlineOrRoomActive) {
+            if (isOnline) {
                 document.body.classList.add('online-mode-active');
-                if (storeBtn) storeBtn.style.setProperty('display', 'none', 'important');
             } else {
                 document.body.classList.remove('online-mode-active');
-                if (storeBtn) storeBtn.style.setProperty('display', 'flex', 'important');
             }
         }
         
@@ -1396,6 +1381,7 @@
             }
         }
 
+        // 🛡️ زر الرجوع في الهاتف أصبح ذكياً ومحمياً
         window.addEventListener('popstate', function(event) {
             const alertCancel = document.getElementById('custom-alert-cancel');
 
@@ -1405,65 +1391,21 @@
                 if (topModal) {
                     topModal.style.display = 'none';
                 }
-                
-                if (topModalId === 'custom-alert-modal') {
-                    isResignModalOpen = false;
-                    if (alertCancel) alertCancel.style.display = 'none';
+                if (topModalId === 'custom-alert-modal' && alertCancel) {
+                    alertCancel.style.display = 'none';
                 }
                 return; 
             }
 
-            if (isOnlineOrRoomActive) {
-                if (isResignModalOpen) {
-                    document.getElementById('custom-alert-modal').style.display = 'none';
-                    if (alertCancel) alertCancel.style.display = 'none';
-                    isResignModalOpen = false;
-                    history.pushState({ screen: 'dama-game' }, ''); 
-                } else {
-                    triggerResignConfirmation();
-                    history.pushState({ screen: 'dama-game' }, ''); 
-                }
+            // إذا كان هناك مباراة تلعب حالياً، أظهر رسالة الانسحاب بدلاً من الخروج من اللعبة
+            if (window.isMatchRunning) {
+                window.handleResignClick();
+                history.pushState({ screen: 'dama-game' }, ''); 
                 return;
             }
 
             window.confirmExitToMainMenu();
         });
-
-        function triggerResignConfirmation() {
-            const alertModal = document.getElementById('custom-alert-modal');
-            const alertTitle = document.getElementById('custom-alert-title');
-            const alertMsg = document.getElementById('custom-alert-message');
-            const alertOk = document.getElementById('custom-alert-ok');
-            const alertCancel = document.getElementById('custom-alert-cancel');
-            
-            if (alertModal && alertMsg && alertOk && alertCancel) {
-                alertTitle.innerText = window.t ? window.t('confirm_resign_title') : "تأكيد الانسحاب";
-                alertMsg.innerText = window.t ? window.t('confirm_resign_msg') : "هل أنت متأكد من الانسحاب من المباراة الحالية؟";
-                
-                alertOk.innerText = "تأكيد";
-                alertCancel.innerText = "إلغاء";
-                
-                openAppModal('custom-alert-modal');
-                alertCancel.style.display = 'flex';
-                isResignModalOpen = true;
-                
-                alertOk.onclick = () => {
-                    closeAppModal('custom-alert-modal');
-                    alertCancel.style.display = 'none';
-                    isResignModalOpen = false;
-                    isOnlineOrRoomActive = false;
-                    
-                    const resignBtn = document.getElementById('resign-btn');
-                    if (resignBtn) resignBtn.click();
-                };
-                
-                alertCancel.onclick = () => {
-                    closeAppModal('custom-alert-modal');
-                    alertCancel.style.display = 'none';
-                    isResignModalOpen = false;
-                };
-            }
-        }
 
         window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
             const nameEl = document.getElementById('modal-item-name');
@@ -1506,20 +1448,16 @@
             }
 
             buyBtn.onclick = () => {
-                closeAppModal('purchase-modal'); // إغلاق نافذة التأكيد
+                closeAppModal('purchase-modal'); 
                 
                 setTimeout(() => {
-                    // 1. فحص الإنترنت
                     if (window.socket && typeof getUserId === 'function' && window.socket.connected) {
-                        // 2. إرسال الطلب للسيرفر
                         window.socket.emit('requestPurchase', { 
                             userId: getUserId(), 
                             itemId: itemId 
                         });
                     } else {
-                        // 3. أوفلاين: منع الشراء
                         const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً.";
-                        
                         if (typeof triggerCustomAlertNotification === 'function') {
                             triggerCustomAlertNotification(msg);
                         } else {
