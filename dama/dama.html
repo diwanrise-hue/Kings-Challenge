@@ -752,10 +752,18 @@
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 id="new-game-title">لعبة جديدة</h3>
             <p id="choose-color-label" class="settings-label" style="text-align: center; margin-bottom: 20px;">اختر اللون للبدء</p>
+            
             <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;">
                 <button id="start-white-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #ffffff, #e0e0e0) !important; color: #000 !important; font-size: 24px; width: 64px; height: 64px; padding: 0; margin: 0; box-shadow: 0 4px 15px rgba(255,255,255,0.2) !important;">⚪</button>
                 <button id="start-black-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #626270, #2c2c35) !important; color: #fff !important; font-size: 24px; width: 64px; height: 64px; padding: 0; margin: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important;">⚫</button>
             </div>
+
+            <!-- ✨ مربع الاختيار للعبة التعليمية ✨ -->
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
+                <input type="checkbox" id="tutorial-mode-checkbox" style="width: 18px; height: 18px; accent-color: #f5a623; cursor: pointer;">
+                <label for="tutorial-mode-checkbox" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0;">لعبة تعليمية (مصباح مجاني / بدون جوائز)</label>
+            </div>
+
             <button id="cancel-new-game-btn" onclick="closeAppModal('new-game-modal')" class="save-settings-btn" style="background: transparent !important;">إلغاء</button>
         </div>
     </div>
