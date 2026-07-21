@@ -143,7 +143,9 @@ export const ui = {
         setHtml('theme-close-btn', this.translate("الخروج", "Exit"));
         setHtml('online-close-btn', this.translate("إلغاء", "Cancel"));
         setHtml('custom-alert-cancel', this.translate("إلغاء", "Cancel"));
-        setHtml('reset-btn', this.translate("(ابداء)", "(Start)"));
+        
+        // 🛠️ تم إزالة الأقواس من كلمة ابداء كما طلبت
+        setHtml('reset-btn', this.translate("ابداء", "Start"));
 
         const resignBtn = this.getEl('resign-btn');
         if (resignBtn) {
@@ -307,25 +309,8 @@ export const ui = {
             });
         });
         
-        // --- 🌟 مزامنة تصميم الإطار والخلفية بذكاء 🌟 ---
-        const boardEl = this.getEl('board');
-        const sbEl = document.querySelector('.scoreboard');
-        if (boardEl && sbEl) {
-            const brdSt = window.getComputedStyle(boardEl);
-            sbEl.style.background = brdSt.background;
-            sbEl.style.backgroundColor = brdSt.backgroundColor;
-            sbEl.style.border = brdSt.border;
-            sbEl.style.borderWidth = '3px'; // إجبار الإطار على أن يكون نحيفاً لمنع الضخامة
-            
-            if (brdSt.borderImage && brdSt.borderImage !== 'none') {
-                sbEl.style.borderImage = brdSt.borderImage;
-                sbEl.style.borderImageWidth = '3px'; // تصغير الصورة المقطوعة لتناسب الحجم
-                sbEl.style.borderRadius = '0px';
-            } else {
-                sbEl.style.borderImage = 'none';
-                sbEl.style.borderRadius = '12px';
-            }
-        }
+        // 🗑️ تم إزالة كود نسخ خلفية الساحة والإطار لأنه يسبب تشوهاً بصرياً 
+        // سنكتفي بتوريث شكل الأحجار فقط لتبقى اللوحة أنيقة وواضحة.
 
         const renderScoreDots = (container, count, color) => {
             if (!container) return;
@@ -495,7 +480,6 @@ export const ui = {
         
         this.renderBoard(true);
         
-        // تسجيل النقطة الأولى في السجل لمعرفة هل اللاعب حرك أم لا
         gameState.boardHistory.push({
             board: JSON.parse(JSON.stringify(gameState.virtualBoard)),
             turn: gameState.currentTurn
@@ -1073,6 +1057,7 @@ ui.onClick('reset-btn', () => {
                         ui.updateProfileUI();
                         if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
                     }
+                    ui.drawEmptyBoard();
                     if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal');
                     else document.getElementById('new-game-modal').style.display = 'flex';
                 },
