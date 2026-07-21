@@ -40,7 +40,6 @@
             backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         }
         
-        /* تصميم الشريط الممتد على الأطراف */
         .score-row { 
             display: flex; gap: 2px; flex-wrap: nowrap; 
             justify-content: center; width: 100%; align-items: center; 
@@ -49,7 +48,6 @@
             box-sizing: border-box;
         }
         
-        /* الدوائر الفارغة (تم تكبيرها إلى 18 بكسل) */
         .mini-piece-empty { 
             width: 18px; height: 18px; border-radius: 50%; 
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
@@ -57,7 +55,6 @@
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
         
-        /* الأحجار المصغرة الذكية (تم تكبيرها إلى 18 بكسل لتبدو أوضح) */
         .piece.mini { 
             width: 18px !important; height: 18px !important; 
             flex: 0 0 18px !important; 
@@ -608,7 +605,108 @@
                 <span>🌐</span> <span>الغرف الخاصة (روم)</span>
             </div>
             <div class="side-menu-item" onclick="toggleSideMenu(); window.showLeaderboard()">
-                <span>🏆</span> <span>كأس الشرف (الترتيب)</span>
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="24" height="24" style="vertical-align: middle; display: inline-block;">
+                        <defs>
+                            <linearGradient id="goldMaster" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#fffbeb"/>
+                                <stop offset="15%" stop-color="#fef08a"/>
+                                <stop offset="35%" stop-color="#eab308"/>
+                                <stop offset="60%" stop-color="#ca8a04"/>
+                                <stop offset="85%" stop-color="#854d0e"/>
+                                <stop offset="100%" stop-color="#451a03"/>
+                            </linearGradient>
+                            <linearGradient id="goldEdge" x1="0%" y1="100%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#78350f"/>
+                                <stop offset="50%" stop-color="#fde047"/>
+                                <stop offset="100%" stop-color="#ffffff"/>
+                            </linearGradient>
+                            <linearGradient id="ribbonBase" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#991b1b"/>
+                                <stop offset="40%" stop-color="#dc2626"/>
+                                <stop offset="100%" stop-color="#7f1d1d"/>
+                            </linearGradient>
+                            <linearGradient id="ribbonShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="rgba(0,0,0,0.1)"/>
+                                <stop offset="100%" stop-color="rgba(0,0,0,0.5)"/>
+                            </linearGradient>
+                            <radialGradient id="medalGlow" cx="50%" cy="62%" r="45%">
+                                <stop offset="0%" stop-color="#fde047" stop-opacity="0.6"/>
+                                <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
+                            </radialGradient>
+                            <filter id="ultraShadow" x="-30%" y="-30%" width="160%" height="160%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/>
+                            </filter>
+                            <style>
+                                @keyframes floatAndGlow {
+                                    0%, 100% { transform: translateY(0) scale(1); }
+                                    50% { transform: translateY(-3px) scale(1.03); }
+                                }
+                                @keyframes sparkleAnim {
+                                    0%, 100% { opacity: 0.2; transform: scale(0.7) rotate(0deg); }
+                                    50% { opacity: 1; transform: scale(1.4) rotate(180deg); }
+                                }
+                                .anim-medal { 
+                                    transform-origin: 50px 50px;
+                                    animation: floatAndGlow 3s ease-in-out infinite; 
+                                }
+                                .sparkle-1 { animation: sparkleAnim 2.2s ease-in-out infinite; transform-origin: 25px 25px; }
+                                .sparkle-2 { animation: sparkleAnim 2.8s ease-in-out infinite 0.7s; transform-origin: 75px 25px; }
+                            </style>
+                        </defs>
+                        <g class="anim-medal">
+                            <circle cx="50" cy="62" r="32" fill="url(#medalGlow)"/>
+                            <g filter="url(#ultraShadow)">
+                                <path d="M 36 10 L 18 30 L 30 35 L 44 14 Z" fill="#581c87" opacity="0.3"/>
+                                <path d="M 64 10 L 82 30 L 70 35 L 56 14 Z" fill="#581c87" opacity="0.3"/>
+                                <path d="M 38 10 L 22 28 L 32 33 L 46 14 Z" fill="#7f1d1d"/>
+                                <path d="M 62 10 L 78 28 L 68 33 L 54 14 Z" fill="#7f1d1d"/>
+                                <path d="M 38 10 L 50 26 L 62 10 L 54 6 L 50 12 L 46 6 Z" fill="url(#ribbonBase)"/>
+                                <path d="M 33 10 L 50 31 L 67 10 L 63 6 L 50 22 L 37 6 Z" fill="url(#ribbonBase)"/>
+                                <line x1="43" y1="8" x2="47" y2="22" stroke="#fde047" stroke-width="1.5" opacity="0.8"/>
+                                <line x1="57" y1="8" x2="53" y2="22" stroke="#fde047" stroke-width="1.5" opacity="0.8"/>
+                                <path d="M 33 10 L 50 31 L 67 10 L 50 16 Z" fill="url(#ribbonShadow)"/>
+                            </g>
+                            <g filter="url(#ultraShadow)">
+                                <ellipse cx="50" cy="33" rx="6" ry="3.5" fill="#451a03"/>
+                                <path d="M 43 33 C 43 28, 57 28, 57 33 C 57 38, 43 38, 43 33 Z" fill="none" stroke="url(#goldMaster)" stroke-width="3"/>
+                                <ellipse cx="50" cy="33" rx="3.5" ry="1.8" fill="#eab308"/>
+                            </g>
+                            <circle cx="50" cy="63" r="27" fill="#000" opacity="0.35"/>
+                            <g filter="url(#ultraShadow)">
+                                <circle cx="50" cy="62" r="27" fill="url(#goldMaster)"/>
+                                <circle cx="50" cy="62" r="26" fill="none" stroke="url(#goldEdge)" stroke-width="1.5"/>
+                                <circle cx="50" cy="62" r="23.5" fill="none" stroke="#78350f" stroke-width="0.8" stroke-dasharray="1.5 3" opacity="0.85"/>
+                                <circle cx="50" cy="62" r="22" fill="#78350f"/>
+                                <circle cx="50" cy="62" r="21" fill="url(#goldMaster)"/>
+                            </g>
+                            <g opacity="0.4" stroke="#78350f" stroke-width="1" fill="none">
+                                <path d="M 34 65 C 34 52, 42 45, 50 45 C 58 45, 66 52, 66 65" />
+                            </g>
+                            <g transform="translate(50, 62) scale(1.05)" filter="url(#ultraShadow)">
+                                <polygon points="0,-13.5 4,-4 13.5,-4 6,-0.5 8.5,9.5 0,4 -8.5,9.5 -6,-0.5 -13.5,-4 -4,-4" fill="#78350f"/>
+                                <polygon points="0,-13.5 0,2 4,-4" fill="#fef08a"/>
+                                <polygon points="0,-13.5 0,2 -4,-4" fill="#ca8a04"/>
+                                <polygon points="13.5,-4 0,2 4,-4" fill="#eab308"/>
+                                <polygon points="13.5,-4 0,2 8.5,9.5" fill="#a16207"/>
+                                <polygon points="8.5,9.5 0,2 6,-0.5" fill="#ca8a04"/>
+                                <polygon points="8.5,9.5 0,2 0,4" fill="#854d0e"/>
+                                <polygon points="0,4 0,2 -6,-0.5" fill="#eab308"/>
+                                <polygon points="0,4 0,2 -8.5,9.5" fill="#ca8a04"/>
+                                <polygon points="-8.5,9.5 0,2 -4,-4" fill="#a16207"/>
+                                <polygon points="-13.5,-4 0,2 -4,-4" fill="#fef08a"/>
+                                <circle cx="0" cy="2" r="1.5" fill="#ffffff"/>
+                            </g>
+                            <g>
+                                <path class="sparkle-1" d="M 25 25 L 26.5 21 L 28 25 L 32 26.5 L 28 28 L 26.5 32 L 25 28 L 21 26.5 Z" fill="#ffffff"/>
+                                <path class="sparkle-2" d="M 75 25 L 76 22 L 77 25 L 80 26 L 77 27 L 76 30 L 75 27 L 72 26 Z" fill="#fffbeb"/>
+                                <circle cx="38" cy="45" r="0.8" fill="#ffffff" opacity="0.9"/>
+                                <circle cx="62" cy="45" r="0.6" fill="#ffffff" opacity="0.8"/>
+                            </g>
+                        </g>
+                    </svg>
+                </span>
+                <span>كأس الشرف (الترتيب)</span>
             </div>
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
                 <span>🎒</span> <span>الحقيبة والأزياء</span>
