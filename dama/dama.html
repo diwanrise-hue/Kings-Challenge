@@ -14,9 +14,11 @@
         :root { 
             --light-cell: #DEB887; 
             --dark-cell: #8B4513;
-            /* متغيرات شريط الأحجار لتسهيل التحكم من المتجر */
-            --score-bg: rgba(30, 32, 40, 0.6);
-            --score-border: 1px solid rgba(255,255,255,0.08);
+            /* متغيرات شريط الأحجار (مزدوجة الألوان) */
+            --my-score-bg: rgba(30, 32, 40, 0.6);
+            --opp-score-bg: rgba(30, 32, 40, 0.6);
+            --my-score-border: 1px solid rgba(255,255,255,0.08);
+            --opp-score-border: 1px solid rgba(255,255,255,0.08);
         }
         
         body { 
@@ -53,12 +55,20 @@
             padding: 5px 8px; border-radius: 12px; 
             transition: all 0.5s ease;
             box-sizing: border-box;
-            background: var(--score-bg);
             background-size: cover;
             background-position: center;
             backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            border: var(--score-border);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        #my-score-row {
+            background: var(--my-score-bg);
+            border: var(--my-score-border);
+        }
+
+        #opponent-score-row {
+            background: var(--opp-score-bg);
+            border: var(--opp-score-border);
         }
         
         .mini-piece-empty { 
@@ -776,7 +786,6 @@
                 <button id="store-btn-tab-bg" class="custom-tab-button active" onclick="switchStoreTabCategory('bg')">خلفيات</button>
                 <button id="store-btn-tab-frames" class="custom-tab-button" onclick="switchStoreTabCategory('frames')">إطارات</button>
                 <button id="store-btn-tab-pieces" class="custom-tab-button" onclick="switchStoreTabCategory('pieces')">أحجار</button>
-                <button id="store-btn-tab-special" class="custom-tab-button" onclick="switchStoreTabCategory('special')">باقات مميزة</button>
                 <button id="store-btn-tab-score" class="custom-tab-button" onclick="switchStoreTabCategory('score')">الأشرطة</button>
                 <button id="store-btn-tab-offers" class="custom-tab-button" onclick="switchStoreTabCategory('offers')">عروضات</button>
             </div>
@@ -785,7 +794,6 @@
                 <div id="store-section-bg" class="store-items-grid"></div>
                 <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
                 <div id="store-section-pieces" class="store-items-grid" style="display: none;"></div>
-                <div id="store-section-special" class="store-items-grid" style="display: none;"></div>
                 <div id="store-section-score" class="store-items-grid" style="display: none;"></div>
                 <div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
             </div>
@@ -818,7 +826,6 @@
                 <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="switchThemeGridTabCategory('bg')">خلفيات</button>
                 <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="switchThemeGridTabCategory('frames')">إطارات</button>
                 <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="switchThemeGridTabCategory('pieces')">احجار</button>
-                <button id="theme-btn-tab-special" class="custom-tab-button" onclick="switchThemeGridTabCategory('special')">باقات مميزة</button>
                 <button id="theme-btn-tab-score" class="custom-tab-button" onclick="switchThemeGridTabCategory('score')">الأشرطة</button>
             </div>
 
@@ -826,7 +833,6 @@
                 <div class="themes-grid-container" id="theme-grid-section-bg"></div>
                 <div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div>
                 <div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
-                <div id="theme-grid-section-special" class="themes-grid-container" style="display: none;"></div>
                 <div id="theme-grid-section-score" class="themes-grid-container" style="display: none;"></div>
             </div>
 
@@ -1214,9 +1220,8 @@
             }
         }
 
-        // تحديث دوال التنقل لإضافة قسمي الأشرطة والباقات المميزة
         function switchStoreTabCategory(category) {
-            const tabs = ['bg', 'frames', 'pieces', 'special', 'score', 'offers'];
+            const tabs = ['bg', 'frames', 'pieces', 'score', 'offers'];
             tabs.forEach(tab => {
                 const btn = document.getElementById('store-btn-tab-' + tab);
                 const sec = document.getElementById('store-section-' + tab);
@@ -1230,7 +1235,7 @@
         }
 
         function switchThemeGridTabCategory(category) {
-            const tabs = ['bg', 'frames', 'pieces', 'special', 'score'];
+            const tabs = ['bg', 'frames', 'pieces', 'score'];
             tabs.forEach(tab => {
                 const btn = document.getElementById('theme-btn-tab-' + tab);
                 const sec = document.getElementById('theme-grid-section-' + tab);
@@ -1506,8 +1511,11 @@
                 } else if(itemType === 'pc') {
                     previewEl.innerHTML = itemData.icon || '💎';
                 } else if(itemType === 'score') {
-                    // شكل مصغر لشريط الأحجار داخل نافذة الشراء
-                    previewEl.innerHTML = `<div style="width: 80%; height: 25px; border-radius: 8px; background: ${itemData.scoreBg}; border: ${itemData.scoreBorder};"></div>`;
+                    // شكل مصغر لشريط الأحجار المزدوج الألوان داخل نافذة الشراء
+                    previewEl.innerHTML = `<div style="width: 80%; height: 35px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2);">
+                        <div style="flex: 1; background: ${itemData.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div>
+                        <div style="flex: 1; background: ${itemData.scoreBg1};"></div>
+                    </div>`;
                 } else if(itemType === 'bg' || itemType === 'fr') {
                     if (itemData.cssLight && itemData.cssDark) {
                         previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`;
