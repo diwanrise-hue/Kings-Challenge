@@ -161,6 +161,33 @@
         }
 
         /* ========================================== */
+        /* ستايل النقطة الخاصة بحالة الراديو          */
+        /* ========================================== */
+        .radio-status-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #282a32;
+            background-color: #ff453a; /* أحمر كافتراضي (مطفأ) */
+            box-shadow: 0 0 8px rgba(255, 69, 58, 0.6);
+            transition: background-color 0.3s, box-shadow 0.3s;
+            z-index: 10;
+        }
+        .radio-status-dot.active {
+            background-color: #30d158; /* أخضر (يعمل) */
+            box-shadow: 0 0 8px rgba(48, 209, 88, 0.6);
+            animation: radioPulse 1.5s infinite ease-in-out;
+        }
+        @keyframes radioPulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 5px rgba(48, 209, 88, 0.5); }
+            50% { transform: scale(1.15); box-shadow: 0 0 12px rgba(48, 209, 88, 0.8); }
+            100% { transform: scale(0.95); box-shadow: 0 0 5px rgba(48, 209, 88, 0.5); }
+        }
+
+        /* ========================================== */
         /* القائمة الجانبية وزر الهامبرغر والبروفايل  */
         /* ========================================== */
         .profile-badge-container { 
@@ -900,9 +927,9 @@
                             <circle cx="11" cy="13" r="2.5" fill="#1e293b"/>
                           </g>
                           <g transform="translate(38, 50) rotate(-6)">
-                            <rect x="0" y="0" width="22" height="30" rx="3" fill="url(#bagIvorySide)" stroke="url(#bagGoldSide)" stroke-width="1"/>
-                            <text x="3" y="7" font-family="Arial" font-size="5" font-weight="bold" fill="url(#bagRubySide)">A</text>
-                            <path d="M 11 20 C 11 20 5 14 5 10 C 5 7.5 7 6 9.2 6 C 10.6 6 11 6.8 11 6.8 C 11 6.8 11.4 6 12.8 6 C 15 6 17 7.5 17 10 C 17 14 11 20 11 20 Z" fill="url(#bagRubySide)"/>
+                            <rect x="0" y="0" width="22" height="30" rx="3" fill="url(#bagIvory)" stroke="url(#bagGold)" stroke-width="1"/>
+                            <text x="3" y="7" font-family="Arial" font-size="5" font-weight="bold" fill="url(#bagRuby)">A</text>
+                            <path d="M 11 20 C 11 20 5 14 5 10 C 5 7.5 7 6 9.2 6 C 10.6 6 11 6.8 11 6.8 C 11 6.8 11.4 6 12.8 6 C 15 6 17 7.5 17 10 C 17 14 11 20 11 20 Z" fill="url(#bagRuby)"/>
                           </g>
                           <g transform="translate(64, 52) rotate(12)">
                             <rect x="0" y="0" width="19" height="32" rx="3.5" fill="url(#bagIvorySide)" stroke="#1e293b" stroke-width="1.2"/>
@@ -938,7 +965,7 @@
             </div>
 
             <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.openRadioModal()">
-                <span style="font-size: 34px; display: flex; align-items: center; justify-content: center; transform: translateY(2px);">📻</span> 
+                <span class="auto-radio-icon" style="width: 34px; height: 34px; display: flex;"></span> 
                 <span>الراديو والموسيقى</span>
             </div>
             
@@ -1369,7 +1396,9 @@
         <button id="reset-btn" title="Reset">ابداء</button>
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none; padding: 0; width: 44px; align-items: center; justify-content: center;">↩️</button>
         
-        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="font-size: 20px; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="window.parent.toggleRadioPlayState()">📻</button>
+        <button id="dama-radio-toggle" class="auto-radio-icon" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="window.parent.toggleRadioPlayState()">
+            <span id="dama-radio-status" class="radio-status-dot"></span>
+        </button>
         
         <button id="hint-btn" title="أفضل حركة" style="font-size: 18px; position: relative; overflow: visible; padding: 0; width: 44px; display: flex; align-items: center; justify-content: center;">
             <svg viewBox="0 0 100 100" width="32" height="32" style="vertical-align: middle; display: inline-block; transform: scale(1.2);">
@@ -1907,6 +1936,9 @@
             if(btnSaveSettings) {
                 btnSaveSettings.onclick = () => closeAppModal('settings-overlay');
             }
+            
+            // تهيئة النقطة الخاصة بالراديو
+            syncRadioStatusDot();
         });
 
         function uiStateChangeTracker() {
@@ -2015,6 +2047,31 @@
 
             openAppModal('purchase-modal');
         };
+
+        // ========================================== //
+        // مزامنة نقطة حالة الراديو
+        // ========================================== //
+        function syncRadioStatusDot() {
+            const statusDot = document.getElementById('dama-radio-status');
+            if (statusDot) {
+                const isPlaying = localStorage.getItem('hub_music_enabled') === 'true';
+                if (isPlaying) {
+                    statusDot.classList.add('active');
+                } else {
+                    statusDot.classList.remove('active');
+                }
+            }
+        }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'hub_music_enabled') {
+                syncRadioStatusDot();
+            }
+        });
+
+        // فحص دوري لضمان تحديث النقطة فوراً
+        setInterval(syncRadioStatusDot, 1000);
+
     </script>
 
     <script type="module">
