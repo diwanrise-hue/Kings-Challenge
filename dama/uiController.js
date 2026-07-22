@@ -29,8 +29,10 @@ export const ui = {
     sfx: sfx,
     clickHandlers: new Map(), 
 
+    // تم تحديث الترجمة لتعتمد مباشرة على لغة المنصة المحفوظة
     translate(arTxt, enTxt) {
-        return gameState.lang === 'ar' ? arTxt : enTxt;
+        const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
+        return currentLang === 'ar' ? arTxt : enTxt;
     },
 
     getEl: id => document.getElementById(id),
@@ -106,8 +108,8 @@ export const ui = {
     },
 
     updateTexts() {
-        const currentLang = window.currentLang || gameState.lang || 'ar';
-        document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
+        document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
         
         const setHtml = (id, txt) => { const e = this.getEl(id); if (e) e.innerText = txt || ""; };
         const setPlaceholder = (id, txt) => { const e = this.getEl(id); if (e) e.placeholder = txt || ""; };
@@ -115,22 +117,22 @@ export const ui = {
         const tObj = translations[currentLang] || translations.ar;
         
         const idToKeyMap = {
-            'main-title': 'app_title', 'set-title': 'set_title', 
-            'save-settings-btn': 'save_settings_btn', 'lang-label': 'langLabel', 
-            'new-game-title': 'new_game_title', 'choose-color-label': 'new_game_color', 
-            'cancel-new-game-btn': 'btn_cancel', 'sfx-lbl': 'sfx_lbl', 
-            'online-create-btn': 'online_create', 'online-join-btn': 'online_join', 
-            'mm-cancel-btn': 'mm_cancel', 'close-modal-btn': 'btn_close', 
-            'add-friend-label': 'addFriendLabel', 'matchmaking-title': 'mm_title', 'create-room-title': 'online_title', 
-            'room-id-label': 'online_id', 'add-friend-btn': 'addFriend', 
+            'main-title': 'app_title', 'set-title': 'settings_title', 
+            'save-settings-btn': 'save_btn', 'lang-label': 'langLabel', 
+            'new-game-title': 'new_game', 'choose-color-label': 'choose_color', 
+            'cancel-new-game-btn': 'cancel_btn', 'sfx-lbl': 'sfx_volume', 
+            'online-create-btn': 'create_room', 'online-join-btn': 'join_room', 
+            'mm-cancel-btn': 'cancel_search', 'close-modal-btn': 'btn_close', 
+            'add-friend-label': 'addFriendLabel', 'matchmaking-title': 'search_title', 'create-room-title': 'room', 
+            'room-id-label': 'room_id_label', 'add-friend-btn': 'addFriend', 
             'igp-title': 'igp_title', 'igp-lbl-games': 'igp_games', 'igp-lbl-wins': 'igp_wins', 'igp-lbl-losses': 'igp_losses',
             'store-title': 'store_title', 'store-desc': 'store_desc',
             'store-btn-tab-bg': 'tab_bg', 'store-btn-tab-frames': 'tab_frames', 'store-btn-tab-pieces': 'tab_pieces', 'store-btn-tab-offers': 'tab_offers',
             'themes-grid-title': 'theme_title', 
             'theme-btn-tab-bg': 'theme_bg', 'theme-btn-tab-frames': 'theme_frames', 'theme-btn-tab-pieces': 'theme_pieces',
-            'custom-alert-title': 'alert_title', 'custom-alert-ok': 'alert_ok',
-            'game-over-title': 'go_title', 'rematch-btn': 'go_rematch',
-            'room-password-label': 'online_pass', 'mm-opp-name': 'mm_opp', 'mm-status-label': 'mm_status',
+            'custom-alert-title': 'alert_title', 'custom-alert-ok': 'ok_btn',
+            'game-over-title': 'match_results', 'rematch-btn': 'rematch',
+            'room-password-label': 'room_pass_label', 'mm-opp-name': 'opponent', 'mm-status-label': 'searching',
             'igp-lbl-friends': 'igp_friends', 'igp-friends-list': 'igp_no_friends',
             'lbl-add-friend-title': 'addFriendLabel', 'theme-bg-0': 'theme_bg_0', 'theme-pc-0': 'theme_pc_0',
             'card-my-name': 'badge_you', 'badge-username-display-game': 'badge_you'
@@ -138,17 +140,18 @@ export const ui = {
         
         Object.keys(idToKeyMap).forEach(id => setHtml(id, tObj[idToKeyMap[id]] || idToKeyMap[id]));
         
-        setHtml('exit-game-btn', this.translate("الخروج", "Exit"));
-        setHtml('store-return-btn', this.translate("الخروج", "Exit"));
-        setHtml('theme-close-btn', this.translate("الخروج", "Exit"));
-        setHtml('online-close-btn', this.translate("إلغاء", "Cancel"));
-        setHtml('custom-alert-cancel', this.translate("إلغاء", "Cancel"));
-        setHtml('reset-btn', this.translate("ابداء", "Start"));
+        // ربط الأزرار السفلية بقاموس i18n مباشرة لمنع التضارب
+        setHtml('exit-game-btn', t('exit'));
+        setHtml('store-return-btn', t('exit'));
+        setHtml('theme-close-btn', t('exit'));
+        setHtml('online-close-btn', t('cancel_btn'));
+        setHtml('custom-alert-cancel', t('cancel_btn'));
+        setHtml('reset-btn', t('start'));
 
         const resignBtn = this.getEl('resign-btn');
         if (resignBtn) {
-            resignBtn.title = this.translate("الانسحاب", "Resign");
-            resignBtn.innerText = this.translate("الانسحاب", "Resign");
+            resignBtn.title = t('resign');
+            resignBtn.innerText = t('resign');
         }
 
         const placeholders = {
@@ -161,12 +164,12 @@ export const ui = {
         if (window.updateInventoryUI) window.updateInventoryUI();
             
         const onlineBtnText = document.querySelector('#online-toggle-btn span:last-child');
-        if (onlineBtnText) onlineBtnText.innerText = tObj.online_btn || this.translate("اونلاين", "Online");
+        if (onlineBtnText) onlineBtnText.innerText = tObj.online_btn || t('online');
 
         const turnInd = this.getEl('turn-indicator');
         if(turnInd) {
-            if(turnInd.innerText.includes('Your') || turnInd.innerText.includes('دورك')) turnInd.innerText = tObj.turn_yours;
-            else if(turnInd.innerText.includes('Opponent') || turnInd.innerText.includes('خصم')) turnInd.innerText = tObj.turn_opps;
+            if(turnInd.innerText.includes('Your') || turnInd.innerText.includes('دورك') || turnInd.innerText.includes('نۆبەی تۆیە')) turnInd.innerText = tObj.turn_yours;
+            else if(turnInd.innerText.includes('Opponent') || turnInd.innerText.includes('خصم') || turnInd.innerText.includes('نۆبەی بەرامبەرە')) turnInd.innerText = tObj.turn_opps;
         }
 
         this.updateProfileUI();
@@ -174,12 +177,12 @@ export const ui = {
     },
 
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null) {
-        title = title || this.translate("تنبيه", "Alert");
+        title = title || t('alert_title');
         
         this.setTxt('custom-alert-message', message);
         this.setTxt('custom-alert-title', title);
-        this.setTxt('custom-alert-ok', customOkText || this.translate("حسناً", "OK"));
-        this.setTxt('custom-alert-cancel', customCancelText || this.translate("إلغاء", "Cancel"));
+        this.setTxt('custom-alert-ok', customOkText || t('ok_btn'));
+        this.setTxt('custom-alert-cancel', customCancelText || t('cancel_btn'));
         
         const okBtn = this.getEl('custom-alert-ok');
         if (okBtn) okBtn.style.display = 'inline-block'; 
@@ -269,7 +272,7 @@ export const ui = {
         
         if (active && gameState.userProfile) {
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar);
-            this.setTxt('card-my-name', gameState.userProfile.name || this.translate("أنت", "You"));
+            this.setTxt('card-my-name', gameState.userProfile.name || t('you'));
             this.setTxt('card-opp-name', oppName);
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
         }
@@ -309,19 +312,16 @@ export const ui = {
         
         const isWhite = gameState.playerColor === 'white';
         
-        // --- 🌟 تلوين الأشرطة بذكاء من ألوان الساحة المتوفرة 🌟 ---
         const oppRow = this.getEl('opponent-score-row');
         const myRow = this.getEl('my-score-row');
         
         if (oppRow && myRow) {
-            // المعاكس يأخذ اللون الفاتح إذا كان أسود، واللون الغامق إذا كان أبيض (لإبراز التباين)
             const oppStonesColor = isWhite ? 'black' : 'white';
             const myStonesColor = gameState.playerColor;
 
             oppRow.style.backgroundColor = (oppStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)';
             myRow.style.backgroundColor = (myStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)';
             
-            // إضافة ظل داخلي وإطار لتظهر كحفرة أنيقة محفورة
             oppRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
             myRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
             oppRow.style.border = '1px solid rgba(255,255,255,0.1)';
@@ -335,7 +335,6 @@ export const ui = {
             for (let i = 0; i < 16; i++) {
                 const dot = document.createElement('div');
                 if (i < count) {
-                    // نأخذ الكلاس الأصلي للحجر ليرث التصميم المصغر
                     dot.className = `piece mini ${activeClass}`;
                 } else {
                     dot.className = `mini-piece-empty`;
@@ -640,7 +639,7 @@ export const ui = {
         gameState.isMultiJumping = false;
         
         if (gameState.requiredJumps > 0) {
-            tInd.textContent = `${translations[gameState.lang].forced || "إجباري"} ${gameState.requiredJumps}`;
+            tInd.textContent = `${t('forced')} ${gameState.requiredJumps}`;
             tInd.style.color = "#e74c3c";
             
             let fList = [];
@@ -667,11 +666,11 @@ export const ui = {
         } else {
             tInd.style.color = "#f1c40f";
             if (gameState.isOnlineMode) {
-                tInd.textContent = gameState.currentTurn === gameState.myOnlineColor ? this.translate("دورك الآن", "Your Turn") : this.translate("دور منافسك", "Opponent's Turn");
+                tInd.textContent = gameState.currentTurn === gameState.myOnlineColor ? t('turn_yours') : t('turn_opps');
             } else if (gameState.currentTurn === gameState.playerColor) {
-                tInd.textContent = translations[gameState.lang].turn || "دورك";
+                tInd.textContent = t('turn');
             } else {
-                tInd.textContent = translations[gameState.lang].aiTurn || "دور الحاسوب";
+                tInd.textContent = t('aiTurn');
             }
         }
         
@@ -808,7 +807,7 @@ export const ui = {
         
         const box = this.makeEl('div', null, "background:rgba(45,48,55,0.65);backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:35px 25px;border-radius:32px;width:100%;max-width:320px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);");
         
-        box.appendChild(this.makeEl('h3', null, "margin:0 0 15px 0;color:#87ceeb;font-size:26px;font-weight:700;text-align:center;", this.translate("النتيجة", "Match Results")));
+        box.appendChild(this.makeEl('h3', null, "margin:0 0 15px 0;color:#87ceeb;font-size:26px;font-weight:700;text-align:center;", t('match_results')));
         
         const trophy = this.makeEl('div', null, "font-size:50px;margin:10px 0 20px 0;text-shadow:0 0 15px rgba(255,215,0,0.4);", "🏆");
         box.appendChild(trophy);
@@ -848,13 +847,13 @@ export const ui = {
         if (gameState.userProfile) {
             flex.append(
                 createPlayerBox(gameState.userProfile.name, gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, isMeWin), 
-                createPlayerBox(oppName || this.translate("لاعب منافس", "Opponent"), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin)
+                createPlayerBox(oppName || t('opponent'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin)
             );
         }
         box.appendChild(flex);
         
         const btns = this.makeEl('div', null, "display:flex;gap:10px;width:100%;margin-top:25px;");
-        const rBtn = this.makeEl('button', 'modal-btn-rematch', "flex:1;background:rgba(135,206,235,0.15);color:#87ceeb;border:1px solid rgba(135,206,235,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(135,206,235,0.3);", this.translate("إعادة اللعب", "Rematch"));
+        const rBtn = this.makeEl('button', 'modal-btn-rematch', "flex:1;background:rgba(135,206,235,0.15);color:#87ceeb;border:1px solid rgba(135,206,235,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(135,206,235,0.3);", t('rematch'));
         rBtn.id = 'modal-btn-rematch';
         rBtn.onmouseenter = () => rBtn.style.transform = 'scale(0.96)';
         rBtn.onmouseleave = () => rBtn.style.transform = 'scale(1)';
@@ -877,7 +876,7 @@ export const ui = {
             }
         });
         
-        const eBtn = this.makeEl('button', 'modal-btn-exit', "flex:1;background:rgba(255,69,58,0.15);color:#ff453a;border:1px solid rgba(255,69,58,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(255,69,58,0.3);", this.translate("الخروج", "Exit"));
+        const eBtn = this.makeEl('button', 'modal-btn-exit', "flex:1;background:rgba(255,69,58,0.15);color:#ff453a;border:1px solid rgba(255,69,58,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(255,69,58,0.3);", t('exit'));
         eBtn.id = 'modal-btn-exit';
         eBtn.onmouseenter = () => eBtn.style.transform = 'scale(0.96)';
         eBtn.onmouseleave = () => eBtn.style.transform = 'scale(1)';
@@ -921,16 +920,16 @@ export const ui = {
                     box.appendChild(this.makeEl('div', 'tutorial-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", "وضع تعليمي (بدون جوائز) 🚫🪙"));
                 } else {
                     if (isMeWin) {
-                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", (translations[gameState.lang]?.tokenReward || "مكافأة الفوز 🪙") + " 50"));
+                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", t('tokenReward') + " 50"));
                     } else { 
-                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", (translations[gameState.lang]?.tokenReward || "مكافأة اللعب 🪙") + " 10"));
+                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", (translations[currentLang]?.tokenReward || "مكافأة اللعب 🪙") + " 10"));
                     }
                     if (!gameState.isOnlineMode) {
                         socket.emit('claimBotReward', { isWin: isMeWin });
                     }
                 }
             } else {
-                const offlineMsg = gameState.lang === 'ar' ? "الإنترنت مفصول (وضع التدريب) 🚫🪙" : "Offline mode (No rewards) 🚫🪙";
+                const offlineMsg = this.translate("الإنترنت مفصول (وضع التدريب) 🚫🪙", "Offline mode (No rewards) 🚫🪙");
                 box.appendChild(this.makeEl('div', 'offline-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", offlineMsg));
                 
                 gameState.userProfile.gamesPlayed++;
@@ -983,7 +982,7 @@ export const ui = {
             fList.innerHTML = '';
             
             if (!gameState.userProfile.friends || gameState.userProfile.friends.length === 0) {
-                const noFriendsTxt = this.makeEl('p', null, "text-align:center;color:#a1a1aa;font-size:12px;", this.translate("لا يوجد أصدقاء حالياً", "No friends currently"));
+                const noFriendsTxt = this.makeEl('p', null, "text-align:center;color:#a1a1aa;font-size:12px;", t('igp_no_friends'));
                 fList.appendChild(noFriendsTxt);
             } else {
                 const normalizedFriends = [...new Set((gameState.userProfile.friends || []).map(id => id.toUpperCase()))];
@@ -1064,7 +1063,7 @@ ui.onClick('reset-btn', () => {
         if (hasPlayerMoved()) {
             ui.showCustomAlert(
                 ui.translate("بدء لعبة جديدة الآن سيعتبر انسحاباً وخسارة. هل توافق؟", "Starting a new game counts as resignation. Agree?"),
-                ui.translate("تنبيه", "Warning"),
+                t('alert_title'),
                 () => { 
                     if (!gameState.isTutorialMode && gameState.userProfile) {
                         gameState.userProfile.losses++;
@@ -1078,7 +1077,7 @@ ui.onClick('reset-btn', () => {
                     else document.getElementById('new-game-modal').style.display = 'flex';
                 },
                 true,
-                ui.translate("إلغاء", "Cancel"),
+                t('cancel_btn'),
                 ui.translate("نعم، انسحاب", "Yes, Resign")
             );
         } else {
@@ -1095,39 +1094,39 @@ ui.onClick('resign-btn', () => {
     if (gameState.isOnlineMode) {
         ui.showCustomAlert(
             ui.translate("هل أنت متأكد من الانسحاب من هذه المباراة؟", "Are you sure you want to resign?"),
-            ui.translate("تأكيد الانسحاب", "Confirm Resign"),
+            t('alert_title'),
             () => {
                 if (socketManager && typeof socketManager.sendSurrender === 'function') {
                     socketManager.sendSurrender();
                 }
             },
             true,
-            ui.translate("إلغاء", "Cancel"),
-            ui.translate("نعم", "Yes")
+            t('cancel_btn'),
+            t('ok_btn')
         );
     } else {
         if (!hasPlayerMoved()) {
             ui.showCustomAlert(
-                ui.translate("هل تريد إلغاء المباراة والعودة للواجهة الرئيسية؟", "Cancel match and return?"),
-                ui.translate("إلغاء المباراة", "Cancel Match"),
+                t('confirm_exit_msg'),
+                t('confirm_exit_title'),
                 () => { 
                     ui.drawEmptyBoard(); 
                 },
                 true,
-                ui.translate("تراجع", "Back"),
-                ui.translate("نعم", "Yes")
+                t('cancel_btn'),
+                t('ok_btn')
             );
         } else {
             ui.showCustomAlert(
                 ui.translate("هل أنت متأكد من الانسحاب؟ سيتم احتساب خسارة.", "Are you sure you want to resign? It counts as a loss."),
-                ui.translate("تأكيد الانسحاب", "Confirm Resign"),
+                t('alert_title'),
                 () => { 
                     let opponentColor = gameState.playerColor === 'white' ? 'black' : 'white';
                     ui.showResultsModal(opponentColor);
                 },
                 true,
-                ui.translate("إلغاء", "Cancel"),
-                ui.translate("نعم", "Yes")
+                t('cancel_btn'),
+                t('ok_btn')
             );
         }
     }
