@@ -14,6 +14,24 @@ export const STORE_ITEMS = {
         scoreBg: 'rgba(92, 58, 33, 0.75)', scoreBorder: '1px solid rgba(222, 184, 135, 0.4)' 
     },
 
+    // ===================================
+    // ★ قسم جديد: باقات وتصاميم خاصة ★
+    // ===================================
+    'bg_classic_pro': { 
+        type: 'bg', 
+        storeSection: 'special', // <--- هذا السطر يوجهه للقسم الخاص
+        cost: 1200, 
+        nameAr: 'طقم الخشب الكلاسيكي', 
+        nameEn: 'Classic Wood Set', 
+        light: '#dfb78c', 
+        dark: '#401a11',
+        scoreBg: 'linear-gradient(to bottom, #6b371b, #351608)', 
+        scoreBorder: '1px solid #9e5b33' 
+    },
+
+    // ===================================
+    // عودة لباقي الخلفيات العادية
+    // ===================================
     'bg_malachite': { 
         type: 'bg', cost: 3000, isLegendary: true, nameAr: 'رخام الملاكيت الأخضر', nameEn: 'Malachite Green Marble',
         isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134548.webp',
@@ -673,15 +691,34 @@ export const storeManager = {
     },
 
     renderUI() {
-        const storeBg = document.getElementById('store-section-bg'); const storeFr = document.getElementById('store-section-frames'); const storePc = document.getElementById('store-section-pieces');
-        const bagBg = document.getElementById('theme-grid-section-bg'); const bagFr = document.getElementById('theme-grid-section-frames'); const bagPc = document.getElementById('theme-grid-section-pieces');
+        // تعريف حاويات المتجر
+        const storeBg = document.getElementById('store-section-bg'); 
+        const storeFr = document.getElementById('store-section-frames'); 
+        const storePc = document.getElementById('store-section-pieces');
+        const storeOffers = document.getElementById('store-section-offers');
+        const storeSpecial = document.getElementById('store-section-special'); // الحاوية الخاصة
 
-        if(storeBg) storeBg.innerHTML = ''; if(storeFr) storeFr.innerHTML = ''; if(storePc) storePc.innerHTML = '';
-        if(bagBg) bagBg.innerHTML = ''; if(bagFr) bagFr.innerHTML = ''; if(bagPc) bagPc.innerHTML = '';
+        // تعريف حاويات الحقيبة
+        const bagBg = document.getElementById('theme-grid-section-bg'); 
+        const bagFr = document.getElementById('theme-grid-section-frames'); 
+        const bagPc = document.getElementById('theme-grid-section-pieces');
+        const bagSpecial = document.getElementById('theme-grid-section-special'); // الحاوية الخاصة للحقيبة
+
+        // تنظيف الحاويات
+        if(storeBg) storeBg.innerHTML = ''; 
+        if(storeFr) storeFr.innerHTML = ''; 
+        if(storePc) storePc.innerHTML = '';
+        if(storeOffers) storeOffers.innerHTML = '';
+        if(storeSpecial) storeSpecial.innerHTML = '';
+
+        if(bagBg) bagBg.innerHTML = ''; 
+        if(bagFr) bagFr.innerHTML = ''; 
+        if(bagPc) bagPc.innerHTML = '';
+        if(bagSpecial) bagSpecial.innerHTML = '';
 
         const profile = this.getProfile(); 
         const isAr = window['currentLang'] !== 'en';
-        let storePcEmpty = true, storeBgEmpty = true, storeFrEmpty = true;
+        let storePcEmpty = true, storeBgEmpty = true, storeFrEmpty = true, storeSpecialEmpty = true;
 
         const sortedKeys = Object.keys(STORE_ITEMS).sort((a, b) => {
             const itemA = STORE_ITEMS[a];
@@ -698,6 +735,7 @@ export const storeManager = {
 
         sortedKeys.forEach(key => {
             const item = STORE_ITEMS[key];
+            const targetSection = item.storeSection || item.type; // يوجه المنتج للقسم الصحيح
             
             const safePurchased = Array.isArray(profile.purchasedItems) ? profile.purchasedItems : [];
             const isPurchased = item.isDefault || safePurchased.includes(key);
@@ -757,7 +795,15 @@ export const storeManager = {
                 }
                 
                 gridItem.innerHTML = `${legendaryBagBadge}${bagVisualHtml} <span class="theme-grid-title ${legendaryClassText}" style="margin-top:8px;">${name}</span>`;
-                if (item.type === 'bg' && bagBg) bagBg.appendChild(gridItem); else if (item.type === 'fr' && bagFr) bagFr.appendChild(gridItem); else if (item.type === 'pc' && bagPc) bagPc.appendChild(gridItem);
+                
+                // توجيه العناصر للحقيبة حسب القسم
+                if (targetSection === 'bg' && bagBg) bagBg.appendChild(gridItem); 
+                else if (targetSection === 'fr' && bagFr) bagFr.appendChild(gridItem); 
+                else if (targetSection === 'pc' && bagPc) bagPc.appendChild(gridItem);
+                else if (targetSection === 'special') {
+                    if(bagSpecial) bagSpecial.appendChild(gridItem);
+                    else if(bagBg) bagBg.appendChild(gridItem); // بديل في حال لم تضف قسم الحقيبة
+                }
             } else {
                 const storeCard = document.createElement('div');
                 storeCard.className = `store-item-card ${legendaryClassCard}`; storeCard.style.position = 'relative'; 
@@ -781,29 +827,26 @@ export const storeManager = {
                 
                 storeCard.appendChild(buyBtn);
 
-                const storeOffers = document.getElementById('store-section-offers'); 
-
-                if (item.type === 'bg') { 
+                // توجيه العناصر للمتجر حسب القسم
+                if (targetSection === 'bg') { 
                     if(storeBg) storeBg.appendChild(storeCard); storeBgEmpty = false; 
-                } else if (item.type === 'fr') { 
+                } else if (targetSection === 'fr') { 
                     if(storeFr) storeFr.appendChild(storeCard); storeFrEmpty = false; 
-                } else if (item.type === 'consumable') {
+                } else if (targetSection === 'consumable') {
                     if(storeOffers) storeOffers.appendChild(storeCard); 
+                } else if (targetSection === 'special') {
+                    if(storeSpecial) storeSpecial.appendChild(storeCard); storeSpecialEmpty = false;
                 } else { 
                     if(storePc) storePc.appendChild(storeCard); storePcEmpty = false; 
                 }
             }
         });
 
-        if (storeBg && storeBgEmpty) {
-            storeBg.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
-        }
-        if (storeFr && storeFrEmpty) {
-            storeFr.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
-        }
-        if (storePc && storePcEmpty) {
-            storePc.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
-        }
+        // رسائل "لا توجد عناصر"
+        if (storeBg && storeBgEmpty) storeBg.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
+        if (storeFr && storeFrEmpty) storeFr.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
+        if (storePc && storePcEmpty) storePc.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
+        if (storeSpecial && storeSpecialEmpty) storeSpecial.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
     },
 
     init() {
@@ -829,7 +872,6 @@ export const storeManager = {
             if (window['socket']) {
                 clearInterval(socketCheck); 
                 
-                // إزالة المستمعين القدامى لضمان عدم التكرار
                 window['socket'].off('profileUpdated'); 
                 window['socket'].off('purchaseFailed'); 
                 window['socket'].off('purchaseSuccess');
@@ -837,7 +879,6 @@ export const storeManager = {
                 window['socket'].off('connect_error');
                 window['socket'].off('connect');
                 
-                // إضافة أحداث النافذة الجميلة لانقطاع وعودة الإنترنت
                 window['socket'].on('disconnect', (reason) => {
                     console.warn('Disconnected:', reason);
                     if (window.ui && typeof window.ui.showCustomAlert === 'function') {
@@ -871,7 +912,6 @@ export const storeManager = {
                     }
                 });
 
-                // متابعة باقي أحداث السوكيت الأصلية
                 window['socket'].on('profileUpdated', (updatedProfile) => {
                     localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
                     
