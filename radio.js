@@ -121,7 +121,7 @@ function injectRadioUI() {
         .radio-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); display: none; justify-content: center; align-items: center;
-            z-index: 10000; font-family: 'Tajawal', sans-serif;
+            z-index: 100000; font-family: 'Tajawal', sans-serif;
         }
 
         /* صندوق النافذة الرئيسي - مع إضافة إطار نحيف جداً */
