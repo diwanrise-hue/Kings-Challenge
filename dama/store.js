@@ -430,7 +430,7 @@ export const STORE_ITEMS = {
     },
 
     // ===================================
-    // رابعاً: الأشرطة (Scoreboards)
+    // رابعاً: الأشرطة (Scoreboards) - 7 أشرطة جديدة!
     // ===================================
     'score_default': { 
         type: 'score', isDefault: true, nameAr: 'الشريط الافتراضي', nameEn: 'Default Bar', 
@@ -440,8 +440,36 @@ export const STORE_ITEMS = {
         type: 'score', cost: 500, nameAr: 'شريط الخشب الكلاسيكي', nameEn: 'Classic Wood Bar', 
         scoreBg: 'linear-gradient(to bottom, #6b371b, #351608)', scoreBorder: '1px solid #9e5b33' 
     },
+    'score_starburst': { 
+        type: 'score', cost: 1600, nameAr: 'شريط الزخارف الشعاعية', nameEn: 'Starburst Bar', 
+        scoreBg: 'linear-gradient(to bottom, #e6d5b8, #d4b88c)', scoreBorder: '1px solid #4a2c11' 
+    },
+    'score_blue_navy': { 
+        type: 'score', cost: 1800, nameAr: 'شريط الرخام الأزرق', nameEn: 'Navy Marble Bar', 
+        scoreBg: 'linear-gradient(to bottom, #0f2042, #071022)', scoreBorder: '1px solid #e0d8c3' 
+    },
+    'score_malachite': { 
+        type: 'score', cost: 2200, isLegendary: true, nameAr: 'شريط الملاكيت الأخضر', nameEn: 'Malachite Green Bar', 
+        scoreBg: 'linear-gradient(to bottom, #004d25, #002612)', scoreBorder: '1px solid #ffd700' 
+    },
+    'score_lava': { 
+        type: 'score', cost: 3500, isLegendary: true, nameAr: 'شريط الحمم البركانية', nameEn: 'Lava Bar', 
+        scoreBg: 'linear-gradient(to right, #8b0000, #ff4500, #8b0000)', scoreBorder: '1px solid #ff8c00' 
+    },
+    'score_samurai': { 
+        type: 'score', cost: 4000, isLegendary: true, nameAr: 'شريط الساموراي البرونزي', nameEn: 'Samurai Bronze Bar', 
+        scoreBg: 'linear-gradient(to bottom, #b8860b, #d4af37, #8b6508)', scoreBorder: '1px solid #fff' 
+    },
+    'score_jester': { 
+        type: 'score', cost: 4500, isLegendary: true, nameAr: 'شريط مسرح جيستر', nameEn: 'Jester Theater Bar', 
+        scoreBg: 'linear-gradient(to bottom, #5c2c16, #2e1104)', scoreBorder: '1px solid #c28f5b' 
+    },
+    'score_ruby_amber': { 
+        type: 'score', cost: 5000, isLegendary: true, nameAr: 'شريط الياقوت الملكي', nameEn: 'Royal Ruby Bar', 
+        scoreBg: 'linear-gradient(to bottom, #8b0000, #4a0000)', scoreBorder: '1px solid #ffbf00' 
+    },
     'score_gold': { 
-        type: 'score', cost: 1500, isLegendary: true, nameAr: 'الشريط الذهبي الملكي', nameEn: 'Royal Gold Bar', 
+        type: 'score', cost: 15000, isLegendary: true, nameAr: 'الشريط الذهبي الصافي', nameEn: 'Pure Gold Bar', 
         scoreBg: 'linear-gradient(135deg, #b8860b, #ffd700, #b8860b)', scoreBorder: '2px solid #fff' 
     },
 
@@ -685,22 +713,19 @@ export const storeManager = {
     },
 
     renderUI() {
-        // تعريف حاويات المتجر
         const storeBg = document.getElementById('store-section-bg'); 
         const storeFr = document.getElementById('store-section-frames'); 
         const storePc = document.getElementById('store-section-pieces');
         const storeOffers = document.getElementById('store-section-offers');
         const storeSpecial = document.getElementById('store-section-special'); 
-        const storeScore = document.getElementById('store-section-score'); // الحاوية الجديدة للأشرطة
+        const storeScore = document.getElementById('store-section-score'); 
 
-        // تعريف حاويات الحقيبة
         const bagBg = document.getElementById('theme-grid-section-bg'); 
         const bagFr = document.getElementById('theme-grid-section-frames'); 
         const bagPc = document.getElementById('theme-grid-section-pieces');
         const bagSpecial = document.getElementById('theme-grid-section-special'); 
-        const bagScore = document.getElementById('theme-grid-section-score'); // الحاوية الجديدة للأشرطة بالحقيبة
+        const bagScore = document.getElementById('theme-grid-section-score'); 
 
-        // تنظيف الحاويات
         if(storeBg) storeBg.innerHTML = ''; 
         if(storeFr) storeFr.innerHTML = ''; 
         if(storePc) storePc.innerHTML = '';
@@ -770,7 +795,6 @@ export const storeManager = {
             } else if (item.type === 'consumable') {
                 visualHtml = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: rgba(255,255,255,0.05); border-radius: 8px; margin: 5px 0; border: 1px solid rgba(255,255,255,0.1);" class="${legendaryClassIcon}">${item.icon || '💡'}</div>`;
             } else if (item.type === 'score') {
-                // شكل مصغر لشريط الأحجار في المتجر والحقيبة
                 visualHtml = `<div style="width: 80%; height: 25px; border-radius: 8px; margin: 15px auto; background: ${item.scoreBg}; border: ${item.scoreBorder};" class="${legendaryClassIcon}"></div>`;
             }
 
