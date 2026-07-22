@@ -2,7 +2,89 @@
 //  radio.js - النسخة النهائية المصححة والمطورة والمترجمة
 // ========================================== //
 
-// 0. نظام الترجمة (العربية، الكردية، الإنجليزية)
+// 0. كود أيقونة الراديو (SVG) ليتم حقنها ديناميكياً في أي مكان
+const RADIO_SVG_ICON = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" style="width: 100%; height: 100%; transform: scale(1.25);">
+  <defs>
+    <style>
+      @keyframes floatAnimRadio {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+      }
+      .anim-f-radio { animation: floatAnimRadio 3.5s ease-in-out infinite; }
+    </style>
+    <filter id="mainShadowRadio" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.25"/>
+    </filter>
+    <filter id="radioShadowInner" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.35"/>
+    </filter>
+    <filter id="dialGlowRadio" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#f97316" flood-opacity="0.8"/>
+    </filter>
+    <linearGradient id="woodOuterRadio" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#92400e"/>
+      <stop offset="50%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#451a03"/>
+    </linearGradient>
+    <linearGradient id="woodInnerRadio" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="brassGradRadio" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="chromeGradRadio" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#cbd5e1"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="dialGradRadio" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="60%" stop-color="#ffedd5"/>
+      <stop offset="100%" stop-color="#fed7aa"/>
+    </linearGradient>
+    <pattern id="speakerMeshRadio" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect width="4" height="4" fill="#292524" />
+      <circle cx="2" cy="2" r="1" fill="#44403c" />
+    </pattern>
+  </defs>
+  <g class="anim-f-radio" filter="url(#mainShadowRadio)">
+    <path d="M 32 28 L 16 8" stroke="url(#chromeGradRadio)" stroke-width="2.5" stroke-linecap="round" />
+    <circle cx="15" cy="7" r="2.5" fill="url(#brassGradRadio)" />
+    <rect x="14" y="32" width="72" height="52" rx="12" fill="#1c1917" />
+    <rect x="14" y="27" width="72" height="52" rx="12" fill="url(#woodOuterRadio)" filter="url(#radioShadowInner)" />
+    <rect x="18" y="31" width="64" height="44" rx="8" fill="url(#woodInnerRadio)" />
+    <rect x="22" y="35" width="30" height="36" rx="6" fill="url(#speakerMeshRadio)" stroke="#451a03" stroke-width="1.5" />
+    <rect x="22" y="35" width="30" height="36" rx="6" fill="none" stroke="url(#brassGradRadio)" stroke-width="1" opacity="0.8" />
+    <rect x="55" y="35" width="23" height="36" rx="6" fill="#1c1917" stroke="#451a03" stroke-width="1" />
+    <circle cx="66.5" cy="46" r="8.5" fill="url(#dialGradRadio)" filter="url(#dialGlowRadio)" stroke="url(#brassGradRadio)" stroke-width="1.5" />
+    <circle cx="66.5" cy="46" r="6.5" fill="none" stroke="#d97706" stroke-width="0.8" stroke-dasharray="1.5,1.5" />
+    <line x1="66.5" y1="46" x2="69.5" y2="41" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" />
+    <circle cx="66.5" cy="46" r="1.2" fill="#78350f" />
+    <circle cx="60.5" cy="62" r="3.8" fill="#1c1917" />
+    <circle cx="60.5" cy="62" r="3.2" fill="url(#brassGradRadio)" stroke="#451a03" stroke-width="0.5" />
+    <line x1="60.5" y1="62" x2="60.5" y2="59.8" stroke="#1c1917" stroke-width="0.8" />
+    <circle cx="72.5" cy="62" r="3.8" fill="#1c1917" />
+    <circle cx="72.5" cy="62" r="3.2" fill="url(#brassGradRadio)" stroke="#451a03" stroke-width="0.5" />
+    <line x1="72.5" y1="62" x2="74" y2="60.5" stroke="#1c1917" stroke-width="0.8" />
+    <rect x="22" y="79" width="10" height="3" rx="1.5" fill="#292524" />
+    <rect x="68" y="79" width="10" height="3" rx="1.5" fill="#292524" />
+    <path d="M 14 35 C 14 30.5 17.5 27 22 27 L 78 27 C 82.5 27 86 30.5 86 35 L 86 39 L 14 39 Z" fill="#ffffff" opacity="0.18" />
+  </g>
+</svg>`;
+
+// دالة لحقن الأيقونة في أي مكان بالصفحة
+function renderRadioIcons() {
+    const radioContainers = document.querySelectorAll('.auto-radio-icon');
+    radioContainers.forEach(container => {
+        container.innerHTML = RADIO_SVG_ICON;
+    });
+}
+
+// نظام الترجمة (العربية، الكردية، الإنجليزية)
 const RADIO_TRANSLATIONS = {
     ar: {
         title: "الراديو والموسيقى",
@@ -51,7 +133,6 @@ const RADIO_TRANSLATIONS = {
     }
 };
 
-// تحديد اللغة الحالية (يمكن أخذها من لغة المتصفح، أو localStorage أو الافتراضي عربي)
 let currentAppLang = localStorage.getItem('app_lang') || document.documentElement.lang || 'ar';
 if (!RADIO_TRANSLATIONS[currentAppLang]) currentAppLang = 'ar';
 
@@ -59,7 +140,6 @@ function t(key) {
     return RADIO_TRANSLATIONS[currentAppLang][key];
 }
 
-// 1. هيكل البيانات للأصناف والقنوات
 const RADIO_STATIONS = {
     kurdish: [
         { name: "Kurd folklore", url: "https://stream.zeno.fm/gmdsp1mgs7zuv" },
@@ -87,7 +167,6 @@ let isMusicPlaying = false;
 let failedAttempts = 0; 
 let stallTimeout = null; 
 
-// إدارة الحالة وإعدادات الصوت
 let selectedCategory = localStorage.getItem('hub_radio_category') || 'kurdish';
 let parsedIndex = parseInt(localStorage.getItem('hub_radio_channel_index'));
 let currentChannelIndex = !isNaN(parsedIndex) ? parsedIndex : 0;
@@ -99,13 +178,11 @@ if (!RADIO_STATIONS[selectedCategory] || !RADIO_STATIONS[selectedCategory][curre
     currentChannelIndex = 0;
 }
 
-// 2. حقن التصميم والواجهة
 function injectRadioUI() {
     if (document.getElementById('radio-modal')) return;
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* زر الراديو بجوار زر اللغة */
         .radio-hud-btn {
             height: 46px; width: 46px;
             background: rgba(25, 25, 30, 0.6); backdrop-filter: blur(10px);
@@ -116,35 +193,25 @@ function injectRadioUI() {
         }
         .radio-hud-btn:hover { background: rgba(255,255,255,0.08); transform: scale(1.05); }
         .radio-hud-btn.playing { border-color: #30d158; box-shadow: 0 0 10px rgba(48, 209, 88, 0.4); }
-
-        /* خلفية النافذة */
         .radio-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); display: none; justify-content: center; align-items: center;
             z-index: 100000; font-family: 'Tajawal', sans-serif;
         }
-
-        /* صندوق النافذة الرئيسي - مع إضافة إطار نحيف جداً */
         .radio-modal-content {
             background: #1c1c1e; padding: 25px; border-radius: 20px; text-align: center;
             color: white; width: 90%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1); /* إضافة الإطار النحيف */
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
         .radio-header { display: flex; justify-content: center; align-items: center; margin-bottom: 25px; position: relative; }
         .radio-header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #fff; }
-        
-        /* ضبط زر الإغلاق ليتناسب مع اتجاه اللغة (RTL/LTR) */
         [dir="rtl"] .close-btn { left: 0; right: auto; }
         [dir="ltr"] .close-btn { right: 0; left: auto; }
-        
         .close-btn { 
             position: absolute; top: 50%; transform: translateY(-50%);
             background: none; border: none; color: #888; font-size: 20px; cursor: pointer; padding: 5px;
         }
-
-        /* قائمة الأصناف في الأعلى */
         .stations-list { display: flex; gap: 10px; margin-bottom: 25px; }
         .station-btn {
             flex: 1; padding: 12px 5px; background: #2c2c2e; color: #8e8e93;
@@ -152,31 +219,18 @@ function injectRadioUI() {
             transition: all 0.3s ease; font-family: inherit;
         }
         .station-btn.active { 
-            background: #1c1c1e; 
-            color: #fff; 
-            border-color: #30d158; 
-            box-shadow: 0 0 15px rgba(48, 209, 88, 0.6);
-            font-weight: 700;
+            background: #1c1c1e; color: #fff; border-color: #30d158; 
+            box-shadow: 0 0 15px rgba(48, 209, 88, 0.6); font-weight: 700;
         }
-
-        /* حاوية المؤشر النبضي والأسهم الجانبية */
-        .visualizer-container {
-            display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px;
-        }
-
-        /* أزرار الأسهم الجانبية للتنقل */
+        .visualizer-container { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
         .nav-arrow-btn {
             background: #2c2c2e; border: 1px solid #3a3a3c; color: #30d158;
             font-size: 18px; width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
             display: flex; justify-content: center; align-items: center; transition: 0.2s ease; user-select: none;
         }
         .nav-arrow-btn:hover { background: #3a3a3c; box-shadow: 0 0 8px rgba(48, 209, 88, 0.4); }
-        
-        /* تدوير الأسهم في حالة الإنجليزية (LTR) لتكون منطقية */
         [dir="ltr"] .nav-prev-icon { transform: scaleX(-1); }
         [dir="ltr"] .nav-next-icon { transform: scaleX(-1); }
-
-        /* المؤشر النبضي البصري */
         .visualizer-box {
             flex: 1; background: #111112; border-radius: 12px; height: 70px; display: flex;
             justify-content: center; align-items: center; gap: 3px; overflow: hidden;
@@ -185,20 +239,10 @@ function injectRadioUI() {
             width: 3px; height: 10px; background: #3a3a3c; border-radius: 2px; transition: height 0.1s ease;
         }
         .visualizer-box.playing .bar { background: #30d158; animation: equalizer 0.8s infinite alternate ease-in-out; }
-        
-        @keyframes equalizer {
-            0% { height: 10px; }
-            100% { height: 45px; }
-        }
-
-        /* صندوق اسم القناة والحالة */
+        @keyframes equalizer { 0% { height: 10px; } 100% { height: 45px; } }
         .channel-info-box { margin-bottom: 25px; min-height: 55px; }
-        .channel-name-text {
-            font-size: 20px; font-weight: 700; color: #ffffff; display: block; margin-bottom: 6px; letter-spacing: 0.5px;
-        }
+        .channel-name-text { font-size: 20px; font-weight: 700; color: #ffffff; display: block; margin-bottom: 6px; letter-spacing: 0.5px; }
         .radio-status-text { font-size: 13px; font-weight: 600; min-height: 18px; transition: 0.3s; }
-
-        /* حاوية شريط التحكم في الصوت */
         .radio-volume-container {
             display: flex; align-items: center; justify-content: center; gap: 12px;
             margin-bottom: 20px; background: #2c2c2e; padding: 10px 15px; border-radius: 12px;
@@ -206,7 +250,7 @@ function injectRadioUI() {
         .radio-volume-icon { font-size: 16px; color: #30d158; user-select: none; }
         .radio-volume-slider {
             flex: 1; -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px;
-            outline: none; cursor: pointer; background: #3a3a3c; direction: ltr; /* الصوت دائماً LTR */
+            outline: none; cursor: pointer; background: #3a3a3c; direction: ltr;
         }
         .radio-volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none; appearance: none; width: 16px; height: 16px;
@@ -217,8 +261,6 @@ function injectRadioUI() {
             width: 12px; height: 12px; border-radius: 50%; background: #ffffff;
             border: 2px solid #30d158; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         }
-
-        /* زر التشغيل والإيقاف الموحد - إضافة حدود واضحة */
         .radio-actions { display: flex; }
         .action-btn {
             flex: 1; padding: 14px 10px; border-radius: 12px; border: 2px solid transparent;
@@ -279,95 +321,20 @@ function injectRadioUI() {
     `;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     
-    // حقن زر الراديو ليكون مجاوراً لزر اللغة (باستخدام ايقونة الراديو الفاخر SVG)
-    const btnHTML = `<button id="music-toggle-btn" class="radio-hud-btn" onclick="openRadioModal()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" style="width: 100%; height: 100%; transform: scale(1.25);">
-          <defs>
-            <style>
-              @keyframes floatAnimRadio {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-4px); }
-              }
-              .anim-f-radio { animation: floatAnimRadio 3.5s ease-in-out infinite; }
-            </style>
-            <filter id="mainShadowRadio" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.25"/>
-            </filter>
-            <filter id="radioShadowInner" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.35"/>
-            </filter>
-            <filter id="dialGlowRadio" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#f97316" flood-opacity="0.8"/>
-            </filter>
-            <linearGradient id="woodOuterRadio" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#92400e"/>
-              <stop offset="50%" stop-color="#78350f"/>
-              <stop offset="100%" stop-color="#451a03"/>
-            </linearGradient>
-            <linearGradient id="woodInnerRadio" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#b45309"/>
-              <stop offset="100%" stop-color="#78350f"/>
-            </linearGradient>
-            <linearGradient id="brassGradRadio" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#fef08a"/>
-              <stop offset="40%" stop-color="#d97706"/>
-              <stop offset="100%" stop-color="#78350f"/>
-            </linearGradient>
-            <linearGradient id="chromeGradRadio" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#cbd5e1"/>
-              <stop offset="50%" stop-color="#ffffff"/>
-              <stop offset="100%" stop-color="#64748b"/>
-            </linearGradient>
-            <linearGradient id="dialGradRadio" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#fff7ed"/>
-              <stop offset="60%" stop-color="#ffedd5"/>
-              <stop offset="100%" stop-color="#fed7aa"/>
-            </linearGradient>
-            <pattern id="speakerMeshRadio" width="4" height="4" patternUnits="userSpaceOnUse">
-              <rect width="4" height="4" fill="#292524" />
-              <circle cx="2" cy="2" r="1" fill="#44403c" />
-            </pattern>
-          </defs>
-          <g class="anim-f-radio" filter="url(#mainShadowRadio)">
-            <path d="M 32 28 L 16 8" stroke="url(#chromeGradRadio)" stroke-width="2.5" stroke-linecap="round" />
-            <circle cx="15" cy="7" r="2.5" fill="url(#brassGradRadio)" />
-            <rect x="14" y="32" width="72" height="52" rx="12" fill="#1c1917" />
-            <rect x="14" y="27" width="72" height="52" rx="12" fill="url(#woodOuterRadio)" filter="url(#radioShadowInner)" />
-            <rect x="18" y="31" width="64" height="44" rx="8" fill="url(#woodInnerRadio)" />
-            <rect x="22" y="35" width="30" height="36" rx="6" fill="url(#speakerMeshRadio)" stroke="#451a03" stroke-width="1.5" />
-            <rect x="22" y="35" width="30" height="36" rx="6" fill="none" stroke="url(#brassGradRadio)" stroke-width="1" opacity="0.8" />
-            <rect x="55" y="35" width="23" height="36" rx="6" fill="#1c1917" stroke="#451a03" stroke-width="1" />
-            <circle cx="66.5" cy="46" r="8.5" fill="url(#dialGradRadio)" filter="url(#dialGlowRadio)" stroke="url(#brassGradRadio)" stroke-width="1.5" />
-            <circle cx="66.5" cy="46" r="6.5" fill="none" stroke="#d97706" stroke-width="0.8" stroke-dasharray="1.5,1.5" />
-            <line x1="66.5" y1="46" x2="69.5" y2="41" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" />
-            <circle cx="66.5" cy="46" r="1.2" fill="#78350f" />
-            <circle cx="60.5" cy="62" r="3.8" fill="#1c1917" />
-            <circle cx="60.5" cy="62" r="3.2" fill="url(#brassGradRadio)" stroke="#451a03" stroke-width="0.5" />
-            <line x1="60.5" y1="62" x2="60.5" y2="59.8" stroke="#1c1917" stroke-width="0.8" />
-            <circle cx="72.5" cy="62" r="3.8" fill="#1c1917" />
-            <circle cx="72.5" cy="62" r="3.2" fill="url(#brassGradRadio)" stroke="#451a03" stroke-width="0.5" />
-            <line x1="72.5" y1="62" x2="74" y2="60.5" stroke="#1c1917" stroke-width="0.8" />
-            <rect x="22" y="79" width="10" height="3" rx="1.5" fill="#292524" />
-            <rect x="68" y="79" width="10" height="3" rx="1.5" fill="#292524" />
-            <path d="M 14 35 C 14 30.5 17.5 27 22 27 L 78 27 C 82.5 27 86 30.5 86 35 L 86 39 L 14 39 Z" fill="#ffffff" opacity="0.18" />
-          </g>
-        </svg>
-    </button>`;
+    // حقن زر الراديو وتفريغ الـ SVG الديناميكي بداخله
+    const btnHTML = `<button id="music-toggle-btn" class="radio-hud-btn auto-radio-icon" onclick="openRadioModal()"></button>`;
     
     const langBtn = document.getElementById('lang-toggle-btn');
     if (langBtn && langBtn.parentElement) {
         langBtn.parentElement.insertAdjacentHTML('afterbegin', btnHTML);
     } else {
-        // حالة احتياطية في حال لم يتم العثور على زر اللغة لسبب ما
         document.body.insertAdjacentHTML('beforeend', `<div style="position:fixed; top:30px; right:25px; z-index:20;">${btnHTML}</div>`);
     }
     
     const modalOverlay = document.getElementById('radio-modal');
     if (modalOverlay) {
         modalOverlay.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeRadioModal();
-            }
+            if (e.target === this) closeRadioModal();
         });
     }
     
@@ -380,13 +347,11 @@ function injectRadioUI() {
     updateRadioButtonsUI();
 }
 
-// 3. دوال تحديث الترجمة للواجهة والتغيير الديناميكي
 function setRadioLanguage(langCode) {
     if (RADIO_TRANSLATIONS[langCode]) {
         currentAppLang = langCode;
         localStorage.setItem('app_lang', langCode);
         
-        // تحديث النصوص الحية في الواجهة
         const modal = document.getElementById('radio-modal');
         if (modal) {
             modal.setAttribute('dir', t('direction'));
@@ -400,14 +365,8 @@ function setRadioLanguage(langCode) {
     }
 }
 
-// 4. دوال التحكم بالواجهة والتنقل
-function openRadioModal() {
-    document.getElementById('radio-modal').style.display = 'flex';
-}
-
-function closeRadioModal() {
-    document.getElementById('radio-modal').style.display = 'none';
-}
+function openRadioModal() { document.getElementById('radio-modal').style.display = 'flex'; }
+function closeRadioModal() { document.getElementById('radio-modal').style.display = 'none'; }
 
 function selectRadioCategory(category) {
     if (RADIO_STATIONS[category]) {
@@ -434,26 +393,19 @@ function prevChannel() {
 }
 
 function toggleRadioPlayState() {
-    if (isMusicPlaying) {
-        stopRadio();
-    } else {
-        failedAttempts = 0; 
-        triggerPlayRadio();
-    }
+    if (isMusicPlaying) stopRadio();
+    else { failedAttempts = 0; triggerPlayRadio(); }
 }
 
 function changeRadioVolume(value) {
     radioVolume = parseFloat(value);
     localStorage.setItem('hub_radio_volume', value);
     
-    if (audioInstance) {
-        audioInstance.volume = radioVolume;
-    }
+    if (audioInstance) audioInstance.volume = radioVolume;
     
     const slider = document.getElementById('radio-volume-slider');
     if (slider) {
         const percentage = radioVolume * 100;
-        // شريط الصوت تم ضبطه ليكون دائماً LTR في الـ CSS، لذا يجب أن يكون اتجاه التعبئة دائماً لليمين ليتطابق مع حركة الزر
         slider.style.background = `linear-gradient(to right, #30d158 ${percentage}%, #3a3a3c ${percentage}%)`;
     }
 }
@@ -461,41 +413,32 @@ function changeRadioVolume(value) {
 function updateRadioButtonsUI() {
     ['kurdish', 'arabic', 'english'].forEach(id => {
         const btn = document.getElementById('btn-station-' + id);
-        if (btn) {
-            id === selectedCategory ? btn.classList.add('active') : btn.classList.remove('active');
-        }
+        if (btn) id === selectedCategory ? btn.classList.add('active') : btn.classList.remove('active');
     });
 
     const currentChannel = RADIO_STATIONS[selectedCategory][currentChannelIndex];
     const nameDisplay = document.getElementById('channel-display-name');
-    if (nameDisplay && currentChannel) {
-        nameDisplay.innerText = currentChannel.name;
-    }
+    if (nameDisplay && currentChannel) nameDisplay.innerText = currentChannel.name;
 
     const visualizer = document.getElementById('visualizer');
     const toggleBtn = document.getElementById('music-toggle-btn');
     const toggleActionBtn = document.getElementById('radio-toggle-action-btn');
     const statusText = document.getElementById('radio-status');
     
-    // تحديث الألوان في شريط الصوت
     const slider = document.getElementById('radio-volume-slider');
     if (slider) changeRadioVolume(radioVolume);
     
     if (isMusicPlaying) {
         if(toggleBtn) toggleBtn.classList.add('playing');
-        
         if(visualizer && audioInstance && !audioInstance.paused && audioInstance.readyState >= 3) {
             visualizer.classList.add('playing');
             if (statusText) statusText.innerText = t('status_playing');
-        } else if (visualizer) {
-            visualizer.classList.remove('playing');
-        }
+        } else if (visualizer) visualizer.classList.remove('playing');
         
         if (toggleActionBtn) {
             toggleActionBtn.innerText = t('stop_btn');
             toggleActionBtn.className = "action-btn stop-btn";
         }
-        
     } else {
         if(visualizer) visualizer.classList.remove('playing');
         if(toggleBtn) toggleBtn.classList.remove('playing');
@@ -508,12 +451,9 @@ function updateRadioButtonsUI() {
     }
 }
 
-// 5. دوال الصوت المطورة
 function triggerPlayRadio() {
     const currentChannel = RADIO_STATIONS[selectedCategory][currentChannelIndex];
-    if (currentChannel && currentChannel.url) {
-        playRadio(currentChannel.url, selectedCategory, currentChannelIndex);
-    }
+    if (currentChannel && currentChannel.url) playRadio(currentChannel.url, selectedCategory, currentChannelIndex);
 }
 
 function playRadio(url, category, index) {
@@ -550,20 +490,15 @@ function playRadio(url, category, index) {
             statusText.innerText = t('status_refreshing');
             statusText.style.color = "#ff9500";
         }
-        
         clearTimeout(stallTimeout);
         stallTimeout = setTimeout(() => {
-            if (isMusicPlaying) {
-                handleConnectionFailure(statusText);
-            }
+            if (isMusicPlaying) handleConnectionFailure(statusText);
         }, 8000); 
     };
 
     audioInstance.onerror = () => {
         clearTimeout(stallTimeout);
-        if (isMusicPlaying) {
-             handleConnectionFailure(statusText);
-        }
+        if (isMusicPlaying) handleConnectionFailure(statusText);
     };
 
     audioInstance.onplaying = () => {
@@ -590,12 +525,8 @@ function playRadio(url, category, index) {
             localStorage.setItem('hub_music_enabled', 'true');
             updateRadioButtonsUI();
         }).catch(e => {
-            if (e.name === 'AbortError' || e.message.includes('interrupted')) {
-                console.log(t('log_fast_switch'));
-            } else {
-                isMusicPlaying = true;
-                handleConnectionFailure(statusText);
-            }
+            if (e.name === 'AbortError' || e.message.includes('interrupted')) console.log(t('log_fast_switch'));
+            else { isMusicPlaying = true; handleConnectionFailure(statusText); }
         });
     }
 }
@@ -605,24 +536,14 @@ function handleConnectionFailure(statusText) {
     const maxChannels = RADIO_STATIONS[selectedCategory].length;
 
     if (failedAttempts >= maxChannels) {
-         if (statusText) {
-             statusText.innerText = t('status_failed_all');
-             statusText.style.color = "#ff453a";
-         }
-         stopRadio(); 
-         failedAttempts = 0; 
+         if (statusText) { statusText.innerText = t('status_failed_all'); statusText.style.color = "#ff453a"; }
+         stopRadio(); failedAttempts = 0; 
     } else {
-         if (statusText) {
-             statusText.innerText = t('status_failed_next');
-             statusText.style.color = "#ff453a";
-         }
-         setTimeout(() => {
-             if (isMusicPlaying) nextChannel();
-         }, 1500);
+         if (statusText) { statusText.innerText = t('status_failed_next'); statusText.style.color = "#ff453a"; }
+         setTimeout(() => { if (isMusicPlaying) nextChannel(); }, 1500);
     }
 }
 
-// 6. تهيئة وحفظ حالة الخروج
 function stopRadio() {
     const statusText = document.getElementById('radio-status');
     if (statusText) statusText.innerText = ""; 
@@ -645,6 +566,7 @@ function stopRadio() {
 
 document.addEventListener('DOMContentLoaded', () => {
     injectRadioUI(); 
+    renderRadioIcons(); // حقن الأيقونة في الأزرار
 
     const handleFirstClick = () => {
         const savedMusicState = localStorage.getItem('hub_music_enabled');
@@ -662,15 +584,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('click', handleFirstClick);
 });
 
-const handleGameExitState = () => {
-    if (audioInstance) {
-        audioInstance.pause();
-    }
-};
+const handleGameExitState = () => { if (audioInstance) audioInstance.pause(); };
 window.addEventListener('beforeunload', handleGameExitState);
 window.addEventListener('pagehide', handleGameExitState);
 
-// تصدير الدوال للاستخدام العام (بما في ذلك دالة تغيير اللغة)
 window.openRadioModal = openRadioModal;
 window.closeRadioModal = closeRadioModal;
 window.selectRadioCategory = selectRadioCategory;
