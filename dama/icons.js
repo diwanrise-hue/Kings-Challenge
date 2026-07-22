@@ -162,11 +162,6 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 6. حقيبة الأزياء الجانبية (نفس الحقيبة السريعة)
-    bagSide: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
-        <use href="#bag-content-reused"></use>
-    </svg>`,
-
     // 7. إعدادات الصوت (ترس خشبي)
     gear: `<svg viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
         <defs>
@@ -313,11 +308,10 @@ const SVGIcons = {
     </svg>`
 };
 
-// --- تعريف العناصر التي تعاد كتابتها ---
-// إضافة الحقيبة إلى القائمة الجانبية (لأنها نفس الحقيبة لكن مع إضافة وسم <g> معاد الاستخدام)
-SVGIcons.bagSide = SVGIcons.bagQuick.replace('<svg', '<svg').replace('</svg>', '</svg>');
-SVGIcons.radioSide = SVGIcons.radioBtn.replace('<svg', '<svg').replace('</svg>', '</svg>');
-
+// --- إصلاح الأيقونات المتطابقة ---
+// الآن ننسخ الكود الكامل للحقيبة والراديو لضمان ظهورهم في القائمة الجانبية أيضاً
+SVGIcons.bagSide = SVGIcons.bagQuick;
+SVGIcons.radioSide = SVGIcons.radioBtn;
 
 // هذه الدالة ستقوم بالبحث عن كل عنصر يحتوي على الخاصية `data-icon` وحقن الـ SVG فيه
 window.injectAllSVGIcons = function() {
