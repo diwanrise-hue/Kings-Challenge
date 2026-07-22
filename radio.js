@@ -281,7 +281,7 @@ function injectRadioUI() {
     
     // حقن زر الراديو ليكون مجاوراً لزر اللغة (باستخدام ايقونة الراديو الفاخر SVG)
     const btnHTML = `<button id="music-toggle-btn" class="radio-hud-btn" onclick="openRadioModal()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" style="width: 28px; height: 28px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" style="width: 100%; height: 100%; transform: scale(1.25);">
           <defs>
             <style>
               @keyframes floatAnimRadio {
