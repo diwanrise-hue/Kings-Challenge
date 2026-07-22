@@ -1,3 +1,4 @@
+<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -32,25 +33,24 @@
         /* ========================================== */
         /* رقعة اللعب ولوحات النقاط ذات الأشرطة الذكية */
         /* ========================================== */
-        
-        /* تم إزالة الإطار المجمع وجعل الأشرطة تطفو بشكل مستقل */
         .scoreboard { 
-            display: flex; flex-direction: column; gap: 3px; margin-bottom: 5px; 
-            background: transparent; padding: 0; border-radius: 0; border: none; 
-            align-items: center; width: 98%; max-width: 480px; transition: all 0.4s ease; 
-            box-sizing: border-box; backdrop-filter: none; -webkit-backdrop-filter: none;
+            display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; 
+            background: transparent; padding: 0; border-radius: 0; 
+            align-items: center; width: 95%; max-width: 380px; transition: all 0.4s ease; 
+            box-sizing: border-box; border: none;
+            backdrop-filter: none; -webkit-backdrop-filter: none;
         }
         
         .score-row { 
-            display: flex; gap: 4px; flex-wrap: nowrap; 
+            display: flex; gap: 2px; flex-wrap: nowrap; 
             justify-content: center; width: 100%; align-items: center; 
-            padding: 8px 5px; border-radius: 12px; 
-            background: rgba(30, 32, 40, 0.7); /* خلفية مستقلة للشريط ليطفو */
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* ظل الطفو */
+            padding: 5px 8px; border-radius: 12px; 
             transition: background-color 0.5s ease, box-shadow 0.5s ease;
             box-sizing: border-box;
+            background: rgba(30, 32, 40, 0.6);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         
         .mini-piece-empty { 
@@ -134,21 +134,24 @@
             background: rgba(255, 255, 255, 0.15) !important; transform: scale(0.96); 
         }
         .control-panel select { width: 90px; }
-
-        /* زر البدء الجذاب للمبتدئين */
-        #reset-btn {
-            background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
-            color: #ffffff !important;
-            font-weight: 800 !important;
-            font-size: 16px !important;
-            border: 1px solid #2ecc71 !important;
-            box-shadow: 0 0 15px rgba(46, 204, 113, 0.5) !important;
-            animation: pulseStartBtn 2s infinite ease-in-out;
-            text-transform: uppercase;
+        
+        #reset-btn { 
+            background: linear-gradient(135deg, #34c759, #28a745) !important; 
+            color: #ffffff !important; 
+            font-size: 16px; 
+            font-weight: 800; 
+            border: 2px solid #a3f1b4 !important; 
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.5) !important; 
+            animation: startBtnPulse 2s infinite ease-in-out; 
+            letter-spacing: 0.5px;
         }
-        @keyframes pulseStartBtn {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(46, 204, 113, 0.4); }
-            50% { transform: scale(1.08); box-shadow: 0 0 20px rgba(46, 204, 113, 0.8); }
+        #reset-btn:hover { 
+            background: linear-gradient(135deg, #28a745, #218838) !important; 
+            transform: scale(1.05) !important;
+        }
+        @keyframes startBtnPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(40, 167, 69, 0.4) !important; }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(40, 167, 69, 0.8) !important; }
         }
 
         #resign-btn { background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; }
@@ -192,17 +195,17 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: transparent; /* مخفي كافتراضي (مطفأ) */
-            border: 2px solid transparent;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.1); /* باهت عند الإطفاء */
             box-shadow: none;
-            opacity: 0;
-            transition: all 0.3s;
+            opacity: 0.5;
+            transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s, border-color 0.3s;
             z-index: 10;
         }
         .radio-status-dot.active {
-            opacity: 1;
             background-color: #30d158; /* أخضر (يعمل) */
-            border: 2px solid #282a32;
+            border-color: #282a32;
+            opacity: 1;
             box-shadow: 0 0 8px rgba(48, 209, 88, 0.6);
             animation: radioPulse 1.5s infinite ease-in-out;
         }
@@ -1647,35 +1650,6 @@
             if (boardEl) {
                 boardObserver.observe(boardEl, { childList: true, subtree: true });
             }
-
-            // تطبيق الخلفية الموحدة مع index.html
-            function applyGlobalBackground() {
-                const indexBg = localStorage.getItem('app_background') || localStorage.getItem('hub_background') || localStorage.getItem('site_bg');
-                if (indexBg) {
-                    if (indexBg.startsWith('http') || indexBg.startsWith('data:image') || indexBg.includes('.')) {
-                        document.body.style.backgroundImage = `url('${indexBg}')`;
-                        document.body.style.backgroundSize = 'cover';
-                        document.body.style.backgroundPosition = 'center';
-                        document.body.style.backgroundAttachment = 'fixed';
-                        document.body.style.backgroundColor = 'transparent';
-                    } else {
-                        document.body.style.backgroundImage = 'none';
-                        document.body.style.backgroundColor = indexBg;
-                    }
-                } else {
-                    // الخلفية الافتراضية إذا لم يتم اختيار أي شيء في الواجهة الرئيسية
-                    document.body.style.backgroundImage = 'none';
-                    document.body.style.backgroundColor = '#2c3e50';
-                }
-            }
-            applyGlobalBackground();
-
-            // الاستماع لأي تغيير في الخلفية من نوافذ أخرى (مثل index.html)
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'app_background' || e.key === 'hub_background' || e.key === 'site_bg') {
-                    applyGlobalBackground();
-                }
-            });
         });
 
         function toggleSideMenu() {
@@ -2213,6 +2187,43 @@
 
         setInterval(syncRadioStatusDot, 1000);
 
+    </script>
+    
+    <!-- تزامن الخلفية ديناميكياً مع index.html -->
+    <script>
+        function syncGlobalBackground() {
+            const bg = localStorage.getItem('app_background') || localStorage.getItem('hub_background') || localStorage.getItem('site_bg');
+            if (bg) {
+                if (bg.startsWith('http') || bg.startsWith('data:') || bg.includes('.')) {
+                    document.body.style.backgroundImage = `url('${bg}')`;
+                    document.body.style.backgroundSize = 'cover';
+                    document.body.style.backgroundPosition = 'center';
+                    document.body.style.backgroundAttachment = 'fixed';
+                    document.body.style.backgroundColor = 'transparent';
+                } else {
+                    document.body.style.background = bg;
+                    document.body.style.backgroundImage = 'none';
+                }
+            } else {
+                document.body.style.backgroundColor = '#2c3e50';
+                document.body.style.backgroundImage = 'none';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', syncGlobalBackground);
+        
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'app_background' || e.key === 'hub_background' || e.key === 'site_bg') {
+                syncGlobalBackground();
+            }
+        });
+        
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'BACKGROUND_CHANGED' && event.data.bg) {
+                localStorage.setItem('app_background', event.data.bg);
+                syncGlobalBackground();
+            }
+        });
     </script>
 
     <script type="module">
