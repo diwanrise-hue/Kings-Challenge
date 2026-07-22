@@ -140,7 +140,7 @@
             color: #ffffff !important; 
             font-size: 16px; 
             font-weight: 800; 
-            border: 2px solid #a3f1b4 !important; 
+            border: 1px solid rgba(135, 206, 235, 0.4) !important; 
             box-shadow: 0 0 15px rgba(40, 167, 69, 0.5) !important; 
             animation: startBtnPulse 2s infinite ease-in-out; 
             letter-spacing: 0.5px;
@@ -152,6 +152,22 @@
         @keyframes startBtnPulse {
             0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(40, 167, 69, 0.4) !important; }
             50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(40, 167, 69, 0.8) !important; }
+        }
+
+        /* حالة الزر أثناء اللعب (يصبح زراً عادياً متناسقاً مع البقية) */
+        body.game-active #reset-btn {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: white !important;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important;
+            animation: none !important;
+            letter-spacing: normal;
+        }
+        body.game-active #reset-btn:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            transform: scale(0.96) !important;
+            box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important;
         }
 
         #resign-btn { background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; }
@@ -925,7 +941,7 @@
     
     <!-- الأزرار السفلية -->
     <div class="control-panel" id="bottom-control-panel">
-        <button id="reset-btn" title="Reset">ابداء</button>
+        <button id="reset-btn" title="Reset">بدء</button>
         
         <select id="diff-quick-select" title="Difficulty">
             <option value="1">L1</option>
