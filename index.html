@@ -13,8 +13,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     
+    <!-- تم إضافة v=3 لضمان مسح الذاكرة المؤقتة -->
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
-    <script src="radio.js" defer></script>
+    <script src="radio.js?v=3" defer></script>
 
     <style>
         /* ========================================== */
@@ -364,25 +365,27 @@
 
     <div id="game-selector">
         <div class="top-hud">
-            <!-- مجموعة الملف الشخصي والتوكنز -->
-            <div class="hud-group">
-                <div class="profile-avatar" id="hub-profile-avatar" onclick="openProfileModal()"></div>
-                <div class="hub-token-badge">
-                    🪙 <span id="hub-token-count">0</span>
-                </div>
-            </div>
             
-            <!-- مجموعة الأزرار الجانبية الحرة (الراديو والقائمة) -->
+            <!-- (التعديل الجديد) مجموعة الأزرار الجانبية: القائمة والراديو (تظهر في نفس جهة النافذة المنزلقة) -->
             <div style="display: flex; gap: 12px; align-items: center;">
-                
-                <!-- زر الراديو (سيقوم radio.js بتهيئته) -->
-                <button id="music-toggle-btn" class="radio-hud-btn-fallback auto-radio-icon" onclick="openRadioModal()"></button>
-
-                <!-- زر القائمة الجانبية (الهامبرغر) -->
+                <!-- زر القائمة الجانبية (الهامبرغر) - وضعناه أولاً ليكون في الطرف تماماً -->
                 <div class="hamburger-btn" id="hamburger-toggle-btn" onclick="toggleHamburgerMenu()">
                     <span></span><span></span><span></span>
                 </div>
+                
+                <!-- زر الراديو -->
+                <button id="music-toggle-btn" class="radio-hud-btn-fallback auto-radio-icon" onclick="openRadioModal()"></button>
             </div>
+
+            <!-- (التعديل الجديد) مجموعة الملف الشخصي والتوكنز (تم نقلها للجهة المعاكسة) -->
+            <div class="hud-group">
+                <div class="hub-token-badge">
+                    🪙 <span id="hub-token-count">0</span>
+                </div>
+                <!-- صورة البروفايل وضعناها أخيراً لتكون في الطرف المعاكس تماماً -->
+                <div class="profile-avatar" id="hub-profile-avatar" onclick="openProfileModal()"></div>
+            </div>
+
         </div>
 
         <div class="cards-container">
