@@ -1,1639 +1,981 @@
-<!--dama.html-->
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dama Challenge</title>
-    <link rel="icon" type="image/png" href="1000127272.png">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <style>
-        /* ========================================== */
-        /* المتغيرات الأساسية والهيكل العام الثابت    */
-        /* ========================================== */
-        :root { 
-            --light-cell: #DEB887; 
-            --dark-cell: #8B4513;
-            /* متغيرات شريط الأحجار (مزدوجة الألوان) */
-            --my-score-bg: rgba(30, 32, 40, 0.6);
-            --opp-score-bg: rgba(30, 32, 40, 0.6);
-            --my-score-border: 1px solid rgba(255,255,255,0.08);
-            --opp-score-border: 1px solid rgba(255,255,255,0.08);
-        }
-        
-        body { 
-            padding-bottom: 120px !important; padding-top: 85px !important; 
-            background-color: #2c3e50; font-family: 'Tajawal', 'Outfit', Arial, sans-serif; 
-            margin: 0; display: flex; flex-direction: column; align-items: center; 
-            -webkit-tap-highlight-color: transparent; transition: background 0.3s ease, padding 0.4s ease; 
-        }
+// ==========================================
+// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة برمجياً بروابط جيت هاب المباشرة
+// ==========================================
 
-        #status-area {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 45px;
-            margin-bottom: 10px;
-        }
-        
-        /* ========================================== */
-        /* رقعة اللعب ولوحات النقاط ذات الأشرطة الذكية */
-        /* ========================================== */
-        .scoreboard { 
-            display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; 
-            background: transparent !important; padding: 0; border-radius: 0; 
-            align-items: center; width: 95%; max-width: 380px; transition: all 0.4s ease; 
-            box-sizing: border-box; border: none !important; box-shadow: none !important;
-            backdrop-filter: none; -webkit-backdrop-filter: none;
-        }
-        
-        .score-row { 
-            display: flex; gap: 2px; flex-wrap: nowrap; 
-            justify-content: center; width: 100%; align-items: center; 
-            padding: 5px 8px; border-radius: 12px; 
-            transition: all 0.5s ease;
-            box-sizing: border-box;
-            background-size: cover;
-            background-position: center;
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
 
-        #my-score-row {
-            background: var(--my-score-bg);
-            border: var(--my-score-border);
-        }
-
-        #opponent-score-row {
-            background: var(--opp-score-bg);
-            border: var(--opp-score-border);
-        }
-        
-        .mini-piece-empty { 
-            width: 18px; height: 18px; border-radius: 50%; 
-            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
-            flex: 0 0 18px; margin: 0;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        .piece.mini { 
-            width: 18px !important; height: 18px !important; 
-            flex: 0 0 18px !important; 
-            min-width: 18px !important; min-height: 18px !important; 
-            max-width: 18px !important; max-height: 18px !important;
-            margin: 0 !important; padding: 0 !important; 
-            cursor: default; transform: none !important; 
-            animation: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.6) !important; 
-            border-radius: 50% !important;
-            display: inline-block !important;
-        }
-        .piece.mini::before, .piece.mini::after { display: none !important; }
-        
-        .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
-        
-        #board { 
-            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
-            width: 95vw; max-width: 420px; aspect-ratio: 1 / 1; 
-            background-color: #3e2723;
-            border: 12px solid #5C3A21; border-radius: 8px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.05), inset 0 0 15px rgba(0,0,0,0.9);
-            border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
-            transition: all 0.5s ease; 
-        }
-
-        .cell { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; border: 0.8px solid rgba(0,0,0,0.5); box-sizing: border-box; }
-        .cell.light { background-color: var(--light-cell); transition: background-color 0.5s; }
-        .cell.dark { background-color: var(--dark-cell); transition: background-color 0.5s; }
-        .cell.highlight::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(52, 152, 219, 0.4); border: 3px solid #2980b9; box-sizing: border-box; z-index: 5; pointer-events: none; }
-        .cell.last-move::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1.5px solid #ffffff; background-color: transparent; box-sizing: border-box; z-index: 6; pointer-events: none; }
-        
-        .piece { width: 80%; height: 80%; border-radius: 50%; cursor: pointer; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.4s, border 0.4s; display: flex; align-items: center; justify-content: center; position: relative; }
-        .piece::before { content: ''; position: absolute; width: 45%; height: 45%; border-radius: 50%; pointer-events: none; border: 1px solid rgba(0,0,0,0.1); }
-        .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6); border: 1px solid #bdc3c7; }
-        .piece.white::before { background-color: rgba(0, 0, 0, 0.15); }
-        .piece.black { background: radial-gradient(circle at 30% 30%, #68707a, #353b45, #1e1e24); border: 1px solid #1a1a24; }
-        .piece.black::before { background-color: rgba(255, 255, 255, 0.15); }
-        .piece.selected { outline: 3px solid #2ecc71; transform: scale(1.1); }
-        
-        .piece.white.dama { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #bdc3c7) !important; border: 3px solid #fff !important; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1), 0 0 10px rgba(255, 255, 255, 0.6) !important; z-index: 10; }
-        .piece.white.dama::after { content: '👑'; color: #d4af37; text-shadow: 0 0 2px rgba(0,0,0,0.5); }
-        .piece.black.dama { background: radial-gradient(circle at 30% 30%, #555, #2b2b35, #1e1e24) !important; border: 2px solid #2b2b35 !important; box-shadow: inset -2px -2px 5px rgba(255,255,255,0.1), 0 0 10px rgba(0,0,0,0.5) !important; z-index: 10; }
-        .piece.black.dama::after { content: '👑'; color: #b0b0b8; text-shadow: 0 0 3px rgba(255,255,255,0.2); }
-        .piece.dama::before { fill: none; }
-        .piece.dama::after { font-size: 80%; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; transition: text-shadow 0.3s, color 0.3s; }
-        
-        .piece.forced { border: 2px solid #e74c3c !important; box-shadow: 0 0 18px #e74c3c, inset 0 0 8px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
-        .piece.dama.forced { border: 4px double #e74c3c !important; box-shadow: 0 0 25px #e74c3c, inset 0 0 12px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
-        @keyframes forcedPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
-        
-        /* ========================================== */
-        /* الشريط السفلي و الأزرار المربعة            */
-        /* ========================================== */
-        .control-panel { 
-            position: fixed; bottom: 0; left: 0; width: 100%; 
-            background: rgba(40, 42, 50, 0.7) !important; 
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-            padding: 12px 15px; padding-bottom: calc(12px + env(safe-area-inset-bottom));
-            box-sizing: border-box; display: flex; justify-content: center; 
-            align-items: center; gap: 12px; border-radius: 24px 24px 0 0; 
-            z-index: 9999; box-shadow: 0 -10px 30px rgba(0,0,0,0.15) !important; 
-        }
-        .control-panel button, .control-panel select { 
-            height: 44px; padding: 0 15px; border-radius: 12px !important; 
-            background: rgba(255, 255, 255, 0.08) !important; 
-            color: white !important; font-weight: 600; font-size: 14px; 
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-            text-align: center; appearance: none; box-shadow: none !important;
-        }
-        .control-panel button:hover, .control-panel select:hover { 
-            background: rgba(255, 255, 255, 0.15) !important; transform: scale(0.96); 
-        }
-        .control-panel select { width: 90px; }
-        
-        #reset-btn { 
-            background: linear-gradient(135deg, #34c759, #28a745) !important; 
-            color: #ffffff !important; 
-            font-size: 16px; 
-            font-weight: 800; 
-            border: 1px solid rgba(135, 206, 235, 0.4) !important; 
-            box-shadow: 0 0 15px rgba(40, 167, 69, 0.5) !important; 
-            animation: startBtnPulse 2s infinite ease-in-out; 
-            letter-spacing: 0.5px;
-        }
-        #reset-btn:hover { 
-            background: linear-gradient(135deg, #28a745, #218838) !important; 
-            transform: scale(1.05) !important;
-        }
-        @keyframes startBtnPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(40, 167, 69, 0.4) !important; }
-            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(40, 167, 69, 0.8) !important; }
-        }
-
-        /* حالة الزر أثناء اللعب */
-        body.game-active #reset-btn {
-            background: rgba(255, 255, 255, 0.08) !important;
-            color: white !important;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important;
-            animation: none !important;
-            letter-spacing: normal;
-        }
-        body.game-active #reset-btn:hover {
-            background: rgba(255, 255, 255, 0.15) !important;
-            transform: scale(0.96) !important;
-            box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important;
-        }
-
-        #resign-btn { background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; }
-        #resign-btn:hover { background: rgba(255, 69, 58, 0.25) !important; }
-
-        #online-toggle-btn, #store-portal-corner-btn {
-            background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(10px);
-            border-radius: 14px !important; transition: all 0.3s !important;
-        }
-        #online-toggle-btn:hover, #store-portal-corner-btn:hover {
-            background: rgba(255,255,255,0.15) !important; transform: scale(1.05);
-        }
-
-        @keyframes magicGlow {
-            0% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; transform: scale(1); }
-            30% { box-shadow: 0 0 25px #f39c12, inset 0 0 15px #f39c12; transform: scale(1.15) rotate(-5deg); background: rgba(241, 196, 15, 0.3) !important; border-color: #f39c12 !important; }
-            70% { box-shadow: 0 0 20px #f1c40f, inset 0 0 10px #f1c40f; transform: scale(1.1) rotate(5deg); background: rgba(241, 196, 15, 0.2) !important; }
-            100% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; transform: scale(1); }
-        }
-
-        .lamp-active {
-            animation: magicGlow 0.8s ease-in-out;
-        }
-
-        @keyframes storeGlowEffect {
-            0% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.3), inset 0 0 5px rgba(241, 196, 15, 0.2); }
-            50% { box-shadow: 0 0 15px rgba(241, 196, 15, 0.7), inset 0 0 10px rgba(241, 196, 15, 0.5); border-color: rgba(241, 196, 15, 0.8) !important; transform: scale(1.04); }
-            100% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.3), inset 0 0 5px rgba(241, 196, 15, 0.2); }
-        }
-        #store-portal-corner-btn {
-            animation: storeGlowEffect 2.5s infinite ease-in-out;
-        }
-
-        /* ========================================== */
-        /* ستايل النقطة الخاصة بحالة الراديو          */
-        /* ========================================== */
-        .radio-status-dot {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid #282a32;
-            background-color: transparent;
-            box-shadow: none;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 10;
-        }
-        .radio-status-dot.active {
-            opacity: 1;
-            visibility: visible;
-            background-color: #30d158; /* أخضر (يعمل) */
-            border-color: #282a32;
-            box-shadow: 0 0 8px rgba(48, 209, 88, 0.6);
-            animation: radioPulse 1.5s infinite ease-in-out;
-        }
-        @keyframes radioPulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 5px rgba(48, 209, 88, 0.5); }
-            50% { transform: scale(1.15); box-shadow: 0 0 12px rgba(48, 209, 88, 0.8); }
-            100% { transform: scale(0.95); box-shadow: 0 0 5px rgba(48, 209, 88, 0.5); }
-        }
-
-        /* ========================================== */
-        /* القائمة الجانبية وزر الهامبرغر والبروفايل  */
-        /* ========================================== */
-        .profile-badge-container { 
-            position: fixed !important; top: 15px !important; left: 15px !important; right: auto !important;
-            z-index: 10001; display: flex !important; flex-direction: row !important; align-items: center; 
-            background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 4px 4px; border-radius: 50px; 
-            gap: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-            direction: ltr !important; 
-        }
-        .profile-badge-container:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); transform: scale(0.98); }
-        .profile-avatar-capsule { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
-        .profile-badge-info { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-        .profile-badge-name { color: #ffffff; font-size: 13px; font-weight: 600; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .stat-item { color: #bdc3c7; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; direction: ltr; }
-        .stat-item span { color: #f5a623; font-weight: 700; font-size: 12px; }
-
-        #hamburger-menu-btn {
-            position: fixed !important; top: 15px !important; right: 15px !important; left: auto !important;
-            z-index: 10001;
-            background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            width: 44px; height: 44px; border-radius: 14px !important; color: white; 
-            display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-            border: 1px solid rgba(135, 206, 235, 0.4) !important;
-            padding: 0;
-        }
-        #hamburger-menu-btn:hover { background: rgba(255, 255, 255, 0.15); transform: scale(0.95); box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important; }
-
-        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-        .side-menu-overlay.open { opacity: 1; visibility: visible; }
-        
-        .side-menu-panel { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(20px); border-left: 1px solid rgba(255, 255, 255, 0.1); box-shadow: -10px 0 30px rgba(0,0,0,0.5); z-index: 10000000; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; }
-        .side-menu-overlay.open .side-menu-panel { right: 0; }
-        
-        .side-menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; }
-        .side-menu-title { color: #fff; font-size: 18px; font-weight: 700; margin: 0; }
-        .side-menu-close { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: white; font-size: 16px; cursor: pointer; transition: 0.3s; padding: 0; }
-        .side-menu-close:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
-        
-        .side-menu-item { display: flex; align-items: center; gap: 15px; padding: 10px 15px; min-height: 52px; box-sizing: border-box; margin-bottom: 12px; border-radius: 14px; background: rgba(255,255,255,0.04); color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); overflow: visible; }
-        .side-menu-item:hover { background: rgba(255,255,255,0.1); border-color: rgba(135,206,235,0.4); transform: translateX(-5px); }
-        .side-menu-item span:first-child { display: flex; align-items: center; justify-content: center; }
-
-        /* ========================================== */
-        /* إطار الدور (Turn Box) ثابت الحجم كلياً     */
-        /* ========================================== */
-        #turn-box-container {
-            display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
-            border: 1px solid rgba(135,206,235,0.4); box-shadow: 0 0 4px rgba(135,206,235,0.3); 
-            padding: 8px 16px; border-radius: 20px; 
-            width: 190px !important; height: 55px !important; 
-            min-width: 190px !important; max-width: 190px !important;
-            min-height: 55px !important; max-height: 55px !important;
-            box-sizing: border-box; overflow: hidden;
-            background: rgba(255, 255, 255, 0.05); transition: opacity 0.4s ease, visibility 0.4s ease;
-            margin: 0 !important; 
-            visibility: hidden; 
-            opacity: 0;
-        }
-
-        body.game-active #turn-box-container {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        #turn-indicator {
-            text-align: center; color: white; transition: all 0.3s; 
-            margin: 0; font-size: 15px; font-weight: 600;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-            width: 100%; max-width: 100%; display: block;
-        }
-
-        #turn-countdown {
-            text-align: center; color: #a1a1aa; font-weight: 600; font-size: 12px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-            width: 100%; max-width: 100%; height: 15px; display: block;
-        }
-
-        /* ========================================== */
-        /* نقاط التفكير الخاصة بالبوت (Thinking Dots) */
-        /* ========================================== */
-        .thinking-dots {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            height: 20px;
-        }
-        .thinking-dots span {
-            display: inline-block;
-            width: 7px; height: 7px; background-color: #87ceeb; border-radius: 50%;
-            animation: thinkPulse 1.4s infinite ease-in-out both;
-        }
-        .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
-        
-        @keyframes thinkPulse {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; }
-        }
-
-        /* ========================================== */
-        /* التصميم الداخلي للنوافذ الكبيرة              */
-        /* ========================================== */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-        
-        #custom-alert-modal { z-index: 20000000 !important; }
-        #purchase-modal { z-index: 20000001 !important; }
-        
-        .settings-card { 
-            background: rgba(45, 48, 55, 0.65) !important; 
-            backdrop-filter: blur(35px) !important; -webkit-backdrop-filter: blur(35px) !important;
-            border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05) !important; 
-            text-align: center; max-height: 90vh; overflow-y: auto; 
-            animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-            transition: all 0.3s ease;
-            display: flex; flex-direction: column; 
-        }
-
-        #store-modal .settings-card, #themes-grid-overlay .settings-card {
-            width: 95%; max-width: 480px; height: 90vh; max-height: 700px; padding-top: 30px;
-        }
-        
-        .leaderboard-full-screen {
-            width: 95% !important; 
-            height: 90vh !important;
-            max-width: 500px !important; 
-            max-height: 90vh !important;
-            border-radius: 32px !important; 
-            padding: 35px 20px 20px 20px !important;
-            display: flex; flex-direction: column;
-            margin: auto;
-        }
-
-        .settings-card::-webkit-scrollbar { display: none; }
-        @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
-        
-        .scrollable-content {
-            flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 5px; margin-bottom: 15px; -webkit-overflow-scrolling: touch;
-        }
-        .scrollable-content::-webkit-scrollbar { width: 5px; }
-        .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
-        .scrollable-content::-webkit-scrollbar-thumb { background: rgba(135, 206, 235, 0.5); border-radius: 10px; }
-
-        .modal-close-btn { position: absolute; top: 20px; left: 20px; background: transparent; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer; transition: 0.3s; z-index: 10; border: none !important; box-shadow: none !important; }
-        .modal-close-btn:hover { color: white; transform: scale(1.1); box-shadow: none !important; }
-
-        .settings-card h3 { color: #fff; margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 700; }
-        .settings-label { display: block; color: #a1a1aa; font-size: 13px; font-weight: 500; margin-bottom: 8px; text-align: start; padding: 0 10px; }
-        
-        .settings-card .online-input, .settings-card select { 
-            width: 100%; height: 50px; margin-bottom: 15px; padding: 0 20px; 
-            border-radius: 50px !important; border: 1px solid rgba(255,255,255,0.1) !important; 
-            background: rgba(255, 255, 255, 0.06) !important; color: white; font-weight: 500; font-size: 14px; 
-            box-sizing: border-box; text-align: center; transition: all 0.3s ease; appearance: none;
-            box-shadow: none !important;
-        }
-        .settings-card .online-input:focus, .settings-card select:focus { border-color: rgba(255,255,255,0.3) !important; background: rgba(255,255,255,0.1) !important; outline: none; }
-        
-        .settings-card .save-settings-btn, .settings-card .store-buy-btn { 
-            width: 100%; height: 50px; padding: 0 20px; background: rgba(255,255,255,0.08) !important; 
-            border-radius: 50px !important; color: white !important; font-weight: 600; font-size: 15px; 
-            margin-top: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important; 
-            box-shadow: none !important; display: flex; align-items: center; justify-content: center;
-        }
-        .settings-card .save-settings-btn:hover, .settings-card .store-buy-btn:hover { background: rgba(255, 255, 255, 0.15) !important; transform: scale(0.98); }
-
-        .audio-controls { background: rgba(255, 255, 255, 0.04); padding: 15px; border-radius: 20px; margin-top: 10px; text-align: start; border: 1px solid rgba(255,255,255,0.05); }
-        .audio-controls label { display: block; margin-bottom: 8px; font-weight: 500; color: #a1a1aa; font-size: 13px; }
-        .audio-controls input[type="range"] { width: 100%; margin-bottom: 5px; accent-color: #ffffff; }
-        
-        .custom-nav-tabs { display: flex; gap: 4px; margin-bottom: 10px; background: rgba(255, 255, 255, 0.06); padding: 4px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; }
-        .custom-tab-button { flex: 1; min-width: 60px; height: 36px; border-radius: 50px; background: transparent; color: #a1a1aa; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: center; padding: 0 5px; }
-        .custom-tab-button.active { background: rgba(255,255,255,0.1); color: white; }
-
-        .lb-list-container {
-            display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;
-        }
-
-        .lb-item {
-            display: flex; align-items: center; padding: 12px;
-            background: rgba(255,255,255,0.05); border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease;
-        }
-        
-        .lb-rank { font-size: 16px; font-weight: 800; width: 35px; text-align: center; color: #a1a1aa; }
-        .lb-avatar { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,0.05); overflow: hidden; margin-left: 12px; margin-right: 5px; }
-        .lb-info { flex: 1; text-align: right; display: flex; flex-direction: column; }
-        .lb-name { font-size: 15px; font-weight: 700; color: white; transition: all 0.3s; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
-        .lb-score { font-size: 13px; font-weight: 600; color: #f5a623; margin-top: 4px; }
-
-        .lb-item:nth-child(1) .lb-rank { color: #FFD700; font-size: 20px; }
-        .lb-item:nth-child(1) .lb-avatar { border-color: #FFD700; box-shadow: 0 0 15px rgba(255,215,0,0.4), inset 0 0 10px rgba(255,215,0,0.2); }
-        .lb-item:nth-child(1) .lb-name { color: #FFD700; text-shadow: 0 0 8px rgba(255,215,0,0.4); }
-
-        .lb-item:nth-child(2) .lb-rank { color: #FF453A; font-size: 18px; }
-        .lb-item:nth-child(2) .lb-avatar { border-color: #FF453A; box-shadow: 0 0 15px rgba(255,69,58,0.4), inset 0 0 10px rgba(255,69,58,0.2); }
-        .lb-item:nth-child(2) .lb-name { color: #FF453A; text-shadow: 0 0 8px rgba(255,69,58,0.4); }
-
-        .lb-item:nth-child(3) .lb-rank { color: #9B59B6; font-size: 18px; }
-        .lb-item:nth-child(3) .lb-avatar { border-color: #9B59B6; box-shadow: 0 0 15px rgba(155,89,182,0.4), inset 0 0 10px rgba(155,89,182,0.2); }
-        .lb-item:nth-child(3) .lb-name { color: #9B59B6; text-shadow: 0 0 8px rgba(155,89,182,0.4); }
-
-        .themes-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 5px 0; }
-        .theme-grid-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 10px 4px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .theme-grid-item:hover, .theme-grid-item.active { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); }
-        .theme-grid-preview { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        .theme-grid-title { color: #e0e0e0; font-size: 11px; font-weight: 600; text-align: center; line-height: 1.2; }
-        
-        .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 5px; }
-        .store-item-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; padding: 10px 5px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; transition: all 0.3s; }
-        .store-item-card:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
-
-        .loading-dots-container { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
-        .loading-dot { width: 10px; height: 10px; background-color: #fff; border-radius: 50%; animation: dotFade 1.4s infinite; }
-        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
-        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes dotFade { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
-
-        .notification-badge { position: absolute; top: -2px; left: -2px; width: 10px; height: 10px; background-color: #ff453a; border-radius: 50%; box-shadow: 0 0 10px #ff453a; animation: badgePulse 1.5s infinite ease-in-out; }
-        @keyframes badgePulse { 0% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.8; } }
-
-        #match-players-card { background: rgba(45, 48, 55, 0.6) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important; }
-        .match-players-flex { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 80px; }
-        .match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
-        .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ffffff !important; }
-        .match-vs-text { color: #a1a1aa; font-weight: 300; font-size: 16px; }
-
-        button, select, .control-panel button, .control-panel select, 
-        .settings-card, 
-        .save-settings-btn, .store-buy-btn, .custom-tab-button, 
-        .modal-close-btn, #hamburger-menu-btn, #online-toggle-btn, #store-portal-corner-btn {
-            border: 1px solid rgba(135, 206, 235, 0.4) !important;
-            box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important;
-            outline: none !important;
-        }
-        button:hover, select:hover, .settings-card:hover {
-            box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important;
-        }
-
-        .purchase-preview-box { width: 100px; height: 100px; margin: 20px auto; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
-        .legendary-icon { box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); }
-
-        #toast-notification {
-            position: fixed;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(46, 204, 113, 0.95);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 14px;
-            z-index: 9999999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        #toast-notification.show {
-            opacity: 1;
-            visibility: visible;
-            bottom: 120px;
-        }
-
-        #game-over-modal > div { background: rgba(30, 32, 40, 0.75) !important; backdrop-filter: blur(40px) saturate(180%) !important; -webkit-backdrop-filter: blur(40px) saturate(180%) !important; border: 1px solid rgba(135, 206, 235, 0.2) !important; border-radius: 36px !important; box-shadow: 0 30px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08) !important; padding: 35px 25px !important; }
-        #game-over-modal div[style*="border"], #game-over-modal div[style*="#f1c40f"], #game-over-modal div[style*="gold"] { border: none !important; }
-        #game-over-modal h2, #game-over-modal h3 { color: #ffffff !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: none !important; }
-        #game-over-modal div[style*="green"], #game-over-modal span[style*="green"], #game-over-modal div[style*="#2ecc71"], #game-over-modal span[style*="#2ecc71"] { background: rgba(48, 209, 88, 0.15) !important; color: #30d158 !important; border: 1px solid rgba(48, 209, 88, 0.3) !important; border-radius: 50px !important; padding: 5px 16px !important; box-shadow: none !important; display: inline-block !important; margin-top: 10px !important; font-weight: 600 !important; font-size: 13px !important; }
-        #game-over-modal div[style*="red"], #game-over-modal span[style*="red"], #game-over-modal div[style*="#e74c3c"], #game-over-modal span[style*="#e74c3c"] { background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; border: 1px solid rgba(255, 69, 58, 0.3) !important; border-radius: 50px !important; padding: 5px 16px !important; box-shadow: none !important; display: inline-block !important; margin-top: 10px !important; font-weight: 600 !important; font-size: 13px !important; }
-        #game-over-modal button { border-radius: 50px !important; height: 50px !important; font-weight: 600 !important; font-size: 16px !important; margin-top: 12px !important; box-shadow: none !important; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important; width: 100% !important; }
-        #game-over-modal button[style*="green"], #game-over-modal button[style*="#2ecc71"], #rematch-btn { background: rgba(48, 209, 88, 0.12) !important; color: #30d158 !important; border: 1px solid rgba(48, 209, 88, 0.25) !important; }
-        #game-over-modal button[style*="red"], #game-over-modal button[style*="#e74c3c"], #exit-game-btn { background: rgba(255, 69, 58, 0.12) !important; color: #ff453a !important; border: 1px solid rgba(255, 69, 58, 0.25) !important; }
-        #game-over-modal button:hover { transform: scale(0.96) !important; }
-        #game-over-modal img { border: 1px solid rgba(255, 255, 255, 0.15) !important; border-radius: 50% !important; background: rgba(255, 255, 255, 0.05) !important; padding: 4px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important; }
-        
-        .modern-bot-avatar {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
-            box-shadow: 0 8px 20px rgba(42, 82, 152, 0.5), inset 0 0 12px rgba(255,255,255,0.3) !important;
-            border: 2px solid #87ceeb !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            color: white !important;
-            border-radius: 50% !important;
-        }
-        .modern-bot-avatar svg {
-            width: 55%;
-            height: 55%;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
-            animation: botFloat 3s ease-in-out infinite;
-        }
-        @keyframes botFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-        }
-
-        body.online-mode-active {
-            padding-top: 15px !important;
-        }
-
-        body.online-mode-active #profile-badge,
-        body.online-mode-active #hamburger-menu-btn,
-        body.online-mode-active #undo-btn {
-            display: none !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-        }
-
-        body.online-mode-active #status-area {
-            margin-top: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            width: 100% !important;
-            order: 1 !important;
-        }
-
-        body.online-mode-active #match-players-card {
-            width: 95vw !important;
-            max-width: 500px !important;
-            flex-direction: row !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            padding: 10px 30px !important;
-            margin-bottom: 15px !important;
-            box-sizing: border-box !important;
-        }
-
-        body.online-mode-active .match-vs-text {
-            font-size: 24px !important;
-            font-weight: 800 !important;
-            color: #a1a1aa !important;
-        }
-
-        body.online-mode-active #turn-box-container {
-            margin-bottom: 15px !important;
-        }
-
-        body.online-mode-active .scoreboard {
-            order: 2 !important;
-        }
-
-        body.online-mode-active .game-container {
-            order: 3 !important;
-        }
-    </style>
-</head>
-<body data-piece-style="pc_original">
+export const STORE_ITEMS = {
+    // ===================================
+    // أولاً: الخلفيات واللوحات (Backgrounds & Boards)
+    // ===================================
     
-    <input type="hidden" id="game-mode" value="ai">
+    'bg_wood': { 
+        type: 'bg', isDefault: true, nameAr: 'الخشب الفاخر', nameEn: 'Premium Wood', light: '#DEB887', dark: '#8B4513'
+    },
 
-    <!-- كبسولة البروفايل -->
-    <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
-        <div class="profile-avatar-capsule" id="badge-avatar"></div>
-        <div class="profile-badge-info">
-            <span id="badge-username-display-game" class="profile-badge-name">أنت</span>
-            <div class="stat-item">
-                🪙 <span id="profile-stat-tokens-badge">0</span>
-            </div>
-        </div>
-    </div>
+    'bg_malachite': { 
+        type: 'bg', cost: 3000, isLegendary: true, nameAr: 'رخام الملاكيت الأخضر', nameEn: 'Malachite Green Marble',
+        isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134548.webp'
+    },
+
+    'bg_carved_wood': { 
+        type: 'bg', cost: 1000, nameAr: 'الخشب المحفور', nameEn: 'Carved Wood',
+        cssLight: 'background: repeating-linear-gradient(45deg, #DEB887, #DEB887 10px, #D2A679 10px, #D2A679 20px); box-shadow: inset 0 0 15px rgba(100,50,0,0.5);',
+        cssDark: 'background: repeating-linear-gradient(-45deg, #8B4513, #8B4513 15px, #65320D 15px, #65320D 30px); box-shadow: inset 0 0 20px rgba(0,0,0,0.8);'
+    },
+
+    'bg_mosaic': { 
+        type: 'bg', cost: 1500, nameAr: 'الموزاييك الملكي', nameEn: 'Royal Mosaic',
+        cssLight: 'background-color: #E2D4B7; background-image: radial-gradient(circle at 50% 50%, #4A2E15 15%, transparent 18%), repeating-conic-gradient(from 0deg at 50% 50%, #C4AE8D 0deg, #C4AE8D 15deg, transparent 15deg, transparent 30deg); box-shadow: inset 0 0 10px rgba(74,46,21,0.4); border: 1px solid rgba(74,46,21,0.2);',
+        cssDark: 'background-color: #3B2314; background-image: radial-gradient(circle at 50% 50%, #E2D4B7 10%, transparent 13%), radial-gradient(circle at 50% 50%, transparent 40%, #1E110A 45%, #1E110A 50%, transparent 55%), repeating-conic-gradient(from 15deg at 50% 50%, #2A170D 0deg, #2A170D 22.5deg, transparent 22.5deg, transparent 45deg); box-shadow: inset 0 0 15px rgba(0,0,0,0.8); border: 1px solid #1E110A;'
+    },
+
+    'bg_image_royal': { 
+        type: 'bg', cost: 4000, isLegendary: true, nameAr: 'الساحة الملكية الفاخرة', nameEn: 'Premium Royal Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000133232.webp'
+    },
+
+    'bg_image_lava': { 
+        type: 'bg', cost: 4500, isLegendary: true, nameAr: 'ساحة الحمم البركانية', nameEn: 'Volcanic Lava Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000133390.webp'
+    },
+
+    'bg_custom_warrior': { 
+        type: 'bg', cost: 5000, isLegendary: true, nameAr: 'ساحة كتيبة الأبطال', nameEn: 'Hero Battalion Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134166.webp'
+    },
+
+    'bg_ruby_amber': { 
+        type: 'bg', cost: 50000, isLegendary: true, nameAr: 'الياقوت والكهرمان الملكي', nameEn: 'Royal Ruby & Amber', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/10001320889.webp'
+    },
+
+    'bg_mahogany': { 
+        type: 'bg', cost: 2000, nameAr: 'ساحة الماهوجني الكلاسيكية', nameEn: 'Classic Mahogany Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134903.webp'
+    },
+
+    'bg_turquoise_geometric': {
+        type: 'bg', cost: 2200, nameAr: 'ساحة الفيروز والزخارف الهندسية', nameEn: 'Geometric Turquoise & Gold Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134417.webp', hasPurpleBorder: true
+    },
+
+    'bg_black_gold_marble': {
+        type: 'bg', cost: 2500, nameAr: 'ساحة الرخام الأسود والعروق الذهبية', nameEn: 'Classic Black & Gold Marble Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134427.webp', hasPurpleBorder: true
+    },
+
+    'bg_blue_navy_marble': {
+        type: 'bg', cost: 2600, nameAr: 'ساحة الرخام الأزرق الداكن والبيج', nameEn: 'Navy Blue & Beige Marble Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136612.webp', hasPurpleBorder: true
+    },
+
+    'bg_brown_gold_leaves': {
+        type: 'bg', cost: 2800, nameAr: 'ساحة الرخام البني والزخارف الذهبية', nameEn: 'Brown Marble & Golden Leaves Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136622.webp', hasPurpleBorder: true
+    },
+
+    'bg_samurai_warriors': {
+        type: 'bg', cost: 100000, isLegendary: true, nameAr: 'ساحة محاربي الساموراي الأسطورية', nameEn: 'Legendary Samurai Warriors Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136302.webp'
+    },
+
+    'bg_jester_theater': {
+        type: 'bg', cost: 150000, isLegendary: true, nameAr: 'ساحة مسرح جيستر', nameEn: 'Jester Theater Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136557.webp'
+    },
+
+    // ===================================
+    // ثانياً: الإطارات (Frames) 
+    // ===================================
     
-    <!-- زر القائمة -->
-    <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
+    'fr_classic': { 
+        type: 'fr', isDefault: true, nameAr: 'إطار خشبي كلاسيكي', nameEn: 'Classic Wood Frame',
+        cssBoard: 'border: 12px solid #5C3A21; border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.05), inset 0 0 15px rgba(0,0,0,0.9); border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;',
+        customCSS: `
+            #board { 
+                border: 12px solid #5C3A21 !important; 
+                border-radius: 8px !important; 
+                box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.05), inset 0 0 15px rgba(0,0,0,0.9) !important; 
+                border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12 !important;
+                box-sizing: border-box !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vw !important;
+                position: relative !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                aspect-ratio: 1 / 1 !important;
+                transition: all 0.5s ease; 
+            }
+        `
+    },
+
+    'fr_1000135477': { 
+        type: 'fr', cost: 3500, isLegendary: true, nameAr: 'إطار كتيبة الأبطال', nameEn: 'Hero Battalion Frame',
+        isImage: true, 
+        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000135477.webp',
+        customCSS: `
+            #board { 
+                border: 5vw solid transparent !important; 
+                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000135477.webp') 7.2% stretch !important; 
+                border-image-outset: 0 !important; 
+                border-radius: 0 !important; 
+                background-clip: padding-box !important; 
+                box-sizing: border-box !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vw !important;
+                position: relative !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                aspect-ratio: 1 / 1 !important;
+                transition: all 0.3s ease; 
+            }
+            .board-coordinates, 
+            .notation-322f9, 
+            .cg-wrap coords, 
+            svg text { 
+                display: none !important; 
+            }
+            @media (min-width: 768px) { 
+                #board { border-width: 25px !important; } 
+            }
+        `
+    },
     
-    <!-- 🎒 زر الحقيبة السريع -->
-    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none; position: fixed; top: 15px; right: 15px; z-index: 10001; background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); width: 44px; height: 44px; border-radius: 14px !important; color: white; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0; font-size: 20px;" data-icon="bagQuick"></button>
+    'fr_ruby_amber': { 
+        type: 'fr', cost: 40000, isLegendary: true, nameAr: 'إطار الياقوت والكهرمان الملكي', nameEn: 'Royal Ruby & Amber Frame',
+        isImage: true, 
+        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000134883.webp',
+        customCSS: `
+            #board { 
+                border: 8vw solid transparent !important; 
+                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000134883.webp') 9.5% stretch !important; 
+                border-radius: 0 !important; 
+                box-sizing: border-box !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vw !important;
+                position: relative !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                aspect-ratio: 1 / 1 !important;
+                transition: all 0.5s ease; 
+            }
+            @media (min-width: 768px) { #board { border-width: 45px !important; } }
+        `
+    },
 
-    <div id="status-area">
-        <div id="match-players-card" style="display: none;">
-            <div class="match-players-flex">
-                <div id="card-my-avatar" class="match-players-avatar-me"></div>
-                <span id="card-my-name" class="match-players-name">أنت</span>
-            </div>
-            <span class="match-vs-text">VS</span>
-            <div class="match-players-flex">
-                <div id="card-opp-avatar" class="match-players-avatar-opp">❓</div>
-                <span id="card-opp-name" class="match-players-name">الخصم</span>
-            </div>
-        </div>
+    'fr_mahogany': { 
+        type: 'fr', cost: 2500, nameAr: 'إطار الماهوجني المرقم', nameEn: 'Numbered Mahogany Frame',
+        isImage: true, 
+        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000134904.webp',
+        customCSS: `
+            #board { 
+                border: 6vw solid transparent !important; 
+                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000134904.webp') 5% stretch !important; 
+                border-radius: 0 !important; 
+                box-sizing: border-box !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vw !important;
+                position: relative !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                aspect-ratio: 1 / 1 !important;
+                transition: all 0.5s ease; 
+            }
+            @media (min-width: 768px) { #board { border-width: 45px !important; } }
+        `
+    },
 
-        <div id="turn-box-container">
-            <h3 id="turn-indicator">Your Turn</h3>
-            <div id="turn-countdown"></div>
-        </div>
-    </div>
+    'fr_samurai_warriors': { 
+        type: 'fr', cost: 70000, isLegendary: true, nameAr: 'إطار محاربي الساموراي', nameEn: 'Samurai Warriors Frame',
+        isImage: true, 
+        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000136304.webp',
+        customCSS: `
+            #board { 
+                border: 4.5vw solid transparent !important; 
+                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136304.webp') 5% stretch !important; 
+                border-radius: 0 !important; 
+                box-sizing: border-box !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vw !important;
+                position: relative !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                aspect-ratio: 1 / 1 !important;
+                transition: all 0.5s ease; 
+            }
+            @media (min-width: 768px) { #board { border-width: 28px !important; } }
+        `
+    },
 
-    <!-- لوحة النقاط العلوية -->
-    <div class="scoreboard">
-        <div id="opponent-score-row" class="score-row"></div>
-        <div id="my-score-row" class="score-row"></div>
-    </div>
+    'fr_jester_theater': { 
+        type: 'fr', cost: 85000, isLegendary: true, nameAr: 'إطار مسرح جيستر', nameEn: 'Jester Theater Frame',
+        isImage: true, 
+        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000136584.webp',
+        customCSS: `
+            #board { 
+                border: 6.5vw solid transparent !important; 
+                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136584.webp') 8% stretch !important; 
+                border-radius: 0 !important; 
+                box-sizing: border-box !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vw !important;
+                position: relative !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                aspect-ratio: 1 / 1 !important;
+                transition: all 0.5s ease; 
+            }
+            @media (min-width: 768px) { #board { border-width: 40px !important; } }
+        `
+    },
+
+    'fr_blue_navy_marble': { 
+        type: 'fr', cost: 3000, nameAr: 'إطار الرخام الأزرق الداكن المرقم', nameEn: 'Numbered Navy Blue Marble Frame',
+        isImage: true, 
+        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000136630.webp',
+        customCSS: `
+            #board { 
+                border: 5.5vw solid transparent !important; 
+                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136630.webp') 6% stretch !important; 
+                border-radius: 0 !important; 
+                box-sizing: border-box !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vw !important;
+                position: relative !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                aspect-ratio: 1 / 1 !important;
+                transition: all 0.5s ease; 
+            }
+            @media (min-width: 768px) { #board { border-width: 35px !important; } }
+        `
+    },
+
+    'fr_royal_luxury': { 
+        type: 'fr', cost: 6000, isLegendary: true, nameAr: 'الإطار الملكي الفاخر', nameEn: 'Royal Luxury Frame',
+        isImage: true, 
+        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000136629.webp',
+        customCSS: `
+            #board { 
+                border: 7vw solid transparent !important; 
+                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136629.webp') 8% stretch !important; 
+                border-radius: 0 !important; 
+                box-sizing: border-box !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vw !important;
+                position: relative !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                aspect-ratio: 1 / 1 !important;
+                transition: all 0.5s ease; 
+            }
+            @media (min-width: 768px) { #board { border-width: 45px !important; } }
+        `
+    },
+
+    // ===================================
+    // ثالثاً: الأحجار والبيادق (Pieces & Stones)
+    // ===================================
     
-    <div class="game-container">
-        <div id="board"></div> 
-    </div>
+    'pc_original': { type: 'pc', isDefault: true, nameAr: 'النمط الأصلي', nameEn: 'Original', icon: '⚪' },
 
-    <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
-        <div class="side-menu-panel">
-            <div class="side-menu-header">
-                <h3 class="side-menu-title">القائمة</h3>
-                <button class="side-menu-close" onclick="toggleSideMenu()">✕</button>
-            </div>
-            
-            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('online-modal')">
-              <span data-icon="door"></span>
-              <span>الغرف الخاصة (روم)</span>
-            </div>
-            
-            <div class="side-menu-item" onclick="toggleSideMenu(); window.showLeaderboard()">
-                <span data-icon="medal"></span>
-                <span>كأس الشرف (الترتيب)</span>
-            </div>
-            
-            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
-                <span data-icon="bagSide"></span>
-                <span>الحقيبة والأزياء</span>
-            </div>
+    'pc_carved_wood': { 
+        type: 'pc', cost: 150, nameAr: 'خشب محفور', nameEn: 'Carved Wood',
+        icon: '<div style="position: absolute; top: 17.5%; left: 17.5%; width: 65%; height: 65%; border-radius: 50%; background: inherit; box-shadow: inset 4px 4px 8px rgba(0,0,0,0.4), inset -3px -3px 6px rgba(255,255,255,0.3); pointer-events: none;"></div>',
+        wCss: `background: #E6C280; border: 2px solid #C08A4C; box-shadow: inset 0 0 10px rgba(0,0,0,0.2), 2px 2px 5px rgba(0,0,0,0.4);`,
+        bCss: `background: #5C3A21; border: 2px solid #3E2723; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 2px 2px 5px rgba(0,0,0,0.6);`,
+        customPseudoCss: `
+            body[data-piece-style="pc_carved_wood"] .piece::before {
+                content: ''; position: absolute; width: 65%; height: 65%; border-radius: 50%;
+                background: inherit; box-shadow: inset 4px 4px 8px rgba(0,0,0,0.4), inset -3px -3px 6px rgba(255,255,255,0.3);
+            }
+            body[data-piece-style="pc_carved_wood"] .piece.dama::after {
+                content: '👑'; color: #FFD700; font-size: 16px; z-index: 2; text-shadow: 0 0 5px rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center;
+            }
+        `,
+        dCss: 'border: 3px solid #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);'
+    },
 
-            <!-- زر الراديو في القائمة الجانبية -->
-            <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.openRadioModal()">
-                <span style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;" data-icon="radioSide"></span> 
-                <span>الراديو والموسيقى</span>
-            </div>
-            
-            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('settings-overlay')">
-                <span data-icon="gear"></span> 
-                <span>الضبط وإعدادات الصوت</span>
-            </div>
-            
-            <div style="flex-grow: 1;"></div>
-            
-            <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.postMessage({ type: 'EXIT_GAME' }, '*');" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
-                <span style="font-size: 36px; display: flex; align-items: center; justify-content: center; width: 38px; transform: translateY(1px);">🚪</span> <span>خروج</span>
-            </div>
-        </div>
-    </div>
+    'pc_ebony_gold': { 
+        type: 'pc', cost: 1000, nameAr: 'الأبنوس الذهبي', nameEn: 'Royal Ebony Gold',
+        icon: '<div style="position: absolute; top: 32.5%; left: 32.5%; width: 35%; height: 35%; border-radius: 50%; border: 1.5px solid #D4AF37; background: rgba(0,0,0,0.1); pointer-events: none;"></div>',
+        wCss: `background: #FDFBF7; border: 2px solid #D4AF37; box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.2), 0 4px 8px rgba(0,0,0,0.3);`,
+        bCss: `background: #1A1A1A; border: 2px solid #D4AF37; box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 4px 8px rgba(0,0,0,0.5);`,
+        customPseudoCss: `
+            body[data-piece-style="pc_ebony_gold"] .piece::before {
+                content: ''; position: absolute; width: 65%; height: 65%;
+                border: 1.5px solid #D4AF37;
+                clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+                z-index: 1;
+            }
+            body[data-piece-style="pc_ebony_gold"] .piece::after {
+                content: ''; position: absolute; width: 35%; height: 35%;
+                border-radius: 50%; border: 1.5px solid #D4AF37;
+                z-index: 2; background: rgba(0,0,0,0.05);
+            }
+            body[data-piece-style="pc_ebony_gold"] .piece.black::after {
+                background: #222;
+            }
+            body[data-piece-style="pc_ebony_gold"] .piece.dama::after {
+                content: '👑'; color: #FFF; font-size: 13px; background: #D4AF37; border: 1px solid #FFF; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 10px #D4AF37;
+            }
+        `,
+        dCss: 'border: 2px solid #FFF; box-shadow: 0 0 20px #D4AF37;'
+    },
 
-    <div id="toast-notification">✨ تم التغيير بنجاح</div>
+    'pc_custom_warrior': { 
+        type: 'pc', cost: 2500, isLegendary: true, nameAr: 'كتيبة الأبطال', nameEn: 'Hero Battalion',
+        isImage: true, 
+        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000133464.webp', 
+        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000133465.webp', 
+        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000133463.webp', 
+        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000133466.webp'  
+    },
 
-    <button id="online-toggle-btn" title="البحث العشوائي" style="position: fixed; bottom: 75px; left: 15px; z-index: 9998; height: 46px; width: 102px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
-        <span class="notification-badge"></span>
-        <span data-icon="globe"></span>
-        <span style="font-size: 13px; font-weight: 600;">اونلاين</span>
-    </button>
+    'pc_samurai_legends': { 
+        type: 'pc', cost: 5000, isLegendary: true, nameAr: 'نمط محاربي الساموراي', nameEn: 'Samurai Legends',
+        isImage: true, 
+        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135430.webp', 
+        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135417.webp', 
+        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135428.webp', 
+        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135418.webp'  
+    },
 
-    <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 75px; right: 15px; z-index: 9998; width: 46px; height: 46px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي" data-icon="storePortal"></button>
+    'pc_death_skulls': { 
+        type: 'pc', cost: 5500, isLegendary: true, nameAr: 'جماجم الموت الأسطورية', nameEn: 'Legendary Death Skulls',
+        isImage: true, 
+        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135429.webp', 
+        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135421.webp', 
+        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135424.webp', 
+        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135420.webp'
+    },
 
-    <div id="login-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto">
-            <button class="modal-close-btn" onclick="closeAppModal('login-modal')" style="left:15px; right:auto;">✕</button>
-            <h3>تسجيل الدخول</h3>
-            
-            <label class="settings-label" for="login-name-input">الاسم</label>
-            <input type="text" id="login-name-input" class="online-input" placeholder="أدخل اسمك">
+    'pc_oak_leaf': { 
+        type: 'pc', cost: 5000, isLegendary: true, nameAr: 'طاقم البلوط والتاج الملكي الأسطوري', nameEn: 'Royal Oak Leaf & Crown Set',
+        isImage: true, 
+        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135694.webp',     
+        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135693.webp',     
+        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135689.webp',  
+        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135692.webp'   
+    },
 
-            <label class="settings-label" for="login-password-input">كلمة المرور / Password</label>
-            <input type="password" id="login-password-input" class="online-input" placeholder="كلمة المرور">
+    'pc_crane_emerald': {
+        type: 'pc', cost: 6000, isLegendary: true, nameAr: 'طاقم طائر الكركي والزمرد الأسطوري', nameEn: 'Legendary Emerald & Tiger Eye Crown Set',
+        isImage: true,
+        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135702.webp',     
+        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135701.webp',     
+        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135689.webp',  
+        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135692.webp'   
+    },
 
-            <label class="settings-label" for="login-avatar-select">الشخصية</label>
-            <select id="login-avatar-select" class="online-input">
-                <option value="avatar1">شخصية 1</option>
-            </select>
+    'pc_royal_sun': {
+        type: 'pc', cost: 6500, isLegendary: true, nameAr: 'طاقم شمس الرخام والبرونز الأسطوري', nameEn: 'Legendary Marble & Bronze Sun Set',
+        isImage: true,
+        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135759.webp',     
+        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135716.webp',     
+        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135689.webp',  
+        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135692.webp'   
+    },
 
-            <button id="login-submit-btn" class="save-settings-btn">دخول</button>
-        </div>
-    </div>
+    'pc_broken_stone': {
+        type: 'pc', cost: 7500, isLegendary: true, nameAr: 'طاقم الحجر المكسور الأسطوري', nameEn: 'Legendary Broken Stone Set',
+        isImage: true,
+        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135713.webp',     
+        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135712.webp',     
+        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135689.webp',  
+        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135690.webp'   
+    },
 
-    <div id="in-game-profile-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
-            <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
-            <h3 id="igp-title" style="margin-bottom: 25px;">الملف الشخصي</h3>
-            <div class="profile-display-avatar" id="igp-avatar" style="width: 80px; height: 80px; margin: 0 auto 15px auto; border-radius: 50%; padding: 2px; border: 1px solid rgba(255,255,255,0.2); position: relative;"></div>
-            
-            <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%;">الاسم</h4>
-            
-            <div onclick="copyMyId()" id="copy-id-btn" style="cursor: pointer; color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-family: monospace; padding: 4px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;" title="نسخ المعرف" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                <span>ID: <span id="igp-id-display" style="color: white; font-weight: bold;">...</span></span>
-                <span data-icon="copyId"></span>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; box-sizing: border-box;">
-                <div style="display: flex; flex-direction: column; align-items: center;">
-                    <span id="igp-games" style="color: white; font-size: 22px; font-weight: 700;">0</span>
-                    <span id="igp-lbl-games" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">لعب</span>
-                </div>
-                <div style="display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); border-left: 1px solid rgba(255,255,255,0.05); align-items: center;">
-                    <span id="igp-wins" style="color: #34c759; font-size: 22px; font-weight: 700;">0</span>
-                    <span id="igp-lbl-wins" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">فوز</span>
-                </div>
-                <div style="display: flex; flex-direction: column; align-items: center;">
-                    <span id="igp-losses" style="color: #ff453a; font-size: 22px; font-weight: 700;">0</span>
-                    <span id="igp-lbl-losses" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">خسارة</span>
-                </div>
-            </div>
+    'pc_marble_rose': {
+        type: 'pc',
+        cost: 8000,
+        isLegendary: true,
+        nameAr: 'طاقم الوردة الرخامية والذهب الأسطوري',
+        nameEn: 'Legendary Marble Rose & Gold Set',
+        isImage: true,
+        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135720.webp',     
+        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135743.webp',     
+        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135689.webp',  
+        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135690.webp'   
+    },
 
-            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; box-sizing: border-box;">
-                <input type="text" id="friend-id-input" class="online-input" placeholder="معرف الصديق (ID)" style="margin-bottom: 0; height: 40px; font-size: 12px; width: 100%;">
-                <button id="add-friend-btn" class="save-settings-btn" style="margin-top: 0; height: 40px; padding: 0 30px; width: auto; font-size: 13px;">إضافة صديق</button>
-            </div>
+    // ===================================
+    // رابعاً: الأشرطة (Scoreboards) - 7 أطقم جديدة (كل طقم يحتوي على لونين)
+    // ===================================
+    'score_default': { 
+        type: 'score', isDefault: true, nameAr: 'الشريط الافتراضي', nameEn: 'Default Bar', 
+        scoreBg1: 'rgba(30, 32, 40, 0.6)', scoreBg2: 'rgba(30, 32, 40, 0.6)',
+        scoreBorder1: '1px solid rgba(255,255,255,0.08)', scoreBorder2: '1px solid rgba(255,255,255,0.08)' 
+    },
+    'score_classic_wood': { 
+        type: 'score', cost: 500, nameAr: 'خشب كلاسيكي (مزدوج)', nameEn: 'Classic Wood Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #401a11, #250d07)', 
+        scoreBg2: 'linear-gradient(to bottom, #dfb78c, #c49a6c)', 
+        scoreBorder1: '1px solid #6b371b', scoreBorder2: '1px solid #9e5b33' 
+    },
+    'score_starburst': { 
+        type: 'score', cost: 1600, nameAr: 'زخارف شعاعية (مزدوج)', nameEn: 'Starburst Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #3b2313, #1e110a)', 
+        scoreBg2: 'linear-gradient(to bottom, #e2d4b7, #c4ae8d)', 
+        scoreBorder1: '1px solid #5c3a21', scoreBorder2: '1px solid #8b6540' 
+    },
+    'score_blue_navy': { 
+        type: 'score', cost: 1800, nameAr: 'الرخام الأزرق (مزدوج)', nameEn: 'Navy Marble Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #0f2042, #071022)', 
+        scoreBg2: 'linear-gradient(to bottom, #f0ebd8, #d3cbba)', 
+        scoreBorder1: '1px solid #38bdf8', scoreBorder2: '1px solid #8b6540' 
+    },
+    'score_malachite': { 
+        type: 'score', cost: 2200, isLegendary: true, nameAr: 'الملاكيت الأخضر (مزدوج)', nameEn: 'Malachite Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #004d25, #002612)', 
+        scoreBg2: 'linear-gradient(to bottom, #fdfbf7, #e0dcd3)', 
+        scoreBorder1: '1px solid #ffd700', scoreBorder2: '1px solid #ffd700' 
+    },
+    'score_lava': { 
+        type: 'score', cost: 3500, isLegendary: true, nameAr: 'الحمم البركانية (مزدوج)', nameEn: 'Lava Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #8b0000, #4a0000)', 
+        scoreBg2: 'linear-gradient(to bottom, #ff4500, #ff8c00)', 
+        scoreBorder1: '1px solid #ff8c00', scoreBorder2: '1px solid #fff' 
+    },
+    'score_samurai': { 
+        type: 'score', cost: 4000, isLegendary: true, nameAr: 'الساموراي البرونزي (مزدوج)', nameEn: 'Samurai Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #8b6508, #4a3600)', 
+        scoreBg2: 'linear-gradient(to bottom, #e6e6e6, #b3b3b3)', 
+        scoreBorder1: '1px solid #ffd700', scoreBorder2: '1px solid #8b6508' 
+    },
+    'score_jester': { 
+        type: 'score', cost: 4500, isLegendary: true, nameAr: 'مسرح جيستر (مزدوج)', nameEn: 'Jester Theater Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #3b1b0b, #1a0a03)', 
+        scoreBg2: 'linear-gradient(to bottom, #9e6d42, #6b4324)', 
+        scoreBorder1: '1px solid #c28f5b', scoreBorder2: '1px solid #e2b385' 
+    },
+    'score_ruby_amber': { 
+        type: 'score', cost: 5000, isLegendary: true, nameAr: 'الياقوت والكهرمان (مزدوج)', nameEn: 'Ruby Amber Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #8b0000, #4a0000)', 
+        scoreBg2: 'linear-gradient(to bottom, #d97706, #92400e)', 
+        scoreBorder1: '1px solid #ffbf00', scoreBorder2: '1px solid #ffbf00' 
+    },
 
-            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; text-align: start; width: 100%; box-sizing: border-box;">
-                <h5 id="igp-lbl-friends" style="margin: 0 0 10px 0; color: #a1a1aa; font-size: 13px; font-weight: 600;">الأصدقاء</h5>
-                <div id="igp-friends-list" style="color: white; font-size: 13px; text-align: center; padding: 15px 0; font-weight: 500;">
-                    لا يوجد أصدقاء حالياً
-                </div>
-            </div>
-        </div>
-    </div>
+    // ===================================
+    // خامساً: باقات المصباح والتلميحات (Offers & Hints)
+    // ===================================
+    'pack_hints_3':  { type: 'consumable', cost: 150, nameAr: 'باقة 3 تلميحات', nameEn: '3 Hints Pack', icon: '💡' },
+    'pack_hints_10': { type: 'consumable', cost: 400, nameAr: 'باقة 10 تلميحات', nameEn: '10 Hints Pack', icon: '💡' }
+};
 
-    <!-- نافذة المتجر -->
-    <div id="store-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto">
-            <div style="position: absolute; top: 18px; right: 20px;" class="stat-item">
-                🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span>
-            </div>
-            <button onclick="closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto;">✕</button>
+window.STORE_ITEMS = STORE_ITEMS;
 
-            <h3 id="store-title" style="margin-bottom: 5px; font-size: 20px;">المتجر الملكي</h3>
-            <p id="store-desc" class="settings-label" style="text-align: center; margin-bottom: 15px; font-size: 12px;">استبدل رصيدك بملحقات حصرية عصرية!</p>
-
-            <div class="custom-nav-tabs">
-                <button id="store-btn-tab-bg" class="custom-tab-button active" onclick="switchStoreTabCategory('bg')">خلفيات</button>
-                <button id="store-btn-tab-frames" class="custom-tab-button" onclick="switchStoreTabCategory('frames')">إطارات</button>
-                <button id="store-btn-tab-pieces" class="custom-tab-button" onclick="switchStoreTabCategory('pieces')">أحجار</button>
-                <button id="store-btn-tab-score" class="custom-tab-button" onclick="switchStoreTabCategory('score')">الأشرطة</button>
-                <button id="store-btn-tab-offers" class="custom-tab-button" onclick="switchStoreTabCategory('offers')">عروضات</button>
-            </div>
-
-            <div class="scrollable-content">
-                <div id="store-section-bg" class="store-items-grid"></div>
-                <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
-                <div id="store-section-pieces" class="store-items-grid" style="display: none;"></div>
-                <div id="store-section-score" class="store-items-grid" style="display: none;"></div>
-                <div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
-            </div>
-            
-            <button id="store-return-btn" onclick="closeAppModal('store-modal')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">الخروج</button>
-        </div>
-    </div>
-
-    <div id="leaderboard-modal" class="modal-overlay" style="z-index: 9999999;">
-        <div class="settings-card leaderboard-full-screen" dir="auto">
-            <button class="modal-close-btn" onclick="closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000;">✕</button>
-            <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px;">🏆 لوحة الشرف</h3>
-            
-            <div class="custom-nav-tabs" style="margin-bottom: 15px;">
-                <button id="lb-tab-wins" class="custom-tab-button active" onclick="switchLbTab('wins')">الأكثر فوزاً</button>
-                <button id="lb-tab-tokens" class="custom-tab-button" onclick="switchLbTab('tokens')">الأغنى (المال)</button>
-            </div>
-
-            <div class="scrollable-content lb-list-container" id="leaderboard-list-wins"></div>
-            <div class="scrollable-content lb-list-container" id="leaderboard-list-tokens" style="display: none;"></div>
-        </div>
-    </div>
-
-    <!-- نافذة الحقيبة -->
-    <div id="themes-grid-overlay" class="modal-overlay">
-        <div class="settings-card" dir="auto">
-            <h3 id="themes-grid-title" style="margin-bottom: 15px; font-size: 20px;">المظهر والأزياء</h3>
-            
-            <div class="custom-nav-tabs">
-                <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="switchThemeGridTabCategory('bg')">خلفيات</button>
-                <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="switchThemeGridTabCategory('frames')">إطارات</button>
-                <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="switchThemeGridTabCategory('pieces')">احجار</button>
-                <button id="theme-btn-tab-score" class="custom-tab-button" onclick="switchThemeGridTabCategory('score')">الأشرطة</button>
-            </div>
-
-            <div class="scrollable-content">
-                <div class="themes-grid-container" id="theme-grid-section-bg"></div>
-                <div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div>
-                <div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
-                <div id="theme-grid-section-score" class="themes-grid-container" style="display: none;"></div>
-            </div>
-
-            <button id="theme-close-btn" onclick="closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">الخروج</button>
-        </div>
-    </div>
-
-    <div id="custom-alert-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 300px;">
-            <h3 id="custom-alert-title">تنبيه</h3>
-            <p id="custom-alert-message" style="color: #e0e0e0; margin: 20px 0; font-size: 15px; line-height: 1.6;"></p>
-            <div style="display: flex; gap: 10px;">
-                <button id="custom-alert-ok" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255,255,255,0.15) !important;">حسناً</button>
-                <button id="custom-alert-cancel" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; display: none;">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="new-game-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 300px;">
-            <h3 id="new-game-title">لعبة جديدة</h3>
-            <p id="choose-color-label" class="settings-label" style="text-align: center; margin-bottom: 20px;">اختر اللون للبدء</p>
-            
-            <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;">
-                <button id="start-white-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #ffffff, #e0e0e0) !important; color: #000 !important; font-size: 24px; width: 64px; height: 64px; padding: 0; margin: 0; box-shadow: 0 4px 15px rgba(255,255,255,0.2) !important; display: flex; align-items: center; justify-content: center;">⚪</button>
-                <button id="start-black-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #626270, #2c2c35) !important; color: #fff !important; font-size: 24px; width: 64px; height: 64px; padding: 0; margin: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important; display: flex; align-items: center; justify-content: center;">⚫</button>
-            </div>
-
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
-                <input type="checkbox" id="tutorial-mode-checkbox" style="width: 18px; height: 18px; accent-color: #f5a623; cursor: pointer;">
-                <label for="tutorial-mode-checkbox" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0;">لعبة تعليمية (مصباح مجاني / بدون جوائز)</label>
-            </div>
-
-            <button id="cancel-new-game-btn" onclick="closeAppModal('new-game-modal')" class="save-settings-btn" style="background: transparent !important;">إلغاء</button>
-        </div>
-    </div>
-
-    <div id="game-over-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 320px;">
-            <h3 id="game-over-title">Match Results</h3>
-            <div style="font-size: 50px; margin: 15px 0; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);">🏆</div>
-            <p id="game-over-message" style="color: white; font-size: 19px; margin: 15px 0 25px 0; font-weight: 700; text-align: center; line-height: 1.4;"></p>
-            <div style="display: flex; gap: 10px; width: 100%;">
-                <button id="rematch-btn" class="save-settings-btn" style="margin: 0; flex: 1;">إعادة اللعب</button>
-                <button id="exit-game-btn" class="save-settings-btn" style="margin: 0; flex: 1;">الخروج</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="online-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto">
-            <button class="modal-close-btn" onclick="closeAppModal('online-modal')" style="left:15px; right:auto;">✕</button>
-            <h3 id="create-room-title">الغرف الخاصة</h3>
-            <div id="online-setup-box">
-                <label class="settings-label" id="room-id-label" for="online-room-input">رقم أو اسم الغرفة:</label>
-                <input type="text" id="online-room-input" class="online-input" placeholder="مثال: 12345">
-                
-                <label class="settings-label" id="room-password-label" for="online-password-input">كلمة السر (اختياري):</label>
-                <input type="password" id="online-password-input" class="online-input" placeholder="اتركها فارغة للعام">
-
-                <button id="online-create-btn" class="save-settings-btn" style="background: rgba(255,255,255,0.15) !important;">إنشاء غرفة</button>
-                <button id="online-join-btn" class="save-settings-btn">انضمام لغرفة</button>
-            </div>
-            <p id="online-status-text" style="color: #f5a623; font-weight: 500; font-size: 13px; margin-top: 15px; display: none;"></p>
-            <button id="online-close-btn" onclick="closeAppModal('online-modal')" class="save-settings-btn" style="background: transparent !important; margin-top: 15px;">إلغاء</button>
-        </div>
-    </div>
-
-    <div id="matchmaking-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 350px;">
-            <h3 id="matchmaking-title">البحث</h3>
-            <div style="display: flex; justify-content: space-around; align-items: center; margin: 30px 0;">
-                <div style="text-align: center;">
-                    <div id="mm-my-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05);"></div>
-                    <div id="mm-my-name" style="color: white; margin-top: 10px; font-weight: 500; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">أنت</div>
-                </div>
-                <div style="text-align: center;">
-                    <div id="mm-opp-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: rgba(255,255,255,0.02);">❓</div>
-                    <div id="mm-opp-name" style="color: #a1a1aa; margin-top: 10px; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">جاري البحث...</div>
-                </div>
-            </div>
-            <div style="margin: 20px 0;">
-                <div id="mm-status-label" class="settings-label" style="text-align: center;">جاري البحث عن خصم...</div>
-                <div class="loading-dots-container">
-                    <div class="loading-dot"></div>
-                    <div class="loading-dot"></div>
-                    <div class="loading-dot"></div>
-                </div>
-                <div id="mm-timer" style="color: white; font-weight: 600; font-size: 18px; margin-top: 15px;">00:00</div>
-            </div>
-            <button id="mm-cancel-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important;">إلغاء البحث</button>
-        </div>
-    </div>
-
-    <div id="settings-overlay" class="modal-overlay">
-        <div class="settings-card" dir="auto">
-            <button class="modal-close-btn" onclick="closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
-            <h3 id="set-title">الإعدادات</h3>
-            <div class="audio-controls">
-                <label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label>
-                <input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7">
-            </div>
-            <button id="save-settings-btn" class="save-settings-btn" style="margin-top: 25px;">حفظ</button>
-        </div>
-    </div>
-
-    <div id="purchase-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 300px;">
-            <h3 id="modal-item-name">اسم المنتج</h3>
-            <div id="modal-item-preview" class="purchase-preview-box" style="flex-direction: column; overflow: hidden;"></div>
-            <p id="modal-item-cost" style="color: #f5a623; font-weight: 700; font-size: 18px; margin-bottom: 25px;">🪙 السعر: 0</p>
-            <div style="display: flex; gap: 10px; flex-direction: column;">
-                <button id="confirm-buy-btn" class="save-settings-btn" style="margin: 0; background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border-color: rgba(245, 166, 35, 0.4) !important;">شراء الآن</button>
-                <button onclick="closeAppModal('purchase-modal')" class="save-settings-btn" style="margin: 0; background: transparent !important;">إلغاء</button>
-            </div>
-        </div>
-    </div>
+export const storeManager = {
     
-    <!-- الأزرار السفلية -->
-    <div class="control-panel" id="bottom-control-panel">
-        <button id="reset-btn" title="Reset">بدء</button>
+    startGapKiller() {
+        if (window.__gapKillerActive) return;
+        window.__gapKillerActive = true;
+
+        const applyGapKillerStyles = () => {
+            const board = document.getElementById('board');
+            if (!board) return;
+
+            board.style.setProperty('width', '100vw', 'important');
+            board.style.setProperty('height', '100vw', 'important');
+            board.style.setProperty('max-width', '100vw', 'important');
+            board.style.setProperty('position', 'relative', 'important');
+            board.style.setProperty('left', '50%', 'important');
+            board.style.setProperty('transform', 'translateX(-50%)', 'important');
+            board.style.setProperty('box-sizing', 'border-box', 'important');
+
+            let el = board.parentElement;
+            while (el && el.tagName !== 'BODY' && el.tagName !== 'HTML') {
+                el.style.setProperty('overflow', 'visible', 'important');
+                el = el.parentElement;
+            }
+            document.body.style.setProperty('overflow-x', 'hidden', 'important');
+        };
+
+        applyGapKillerStyles();
+        window.addEventListener('resize', applyGapKillerStyles);
+    },
+
+    injectLegendaryAnimations() {
+        if (document.getElementById('store-legendary-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'store-legendary-styles';
+        style.innerHTML = `
+            @keyframes legendaryGlow {
+                0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); border-color: rgba(255, 215, 0, 0.5); }
+                50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), inset 0 0 15px rgba(255, 215, 0, 0.6); border-color: rgba(255, 215, 0, 1); transform: scale(1.02); }
+                100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); border-color: rgba(255, 215, 0, 0.5); }
+            }
+            @keyframes legendaryFloat {
+                0% { transform: translateY(0px) rotate(0deg) scale(1); filter: drop-shadow(0 0 5px rgba(255,215,0,0.5)); }
+                50% { transform: translateY(-6px) rotate(5deg) scale(1.15); filter: drop-shadow(0 0 20px rgba(255,215,0,1)); }
+                100% { transform: translateY(0px) rotate(0deg) scale(1); filter: drop-shadow(0 0 5px rgba(255,215,0,0.5)); }
+            }
+            @keyframes legendaryPulseText {
+                0%, 100% { text-shadow: 0 0 5px #ffd700; color: #ffd700; }
+                50% { text-shadow: 0 0 15px #ff8c00, 0 0 30px #ff8c00; color: #fff; }
+            }
+            .legendary-card { animation: legendaryGlow 2.5s infinite ease-in-out; background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(0, 0, 0, 0.5)) !important; }
+            .legendary-icon { animation: legendaryFloat 3s infinite ease-in-out; }
+            .legendary-text { animation: legendaryPulseText 2s infinite ease-in-out; }
+            .legendary-btn { background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 140, 0, 0.3)) !important; border: 1px solid #ffd700 !important; color: #fff !important; text-shadow: 0 0 5px rgba(255, 215, 0, 0.8); }
+            .legendary-btn:hover { background: linear-gradient(135deg, rgba(255, 215, 0, 0.6), rgba(255, 140, 0, 0.6)) !important; transform: scale(1.05) !important; }
+        `;
+        document.body.appendChild(style);
+    },
+
+    injectDynamicPieceStyles() {
+        let pieceStyles = `
+            #board .cell { display: flex !important; align-items: center !important; justify-content: center !important; }
+            @keyframes goldenVaporAura { 0% { transform: scale(1); opacity: 0.8; filter: blur(2px); } 100% { transform: scale(1.6); opacity: 0; filter: blur(8px); } }
+        `;
         
-        <select id="diff-quick-select" title="Difficulty">
-            <option value="1">L1</option>
-            <option value="2">L2</option>
-            <option value="3">L3</option>
-            <option value="4">L4</option>
-            <option value="5">L5</option>
-            <option value="6">L6</option>
-            <option value="7">L7</option>
-            <option value="8">L8</option>
-            <option value="9">L9</option>
-        </select>
-        
-        <button id="hint-btn" title="أفضل حركة" style="font-size: 18px; position: relative; overflow: visible; padding: 0; width: 44px; display: flex; align-items: center; justify-content: center;">
-            <span data-icon="bulb" style="display: flex; align-items: center; justify-content: center;"></span>
-            <span id="hint-counter" style="position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 50%; border: 1.5px solid #282a32; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10;">0</span>
-        </button>
-        
-        <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none; padding: 0; width: 44px; align-items: center; justify-content: center;">↩️</button>
-        
-        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="window.parent.toggleRadioPlayState()">
-            <span id="dama-radio-status" class="radio-status-dot"></span>
-            <span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
-        </button>
-        
-        <button id="resign-btn" title="الانسحاب" style="display: none; font-weight: bold;">الانسحاب</button>
-    </div>
+        Object.keys(STORE_ITEMS).forEach(key => {
+            const item = STORE_ITEMS[key];
+            if (item.type === 'pc' && key !== 'pc_original') {
+                if (item.isImage) {
+                    let whiteImg = item.imagePathWhite || item.imagePath || '';
+                    let blackImg = item.imagePathBlack || item.imagePath || '';
+                    let whiteDamaImg = item.damaImagePathWhite || whiteImg;
+                    let blackDamaImg = item.damaImagePathBlack || blackImg;
 
-    <!-- استدعاء ملف الأيقونات قبل السكربتات الأخرى -->
-    <script src="icons.js"></script>
-    <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
-    
-    <script>
-        let guestId = localStorage.getItem('guestId');
-        if (!guestId) {
-            guestId = 'guest_' + Date.now() + Math.random();
-            localStorage.setItem('guestId', guestId);
-        }
-
-        window.modalStack = [];
-
-        function openAppModal(id) {
-            const modal = document.getElementById(id);
-            if (modal) {
-                modal.style.display = 'flex';
-                window.modalStack.push(id);
-                history.pushState({ modalOpen: id }, '');
-            }
-        }
-
-        function closeAppModal(id) {
-            const modal = document.getElementById(id);
-            if (modal && modal.style.display === 'flex') {
-                if (window.modalStack[window.modalStack.length - 1] === id) {
-                    history.back(); 
-                } else {
-                    modal.style.display = 'none';
-                    window.modalStack = window.modalStack.filter(m => m !== id);
-                }
-            }
-        }
-
-        const boardObserver = new MutationObserver(() => {
-            if (document.querySelector('.piece:not(.mini)')) {
-                document.body.classList.add('game-active');
-            } else {
-                document.body.classList.remove('game-active');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const boardEl = document.getElementById('board');
-            if (boardEl) {
-                boardObserver.observe(boardEl, { childList: true, subtree: true });
-            }
-        });
-
-        function toggleSideMenu() {
-            const overlay = document.getElementById('side-menu-overlay');
-            if (overlay.classList.contains('open')) {
-                overlay.classList.remove('open');
-            } else {
-                overlay.classList.add('open');
-            }
-        }
-
-        function switchLbTab(tab) {
-            document.getElementById('lb-tab-wins').classList.remove('active');
-            document.getElementById('lb-tab-tokens').classList.remove('active');
-            document.getElementById('leaderboard-list-wins').style.display = 'none';
-            document.getElementById('leaderboard-list-tokens').style.display = 'none';
-            
-            document.getElementById('lb-tab-' + tab).classList.add('active');
-            document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
-        }
-
-        function createLbItemHTML(rank, name, score, type) {
-            let prefix = type === 'wins' ? '' : '🪙 ';
-            let suffix = type === 'wins' ? ' فوز' : '';
-            
-            const div = document.createElement('div');
-            div.className = 'lb-item';
-            
-            const nameEl = document.createElement('div');
-            nameEl.className = 'lb-name';
-            nameEl.textContent = name;
-            
-            div.innerHTML = `
-                <div class="lb-rank">#${rank}</div>
-                <div class="lb-avatar">👤</div>
-                <div class="lb-info">
-                    <div class="lb-name-container"></div>
-                    <div class="lb-score">${prefix}${score}${suffix}</div>
-                </div>
-            `;
-            div.querySelector('.lb-name-container').replaceWith(nameEl);
-            
-            return div;
-        }
-
-        function populateLeaderboards(winsData, tokensData) {
-            const winsList = document.getElementById('leaderboard-list-wins');
-            const tokensList = document.getElementById('leaderboard-list-tokens');
-            
-            winsList.innerHTML = '';
-            tokensList.innerHTML = '';
-            
-            for(let i = 0; i < 20; i++) {
-                let wPlayer = winsData && winsData[i] ? winsData[i].name : `لاعب مجهول ${i+1}`;
-                let wScore = winsData && winsData[i] ? winsData[i].score : (100 - (i * 2));
-                winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins'));
-            }
-
-            for(let i = 0; i < 20; i++) {
-                let tPlayer = tokensData && tokensData[i] ? tokensData[i].name : `لاعب مجهول ${i+1}`;
-                let tScore = tokensData && tokensData[i] ? tokensData[i].score : (10000 - (i * 300));
-                tokensList.appendChild(createLbItemHTML(i+1, tPlayer, tScore, 'tokens'));
-            }
-        }
-
-        function setupSocketListeners() {
-            if (window.socket) {
-                window.socket.off('leaderboardData');
-                window.socket.on('leaderboardData', (data) => {
-                    let formattedWins = [];
-                    let formattedTokens = [];
-                    
-                    if(Array.isArray(data)) {
-                        for(let i=0; i<data.length; i+=2) {
-                            formattedWins.push({ name: data[i], score: data[i+1] });
-                            formattedTokens.push({ name: data[i], score: data[i+1] * 125 }); 
+                    pieceStyles += `
+                        body[data-piece-style="${key}"] .piece { 
+                            background-color: transparent !important; border: none !important; box-shadow: 0 5px 10px rgba(0,0,0,0.5) !important; 
+                            position: relative; width: 85% !important; height: 85% !important; margin: 0 !important; 
                         }
-                    } else {
-                        formattedWins = data.wins || null;
-                        formattedTokens = data.tokens || null;
-                    }
-                    populateLeaderboards(formattedWins, formattedTokens);
-                });
+                        body[data-piece-style="${key}"] .piece::before, body[data-piece-style="${key}"] .piece::after { display: none !important; }
+                        body[data-piece-style="${key}"] .piece.white { background-image: url('${whiteImg}') !important; background-size: 100% 100% !important; }
+                        body[data-piece-style="${key}"] .piece.black { background-image: url('${blackImg}') !important; background-size: 100% 100% !important; }
+                        body[data-piece-style="${key}"] .piece.white.dama { background-image: url('${whiteDamaImg}') !important; border: 2px solid #FFD700 !important; box-shadow: 0 0 15px #FFD700, inset 0 0 10px rgba(255,215,0,0.5) !important; }
+                        body[data-piece-style="${key}"] .piece.black.dama { background-image: url('${blackDamaImg}') !important; border: 2px solid #FFD700 !important; box-shadow: 0 0 15px #FFD700, inset 0 0 10px rgba(255,215,0,0.5) !important; }
+                        body[data-piece-style="${key}"] .piece.dama::after {
+                            content: '' !important; display: block !important; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+                            border-radius: 50%; background: radial-gradient(circle, rgba(255,215,0,0.6) 0%, rgba(255,140,0,0) 70%);
+                            z-index: -1; animation: goldenVaporAura 1.5s infinite ease-out; pointer-events: none;
+                        }
+                    `;
+                } else if (item.wCss && item.bCss) {
+                    pieceStyles += `
+                        body[data-piece-style="${key}"] .piece.white { ${item.wCss} }
+                        body[data-piece-style="${key}"] .piece.black { ${item.bCss} }
+                        body[data-piece-style="${key}"] .piece.dama { ${item.dCss || ''} }
+                    `;
+                }
+                if (item.customPseudoCss) { pieceStyles += item.customPseudoCss; }
+            } else if (item.type === 'pc' && key === 'pc_original') {
+                 pieceStyles += `
+                 body[data-piece-style="${key}"] .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6) !important; border: 1px solid #bdc3c7 !important; clip-path: none !important; border-radius: 50% !important; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2) !important; }
+                 body[data-piece-style="${key}"] .piece.black { background: radial-gradient(circle at 30% 30%, #68707a, #353b45, #1e1e24) !important; border: 1px solid #1a1a24 !important; clip-path: none !important; border-radius: 50% !important; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.5), 2px 2px 4px rgba(0,0,0,0.4) !important; }
+             `;
             }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            window.showLeaderboard = function() {
-                openAppModal('leaderboard-modal');
-                if(window.socket && window.socket.connected) {
-                    window.socket.emit('getLeaderboard');
-                } else {
-                    populateLeaderboards(null, null);
-                }
-            };
-
-            setupSocketListeners();
-            let socketCheckInterval = setInterval(() => {
-                if (window.socket) {
-                    setupSocketListeners();
-                    clearInterval(socketCheckInterval);
-                }
-            }, 300);
         });
 
-        function getUserId() {
-            try {
-                let profile = JSON.parse(localStorage.getItem('hub_user_profile'));
-                return profile ? profile.id : guestId;
-            } catch(e) {
-                return guestId;
+        let styleEl = document.getElementById('dynamic-pieces-css');
+        if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-pieces-css'; document.head.appendChild(styleEl); }
+        styleEl.innerHTML = pieceStyles;
+    },
+
+    applyBoardThemeCSS(bgKey) {
+        const item = STORE_ITEMS[bgKey];
+        if (!item || item.type !== 'bg') return;
+
+        let styleEl = document.getElementById('dynamic-board-css');
+        if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-board-css'; document.head.appendChild(styleEl); }
+
+        if (item.isImage) {
+            styleEl.innerHTML = `
+                #board { 
+                    background-image: url('${item.imagePath}') !important; 
+                    background-size: 100% 100% !important; 
+                    background-position: center !important; 
+                    background-origin: content-box !important; 
+                    background-clip: content-box !important;   
+                }
+                .cell.light { background-color: transparent !important; border: none !important; transition: all 0.5s ease; }
+                .cell.dark { background-color: rgba(0,0,0,0.1) !important; border: none !important; transition: all 0.5s ease; }
+            `;
+        } else if (item.cssLight && item.cssDark) {
+            styleEl.innerHTML = `
+                #board { background-image: none !important; background-color: transparent !important; }
+                .cell.light { ${item.cssLight} !important; transition: all 0.5s ease; } 
+                .cell.dark { ${item.cssDark} !important; transition: all 0.5s ease; }
+            `;
+        } else {
+            document.documentElement.style.setProperty('--light-cell', item.light); document.documentElement.style.setProperty('--dark-cell', item.dark);
+            styleEl.innerHTML = '';
+        }
+    },
+
+    applyFrameThemeCSS(frKey) {
+        const item = STORE_ITEMS[frKey];
+        if (!item || item.type !== 'fr') return;
+
+        let styleEl = document.getElementById('dynamic-frame-css');
+        if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-frame-css'; document.head.appendChild(styleEl); }
+
+        if (item.customCSS) {
+            styleEl.innerHTML = item.customCSS;
+        } else {
+            styleEl.innerHTML = '';
+        }
+    },
+
+    applyScoreThemeCSS(scoreKey) {
+        const item = STORE_ITEMS[scoreKey];
+        const root = document.documentElement;
+        if (item && item.type === 'score') {
+            root.style.setProperty('--my-score-bg', item.scoreBg1 || 'rgba(30, 32, 40, 0.6)');
+            root.style.setProperty('--opp-score-bg', item.scoreBg2 || 'rgba(30, 32, 40, 0.6)');
+            root.style.setProperty('--my-score-border', item.scoreBorder1 || '1px solid rgba(255,255,255,0.08)');
+            root.style.setProperty('--opp-score-border', item.scoreBorder2 || '1px solid rgba(255,255,255,0.08)');
+        }
+    },
+
+    getProfile() {
+        let profile = null;
+        if (window.gameState && window.gameState.userProfile) {
+            profile = window.gameState.userProfile;
+        } else {
+            let p = localStorage.getItem('hub_user_profile');
+            if (p) {
+                try { profile = JSON.parse(p); } catch(e) {}
             }
         }
 
-        function fallbackCopyText(text, callback) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                if (callback) callback();
-            } catch (err) {
-                console.error('فشل في نسخ المعرف: ', err);
-            }
-            document.body.removeChild(textArea);
-        }
+        if (profile) {
+            if (!Array.isArray(profile.purchasedItems)) profile.purchasedItems = [];
+            
+            if (!profile.equippedBg || !STORE_ITEMS[profile.equippedBg]) profile.equippedBg = 'bg_wood';
+            if (!profile.equippedFr || !STORE_ITEMS[profile.equippedFr]) profile.equippedFr = 'fr_classic';
+            if (!profile.equippedPc || !STORE_ITEMS[profile.equippedPc]) profile.equippedPc = 'pc_original';
+            if (!profile.equippedScore || !STORE_ITEMS[profile.equippedScore]) profile.equippedScore = 'score_default';
 
-        window.copyMyId = function() {
-            const idText = document.getElementById('igp-id-display').innerText;
-            if (idText && idText !== '...') {
-                const showToast = () => {
-                    const toast = document.getElementById('toast-notification');
-                    if (toast) {
-                        toast.innerText = '📋 تم نسخ الـ ID بنجاح';
-                        toast.classList.add('show');
-                        setTimeout(() => toast.classList.remove('show'), 2500);
+            if (window.gameState) {
+                window.gameState.userProfile = profile;
+            }
+            return profile;
+        }
+        
+        return { purchasedItems: [], equippedPc: 'pc_original', equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedScore: 'score_default' };
+    },
+
+    buyItem(itemId) {
+        let profile = this.getProfile();
+        if (!profile || !profile.id) { return window['triggerCustomAlertNotification'] ? window['triggerCustomAlertNotification'](window['currentLang'] === 'ar' ? "يرجى تسجيل الدخول أولاً!" : "Please login first!") : alert("يرجى تسجيل الدخول أولاً!"); }
+        const item = STORE_ITEMS[itemId];
+        if (!item) return;
+        
+        if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](window['currentLang'] === 'ar' ? "جاري معالجة الشراء عبر السيرفر..." : "Processing purchase...");
+        if (window['socket'] && window['socket'].connected) { window['socket'].emit('requestPurchase', { userId: profile.id, itemId: itemId, cost: item.cost }); } 
+        else { if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](window['currentLang'] === 'ar' ? "أنت غير متصل بالسيرفر!" : "Not connected to server!"); }
+    },
+
+    equipItem(itemId) {
+        let profile = this.getProfile();
+        if (!profile || !profile.id) { return window['triggerCustomAlertNotification'] ? window['triggerCustomAlertNotification'](window['currentLang'] === 'ar' ? "يرجى تسجيل الدخول أولاً لاستخدام العناصر!" : "Please login first to equip items!") : alert("يرجى تسجيل الدخول أولاً!"); }
+        
+        const item = STORE_ITEMS[itemId];
+
+        if (window['socket'] && window['socket'].connected) { 
+            window['socket'].emit('requestEquip', { userId: profile.id, itemId: itemId, itemType: item ? item.type : 'pc' }); 
+        } else {
+            if (!item) return;
+            if (item.type === 'bg') { profile.equippedBg = itemId; } 
+            else if (item.type === 'fr') { profile.equippedFr = itemId; } 
+            else if (item.type === 'pc') { profile.equippedPc = itemId; }
+            else if (item.type === 'score') { profile.equippedScore = itemId; }
+            
+            if (window.gameState) {
+                window.gameState.userProfile = profile; 
+            }
+            if (window.applyTheme) {
+                window.applyTheme(profile);
+            }
+            
+            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+            this.renderUI();
+        }
+    },
+
+    renderUI() {
+        const storeBg = document.getElementById('store-section-bg'); 
+        const storeFr = document.getElementById('store-section-frames'); 
+        const storePc = document.getElementById('store-section-pieces');
+        const storeOffers = document.getElementById('store-section-offers');
+        const storeScore = document.getElementById('store-section-score'); 
+
+        const bagBg = document.getElementById('theme-grid-section-bg'); 
+        const bagFr = document.getElementById('theme-grid-section-frames'); 
+        const bagPc = document.getElementById('theme-grid-section-pieces');
+        const bagScore = document.getElementById('theme-grid-section-score'); 
+
+        if(storeBg) storeBg.innerHTML = ''; 
+        if(storeFr) storeFr.innerHTML = ''; 
+        if(storePc) storePc.innerHTML = '';
+        if(storeOffers) storeOffers.innerHTML = '';
+        if(storeScore) storeScore.innerHTML = '';
+
+        if(bagBg) bagBg.innerHTML = ''; 
+        if(bagFr) bagFr.innerHTML = ''; 
+        if(bagPc) bagPc.innerHTML = '';
+        if(bagScore) bagScore.innerHTML = '';
+
+        const profile = this.getProfile(); 
+        const isAr = window['currentLang'] !== 'en';
+        let storePcEmpty = true, storeBgEmpty = true, storeFrEmpty = true, storeScoreEmpty = true;
+
+        const sortedKeys = Object.keys(STORE_ITEMS).sort((a, b) => {
+            const itemA = STORE_ITEMS[a];
+            const itemB = STORE_ITEMS[b];
+            
+            const legA = itemA.isLegendary ? 1 : 0;
+            const legB = itemB.isLegendary ? 1 : 0;
+            if (legA !== legB) return legB - legA;
+            
+            const costA = itemA.cost || 0;
+            const costB = itemB.cost || 0;
+            return costB - costA;
+        });
+
+        sortedKeys.forEach(key => {
+            const item = STORE_ITEMS[key];
+            const targetSection = item.type; 
+            
+            const safePurchased = Array.isArray(profile.purchasedItems) ? profile.purchasedItems : [];
+            const isPurchased = item.isDefault || safePurchased.includes(key);
+            
+            const isEquipped = (profile.equippedBg === key || profile.equippedPc === key || profile.equippedFr === key || profile.equippedScore === key);
+            const name = isAr ? item.nameAr : item.nameEn;
+
+            const legendaryClassCard = item.isLegendary ? 'legendary-card' : ''; const legendaryClassIcon = item.isLegendary ? 'legendary-icon' : ''; const legendaryClassText = item.isLegendary ? 'legendary-text' : ''; const legendaryClassBtn = item.isLegendary ? 'legendary-btn' : '';
+            const legendaryTag = item.isLegendary ? `<span style="position: absolute; top: -5px; right: -5px; background: linear-gradient(45deg, #ff007f, #7f00ff); color: white; font-size: 10px; padding: 3px 8px; border-radius: 8px; font-weight: bold; box-shadow: 0 0 10px #ff007f;">أسطوري</span>` : '';
+            const legendaryBagBadge = item.isLegendary ? `<div style="font-size:10px; color:#ffd700; margin-bottom:5px; font-weight:bold;">★ أسطوري ★</div>` : '';
+
+            let visualHtml = '';
+            let bagVisualHtml = '';
+
+            if (item.isImage && item.type !== 'fr') {
+                let showImg = item.imagePathWhite || item.imagePath || '';
+                visualHtml = `<div style="width: 50px; height: 50px; border-radius: 8px; background-image: url('${showImg}'); background-size: cover; background-position: center; margin: 5px 0; border: ${item.isLegendary ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.1)'};" class="${legendaryClassIcon}"></div>`;
+            } else if (item.type === 'bg') {
+                let bgStyle = (item.cssLight && item.cssDark) ? `<div style="display:flex; flex:1;"><div style="flex:1; ${item.cssLight}"></div><div style="flex:1; ${item.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${item.cssDark}"></div><div style="flex:1; ${item.cssLight}"></div></div>` : `<div style="display:flex; flex:1; background:${item.light};"></div><div style="flex:1; background:${item.dark};"></div>`;
+                visualHtml = `<div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; margin: 5px 0; border: ${item.isLegendary ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.1)'};" class="${legendaryClassIcon}">${bgStyle}</div>`;
+            } else if (item.type === 'fr') {
+                let framePreview = '';
+                if (item.isImage) {
+                    framePreview = `<div style="width: 32px; height: 32px; background: rgba(0,0,0,0.7); background-clip: padding-box; border: 6px solid transparent; border-image: url('${item.imagePath}') 15% stretch;" class="${legendaryClassIcon}"></div>`;
+                } else {
+                    framePreview = `<div style="width: 32px; height: 32px; background: rgba(0,0,0,0.7); ${item.cssBoard || ''} border-width: 6px !important; border-radius: 4px;" class="${legendaryClassIcon}"></div>`;
+                }
+                visualHtml = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.08); border-radius: 8px; margin: 5px auto; border: ${item.isLegendary ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.2)'}; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                    ${framePreview}
+                </div>`;
+            } else if (item.type === 'pc') {
+                let customPcStyle = item.wCss ? item.wCss : '';
+                visualHtml = `<div style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; position: relative; ${customPcStyle}" class="${legendaryClassIcon}">${item.icon || ''}</div>`;
+            } else if (item.type === 'consumable') {
+                visualHtml = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: rgba(255,255,255,0.05); border-radius: 8px; margin: 5px 0; border: 1px solid rgba(255,255,255,0.1);" class="${legendaryClassIcon}">${item.icon || '💡'}</div>`;
+            } else if (item.type === 'score') {
+                visualHtml = `<div style="width: 80%; height: 35px; border-radius: 8px; margin: 10px auto; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.4);" class="${legendaryClassIcon}">
+                    <div style="flex: 1; background: ${item.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div>
+                    <div style="flex: 1; background: ${item.scoreBg1};"></div>
+                </div>`;
+            }
+
+            bagVisualHtml = visualHtml;
+
+            if (isPurchased) {
+                const gridItem = document.createElement('div');
+                gridItem.className = `theme-grid-item ${isEquipped ? 'active' : ''} ${legendaryClassCard}`;
+                gridItem.onclick = () => {
+                    this.equipItem(key);
+                    if (window.showEquipNotification) {
+                        window.showEquipNotification(item.type);
                     }
                 };
-
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(idText).then(showToast).catch(() => {
-                        fallbackCopyText(idText, showToast);
-                    });
-                } else {
-                    fallbackCopyText(idText, showToast);
+                
+                if (item.type === 'bg') {
+                    if (item.isImage) {
+                        bagVisualHtml = `<div class="theme-grid-preview ${legendaryClassIcon}" style="width: 50px; height: 50px; border-radius: 8px; background-image: url('${item.imagePath}'); background-size: cover; background-position: center; border: ${item.isLegendary ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.2)'}; box-shadow: 0 5px 15px rgba(0,0,0,0.5);"></div>`;
+                    } else {
+                        let bgStyle = (item.cssLight && item.cssDark) ? `<div style="display:flex; flex:1;"><div style="flex:1; ${item.cssLight}"></div><div style="flex:1; ${item.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${item.cssDark}"></div><div style="flex:1; ${item.cssLight}"></div></div>` : `<div style="display:flex; flex:1; background:${item.light};"></div><div style="flex:1; background:${item.dark};"></div>`;
+                        bagVisualHtml = `<div class="theme-grid-preview ${legendaryClassIcon}" style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: ${item.isLegendary ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.2)'}; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">${bgStyle}</div>`;
+                    }
                 }
-            }
-        };
-
-        window.showEquipNotification = function(itemType) {
-            const toast = document.getElementById('toast-notification');
-            if (!toast) return;
-            
-            let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
-            if (itemType === 'bg') msg = window.t ? window.t('toast_bg') : "تم تغيير الساحة بنجاح";
-            else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
-            else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
-            else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
-            
-            toast.innerText = '✨ ' + msg;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2500);
-        };
-
-        window.triggerCustomAlertNotification = function(msg) {
-            if (typeof showCustomAlert === 'function') {
-                showCustomAlert(msg);
+                
+                gridItem.innerHTML = `${legendaryBagBadge}${bagVisualHtml} <span class="theme-grid-title ${legendaryClassText}" style="margin-top:8px;">${name}</span>`;
+                
+                if (targetSection === 'bg' && bagBg) bagBg.appendChild(gridItem); 
+                else if (targetSection === 'fr' && bagFr) bagFr.appendChild(gridItem); 
+                else if (targetSection === 'pc' && bagPc) bagPc.appendChild(gridItem);
+                else if (targetSection === 'score' && bagScore) bagScore.appendChild(gridItem);
             } else {
-                const alertModal = document.getElementById('custom-alert-modal');
-                const alertMsg = document.getElementById('custom-alert-message');
-                const alertOk = document.getElementById('custom-alert-ok');
-                const alertCancel = document.getElementById('custom-alert-cancel');
-                if (alertModal && alertMsg && alertOk) {
-                    document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر';
-                    alertMsg.innerText = msg;
-                    if(alertCancel) alertCancel.style.display = 'none';
-                    openAppModal('custom-alert-modal'); 
-                    alertOk.onclick = () => closeAppModal('custom-alert-modal');
-                } else {
-                    alert(msg);
+                const storeCard = document.createElement('div');
+                storeCard.className = `store-item-card ${legendaryClassCard}`; storeCard.style.position = 'relative'; 
+                
+                if (item.hasPurpleBorder) {
+                    storeCard.style.border = '2px solid rgba(168, 85, 247, 0.4)'; 
+                    storeCard.style.boxShadow = '0 0 12px rgba(168, 85, 247, 0.15)';
+                }
+
+                storeCard.innerHTML = `${legendaryTag} <div class="${legendaryClassText}" style="color: white; font-weight: 600; font-size: 14px; text-align: center; margin-top: ${item.isLegendary ? '10px' : '0'};">${name}</div> ${visualHtml} <div style="color: #f5a623; font-size: 13px; font-weight: bold; margin-bottom: 2px; text-shadow: ${item.isLegendary ? '0 0 5px rgba(245,166,35,0.5)' : 'none'};">🪙 ${item.cost}</div>`;
+                
+                const buyBtn = document.createElement('button');
+                buyBtn.className = `store-buy-btn store-buy-btn-small ${legendaryClassBtn}`; buyBtn.innerText = isAr ? 'شراء' : 'Buy';
+                buyBtn.onclick = () => { 
+                    if (window['openPurchaseModal']) { 
+                        window['openPurchaseModal'](key, name, item.cost, item.type); 
+                    } else { 
+                        this.buyItem(key); 
+                    } 
+                };
+                
+                storeCard.appendChild(buyBtn);
+
+                if (targetSection === 'bg') { 
+                    if(storeBg) storeBg.appendChild(storeCard); storeBgEmpty = false; 
+                } else if (targetSection === 'fr') { 
+                    if(storeFr) storeFr.appendChild(storeCard); storeFrEmpty = false; 
+                } else if (targetSection === 'consumable') {
+                    if(storeOffers) storeOffers.appendChild(storeCard); 
+                } else if (targetSection === 'score') {
+                    if(storeScore) storeScore.appendChild(storeCard); storeScoreEmpty = false;
+                } else { 
+                    if(storePc) storePc.appendChild(storeCard); storePcEmpty = false; 
                 }
             }
-        }
+        });
 
-        function switchStoreTabCategory(category) {
-            const tabs = ['bg', 'frames', 'pieces', 'score', 'offers'];
-            tabs.forEach(tab => {
-                const btn = document.getElementById('store-btn-tab-' + tab);
-                const sec = document.getElementById('store-section-' + tab);
-                if(btn) btn.classList.remove('active');
-                if(sec) sec.style.display = 'none';
-            });
-            const activeBtn = document.getElementById('store-btn-tab-' + category);
-            const activeSec = document.getElementById('store-section-' + category);
-            if(activeBtn) activeBtn.classList.add('active');
-            if(activeSec) activeSec.style.display = 'grid';
-        }
+        if (storeBg && storeBgEmpty) storeBg.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
+        if (storeFr && storeFrEmpty) storeFr.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
+        if (storePc && storePcEmpty) storePc.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
+        if (storeScore && storeScoreEmpty) storeScore.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
+    },
 
-        function switchThemeGridTabCategory(category) {
-            const tabs = ['bg', 'frames', 'pieces', 'score'];
-            tabs.forEach(tab => {
-                const btn = document.getElementById('theme-btn-tab-' + tab);
-                const sec = document.getElementById('theme-grid-section-' + tab);
-                if(btn) btn.classList.remove('active');
-                if(sec) sec.style.display = 'none';
-            });
-            const activeBtn = document.getElementById('theme-btn-tab-' + category);
-            const activeSec = document.getElementById('theme-grid-section-' + category);
-            if(activeBtn) activeBtn.classList.add('active');
-            if(activeSec) activeSec.style.display = 'grid';
-        }
+    init() {
+        if (window.__STORE_RUNNING__) return;
+        window.__STORE_RUNNING__ = true;
 
-        window.triggerGridThemeChange = function(index, lightHex, darkHex) {
-            document.documentElement.style.setProperty('--light-cell', lightHex);
-            document.documentElement.style.setProperty('--dark-cell', darkHex);
-            
-            if (index !== -1) {
-                const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item');
-                items.forEach((item, idx) => {
-                    if (idx === index) item.classList.add('active');
-                    else item.classList.remove('active');
-                });
-            }
-            
-            let p = localStorage.getItem('hub_user_profile');
-            if (p && index !== -1) {
-                let prof = JSON.parse(p);
-                prof.equippedBg = null; 
-                localStorage.setItem('hub_user_profile', JSON.stringify(prof));
-                if(window.updateInventoryUI) window.updateInventoryUI();
+        this.injectLegendaryAnimations(); 
+        this.injectDynamicPieceStyles();
+        
+        this.startGapKiller();
+
+        let prof = this.getProfile();
+        if (prof) {
+            if (window.applyTheme) {
+                window.applyTheme(prof);
             }
         }
 
-        function forceLockedGlobalAvatar() {
-            let globalProfile = localStorage.getItem('hub_user_profile');
-            let avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/1000132081.webp"; 
-            let isImage = true;
+        let socketAttempts = 0; const maxAttempts = 20;
 
-            if (globalProfile) {
-                try {
-                    const parsedHub = JSON.parse(globalProfile);
-                    if (parsedHub.avatar) {
-                        avatarSrc = parsedHub.avatar;
+        const socketCheck = setInterval(() => {
+            socketAttempts++;
+            if (window['socket']) {
+                clearInterval(socketCheck); 
+                
+                window['socket'].off('profileUpdated'); 
+                window['socket'].off('purchaseFailed'); 
+                window['socket'].off('purchaseSuccess');
+                window['socket'].off('disconnect');
+                window['socket'].off('connect_error');
+                window['socket'].off('connect');
+                
+                window['socket'].on('disconnect', (reason) => {
+                    console.warn('Disconnected:', reason);
+                    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                        const title = window.gameState && window.gameState.lang === 'en' ? "Connection Lost" : "انقطاع الاتصال";
+                        const msg = window.gameState && window.gameState.lang === 'en' 
+                            ? "⚠️ Connection lost. Retrying..." 
+                            : "⚠️ عذراً، انقطع الاتصال بالخادم أو الإنترنت ضعيف. يرجى الانتظار، جاري محاولة إعادة الاتصال...";
                         
-                        const isExternalOrFb = avatarSrc.startsWith('http') || avatarSrc.startsWith('data:image');
-                        const isFilePath = avatarSrc.includes('.');
-
-                        if (!isExternalOrFb && isFilePath) {
-                            let baseName = avatarSrc.split('.')[0];
-                            avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/" + baseName + ".webp";
-                            isImage = true;
-                        } else if (!isExternalOrFb && !isFilePath) {
-                            isImage = false;
-                        } else {
-                            isImage = true;
-                        }
+                        window.ui.showCustomAlert(msg, title, null, false);
                     }
-                } catch(e) { console.error(e); }
-            }
-
-            const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
-            
-            targetAvatars.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                
-                if (isImage) {
-                    const existingImg = el.querySelector('img');
-                    if (!existingImg || existingImg.getAttribute('src') !== avatarSrc) {
-                        el.style.backgroundImage = 'none';
-                        el.innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
-                    }
-                } else {
-                    if (el.textContent !== avatarSrc) {
-                        el.innerHTML = '';
-                        el.textContent = avatarSrc;
-                    }
-                }
-            });
-        }
-
-        const avatarGuardObserver = new MutationObserver((mutations) => {
-            let shouldProtect = false;
-            for (let mutation of mutations) {
-                if (mutation.type === 'childList') {
-                    const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG');
-                    if (!hasImg && mutation.target.textContent !== "👤") {
-                        shouldProtect = true;
-                        break;
-                    }
-                }
-            }
-            if (shouldProtect) {
-                avatarGuardObserver.disconnect();
-                forceLockedGlobalAvatar();
-                startAvatarGuard();
-            }
-        });
-
-        function startAvatarGuard() {
-            const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
-            targets.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    avatarGuardObserver.observe(el, { childList: true, attributes: false });
-                }
-            });
-        }
-
-        window.applyProfileDataToUI = function(profile) {
-            const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
-            const currentId = profile.id || getUserId();
-            
-            const textElements = {
-                'badge-username-display-game': profile.name,
-                'card-my-name': profile.name,
-                'mm-my-name': profile.name,
-                'profile-stat-tokens-badge': currentTokens,
-                'profile-stat-tokens-store': currentTokens, 
-                'igp-name': profile.name,
-                'igp-id-display': currentId,
-                'igp-games': profile.games !== undefined ? profile.games : 0,
-                'igp-wins': profile.wins !== undefined ? profile.wins : 0,
-                'igp-losses': profile.losses !== undefined ? profile.losses : 0
-            };
-
-            for (let id in textElements) {
-                const el = document.getElementById(id);
-                if (el) { el.innerText = textElements[id]; }
-            }
-
-            forceLockedGlobalAvatar();
-            
-            if(window.updateInventoryUI) window.updateInventoryUI();
-
-            window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-        }
-
-        window.currentLang = 'ar';
-
-        const originalAudioPlay = HTMLAudioElement.prototype.play;
-        HTMLAudioElement.prototype.play = function() {
-            const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
-            this.volume = parseFloat(savedVol);
-            return originalAudioPlay.call(this);
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            let savedAppLang = localStorage.getItem('appLang') || localStorage.getItem('lang') || 'ar';
-            document.documentElement.lang = savedAppLang;
-            document.documentElement.dir = savedAppLang === 'ar' ? 'rtl' : 'ltr';
-            window.currentLang = savedAppLang;
-
-            window.addEventListener('message', (event) => {
-                if (!event.data) return;
-                
-                if (event.data.type === 'LANGUAGE_CHANGED') {
-                    const newLang = event.data.lang;
-                    document.documentElement.lang = newLang;
-                    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-                    window.currentLang = newLang;
-                    if (typeof window.updateUITranslations === 'function') {
-                        window.updateUITranslations();
-                    }
-                }
-                
-                if (event.data.type === 'PROFILE_UPDATED' && event.data.profile) {
-                    window.applyProfileDataToUI(event.data.profile);
-                }
-            });
-
-            let globalProfile = localStorage.getItem('hub_user_profile');
-            if (globalProfile) window.applyProfileDataToUI(JSON.parse(globalProfile));
-            
-            forceLockedGlobalAvatar();
-            startAvatarGuard();
-
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'hub_user_profile') {
-                    forceLockedGlobalAvatar();
-                }
-            });
-
-            const sfxSlider = document.getElementById('sfx-volume');
-            if(sfxSlider) {
-                const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
-                sfxSlider.value = savedVol;
-                
-                sfxSlider.addEventListener('input', (e) => {
-                    const vol = parseFloat(e.target.value);
-                    localStorage.setItem('sfx_volume', vol);
-                    localStorage.setItem('dama_sfx_volume', vol);
                 });
-            }
 
-            const btnSaveSettings = document.getElementById('save-settings-btn');
-            if(btnSaveSettings) {
-                btnSaveSettings.onclick = () => closeAppModal('settings-overlay');
-            }
-            
-            syncRadioStatusDot();
-        });
-
-        function uiStateChangeTracker() {
-            const matchCard = document.getElementById('match-players-card');
-            const isOnline = (matchCard && matchCard.style.display !== 'none');
-            
-            if (isOnline) {
-                document.body.classList.add('online-mode-active');
-            } else {
-                document.body.classList.remove('online-mode-active');
-            }
-        }
-        
-        window.addEventListener('popstate', uiStateChangeTracker);
-        document.addEventListener('click', () => setTimeout(uiStateChangeTracker, 50));
-
-        window.addEventListener('load', () => {
-            history.replaceState({ screen: 'dama-game' }, '');
-        });
-
-        window.addEventListener('popstate', function(event) {
-            if (window.modalStack.length > 0) {
-                const topModalId = window.modalStack.pop();
-                const topModal = document.getElementById(topModalId);
-                if (topModal) topModal.style.display = 'none';
-                return; 
-            }
-
-            if (window.isMatchRunning) {
-                const resignBtn = document.getElementById('resign-btn');
-                if (resignBtn) resignBtn.click();
-                history.pushState({ screen: 'dama-game' }, ''); 
-                return;
-            }
-
-            if (window.ui && window.ui.showCustomAlert) {
-                window.ui.showCustomAlert(
-                    window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟",
-                    window.t ? window.t('confirm_exit_title') : "تأكيد الخروج",
-                    () => { window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); },
-                    true, "إلغاء", "تأكيد"
-                );
-            }
-            history.pushState({ screen: 'dama-game' }, '');
-        });
-
-        window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
-            const nameEl = document.getElementById('modal-item-name');
-            const costEl = document.getElementById('modal-item-cost');
-            const previewEl = document.getElementById('modal-item-preview');
-            const buyBtn = document.getElementById('confirm-buy-btn');
-
-            nameEl.innerText = itemName;
-            costEl.innerText = '🪙 ' + cost;
-            
-            const itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null;
-
-            previewEl.innerHTML = ''; 
-            previewEl.style.background = 'rgba(255,255,255,0.05)';
-            previewEl.style.backgroundImage = 'none';
-
-            if(itemData) {
-                previewEl.style.border = itemData.isLegendary ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.1)';
-                previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
-
-                if (itemData.isImage) {
-                    let imgUrl = itemData.imagePath || itemData.imagePathWhite || '';
-                    previewEl.style.backgroundImage = `url('${imgUrl}')`;
-                    previewEl.style.backgroundSize = 'cover';
-                    previewEl.style.backgroundPosition = 'center';
-                } else if(itemType === 'pc') {
-                    previewEl.innerHTML = itemData.icon || '💎';
-                } else if(itemType === 'score') {
-                    // شكل مصغر لشريط الأحجار المزدوج الألوان داخل نافذة الشراء
-                    previewEl.innerHTML = `<div style="width: 80%; height: 35px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2);">
-                        <div style="flex: 1; background: ${itemData.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div>
-                        <div style="flex: 1; background: ${itemData.scoreBg1};"></div>
-                    </div>`;
-                } else if(itemType === 'bg' || itemType === 'fr') {
-                    if (itemData.cssLight && itemData.cssDark) {
-                        previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`;
-                    } else if (itemData.cssBoard) {
-                        previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`;
-                    } else {
-                        previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`;
+                window['socket'].on('connect_error', (err) => {
+                    console.warn('Connection Error:', err);
+                    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                        const title = window.gameState && window.gameState.lang === 'en' ? "Connection Error" : "ضعف الإنترنت";
+                        const msg = window.gameState && window.gameState.lang === 'en' 
+                            ? "⚠️ Internet connection is weak. Retrying..." 
+                            : "⚠️ جاري محاولة استعادة الاتصال بالإنترنت، يرجى الانتظار...";
+                        
+                        window.ui.showCustomAlert(msg, title, null, false);
                     }
-                }
-            } else {
-                previewEl.innerHTML = '🎁';
-                previewEl.className = 'purchase-preview-box';
-            }
+                });
 
-            buyBtn.onclick = () => {
-                closeAppModal('purchase-modal'); 
+                window['socket'].on('connect', () => {
+                    console.log('Connected to server successfully');
+                    if (window.ui && typeof window.ui.setDisplay === 'function') {
+                        window.ui.setDisplay('custom-alert-modal', 'none');
+                    } else if (typeof window.closeAppModal === 'function') {
+                        window.closeAppModal('custom-alert-modal');
+                    }
+                });
+
+                window['socket'].on('profileUpdated', (updatedProfile) => {
+                    localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
+                    
+                    if (window.gameState) {
+                        window.gameState.userProfile = updatedProfile; 
+                    }
+
+                    if (window['applyProfileDataToUI']) window['applyProfileDataToUI'](updatedProfile);
+                    
+                    if (window.applyTheme) {
+                        window.applyTheme(updatedProfile);
+                    }
+                    this.renderUI();
+                });
                 
-                setTimeout(() => {
-                    if (window.socket && typeof getUserId === 'function' && window.socket.connected) {
-                        window.socket.emit('requestPurchase', { 
-                            userId: getUserId(), 
-                            itemId: itemId 
-                        });
-                    } else {
-                        const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً.";
-                        if (typeof triggerCustomAlertNotification === 'function') {
-                            triggerCustomAlertNotification(msg);
-                        } else {
-                            alert(msg);
-                        }
-                    }
-                }, 120);
-            };
-
-            openAppModal('purchase-modal');
-        };
-
-        function syncRadioStatusDot() {
-            const statusDot = document.getElementById('dama-radio-status');
-            if (statusDot) {
-                const isPlaying = localStorage.getItem('hub_music_enabled') === 'true';
-                if (isPlaying) {
-                    statusDot.classList.add('active');
-                } else {
-                    statusDot.classList.remove('active');
-                }
+                window['socket'].on('purchaseFailed', (msg) => { 
+                    if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
+                });
+                
+                window['socket'].on('purchaseSuccess', (msg) => { 
+                    if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
+                });
+                
+            } else if (socketAttempts >= maxAttempts) { 
+                clearInterval(socketCheck); 
+                console.warn("Store.js: لم يتم العثور على السوكيت بعد 10 ثوانٍ. سيعمل المتجر في وضع الأوفلاين."); 
             }
-        }
+        }, 500);
 
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'hub_music_enabled') {
-                syncRadioStatusDot();
-            }
-        });
+        setTimeout(() => { this.renderUI(); }, 200);
+    }
+};
 
-        setInterval(syncRadioStatusDot, 1000);
+window.storeManager = storeManager;
 
-    </script>
-    
-    <script>
-        function syncGlobalBackground() {
-            const bg = localStorage.getItem('app_background') || localStorage.getItem('hub_background') || localStorage.getItem('site_bg');
-            if (bg) {
-                if (bg.startsWith('http') || bg.startsWith('data:') || bg.includes('.')) {
-                    document.body.style.backgroundImage = `url('${bg}')`;
-                    document.body.style.backgroundSize = 'cover';
-                    document.body.style.backgroundPosition = 'center';
-                    document.body.style.backgroundAttachment = 'fixed';
-                    document.body.style.backgroundColor = 'transparent';
-                } else {
-                    document.body.style.background = bg;
-                    document.body.style.backgroundImage = 'none';
-                }
-            } else {
-                document.body.style.backgroundColor = '#2c3e50';
-                document.body.style.backgroundImage = 'none';
-            }
-        }
-        
-        document.addEventListener('DOMContentLoaded', syncGlobalBackground);
-        
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'app_background' || e.key === 'hub_background' || e.key === 'site_bg') {
-                syncGlobalBackground();
-            }
-        });
-        
-        window.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'BACKGROUND_CHANGED' && event.data.bg) {
-                localStorage.setItem('app_background', event.data.bg);
-                syncGlobalBackground();
-            }
-        });
-    </script>
-
-    <script type="module">
-        import { storeManager } from './store.js?v=999';
-        document.addEventListener('DOMContentLoaded', () => {
-            storeManager.init();
-        });
-    </script>
-
-    <script type="module" src="main.js"></script>
-
-    <script>
-        function requestFullScreen() {
-            const element = document.documentElement;
-            if (element.requestFullscreen) {
-                element.requestFullscreen().catch(err => console.warn("Fullscreen Error:", err));
-            } else if (element.webkitRequestFullscreen) { 
-                element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) { 
-                element.msRequestFullscreen();
-            }
-        }
-        ['click', 'touchstart'].forEach(eventType => {
-            document.body.addEventListener(eventType, requestFullScreen, { once: true });
-        });
-    </script>
-</body>
-</html>
+window.applyTheme = function(profile) {
+    if (!profile) return;
+    if (profile.equippedBg) {
+        storeManager.applyBoardThemeCSS(profile.equippedBg);
+    }
+    if (profile.equippedFr) {
+        storeManager.applyFrameThemeCSS(profile.equippedFr);
+    }
+    if (profile.equippedPc) {
+        document.body.setAttribute('data-piece-style', profile.equippedPc);
+    }
+    if (profile.equippedScore) {
+        storeManager.applyScoreThemeCSS(profile.equippedScore);
+    }
+};
