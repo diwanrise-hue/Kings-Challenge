@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="theme-color" content="#050507">
+    <link class="apple-touch-icon" href="1000127272.webp">
+    
+    <title>Dama Challenge - Premium Hub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
+    <script src="radio.js" defer></script>
+
+    <style>
+        /* ========================================== */
+        /* المتغيرات والتصميم النظيف (Clean)   */
+        /* ========================================== */
+        :root {
+            --bg-deep: #050507;
+            --glass-bg: rgba(25, 25, 30, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            
+            --accent: #f5a623; /* لون ذهبي أنيق */
+            --danger: #ff453a;
+            
+            --radius-pill: 50px;
+            --radius-card: 24px;
+            
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        html[lang="ar"], html[lang="ku"] { font-family: 'Tajawal', sans-serif; }
+        html[lang="en"] { font-family: 'Outfit', sans-serif; }
+
+        body, html { 
+            margin: 0; padding: 0; height: 100%; 
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at 50% 0%, #1a1a24 0%, var(--bg-deep) 80%);
+            color: var(--text-primary);
+            overflow: hidden; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+
+        /* تأثيرات الدخول الناعمة */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========================================== */
+        /* شاشة الافتتاحية              */
+        /* ========================================== */
+        #splash-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg-deep); z-index: 99999; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; text-align: center; 
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+        #splash-screen svg { fill: var(--accent); width: 60px; height: 60px; margin-bottom: 20px; }
+        #splash-screen h1 { 
+            font-size: 24px; font-weight: 800; margin: 0; 
+            letter-spacing: 3px; color: var(--text-primary);
+        }
+
+        /* ========================================== */
+        /* المنصة الرئيسية               */
+        /* ========================================== */
+        #game-selector { 
+            display: none; width: 100%; height: 100%; 
+            flex-direction: column; justify-content: center; align-items: center; gap: 40px; 
+            position: absolute; top: 0; left: 0; z-index: 10;
+        }
+
+        /* الشريط العلوي */
+        .top-hud {
+            position: absolute; top: 30px; left: 25px; right: 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 20;
+        }
+        .hud-group { display: flex; align-items: center; gap: 12px; }
+
+        /* الأفتار الدائري النظيف */
+        .profile-avatar { 
+            width: 46px; height: 46px; border-radius: 50%; 
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; overflow: hidden; transition: var(--transition);
+        }
+        .profile-avatar:hover { transform: scale(1.05); border-color: rgba(255,255,255,0.2); }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+        /* كبسولة التوكنات الانسيابية */
+        .hub-token-badge {
+            height: 46px; background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: var(--radius-pill); 
+            display: flex; align-items: center; padding: 0 20px; 
+            color: var(--accent); font-weight: 600; font-size: 15px; 
+            direction: ltr; transition: var(--transition); gap: 8px;
+        }
+
+        /* زر الخيارات الجديد (بديل زر اللغة) */
+        .options-btn {
+            height: 46px; padding: 0 20px; background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 25px;
+            display: flex; align-items: center; justify-content: center; color: var(--text-primary);
+            font-weight: 600; font-size: 14px; cursor: pointer; transition: var(--transition); gap: 8px;
+        }
+        .options-btn:hover { background: rgba(255,255,255,0.08); transform: scale(1.02); }
+
+        /* ========================================== */
+        /* النافذة الجانبية للخيارات      */
+        /* ========================================== */
+        .side-panel-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            z-index: 100000; opacity: 0; visibility: hidden; transition: all 0.3s ease;
+        }
+        .side-panel-overlay.open { opacity: 1; visibility: visible; }
+        
+        .side-panel {
+            position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
+            background: rgba(15, 15, 20, 0.95); backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255,255,255,0.1); box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+            z-index: 100001; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box;
+        }
+        html[dir="ltr"] .side-panel { right: auto; left: -280px; border-left: none; border-right: 1px solid rgba(255,255,255,0.1); }
+        .side-panel-overlay.open .side-panel { right: 0; }
+        html[dir="ltr"] .side-panel-overlay.open .side-panel { left: 0; right: auto; }
+
+        .side-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .side-panel-title { color: #fff; font-size: 18px; font-weight: 700; margin: 0; }
+        .side-panel-close { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: white; font-size: 16px; cursor: pointer; transition: 0.3s; padding: 0; }
+        .side-panel-close:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
+
+
+        /* ========================================== */
+        /* كروت الألعاب                */
+        /* ========================================== */
+        .cards-container { display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; }
+
+        /* كرت الدامة */
+        .dama-card { 
+            width: 85%; max-width: 320px; height: 130px; 
+            border-radius: var(--radius-card); cursor: pointer; 
+            position: relative; overflow: hidden; 
+            border: 1px solid rgba(255,255,255,0.1); background: #111;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            transition: var(--transition);
+            display: flex; align-items: flex-end; justify-content: center;
+        }
+        
+        .dama-card img.card-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; transition: transform 0.5s ease; z-index: 1;
+            opacity: 0.85;
+        }
+        
+        .dama-card::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+            z-index: 2;
+        }
+
+        .dama-card-content {
+            position: relative; z-index: 3; padding-bottom: 20px; text-align: center; width: 100%;
+        }
+        .dama-card span {
+            color: #fff; font-size: 32px; font-weight: 800; 
+            letter-spacing: 1px; text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            transition: var(--transition);
+        }
+
+        .dama-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+        .dama-card:hover img.card-bg { transform: scale(1.05); opacity: 1; }
+        .dama-card:hover span { color: var(--accent); }
+
+        /* كرت (قريباً) */
+        .game-card-soon { 
+            width: 85%; max-width: 320px; padding: 22px; 
+            background: rgba(255,255,255,0.02); color: var(--text-secondary); 
+            border-radius: var(--radius-card); text-align: center; 
+            border: 1px solid rgba(255,255,255,0.05); cursor: pointer; 
+            transition: var(--transition); font-size: 18px; font-weight: 500; 
+        }
+        .game-card-soon:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+
+        /* ========================================== */
+        /* واجهة اللعب (Iframe)          */
+        /* ========================================== */
+        #game-interface { 
+            display: none; 
+            width: 100vw; 
+            height: 100dvh; 
+            background: #000; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            z-index: 99999; 
+        }
+
+        /* ========================================== */
+        /* النوافذ المنبثقة (Clean Modals)   */
+        /* ========================================== */
+        .modal-overlay { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); z-index: 99998; 
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        
+        .settings-card { 
+            background: #111115; 
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 30px; 
+            padding: 25px 20px; 
+            width: 100%; max-width: 350px; 
+            text-align: center; max-height: 95vh; overflow-y: auto; color: white;
+            position: relative; animation: fadeIn 0.4s ease-out;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+        }
+        .settings-card::-webkit-scrollbar { display: none; }
+
+        .modal-close-btn {
+            position: absolute; top: 20px; left: 20px; background: transparent; 
+            border: none; color: var(--text-secondary); width: 30px; height: 30px; 
+            font-size: 18px; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: var(--transition);
+        }
+        .modal-close-btn:hover { color: var(--text-primary); }
+
+        .settings-card h3 { color: var(--text-primary); font-size: 22px; font-weight: 700; margin: 0 0 5px 0; }
+        .settings-card p.desc { color: var(--text-secondary); font-size: 13px; margin-bottom: 15px; line-height: 1.5; }
+
+        .input-group { text-align: start; margin-bottom: 15px; }
+        .settings-label { display: block; color: var(--text-secondary); font-size: 13px; font-weight: 500; margin-bottom: 6px; padding: 0 5px; }
+        
+        .clean-input { 
+            width: 100%; height: 46px; 
+            padding: 0 20px; border-radius: var(--radius-pill); 
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); 
+            color: var(--text-primary); font-weight: 500; font-size: 15px; 
+            transition: var(--transition);
+        }
+        .clean-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.06); }
+        .clean-input::placeholder { color: rgba(255,255,255,0.2); }
+
+        select.clean-input { 
+            appearance: none; 
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); 
+            background-repeat: no-repeat; background-position: left 1.2rem center; background-size: 1em; 
+        }
+        html[dir="ltr"] select.clean-input { background-position: right 1.2rem center; }
+        select.clean-input option { background: #111; color: white; }
+
+        .btn { 
+            width: 100%; height: 46px; border: none; border-radius: var(--radius-pill); 
+            font-weight: 600; font-size: 15px; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: var(--transition); margin-bottom: 10px;
+        }
+        .btn:active { transform: scale(0.97); }
+        
+        .btn-primary { background: var(--text-primary); color: #000; }
+        .btn-primary:hover { opacity: 0.9; }
+        
+        .btn-secondary { background: rgba(255,255,255,0.08); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.05); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+        
+        .btn-danger { background: rgba(255, 69, 58, 0.1); color: var(--danger); border: 1px solid rgba(255, 69, 58, 0.2); }
+        .btn-danger:hover { background: rgba(255, 69, 58, 0.2); }
+
+        /* ========================================== */
+        /* تنسيقات الملف الشخصي             */
+        /* ========================================== */
+        .profile-display-avatar {
+            width: 85px; height: 85px; margin: 0 auto 15px auto; 
+            border-radius: 50%; padding: 3px; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .profile-display-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        
+        #profile-display-name { color: var(--text-primary); margin: 0 0 5px 0; font-size: 24px; font-weight: 700; }
+        
+        .profile-id-box { font-size: 14px; margin-bottom: 30px; color: var(--text-secondary); }
+        #profile-display-id { color: var(--text-primary); font-weight: 500; cursor: pointer; transition: var(--transition); padding: 5px; }
+        #profile-display-id:hover { color: var(--accent); }
+
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 30px; }
+        .action-grid .btn { height: 48px; font-size: 13px; font-weight: 500; margin: 0; }
+        .action-grid .full-width { grid-column: span 2; }
+
+        .stats-box { 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 20px; padding: 20px; 
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px;
+        }
+        .stats-box span:first-child { color: var(--text-secondary); font-size: 14px; font-weight: 500; }
+        .stats-box span:last-child { color: var(--accent); font-size: 20px; font-weight: 700; }
+
+        .bottom-actions { display: flex; gap: 10px; }
+        .bottom-actions .btn { height: 48px; margin: 0; font-size: 14px; }
+
+        #custom-popup-modal .settings-card { padding: 35px 25px; border: 1px solid rgba(255,255,255,0.1); }
+        #custom-popup-msg { font-size: 15px; font-weight: 500; color: var(--text-primary); line-height: 1.6; margin-bottom: 25px; }
+
+        .auth-toggle-link {
+            display: inline-block; margin-top: 5px; font-size: 13px; font-weight: 600;
+            color: var(--accent); cursor: pointer; transition: var(--transition); text-decoration: none;
+        }
+        .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }    
+    </style>
+</head>
+<body>
+      
+    <div id="splash-screen">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM5 18H19V20H5V18Z"/>
+        </svg>
+        <h1 data-i18n="app_title">DAMA CHALLENGE</h1>
+    </div>
+
+    <div id="game-selector">
+        <div class="top-hud">
+            <div class="hud-group">
+                <div class="profile-avatar" id="hub-profile-avatar" onclick="openProfileModal()"></div>
+                <div class="hub-token-badge">
+                    🪙 <span id="hub-token-count">0</span>
+                </div>
+            </div>
+            
+            <!-- زر الخيارات بدلاً من زر اللغة -->
+            <div style="display: flex; gap: 12px; align-items: center; position: relative;">
+                <div class="options-btn" onclick="openOptionsPanel()" id="options-toggle-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    <span data-i18n="options_title">خيارات</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- النافذة الجانبية للخيارات -->
+        <div id="options-side-overlay" class="side-panel-overlay" onclick="if(event.target === this) closeOptionsPanel()">
+            <div class="side-panel">
+                <div class="side-panel-header">
+                    <h3 class="side-panel-title" data-i18n="options_title">الخيارات</h3>
+                    <button class="side-panel-close" onclick="closeOptionsPanel()">✕</button>
+                </div>
+                
+                <!-- قسم تغيير الخلفية -->
+                <div style="margin-bottom: 30px;">
+                    <label class="settings-label" data-i18n="change_bg_label" style="font-size: 15px; margin-bottom: 12px; color: white;">إعدادات الخلفية</label>
+                    <button class="btn btn-secondary" onclick="document.getElementById('upload-bg-img').click()" data-i18n="btn_upload_bg">اختر صورة من جهازك</button>
+                    <input type="file" id="upload-bg-img" accept="image/*" style="display: none;" onchange="changeGlobalBackground(event)">
+                    
+                    <button class="btn btn-danger" onclick="resetGlobalBackground()" data-i18n="btn_reset_bg" style="margin-top: 10px; height: 40px; font-size: 13px; background: rgba(255, 255, 255, 0.05); border-color: rgba(255,255,255,0.1); color: var(--text-secondary);">استعادة الخلفية الافتراضية</button>
+                </div>
+
+                <!-- قسم تغيير اللغة -->
+                <div>
+                    <label class="settings-label" data-i18n="change_lang_label" style="font-size: 15px; margin-bottom: 12px; color: white;">إعدادات اللغة</label>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <button class="btn btn-secondary" onclick="selectLanguage('ar')">عربي</button>
+                        <button class="btn btn-secondary" onclick="selectLanguage('en')">English</button>
+                        <button class="btn btn-secondary" onclick="selectLanguage('ku')">کوردی</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards-container">
+            <div class="dama-card" onclick="startGame()">
+                <img src="1000138342.webp" alt="Dama Game" class="card-bg">
+                <div class="dama-card-content">
+                    <span id="dama-title-text" data-i18n="dama">دامة</span>
+                </div>
+            </div>
+            
+            <div class="game-card-soon" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</div>
+        </div>
+    </div>
+
+    <div id="game-interface">
+        <iframe id="game-frame" src="" allowfullscreen allow="fullscreen" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
+    </div>
+
+    <div id="custom-popup-modal" class="modal-overlay" style="z-index: 99999;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <p id="custom-popup-msg"></p>
+            <div class="input-group" id="custom-popup-input-group" style="display: none; margin-bottom: 25px;">
+                <input type="text" id="custom-popup-input" class="clean-input" style="text-align: center;">
+            </div>
+            <div style="display: flex; gap: 10px; width: 100%;">
+                <button id="custom-popup-ok" class="btn btn-primary" style="flex: 1; margin:0;" data-i18n="btn_ok">حسناً</button>
+                <button id="custom-popup-cancel" class="btn btn-secondary" style="flex: 1; display: none; margin:0;" data-i18n="btn_cancel">إلغاء</button>
+            </div>
+        </div>
+    </div>
+      
+    <div id="login-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto">
+            <h3 id="auth-modal-title" data-i18n="register_tab_title">إنشاء حساب</h3>
+            <p id="auth-modal-desc" class="desc" data-i18n="register_tab_desc">أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.</p>
+            
+            <div class="input-group">
+                <label class="settings-label" data-i18n="login_name_label">الاسم</label>
+                <input type="text" id="login-name-input" class="clean-input" data-i18n-placeholder="login_name_placeholder" placeholder="اكتب اسمك هنا">
+            </div>
+
+            <div class="input-group">
+                <label class="settings-label">كلمة المرور / Password</label>
+                <input type="password" id="login-password-input" class="clean-input" placeholder="••••••••">
+            </div>
+
+            <div class="input-group" id="avatar-select-group">
+                <label class="settings-label" data-i18n="login_avatar_label">الشخصية</label>
+                <select id="login-avatar-select" class="clean-input">
+                    <option value="1000132081.webp" data-i18n="avatar_1">الملك الشاب</option>
+                    <option value="1000132078.webp" data-i18n="avatar_2">الرجل الكردي</option>
+                    <option value="1000132080.webp" data-i18n="avatar_3">الملكة</option>
+                    <option value="1000132082.webp" data-i18n="avatar_4">الملك المسن</option>
+                    <option value="1000132077.webp" data-i18n="avatar_5">الرجل العربي</option>
+                    <option value="1000132079.webp" data-i18n="avatar_6">الأميرة الشقراء</option>
+                </select>
+            </div>
+            
+            <button id="auth-primary-submit-btn" onclick="submitManualAuthForm()" class="btn btn-primary" data-i18n="register_tab_btn">متابعة</button>
+
+            <button onclick="loginWithFacebook()" class="btn" style="background:#1877f2; color:white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-bottom: 10px;">
+                <svg style="width:20px; height:20px; margin-left:8px; fill:currentColor;" viewBox="0 0 24 24">
+                    <path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/>
+                </svg>
+                <span data-i18n="login_facebook_btn">تسجيل الدخول بـ فيسبوك</span>
+            </button>
+
+            <button onclick="loginAsGuest()" class="btn btn-secondary" data-i18n="login_guest">دخول كزائر</button>
+            
+            <div id="auth-toggle-mode-link" class="auth-toggle-link" onclick="toggleAuthMode()" data-i18n="register_tab_toggle">امتلك حساباً بالفعل؟ تسجيل الدخول</div>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto">
+            <button class="modal-close-btn" onclick="closeProfileModal()">✕</button>
+
+            <h3 data-i18n="profile_title" style="margin-bottom: 25px;">الملف الشخصي</h3>
+            
+            <div class="profile-display-avatar" id="profile-display-avatar"></div>
+            
+            <h4 id="profile-display-name">الاسم</h4>
+            
+            <div class="profile-id-box">
+                <span data-i18n="profile_id">المعرف:</span> 
+                <span id="profile-display-id" onclick="copyPlayerID()" title="نسخ المعرف">#00000</span>
+            </div>
+
+            <div class="action-grid">
+                <select id="edit-avatar-select" class="btn btn-secondary" onchange="changeAvatarFromDropdown(this.value)">
+                    <option value="" disabled selected data-i18n="profile_change_avatar">الشخصية</option>
+                    <option value="1000132081.webp" data-i18n="avatar_1">الملك الشاب</option>
+                    <option value="1000132078.webp" data-i18n="avatar_2">الرجل الكردي</option>
+                    <option value="1000132080.webp" data-i18n="avatar_3">الملكة</option>
+                    <option value="1000132082.webp" data-i18n="avatar_4">الملك المسن</option>
+                    <option value="1000132077.webp" data-i18n="avatar_5">الرجل العربي</option>
+                    <option value="1000132079.webp" data-i18n="avatar_6">الأميرة الشقراء</option>
+                </select>
+                
+                <button onclick="document.getElementById('upload-phone-img').click()" class="btn btn-secondary" data-i18n="profile_phone_img">المعرض</button>
+                <input type="file" id="upload-phone-img" accept="image/*" style="display: none;" onchange="uploadImageFromPhone(event)">
+                
+                <button onclick="changePlayerName()" class="btn btn-secondary full-width" data-i18n="profile_change_name">تغيير الاسم</button>
+            </div>
+
+            <div class="stats-box">
+                <span data-i18n="profile_balance">🪙 الرصيد الكلي:</span>
+                <span id="profile-stat-tokens">0</span>
+            </div>
+
+            <div class="bottom-actions">
+                <button onclick="triggerLogout()" class="btn btn-danger" style="flex:1;" data-i18n="profile_logout">تسجيل الخروج</button>
+            </div>
+
+            <button id="link-facebook-guest-btn" onclick="linkGuestWithFacebook()" class="btn" style="background:#1877f2; color:white; display:none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: 15px;">
+                <svg style="width:20px; height:20px; margin-left:8px; fill:currentColor;" viewBox="0 0 24 24">
+                    <path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/>
+                </svg>
+                <span data-i18n="link_facebook_btn">حفظ الحساب عبر فيسبوك</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // === تهيئة Facebook SDK ===
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '2054342995162540', 
+                cookie     : true,
+                xfbml      : true,
+                version    : 'v18.0'
+            });
+        };
+
+        (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        // === قاموس اللغات الشامل ===
+        const translations = {
+            ar: {
+                app_title: "DAMA CHALLENGE",
+                dama: "دامة",
+                soon: "قريباً",
+                options_title: "خيارات",
+                change_bg_label: "إعدادات الخلفية",
+                btn_upload_bg: "اختر صورة من جهازك",
+                btn_reset_bg: "استعادة الخلفية الافتراضية",
+                change_lang_label: "إعدادات اللغة",
+                msg_bg_success: "تم تغيير الخلفية بنجاح.",
+                msg_bg_reset: "تمت استعادة الخلفية الافتراضية.",
+                login_name_label: "الاسم",
+                login_name_placeholder: "اكتب اسمك هنا",
+                login_avatar_label: "الشخصية",
+                avatar_1: "الملك الشاب",
+                avatar_2: "الرجل الكردي",
+                avatar_3: "الملكة",
+                avatar_4: "الملك المسن",
+                avatar_5: "الرجل العربي",
+                avatar_6: "الأميرة الشقراء",
+                login_guest: "دخول كزائر",
+                login_facebook_btn: "تسجيل الدخول بـ فيسبوك",
+                link_facebook_btn: "حفظ الحساب عبر فيسبوك",
+                profile_title: "الملف الشخصي",
+                profile_id: "المعرف:",
+                profile_change_name: "تغيير الاسم",
+                profile_change_avatar: "الشخصية",
+                profile_phone_img: "المعرض",
+                profile_balance: "🪙 الرصيد الكلي:",
+                profile_logout: "تسجيل الخروج",
+                btn_ok: "حسناً",
+                btn_cancel: "إلغاء",
+                token_word: " توكن",
+                msg_soon: "سيتم إضافة ألعاب وتحديات جديدة قريباً.",
+                msg_no_name: "يرجى كتابة الاسم أولاً للبدء.",
+                msg_no_pass: "يرجى كتابة كلمة المرور للاتصال الآمن.",
+                msg_prompt_name: "أدخل الاسم الجديد:",
+                msg_copy_success: "تم نسخ المعرف: ",
+                msg_copy_fail: "يرجى التحديد والنسخ يدوياً.",
+                msg_avatar_success: "تم تحديث الشخصية بنجاح.",
+                msg_img_success: "تم تعيين الصورة بنجاح.",
+                msg_logout_confirm: "هل أنت متأكد من تسجيل الخروج ومسح بيانات الحساب؟",
+                guest_name: "زائر_",
+                msg_disconnect: "⚠️ عذراً، انقطع الاتصال بالخادم أو الإنترنت ضعيف. يرجى الانتظار، جاري محاولة إعادة الاتصال...",
+                msg_fb_connect: "جاري الاتصال بخوادم فيسبوك، جرب مرة أخرى.",
+                msg_server_fail: "فشل الاتصال بالسيرفر! جاري المحاولة...",
+                login_tab_title: "تسجيل الدخول",
+                login_tab_desc: "أدخل اسم المستخدم وكلمة المرور للعودة لرصيدك المزامَن.",
+                login_tab_btn: "تسجيل الدخول",
+                login_tab_toggle: "لا تملك حساباً؟ إنشاء حساب جديد",
+                register_tab_title: "إنشاء حساب",
+                register_tab_desc: "أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.",
+                register_tab_btn: "متابعة",
+                register_tab_toggle: "امتلك حساباً بالفعل؟ تسجيل الدخول"
+            },
+            en: {
+                app_title: "DAMA CHALLENGE",
+                dama: "Dama",
+                soon: "Soon",
+                options_title: "Options",
+                change_bg_label: "Background Settings",
+                btn_upload_bg: "Select from device",
+                btn_reset_bg: "Restore Default",
+                change_lang_label: "Language Settings",
+                msg_bg_success: "Background changed successfully.",
+                msg_bg_reset: "Default background restored.",
+                login_name_label: "Name",
+                login_name_placeholder: "Type your name",
+                login_avatar_label: "Avatar",
+                avatar_1: "Young King",
+                avatar_2: "Kurdish Man",
+                avatar_3: "Queen",
+                avatar_4: "Old King",
+                avatar_5: "Arab Man",
+                avatar_6: "Blonde Princess",
+                login_guest: "Guest Login",
+                login_facebook_btn: "Sign in with Facebook",
+                link_facebook_btn: "Save Account via Facebook",
+                profile_title: "Profile",
+                profile_id: "ID:",
+                profile_change_name: "Change Name",
+                profile_change_avatar: "Avatar",
+                profile_phone_img: "Gallery",
+                profile_balance: "🪙 Total Balance:",
+                profile_logout: "Logout",
+                btn_ok: "OK",
+                btn_cancel: "Cancel",
+                token_word: " Tokens",
+                msg_soon: "New games and challenges coming soon.",
+                msg_no_name: "Please enter a name to start.",
+                msg_no_pass: "Please type your password for authentication.",
+                msg_prompt_name: "Enter new name:",
+                msg_copy_success: "ID Copied: ",
+                msg_copy_fail: "Please select and copy manually.",
+                msg_avatar_success: "Avatar updated successfully.",
+                msg_img_success: "Image set successfully.",
+                msg_logout_confirm: "Are you sure you want to log out and clear account data?",
+                guest_name: "Guest_",
+                msg_disconnect: "⚠️ Connection lost. Server is down or internet is weak. Reconnecting...",
+                msg_fb_connect: "Connecting to Facebook, try again.",
+                msg_server_fail: "Server connection lost! Retrying...",
+                login_tab_title: "Sign In",
+                login_tab_desc: "Enter your username and password to log back into your profile.",
+                login_tab_btn: "Sign In",
+                login_tab_toggle: "Don't have an account? Create one",
+                register_tab_title: "Create Account",
+                register_tab_desc: "Welcome. Create your account to collect tokens across all games.",
+                register_tab_btn: "Continue",
+                register_tab_toggle: "Already have an account? Sign In"
+            },
+            ku: {
+                app_title: "DAMA CHALLENGE",
+                dama: "دامە",
+                soon: "بەمنزیکانە",
+                options_title: "هەڵبژاردەکان",
+                change_bg_label: "ڕێکخستنی پاشبنەما",
+                btn_upload_bg: "لە ئامێرەکەت هەڵبژێرە",
+                btn_reset_bg: "گەڕاندنەوەی بنەڕەتی",
+                change_lang_label: "ڕێکخستنی زمان",
+                msg_bg_success: "پاشبنەما بە سەرکەوتوویی گۆڕدرا.",
+                msg_bg_reset: "پاشبنەمای بنەڕەتی گەڕێندرایەوە.",
+                login_name_label: "ناو",
+                login_name_placeholder: "ناوت لێرە بنووسە",
+                login_avatar_label: "کەسایەتی",
+                avatar_1: "پاشای گەنج",
+                avatar_2: "پیاوی کورد",
+                avatar_3: "شاژن",
+                avatar_4: "پاشای بەتەمەن",
+                avatar_5: "پیاوی عەرەب",
+                avatar_6: "شازادەی قژ زەرد",
+                login_guest: "چوونە ژوورەوە وەک میوان",
+                login_facebook_btn: "چوونە ژوورەوە بە فەیسبووک",
+                link_facebook_btn: "پاراستنی هەژمار بە فەیسبووک",
+                profile_title: "پڕۆفایل",
+                profile_id: "ئایدی:",
+                profile_change_name: "گۆڕینی ناو",
+                profile_change_avatar: "کەسایەتی",
+                profile_phone_img: "گەلەری",
+                profile_balance: "🪙 کۆی باڵانس:",
+                profile_logout: "چوونەدەرەوە",
+                btn_ok: "باشە",
+                btn_cancel: "هەڵوەشاندنەوە",
+                token_word: " تۆکن",
+                msg_soon: "یاری و ئاڵەنگاری نوێ بەمنزیکانە زیاد دەکرێن.",
+                msg_no_name: "تکایە سەرەتا ناوێک بنووسە بۆ دەستپێکردن.",
+                msg_no_pass: "تکایە تێپەڕوشە بنووسە بۆ چوونەژوورەوەی پارێزراو.",
+                msg_prompt_name: "ناوی نوێ بنووسە:",
+                msg_copy_success: "ئایدی کۆپی کرا: ",
+                msg_copy_fail: "تکایە دیاری بکە و بە دەست کۆپی بکە.",
+                msg_avatar_success: "کەسایەتی بە سەرکەوتوویی نوێکرایەوە.",
+                msg_img_success: "وێنە بە سەرکەوتوویی دانرا.",
+                msg_logout_confirm: "دڵنیایت دەتەوێت بچیتە دەرەوە و زانیارییەکانی هەژمار بسڕیتەوە؟",
+                guest_name: "میوان_",
+                msg_disconnect: "⚠️ پەیوەندی پچڕا. سێرڤەر کارناکات یان هێڵی ئینتەرنێت لاوازە. دووبارە هەوڵدەدرێتەوە...",
+                msg_fb_connect: "پەیوەندی بە فەیسبووکەوە دەکرێت، دووبارە هەوڵبدەرەوە.",
+                msg_server_fail: "پەیوەندی سێرڤەر شکستی هێنا! دووبارە هەوڵدەدرێتەوە...",
+                login_tab_title: "چوونە ژوورەوە",
+                login_tab_desc: "ناوی بەکارهێنەر و تێپەڕوشە بنووسە بۆ گەڕانەوە بۆ هەژمارەکەت.",
+                login_tab_btn: "چوونە ژوورەوە",
+                login_tab_toggle: "هەژمارت نییە؟ هەژمارێک دروست بکە",
+                register_tab_title: "دروستکردنی هەژمار",
+                register_tab_desc: "بەخێربێیت. هەژمارەکەت دروست بکە بۆ کۆکردنەوەی دراوەکان لە هەموو یارییەکاندا.",
+                register_tab_btn: "بەردەوام بە",
+                register_tab_toggle: "هەژمارت هەیە؟ چوونە ژوورەوە"
+            }
+        };
+
+        const langs = ['ar', 'en', 'ku'];
+        let currentLang = localStorage.getItem('app_lang') || 'ar';
+        if (!langs.includes(currentLang)) currentLang = 'ar';
+        let isLoginMode = false; 
+
+        // دوال فتح وإغلاق قائمة الخيارات الجانبية
+        function openOptionsPanel() {
+            document.getElementById('options-side-overlay').classList.add('open');
+        }
+        function closeOptionsPanel() {
+            document.getElementById('options-side-overlay').classList.remove('open');
+        }
+
+        // دالة تغيير اللغة
+        function selectLanguage(lang) {
+            if (!langs.includes(lang)) return;
+            currentLang = lang;
+            
+            localStorage.setItem('app_lang', currentLang);
+            localStorage.setItem('appLang', currentLang);
+
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
+            
+            updateTranslations();
+
+            const gameIframe = document.getElementById('game-frame');
+            if (gameIframe && gameIframe.contentWindow) {
+                gameIframe.contentWindow.postMessage({ type: 'LANGUAGE_CHANGED', lang: currentLang }, '*');
+            }
+            
+            if (typeof window.setRadioLanguage === 'function') {
+                window.setRadioLanguage(currentLang);
+            }
+
+            closeOptionsPanel();
+        }
+
+        // دوال تغيير الخلفية المخصصة
+        function changeGlobalBackground(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxDim = 1920; 
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > maxDim) { height = Math.round((height * maxDim) / width); width = maxDim; }
+                        } else {
+                            if (height > maxDim) { height = Math.round((width * maxDim) / height); height = maxDim; }
+                        }
+                        canvas.width = width; canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const bgDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        
+                        localStorage.setItem('app_background', bgDataUrl);
+                        applyGlobalBackground();
+                        
+                        const gameIframe = document.getElementById('game-frame');
+                        if (gameIframe && gameIframe.contentWindow) {
+                            gameIframe.contentWindow.postMessage({ type: 'BACKGROUND_CHANGED', bg: bgDataUrl }, '*');
+                        }
+                        showCustomPopup(translations[currentLang].msg_bg_success);
+                        closeOptionsPanel();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetGlobalBackground() {
+            localStorage.removeItem('app_background');
+            applyGlobalBackground();
+            const gameIframe = document.getElementById('game-frame');
+            if (gameIframe && gameIframe.contentWindow) {
+                gameIframe.contentWindow.postMessage({ type: 'BACKGROUND_CHANGED', bg: null }, '*');
+            }
+            showCustomPopup(translations[currentLang].msg_bg_reset);
+            closeOptionsPanel();
+        }
+
+        function applyGlobalBackground() {
+            const bg = localStorage.getItem('app_background');
+            if (bg) {
+                document.body.style.backgroundImage = `url('${bg}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+            } else {
+                document.body.style.backgroundImage = 'radial-gradient(circle at 50% 0%, #1a1a24 0%, var(--bg-deep) 80%)';
+            }
+        }
+
+        function updateTranslations() {
+            const t = translations[currentLang];
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.innerHTML = t[key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (t[key]) el.placeholder = t[key];
+            });
+            
+            const toggleLink = document.getElementById('auth-toggle-mode-link');
+            if(toggleLink) {
+                if(isLoginMode) {
+                    document.getElementById('auth-modal-title').innerText = t.login_tab_title;
+                    document.getElementById('auth-modal-desc').innerText = t.login_tab_desc;
+                    document.getElementById('auth-primary-submit-btn').innerText = t.login_tab_btn;
+                    toggleLink.innerText = t.login_tab_toggle;
+                } else {
+                    document.getElementById('auth-modal-title').innerText = t.register_tab_title;
+                    document.getElementById('auth-modal-desc').innerText = t.register_tab_desc;
+                    document.getElementById('auth-primary-submit-btn').innerText = t.register_tab_btn;
+                    toggleLink.innerText = t.register_tab_toggle;
+                }
+            }
+
+            forceUpdateRadioUI();
+            syncHubProfile(); 
+        }
+
+        function forceUpdateRadioUI() {
+            const radioModal = document.getElementById('radio-modal');
+            if (radioModal && typeof RADIO_TRANSLATIONS !== 'undefined') {
+                const rt = RADIO_TRANSLATIONS[currentLang];
+                if (rt) {
+                    radioModal.setAttribute('dir', rt.direction);
+                    
+                    const titleEl = document.getElementById('ui-radio-title');
+                    if(titleEl) titleEl.innerText = rt.title;
+                    
+                    const enBtn = document.getElementById('btn-station-english');
+                    if(enBtn) enBtn.innerText = rt.cat_english;
+                    
+                    const arBtn = document.getElementById('btn-station-arabic');
+                    if(arBtn) arBtn.innerText = rt.cat_arabic;
+                    
+                    const kuBtn = document.getElementById('btn-station-kurdish');
+                    if(kuBtn) kuBtn.innerText = rt.cat_kurdish;
+                    
+                    const actionBtn = document.getElementById('radio-toggle-action-btn');
+                    if (actionBtn) {
+                        if (actionBtn.classList.contains('stop-btn')) {
+                            actionBtn.innerText = rt.stop_btn;
+                        } else {
+                            actionBtn.innerText = rt.play_btn;
+                        }
+                    }
+                }
+            }
+        }
+
+        const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
+
+        window.addEventListener('message', (event) => {
+            if (event.data) {
+                if (event.data.type === 'SYNC_PROFILE') {
+                    syncHubProfile();
+                } else if (event.data.type === 'EXIT_GAME') {
+                    exitGame();
+                }
+            }
+        });
+
+        socket.on('disconnect', (reason) => {
+            console.warn('انقطع الاتصال:', reason);
+            showCustomPopup(translations[currentLang].msg_disconnect, false, "", false);
+        });
+
+        socket.on('connect', () => {
+            console.log('تم الاتصال بالسيرفر بنجاح!');
+            
+            const profileRaw = localStorage.getItem('hub_user_profile');
+            if (profileRaw) {
+                try {
+                    const profile = JSON.parse(profileRaw);
+                    if (profile && profile.id) {
+                        socket.emit('deviceFingerprint', { guestId: profile.id });
+                    }
+                } catch(e) {}
+            }
+        });
+
+        function getSafeProfile() {
+            const defaultProfile = {
+                id: "GUEST-DEFAULT",
+                name: translations[currentLang].guest_name + "0000",
+                avatar: '1000132081.webp',
+                isCustomAvatar: false,
+                tokens: 0,
+                gamesPlayed: 0,
+                wins: 0,
+                losses: 0,
+                friends: [],
+                purchasedItems: [],
+                equippedBg: 'bg_wood',
+                equippedFr: 'fr_classic',
+                equippedPc: 'pc_original'
+            };
+
+            try {
+                const profileRaw = localStorage.getItem('hub_user_profile');
+                if (!profileRaw) return defaultProfile;
+                const parsed = JSON.parse(profileRaw);
+                if (parsed && typeof parsed === 'object') return parsed;
+            } catch (e) {
+                console.error("🔒 خطأ في معالجة بيانات الملف الشخصي:", e);
+            }
+            return defaultProfile;
+        }
+
+        socket.on('auth_success', (data) => {
+            const msg = safeParseAuthMessage(data.message);
+            showCustomPopup(msg);
+            localStorage.setItem('hub_user_profile', JSON.stringify(data.profile));
+            if(document.getElementById('profile-modal').style.display === 'flex') {
+                syncHubProfile();
+            } else {
+                checkUserAuthentication();
+            }
+        });
+
+        socket.on('profileUpdated', (updatedProfile) => {
+            localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
+            syncHubProfile();
+            
+            const gameIframe = document.getElementById('game-frame');
+            if (gameIframe && gameIframe.contentWindow) {
+                gameIframe.contentWindow.postMessage({ type: 'PROFILE_UPDATED', profile: updatedProfile }, '*');
+            }
+        });
+
+        socket.on('auth_failed', (data) => {
+            const msg = safeParseAuthMessage(data.message);
+            showCustomPopup(msg);
+        });
+
+        function loginWithFacebook() {
+            if (typeof FB === 'undefined') {
+                showCustomPopup(translations[currentLang].msg_fb_connect);
+                return;
+            }
+            if (!socket || !socket.connected) {
+                showCustomPopup(translations[currentLang].msg_server_fail);
+                socket.connect(); 
+                return;
+            }
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    const accessToken = response.authResponse.accessToken;
+                    socket.emit('login_facebook', { accessToken: accessToken });
+                }
+            }); 
+        }
+
+        function linkGuestWithFacebook() {
+            if (typeof FB === 'undefined') {
+                showCustomPopup(translations[currentLang].msg_fb_connect);
+                return;
+            }
+            if (!socket || !socket.connected) {
+                showCustomPopup(translations[currentLang].msg_server_fail);
+                socket.connect(); 
+                return;
+            }
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    const accessToken = response.authResponse.accessToken;
+                    const profile = getSafeProfile();
+                    socket.emit('link_facebook', { accessToken: accessToken, guestId: profile.id });
+                }
+            }); 
+        }
+
+        function safeParseAuthMessage(msgStr) {
+            if (typeof msgStr === 'string' && msgStr.startsWith('{')) {
+                try {
+                    const parsed = JSON.parse(msgStr);
+                    return parsed[currentLang] || parsed.en || msgStr;
+                } catch(e) { return msgStr; }
+            }
+            return msgStr;
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            const titleEl = document.getElementById('auth-modal-title');
+            const descEl = document.getElementById('auth-modal-desc');
+            const submitBtn = document.getElementById('auth-primary-submit-btn');
+            const toggleLink = document.getElementById('auth-toggle-mode-link');
+            const avatarGroup = document.getElementById('avatar-select-group');
+
+            const t = translations[currentLang];
+
+            if (isLoginMode) {
+                titleEl.innerText = t.login_tab_title;
+                descEl.innerText = t.login_tab_desc;
+                submitBtn.innerText = t.login_tab_btn;
+                toggleLink.innerText = t.login_tab_toggle;
+                avatarGroup.style.display = 'none'; 
+            } else {
+                titleEl.innerText = t.register_tab_title;
+                descEl.innerText = t.register_tab_desc;
+                submitBtn.innerText = t.register_tab_btn;
+                toggleLink.innerText = t.register_tab_toggle;
+                avatarGroup.style.display = 'block';
+            }
+        }
+
+        let customPopupCallback = null;
+
+        function showCustomPopup(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
+            document.getElementById('custom-popup-modal').style.display = 'flex';
+            document.getElementById('custom-popup-msg').innerText = msg;
+            
+            const inputContainer = document.getElementById('custom-popup-input-group');
+            const inputEl = document.getElementById('custom-popup-input');
+            const cancelBtn = document.getElementById('custom-popup-cancel');
+            
+            if (isPrompt) {
+                inputContainer.style.display = 'block';
+                inputEl.value = defaultValue;
+                inputEl.focus();
+                cancelBtn.style.display = 'block';
+            } else {
+                inputContainer.style.display = 'none';
+                cancelBtn.style.display = showCancel ? 'block' : 'none';
+            }
+            
+            document.getElementById('custom-popup-ok').innerHTML = translations[currentLang].btn_ok;
+            cancelBtn.innerHTML = translations[currentLang].btn_cancel;
+            customPopupCallback = callback;
+        }
+
+        function closeCustomPopup(isOk) {
+            document.getElementById('custom-popup-modal').style.display = 'none';
+            if (customPopupCallback) {
+                const isPrompt = document.getElementById('custom-popup-input-group').style.display === 'block';
+                const inputVal = document.getElementById('custom-popup-input').value;
+                if (isPrompt) customPopupCallback(isOk ? inputVal : null);
+                else customPopupCallback(isOk);
+            }
+        }
+
+        document.getElementById('custom-popup-ok').addEventListener('click', () => closeCustomPopup(true));
+        document.getElementById('custom-popup-cancel').addEventListener('click', () => closeCustomPopup(false));
+
+        function triggerAlertSoon() { showCustomPopup(translations[currentLang].msg_soon); }
+
+        function submitManualAuthForm() {
+            const nameInput = document.getElementById('login-name-input').value.trim();
+            const passInput = document.getElementById('login-password-input').value;
+            const avatarSelect = document.getElementById('login-avatar-select').value;
+
+            if (!nameInput) return showCustomPopup(translations[currentLang].msg_no_name);
+            if (!passInput) return showCustomPopup(translations[currentLang].msg_no_pass);
+
+            if (!socket || !socket.connected) {
+                showCustomPopup(translations[currentLang].msg_server_fail);
+                socket.connect(); 
+                return;
+            }
+
+            if (isLoginMode) {
+                socket.emit('login_manual', { username: nameInput, password: passInput });
+            } else {
+                socket.emit('register_manual', { username: nameInput, password: passInput, avatar: avatarSelect });
+            }
+        }
+
+        window.addEventListener('load', () => {
+            history.replaceState({ view: 'hub' }, '');
+            
+            if (!localStorage.getItem('appLang')) {
+                localStorage.setItem('appLang', currentLang);
+            }
+            
+            applyGlobalBackground();
+
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
+            
+            updateTranslations();
+
+            const splash = document.getElementById('splash-screen');
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                splash.style.visibility = 'hidden';
+                setTimeout(() => { 
+                    splash.style.display = 'none'; 
+                    checkUserAuthentication(); 
+                }, 800);
+            }, 2000);
+        });
+
+        function checkUserAuthentication() {
+            let globalProfile = localStorage.getItem('hub_user_profile');
+            if (globalProfile) {
+                try {
+                    JSON.parse(globalProfile);
+                    document.getElementById('login-modal').style.display = 'none';
+                    document.getElementById('game-selector').style.display = 'flex';
+                    syncHubProfile();
+                } catch (e) {
+                    localStorage.removeItem('hub_user_profile');
+                    document.getElementById('game-selector').style.display = 'none';
+                    document.getElementById('login-modal').style.display = 'flex';
+                }
+            } else {
+                document.getElementById('game-selector').style.display = 'none';
+                document.getElementById('login-modal').style.display = 'flex';
+            }
+        }
+
+        function loginAsGuest() {
+            const randomId = "GUEST-" + Math.floor(100000 + Math.random() * 900000);
+            const randomName = translations[currentLang].guest_name + Math.floor(1000 + Math.random() * 9000);
+            
+            const guestProfile = {
+                id: randomId, name: randomName, avatar: '1000132081.webp', isCustomAvatar: false,
+                tokens: 1000, gamesPlayed: 0, wins: 0, losses: 0, friends: [],
+                purchasedItems: [], equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedPc: 'pc_original'
+            };
+
+            try {
+                localStorage.setItem('hub_user_profile', JSON.stringify(guestProfile));
+                checkUserAuthentication();
+            } catch (err) {}
+        }
+
+        function syncHubProfile() {
+            let globalProfile = localStorage.getItem('hub_user_profile');
+            if (!globalProfile) return;
+            
+            const profile = getSafeProfile();
+            const tokenVal = profile.tokens || 0;
+            const tokenText = tokenVal + translations[currentLang].token_word;
+
+            if (document.getElementById('hub-token-count')) document.getElementById('hub-token-count').innerText = tokenVal;
+            if (document.getElementById('profile-stat-tokens')) document.getElementById('profile-stat-tokens').innerText = tokenText;
+            if (document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = profile.name;
+            if (document.getElementById('profile-display-id')) document.getElementById('profile-display-id').innerText = profile.id;
+            
+            let finalAvatarSrc = profile.avatar || '1000132081.webp';
+            const isFullUrl = finalAvatarSrc.startsWith('http://') || finalAvatarSrc.startsWith('https://') || finalAvatarSrc.startsWith('data:image');
+            if (!isFullUrl) {
+                finalAvatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/" + finalAvatarSrc;
+            }
+
+            const renderAvatarLocal = (elementId) => {
+                const el = document.getElementById(elementId);
+                if (el) el.innerHTML = `<img src="${finalAvatarSrc}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
+            };
+            renderAvatarLocal('hub-profile-avatar');
+            renderAvatarLocal('profile-display-avatar');
+
+            const gameIframe = document.getElementById('game-frame');
+            if (gameIframe && gameIframe.contentWindow) {
+                gameIframe.contentWindow.postMessage({ type: 'INJECT_AVATAR_DIRECT', avatarHtml: finalAvatarSrc }, '*');
+                gameIframe.contentWindow.postMessage({ type: 'PROFILE_UPDATED', profile: profile }, '*');
+            }
+
+            const linkFbBtn = document.getElementById('link-facebook-guest-btn');
+            if (linkFbBtn) {
+                linkFbBtn.style.display = (profile.id && !profile.id.startsWith('FB-')) ? 'flex' : 'none';
+            }
+        }
+
+        function changePlayerName() {
+            let profile = getSafeProfile();
+            if(!profile) return;
+            
+            showCustomPopup(translations[currentLang].msg_prompt_name, true, profile.name, true, (newName) => {
+                if (newName && newName.trim() !== "") {
+                    profile.name = newName.trim();
+                    try {
+                        localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                        syncHubProfile();
+                    } catch (err) {}
+                }
+            });
+        }
+
+        function changeAvatarFromDropdown(val) {
+            if(!val) return;
+            let profile = getSafeProfile();
+            profile.avatar = val;
+            profile.isCustomAvatar = false; 
+            try {
+                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                syncHubProfile();
+                document.getElementById('edit-avatar-select').selectedIndex = 0; 
+                showCustomPopup(translations[currentLang].msg_avatar_success);
+            } catch (err) {}
+        }
+
+        function uploadImageFromPhone(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxDim = 180;
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        if (width > height) {
+                            if (width > maxDim) { height = Math.round((height * maxDim) / width); width = maxDim; }
+                        } else {
+                            if (height > maxDim) { height = Math.round((width * maxDim) / height); height = maxDim; }
+                        }
+                        
+                        canvas.width = width; canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        let profile = getSafeProfile();
+                        profile.avatar = compressedDataUrl;
+                        profile.isCustomAvatar = true; 
+                        
+                        try {
+                            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                            syncHubProfile();
+                            showCustomPopup(translations[currentLang].msg_img_success);
+                        } catch (error) {}
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function copyPlayerID() {
+            const idText = document.getElementById('profile-display-id').innerText;
+            if(navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(idText).then(() => {
+                    showCustomPopup(translations[currentLang].msg_copy_success + idText);
+                }).catch(() => { fallbackCopyText(idText); });
+            } else { fallbackCopyText(idText); }
+        }
+
+        function fallbackCopyText(text) {
+            let textArea = document.createElement("textarea");
+            textArea.value = text; document.body.appendChild(textArea);
+            textArea.focus(); textArea.select();
+            try {
+                document.execCommand('copy');
+                showCustomPopup(translations[currentLang].msg_copy_success + text);
+            } catch (err) { showCustomPopup(translations[currentLang].msg_copy_fail); }
+            document.body.removeChild(textArea);
+        }
+
+        function openProfileModal() { 
+            syncHubProfile();
+            document.getElementById('profile-modal').style.display = 'flex'; 
+            history.pushState({ view: 'profile' }, '');
+        }
+        
+        function closeProfileModal() { 
+            if (history.state && history.state.view === 'profile') history.back(); 
+            else document.getElementById('profile-modal').style.display = 'none';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('profile-modal').style.display === 'flex') closeProfileModal();
+                if (document.getElementById('options-side-overlay').classList.contains('open')) closeOptionsPanel();
+            }
+        });
+
+        function startGame() {
+            document.getElementById('game-selector').style.display = 'none';
+            document.getElementById('game-interface').style.display = 'block';
+            const gameFrame = document.getElementById('game-frame');
+            gameFrame.src = 'dama/dama.html';
+            history.pushState({ view: 'game' }, '');
+            
+            gameFrame.onload = function() {
+                syncHubProfile();
+                gameFrame.contentWindow.postMessage({ type: 'LANGUAGE_CHANGED', lang: currentLang }, '*');
+            };
+        }
+        
+        function exitGame() {
+            document.getElementById('game-interface').style.display = 'none';
+            if(localStorage.getItem('hub_user_profile')) document.getElementById('game-selector').style.display = 'flex';
+            setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
+            history.pushState({ view: 'hub' }, '');
+            syncHubProfile();
+        }
+
+        window.addEventListener('popstate', function(e) {
+            if (document.getElementById('custom-popup-modal').style.display === 'flex') document.getElementById('custom-popup-modal').style.display = 'none';
+            if (document.getElementById('profile-modal').style.display === 'flex') document.getElementById('profile-modal').style.display = 'none';
+            if (document.getElementById('options-side-overlay').classList.contains('open')) closeOptionsPanel();
+            
+            if (document.getElementById('game-interface').style.display === 'block') {
+                if (e.state && e.state.view === 'hub') {
+                    document.getElementById('game-interface').style.display = 'none';
+                    if(localStorage.getItem('hub_user_profile')) document.getElementById('game-selector').style.display = 'flex';
+                    setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
+                    syncHubProfile();
+                }
+            }
+        });
+
+        function handleAccountExit(isSwitching) {
+            const profileRaw = localStorage.getItem('hub_user_profile');
+            if (!profileRaw) return;
+            let profile;
+            try { profile = JSON.parse(profileRaw); } catch (e) { profile = getSafeProfile(); }
+            const isGuest = profile.id && profile.id.startsWith('GUEST-');
+
+            if (!isGuest) executeLogout(isSwitching);
+            else {
+                showCustomPopup(translations[currentLang].msg_logout_confirm, false, "", true, (res) => {
+                    if (res) { socket.emit('logout_guest_clean', { id: profile.id }); executeLogout(isSwitching); }
+                });
+            }
+        }
+
+        function executeLogout(isSwitching) {
+            const profileRaw = localStorage.getItem('hub_user_profile');
+            let isFacebookUser = false;
+            if (profileRaw) {
+                try { isFacebookUser = JSON.parse(profileRaw).id?.startsWith('FB-'); } catch(e) {}
+            }
+
+            localStorage.removeItem('hub_user_profile');
+            document.getElementById('profile-modal').style.display = 'none';
+            checkUserAuthentication();
+
+            if (isFacebookUser && typeof FB !== 'undefined') {
+                FB.getLoginStatus(function(response) {
+                    if (response.status === 'connected') FB.logout(function() { location.reload(); });
+                    else location.reload();
+                });
+            } else { location.reload(); }
+        }
+
+        function triggerLogout() { handleAccountExit(false); }
+
+        window.syncHubProfile = syncHubProfile;
+        window.exitGame = exitGame; 
+    </script>
+</body>
+</html>
+ 
