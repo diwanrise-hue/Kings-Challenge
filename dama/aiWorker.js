@@ -5,8 +5,33 @@
  */
 const isValidPos = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
 
-// متغير محلي لحفظ اتجاهات حركة القطع لكل لون قادم ديناميكياً من الواجهة
+// متغير محلي لحفظ اتجاهات حركة القطع لكل لون
 let workerPieceDirection = { white: -1, black: 1 };
+
+// 💡 دالة الاكتشاف الذاتي (الحل الجذري): تقوم بمسح الرقعة وتحديد من يجلس في الأعلى ومن يجلس في الأسفل
+function autoDetectDirections(bState) {
+    let wTop = 0, wBot = 0, bTop = 0, bBot = 0;
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            let p = bState[r][c];
+            if (p) {
+                if (p.startsWith('white')) { r < 4 ? wTop++ : wBot++; }
+                else if (p.startsWith('black')) { r < 4 ? bTop++ : bBot++; }
+            }
+        }
+    }
+    
+    // الافتراضي
+    let wDir = -1, bDir = 1; 
+    
+    // تحديد الاتجاهات الفعلية في الساحة
+    if (wTop > wBot) { wDir = 1; bDir = -1; }
+    else if (wBot > wTop) { wDir = -1; bDir = 1; }
+    else if (bTop > bBot) { bDir = 1; wDir = -1; }
+    else if (bBot > bTop) { bDir = -1; wDir = 1; }
+
+    workerPieceDirection = { white: wDir, black: bDir };
+}
 
 /**
  * دالة حساب مسارات القفز والأكل الإجباري الديناميكية
@@ -16,14 +41,13 @@ function getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = n
     const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
     const pureColor = color.split('-')[0];
 
-    // 💡 حل المشكلة: جلب الاتجاه الحقيقي للون من الواجهة (سواء كان يصعد أم يهبط) بدلاً من تثبيته يدوياً
+    // جلب الاتجاه الحقيقي للون من الدالة المكتشفة
     let dirRow = workerPieceDirection[pureColor] !== undefined ? workerPieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1);
     let currentDirections = isDama ? directions : [[dirRow, 0], [0, 1], [0, -1]];
 
     let paths = [];
 
     for (const [dr, dc] of currentDirections) {
-        // قيد الملك: منع الأكل المباشر في نفس المسار بالاتجاه المعاكس للقفزة السابقة
         if (isDama && parentDr !== null && parentDc !== null) {
             if (dr === -parentDr && dc === -parentDc) continue;
         }
@@ -61,7 +85,6 @@ function getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = n
                         } else {
                             paths.push([stepObj]);
                         }
-                        // 💡 السماح للملك بالهبوط في أي مربع فارغ بعد الأكل (مثلما أصلحناها في المحرك الأساسي)
                         step++; 
                         continue;
                     } else break;
@@ -135,7 +158,6 @@ function generateAllTurnMoves(color, bState) {
     let maxJumps = 0;
     const pureColor = color.split('-')[0];
 
-    // ✅ تم تصحيح حلقة التكرار لمنع الانهيار (Infinite Loop)
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const piece = bState[r][c];
@@ -184,9 +206,9 @@ function applyPathToBoard(path, bState) {
     const lastStep = path[path.length - 1];
     const pureColor = piece.split('-')[0];
 
-    // 💡 ترقية الملوك ديناميكياً: إذا كان اتجاه الحركة 1 (لأسفل) يترقى عند صف 7، وإذا كان -1 (لأعلى) عند صف 0
+    // ترقية الملوك ديناميكياً بناءً على الموقع الحقيقي
     let promoRow = workerPieceDirection[pureColor] === 1 ? 7 : 0;
-    if (lastStep.toR === promoRow) {
+    if (lastStep.toR === promoRow && !piece.includes('dama')) {
         newBoard[lastStep.toR][lastStep.toC] = pureColor + '-dama';
     }
 
@@ -204,7 +226,6 @@ function evaluateBoard(bState, targetColor) {
             let pureColor = p.split('-')[0];
             let dir = workerPieceDirection[pureColor] || (pureColor === 'black' ? 1 : -1);
             
-            // حساب قيمة التقدم للأمام بناءً على اتجاه اللون الفعلي بالساحة
             let val = (isDama ? 35 : 10) + (!isDama ? (dir === 1 ? r * 0.2 : (7 - r) * 0.2) : 0);
             score += isTarget ? val : -val;
         }
@@ -249,12 +270,10 @@ self.onmessage = function(e) {
     const depth = e.data.depth || 8;
     const aiColor = e.data.aiColor || e.data.color;
 
-    // استقبال سياق حركة القطع لكسر الجمود المطلق والإحاطة بوضعية اللاعب أوفلاين/أونلاين
-    if (e.data.pieceDirection) {
-        workerPieceDirection = e.data.pieceDirection;
-    }
-
     if (!board || !aiColor) return;
+
+    // 💡 هذا السطر سيحل المشكلة فوراً: البوت الآن يمسح الرقعة أولاً ليعرف أين يجلس، ثم ينطلق بالاتجاه السليم!
+    autoDetectDirections(board);
 
     const result = minimax(board, depth, -Infinity, Infinity, true, aiColor, aiColor);
     self.postMessage(result); 
