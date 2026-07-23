@@ -1,3 +1,4 @@
+<!--index.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -6,7 +7,7 @@
     
     <meta name="theme-color" content="#050507">
     <!-- تم تحديث مسار أيقونة الموقع -->
-    <link class="apple-touch-icon" href="images/1000127272.webp">
+    <link class="apple-touch-icon" href="Photo/1000127272.webp">
     
     <title>Dama Challenge - Premium Hub</title>
     
@@ -386,7 +387,7 @@
         <div class="cards-container">
             <div class="dama-card" onclick="startGame()">
                 <!-- تم تحديث مسار صورة بطاقة الدامة -->
-                <img src="images/1000138342.webp" alt="Dama Game" class="card-bg">
+                <img src="Photo/1000138342.webp" alt="Dama Game" class="card-bg">
                 <div class="dama-card-content">
                     <span id="dama-title-text" data-i18n="dama">دامة</span>
                 </div>
@@ -439,7 +440,7 @@
             <div class="action-grid" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 0;">
                 <button class="btn btn-secondary" onclick="setPredefinedBackground('default')" data-i18n="bg_default">الخلفية الافتراضية</button>
                 <!-- تم تحديث مسار صورة القلعة -->
-                <button class="btn btn-secondary" onclick="setPredefinedBackground('images/1000139835.webp')" data-i18n="bg_snow_castle">قلعة الثلج</button>
+                <button class="btn btn-secondary" onclick="setPredefinedBackground('Photo/1000139835.webp')" data-i18n="bg_snow_castle">قلعة الثلج</button>
                 
                 <button class="btn btn-primary" onclick="document.getElementById('bg-upload-input').click(); closeBgModal();" data-i18n="bg_upload">رفع من المعرض</button>
             </div>
@@ -474,16 +475,16 @@
                 <input type="password" id="login-password-input" class="clean-input" placeholder="••••••••">
             </div>
 
-            <!-- تم تحديث مسارات الأفاتار لتقرأ من مجلد images -->
+            <!-- تم تحديث مسارات الأفاتار لتقرأ من مجلد Photo -->
             <div class="input-group" id="avatar-select-group">
                 <label class="settings-label" data-i18n="login_avatar_label">الشخصية</label>
                 <select id="login-avatar-select" class="clean-input">
-                    <option value="images/1000132081.webp" data-i18n="avatar_1">الملك الشاب</option>
-                    <option value="images/1000132078.webp" data-i18n="avatar_2">الرجل الكردي</option>
-                    <option value="images/1000132080.webp" data-i18n="avatar_3">الملكة</option>
-                    <option value="images/1000132082.webp" data-i18n="avatar_4">الملك المسن</option>
-                    <option value="images/1000132077.webp" data-i18n="avatar_5">الرجل العربي</option>
-                    <option value="images/1000132079.webp" data-i18n="avatar_6">الأميرة الشقراء</option>
+                    <option value="Photo/1000132081.webp" data-i18n="avatar_1">الملك الشاب</option>
+                    <option value="Photo/1000132078.webp" data-i18n="avatar_2">الرجل الكردي</option>
+                    <option value="Photo/1000132080.webp" data-i18n="avatar_3">الملكة</option>
+                    <option value="Photo/1000132082.webp" data-i18n="avatar_4">الملك المسن</option>
+                    <option value="Photo/1000132077.webp" data-i18n="avatar_5">الرجل العربي</option>
+                    <option value="Photo/1000132079.webp" data-i18n="avatar_6">الأميرة الشقراء</option>
                 </select>
             </div>
             
@@ -517,16 +518,16 @@
                 <span id="profile-display-id" onclick="copyPlayerID()" title="نسخ المعرف">#00000</span>
             </div>
 
-            <!-- تم تحديث مسارات الأفاتار لتقرأ من مجلد images -->
+            <!-- تم تحديث مسارات الأفاتار لتقرأ من مجلد Photo -->
             <div class="action-grid">
                 <select id="edit-avatar-select" class="btn btn-secondary" onchange="changeAvatarFromDropdown(this.value)">
                     <option value="" disabled selected data-i18n="profile_change_avatar">الشخصية</option>
-                    <option value="images/1000132081.webp" data-i18n="avatar_1">الملك الشاب</option>
-                    <option value="images/1000132078.webp" data-i18n="avatar_2">الرجل الكردي</option>
-                    <option value="images/1000132080.webp" data-i18n="avatar_3">الملكة</option>
-                    <option value="images/1000132082.webp" data-i18n="avatar_4">الملك المسن</option>
-                    <option value="images/1000132077.webp" data-i18n="avatar_5">الرجل العربي</option>
-                    <option value="images/1000132079.webp" data-i18n="avatar_6">الأميرة الشقراء</option>
+                    <option value="Photo/1000132081.webp" data-i18n="avatar_1">الملك الشاب</option>
+                    <option value="Photo/1000132078.webp" data-i18n="avatar_2">الرجل الكردي</option>
+                    <option value="Photo/1000132080.webp" data-i18n="avatar_3">الملكة</option>
+                    <option value="Photo/1000132082.webp" data-i18n="avatar_4">الملك المسن</option>
+                    <option value="Photo/1000132077.webp" data-i18n="avatar_5">الرجل العربي</option>
+                    <option value="Photo/1000132079.webp" data-i18n="avatar_6">الأميرة الشقراء</option>
                 </select>
                 
                 <button onclick="document.getElementById('upload-phone-img').click()" class="btn btn-secondary" data-i18n="profile_phone_img">المعرض</button>
@@ -921,7 +922,7 @@
             const defaultProfile = {
                 id: "GUEST-DEFAULT",
                 name: translations[currentLang].guest_name + "0000",
-                avatar: 'images/1000132081.webp', /* تم تحديث المسار */
+                avatar: 'Photo/1000132081.webp', /* تم تحديث المسار */
                 isCustomAvatar: false,
                 tokens: 0,
                 gamesPlayed: 0,
@@ -1143,7 +1144,7 @@
             const randomName = translations[currentLang].guest_name + Math.floor(1000 + Math.random() * 9000);
             
             const guestProfile = {
-                id: randomId, name: randomName, avatar: 'images/1000132081.webp', /* تم التحديث */
+                id: randomId, name: randomName, avatar: 'Photo/1000132081.webp', /* تم التحديث */
                 isCustomAvatar: false,
                 tokens: 1000, gamesPlayed: 0, wins: 0, losses: 0, friends: [],
                 purchasedItems: [], equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedPc: 'pc_original'
@@ -1169,7 +1170,7 @@
             if (document.getElementById('profile-display-id')) document.getElementById('profile-display-id').innerText = profile.id;
             
             // تم تحديث الأفاتار الافتراضي ليقرأ من المجلد الجديد
-            let finalAvatarSrc = profile.avatar || 'images/1000132081.webp';
+            let finalAvatarSrc = profile.avatar || 'Photo/1000132081.webp';
             const isFullUrl = finalAvatarSrc.startsWith('http://') || finalAvatarSrc.startsWith('https://') || finalAvatarSrc.startsWith('data:image');
             if (!isFullUrl) {
                 finalAvatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/" + finalAvatarSrc;
