@@ -23,9 +23,9 @@
         
         body { 
             padding-bottom: 120px !important; padding-top: 85px !important; 
-            /* تم توحيد الخلفية الافتراضية مع المنصة الرئيسية */
-            background-color: #050507; 
-            background-image: radial-gradient(circle at 50% 0%, #1a1a24 0%, #050507 80%);
+            /* استعادة خلفية اللعبة الأساسية الكلاسيكية الزرقاء الداكنة */
+            background-color: #2c3e50; 
+            background-image: none;
             background-size: cover; background-position: center; background-attachment: fixed;
             font-family: 'Tajawal', 'Outfit', Arial, sans-serif; 
             margin: 0; display: flex; flex-direction: column; align-items: center; 
@@ -1583,20 +1583,23 @@
         function syncGlobalBackground() {
             const bg = localStorage.getItem('custom_app_bg'); // تم تصحيح المفتاح هنا
             if (bg) {
-                if (bg.startsWith('http') || bg.startsWith('data:') || bg.includes('.')) {
-                    document.body.style.backgroundImage = `url('${bg}')`;
-                    document.body.style.backgroundSize = 'cover';
-                    document.body.style.backgroundPosition = 'center';
-                    document.body.style.backgroundAttachment = 'fixed';
-                    document.body.style.backgroundColor = 'transparent';
-                } else {
-                    document.body.style.background = bg;
-                    document.body.style.backgroundImage = 'none';
+                let bgUrl = bg;
+                
+                // السر هنا: لعبة الدامة داخل مجلد dama/ لذا تحتاج ../ للوصول للصورة في المجلد الرئيسي
+                if (!bg.startsWith('http') && !bg.startsWith('data:') && !bg.startsWith('../')) {
+                    bgUrl = '../' + bg;
                 }
+
+                document.body.style.backgroundImage = `url('${bgUrl}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                document.body.style.backgroundColor = 'transparent';
+                
             } else {
-                // استعادة الخلفية الافتراضية للمنصة
-                document.body.style.backgroundColor = '#050507';
-                document.body.style.backgroundImage = 'radial-gradient(circle at 50% 0%, #1a1a24 0%, #050507 80%)';
+                // استعادة الخلفية الزرقاء الداكنة الكلاسيكية للعبة الدامة
+                document.body.style.backgroundColor = '#2c3e50';
+                document.body.style.backgroundImage = 'none';
             }
         }
         
@@ -1604,7 +1607,7 @@
         
         // الاستماع لتغييرات الـ Storage التي يرسلها الـ Hub
         window.addEventListener('storage', (e) => {
-            if (e.key === 'custom_app_bg') { // تم تصحيح المفتاح هنا أيضاً
+            if (e.key === 'custom_app_bg') { 
                 syncGlobalBackground();
             }
         });
