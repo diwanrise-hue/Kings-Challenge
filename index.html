@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     
-    <!-- تم تحديث الإصدار إلى v=4 لضمان سحب التعديلات الجديدة فوراً -->
+    <!-- تم التحديث لضمان التزامن مع ملف radio.js v=4 -->
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     <script src="radio.js?v=4" defer></script>
 
@@ -404,10 +404,11 @@
         
         <div class="drawer-item" onclick="openLangModal(); closeHamburgerMenu();">
             <span class="drawer-icon">🌐</span>
-            <span data-i18n="change_lang">اللغة</span> <!-- تم التعديل هنا -->
+            <span data-i18n="change_lang">اللغة</span>
         </div>
         
-        <div class="drawer-item" onclick="document.getElementById('bg-upload-input').click(); closeHamburgerMenu();">
+        <!-- تعديل: تحويل زر تغيير الخلفية لفتح قائمة اختيار بدلاً من الرفع المباشر -->
+        <div class="drawer-item" onclick="openBgModal(); closeHamburgerMenu();">
             <span class="drawer-icon">🖼️</span>
             <span data-i18n="change_bg">تغيير الخلفية</span>
         </div>
@@ -420,12 +421,29 @@
     <div id="lang-select-modal" class="modal-overlay" style="z-index: 100005;">
         <div class="settings-card" dir="auto" style="max-width: 250px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeLangModal()">✕</button>
-            <h3 data-i18n="change_lang" style="margin-bottom: 25px;">اللغة</h3> <!-- تم التعديل هنا -->
+            <h3 data-i18n="change_lang" style="margin-bottom: 25px;">اللغة</h3>
             
             <div class="action-grid" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 0;">
                 <button class="btn btn-secondary" onclick="selectLanguage('ar')">عربي</button>
                 <button class="btn btn-secondary" onclick="selectLanguage('ku')">کوردی</button>
                 <button class="btn btn-secondary" onclick="selectLanguage('en')">English</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة اختيار الخلفية الجديدة -->
+    <div id="bg-select-modal" class="modal-overlay" style="z-index: 100005;">
+        <div class="settings-card" dir="auto" style="max-width: 280px; padding: 25px 20px;">
+            <button class="modal-close-btn" onclick="closeBgModal()">✕</button>
+            <h3 data-i18n="bg_title" style="margin-bottom: 25px;">تغيير الخلفية</h3>
+            
+            <div class="action-grid" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 0;">
+                <!-- الخيارات الأساسية والصور المدمجة -->
+                <button class="btn btn-secondary" onclick="setPredefinedBackground('default')" data-i18n="bg_default">الخلفية الافتراضية</button>
+                <button class="btn btn-secondary" onclick="setPredefinedBackground('1000139835.webp')" data-i18n="bg_snow_castle">قلعة الثلج</button>
+                
+                <!-- خيار الرفع من الجهاز -->
+                <button class="btn btn-primary" onclick="document.getElementById('bg-upload-input').click(); closeBgModal();" data-i18n="bg_upload">رفع من المعرض</button>
             </div>
         </div>
     </div>
@@ -535,6 +553,7 @@
         </div>
     </div>
 
+    <!-- حقل الرفع المباشر للخلفية من الجهاز -->
     <input type="file" id="bg-upload-input" accept="image/*" style="display: none;" onchange="changeAppBackground(event)">
 
     <script>
@@ -561,8 +580,12 @@
                 dama: "دامة",
                 soon: "قريباً",
                 menu_title: "القائمة",
-                change_lang: "اللغة", /* تم التعديل */
+                change_lang: "اللغة",
                 change_bg: "تغيير الخلفية",
+                bg_title: "تغيير الخلفية",
+                bg_upload: "رفع من المعرض",
+                bg_snow_castle: "قلعة الثلج",
+                bg_default: "الخلفية الافتراضية",
                 login_name_label: "الاسم",
                 login_name_placeholder: "اكتب اسمك هنا",
                 login_avatar_label: "الشخصية",
@@ -612,8 +635,12 @@
                 dama: "Dama",
                 soon: "Soon",
                 menu_title: "Menu",
-                change_lang: "Language", /* تم التعديل */
+                change_lang: "Language",
                 change_bg: "Change Background",
+                bg_title: "Change Background",
+                bg_upload: "Upload from Gallery",
+                bg_snow_castle: "Snow Castle",
+                bg_default: "Default Background",
                 login_name_label: "Name",
                 login_name_placeholder: "Type your name",
                 login_avatar_label: "Avatar",
@@ -663,8 +690,12 @@
                 dama: "دامە",
                 soon: "بەمنزیکانە",
                 menu_title: "لیستە",
-                change_lang: "زمان", /* تم التعديل */
+                change_lang: "زمان",
                 change_bg: "گۆڕینی پاشبنەما",
+                bg_title: "گۆڕینی پاشبنەما",
+                bg_upload: "بارکردن لە گەلەری",
+                bg_snow_castle: "قەڵای بەفر",
+                bg_default: "پاشبنەمای بنەڕەتی",
                 login_name_label: "ناو",
                 login_name_placeholder: "ناوت لێرە بنووسە",
                 login_avatar_label: "کەسایەتی",
@@ -729,6 +760,25 @@
         function openLangModal() { document.getElementById('lang-select-modal').style.display = 'flex'; }
         function closeLangModal() { document.getElementById('lang-select-modal').style.display = 'none'; }
 
+        // وظائف نافذة اختيار الخلفية
+        function openBgModal() { document.getElementById('bg-select-modal').style.display = 'flex'; }
+        function closeBgModal() { document.getElementById('bg-select-modal').style.display = 'none'; }
+
+        // دالة لتعيين الخلفيات الجاهزة (المدمجة) أو الافتراضية
+        function setPredefinedBackground(bgValue) {
+            if (bgValue === 'default') {
+                document.body.style.backgroundImage = 'radial-gradient(circle at 50% 0%, #1a1a24 0%, var(--bg-deep) 80%)';
+                localStorage.removeItem('custom_app_bg');
+            } else {
+                document.body.style.backgroundImage = `url('${bgValue}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                localStorage.setItem('custom_app_bg', bgValue);
+            }
+            closeBgModal();
+        }
+
         function toggleRadio() {
             const radioModal = document.getElementById('radio-modal');
             if (radioModal) {
@@ -738,6 +788,7 @@
             }
         }
 
+        // دالة الرفع المباشر للخلفية من الهاتف
         function changeAppBackground(event) {
             const file = event.target.files[0];
             if (file) {
@@ -1053,6 +1104,7 @@
             
             updateTranslations();
 
+            // فحص وتعيين الخلفية المحفوظة عند التحميل (سواء مرفوعة أو المدمجة)
             const savedBg = localStorage.getItem('custom_app_bg');
             if (savedBg) {
                 document.body.style.backgroundImage = `url('${savedBg}')`;
@@ -1247,6 +1299,7 @@
             if (e.key === 'Escape') {
                 if (document.getElementById('profile-modal').style.display === 'flex') closeProfileModal();
                 if (document.getElementById('lang-select-modal').style.display === 'flex') closeLangModal();
+                if (document.getElementById('bg-select-modal').style.display === 'flex') closeBgModal();
                 if (document.getElementById('side-drawer').classList.contains('show')) closeHamburgerMenu();
             }
         });
@@ -1276,6 +1329,7 @@
             if (document.getElementById('custom-popup-modal').style.display === 'flex') document.getElementById('custom-popup-modal').style.display = 'none';
             if (document.getElementById('profile-modal').style.display === 'flex') document.getElementById('profile-modal').style.display = 'none';
             if (document.getElementById('lang-select-modal').style.display === 'flex') document.getElementById('lang-select-modal').style.display = 'none';
+            if (document.getElementById('bg-select-modal').style.display === 'flex') document.getElementById('bg-select-modal').style.display = 'none';
             if (document.getElementById('side-drawer').classList.contains('show')) closeHamburgerMenu();
 
             if (document.getElementById('game-interface').style.display === 'block') {
