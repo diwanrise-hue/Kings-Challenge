@@ -29,7 +29,6 @@ export const ui = {
     sfx: sfx,
     clickHandlers: new Map(), 
 
-    // دالة الترجمة الاحتياطية للنصوص الديناميكية غير الموجودة في القاموس
     translate(arTxt, enTxt) {
         const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
         return currentLang === 'ar' ? arTxt : enTxt;
@@ -140,7 +139,6 @@ export const ui = {
         
         Object.keys(idToKeyMap).forEach(id => setHtml(id, tObj[idToKeyMap[id]] || idToKeyMap[id]));
         
-        // ربط الأزرار السفلية وشاشات التنبيه بقاموس i18n مباشرة لمنع التضارب والوميض
         setHtml('exit-game-btn', t('exit'));
         setHtml('store-return-btn', t('exit'));
         setHtml('theme-close-btn', t('exit'));
@@ -237,6 +235,8 @@ export const ui = {
         this.setDisplay('online-toggle-btn', flexState);
         this.setDisplay('store-portal-corner-btn', flexState);
         this.setDisplay('hamburger-menu-btn', flexState);
+        
+        // إخفاء زر الصعوبة أثناء اللعب لمنع الأخطاء البرمجية من تغيير القواعد فجأة
         this.setDisplay('diff-quick-select', inlineState);
         
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
@@ -775,10 +775,13 @@ export const ui = {
                     let chosenMove = moves[0];
                     processMove(chosenMove);
                 };
+                
+                // 💡 الحل الجذري: إرسال الاتجاه الصحيح من اللعبة مباشرة إلى العامل المخفي!
                 worker.postMessage({
                     board: gameState.virtualBoard,
                     depth: depth,
-                    aiColor: aiColor
+                    aiColor: aiColor,
+                    pieceDirection: gameState.pieceDirection 
                 });
             } else {
                 let chosenMove = gameAI.minimax(gameState.virtualBoard, depth, -Infinity, Infinity, true, aiColor).move || moves[0];
@@ -1044,10 +1047,6 @@ export const ui = {
     }
 };
 
-// ==========================================
-// 🌟 الأزرار العامة: بدء، انسحاب، والتراجع 🌟
-// ==========================================
-
 function hasPlayerMoved() {
     if (!gameState.boardHistory) return false;
     
@@ -1262,7 +1261,14 @@ ui.onClick('hint-btn', () => {
             let syncMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 6 ? 6 : hintDepth, -Infinity, Infinity, true, myColor).move;
             showGlow(syncMove || eleganceMoves[0]);
         }
-        worker.postMessage({ board: gameState.virtualBoard, depth: hintDepth, aiColor: myColor });
+        
+        // 💡 حل جذري للمصباح: إرسال الاتجاه الصحيح للـ Worker
+        worker.postMessage({ 
+            board: gameState.virtualBoard, 
+            depth: hintDepth, 
+            aiColor: myColor,
+            pieceDirection: gameState.pieceDirection 
+        });
     } else {
         setTimeout(() => {
             let bestMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 6 ? 6 : hintDepth, -Infinity, Infinity, true, myColor).move || eleganceMoves[0];
@@ -1274,9 +1280,6 @@ ui.onClick('hint-btn', () => {
 window.ui = ui;
 window.updateUITranslations = () => { ui.updateTexts(); };
 
-// ==========================================
-// المستمع المركزي للأحداث
-// ==========================================
 document.addEventListener('click', (e) => {
     let target = e.target;
     while (target && target !== document) {
