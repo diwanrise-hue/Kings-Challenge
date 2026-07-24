@@ -189,7 +189,60 @@ ui.onClick('logout-btn', () => {
 });
 
 ui.onClick('switch-account-btn', () => { ui.setDisplay('profile-modal', 'none'); ui.setDisplay('login-modal', 'flex'); });
-ui.onClick('online-toggle-btn', () => gameState.isOnlineMode ? ui.showCustomAlert(gameState.lang==='ar'?"أنت في مباراة!":"In a match!") : ui.startMatchmakingQueue());
+
+// 💡 هنا الإصلاح الجذري لزر البحث عن لاعب أونلاين
+ui.onClick('online-toggle-btn', () => {
+    if (gameState.isOnlineMode) {
+        return ui.showCustomAlert(gameState.lang === 'ar' ? "أنت في مباراة بالفعل!" : "Already in a match!");
+    }
+    if (!socket || !socket.connected) {
+        return ui.showCustomAlert(gameState.lang === 'ar' ? "السيرفر غير متصل، يرجى الانتظار قليلاً..." : "Server not connected, please wait...");
+    }
+
+    ui.setDisplay('matchmaking-modal', 'flex');
+    
+    const profile = gameState.userProfile || {};
+    const myNameEl = document.getElementById('mm-my-name');
+    const myAvatarEl = document.getElementById('mm-my-avatar');
+    
+    if (myNameEl) myNameEl.innerText = profile.name || "أنت";
+    if (myAvatarEl) {
+        let avatarSrc = profile.avatar || "1000132081.png";
+        if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
+            let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+            avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
+        }
+        myAvatarEl.style.backgroundImage = 'none';
+        myAvatarEl.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
+    }
+
+    const oppNameEl = document.getElementById('mm-opp-name');
+    const oppAvatarEl = document.getElementById('mm-opp-avatar');
+    if (oppNameEl) oppNameEl.innerText = gameState.lang === 'ar' ? "جاري البحث..." : "Searching...";
+    if (oppAvatarEl) {
+        oppAvatarEl.innerHTML = "❓";
+        oppAvatarEl.style.backgroundImage = 'none';
+    }
+
+    socket.emit('joinMatchmakingPool', {
+        guestId: profile.id,
+        name: profile.name,
+        avatar: profile.avatar
+    });
+
+    gameState.mmTimeLeft = 0;
+    const timerEl = document.getElementById('mm-timer');
+    if (timerEl) timerEl.innerText = "00:00";
+    
+    if (gameState.mmInterval) clearInterval(gameState.mmInterval);
+    gameState.mmInterval = setInterval(() => {
+        gameState.mmTimeLeft++;
+        let m = String(Math.floor(gameState.mmTimeLeft / 60)).padStart(2, '0');
+        let s = String(gameState.mmTimeLeft % 60).padStart(2, '0');
+        if (timerEl) timerEl.innerText = `${m}:${s}`;
+    }, 1000);
+});
+
 ui.onClick('room-portal-btn', () => { ui.setDisplay('online-modal', 'flex'); ui.setDisplay('online-status-text', 'none'); ui.setDisplay('online-setup-box', 'block'); });
 ui.onClick('online-close-btn', () => ui.setDisplay('online-modal', 'none'));
 
@@ -246,7 +299,21 @@ ui.onClick('board', e => {
                     if (typeof ui.playSound === 'function') {
                         ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied);
                     }
-                    ui.getEl('board').querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`)?.replaceChildren();
+                    
+                    // 💥 تطبيق مؤثر تكسر الحجر المأكول 💥
+                    let capturedCell = ui.getEl('board').querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`);
+                    if (capturedCell && capturedCell.children.length > 0) {
+                        let capturedPiece = capturedCell.children[0];
+                        let pieceColor = capturedPiece.classList.contains('white') ? 'white' : 'black';
+                        
+                        if (typeof window.shatterPieceEffect === 'function') {
+                            window.shatterPieceEffect(capturedCell, pieceColor);
+                        }
+                        capturedCell.replaceChildren();
+                    } else {
+                        ui.getEl('board').querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`)?.replaceChildren();
+                    }
+
                     target.appendChild(gameState.selectedPiece); 
                     if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move);
                     
