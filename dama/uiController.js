@@ -236,9 +236,7 @@ export const ui = {
         this.setDisplay('store-portal-corner-btn', flexState);
         this.setDisplay('hamburger-menu-btn', flexState);
         
-        // إخفاء زر الصعوبة أثناء اللعب لمنع الأخطاء البرمجية من تغيير القواعد فجأة
         this.setDisplay('diff-quick-select', inlineState);
-        
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
         
@@ -352,7 +350,6 @@ export const ui = {
         if (!board) return;
         
         const flip = gameState.isOnlineMode && gameState.onlineFlip;
-        
         const needsRebuild = forceRebuild || board.children.length === 0 || board.dataset.flip !== String(flip);
         
         if (needsRebuild) {
@@ -771,17 +768,14 @@ export const ui = {
                 worker.onerror = function(err) {
                     worker.onmessage = null;
                     worker.onerror = null;
-                    console.error("AI Worker Error:", err);
                     let chosenMove = moves[0];
                     processMove(chosenMove);
                 };
                 
-                // 💡 الحل الجذري: إرسال الاتجاه الصحيح من اللعبة مباشرة إلى العامل المخفي!
                 worker.postMessage({
                     board: gameState.virtualBoard,
                     depth: depth,
-                    aiColor: aiColor,
-                    pieceDirection: gameState.pieceDirection 
+                    aiColor: aiColor
                 });
             } else {
                 let chosenMove = gameAI.minimax(gameState.virtualBoard, depth, -Infinity, Infinity, true, aiColor).move || moves[0];
@@ -1262,13 +1256,7 @@ ui.onClick('hint-btn', () => {
             showGlow(syncMove || eleganceMoves[0]);
         }
         
-        // 💡 حل جذري للمصباح: إرسال الاتجاه الصحيح للـ Worker
-        worker.postMessage({ 
-            board: gameState.virtualBoard, 
-            depth: hintDepth, 
-            aiColor: myColor,
-            pieceDirection: gameState.pieceDirection 
-        });
+        worker.postMessage({ board: gameState.virtualBoard, depth: hintDepth, aiColor: myColor });
     } else {
         setTimeout(() => {
             let bestMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 6 ? 6 : hintDepth, -Infinity, Infinity, true, myColor).move || eleganceMoves[0];
