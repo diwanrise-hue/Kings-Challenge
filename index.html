@@ -990,7 +990,58 @@
             showCustomPopup(msg);
         });
 
-        // 🔴 التعديل الجذري على دالة فيسبوك (لمنع فقدان الاتصال والضغط المزدوج)
+        let customPopupCallback = null;
+
+        // 🔴 دالة جديدة لحماية واجهة التحميل وإخفاء الأزرار
+        function showLoadingPopup(msg) {
+            document.getElementById('custom-popup-modal').style.display = 'flex';
+            document.getElementById('custom-popup-msg').innerText = msg;
+            document.getElementById('custom-popup-input-group').style.display = 'none';
+            document.getElementById('custom-popup-ok').style.display = 'none'; 
+            document.getElementById('custom-popup-cancel').style.display = 'none';
+            customPopupCallback = null;
+        }
+
+        function showCustomPopup(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
+            document.getElementById('custom-popup-modal').style.display = 'flex';
+            document.getElementById('custom-popup-msg').innerText = msg;
+            
+            const inputContainer = document.getElementById('custom-popup-input-group');
+            const inputEl = document.getElementById('custom-popup-input');
+            const cancelBtn = document.getElementById('custom-popup-cancel');
+            const okBtn = document.getElementById('custom-popup-ok');
+            
+            okBtn.style.display = 'block'; // 🔴 إعادة إظهار الزر دائماً هنا
+
+            if (isPrompt) {
+                inputContainer.style.display = 'block';
+                inputEl.value = defaultValue;
+                inputEl.focus();
+                cancelBtn.style.display = 'block';
+            } else {
+                inputContainer.style.display = 'none';
+                cancelBtn.style.display = showCancel ? 'block' : 'none';
+            }
+            
+            okBtn.innerHTML = translations[currentLang].btn_ok;
+            cancelBtn.innerHTML = translations[currentLang].btn_cancel;
+            customPopupCallback = callback;
+        }
+
+        function closeCustomPopup(isOk) {
+            document.getElementById('custom-popup-modal').style.display = 'none';
+            if (customPopupCallback) {
+                const isPrompt = document.getElementById('custom-popup-input-group').style.display === 'block';
+                const inputVal = document.getElementById('custom-popup-input').value;
+                if (isPrompt) customPopupCallback(isOk ? inputVal : null);
+                else customPopupCallback(isOk);
+            }
+        }
+
+        document.getElementById('custom-popup-ok').addEventListener('click', () => closeCustomPopup(true));
+        document.getElementById('custom-popup-cancel').addEventListener('click', () => closeCustomPopup(false));
+
+        // 🔴 دالة فيسبوك ذكية ومحمية
         function loginWithFacebook() {
             if (typeof FB === 'undefined') { showCustomPopup(translations[currentLang].msg_fb_connect); return; }
 
@@ -998,33 +1049,33 @@
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
                     
-                    // إظهار واجهة تحميل لمنع المستخدم من النقر مرة أخرى
                     const loadingMsg = currentLang === 'ar' ? "جاري تسجيل الدخول عبر فيسبوك..." : (currentLang === 'ku' ? "چوونە ژوورەوە بە فەیسبووک..." : "Logging in via Facebook...");
-                    showCustomPopup(loadingMsg, false);
+                    // 🔴 استخدام النافذة الذكية التي لا تقبل الإلغاء
+                    showLoadingPopup(loadingMsg);
 
                     if (socket && socket.connected) {
                         socket.emit('login_facebook', { accessToken: accessToken });
                     } else {
                         socket.connect();
-                        // ننتظر حتى يستيقظ السيرفر ثم نرسل البيانات
                         const onConnectFb = () => {
                             socket.emit('login_facebook', { accessToken: accessToken });
                             socket.off('connect', onConnectFb);
                         };
                         socket.on('connect', onConnectFb);
                         
+                        // 🔴 زيادة وقت الانتظار إلى 10 ثواني لضمان استيقاظ السيرفر
                         setTimeout(() => {
                             if (!socket.connected) {
                                 showCustomPopup(translations[currentLang].msg_server_fail);
                                 socket.off('connect', onConnectFb);
                             }
-                        }, 6000);
+                        }, 10000);
                     }
                 }
             }); 
         }
 
-        // 🔴 نفس التعديل تم تطبيقه هنا لحماية ربط الحساب
+        // 🔴 تحديث دالة ربط الزائر بنفس ذكاء تسجيل الدخول
         function linkGuestWithFacebook() {
             if (typeof FB === 'undefined') { showCustomPopup(translations[currentLang].msg_fb_connect); return; }
             
@@ -1034,7 +1085,7 @@
                     const profile = getSafeProfile();
                     
                     const loadingMsg = currentLang === 'ar' ? "جاري ربط الحساب..." : (currentLang === 'ku' ? "بەستنەوەی هەژمار..." : "Linking account...");
-                    showCustomPopup(loadingMsg, false);
+                    showLoadingPopup(loadingMsg);
 
                     if (socket && socket.connected) {
                         socket.emit('link_facebook', { accessToken: accessToken, guestId: profile.id });
@@ -1051,7 +1102,7 @@
                                 showCustomPopup(translations[currentLang].msg_server_fail);
                                 socket.off('connect', onConnectLink);
                             }
-                        }, 6000);
+                        }, 10000);
                     }
                 }
             }); 
@@ -1091,44 +1142,6 @@
                 avatarGroup.style.display = 'block';
             }
         }
-
-        let customPopupCallback = null;
-
-        function showCustomPopup(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
-            document.getElementById('custom-popup-modal').style.display = 'flex';
-            document.getElementById('custom-popup-msg').innerText = msg;
-            
-            const inputContainer = document.getElementById('custom-popup-input-group');
-            const inputEl = document.getElementById('custom-popup-input');
-            const cancelBtn = document.getElementById('custom-popup-cancel');
-            
-            if (isPrompt) {
-                inputContainer.style.display = 'block';
-                inputEl.value = defaultValue;
-                inputEl.focus();
-                cancelBtn.style.display = 'block';
-            } else {
-                inputContainer.style.display = 'none';
-                cancelBtn.style.display = showCancel ? 'block' : 'none';
-            }
-            
-            document.getElementById('custom-popup-ok').innerHTML = translations[currentLang].btn_ok;
-            cancelBtn.innerHTML = translations[currentLang].btn_cancel;
-            customPopupCallback = callback;
-        }
-
-        function closeCustomPopup(isOk) {
-            document.getElementById('custom-popup-modal').style.display = 'none';
-            if (customPopupCallback) {
-                const isPrompt = document.getElementById('custom-popup-input-group').style.display === 'block';
-                const inputVal = document.getElementById('custom-popup-input').value;
-                if (isPrompt) customPopupCallback(isOk ? inputVal : null);
-                else customPopupCallback(isOk);
-            }
-        }
-
-        document.getElementById('custom-popup-ok').addEventListener('click', () => closeCustomPopup(true));
-        document.getElementById('custom-popup-cancel').addEventListener('click', () => closeCustomPopup(false));
 
         function triggerAlertSoon() { showCustomPopup(translations[currentLang].msg_soon); }
 
@@ -1422,6 +1435,7 @@
             }
         }
 
+        // 🔴 إلغاء إعادة التشغيل المزعجة (location.reload) وإخفاء نافذة اللعبة 
         function executeLogout(isSwitching) {
             const profileRaw = localStorage.getItem('hub_user_profile');
             let isFacebookUser = false;
@@ -1431,14 +1445,24 @@
 
             localStorage.removeItem('hub_user_profile');
             document.getElementById('profile-modal').style.display = 'none';
+            
+            // إخفاء اللعبة وتفريغها لعدم ظهورها بالخلفية
+            document.getElementById('game-interface').style.display = 'none';
+            const gameFrame = document.getElementById('game-frame');
+            if (gameFrame) gameFrame.src = '';
+            
+            // العودة لواجهة التسجيل بسلاسة وبدون الافتتاحية
             checkUserAuthentication();
 
             if (isFacebookUser && typeof FB !== 'undefined') {
                 FB.getLoginStatus(function(response) {
-                    if (response.status === 'connected') FB.logout(function() { location.reload(); });
-                    else location.reload();
+                    if (response.status === 'connected') {
+                        FB.logout(function() { 
+                            // خروج صامت
+                        });
+                    }
                 });
-            } else { location.reload(); }
+            }
         }
 
         function triggerLogout() { handleAccountExit(false); }
