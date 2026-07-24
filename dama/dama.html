@@ -1111,21 +1111,24 @@
             
             const avatarContainer = div.querySelector('.lb-avatar');
             
-            // 🔴 التعديل الجذري لمعالجة الصور وحماية الواجهة
+            // 🔴 التعديل النهائي لضمان ظهور الصور الحقيقية 100%
             if (avatarStr && avatarStr !== 'null' && avatarStr !== 'undefined') {
                 let imgSrc = avatarStr;
                 
-                const isFullUrl = imgSrc.startsWith('http://') || imgSrc.startsWith('https://') || imgSrc.startsWith('data:image');
+                // التحقق مما إذا كانت الصورة رابطاً خارجياً (فيسبوك) أو صورة مرفوعة (Base64)
+                const isFullUrl = imgSrc.startsWith('http') || imgSrc.startsWith('data:image');
                 
-                // توحيد مسار الصور الداخلية لتعمل دائماً
+                // إذا كانت الصورة من ملفات اللعبة (مثل Photo/avatar.webp)
                 if (!isFullUrl) {
-                    imgSrc = imgSrc.replace('../', ''); // تنظيف المسار
-                    imgSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/" + imgSrc;
+                    // تنظيف المسار وإضافة ../ لتعمل الصورة من داخل ملفات الدامة بشكل مثالي
+                    imgSrc = imgSrc.replace(/\.\.\//g, ''); 
+                    imgSrc = '../' + imgSrc; 
                 }
 
-                // إضافة onerror: إذا كانت الصورة مكسورة، اخفِ الصورة واعرض إيموجي 👤
+                // عرض الصورة الحقيقية
                 avatarContainer.innerHTML = `<img src="${imgSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
             } else {
+                // فقط في حال كان حساب اللاعب لا يمتلك صورة برمجياً
                 avatarContainer.textContent = '👤';
             }
             
