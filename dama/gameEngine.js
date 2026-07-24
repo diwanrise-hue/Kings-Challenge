@@ -61,72 +61,69 @@ export const gameEngine = {
         return topCount > bottomCount;
     },
 
-    // دالة الافتراس المُحسّنة (تم استبدال نسخ المصفوفة بـ Backtracking)
     getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = null) {
         const baseColor = color.split('-')[0];
-        let piece = bState[r][c];
-        if (!piece) return [];
-        let isDama = piece.endsWith('-dama');
+        let isDama = bState[r][c] && bState[r][c].endsWith('-dama');
         let paths = [];
         let dirY = this.getPieceDirection(baseColor, bState); // استدعاء ذكي
         let directions = isDama ? [[0,1], [0,-1], [1,0], [-1,0]] : [[dirY, 0], [0,1], [0,-1]];
 
         for (let [dr, dc] of directions) {
+            // منع الملك من الدوران للخلف 180 درجة في نفس القفزة
             if (isDama && parentDr !== null && parentDc !== null && dr === -parentDr && dc === -parentDc) continue;
+            
             if (isDama) {
                 let step = 1, foundEnemy = null, enemyR = -1, enemyC = -1;
                 while (true) {
                     let nextR = r + dr * step, nextC = c + dc * step;
                     if (nextR < 0 || nextR >= 8 || nextC < 0 || nextC >= 8) break;
-                    let p = bState[nextR][nextC];
+                    
+                    let piece = bState[nextR][nextC];
                     if (!foundEnemy) {
-                        if (p === null) { step++; continue; }
-                        else if (!p.startsWith(baseColor)) { foundEnemy = p; enemyR = nextR; enemyC = nextC; step++; continue; }
-                        else break;
+                        if (piece === null) { 
+                            step++; 
+                            continue; 
+                        }
+                        else if (!piece.startsWith(baseColor)) { 
+                            foundEnemy = piece; 
+                            enemyR = nextR; 
+                            enemyC = nextC; 
+                            step++; 
+                            continue; 
+                        }
+                        else break; // قطعة صديقة تمنع التقدم
                     } else {
-                        if (p === null) {
-                            // --- تقنية الـ Backtracking (تطبيق الحركة ثم التراجع) ---
-                            bState[r][c] = null;
-                            bState[enemyR][enemyC] = null;
-                            bState[nextR][nextC] = piece;
-
+                        if (piece === null) {
+                            // 💡 الحل الجذري للمشكلة: يجب استكشاف *كل* مربع فارغ خلف الخصم كمسار شرعي للهبوط!
+                            let nextBoard = bState.map(row => [...row]);
+                            nextBoard[enemyR][enemyC] = null; 
+                            nextBoard[nextR][nextC] = bState[r][c]; 
+                            nextBoard[r][c] = null;
                             let stepObj = { fromR: r, fromC: c, toR: nextR, toC: nextC, midR: enemyR, midC: enemyC };
-                            let subPaths = this.getPieceCapturePaths(nextR, nextC, color, bState, dr, dc);
-
-                            // التراجع عن الحركة لإعادة اللوحة لحالتها الأصلية
-                            bState[r][c] = piece;
-                            bState[enemyR][enemyC] = foundEnemy;
-                            bState[nextR][nextC] = null;
-                            // ----------------------------------------------------
-
+                            
+                            let subPaths = this.getPieceCapturePaths(nextR, nextC, color, nextBoard, dr, dc);
+                            
                             if (subPaths.length > 0) {
                                 subPaths.forEach(sp => paths.push([stepObj, ...sp]));
                             } else {
                                 paths.push([stepObj]);
                             }
-                            break; 
-                        } else break;
+                            // 💡 هنا كانت المشكلة سابقاً (كانت break;) مما يمنع استكشاف المربعات التي بعدها!
+                            step++; 
+                            continue; 
+                        } else break; // قطعة أخرى توقف الانزلاق خلف المأكول
                     }
                 }
             } else {
                 let midR = r + dr, midC = c + dc, toR = r + 2 * dr, toC = c + 2 * dc;
                 if (toR >= 0 && toR < 8 && toC >= 0 && toC < 8) {
-                    let midPiece = bState[midR][midC];
-                    if (midPiece && !midPiece.startsWith(baseColor) && bState[toR][toC] === null) {
-                        // --- تقنية الـ Backtracking ---
-                        bState[r][c] = null;
-                        bState[midR][midC] = null;
-                        bState[toR][toC] = piece;
-
+                    if (bState[midR][midC] && !bState[midR][midC].startsWith(baseColor) && bState[toR][toC] === null) {
+                        let nextBoard = bState.map(row => [...row]);
+                        nextBoard[midR][midC] = null; 
+                        nextBoard[toR][toC] = bState[r][c]; 
+                        nextBoard[r][c] = null;
                         let stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
-                        let subPaths = this.getPieceCapturePaths(toR, toC, color, bState, dr, dc);
-
-                        // التراجع عن الحركة
-                        bState[r][c] = piece;
-                        bState[midR][midC] = midPiece;
-                        bState[toR][toC] = null;
-                        // ------------------------------
-
+                        let subPaths = this.getPieceCapturePaths(toR, toC, color, nextBoard, dr, dc);
                         if (subPaths.length > 0) {
                             subPaths.forEach(sp => paths.push([stepObj, ...sp]));
                         } else {
@@ -165,39 +162,29 @@ export const gameEngine = {
         return moves;
     },
 
-    // دالة توليد الحركات المُحسّنة (بإضافة Early Pruning وحلقات أسرع)
     generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = null, activeDc = null) {
-        let allCapturePaths = [];
-        let maxJumps = 0;
+        let allCapturePaths = [], maxJumps = 0;
         const baseColor = color.split('-')[0];
         
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                let piece = bState[r][c];
-                if (piece && piece.startsWith(baseColor) && (activeR === null || (r === activeR && c === activeC))) {
-                    let paths = this.getPieceCapturePaths(r, c, baseColor, bState, (r === activeR ? activeDr : null), (c === activeC ? activeDc : null));
-                    for (let i = 0; i < paths.length; i++) {
-                        let len = paths[i].length;
-                        if (len > maxJumps) maxJumps = len;
-                        allCapturePaths.push(paths[i]);
-                    }
-                }
+        bState.forEach((row, r) => row.forEach((piece, c) => {
+            if (piece && piece.startsWith(baseColor) && (activeR === null || (r === activeR && c === activeC))) {
+                this.getPieceCapturePaths(r, c, baseColor, bState, (r === activeR ? activeDr : null), (c === activeC ? activeDc : null)).forEach(p => {
+                    if (p.length > maxJumps) maxJumps = p.length;
+                    allCapturePaths.push(p);
+                });
             }
-        }
+        }));
         
-        // التصفية المبكرة: إذا وجد أكل إجباري، لا داعي لاحتساب الحركات العادية
+        // إجبار اللاعب على اختيار المسار الذي يأكل أكبر عدد من القطع (مثل 3 قطع بدلاً من 1)
         if (maxJumps > 0) return allCapturePaths.filter(p => p.length === maxJumps);
         if (activeR !== null && activeC !== null) return [];
 
         let allSimpleMoves = [];
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                let piece = bState[r][c];
-                if (piece && piece.startsWith(baseColor)) {
-                    allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, baseColor, bState));
-                }
+        bState.forEach((row, r) => row.forEach((piece, c) => {
+            if (piece && piece.startsWith(baseColor)) {
+                allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, baseColor, bState));
             }
-        }
+        }));
         return allSimpleMoves;
     },
 
@@ -216,7 +203,7 @@ export const gameEngine = {
         let fPiece = nextBoard[last.toR][last.toC];
         
         if (fPiece && !fPiece.includes('dama')) {
-            let dirY = this.getPieceDirection(fPiece, nextBoard); // ترقية مبنية على الاتجاه الجديد
+            let dirY = this.getPieceDirection(fPiece, nextBoard); 
             let promoRow = (dirY === 1) ? 7 : 0;
             if (last.toR === promoRow) {
                 nextBoard[last.toR][last.toC] += '-dama';
