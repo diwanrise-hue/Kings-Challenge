@@ -430,7 +430,6 @@
         </div>
     </div>
 
-    <!-- نافذة اختيار الخلفية (تمت إضافة جميع الصور الجديدة إليها) -->
     <div id="bg-select-modal" class="modal-overlay" style="z-index: 100005;">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeBgModal()">✕</button>
@@ -991,25 +990,69 @@
             showCustomPopup(msg);
         });
 
+        // 🔴 التعديل الجذري على دالة فيسبوك (لمنع فقدان الاتصال والضغط المزدوج)
         function loginWithFacebook() {
             if (typeof FB === 'undefined') { showCustomPopup(translations[currentLang].msg_fb_connect); return; }
-            if (!socket || !socket.connected) { showCustomPopup(translations[currentLang].msg_server_fail); socket.connect(); return; }
+
             FB.login(function(response) {
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
-                    socket.emit('login_facebook', { accessToken: accessToken });
+                    
+                    // إظهار واجهة تحميل لمنع المستخدم من النقر مرة أخرى
+                    const loadingMsg = currentLang === 'ar' ? "جاري تسجيل الدخول عبر فيسبوك..." : (currentLang === 'ku' ? "چوونە ژوورەوە بە فەیسبووک..." : "Logging in via Facebook...");
+                    showCustomPopup(loadingMsg, false);
+
+                    if (socket && socket.connected) {
+                        socket.emit('login_facebook', { accessToken: accessToken });
+                    } else {
+                        socket.connect();
+                        // ننتظر حتى يستيقظ السيرفر ثم نرسل البيانات
+                        const onConnectFb = () => {
+                            socket.emit('login_facebook', { accessToken: accessToken });
+                            socket.off('connect', onConnectFb);
+                        };
+                        socket.on('connect', onConnectFb);
+                        
+                        setTimeout(() => {
+                            if (!socket.connected) {
+                                showCustomPopup(translations[currentLang].msg_server_fail);
+                                socket.off('connect', onConnectFb);
+                            }
+                        }, 6000);
+                    }
                 }
             }); 
         }
 
+        // 🔴 نفس التعديل تم تطبيقه هنا لحماية ربط الحساب
         function linkGuestWithFacebook() {
             if (typeof FB === 'undefined') { showCustomPopup(translations[currentLang].msg_fb_connect); return; }
-            if (!socket || !socket.connected) { showCustomPopup(translations[currentLang].msg_server_fail); socket.connect(); return; }
+            
             FB.login(function(response) {
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
                     const profile = getSafeProfile();
-                    socket.emit('link_facebook', { accessToken: accessToken, guestId: profile.id });
+                    
+                    const loadingMsg = currentLang === 'ar' ? "جاري ربط الحساب..." : (currentLang === 'ku' ? "بەستنەوەی هەژمار..." : "Linking account...");
+                    showCustomPopup(loadingMsg, false);
+
+                    if (socket && socket.connected) {
+                        socket.emit('link_facebook', { accessToken: accessToken, guestId: profile.id });
+                    } else {
+                        socket.connect();
+                        const onConnectLink = () => {
+                            socket.emit('link_facebook', { accessToken: accessToken, guestId: profile.id });
+                            socket.off('connect', onConnectLink);
+                        };
+                        socket.on('connect', onConnectLink);
+                        
+                        setTimeout(() => {
+                            if (!socket.connected) {
+                                showCustomPopup(translations[currentLang].msg_server_fail);
+                                socket.off('connect', onConnectLink);
+                            }
+                        }, 6000);
+                    }
                 }
             }); 
         }
@@ -1197,12 +1240,10 @@
                 finalAvatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
             }
 
-            // رابط الطوارئ (الشخصية الافتراضية)
             const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
 
             const renderAvatarLocal = (elementId) => {
                 const el = document.getElementById(elementId);
-                // 🔴 تمت إضافة خاصية onerror لحماية الصورة من التحطم وتفعيل البديل
                 if (el) el.innerHTML = `<img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
             };
             
