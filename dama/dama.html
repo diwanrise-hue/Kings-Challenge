@@ -1116,9 +1116,8 @@
                 const isFullUrl = imgSrc.startsWith('http') || imgSrc.startsWith('data:image');
                 
                 if (!isFullUrl) {
-                    imgSrc = imgSrc.replace(/\.\.\//g, ''); 
-                    if (!imgSrc.includes('/')) imgSrc = 'Photo/' + imgSrc;
-                    imgSrc = '../' + imgSrc; 
+                    let cleanName = imgSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+                    imgSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
                 }
 
                 const img = document.createElement('img');
@@ -1349,6 +1348,11 @@
                 } catch(e) { console.error(e); }
             }
 
+            if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) {
+                let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+                avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
+            }
+
             const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
             
             targetAvatars.forEach(id => {
@@ -1359,7 +1363,7 @@
                     const existingImg = el.querySelector('img');
                     if (!existingImg || existingImg.getAttribute('src') !== avatarSrc) {
                         el.style.backgroundImage = 'none';
-                        el.innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
+                        el.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
                     }
                 } else {
                     if (el.textContent !== avatarSrc) {
