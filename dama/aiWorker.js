@@ -1,4 +1,4 @@
-// aiWorker.js - النسخة الديناميكية الأسطورية (متوافقة مع الأوفلاين والأونلاين 100%)
+// aiWorker.js - النسخة الديناميكية المعدلة (دعم القفز المتعدد ومربعات الهبوط الكاملة للملك)
 
 /**
  * دالة مساعدة للتحقق من حدود اللوح
@@ -34,7 +34,7 @@ function autoDetectDirections(bState) {
 }
 
 /**
- * دالة حساب مسارات القفز والأكل الإجباري الديناميكية
+ * دالة حساب مسارات القفز والأكل الإجباري الديناميكية للملك والقطع العادية
  */
 function getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = null) {
     const isDama = bState[r][c]?.endsWith('-dama');
@@ -48,6 +48,7 @@ function getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = n
     let paths = [];
 
     for (const [dr, dc] of currentDirections) {
+        // عدم العودة المباشرة في نفس الخط العكسي بـ 180 درجة في نفس القفزة
         if (isDama && parentDr !== null && parentDc !== null) {
             if (dr === -parentDr && dc === -parentDc) continue;
         }
@@ -64,20 +65,27 @@ function getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = n
 
                 const piece = bState[nextR][nextC];
                 if (!foundEnemy) {
-                    if (piece === null) { step++; continue; }
+                    if (piece === null) { 
+                        step++; 
+                        continue; 
+                    }
                     else if (!piece.startsWith(pureColor)) {
                         foundEnemy = piece;
                         enemyPos = { r: nextR, c: nextC };
-                        step++; continue;
-                    } else break;
+                        step++; 
+                        continue;
+                    } else break; // قطعة من نفس اللون تمنع المرور
                 } else {
                     if (piece === null) {
+                        // 💡 تم الحل هنا: كل مربع فارغ خلف الخصم هو خيار هبوط شرعي ومستقل للملك!
                         let nextBoard = bState.map(row => [...row]);
                         nextBoard[enemyPos.r][enemyPos.c] = null;
                         nextBoard[nextR][nextC] = bState[r][c];
                         nextBoard[r][c] = null;
 
                         const stepObj = { fromR: r, fromC: c, toR: nextR, toC: nextC, midR: enemyPos.r, midC: enemyPos.c };
+                        
+                        // استكشاف القفزات التالية بحرية اتجاه كاملة من خانة الهبوط الحالية
                         const subPaths = getPieceCapturePaths(nextR, nextC, color, nextBoard, dr, dc);
 
                         if (subPaths.length > 0) {
@@ -87,7 +95,7 @@ function getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = n
                         }
                         step++; 
                         continue;
-                    } else break;
+                    } else break; // قطعة أخرى تعترض الطريق بعد الخصم
                 }
             }
         } else {
@@ -272,7 +280,7 @@ self.onmessage = function(e) {
 
     if (!board || !aiColor) return;
 
-    // 💡 هذا السطر سيحل المشكلة فوراً: البوت الآن يمسح الرقعة أولاً ليعرف أين يجلس، ثم ينطلق بالاتجاه السليم!
+    // 💡 هذا السطر يمسح الرقعة أولاً ليعرف البوت أين يجلس، ثم ينطلق بالاتجاه السليم!
     autoDetectDirections(board);
 
     const result = minimax(board, depth, -Infinity, Infinity, true, aiColor, aiColor);
