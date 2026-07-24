@@ -246,7 +246,21 @@ ui.onClick('board', e => {
                     if (typeof ui.playSound === 'function') {
                         ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied);
                     }
-                    ui.getEl('board').querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`)?.replaceChildren();
+                    
+                    // 💥 تطبيق مؤثر تكسر الحجر المأكول 💥
+                    let capturedCell = ui.getEl('board').querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`);
+                    if (capturedCell && capturedCell.children.length > 0) {
+                        let capturedPiece = capturedCell.children[0];
+                        let pieceColor = capturedPiece.classList.contains('white') ? 'white' : 'black';
+                        
+                        if (typeof window.shatterPieceEffect === 'function') {
+                            window.shatterPieceEffect(capturedCell, pieceColor);
+                        }
+                        capturedCell.replaceChildren();
+                    } else {
+                        ui.getEl('board').querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`)?.replaceChildren();
+                    }
+
                     target.appendChild(gameState.selectedPiece); 
                     if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move);
                     
