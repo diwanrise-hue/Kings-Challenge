@@ -1193,13 +1193,19 @@
             let finalAvatarSrc = profile.avatar || 'Photo/1000132081.webp';
             const isFullUrl = finalAvatarSrc.startsWith('http://') || finalAvatarSrc.startsWith('https://') || finalAvatarSrc.startsWith('data:image');
             if (!isFullUrl) {
-                finalAvatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/" + finalAvatarSrc;
+                let cleanName = finalAvatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+                finalAvatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
             }
+
+            // رابط الطوارئ (الشخصية الافتراضية)
+            const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
 
             const renderAvatarLocal = (elementId) => {
                 const el = document.getElementById(elementId);
-                if (el) el.innerHTML = `<img src="${finalAvatarSrc}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
+                // 🔴 تمت إضافة خاصية onerror لحماية الصورة من التحطم وتفعيل البديل
+                if (el) el.innerHTML = `<img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
             };
+            
             renderAvatarLocal('hub-profile-avatar');
             renderAvatarLocal('profile-display-avatar');
 
