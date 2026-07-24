@@ -7,6 +7,8 @@
     <title>Dama Challenge</title>
     <link rel="icon" type="image/png" href="1000127272.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <!-- مكتبة Confetti للاحتفالات -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         /* ========================================== */
         /* المتغيرات الأساسية والهيكل العام الثابت    */
@@ -131,6 +133,22 @@
         .piece.dama.forced { border: 4px double #e74c3c !important; box-shadow: 0 0 25px #e74c3c, inset 0 0 12px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
         @keyframes forcedPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
         
+        /* تأثير الشظايا عند تكسر الحجر */
+        .shatter-container {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            pointer-events: none; z-index: 100; display: flex; justify-content: center; align-items: center;
+        }
+        .shard {
+            position: absolute;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.4);
+            animation: shatterAnim 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        @keyframes shatterAnim {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0); opacity: 0; }
+        }
+
         /* ========================================== */
         /* الشريط السفلي و الأزرار المربعة            */
         /* ========================================== */
@@ -1662,6 +1680,65 @@
         });
     </script>
 
+    <!-- 🎆 دوال المؤثرات البصرية الاحترافية (احتفال الشراء وتكسر الأحجار) 🎆 -->
+    <script>
+        // 1. مؤثرات احتفال الشراء (صوت نقود + ألعاب نارية)
+        window.triggerPurchaseCelebration = function() {
+            const coinSound = new Audio('https://actions.google.com/sounds/v1/foley/coins_jingle.ogg');
+            coinSound.volume = 0.8;
+            coinSound.play().catch(e => console.log("الصوت مقيد من المتصفح", e));
+
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 20000005 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { 
+                    particleCount, 
+                    origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 } 
+                }));
+            }, 250);
+        };
+
+        // 2. مؤثرات تكسر الحجر عند أكله (صوت زجاج + شظايا متناثرة)
+        window.shatterPieceEffect = function(cellElement, pieceColor) {
+            const breakSound = new Audio('https://actions.google.com/sounds/v1/foley/glass_shatter.ogg');
+            breakSound.volume = 0.5;
+            breakSound.play().catch(e => console.log("الصوت مقيد", e));
+
+            const container = document.createElement('div');
+            container.className = 'shatter-container';
+            
+            const isWhite = pieceColor.includes('white');
+            const color1 = isWhite ? '#ffffff' : '#68707a';
+            const color2 = isWhite ? '#dcdde1' : '#1e1e24';
+
+            for(let i = 0; i < 10; i++) {
+                const shard = document.createElement('div');
+                shard.className = 'shard';
+                shard.style.background = `linear-gradient(135deg, ${color1}, ${color2})`;
+                
+                shard.style.width = (Math.random() * 12 + 8) + 'px';
+                shard.style.height = (Math.random() * 12 + 8) + 'px';
+                
+                shard.style.setProperty('--tx', (Math.random() - 0.5) * 150 + 'px');
+                shard.style.setProperty('--ty', (Math.random() - 0.5) * 150 + 'px');
+                shard.style.setProperty('--rot', (Math.random() - 0.5) * 1000 + 'deg');
+                
+                container.appendChild(shard);
+            }
+            
+            cellElement.appendChild(container);
+            
+            setTimeout(() => { if(container.parentNode) container.remove(); }, 600);
+        };
+    </script>
+
     <script type="module">
         import { storeManager } from './store.js?v=999';
         document.addEventListener('DOMContentLoaded', () => {
@@ -1685,96 +1762,6 @@
         ['click', 'touchstart'].forEach(eventType => {
             document.body.addEventListener(eventType, requestFullScreen, { once: true });
         });
- </script>
-    <!-- ========================================== -->
-<!-- 🎆 حزمة المؤثرات البصرية والصوتية الاحترافية -->
-<!-- ========================================== -->
-<!-- مكتبة Confetti للاحتفالات -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-<style>
-    /* تصميم شظايا الحجر المتكسر */
-    .shatter-container {
-        position: absolute; width: 100%; height: 100%; top: 0; left: 0;
-        pointer-events: none; z-index: 100; display: flex; justify-content: center; align-items: center;
-    }
-    .shard {
-        position: absolute;
-        border-radius: 4px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.4);
-        animation: shatterAnim 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-    }
-    @keyframes shatterAnim {
-        0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
-        100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0); opacity: 0; }
-    }
-</style>
-
-<script>
-    // 1. مؤثرات احتفال الشراء (صوت نقود + ألعاب نارية)
-    window.triggerPurchaseCelebration = function() {
-        // تشغيل صوت النقود
-        const coinSound = new Audio('https://actions.google.com/sounds/v1/foley/coins_jingle.ogg');
-        coinSound.volume = 0.8;
-        coinSound.play().catch(e => console.log("الصوت مقيد من المتصفح", e));
-
-        // إطلاق الألعاب النارية من عدة اتجاهات
-        var duration = 3 * 1000;
-        var animationEnd = Date.now() + duration;
-        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 20000005 };
-
-        function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-
-        var interval = setInterval(function() {
-            var timeLeft = animationEnd - Date.now();
-            if (timeLeft <= 0) return clearInterval(interval);
-            var particleCount = 50 * (timeLeft / duration);
-            confetti(Object.assign({}, defaults, { 
-                particleCount, 
-                origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 } 
-            }));
-        }, 250);
-    };
-
-    // 2. مؤثرات تكسر الحجر عند أكله (صوت زجاج + شظايا متناثرة)
-    window.shatterPieceEffect = function(cellElement, pieceColor) {
-        // تشغيل صوت التحطم
-        const breakSound = new Audio('https://actions.google.com/sounds/v1/foley/glass_shatter.ogg');
-        breakSound.volume = 0.5;
-        breakSound.play().catch(e => console.log("الصوت مقيد", e));
-
-        // إنشاء حاوية الشظايا
-        const container = document.createElement('div');
-        container.className = 'shatter-container';
-        
-        const isWhite = pieceColor.includes('white');
-        const color1 = isWhite ? '#ffffff' : '#68707a';
-        const color2 = isWhite ? '#dcdde1' : '#1e1e24';
-
-        // توليد 10 شظايا عشوائية تطير في كل الاتجاهات
-        for(let i = 0; i < 10; i++) {
-            const shard = document.createElement('div');
-            shard.className = 'shard';
-            shard.style.background = `linear-gradient(135deg, ${color1}, ${color2})`;
-            
-            // أحجام عشوائية للشظايا
-            shard.style.width = (Math.random() * 12 + 8) + 'px';
-            shard.style.height = (Math.random() * 12 + 8) + 'px';
-            
-            // اتجاهات وزوايا عشوائية عبر متغيرات CSS
-            shard.style.setProperty('--tx', (Math.random() - 0.5) * 150 + 'px');
-            shard.style.setProperty('--ty', (Math.random() - 0.5) * 150 + 'px');
-            shard.style.setProperty('--rot', (Math.random() - 0.5) * 1000 + 'deg');
-            
-            container.appendChild(shard);
-        }
-        
-        cellElement.appendChild(container);
-        
-        // إزالة الشظايا بعد انتهاء الأنيميشن
-        setTimeout(() => { if(container.parentNode) container.remove(); }, 600);
-    };
-</script>
-
+    </script>
 </body>
 </html>
