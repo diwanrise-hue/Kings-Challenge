@@ -444,7 +444,6 @@ export const ui = {
         this.toggleOfflineInMatchUI(false);
         this.toggleOnlineUILayout(false); 
         
-        // 💡 ضمان استعادة رصيد المصابيح الحقيقي بمجرد العودة للرقعة الفارغة (نهاية الأونلاين)
         if (typeof restoreOfflineHintSystem === 'function') {
             restoreOfflineHintSystem();
         }
@@ -793,7 +792,7 @@ export const ui = {
                     board: gameState.virtualBoard,
                     depth: depth,
                     aiColor: aiColor,
-                    pieceDirection: gameState.pieceDirection // 💡 حماية إضافية للاتجاه الصحيح
+                    pieceDirection: gameState.pieceDirection 
                 });
             } else {
                 let chosenMove = gameAI.minimax(gameState.virtualBoard, depth, -Infinity, Infinity, true, aiColor).move || moves[0];
@@ -961,7 +960,6 @@ export const ui = {
                     gameState.userProfile.id = gameState.userProfile.id.toUpperCase();
                 }
                 
-                // 💡 حماية الرصيد الأصلي أثناء الحفظ في وضع انقطاع الإنترنت
                 let profileToSave = { ...gameState.userProfile };
                 if (gameState.originalHints !== undefined && gameState.originalHints !== null) {
                     profileToSave.hints = gameState.originalHints;
@@ -1248,7 +1246,6 @@ ui.onClick('hint-btn', () => {
             const counterEl = document.getElementById('hint-counter');
             if (counterEl) counterEl.textContent = profile.hints;
             
-            // 💡 حماية الرصيد الأصلي: لا نحفظ ملف البروفايل في المتصفح إذا كنا في وضع الأونلاين (لتجنب ضياع الرصيد المخبأ)
             if (!gameState.isOnlineMode) {
                 localStorage.setItem('hub_user_profile', JSON.stringify(profile));
                 if (window.parent) {
@@ -1293,7 +1290,7 @@ ui.onClick('hint-btn', () => {
             board: gameState.virtualBoard, 
             depth: hintDepth, 
             aiColor: myColor,
-            pieceDirection: gameState.pieceDirection // 💡 حماية إضافية للاتجاه الصحيح
+            pieceDirection: gameState.pieceDirection 
         });
     } else {
         setTimeout(() => {
@@ -1330,7 +1327,6 @@ document.addEventListener('click', (e) => {
         } else if (action === 'remove-friend') {
             gameState.userProfile.friends = (gameState.userProfile.friends || []).filter(id => id.toUpperCase() !== fId); 
             
-            // 💡 حماية الرصيد الأصلي أثناء الحفظ عند حذف صديق في وضع الأونلاين
             let profileToSave = { ...gameState.userProfile };
             if (gameState.originalHints !== undefined && gameState.originalHints !== null) {
                 profileToSave.hints = gameState.originalHints;
@@ -1343,52 +1339,39 @@ document.addEventListener('click', (e) => {
 });
 
 // =========================================================
-// 💡 تأثير: تظليل الحجر والرقعة الإجبارية بلون أسود شفاف مع تموج داكن
+// 💡 تأثير: التوهج المزدوج عالي التباين (أحمر ناري + ذهبي)
 // =========================================================
 if (!document.getElementById('forced-overlay-style')) {
     const forcedStyle = document.createElement('style');
     forcedStyle.id = 'forced-overlay-style';
     forcedStyle.innerHTML = `
-        /* 1. إعطاء الخلية الحاضنة للحجر الإجباري موضعاً نسبياً ليتطابق معها الظل */
+        /* 1. إعطاء الخلية الحاضنة إطاراً رفيعاً ومحدداً */
         .cell:has(.piece.multi-choice) {
             position: relative !important;
-            border: 1px solid rgba(255, 69, 58, 0.3) !important; 
-        }
-
-        /* 2. الطبقة السوداء الشفافة توضع (خلف الحجر) باستخدام ::before و z-index */
-        .cell:has(.piece.multi-choice)::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; /* خلف الحجر */
-            pointer-events: none; 
-            animation: darkWaveAnim 1.5s infinite alternate ease-in-out;
+            border: 2px solid #ff453a !important; 
+            animation: dangerPulse 1.2s infinite alternate ease-in-out !important;
             border-radius: inherit;
         }
 
-        /* 3. رفع الحجر ليكون فوق الظلام */
+        /* 2. التوهج المزدوج المتغير ليناسب جميع ألوان الرقعة */
+        @keyframes dangerPulse {
+            0% {
+                box-shadow: 0 0 8px #ff453a, inset 0 0 15px rgba(255, 69, 58, 0.5);
+                border-color: #ff453a;
+            }
+            100% {
+                box-shadow: 0 0 20px #ff453a, 0 0 30px #ffd700, inset 0 0 35px rgba(255, 69, 58, 0.8);
+                border-color: #ffd700; /* يتحول للذهبي في ذروة النبض للتباين العالي */
+            }
+        }
+
+        /* 3. رفع الحجر ليكون فوق الإشعاع مع إضافة ظل داكن يفصله عن الرقعة */
         .cell:has(.piece.multi-choice) .piece {
             z-index: 2 !important; 
             position: relative !important;
-            /* إزالة تصغير الحجر للحفاظ على شكله الطبيعي مع نبض خفيف جداً */
-            animation: pieceSoftPulse 1.5s infinite alternate ease-in-out !important;
-        }
-
-        /* 4. التموج اللوني الأسود الشفاف (مخفف جداً ولا يخفي الحجر) */
-        @keyframes darkWaveAnim {
-            0% { 
-                background-color: rgba(0, 0, 0, 0.1); 
-                box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-            }
-            100% { 
-                background-color: rgba(0, 0, 0, 0.45); 
-                box-shadow: inset 0 0 25px rgba(0,0,0,0.7);
-            }
-        }
-
-        @keyframes pieceSoftPulse {
-            0% { filter: drop-shadow(0 0 2px rgba(255, 69, 58, 0.3)); }
-            100% { filter: drop-shadow(0 0 8px rgba(255, 69, 58, 0.7)); transform: scale(1.03); }
+            transform: scale(1.08) !important; /* تكبير بسيط وجميل للحجر الإجباري */
+            filter: drop-shadow(0 5px 12px rgba(0,0,0,0.8)) !important; /* ظل أسود قوي للحجر نفسه */
+            transition: transform 0.2s ease, filter 0.2s ease;
         }
     `;
     document.head.appendChild(forcedStyle);
