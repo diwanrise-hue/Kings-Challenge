@@ -67,7 +67,7 @@ export const translations = {
         tokenReward: "مكافأة الفوز 🪙",
         
         // --- الكلمات التي كانت مفقودة وتسبب الوميض ---
-        start: "ابداء",
+        start: "بدء",
         resign: "الانسحاب",
         undo: "تراجع",
         exit: "خروج",
