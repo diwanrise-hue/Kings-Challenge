@@ -30,8 +30,7 @@ export const ui = {
     clickHandlers: new Map(), 
 
     translate(arTxt, enTxt) {
-        const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
-        return currentLang === 'ar' ? arTxt : enTxt;
+        return t(arTxt) || arTxt;
     },
 
     getEl: id => document.getElementById(id),
@@ -212,7 +211,7 @@ export const ui = {
     animateMatchFound(oppName, oppAvatar, onComplete) {
         this.setTxt('mm-opp-name', oppName);
         this.applyAvatar('mm-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
-        this.setTxt('mm-status-label', this.translate("تم إيجاد الخصم! جاري التجهيز...", "Opponent Found! Preparing..."));
+        this.setTxt('mm-status-label', t('opp_found'));
         
         const cancelBtn = this.getEl('mm-cancel-btn');
         if(cancelBtn) cancelBtn.style.display = 'none';
@@ -274,7 +273,7 @@ export const ui = {
         
         if (active && gameState.userProfile) {
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar);
-            this.setTxt('card-my-name', gameState.userProfile.name || t('you'));
+            this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             this.setTxt('card-opp-name', oppName);
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
         }
@@ -455,7 +454,7 @@ export const ui = {
         
         const tInd = this.getEl('turn-indicator');
         if (tInd) {
-            tInd.textContent = this.translate("اضغط بدء اللعب", "Press Start");
+            tInd.textContent = t('press_start');
             tInd.style.color = "#a1a1aa";
         }
         this.setTxt('turn-countdown', '');
@@ -560,7 +559,7 @@ export const ui = {
                 gameState.turnTimeLeft--;
             }
 
-            this.setTxt('turn-countdown', this.translate(`⏳ المتبقي للدور: ${gameState.turnTimeLeft} ثانية`, `⏳ Turn Time Left: ${gameState.turnTimeLeft}s`));
+            this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
             
             if (gameState.turnTimeLeft === 10) {
                 let playPromise = sfx.clock.play();
@@ -573,7 +572,7 @@ export const ui = {
                 sfx.clock.pause();
                 sfx.clock.currentTime = 0;
                 
-                this.setTxt('turn-countdown', this.translate("⏳ جاري المزامنة مع الخادم...", "⏳ Syncing with server..."));
+                this.setTxt('turn-countdown', t('syncing'));
             }
         };
 
@@ -619,7 +618,7 @@ export const ui = {
             if (gameState.blockGameOverModal) return; 
             
             let winnerColor = gameState.currentTurn === 'white' ? 'black' : 'white';
-            tInd.textContent = winnerColor === 'white' ? this.translate("فاز الأبيض!", "White Wins!") : this.translate("فاز الأسود!", "Black Wins!");
+            tInd.textContent = winnerColor === 'white' ? t('white_wins') : t('black_wins');
             tInd.style.color = "#2ecc71";
             
             this.showResultsModal(winnerColor);
@@ -848,7 +847,7 @@ export const ui = {
             const statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)';
             const statusColor = isWin ? '#30d158' : '#ff453a';
             const statusBorder = isWin ? 'rgba(48,209,88,0.3)' : 'rgba(255,69,58,0.3)';
-            const statusText = isWin ? this.translate("فائز", "Winner") : this.translate("خاسر", "Loser");
+            const statusText = isWin ? t('winner') : t('loser');
             const statusSpan = this.makeEl('span', null, `font-size:12px;margin-top:8px;padding:4px 12px;border-radius:50px;font-weight:600;background:${statusBg};color:${statusColor};border:1px solid ${statusBorder};display:inline-block;`, statusText);
             
             pBox.append(avContainer, nameSpan, statusSpan);
@@ -860,7 +859,7 @@ export const ui = {
         let oppName = gameState.currentOpponentName;
         let oppAvatar = gameState.currentOpponentAvatar;
         if (!gameState.isOnlineMode) {
-            oppName = this.translate("الذكاء الاصطناعي", "AI");
+            oppName = t('ai');
             oppAvatar = "AI_BOT";
         }
 
@@ -882,7 +881,7 @@ export const ui = {
             rBtn.disabled = true; 
             rBtn.style.opacity = '0.6';
             rBtn.style.cursor = 'not-allowed';
-            rBtn.textContent = this.translate("جاري الانتظار...", "Waiting..."); 
+            rBtn.textContent = t('waiting'); 
             
             if (gameState.isOnlineMode && !gameState.isBotOpponent) {
                 if (socketManager && typeof socketManager.sendRematchRequest === 'function') {
@@ -949,7 +948,7 @@ export const ui = {
                     }
                 }
             } else {
-                const offlineMsg = this.translate("الإنترنت مفصول (وضع التدريب) 🚫🪙", "Offline mode (No rewards) 🚫🪙");
+                const offlineMsg = t('offline_mode');
                 box.appendChild(this.makeEl('div', 'offline-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", offlineMsg));
                 
                 gameState.userProfile.gamesPlayed++;
@@ -1017,16 +1016,16 @@ export const ui = {
                     const fItem = this.makeEl('div', null, "padding:5px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;display:flex;justify-content:space-between;align-items:center;color:white;");
                     
                     const labelSpan = this.makeEl('span', null, "font-weight:600;");
-                    labelSpan.textContent = `👤 ${this.translate("صديق", "Friend")} (${fId})`;
+                    labelSpan.textContent = `👤 ${t('friend')} (${fId})`;
                     
                     const actionsDiv = this.makeEl('div', null, "display: flex; gap: 8px;");
                     
-                    const challengeBtn = this.makeEl('button', 'challenge-btn', "background:rgba(48,209,88,0.15);border:1px solid rgba(48,209,88,0.3);color:#30d158;border-radius:50px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;", `⚔️ ${this.translate("تحدي", "Challenge")}`);
-                    challengeBtn.title = this.translate("تحدي", "Challenge");
+                    const challengeBtn = this.makeEl('button', 'challenge-btn', "background:rgba(48,209,88,0.15);border:1px solid rgba(48,209,88,0.3);color:#30d158;border-radius:50px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;", `⚔️ ${t('challenge')}`);
+                    challengeBtn.title = t('challenge');
                     challengeBtn.dataset.action = 'challenge-friend';
                     challengeBtn.dataset.fid = fId;
                     
-                    const removeBtn = this.makeEl('button', 'remove-btn', "background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.2);color:#ff453a;border-radius:50px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600;", this.translate("حذف", "Remove"));
+                    const removeBtn = this.makeEl('button', 'remove-btn', "background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.2);color:#ff453a;border-radius:50px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600;", t('remove'));
                     removeBtn.dataset.action = 'remove-friend';
                     removeBtn.dataset.fid = fId;
                     
@@ -1083,7 +1082,7 @@ ui.onClick('reset-btn', () => {
     if (window.isMatchRunning && !gameState.isOnlineMode && !gameState.isGameOver) {
         if (hasPlayerMoved()) {
             ui.showCustomAlert(
-                ui.translate("بدء لعبة جديدة الآن سيعتبر انسحاباً وخسارة. هل توافق؟", "Starting a new game counts as resignation. Agree?"),
+                t('new_game_warn'),
                 t('alert_title'),
                 () => { 
                     if (!gameState.isTutorialMode && gameState.userProfile) {
@@ -1114,7 +1113,7 @@ ui.onClick('reset-btn', () => {
 ui.onClick('resign-btn', () => {
     if (gameState.isOnlineMode) {
         ui.showCustomAlert(
-            ui.translate("هل أنت متأكد من الانسحاب من هذه المباراة؟", "Are you sure you want to resign?"),
+            t('resign_confirm'),
             t('alert_title'),
             () => {
                 if (socketManager && typeof socketManager.sendSurrender === 'function') {
@@ -1139,7 +1138,7 @@ ui.onClick('resign-btn', () => {
             );
         } else {
             ui.showCustomAlert(
-                ui.translate("هل أنت متأكد من الانسحاب؟ سيتم احتساب خسارة.", "Are you sure you want to resign? It counts as a loss."),
+                t('resign_loss_confirm'),
                 t('alert_title'),
                 () => { 
                     let opponentColor = gameState.playerColor === 'white' ? 'black' : 'white';
@@ -1204,7 +1203,7 @@ ui.onClick('hint-btn', () => {
         if (profile.hints === undefined) profile.hints = 5;
 
         if (profile.hints <= 0) {
-            ui.showCustomAlert(ui.translate("لقد نفدت التلميحات! يمكنك الحصول على المزيد من المتجر.", "Out of hints! Get more from the store."));
+            ui.showCustomAlert(t('no_hints'));
             return;
         }
     }
@@ -1227,9 +1226,9 @@ ui.onClick('hint-btn', () => {
     if (hintDepth > 8) hintDepth = 8;
 
     if (hintDepth >= 7) {
-        ui.setTxt('turn-countdown', ui.translate("👁️ المصباح يقوم بحسابات معقدة جداً لكسر تكتيك الخصم... يرجى الانتظار ⏳", "👁️ Lamp calculating complex tactics... Please wait ⏳"));
+        ui.setTxt('turn-countdown', t('hint_hard'));
     } else {
-        ui.setTxt('turn-countdown', ui.translate("👁️ المصباح يحسب حركتك الأسطورية القادمة...", "👁️ Lamp is calculating your next legendary move..."));
+        ui.setTxt('turn-countdown', t('hint_easy'));
     }
 
     const showGlow = (moveObj) => {
@@ -1322,7 +1321,7 @@ document.addEventListener('click', (e) => {
             if (typeof window.challengeFriend === 'function') {
                 window.challengeFriend(fId);
             } else {
-                ui.showCustomAlert(ui.translate("قريباً... سيتم تفعيل نظام التحديات!", "Coming soon... Challenge system will be activated!"));
+                ui.showCustomAlert(t('coming_soon'));
             }
         } else if (action === 'remove-friend') {
             gameState.userProfile.friends = (gameState.userProfile.friends || []).filter(id => id.toUpperCase() !== fId); 
