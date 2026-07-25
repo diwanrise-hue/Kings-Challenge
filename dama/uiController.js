@@ -174,13 +174,11 @@ export const ui = {
         this.startTurn();
     },
 
-    // 💡 الإصلاح الجذري لدالة التنبيهات لإظهار الرادار الذهبي بدلاً من الإشعار العادي
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null) {
         title = title || t('alert_title');
         
         const msgContainer = this.getEl('custom-alert-message');
         if (msgContainer) {
-            // نتحقق إذا كان التنبيه يخص انقطاع الإنترنت أو فقدان الاتصال
             if (title === "Connection Lost" || title === "انقطاع الاتصال" || title === "Connection Error" || title === "ضعف الإنترنت") {
                 msgContainer.innerHTML = `
                     <div style="width: 75px; height: 75px; margin: 0 auto 15px auto;">
@@ -189,7 +187,6 @@ export const ui = {
                     <div style="line-height: 1.6; font-size: 14px;">${message}</div>
                 `;
             } else {
-                // التنبيهات العادية الأخرى
                 msgContainer.innerHTML = `<div style="line-height: 1.6; font-size: 14px;">${message}</div>`;
             }
         }
@@ -1312,3 +1309,53 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
+// =========================================================
+// 💡 الإصلاح الجذري: تظليل الحجر والرقعة الإجبارية بلون أسود شفاف مع تموج داكن
+// =========================================================
+if (!document.getElementById('forced-overlay-style')) {
+    const forcedStyle = document.createElement('style');
+    forcedStyle.id = 'forced-overlay-style';
+    forcedStyle.innerHTML = `
+        /* 1. إعطاء الخلية الحاضنة للحجر الإجباري موضعاً نسبياً ليتطابق معها الظل */
+        /* ملاحظة: استخدمنا ميزة :has() لتحديد الخلية تلقائياً دون الحاجة لتغيير كود الـ JS الرئيسي */
+        .cell:has(.piece.forced) {
+            position: relative !important;
+            border: 1px solid rgba(255, 69, 58, 0.4) !important; /* إطار أحمر خفيف جداً يبرز المربع */
+        }
+
+        /* 2. الطبقة السوداء الشفافة التي تغطي الخلية والحجر معاً */
+        .cell:has(.piece.forced)::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* مهم جداً ليسمح للاعب بالضغط على الحجر من تحت الظل */
+            z-index: 100; /* لضمان كونه فوق الحجر تماماً */
+            animation: darkWaveAnim 1.2s infinite alternate ease-in-out;
+            border-radius: inherit;
+        }
+
+        /* 3. التموج اللوني الأسود الشفاف (بدلاً من الموجة القديمة) */
+        @keyframes darkWaveAnim {
+            0% { 
+                background-color: rgba(0, 0, 0, 0.35); 
+                box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            }
+            100% { 
+                background-color: rgba(0, 0, 0, 0.85); 
+                box-shadow: inset 0 0 35px rgba(0,0,0,0.9);
+            }
+        }
+
+        /* 4. إيقاف الحركة القديمة للحجر الإجباري واستبدالها بنبض هادئ يتناسق مع الظلام */
+        .piece.forced {
+            animation: pieceDarkPulse 1.2s infinite alternate ease-in-out !important;
+        }
+
+        @keyframes pieceDarkPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(0.85); }
+        }
+    `;
+    document.head.appendChild(forcedStyle);
+}
