@@ -47,6 +47,58 @@ export const socketManager = {
         }, 4000);
     },
 
+    // 🌟 دالة جديدة: إظهار الرادار ومؤشر البينغ فقط (بدون أي نصوص أو أزرار)
+    _showDisconnectUI() {
+        let overlay = document.getElementById('luxury-disconnect-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'luxury-disconnect-overlay';
+            overlay.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+                z-index: 99999999; display: flex; justify-content: center; align-items: center; flex-direction: column;
+            `;
+
+            const radarIcon = window.SVGIcons ? window.SVGIcons.disconnectIcon : `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+                    <defs>
+                        <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#2a241e" /><stop offset="100%" stop-color="#14110e" /></radialGradient>
+                        <linearGradient id="goldGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#bf8530" /><stop offset="50%" stop-color="#fce288" /><stop offset="100%" stop-color="#8c5a1c" /></linearGradient>
+                    </defs>
+                    <rect x="5" y="5" width="110" height="110" rx="28" fill="url(#bgGrad)" stroke="#3d301f" stroke-width="2"/>
+                    <g stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round" fill="none" transform="translate(0, 5)">
+                        <circle cx="60" cy="85" r="6" fill="url(#goldGrad)" stroke="none" style="animation: radarPing 1.5s infinite;"/>
+                        <path d="M 42 68 A 25 25 0 0 1 78 68" style="animation: radarPing 1.5s infinite 0.2s;"/>
+                        <path d="M 26 51 A 45 45 0 0 1 94 51" style="animation: radarPing 1.5s infinite 0.4s;"/>
+                        <path d="M 10 34 A 65 65 0 0 1 110 34" style="animation: radarPing 1.5s infinite 0.6s;"/>
+                    </g>
+                </svg>
+            `;
+
+            overlay.innerHTML = `
+                <div style="position: absolute; top: 25px; left: 25px; background: rgba(255, 69, 58, 0.1); border: 1px solid rgba(255, 69, 58, 0.3); color: #ff453a; font-family: monospace; font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 8px; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 69, 58, 0.2); display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 10px; height: 10px; background: #ff453a; border-radius: 50%; box-shadow: 0 0 8px #ff453a; animation: pulsePingAlert 1s infinite alternate;"></div>
+                    Ping: 999+ ms
+                </div>
+                <div style="width: 130px; height: 130px;">
+                    ${radarIcon}
+                </div>
+                <style>
+                    @keyframes pulsePingAlert { 0% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
+                    @keyframes radarPing { 0%, 100% { opacity: 0.15; filter: drop-shadow(0 0 0px transparent); } 40% { opacity: 1; filter: drop-shadow(0 0 10px #fce288); } }
+                </style>
+            `;
+            document.body.appendChild(overlay);
+        }
+        overlay.style.display = 'flex';
+    },
+
+    // 🌟 دالة إخفاء الرادار فور عودة الاتصال
+    _hideDisconnectUI() {
+        const overlay = document.getElementById('luxury-disconnect-overlay');
+        if (overlay) overlay.style.display = 'none';
+    },
+
     _ensureUserProfile() {
         try {
             const stored = localStorage.getItem('hub_user_profile');
@@ -124,6 +176,10 @@ export const socketManager = {
 
         socket.on('connect', () => {
             console.log('Connected to server successfully');
+            
+            // 💡 إخفاء الرادار فور الاتصال
+            this._hideDisconnectUI();
+
             const profile = this._ensureUserProfile();
             socket.emit('deviceFingerprint', { guestId: profile.id });
             if (gameState.isOnlineMode && gameState.onlineRoomID) {
@@ -139,14 +195,8 @@ export const socketManager = {
 
         socket.on('disconnect', (reason) => {
             console.warn('Disconnected:', reason);
-            if (typeof ui.showCustomAlert === 'function') {
-                const title = gameState.lang === 'en' ? "Connection Lost" : "انقطاع الاتصال";
-                const msg = gameState.lang === 'en' 
-                    ? "⚠️ Connection lost. Retrying..." 
-                    : "⚠️ عذراً، انقطع الاتصال بالخادم أو الإنترنت ضعيف. يرجى الانتظار، جاري محاولة إعادة الاتصال...";
-                
-                ui.showCustomAlert(msg, title, null, false);
-            }
+            // 💡 استدعاء الشاشة المخصصة للرادار (بدون أي نصوص أو أزرار)
+            this._showDisconnectUI();
         });
 
         socket.on('connect_error', (err) => {
@@ -166,14 +216,8 @@ export const socketManager = {
             const now = Date.now();
             if (now - this.lastConnectionErrorTime > 10000) {
                 this.lastConnectionErrorTime = now;
-                if (typeof ui.showCustomAlert === 'function') {
-                    const title = gameState.lang === 'en' ? "Connection Error" : "ضعف الإنترنت";
-                    const msg = gameState.lang === 'en' 
-                        ? "⚠️ Internet connection is weak. Retrying..." 
-                        : "⚠️ جاري محاولة استعادة الاتصال بالإنترنت، يرجى الانتظار...";
-                    
-                    ui.showCustomAlert(msg, title, null, false);
-                }
+                // 💡 إظهار الرادار والبينج فور الشعور بضعف الشبكة
+                this._showDisconnectUI();
             }
         });
 
@@ -332,18 +376,12 @@ export const socketManager = {
             }
         });
 
-        // 💡 الإصلاح الجذري لمزامنة الوقت هنا
         socket.on('syncTime', (data) => {
             if (gameState.isOnlineMode && data) {
                 const seconds = data.secondsLeft || 0;
-                
-                // 1. تحديث الثواني المتبقية
                 gameState.turnTimeLeft = seconds;
-                
-                // 2. تحديث وقت النهاية لكي لا يستمر العداد بالسقوط فوراً عند العمل
                 gameState.turnEndTime = Date.now() + (seconds * 1000);
                 
-                // 3. إجبار العداد في الواجهة على إعادة العمل بعد التوقف
                 if (typeof ui.startTurnTimer === 'function') {
                     ui.startTurnTimer();
                 } else {
