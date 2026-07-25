@@ -48,31 +48,46 @@ export const socketManager = {
         }, 4000);
     },
 
-    // 🌟 مؤشر البينج الحقيقي (خط واحد في الزاوية السفلية)
+    // 🌟 مؤشر البينج الحقيقي (مدمج تحت الرادار مباشرة)
     _initRealPingIndicator() {
         let pingEl = document.getElementById('real-ping-indicator');
         if (!pingEl) {
             pingEl = document.createElement('div');
             pingEl.id = 'real-ping-indicator';
+            // الاعتماد على التنسيق النسبي ليكون أسفل الرادار وليس ثابتاً في الشاشة
             pingEl.style.cssText = `
-                position: fixed; 
-                bottom: 5px; 
-                right: 8px; 
                 background: transparent; color: #66bb6a; 
                 font-family: monospace; font-size: 11px; font-weight: 900; 
-                padding: 0; border: none; z-index: 99999; 
-                display: flex; align-items: center; justify-content: flex-end; gap: 4px;
-                flex-direction: row; flex-wrap: nowrap; white-space: nowrap; /* يمنع نزول ms لسطر جديد */
-                pointer-events: none; opacity: 1;
+                padding: 0; border: none; margin-top: 4px;
+                z-index: 99999; display: none; align-items: center; justify-content: center; gap: 4px;
+                pointer-events: none; opacity: 1; white-space: nowrap;
                 text-shadow: 1.5px 1.5px 0 #000, -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 0 4px 8px rgba(0,0,0,0.9);
             `;
-            pingEl.innerHTML = `<div id="ping-dot" style="width:6px;height:6px;border-radius:50%;background:#66bb6a;box-shadow:0 0 5px #66bb6a, 0 0 0 1px #000; flex-shrink:0;"></div><span id="ping-text" style="white-space: nowrap;">... ms</span>`;
-            document.body.appendChild(pingEl);
+            pingEl.innerHTML = `<div id="ping-dot" style="width:6px;height:6px;border-radius:50%;background:#66bb6a;box-shadow:0 0 5px #66bb6a, 0 0 0 1px #000; flex-shrink:0;"></div><span id="ping-text">... ms</span>`;
+            
+            // البحث عن الرادار وحقن البينج أسفله في نفس الحاوية
+            let radar = document.getElementById('mini-disconnect-radar');
+            if (radar && radar.parentElement) {
+                radar.parentElement.insertBefore(pingEl, radar.nextSibling);
+                radar.parentElement.style.display = 'flex';
+                radar.parentElement.style.flexDirection = 'column';
+                radar.parentElement.style.alignItems = 'center';
+                radar.parentElement.style.justifyContent = 'center';
+            } else {
+                document.body.appendChild(pingEl); 
+            }
         }
 
         // قياس حقيقي دقيق لسرعة استجابة السيرفر
         setInterval(() => {
-            if (!gameState.isOnlineMode || !socket.connected) return;
+            // 💡 الإخفاء التام والتعطيل في الأوفلاين
+            if (!gameState.isOnlineMode || !socket.connected) {
+                if (pingEl) pingEl.style.display = 'none';
+                return;
+            }
+
+            if (pingEl) pingEl.style.display = 'flex';
+
             const start = Date.now();
             fetch('https://diwanrise-dama-game-diwan.hf.space/?ping=' + start, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
                 .then(() => {
@@ -101,8 +116,11 @@ export const socketManager = {
         pingDot.style.boxShadow = `0 0 4px ${color}, 0 0 0 1px #000`; 
     },
 
-    // 🌟 دالة إظهار الرادار (فوق البينج مباشرة)
+    // 🌟 دالة إظهار الرادار
     _showDisconnectUI() {
+        // 💡 لا تظهر الرادار أبداً في الأوفلاين
+        if (!gameState.isOnlineMode) return;
+
         let miniRadar = document.getElementById('mini-disconnect-radar');
         
         if (!miniRadar) {
@@ -111,7 +129,6 @@ export const socketManager = {
             document.body.appendChild(miniRadar);
         }
 
-        // حقن احتياطي للأيقونة في حال كان المربع فارغاً لتفادي اختفائها
         if (miniRadar.innerHTML.trim() === '') {
             miniRadar.innerHTML = window.SVGIcons?.disconnectIcon || `
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
@@ -130,23 +147,7 @@ export const socketManager = {
             `;
         }
 
-        // تحديد موقع الرادار ليكون فوق البينج
-        miniRadar.style.cssText = `
-            position: fixed;
-            bottom: 24px; /* فوق البينج مباشرة */
-            right: 8px;
-            width: 38px;
-            height: 38px;
-            z-index: 99999;
-            background: rgba(15, 18, 25, 0.85);
-            border-radius: 10px;
-            padding: 4px;
-            border: 1px solid rgba(255, 69, 58, 0.4);
-            box-shadow: 0 0 10px rgba(255, 69, 58, 0.3);
-            pointer-events: none;
-            display: flex; align-items: center; justify-content: center;
-        `;
-
+        miniRadar.style.display = 'flex';
         this._updatePingUI(999);
     },
 
@@ -339,7 +340,8 @@ export const socketManager = {
             gameState.isOnlineMode = true;
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
-
+            
+            // تنشيط البينج
             const pingEl = document.getElementById('real-ping-indicator');
             if (pingEl) pingEl.style.display = 'flex';
 
@@ -777,6 +779,7 @@ export const socketManager = {
         
         const pingEl = document.getElementById('real-ping-indicator');
         if (pingEl) pingEl.style.display = 'none';
+        this._hideDisconnectUI();
 
         if (window.bridge && typeof window.bridge.unlockRoom === 'function') {
             window.bridge.unlockRoom();
