@@ -882,7 +882,53 @@
 
         socket.on('disconnect', (reason) => {
             console.warn('انقطع الاتصال:', reason);
-            showCustomPopup(translations[currentLang].msg_disconnect, false, "", false);
+            
+            let msgText = translations[currentLang].msg_disconnect.replace('⚠️', '').trim();
+            
+            const radarIcon = window.SVGIcons ? window.SVGIcons.disconnectIcon : `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+                    <defs>
+                        <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#2a241e" />
+                            <stop offset="100%" stop-color="#14110e" />
+                        </radialGradient>
+                        <linearGradient id="goldGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#bf8530" />
+                            <stop offset="50%" stop-color="#fce288" />
+                            <stop offset="100%" stop-color="#8c5a1c" />
+                        </linearGradient>
+                        <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#fce288" flood-opacity="0.4"/>
+                        </filter>
+                    </defs>
+                    <style>
+                        .dot  { animation: radarPing 1.5s infinite; animation-delay: 0s; }
+                        .arc1 { animation: radarPing 1.5s infinite; animation-delay: 0.2s; }
+                        .arc2 { animation: radarPing 1.5s infinite; animation-delay: 0.4s; }
+                        .arc3 { animation: radarPing 1.5s infinite; animation-delay: 0.6s; }
+                        @keyframes radarPing {
+                            0%, 100% { opacity: 0.15; filter: drop-shadow(0 0 0px transparent); }
+                            40% { opacity: 1; filter: drop-shadow(0 0 10px #fce288); }
+                        }
+                    </style>
+                    <rect x="5" y="5" width="110" height="110" rx="28" fill="url(#bgGrad)" stroke="#3d301f" stroke-width="2"/>
+                    <g stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round" fill="none" transform="translate(0, 5)">
+                        <circle cx="60" cy="85" r="6" fill="url(#goldGrad)" stroke="none" class="dot"/>
+                        <path d="M 42 68 A 25 25 0 0 1 78 68" class="arc1"/>
+                        <path d="M 26 51 A 45 45 0 0 1 94 51" class="arc2"/>
+                        <path d="M 10 34 A 65 65 0 0 1 110 34" class="arc3"/>
+                    </g>
+                </svg>
+            `;
+                
+            const luxuryUI = `
+                <div style="width: 75px; height: 75px; margin: 0 auto 15px auto;">
+                    ${radarIcon}
+                </div>
+                <div style="line-height: 1.6; font-size: 14px; text-align: center;">${msgText}</div>
+            `;
+            
+            showCustomPopup(luxuryUI, false, "", false);
         });
 
         socket.on('connect', () => {
@@ -1085,7 +1131,7 @@
 
         function showCustomPopup(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
             document.getElementById('custom-popup-modal').style.display = 'flex';
-            document.getElementById('custom-popup-msg').innerText = msg;
+            document.getElementById('custom-popup-msg').innerHTML = msg; // تم تعديله ليدعم الـ HTML الداخلي للرادار
             
             const inputContainer = document.getElementById('custom-popup-input-group');
             const inputEl = document.getElementById('custom-popup-input');
