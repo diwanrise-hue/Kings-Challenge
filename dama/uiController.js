@@ -455,6 +455,7 @@ export const ui = {
         this.clearHighlights();
         document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
         document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
+        document.querySelectorAll('.piece.multi-choice').forEach(p => p.classList.remove('multi-choice'));
         
         const tInd = this.getEl('turn-indicator');
         if (tInd) {
@@ -611,6 +612,9 @@ export const ui = {
         gameState.lastJumpDir = { dr: null, dc: null };
         document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
         
+        // إزالة حالة الـ multi-choice السابقة مع كل بداية دور
+        document.querySelectorAll('.piece.multi-choice').forEach(p => p.classList.remove('multi-choice'));
+        
         let wMoves = gameEngine.generateAllTurnMoves('white', gameState.virtualBoard).length;
         let bMoves = gameEngine.generateAllTurnMoves('black', gameState.virtualBoard).length;
         
@@ -664,6 +668,11 @@ export const ui = {
                     }
                 });
             });
+
+            // 💡 إضافة كلاس multi-choice فقط إذا كان هناك أكثر من خيار واحد للإجبار
+            if (fList.length > 1) {
+                fList.forEach(item => item.el.classList.add('multi-choice'));
+            }
             
             if ((gameState.currentTurn === gameState.playerColor || gameState.isOnlineMode) && fList.length === 1) {
                 gameState.selectedPiece = fList[0].el;
@@ -1318,43 +1327,45 @@ if (!document.getElementById('forced-overlay-style')) {
     forcedStyle.id = 'forced-overlay-style';
     forcedStyle.innerHTML = `
         /* 1. إعطاء الخلية الحاضنة للحجر الإجباري موضعاً نسبياً ليتطابق معها الظل */
-        /* ملاحظة: استخدمنا ميزة :has() لتحديد الخلية تلقائياً دون الحاجة لتغيير كود الـ JS الرئيسي */
-        .cell:has(.piece.forced) {
+        .cell:has(.piece.multi-choice) {
             position: relative !important;
-            border: 1px solid rgba(255, 69, 58, 0.4) !important; /* إطار أحمر خفيف جداً يبرز المربع */
+            border: 1px solid rgba(255, 69, 58, 0.3) !important; 
         }
 
-        /* 2. الطبقة السوداء الشفافة التي تغطي الخلية والحجر معاً */
-        .cell:has(.piece.forced)::after {
+        /* 2. الطبقة السوداء الشفافة توضع (خلف الحجر) باستخدام ::before و z-index */
+        .cell:has(.piece.multi-choice)::before {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; /* مهم جداً ليسمح للاعب بالضغط على الحجر من تحت الظل */
-            z-index: 100; /* لضمان كونه فوق الحجر تماماً */
-            animation: darkWaveAnim 1.2s infinite alternate ease-in-out;
+            z-index: 0; /* خلف الحجر */
+            pointer-events: none; 
+            animation: darkWaveAnim 1.5s infinite alternate ease-in-out;
             border-radius: inherit;
         }
 
-        /* 3. التموج اللوني الأسود الشفاف (بدلاً من الموجة القديمة) */
+        /* 3. رفع الحجر ليكون فوق الظلام */
+        .cell:has(.piece.multi-choice) .piece {
+            z-index: 2 !important; 
+            position: relative !important;
+            /* إزالة تصغير الحجر للحفاظ على شكله الطبيعي مع نبض خفيف جداً */
+            animation: pieceSoftPulse 1.5s infinite alternate ease-in-out !important;
+        }
+
+        /* 4. التموج اللوني الأسود الشفاف (مخفف جداً ولا يخفي الحجر) */
         @keyframes darkWaveAnim {
             0% { 
-                background-color: rgba(0, 0, 0, 0.35); 
-                box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+                background-color: rgba(0, 0, 0, 0.1); 
+                box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
             }
             100% { 
-                background-color: rgba(0, 0, 0, 0.85); 
-                box-shadow: inset 0 0 35px rgba(0,0,0,0.9);
+                background-color: rgba(0, 0, 0, 0.45); 
+                box-shadow: inset 0 0 25px rgba(0,0,0,0.7);
             }
         }
 
-        /* 4. إيقاف الحركة القديمة للحجر الإجباري واستبدالها بنبض هادئ يتناسق مع الظلام */
-        .piece.forced {
-            animation: pieceDarkPulse 1.2s infinite alternate ease-in-out !important;
-        }
-
-        @keyframes pieceDarkPulse {
-            0% { transform: scale(1); }
-            100% { transform: scale(0.85); }
+        @keyframes pieceSoftPulse {
+            0% { filter: drop-shadow(0 0 2px rgba(255, 69, 58, 0.3)); }
+            100% { filter: drop-shadow(0 0 8px rgba(255, 69, 58, 0.7)); transform: scale(1.03); }
         }
     `;
     document.head.appendChild(forcedStyle);
