@@ -26,7 +26,7 @@ export const gameState = {
     requiredJumps: 0,
     jumpsCount: 0,
     playerColor: 'white',
-    // 💡 تم التعديل: الاعتماد على لغة المنصة المحفوظة بدل إجبار اللغة الإنجليزية 'en'
+    // الاعتماد على لغة المنصة المحفوظة بدل إجبار اللغة الإنجليزية 'en'
     lang: localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar',
     lastJumpDir: { dr: null, dc: null },
     opponentStartRow: null,
@@ -37,6 +37,7 @@ export const gameState = {
     onlineFlip: false,
     pieceDirection: { white: -1, black: 1 },
     blockGameOverModal: true,
+    originalHints: null, // 💡 الخزنة السرية: لحفظ رصيد المصابيح الحقيقي للاعب أثناء الأونلاين
     virtualBoard: Array(8).fill(null).map(() => Array(8).fill(null)),
     
     userProfile: (() => {
@@ -44,12 +45,37 @@ export const gameState = {
         if (stored) {
             try { return JSON.parse(stored); } catch(e) { console.error("Error parsing profile:", e); }
         }
-        return { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [] };
+        return { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5 }; // التأكد من إضافة الرصيد الافتراضي للمصابيح
     })()
 };
 
 window.gameState = gameState; 
 setTimeout(() => { gameState.blockGameOverModal = false; }, 1000);
+
+// ==========================================
+// 💡 دوال نظام إدارة المصابيح الذكي في الأونلاين
+// ==========================================
+export function startOnlineHintSystem() {
+    if (gameState.originalHints === null) {
+        // حفظ الرصيد الحقيقي في الخزنة
+        gameState.originalHints = gameState.userProfile.hints !== undefined ? gameState.userProfile.hints : 5;
+    }
+    // منح اللاعب مصباحين فقط في الأونلاين
+    gameState.userProfile.hints = 2; 
+    ui.updateProfileUI();
+}
+
+export function restoreOfflineHintSystem() {
+    if (gameState.originalHints !== null) {
+        // استعادة الرصيد الحقيقي من الخزنة
+        gameState.userProfile.hints = gameState.originalHints; 
+        gameState.originalHints = null;
+        // حفظ الرصيد الحقيقي في المتصفح فوراً لحمايته
+        localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+        ui.updateProfileUI();
+    }
+}
+// ==========================================
 
 export function saveGameState() {
     if (gameState.isOnlineMode) return;
@@ -73,7 +99,7 @@ export function loadGameState() {
         gameState.currentTurn = state.currentTurn;
         gameState.playerColor = state.playerColor;
         
-        // 💡 تم التعليق على هذا السطر لمنع ملف الحفظ القديم من تجاوز لغة i18n.js
+        // تم التعليق على هذا السطر لمنع ملف الحفظ القديم من تجاوز لغة i18n.js
         // gameState.lang = state.lang;
         
         gameState.pieceDirection = state.pieceDirection || gameState.pieceDirection;
@@ -177,6 +203,7 @@ ui.onClick('logout-btn', () => {
         : "Are you sure you want to log out?";
         
     ui.showCustomAlert(gameState.lang === 'ar' ? msgAr : msgEn, null, () => { 
+            gameState.originalHints = null; // تصفير الخزنة لضمان الأمان
             localStorage.removeItem('hub_user_profile'); 
             localStorage.removeItem('dama_guest_expiry'); 
             gameState.userProfile = { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [] }; 
@@ -189,7 +216,7 @@ ui.onClick('logout-btn', () => {
 ui.onClick('switch-account-btn', () => { ui.setDisplay('profile-modal', 'none'); ui.setDisplay('login-modal', 'flex'); });
 
 // =========================================================================
-// 💡 الإصلاح الجذري لزر الأونلاين لتجاوز مشكلة النقر على الأيقونات (Spans)
+// 💡 زر الأونلاين ونافذة البحث
 // =========================================================================
 const onlineBtn = document.getElementById('online-toggle-btn');
 if (onlineBtn) {
@@ -261,7 +288,7 @@ if (onlineBtn) {
     });
 }
 
-// 💡 الإصلاح الجذري لزر إلغاء البحث
+// زر إلغاء البحث
 const cancelMmBtn = document.getElementById('mm-cancel-btn');
 if (cancelMmBtn) {
     cancelMmBtn.addEventListener('click', (e) => {
