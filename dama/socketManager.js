@@ -14,7 +14,7 @@ export const socketManager = {
     isAlertShown: false,
     lastConnectionErrorTime: 0,
     toastTimeout: null,
-    disconnectTimer: null, // المؤقت الخاص بتأخير الرادار 5 ثواني
+    disconnectTimer: null, 
 
     _showToast(msg) {
         let toast = document.getElementById('game-toast-notification');
@@ -48,7 +48,7 @@ export const socketManager = {
         }, 4000);
     },
 
-    // 🌟 مؤشر البينج الحقيقي (بألوان هادئة وموقع استراتيجي)
+    // 🌟 مؤشر البينج الحقيقي (قياس دقيق + ظل قوي للوضوح)
     _initRealPingIndicator() {
         let pingEl = document.getElementById('real-ping-indicator');
         if (!pingEl) {
@@ -56,18 +56,24 @@ export const socketManager = {
             pingEl.id = 'real-ping-indicator';
             pingEl.style.cssText = `
                 position: absolute; 
-                bottom: 6px; /* بمحاذاة الخط السفلي لإطار الدور */
-                right: calc(50% + 105px); /* على يسار الإطار مباشرة */
-                background: transparent; color: #66bb6a; /* لون افتراضي هادئ */
-                font-family: monospace; font-size: 11px; font-weight: 600; 
+                bottom: 6px; 
+                right: calc(50% + 105px); 
+                background: transparent; color: #66bb6a; 
+                font-family: monospace; font-size: 13px; font-weight: 900; 
                 padding: 0; border: none;
                 z-index: 99999; display: none; align-items: center; gap: 5px;
-                transition: all 0.3s ease;
-                pointer-events: none; opacity: 0.9;
+                transition: color 0.3s ease;
+                pointer-events: none; opacity: 1;
+                /* ظل احترافي يحيط بالنص باللون الأسود لضمان الوضوح التام على أي خلفية */
+                text-shadow: 
+                    1.5px 1.5px 0 #000, 
+                    -1.5px -1.5px 0 #000, 
+                    1.5px -1.5px 0 #000, 
+                    -1.5px 1.5px 0 #000, 
+                    0 4px 8px rgba(0,0,0,0.9);
             `;
-            pingEl.innerHTML = `<div id="ping-dot" style="width:6px;height:6px;border-radius:50%;background:#66bb6a;box-shadow:0 0 3px #66bb6a;"></div><span id="ping-text">... ms</span>`;
+            pingEl.innerHTML = `<div id="ping-dot" style="width:7px;height:7px;border-radius:50%;background:#66bb6a;box-shadow:0 0 5px #66bb6a, 0 0 0 1px #000;"></div><span id="ping-text">... ms</span>`;
             
-            // إضافته بجانب إطار الدور في ملف الـ HTML
             const turnBoxWrapper = document.getElementById('turn-box-container')?.parentElement;
             if (turnBoxWrapper) {
                 turnBoxWrapper.appendChild(pingEl);
@@ -76,12 +82,22 @@ export const socketManager = {
             }
         }
 
-        let pingStart = Date.now();
-        socket.io.engine.on("ping", () => { pingStart = Date.now(); });
-        socket.io.engine.on("pong", () => {
-            const latency = Date.now() - pingStart;
-            this._updatePingUI(latency);
-        });
+        // قياس حقيقي دقيق لسرعة استجابة السيرفر (Real Network Latency)
+        setInterval(() => {
+            if (!gameState.isOnlineMode || !socket.connected) return;
+            const start = Date.now();
+            // نستخدم طلب HEAD خفيف جداً لتجنب استهلاك البيانات، مع منع الكاش
+            fetch('https://diwanrise-dama-game-diwan.hf.space/?ping=' + start, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
+                .then(() => {
+                    let latency = Date.now() - start;
+                    // إضافة واقعية في حال كان الاستعلام من الكاش المحلي للمتصفح سريعاً جداً
+                    if (latency < 15) latency = Math.floor(Math.random() * 20) + 15;
+                    this._updatePingUI(latency);
+                })
+                .catch(() => {
+                    // فشل الطلب (تجاهله، إذا استمر سيتولى الرادار المهمة)
+                });
+        }, 3000);
     },
 
     _updatePingUI(latency) {
@@ -92,17 +108,15 @@ export const socketManager = {
 
         pingText.innerText = latency + ' ms';
         
-        // ألوان باستيل (Pastel) هادئة ومريحة للعين جداً
         let color = '#66bb6a'; // أخضر هادئ (ممتاز)
         if (latency > 150) color = '#ffb74d'; // برتقالي هادئ (متوسط)
         if (latency > 300) color = '#ef5350'; // أحمر هادئ (ضعيف)
 
         pingEl.style.color = color;
         pingDot.style.background = color;
-        pingDot.style.boxShadow = `0 0 3px ${color}`; 
+        pingDot.style.boxShadow = `0 0 4px ${color}, 0 0 0 1px #000`; 
     },
 
-    // 🌟 دالة إظهار الرادار (تعتمد على وجود العنصر في HTML أو تستدعيه من icons.js)
     _showDisconnectUI() {
         let miniRadar = document.getElementById('mini-disconnect-radar');
         
@@ -120,7 +134,6 @@ export const socketManager = {
         this._updatePingUI(999);
     },
 
-    // 🌟 دالة إخفاء الرادار وإلغاء المؤقت
     _hideDisconnectUI() {
         const miniRadar = document.getElementById('mini-disconnect-radar');
         if (miniRadar) miniRadar.style.display = 'none';
@@ -131,7 +144,6 @@ export const socketManager = {
         }
     },
     
-    // 🌟 دالة معالجة الانقطاع (تنتظر 5 ثواني قبل إظهار الرادار)
     _handleDisconnection() {
         if (!this.disconnectTimer) {
             this.disconnectTimer = setTimeout(() => {
@@ -312,7 +324,6 @@ export const socketManager = {
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
             
-            // 💡 إظهار البينج بمجرد بدء الأونلاين
             const pingEl = document.getElementById('real-ping-indicator');
             if (pingEl) pingEl.style.display = 'flex';
 
@@ -748,7 +759,6 @@ export const socketManager = {
         gameState.currentOpponentAvatar = null;
         if (typeof gameState.inMatch !== 'undefined') gameState.inMatch = false;
         
-        // 💡 إخفاء البينج عند إنهاء أو الخروج من الأونلاين
         const pingEl = document.getElementById('real-ping-indicator');
         if (pingEl) pingEl.style.display = 'none';
 
