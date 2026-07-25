@@ -55,13 +55,13 @@ export const socketManager = {
             pingEl = document.createElement('div');
             pingEl.id = 'real-ping-indicator';
             pingEl.style.cssText = `
-                position: fixed; bottom: 8px; right: 8px; 
-                background: rgba(10, 10, 15, 0.7); color: #30d158;
+                position: fixed; bottom: 3px; right: 5px; /* تم الإنزال للأسفل أكثر */
+                background: transparent; color: #30d158; /* إزالة الخلفية */
                 font-family: monospace; font-size: 10px; font-weight: bold; 
-                padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(48, 209, 88, 0.3);
+                padding: 2px; border-radius: 0; border: none; /* إزالة الحدود */
                 z-index: 99999; display: flex; align-items: center; gap: 4px;
-                transition: all 0.3s ease; backdrop-filter: blur(4px);
-                pointer-events: none; 
+                transition: all 0.3s ease;
+                pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.9); /* ظل خفيف لضمان القراءة */
             `;
             pingEl.innerHTML = `<div id="ping-dot" style="width:5px;height:5px;border-radius:50%;background:#30d158;box-shadow:0 0 5px #30d158;"></div><span id="ping-text">... ms</span>`;
             document.body.appendChild(pingEl);
@@ -88,7 +88,6 @@ export const socketManager = {
         if (latency > 300) color = '#ff453a'; // أحمر (ضعيف)
 
         pingEl.style.color = color;
-        pingEl.style.borderColor = color + '40'; 
         pingDot.style.background = color;
         pingDot.style.boxShadow = `0 0 5px ${color}`;
     },
