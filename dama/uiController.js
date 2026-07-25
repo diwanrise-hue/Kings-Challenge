@@ -174,7 +174,6 @@ export const ui = {
         this.startTurn();
     },
 
-    // 💡 تم تنظيف الدالة: لم تعد مسؤولة عن تنبيهات الإنترنت، فقط للإشعارات القياسية
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null) {
         title = title || t('alert_title');
         
@@ -443,6 +442,7 @@ export const ui = {
         gameState.boardHistory = []; 
 
         this.toggleOfflineInMatchUI(false);
+        this.toggleOnlineUILayout(false); // 💡 إضافة لإخفاء إطار الأونلاين (VS)
         
         this.clearHighlights();
         document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
