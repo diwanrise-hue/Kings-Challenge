@@ -1,3 +1,4 @@
+//socketManager.js
 import { gameState } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
@@ -53,7 +54,6 @@ export const socketManager = {
                 const parsed = JSON.parse(stored);
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                     if (parsed.id && typeof parsed.id === 'string' && !parsed.id.includes('__proto__')) {
-                        // 💡 التعديل الجذري: منع مسح المصابيح والمظاهر أثناء بناء الملف!
                         gameState.userProfile = {
                             id: String(parsed.id).trim().toUpperCase(),
                             name: String(parsed.name || 'Guest').trim(),
@@ -332,10 +332,23 @@ export const socketManager = {
             }
         });
 
+        // 💡 الإصلاح الجذري لمزامنة الوقت هنا
         socket.on('syncTime', (data) => {
-            if (gameState.isOnlineMode) {
-                gameState.turnTimeLeft = data.secondsLeft;
-                ui.setTxt('turn-countdown', ui.translate(`⏳ المتبقي للدور: ${data.secondsLeft} ثانية`, `⏳ Turn Time Left: ${data.secondsLeft}s`));
+            if (gameState.isOnlineMode && data) {
+                const seconds = data.secondsLeft || 0;
+                
+                // 1. تحديث الثواني المتبقية
+                gameState.turnTimeLeft = seconds;
+                
+                // 2. تحديث وقت النهاية لكي لا يستمر العداد بالسقوط فوراً عند العمل
+                gameState.turnEndTime = Date.now() + (seconds * 1000);
+                
+                // 3. إجبار العداد في الواجهة على إعادة العمل بعد التوقف
+                if (typeof ui.startTurnTimer === 'function') {
+                    ui.startTurnTimer();
+                } else {
+                    ui.setTxt('turn-countdown', ui.translate(`⏳ المتبقي للدور: ${seconds} ثانية`, `⏳ Turn Time Left: ${seconds}s`));
+                }
             }
         });
 
