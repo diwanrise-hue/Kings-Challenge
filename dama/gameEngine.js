@@ -94,21 +94,30 @@ export const gameEngine = {
                         else break; // قطعة صديقة تمنع التقدم
                     } else {
                         if (piece === null) {
-                            // 💡 الحل الجذري للمشكلة: يجب استكشاف *كل* مربع فارغ خلف الخصم كمسار شرعي للهبوط!
-                            let nextBoard = bState.map(row => [...row]);
-                            nextBoard[enemyR][enemyC] = null; 
-                            nextBoard[nextR][nextC] = bState[r][c]; 
-                            nextBoard[r][c] = null;
+                            // 💡 تطبيق Backtracking: تعديل الرقعة الحالية مؤقتاً لتجنب استهلاك الذاكرة
+                            let capturedPiece = bState[enemyR][enemyC];
+                            let movingPiece = bState[r][c];
+
+                            bState[enemyR][enemyC] = null; 
+                            bState[nextR][nextC] = movingPiece; 
+                            bState[r][c] = null;
+
                             let stepObj = { fromR: r, fromC: c, toR: nextR, toC: nextC, midR: enemyR, midC: enemyC };
                             
-                            let subPaths = this.getPieceCapturePaths(nextR, nextC, color, nextBoard, dr, dc);
+                            // تمرير الرقعة الحالية مباشرة
+                            let subPaths = this.getPieceCapturePaths(nextR, nextC, color, bState, dr, dc);
                             
                             if (subPaths.length > 0) {
                                 subPaths.forEach(sp => paths.push([stepObj, ...sp]));
                             } else {
                                 paths.push([stepObj]);
                             }
-                            // 💡 هنا كانت المشكلة سابقاً (كانت break;) مما يمنع استكشاف المربعات التي بعدها!
+
+                            // 🔄 استرجاع الحالة الأصلية (Backtracking)
+                            bState[r][c] = movingPiece;
+                            bState[nextR][nextC] = null;
+                            bState[enemyR][enemyC] = capturedPiece;
+
                             step++; 
                             continue; 
                         } else break; // قطعة أخرى توقف الانزلاق خلف المأكول
@@ -118,17 +127,29 @@ export const gameEngine = {
                 let midR = r + dr, midC = c + dc, toR = r + 2 * dr, toC = c + 2 * dc;
                 if (toR >= 0 && toR < 8 && toC >= 0 && toC < 8) {
                     if (bState[midR][midC] && !bState[midR][midC].startsWith(baseColor) && bState[toR][toC] === null) {
-                        let nextBoard = bState.map(row => [...row]);
-                        nextBoard[midR][midC] = null; 
-                        nextBoard[toR][toC] = bState[r][c]; 
-                        nextBoard[r][c] = null;
+                        // 💡 تطبيق Backtracking للقطع العادية
+                        let capturedPiece = bState[midR][midC];
+                        let movingPiece = bState[r][c];
+
+                        bState[midR][midC] = null; 
+                        bState[toR][toC] = movingPiece; 
+                        bState[r][c] = null;
+
                         let stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
-                        let subPaths = this.getPieceCapturePaths(toR, toC, color, nextBoard, dr, dc);
+                        
+                        // تمرير الرقعة الحالية مباشرة
+                        let subPaths = this.getPieceCapturePaths(toR, toC, color, bState, dr, dc);
+                        
                         if (subPaths.length > 0) {
                             subPaths.forEach(sp => paths.push([stepObj, ...sp]));
                         } else {
                             paths.push([stepObj]);
                         }
+
+                        // 🔄 استرجاع الحالة الأصلية (Backtracking)
+                        bState[r][c] = movingPiece;
+                        bState[toR][toC] = null;
+                        bState[midR][midC] = capturedPiece;
                     }
                 }
             }
