@@ -442,7 +442,7 @@ export const ui = {
         gameState.boardHistory = []; 
 
         this.toggleOfflineInMatchUI(false);
-        this.toggleOnlineUILayout(false); // 💡 إضافة لإخفاء إطار الأونلاين (VS)
+        this.toggleOnlineUILayout(false); 
         
         this.clearHighlights();
         document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
@@ -796,12 +796,18 @@ export const ui = {
         }
     },
 
+    showOnlineResultsModal(winnerColor) {
+        this.showResultsModal(winnerColor);
+    },
+
     showResultsModal(winnerColor) {
         clearInterval(gameState.turnTimerInterval); 
         gameState.turnTimerInterval = null;
         sfx.clock.pause(); 
         sfx.clock.currentTime = 0; 
         this.setTxt('turn-countdown', '');
+
+        this.setDisplay('match-players-card', 'none');
 
         const oldModal = this.getEl('custom-results-modal-container');
         if (oldModal) oldModal.remove();
