@@ -48,23 +48,32 @@ export const socketManager = {
         }, 4000);
     },
 
-    // 🌟 مؤشر البينج الحقيقي المصغر
+    // 🌟 مؤشر البينج الحقيقي (بألوان هادئة وموقع استراتيجي)
     _initRealPingIndicator() {
         let pingEl = document.getElementById('real-ping-indicator');
         if (!pingEl) {
             pingEl = document.createElement('div');
             pingEl.id = 'real-ping-indicator';
             pingEl.style.cssText = `
-                position: fixed; bottom: 3px; right: 5px; /* تم الإنزال للأسفل أكثر */
-                background: transparent; color: #30d158; /* إزالة الخلفية */
-                font-family: monospace; font-size: 10px; font-weight: bold; 
-                padding: 2px; border-radius: 0; border: none; /* إزالة الحدود */
-                z-index: 99999; display: flex; align-items: center; gap: 4px;
+                position: absolute; 
+                bottom: 6px; /* بمحاذاة الخط السفلي لإطار الدور */
+                right: calc(50% + 105px); /* على يسار الإطار مباشرة */
+                background: transparent; color: #66bb6a; /* لون افتراضي هادئ */
+                font-family: monospace; font-size: 11px; font-weight: 600; 
+                padding: 0; border: none;
+                z-index: 99999; display: none; align-items: center; gap: 5px;
                 transition: all 0.3s ease;
-                pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.9); /* ظل خفيف لضمان القراءة */
+                pointer-events: none; opacity: 0.9;
             `;
-            pingEl.innerHTML = `<div id="ping-dot" style="width:5px;height:5px;border-radius:50%;background:#30d158;box-shadow:0 0 5px #30d158;"></div><span id="ping-text">... ms</span>`;
-            document.body.appendChild(pingEl);
+            pingEl.innerHTML = `<div id="ping-dot" style="width:6px;height:6px;border-radius:50%;background:#66bb6a;box-shadow:0 0 3px #66bb6a;"></div><span id="ping-text">... ms</span>`;
+            
+            // إضافته بجانب إطار الدور في ملف الـ HTML
+            const turnBoxWrapper = document.getElementById('turn-box-container')?.parentElement;
+            if (turnBoxWrapper) {
+                turnBoxWrapper.appendChild(pingEl);
+            } else {
+                document.body.appendChild(pingEl); 
+            }
         }
 
         let pingStart = Date.now();
@@ -83,13 +92,14 @@ export const socketManager = {
 
         pingText.innerText = latency + ' ms';
         
-        let color = '#30d158'; // أخضر (ممتاز)
-        if (latency > 150) color = '#f5a623'; // برتقالي (متوسط)
-        if (latency > 300) color = '#ff453a'; // أحمر (ضعيف)
+        // ألوان باستيل (Pastel) هادئة ومريحة للعين جداً
+        let color = '#66bb6a'; // أخضر هادئ (ممتاز)
+        if (latency > 150) color = '#ffb74d'; // برتقالي هادئ (متوسط)
+        if (latency > 300) color = '#ef5350'; // أحمر هادئ (ضعيف)
 
         pingEl.style.color = color;
         pingDot.style.background = color;
-        pingDot.style.boxShadow = `0 0 5px ${color}`;
+        pingDot.style.boxShadow = `0 0 3px ${color}`; 
     },
 
     // 🌟 دالة إظهار الرادار (تعتمد على وجود العنصر في HTML أو تستدعيه من icons.js)
@@ -100,7 +110,6 @@ export const socketManager = {
             miniRadar = document.createElement('div');
             miniRadar.id = 'mini-disconnect-radar';
             
-            // حقن الأيقونة من ملف icons.js إذا لم نجدها في الـ HTML
             if (window.SVGIcons && window.SVGIcons.disconnectIcon) {
                 miniRadar.innerHTML = window.SVGIcons.disconnectIcon;
             }
@@ -302,6 +311,10 @@ export const socketManager = {
             gameState.isOnlineMode = true;
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
+            
+            // 💡 إظهار البينج بمجرد بدء الأونلاين
+            const pingEl = document.getElementById('real-ping-indicator');
+            if (pingEl) pingEl.style.display = 'flex';
 
             if (data.turnEndTime) {
                 gameState.turnEndTime = data.turnEndTime;
@@ -735,6 +748,10 @@ export const socketManager = {
         gameState.currentOpponentAvatar = null;
         if (typeof gameState.inMatch !== 'undefined') gameState.inMatch = false;
         
+        // 💡 إخفاء البينج عند إنهاء أو الخروج من الأونلاين
+        const pingEl = document.getElementById('real-ping-indicator');
+        if (pingEl) pingEl.style.display = 'none';
+
         if (window.bridge && typeof window.bridge.unlockRoom === 'function') {
             window.bridge.unlockRoom();
         }
