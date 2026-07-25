@@ -48,44 +48,38 @@ export const socketManager = {
         }, 4000);
     },
 
-    // 🌟 مؤشر البينج الحقيقي (مدمج تحت الرادار مباشرة)
+    // 🌟 مؤشر البينج الحقيقي (سطر واحد، ألوان هادئة، موقع ثابت يسار إطار الدور)
     _initRealPingIndicator() {
         let pingEl = document.getElementById('real-ping-indicator');
         if (!pingEl) {
             pingEl = document.createElement('div');
             pingEl.id = 'real-ping-indicator';
-            // الاعتماد على التنسيق النسبي ليكون أسفل الرادار وليس ثابتاً في الشاشة
             pingEl.style.cssText = `
-                background: transparent; color: #66bb6a; 
-                font-family: monospace; font-size: 11px; font-weight: 900; 
-                padding: 0; border: none; margin-top: 4px;
-                z-index: 99999; display: none; align-items: center; justify-content: center; gap: 4px;
-                pointer-events: none; opacity: 1; white-space: nowrap;
-                text-shadow: 1.5px 1.5px 0 #000, -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 0 4px 8px rgba(0,0,0,0.9);
+                position: absolute; 
+                bottom: 8px; /* بمحاذاة الخط السفلي لإطار الدور */
+                right: calc(50% + 102px); /* تحديد الموقع على يسار إطار الدور بدقة */
+                background: transparent; color: #66bb6a; /* لون أخضر هادئ مريح للعين */
+                font-family: monospace; font-size: 11px; font-weight: 700; 
+                padding: 0; border: none; margin: 0;
+                z-index: 99999; display: flex; align-items: center; justify-content: flex-end; gap: 4px;
+                flex-direction: row; flex-wrap: nowrap; white-space: nowrap; /* إجبار النص على سطر واحد */
+                pointer-events: none; opacity: 0.95;
+                text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.8), 1px -1px 1px rgba(0,0,0,0.8), -1px 1px 1px rgba(0,0,0,0.8); /* ظل ناعم للوضوح */
             `;
-            pingEl.innerHTML = `<div id="ping-dot" style="width:6px;height:6px;border-radius:50%;background:#66bb6a;box-shadow:0 0 5px #66bb6a, 0 0 0 1px #000; flex-shrink:0;"></div><span id="ping-text">... ms</span>`;
+            pingEl.innerHTML = `<div id="ping-dot" style="width:5px;height:5px;border-radius:50%;background:#66bb6a;box-shadow:0 0 3px #66bb6a, 0 0 0 1px rgba(0,0,0,0.5); flex-shrink:0;"></div><span id="ping-text" style="white-space: nowrap;">... ms</span>`;
             
-            // البحث عن الرادار وحقن البينج أسفله في نفس الحاوية
-            let radar = document.getElementById('mini-disconnect-radar');
-            if (radar && radar.parentElement) {
-                radar.parentElement.insertBefore(pingEl, radar.nextSibling);
-                radar.parentElement.style.display = 'flex';
-                radar.parentElement.style.flexDirection = 'column';
-                radar.parentElement.style.alignItems = 'center';
-                radar.parentElement.style.justifyContent = 'center';
+            // حقنه في نفس الحاوية التي تحمل إطار الدور ليكون موقعه دقيقاً
+            const turnBoxWrapper = document.getElementById('turn-box-container')?.parentElement;
+            if (turnBoxWrapper) {
+                turnBoxWrapper.style.position = 'relative'; 
+                turnBoxWrapper.appendChild(pingEl);
             } else {
                 document.body.appendChild(pingEl); 
             }
         }
 
-        // قياس حقيقي دقيق لسرعة استجابة السيرفر
+        // قياس سرعة الإنترنت بشكل مستمر (يعمل في الأوفلاين والأونلاين)
         setInterval(() => {
-            // 💡 الإخفاء التام والتعطيل في الأوفلاين
-            if (!gameState.isOnlineMode || !socket.connected) {
-                if (pingEl) pingEl.style.display = 'none';
-                return;
-            }
-
             if (pingEl) pingEl.style.display = 'flex';
 
             const start = Date.now();
@@ -95,7 +89,9 @@ export const socketManager = {
                     if (latency < 15) latency = Math.floor(Math.random() * 20) + 15;
                     this._updatePingUI(latency);
                 })
-                .catch(() => {});
+                .catch(() => {
+                    this._updatePingUI(999);
+                });
         }, 3000);
     },
 
@@ -107,18 +103,18 @@ export const socketManager = {
 
         pingText.innerText = latency + ' ms';
         
-        let color = '#66bb6a'; 
-        if (latency > 150) color = '#ffb74d'; 
-        if (latency > 300) color = '#ef5350'; 
+        // ألوان باستيل (Pastel) ناعمة جداً ومريحة للعين
+        let color = '#66bb6a'; // أخضر هادئ (ممتاز)
+        if (latency > 150) color = '#ffb74d'; // برتقالي هادئ (متوسط)
+        if (latency > 300) color = '#ef5350'; // أحمر هادئ (ضعيف)
 
         pingEl.style.color = color;
         pingDot.style.background = color;
-        pingDot.style.boxShadow = `0 0 4px ${color}, 0 0 0 1px #000`; 
+        pingDot.style.boxShadow = `0 0 3px ${color}, 0 0 0 1px rgba(0,0,0,0.5)`; 
     },
 
-    // 🌟 دالة إظهار الرادار
+    // 🌟 دالة إظهار الرادار (تظهر فقط عند انقطاع الإنترنت في الأونلاين)
     _showDisconnectUI() {
-        // 💡 لا تظهر الرادار أبداً في الأوفلاين
         if (!gameState.isOnlineMode) return;
 
         let miniRadar = document.getElementById('mini-disconnect-radar');
@@ -340,10 +336,6 @@ export const socketManager = {
             gameState.isOnlineMode = true;
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
-            
-            // تنشيط البينج
-            const pingEl = document.getElementById('real-ping-indicator');
-            if (pingEl) pingEl.style.display = 'flex';
 
             if (data.turnEndTime) {
                 gameState.turnEndTime = data.turnEndTime;
@@ -777,8 +769,6 @@ export const socketManager = {
         gameState.currentOpponentAvatar = null;
         if (typeof gameState.inMatch !== 'undefined') gameState.inMatch = false;
         
-        const pingEl = document.getElementById('real-ping-indicator');
-        if (pingEl) pingEl.style.display = 'none';
         this._hideDisconnectUI();
 
         if (window.bridge && typeof window.bridge.unlockRoom === 'function') {
