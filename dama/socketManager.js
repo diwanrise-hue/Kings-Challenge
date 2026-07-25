@@ -56,7 +56,7 @@ export const socketManager = {
             pingEl.id = 'real-ping-indicator';
             pingEl.style.cssText = `
                 position: absolute; 
-                bottom: -15px; /* تم الإنزال للأسفل باتجاه شريط الأحجار */
+                bottom: -10px; /* تم الإنزال للأسفل باتجاه شريط الأحجار */
                 left: calc(50% + 98px); /* في الجانب الأيمن */
                 background: transparent; color: #66bb6a; /* لون أخضر هادئ مريح للعين */
                 font-family: monospace; font-size: 11px; font-weight: 700; 
