@@ -105,14 +105,13 @@ export const ui = {
         }
     },
 
+    // تم التحديث وإصلاح مشكلة ظهور الأكواد مثل settings_title هنا بالكامل
     updateTexts() {
         const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
         document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
         
         const setHtml = (id, txt) => { const e = this.getEl(id); if (e) e.innerText = txt || ""; };
         const setPlaceholder = (id, txt) => { const e = this.getEl(id); if (e) e.placeholder = txt || ""; };
-        
-        const tObj = translations[currentLang] || translations.ar;
         
         const idToKeyMap = {
             'main-title': 'app_title', 'set-title': 'settings_title', 
@@ -136,7 +135,8 @@ export const ui = {
             'card-my-name': 'badge_you', 'badge-username-display-game': 'badge_you'
         };
         
-        Object.keys(idToKeyMap).forEach(id => setHtml(id, tObj[idToKeyMap[id]] || idToKeyMap[id]));
+        // الاعتماد مباشرة على دالة t() لكل العناصر بدلاً من الاستدعاء المباشر للكائن
+        Object.keys(idToKeyMap).forEach(id => setHtml(id, t(idToKeyMap[id])));
         
         setHtml('exit-game-btn', t('exit'));
         setHtml('store-return-btn', t('exit'));
@@ -151,22 +151,23 @@ export const ui = {
             resignBtn.innerText = t('resign');
         }
 
+        // إصلاح نصوص الإدخال Placeholder
         const placeholders = {
-            'online-room-input': tObj.ph_room || '',
-            'online-password-input': tObj.ph_pass || '',
-            'friend-id-input': tObj.add_friend_placeholder || ''
+            'online-room-input': t('ph_room'),
+            'online-password-input': t('ph_pass'),
+            'friend-id-input': t('add_friend_placeholder')
         };
         Object.keys(placeholders).forEach(id => setPlaceholder(id, placeholders[id]));
         
         if (window.updateInventoryUI) window.updateInventoryUI();
             
         const onlineBtnText = document.querySelector('#online-toggle-btn span:last-child');
-        if (onlineBtnText) onlineBtnText.innerText = tObj.online_btn || t('online');
+        if (onlineBtnText) onlineBtnText.innerText = t('online_btn') || t('online');
 
         const turnInd = this.getEl('turn-indicator');
         if(turnInd) {
-            if(turnInd.innerText.includes('Your') || turnInd.innerText.includes('دورك') || turnInd.innerText.includes('نۆبەی تۆیە')) turnInd.innerText = tObj.turn_yours;
-            else if(turnInd.innerText.includes('Opponent') || turnInd.innerText.includes('خصم') || turnInd.innerText.includes('نۆبەی بەرامبەرە')) turnInd.innerText = tObj.turn_opps;
+            if(turnInd.innerText.includes('Your') || turnInd.innerText.includes('دورك') || turnInd.innerText.includes('نۆبەی تۆیە')) turnInd.innerText = t('turn_yours');
+            else if(turnInd.innerText.includes('Opponent') || turnInd.innerText.includes('خصم') || turnInd.innerText.includes('نۆبەی بەرامبەرە')) turnInd.innerText = t('turn_opps');
         }
 
         this.updateProfileUI();
@@ -941,7 +942,7 @@ export const ui = {
                     if (isMeWin) {
                         box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", t('tokenReward') + " 50"));
                     } else { 
-                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", (translations[currentLang]?.tokenReward || "مكافأة اللعب 🪙") + " 10"));
+                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", t('tokenReward') + " 10"));
                     }
                     if (!gameState.isOnlineMode) {
                         socket.emit('claimBotReward', { isWin: isMeWin });
