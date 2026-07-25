@@ -174,21 +174,13 @@ export const ui = {
         this.startTurn();
     },
 
+    // 💡 تم تنظيف الدالة: لم تعد مسؤولة عن تنبيهات الإنترنت، فقط للإشعارات القياسية
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null) {
         title = title || t('alert_title');
         
         const msgContainer = this.getEl('custom-alert-message');
         if (msgContainer) {
-            if (title === "Connection Lost" || title === "انقطاع الاتصال" || title === "Connection Error" || title === "ضعف الإنترنت") {
-                msgContainer.innerHTML = `
-                    <div style="width: 75px; height: 75px; margin: 0 auto 15px auto;">
-                        ${window.SVGIcons && window.SVGIcons.disconnectIcon ? window.SVGIcons.disconnectIcon : '⚠️'}
-                    </div>
-                    <div style="line-height: 1.6; font-size: 14px;">${message}</div>
-                `;
-            } else {
-                msgContainer.innerHTML = `<div style="line-height: 1.6; font-size: 14px;">${message}</div>`;
-            }
+            msgContainer.innerHTML = `<div style="line-height: 1.6; font-size: 14px;">${message}</div>`;
         }
         
         this.setTxt('custom-alert-title', title);
@@ -612,7 +604,6 @@ export const ui = {
         gameState.lastJumpDir = { dr: null, dc: null };
         document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
         
-        // إزالة حالة الـ multi-choice السابقة مع كل بداية دور
         document.querySelectorAll('.piece.multi-choice').forEach(p => p.classList.remove('multi-choice'));
         
         let wMoves = gameEngine.generateAllTurnMoves('white', gameState.virtualBoard).length;
@@ -669,7 +660,6 @@ export const ui = {
                 });
             });
 
-            // 💡 إضافة كلاس multi-choice فقط إذا كان هناك أكثر من خيار واحد للإجبار
             if (fList.length > 1) {
                 fList.forEach(item => item.el.classList.add('multi-choice'));
             }
@@ -1320,7 +1310,7 @@ document.addEventListener('click', (e) => {
 });
 
 // =========================================================
-// 💡 الإصلاح الجذري: تظليل الحجر والرقعة الإجبارية بلون أسود شفاف مع تموج داكن
+// 💡 تأثير: تظليل الحجر والرقعة الإجبارية بلون أسود شفاف مع تموج داكن
 // =========================================================
 if (!document.getElementById('forced-overlay-style')) {
     const forcedStyle = document.createElement('style');
