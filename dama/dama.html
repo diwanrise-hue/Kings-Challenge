@@ -359,6 +359,38 @@
         }
 
         /* ========================================== */
+        /* رادار انقطاع الإنترنت (Smart Disconnect Radar) */
+        /* ========================================== */
+        #mini-disconnect-radar {
+            display: none;
+            position: fixed;
+            top: 75px; /* أسفل كبسولة البروفايل */
+            left: 20px; /* متوافق مع البروفايل */
+            width: 38px;
+            height: 38px;
+            z-index: 99999;
+            background: rgba(15, 18, 25, 0.85);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid rgba(255, 69, 58, 0.4);
+            box-shadow: 0 0 12px rgba(255, 69, 58, 0.3);
+            pointer-events: none; /* لتفادي حجب اللمس */
+            box-sizing: border-box;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* وضع الأونلاين: نقل الرادار لجانب إطار الدور */
+        body.online-mode-active #mini-disconnect-radar {
+            position: absolute;
+            top: 50%;
+            left: -46px; /* يسار الإطار */
+            transform: translateY(-50%);
+            border-radius: 12px;
+            width: 38px;
+            height: 38px;
+        }
+
+        /* ========================================== */
         /* التصميم الداخلي للنوافذ الكبيرة              */
         /* ========================================== */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
@@ -680,9 +712,15 @@
             </div>
         </div>
 
-        <div id="turn-box-container">
-            <h3 id="turn-indicator">Your Turn</h3>
-            <div id="turn-countdown"></div>
+        <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+            
+            <!-- 🌟 حاوية الرادار الذكي (سيتم حقن الـ SVG هنا من icons.js عبر socketManager) -->
+            <div id="mini-disconnect-radar"></div>
+
+            <div id="turn-box-container">
+                <h3 id="turn-indicator">Your Turn</h3>
+                <div id="turn-countdown"></div>
+            </div>
         </div>
     </div>
 
