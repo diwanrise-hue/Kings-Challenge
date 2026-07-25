@@ -48,7 +48,7 @@ export const socketManager = {
         }, 4000);
     },
 
-    // 🌟 مؤشر البينج الحقيقي (الجانب الأيمن، سطر واحد، ألوان هادئة)
+    // 🌟 مؤشر البينج الحقيقي (تم إنزاله للأسفل ليكون أقرب لشريط الأحجار)
     _initRealPingIndicator() {
         let pingEl = document.getElementById('real-ping-indicator');
         if (!pingEl) {
@@ -56,8 +56,8 @@ export const socketManager = {
             pingEl.id = 'real-ping-indicator';
             pingEl.style.cssText = `
                 position: absolute; 
-                bottom: 8px; /* بمحاذاة الخط السفلي لإطار الدور */
-                left: calc(50% + 105px); /* النقل للجانب الأيمن بدقة */
+                bottom: -15px; /* تم الإنزال للأسفل باتجاه شريط الأحجار */
+                left: calc(50% + 98px); /* في الجانب الأيمن */
                 background: transparent; color: #66bb6a; /* لون أخضر هادئ مريح للعين */
                 font-family: monospace; font-size: 11px; font-weight: 700; 
                 padding: 0; border: none; margin: 0;
@@ -336,10 +336,6 @@ export const socketManager = {
             gameState.isOnlineMode = true;
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
-            
-            // إظهار البينج بمجرد الدخول للأونلاين
-            const pingEl = document.getElementById('real-ping-indicator');
-            if (pingEl) pingEl.style.display = 'flex';
 
             if (data.turnEndTime) {
                 gameState.turnEndTime = data.turnEndTime;
@@ -764,8 +760,6 @@ export const socketManager = {
         gameState.currentOpponentAvatar = null;
         if (typeof gameState.inMatch !== 'undefined') gameState.inMatch = false;
         
-        const pingEl = document.getElementById('real-ping-indicator');
-        if (pingEl) pingEl.style.display = 'none';
         this._hideDisconnectUI();
 
         if (window.bridge && typeof window.bridge.unlockRoom === 'function') {
