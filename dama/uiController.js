@@ -1,5 +1,5 @@
 // uiController.js
-import { gameState, saveGameState } from './main.js';
+import { gameState, saveGameState, restoreOfflineHintSystem } from './main.js';
 import { gameEngine } from './gameEngine.js';
 import { gameAI } from './gameAI.js';
 import { socket, socketManager } from './socketManager.js';
@@ -444,6 +444,11 @@ export const ui = {
         this.toggleOfflineInMatchUI(false);
         this.toggleOnlineUILayout(false); 
         
+        // 💡 ضمان استعادة رصيد المصابيح الحقيقي بمجرد العودة للرقعة الفارغة (نهاية الأونلاين)
+        if (typeof restoreOfflineHintSystem === 'function') {
+            restoreOfflineHintSystem();
+        }
+        
         this.clearHighlights();
         document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
         document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
@@ -787,7 +792,8 @@ export const ui = {
                 worker.postMessage({
                     board: gameState.virtualBoard,
                     depth: depth,
-                    aiColor: aiColor
+                    aiColor: aiColor,
+                    pieceDirection: gameState.pieceDirection // 💡 حماية إضافية للاتجاه الصحيح
                 });
             } else {
                 let chosenMove = gameAI.minimax(gameState.virtualBoard, depth, -Infinity, Infinity, true, aiColor).move || moves[0];
@@ -954,7 +960,13 @@ export const ui = {
                 if (gameState.userProfile.id) {
                     gameState.userProfile.id = gameState.userProfile.id.toUpperCase();
                 }
-                localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+                
+                // 💡 حماية الرصيد الأصلي أثناء الحفظ في وضع انقطاع الإنترنت
+                let profileToSave = { ...gameState.userProfile };
+                if (gameState.originalHints !== undefined && gameState.originalHints !== null) {
+                    profileToSave.hints = gameState.originalHints;
+                }
+                localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
             }
             
             if (window.parent) {
@@ -1236,9 +1248,12 @@ ui.onClick('hint-btn', () => {
             const counterEl = document.getElementById('hint-counter');
             if (counterEl) counterEl.textContent = profile.hints;
             
-            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-            if (window.parent) {
-                window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+            // 💡 حماية الرصيد الأصلي: لا نحفظ ملف البروفايل في المتصفح إذا كنا في وضع الأونلاين (لتجنب ضياع الرصيد المخبأ)
+            if (!gameState.isOnlineMode) {
+                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                if (window.parent) {
+                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                }
             }
 
             if (socket && socket.connected) {
@@ -1274,7 +1289,12 @@ ui.onClick('hint-btn', () => {
             showGlow(syncMove || eleganceMoves[0]);
         }
         
-        worker.postMessage({ board: gameState.virtualBoard, depth: hintDepth, aiColor: myColor });
+        worker.postMessage({ 
+            board: gameState.virtualBoard, 
+            depth: hintDepth, 
+            aiColor: myColor,
+            pieceDirection: gameState.pieceDirection // 💡 حماية إضافية للاتجاه الصحيح
+        });
     } else {
         setTimeout(() => {
             let bestMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 6 ? 6 : hintDepth, -Infinity, Infinity, true, myColor).move || eleganceMoves[0];
@@ -1309,7 +1329,14 @@ document.addEventListener('click', (e) => {
             }
         } else if (action === 'remove-friend') {
             gameState.userProfile.friends = (gameState.userProfile.friends || []).filter(id => id.toUpperCase() !== fId); 
-            localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+            
+            // 💡 حماية الرصيد الأصلي أثناء الحفظ عند حذف صديق في وضع الأونلاين
+            let profileToSave = { ...gameState.userProfile };
+            if (gameState.originalHints !== undefined && gameState.originalHints !== null) {
+                profileToSave.hints = gameState.originalHints;
+            }
+            localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
+            
             ui.updateProfileUI();
         }
     }
