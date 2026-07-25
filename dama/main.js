@@ -2,6 +2,7 @@
 import { ui } from './uiController.js';
 import { socket, socketManager } from './socketManager.js'; 
 import { gameEngine } from './gameEngine.js'; 
+import { t } from './i18n.js';
 
 window.socket = socket; 
 
@@ -99,9 +100,6 @@ export function loadGameState() {
         gameState.currentTurn = state.currentTurn;
         gameState.playerColor = state.playerColor;
         
-        // تم التعليق على هذا السطر لمنع ملف الحفظ القديم من تجاوز لغة i18n.js
-        // gameState.lang = state.lang;
-        
         gameState.pieceDirection = state.pieceDirection || gameState.pieceDirection;
         
         const gm = document.getElementById('game-mode'); if(gm) gm.value = state.gameMode;
@@ -151,7 +149,7 @@ window.challengeFriend = function(friendId) {
     if (socketManager && typeof socketManager.sendChallenge === 'function') {
         socketManager.sendChallenge(friendId);
     } else {
-        ui.showCustomAlert(gameState.lang === 'ar' ? "النظام غير متصل حالياً، أو قيد التحديث." : "System is currently offline or updating.");
+        ui.showCustomAlert(t('sys_offline'));
     }
 };
 
@@ -168,21 +166,21 @@ ui.onClick('settings-overlay', e => { if (e.target.id === 'settings-overlay') ui
 
 ui.onClick('lang-select-modal', e => { gameState.lang = e.target.value; ui.updateTexts(); saveGameState(); });
 
-ui.onClick('login-guest-btn', () => { gameState.userProfile = { ...gameState.userProfile, name: (gameState.lang==='en'?"Guest_":"زائر_") + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), id: "GUEST-" + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), avatar: ui.getVal('login-avatar-select', '1000132081.png'), isCustomAvatar: false }; localStorage.setItem('dama_guest_expiry', Date.now() + (30 * 24 * 60 * 60 * 1000)); localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); });
+ui.onClick('login-guest-btn', () => { gameState.userProfile = { ...gameState.userProfile, name: t('guest_prefix') + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), id: "GUEST-" + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), avatar: ui.getVal('login-avatar-select', '1000132081.png'), isCustomAvatar: false }; localStorage.setItem('dama_guest_expiry', Date.now() + (30 * 24 * 60 * 60 * 1000)); localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); });
 
 ui.onClick('login-submit-btn', () => { 
     let name = ui.getVal('login-name-input').trim(); 
-    if (!name) return ui.showCustomAlert(gameState.lang === 'en' ? "Enter a name!" : "أدخل الاسم!"); 
+    if (!name) return ui.showCustomAlert(t('enter_name')); 
     // تعقيم المدخلات لمنع XSS
     name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
     gameState.userProfile = { ...gameState.userProfile, name, id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.png') }; localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); localStorage.removeItem('dama_guest_expiry'); ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); 
 });
 
-ui.onClick('add-friend-btn', () => { let fId = ui.getVal('friend-id-input').trim().toUpperCase(); if (!fId || fId === gameState.userProfile.id || gameState.userProfile.friends.includes(fId)) return ui.showCustomAlert(gameState.lang === 'en' ? "Invalid ID" : "معرف غير صالح"); gameState.userProfile.friends.push(fId); localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); ui.updateProfileUI(); document.getElementById('friend-id-input').value = ''; ui.showCustomAlert(gameState.lang === 'en' ? "Added!" : "تمت الإضافة!"); });
+ui.onClick('add-friend-btn', () => { let fId = ui.getVal('friend-id-input').trim().toUpperCase(); if (!fId || fId === gameState.userProfile.id || gameState.userProfile.friends.includes(fId)) return ui.showCustomAlert(t('invalid_id')); gameState.userProfile.friends.push(fId); localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); ui.updateProfileUI(); document.getElementById('friend-id-input').value = ''; ui.showCustomAlert(t('added_success')); });
 
 document.getElementById('avatar-upload-input')?.addEventListener('change', e => { 
     const file = e.target.files[0]; 
-    if (!file || !file.type.startsWith('image/') || file.size > 800 * 1024) return ui.showCustomAlert(gameState.lang === 'en' ? "Image too large (Max 800KB)." : "حجم الصورة كبير جداً (الأقصى 800KB)."); 
+    if (!file || !file.type.startsWith('image/') || file.size > 800 * 1024) return ui.showCustomAlert(t('img_large')); 
     const reader = new FileReader(); 
     reader.onload = ev => { 
         gameState.userProfile.avatar = ev.target.result; 
@@ -195,14 +193,9 @@ document.getElementById('avatar-upload-input')?.addEventListener('change', e => 
 
 ui.onClick('logout-btn', () => {
     const isGuest = gameState.userProfile.id.startsWith("GUEST-");
-    const msgAr = isGuest 
-        ? "⚠️ تحذير خطير: أنت تلعب كزائر!\nإذا قمت بتسجيل الخروج الآن، ستفقد كل أموالك، مشترياتك، وتقدمك نهائياً ولن تتمكن من استعادتها أبداً. هل أنت متأكد حقاً؟" 
-        : "هل أنت متأكد من تسجيل الخروج؟";
-    const msgEn = isGuest 
-        ? "⚠️ CRITICAL WARNING: You are a Guest!\nLogging out will permanently delete all your tokens, items, and progress. Are you absolutely sure?" 
-        : "Are you sure you want to log out?";
+    const msg = isGuest ? t('guest_logout_warn') : t('logout_confirm');
         
-    ui.showCustomAlert(gameState.lang === 'ar' ? msgAr : msgEn, null, () => { 
+    ui.showCustomAlert(msg, null, () => { 
             gameState.originalHints = null; // تصفير الخزنة لضمان الأمان
             localStorage.removeItem('hub_user_profile'); 
             localStorage.removeItem('dama_guest_expiry'); 
@@ -224,11 +217,11 @@ if (onlineBtn) {
         e.preventDefault();
         
         if (gameState.isOnlineMode) {
-            if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(gameState.lang === 'ar' ? "أنت في مباراة بالفعل!" : "Already in a match!");
+            if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('already_match'));
             return;
         }
         if (!socket || !socket.connected) {
-            if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(gameState.lang === 'ar' ? "السيرفر غير متصل، يرجى الانتظار قليلاً..." : "Server not connected, please wait...");
+            if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected'));
             return;
         }
 
@@ -247,7 +240,7 @@ if (onlineBtn) {
         const myNameEl = document.getElementById('mm-my-name');
         const myAvatarEl = document.getElementById('mm-my-avatar');
         
-        if (myNameEl) myNameEl.innerText = profile.name || "أنت";
+        if (myNameEl) myNameEl.innerText = profile.name || t('badge_you');
         if (myAvatarEl) {
             let avatarSrc = profile.avatar || "1000132081.png";
             if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
@@ -260,7 +253,7 @@ if (onlineBtn) {
 
         const oppNameEl = document.getElementById('mm-opp-name');
         const oppAvatarEl = document.getElementById('mm-opp-avatar');
-        if (oppNameEl) oppNameEl.innerText = gameState.lang === 'ar' ? "جاري البحث..." : "Searching...";
+        if (oppNameEl) oppNameEl.innerText = t('mm_status');
         if (oppAvatarEl) {
             oppAvatarEl.innerHTML = "❓";
             oppAvatarEl.style.backgroundImage = 'none';
@@ -314,9 +307,9 @@ if (cancelMmBtn) {
 ui.onClick('room-portal-btn', () => { ui.setDisplay('online-modal', 'flex'); ui.setDisplay('online-status-text', 'none'); ui.setDisplay('online-setup-box', 'block'); });
 ui.onClick('online-close-btn', () => ui.setDisplay('online-modal', 'none'));
 
-const handleRoomBtn = (action, msg) => { ui.startOnlineGame(); clearInterval(gameState.mmInterval); const rID = ui.getVal('online-room-input').trim(); if (!rID) return socketManager.showStatusMsg(gameState.lang === 'ar' ? "❌ اكتب الرقم أولاً" : "❌ Enter ID first"); socketManager.handleRoomAction(action, rID); socketManager.showStatusMsg(msg); };
-ui.onClick('online-create-btn', () => handleRoomBtn('createRoom', gameState.lang === 'ar' ? "جاري إنشاء الغرفة..." : "Creating..."));
-ui.onClick('online-join-btn', () => handleRoomBtn('joinRoom', gameState.lang === 'ar' ? "جاري الاتصال..." : "Connecting..."));
+const handleRoomBtn = (action, msg) => { ui.startOnlineGame(); clearInterval(gameState.mmInterval); const rID = ui.getVal('online-room-input').trim(); if (!rID) return socketManager.showStatusMsg(t('err_id')); socketManager.handleRoomAction(action, rID); socketManager.showStatusMsg(msg); };
+ui.onClick('online-create-btn', () => handleRoomBtn('createRoom', t('creating_room')));
+ui.onClick('online-join-btn', () => handleRoomBtn('joinRoom', t('connecting')));
 
 ui.onClick('board', e => {
     if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
@@ -379,7 +372,7 @@ ui.onClick('board', e => {
                         ui.updateVirtualBoardState(); socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, gameState.virtualBoard, gameState.currentTurn);
                         ui.showValidMovesHighlights(toRow, toCol); 
                     }
-                } else ui.showCustomAlert(gameState.lang === 'ar' ? "يجب أسر أكبر عدد ممكن." : "Must capture max pieces.");
+                } else ui.showCustomAlert(t('must_capture'));
             }
         } else {
             if ((isDama && gameEngine.isValidDamaMove(fromRow, fromCol, toRow, toCol)) || (!isDama && ((Math.abs(rDiff) === 1 && cDiff === 0 && (rDiff === gameState.pieceDirection[gameState.currentTurn])) || (rDiff === 0 && Math.abs(cDiff) === 1)))) {
@@ -414,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.applyProfileDataToUI(userObj);
         }
     } else {
-        let defaultProfile = { id: '#00000', name: 'اسم اللاعب', avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0 };
+        let defaultProfile = { id: '#00000', name: t('badge_you'), avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0 };
         if (typeof window.applyProfileDataToUI === 'function') {
             window.applyProfileDataToUI(defaultProfile);
         }
