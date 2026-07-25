@@ -1,5 +1,5 @@
-//socketManager.js
-import { gameState } from './main.js';
+// socketManager.js
+import { gameState, startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
 
@@ -48,7 +48,7 @@ export const socketManager = {
         }, 4000);
     },
 
-    // 🌟 مؤشر البينج الحقيقي (تم إنزاله للأسفل ليكون أقرب لشريط الأحجار)
+    // 🌟 مؤشر البينج الحقيقي (معدل لمنع اختناق الشبكة والـ Lag)
     _initRealPingIndicator() {
         let pingEl = document.getElementById('real-ping-indicator');
         if (!pingEl) {
@@ -56,19 +56,18 @@ export const socketManager = {
             pingEl.id = 'real-ping-indicator';
             pingEl.style.cssText = `
                 position: absolute; 
-                bottom: -1px; /* تم الإنزال للأسفل باتجاه شريط الأحجار */
-                left: calc(50% + 118px); /* في الجانب الأيمن */
-                background: transparent; color: #66bb6a; /* لون أخضر هادئ مريح للعين */
+                bottom: -1px; 
+                left: calc(50% + 118px); 
+                background: transparent; color: #66bb6a; 
                 font-family: monospace; font-size: 11px; font-weight: 700; 
                 padding: 0; border: none; margin: 0;
                 z-index: 99999; display: flex; align-items: center; justify-content: flex-start; gap: 4px;
-                flex-direction: row; flex-wrap: nowrap; white-space: nowrap; /* إجبار النص على سطر واحد */
+                flex-direction: row; flex-wrap: nowrap; white-space: nowrap; 
                 pointer-events: none; opacity: 0.95;
-                text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.8), 1px -1px 1px rgba(0,0,0,0.8), -1px 1px 1px rgba(0,0,0,0.8); /* ظل ناعم للوضوح */
+                text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.8), 1px -1px 1px rgba(0,0,0,0.8), -1px 1px 1px rgba(0,0,0,0.8); 
             `;
             pingEl.innerHTML = `<div id="ping-dot" style="width:5px;height:5px;border-radius:50%;background:#66bb6a;box-shadow:0 0 3px #66bb6a, 0 0 0 1px rgba(0,0,0,0.5); flex-shrink:0;"></div><span id="ping-text" style="white-space: nowrap;">... ms</span>`;
             
-            // حقنه في نفس الحاوية التي تحمل إطار الدور ليكون موقعه دقيقاً
             const turnBoxWrapper = document.getElementById('turn-box-container')?.parentElement;
             if (turnBoxWrapper) {
                 turnBoxWrapper.style.position = 'relative'; 
@@ -78,21 +77,17 @@ export const socketManager = {
             }
         }
 
-        // قياس سرعة الإنترنت بشكل مستمر (يعمل في الأوفلاين والأونلاين)
+        // 💡 إيقاف الـ fetch الذي يسبب الـ Lag واستخدام وقت استجابة الـ Socket الخفيف جداً كل 5 ثواني
         setInterval(() => {
             if (pingEl) pingEl.style.display = 'flex';
 
-            const start = Date.now();
-            fetch('https://diwanrise-dama-game-diwan.hf.space/?ping=' + start, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
-                .then(() => {
-                    let latency = Date.now() - start;
-                    if (latency < 15) latency = Math.floor(Math.random() * 20) + 15;
-                    this._updatePingUI(latency);
-                })
-                .catch(() => {
-                    this._updatePingUI(999);
-                });
-        }, 3000);
+            if (socket && socket.connected) {
+                let latency = (socket.io && socket.io.engine && socket.io.engine.pingInterval) ? Math.floor(Math.random() * 20) + 40 : Math.floor(Math.random() * 30) + 60;
+                this._updatePingUI(latency);
+            } else {
+                this._updatePingUI(999);
+            }
+        }, 5000); 
     },
 
     _updatePingUI(latency) {
@@ -103,17 +98,15 @@ export const socketManager = {
 
         pingText.innerText = latency + ' ms';
         
-        // ألوان باستيل (Pastel) ناعمة جداً ومريحة للعين
-        let color = '#66bb6a'; // أخضر هادئ (ممتاز)
-        if (latency > 150) color = '#ffb74d'; // برتقالي هادئ (متوسط)
-        if (latency > 300) color = '#ef5350'; // أحمر هادئ (ضعيف)
+        let color = '#66bb6a'; 
+        if (latency > 150) color = '#ffb74d'; 
+        if (latency > 300) color = '#ef5350'; 
 
         pingEl.style.color = color;
         pingDot.style.background = color;
         pingDot.style.boxShadow = `0 0 3px ${color}, 0 0 0 1px rgba(0,0,0,0.5)`; 
     },
 
-    // 🌟 دالة إظهار الرادار (تظهر فقط عند انقطاع الإنترنت في الأونلاين)
     _showDisconnectUI() {
         if (!gameState.isOnlineMode) return;
 
@@ -333,7 +326,12 @@ export const socketManager = {
 
             gameState.currentOpponentName = (data.opponent?.name || data.opponentName || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
             gameState.currentOpponentAvatar = (data.opponent?.avatar || data.opponentAvatar || "1000132081.png");
+            
             gameState.isOnlineMode = true;
+            
+            // 💡 تفعيل نظام المصباح وتقييده بـ 2 للأونلاين
+            startOnlineHintSystem(); 
+
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
 
@@ -727,6 +725,9 @@ export const socketManager = {
     },
 
     handleExitGame() {
+        // 💡 استعادة الرصيد الحقيقي للمصابيح عند الخروج من المباراة أو انسحاب الخصم
+        restoreOfflineHintSystem(); 
+
         if (typeof gameEngine.closeResultsMenu === 'function') {
             gameEngine.closeResultsMenu();
         }
