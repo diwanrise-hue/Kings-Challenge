@@ -48,7 +48,7 @@ export const socketManager = {
         }, 4000);
     },
 
-    // 🌟 مؤشر البينج الحقيقي (سطر واحد، ألوان هادئة، موقع ثابت يسار إطار الدور)
+    // 🌟 مؤشر البينج الحقيقي (الجانب الأيمن، سطر واحد، ألوان هادئة)
     _initRealPingIndicator() {
         let pingEl = document.getElementById('real-ping-indicator');
         if (!pingEl) {
@@ -57,11 +57,11 @@ export const socketManager = {
             pingEl.style.cssText = `
                 position: absolute; 
                 bottom: 8px; /* بمحاذاة الخط السفلي لإطار الدور */
-                right: calc(50% + 102px); /* تحديد الموقع على يسار إطار الدور بدقة */
+                left: calc(50% + 105px); /* النقل للجانب الأيمن بدقة */
                 background: transparent; color: #66bb6a; /* لون أخضر هادئ مريح للعين */
                 font-family: monospace; font-size: 11px; font-weight: 700; 
                 padding: 0; border: none; margin: 0;
-                z-index: 99999; display: flex; align-items: center; justify-content: flex-end; gap: 4px;
+                z-index: 99999; display: flex; align-items: center; justify-content: flex-start; gap: 4px;
                 flex-direction: row; flex-wrap: nowrap; white-space: nowrap; /* إجبار النص على سطر واحد */
                 pointer-events: none; opacity: 0.95;
                 text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.8), 1px -1px 1px rgba(0,0,0,0.8), -1px 1px 1px rgba(0,0,0,0.8); /* ظل ناعم للوضوح */
@@ -336,6 +336,10 @@ export const socketManager = {
             gameState.isOnlineMode = true;
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
+            
+            // إظهار البينج بمجرد الدخول للأونلاين
+            const pingEl = document.getElementById('real-ping-indicator');
+            if (pingEl) pingEl.style.display = 'flex';
 
             if (data.turnEndTime) {
                 gameState.turnEndTime = data.turnEndTime;
@@ -633,12 +637,8 @@ export const socketManager = {
                         alertContainer.style.setProperty('z-index', '99999999', 'important');
                         const buttons = alertContainer.querySelectorAll('button');
                         if (buttons && buttons.length >= 2) {
-                            buttons[0].textContent = gameState.lang === 'ar' ? "قبول" : "Accept";
-                            buttons[0].style.background = 'rgba(48,209,88,0.15)';
-                            buttons[0].style.color = '#30d158';
-                            buttons[0].style.border = '1px solid rgba(48,209,88,0.3)';
-
-                            buttons[1].textContent = gameState.lang === 'ar' ? "رفض" : "Decline";
+                            buttons[0].style.display = 'none'; 
+                            buttons[1].textContent = gameState.lang === 'ar' ? "إلغاء" : "Cancel";
                             buttons[1].onclick = (e) => {
                                 e.preventDefault();
                                 this.isAlertShown = false;
@@ -647,12 +647,7 @@ export const socketManager = {
                                 } else {
                                     ui.setDisplay('custom-alert-modal', 'none');
                                 }
-                                const currentProfile = this._ensureUserProfile();
-                                socket.emit('challengeResponse', { 
-                                    challengerId: data.challengerId, 
-                                    accept: false,
-                                    responderName: currentProfile.name
-                                });
+                                this.handleExitGame(); 
                             };
                         }
                     }
@@ -769,6 +764,8 @@ export const socketManager = {
         gameState.currentOpponentAvatar = null;
         if (typeof gameState.inMatch !== 'undefined') gameState.inMatch = false;
         
+        const pingEl = document.getElementById('real-ping-indicator');
+        if (pingEl) pingEl.style.display = 'none';
         this._hideDisconnectUI();
 
         if (window.bridge && typeof window.bridge.unlockRoom === 'function') {
