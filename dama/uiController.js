@@ -174,10 +174,26 @@ export const ui = {
         this.startTurn();
     },
 
+    // 💡 الإصلاح الجذري لدالة التنبيهات لإظهار الرادار الذهبي بدلاً من الإشعار العادي
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null) {
         title = title || t('alert_title');
         
-        this.setTxt('custom-alert-message', message);
+        const msgContainer = this.getEl('custom-alert-message');
+        if (msgContainer) {
+            // نتحقق إذا كان التنبيه يخص انقطاع الإنترنت أو فقدان الاتصال
+            if (title === "Connection Lost" || title === "انقطاع الاتصال" || title === "Connection Error" || title === "ضعف الإنترنت") {
+                msgContainer.innerHTML = `
+                    <div style="width: 75px; height: 75px; margin: 0 auto 15px auto;">
+                        ${window.SVGIcons && window.SVGIcons.disconnectIcon ? window.SVGIcons.disconnectIcon : '⚠️'}
+                    </div>
+                    <div style="line-height: 1.6; font-size: 14px;">${message}</div>
+                `;
+            } else {
+                // التنبيهات العادية الأخرى
+                msgContainer.innerHTML = `<div style="line-height: 1.6; font-size: 14px;">${message}</div>`;
+            }
+        }
+        
         this.setTxt('custom-alert-title', title);
         this.setTxt('custom-alert-ok', customOkText || t('ok_btn'));
         this.setTxt('custom-alert-cancel', customCancelText || t('cancel_btn'));
