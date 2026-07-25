@@ -14,6 +14,7 @@ export const socketManager = {
     isAlertShown: false,
     lastConnectionErrorTime: 0,
     toastTimeout: null,
+    disconnectTimer: null, // المؤقت الخاص بتأخير الرادار 5 ثواني
 
     _showToast(msg) {
         let toast = document.getElementById('game-toast-notification');
@@ -47,7 +48,54 @@ export const socketManager = {
         }, 4000);
     },
 
-    // 🌟 دالة جديدة: إظهار الرادار ومؤشر البينغ فقط (بدون أي نصوص أو أزرار)
+    // 🌟 إنشاء مؤشر البينج الحقيقي في الزاوية السفلية اليمنى
+    _initRealPingIndicator() {
+        let pingEl = document.getElementById('real-ping-indicator');
+        if (!pingEl) {
+            pingEl = document.createElement('div');
+            pingEl.id = 'real-ping-indicator';
+            pingEl.style.cssText = `
+                position: fixed; bottom: 15px; right: 15px;
+                background: rgba(10, 10, 15, 0.7); color: #30d158;
+                font-family: monospace; font-size: 11px; font-weight: bold;
+                padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(48, 209, 88, 0.3);
+                z-index: 99999; display: flex; align-items: center; gap: 5px;
+                transition: all 0.3s ease; backdrop-filter: blur(4px);
+            `;
+            pingEl.innerHTML = `<div id="ping-dot" style="width:6px;height:6px;border-radius:50%;background:#30d158;box-shadow:0 0 5px #30d158;"></div><span id="ping-text">... ms</span>`;
+            document.body.appendChild(pingEl);
+        }
+
+        let pingStart = Date.now();
+        // الاستماع لإشارات محرك Socket.io الحقيقية لحساب سرعة الاستجابة
+        socket.io.engine.on("ping", () => {
+            pingStart = Date.now();
+        });
+        socket.io.engine.on("pong", () => {
+            const latency = Date.now() - pingStart;
+            this._updatePingUI(latency);
+        });
+    },
+
+    _updatePingUI(latency) {
+        const pingEl = document.getElementById('real-ping-indicator');
+        const pingText = document.getElementById('ping-text');
+        const pingDot = document.getElementById('ping-dot');
+        if (!pingEl || !pingText || !pingDot) return;
+
+        pingText.innerText = latency + ' ms';
+        
+        let color = '#30d158'; // أخضر (ممتاز)
+        if (latency > 150) color = '#f5a623'; // برتقالي (متوسط)
+        if (latency > 300) color = '#ff453a'; // أحمر (ضعيف)
+
+        pingEl.style.color = color;
+        pingEl.style.borderColor = color + '40'; // شفافية 25% للحدود
+        pingDot.style.background = color;
+        pingDot.style.boxShadow = `0 0 5px ${color}`;
+    },
+
+    // 🌟 دالة إظهار الرادار الصافي (بدون نصوص أو بينج وهمي)
     _showDisconnectUI() {
         let overlay = document.getElementById('luxury-disconnect-overlay');
         if (!overlay) {
@@ -76,27 +124,40 @@ export const socketManager = {
             `;
 
             overlay.innerHTML = `
-                <div style="position: absolute; top: 25px; left: 25px; background: rgba(255, 69, 58, 0.1); border: 1px solid rgba(255, 69, 58, 0.3); color: #ff453a; font-family: monospace; font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 8px; letter-spacing: 1px; box-shadow: 0 0 10px rgba(255, 69, 58, 0.2); display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 10px; height: 10px; background: #ff453a; border-radius: 50%; box-shadow: 0 0 8px #ff453a; animation: pulsePingAlert 1s infinite alternate;"></div>
-                    Ping: 999+ ms
-                </div>
                 <div style="width: 130px; height: 130px;">
                     ${radarIcon}
                 </div>
                 <style>
-                    @keyframes pulsePingAlert { 0% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
                     @keyframes radarPing { 0%, 100% { opacity: 0.15; filter: drop-shadow(0 0 0px transparent); } 40% { opacity: 1; filter: drop-shadow(0 0 10px #fce288); } }
                 </style>
             `;
             document.body.appendChild(overlay);
         }
         overlay.style.display = 'flex';
+        
+        // عند القطع التام، نجعل البينج الحقيقي أحمر و999
+        this._updatePingUI(999);
     },
 
-    // 🌟 دالة إخفاء الرادار فور عودة الاتصال
+    // 🌟 دالة إخفاء الرادار وإلغاء المؤقت
     _hideDisconnectUI() {
         const overlay = document.getElementById('luxury-disconnect-overlay');
         if (overlay) overlay.style.display = 'none';
+        
+        // إذا عاد الإنترنت بسرعة، نلغي مؤشر الانقطاع
+        if (this.disconnectTimer) {
+            clearTimeout(this.disconnectTimer);
+            this.disconnectTimer = null;
+        }
+    },
+    
+    // 🌟 دالة معالجة الانقطاع (تنتظر 5 ثواني قبل إظهار الرادار)
+    _handleDisconnection() {
+        if (!this.disconnectTimer) {
+            this.disconnectTimer = setTimeout(() => {
+                this._showDisconnectUI();
+            }, 5000); // مهلة 5 ثواني
+        }
     },
 
     _ensureUserProfile() {
@@ -163,6 +224,9 @@ export const socketManager = {
     },
 
     init() {
+        // تهيئة البينج الحقيقي بمجرد تشغيل اللعبة
+        this._initRealPingIndicator();
+
         const eventsToTurnOff = [
             'connect', 'disconnect', 'roomCreated', 'roomJoined', 'waitingForOpponent',
             'gameStart', 'opponentMove', 'opponentResigned', 'turnTimeout',
@@ -177,7 +241,7 @@ export const socketManager = {
         socket.on('connect', () => {
             console.log('Connected to server successfully');
             
-            // 💡 إخفاء الرادار فور الاتصال
+            // إخفاء الرادار فور الاتصال
             this._hideDisconnectUI();
 
             const profile = this._ensureUserProfile();
@@ -195,8 +259,8 @@ export const socketManager = {
 
         socket.on('disconnect', (reason) => {
             console.warn('Disconnected:', reason);
-            // 💡 استدعاء الشاشة المخصصة للرادار (بدون أي نصوص أو أزرار)
-            this._showDisconnectUI();
+            // إرسال طلب عرض الرادار (لكنه سينتظر 5 ثواني أولاً)
+            this._handleDisconnection();
         });
 
         socket.on('connect_error', (err) => {
@@ -216,8 +280,8 @@ export const socketManager = {
             const now = Date.now();
             if (now - this.lastConnectionErrorTime > 10000) {
                 this.lastConnectionErrorTime = now;
-                // 💡 إظهار الرادار والبينج فور الشعور بضعف الشبكة
-                this._showDisconnectUI();
+                // إرسال طلب عرض الرادار (سيبدأ العد التنازلي لـ 5 ثواني)
+                this._handleDisconnection();
             }
         });
 
