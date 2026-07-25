@@ -359,35 +359,26 @@
         }
 
         /* ========================================== */
-        /* رادار انقطاع الإنترنت (Smart Disconnect Radar) */
+        /* رادار انقطاع الإنترنت (فوق البينج مباشرة) */
         /* ========================================== */
         #mini-disconnect-radar {
             display: none;
-            position: fixed;
-            top: 75px; /* أسفل كبسولة البروفايل */
-            left: 20px; /* متوافق مع البروفايل */
+            position: absolute;
+            top: 50%;
+            right: -46px; /* يمين الإطار مباشرة */
+            transform: translateY(-50%) translateY(-22px); /* رفعه قليلاً ليكون فوق البينج تماماً */
+            border-radius: 12px;
             width: 38px;
             height: 38px;
             z-index: 99999;
             background: rgba(15, 18, 25, 0.85);
-            border-radius: 12px;
             padding: 4px;
             border: 1px solid rgba(255, 69, 58, 0.4);
             box-shadow: 0 0 12px rgba(255, 69, 58, 0.3);
-            pointer-events: none; /* لتفادي حجب اللمس */
+            pointer-events: none;
             box-sizing: border-box;
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        /* وضع الأونلاين: نقل الرادار لجانب إطار الدور */
-        body.online-mode-active #mini-disconnect-radar {
-            position: absolute;
-            top: 50%;
-            left: -46px; /* يسار الإطار */
-            transform: translateY(-50%);
-            border-radius: 12px;
-            width: 38px;
-            height: 38px;
+            align-items: center;
+            justify-content: center;
         }
 
         /* ========================================== */
@@ -714,7 +705,7 @@
 
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
             
-            <!-- 🌟 حاوية الرادار الذكي (سيتم حقن الـ SVG هنا من icons.js عبر socketManager) -->
+            <!-- 🌟 حاوية الرادار الذكي (فوق البينج مباشرة في الجانب الأيمن) -->
             <div id="mini-disconnect-radar"></div>
 
             <div id="turn-box-container">
@@ -972,7 +963,7 @@
                 <button id="online-create-btn" class="save-settings-btn" style="background: rgba(255,255,255,0.15) !important;">إنشاء غرفة</button>
                 <button id="online-join-btn" class="save-settings-btn">انضمام لغرفة</button>
             </div>
-            <p id="online-status-text" style="color: #f5a623; font-weight: 500; font-size: 13px; margin-top: 15px; display: none;"></p>
+            <p id="online-status-text" style="color: #f1c40f; font-weight: 500; font-size: 13px; margin-top: 15px; display: none;"></p>
             <button id="online-close-btn" onclick="closeAppModal('online-modal')" class="save-settings-btn" style="background: transparent !important; margin-top: 15px;">إلغاء</button>
         </div>
     </div>
