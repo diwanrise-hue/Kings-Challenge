@@ -1,4 +1,4 @@
-// aiWorker.js - النسخة الديناميكية المعدلة (دعم القفز المتعدد ومربعات الهبوط الكاملة للملك)
+// aiWorker.js - النسخة الخفيفة والسريعة (معالجة مشكلة الذاكرة ودعم الاتجاه الثابت)
 
 /**
  * دالة مساعدة للتحقق من حدود اللوح
@@ -8,40 +8,15 @@ const isValidPos = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
 // متغير محلي لحفظ اتجاهات حركة القطع لكل لون
 let workerPieceDirection = { white: -1, black: 1 };
 
-// 💡 دالة الاكتشاف الذاتي (الحل الجذري): تقوم بمسح الرقعة وتحديد من يجلس في الأعلى ومن يجلس في الأسفل
-function autoDetectDirections(bState) {
-    let wTop = 0, wBot = 0, bTop = 0, bBot = 0;
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-            let p = bState[r][c];
-            if (p) {
-                if (p.startsWith('white')) { r < 4 ? wTop++ : wBot++; }
-                else if (p.startsWith('black')) { r < 4 ? bTop++ : bBot++; }
-            }
-        }
-    }
-    
-    // الافتراضي
-    let wDir = -1, bDir = 1; 
-    
-    // تحديد الاتجاهات الفعلية في الساحة
-    if (wTop > wBot) { wDir = 1; bDir = -1; }
-    else if (wBot > wTop) { wDir = -1; bDir = 1; }
-    else if (bTop > bBot) { bDir = 1; wDir = -1; }
-    else if (bBot > bTop) { bDir = -1; wDir = 1; }
-
-    workerPieceDirection = { white: wDir, black: bDir };
-}
-
 /**
- * دالة حساب مسارات القفز والأكل الإجباري الديناميكية للملك والقطع العادية
+ * دالة حساب مسارات القفز والأكل الإجباري الديناميكية للملك والقطع العادية (مدعومة بـ Backtracking)
  */
 function getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = null) {
     const isDama = bState[r][c]?.endsWith('-dama');
     const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
     const pureColor = color.split('-')[0];
 
-    // جلب الاتجاه الحقيقي للون من الدالة المكتشفة
+    // جلب الاتجاه الحقيقي للون
     let dirRow = workerPieceDirection[pureColor] !== undefined ? workerPieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1);
     let currentDirections = isDama ? directions : [[dirRow, 0], [0, 1], [0, -1]];
 
@@ -77,22 +52,30 @@ function getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = n
                     } else break; // قطعة من نفس اللون تمنع المرور
                 } else {
                     if (piece === null) {
-                        // 💡 تم الحل هنا: كل مربع فارغ خلف الخصم هو خيار هبوط شرعي ومستقل للملك!
-                        let nextBoard = bState.map(row => [...row]);
-                        nextBoard[enemyPos.r][enemyPos.c] = null;
-                        nextBoard[nextR][nextC] = bState[r][c];
-                        nextBoard[r][c] = null;
+                        // 💡 تقنية Backtracking: نغير الرقعة مؤقتاً للتجربة ونعيدها كما كانت
+                        let capturedPiece = bState[enemyPos.r][enemyPos.c];
+                        let movingPiece = bState[r][c];
+
+                        bState[enemyPos.r][enemyPos.c] = null;
+                        bState[nextR][nextC] = movingPiece;
+                        bState[r][c] = null;
 
                         const stepObj = { fromR: r, fromC: c, toR: nextR, toC: nextC, midR: enemyPos.r, midC: enemyPos.c };
                         
                         // استكشاف القفزات التالية بحرية اتجاه كاملة من خانة الهبوط الحالية
-                        const subPaths = getPieceCapturePaths(nextR, nextC, color, nextBoard, dr, dc);
+                        const subPaths = getPieceCapturePaths(nextR, nextC, color, bState, dr, dc);
 
                         if (subPaths.length > 0) {
                             for (const sp of subPaths) paths.push([stepObj, ...sp]);
                         } else {
                             paths.push([stepObj]);
                         }
+
+                        // 🔄 استرجاع الحالة الأصلية (Backtracking)
+                        bState[r][c] = movingPiece;
+                        bState[nextR][nextC] = null;
+                        bState[enemyPos.r][enemyPos.c] = capturedPiece;
+
                         step++; 
                         continue;
                     } else break; // قطعة أخرى تعترض الطريق بعد الخصم
@@ -105,19 +88,27 @@ function getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = n
                 const midPiece = bState[midR][midC];
                 const toPiece = bState[toR][toC];
                 if (midPiece && !midPiece.startsWith(pureColor) && toPiece === null) {
-                    let nextBoard = bState.map(row => [...row]);
-                    nextBoard[midR][midC] = null;
-                    nextBoard[toR][toC] = bState[r][c];
-                    nextBoard[r][c] = null;
+                    // 💡 تقنية Backtracking للقطع العادية
+                    let capturedPiece = bState[midR][midC];
+                    let movingPiece = bState[r][c];
+
+                    bState[midR][midC] = null;
+                    bState[toR][toC] = movingPiece;
+                    bState[r][c] = null;
 
                     const stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
-                    const subPaths = getPieceCapturePaths(toR, toC, color, nextBoard, dr, dc);
+                    const subPaths = getPieceCapturePaths(toR, toC, color, bState, dr, dc);
 
                     if (subPaths.length > 0) {
                         for (const sp of subPaths) paths.push([stepObj, ...sp]);
                     } else {
                         paths.push([stepObj]);
                     }
+
+                    // 🔄 استرجاع الحالة الأصلية (Backtracking)
+                    bState[r][c] = movingPiece;
+                    bState[toR][toC] = null;
+                    bState[midR][midC] = capturedPiece;
                 }
             }
         }
@@ -278,10 +269,14 @@ self.onmessage = function(e) {
     const depth = e.data.depth || 8;
     const aiColor = e.data.aiColor || e.data.color;
 
-    if (!board || !aiColor) return;
+    // 💡 التعديل الجوهري: استلام الاتجاه الحقيقي من اللعبة للحماية من عمى البوت في نهاية اللعبة
+    if (e.data.pieceDirection) {
+        workerPieceDirection = e.data.pieceDirection;
+    } else {
+        workerPieceDirection = { white: -1, black: 1 };
+    }
 
-    // 💡 هذا السطر يمسح الرقعة أولاً ليعرف البوت أين يجلس، ثم ينطلق بالاتجاه السليم!
-    autoDetectDirections(board);
+    if (!board || !aiColor) return;
 
     const result = minimax(board, depth, -Infinity, Infinity, true, aiColor, aiColor);
     self.postMessage(result); 
