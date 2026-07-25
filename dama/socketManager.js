@@ -48,29 +48,27 @@ export const socketManager = {
         }, 4000);
     },
 
-    // 🌟 إنشاء مؤشر البينج الحقيقي في الزاوية السفلية اليمنى
+    // 🌟 مؤشر البينج الحقيقي المصغر
     _initRealPingIndicator() {
         let pingEl = document.getElementById('real-ping-indicator');
         if (!pingEl) {
             pingEl = document.createElement('div');
             pingEl.id = 'real-ping-indicator';
             pingEl.style.cssText = `
-                position: fixed; bottom: 15px; right: 15px;
+                position: fixed; bottom: 8px; right: 8px; 
                 background: rgba(10, 10, 15, 0.7); color: #30d158;
-                font-family: monospace; font-size: 11px; font-weight: bold;
-                padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(48, 209, 88, 0.3);
-                z-index: 99999; display: flex; align-items: center; gap: 5px;
+                font-family: monospace; font-size: 10px; font-weight: bold; 
+                padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(48, 209, 88, 0.3);
+                z-index: 99999; display: flex; align-items: center; gap: 4px;
                 transition: all 0.3s ease; backdrop-filter: blur(4px);
+                pointer-events: none; 
             `;
-            pingEl.innerHTML = `<div id="ping-dot" style="width:6px;height:6px;border-radius:50%;background:#30d158;box-shadow:0 0 5px #30d158;"></div><span id="ping-text">... ms</span>`;
+            pingEl.innerHTML = `<div id="ping-dot" style="width:5px;height:5px;border-radius:50%;background:#30d158;box-shadow:0 0 5px #30d158;"></div><span id="ping-text">... ms</span>`;
             document.body.appendChild(pingEl);
         }
 
         let pingStart = Date.now();
-        // الاستماع لإشارات محرك Socket.io الحقيقية لحساب سرعة الاستجابة
-        socket.io.engine.on("ping", () => {
-            pingStart = Date.now();
-        });
+        socket.io.engine.on("ping", () => { pingStart = Date.now(); });
         socket.io.engine.on("pong", () => {
             const latency = Date.now() - pingStart;
             this._updatePingUI(latency);
@@ -90,61 +88,35 @@ export const socketManager = {
         if (latency > 300) color = '#ff453a'; // أحمر (ضعيف)
 
         pingEl.style.color = color;
-        pingEl.style.borderColor = color + '40'; // شفافية 25% للحدود
+        pingEl.style.borderColor = color + '40'; 
         pingDot.style.background = color;
         pingDot.style.boxShadow = `0 0 5px ${color}`;
     },
 
-    // 🌟 دالة إظهار الرادار الصافي (بدون نصوص أو بينج وهمي)
+    // 🌟 دالة إظهار الرادار (تعتمد على وجود العنصر في HTML أو تستدعيه من icons.js)
     _showDisconnectUI() {
-        let overlay = document.getElementById('luxury-disconnect-overlay');
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.id = 'luxury-disconnect-overlay';
-            overlay.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-                z-index: 99999999; display: flex; justify-content: center; align-items: center; flex-direction: column;
-            `;
-
-            const radarIcon = window.SVGIcons ? window.SVGIcons.disconnectIcon : `
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
-                    <defs>
-                        <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#2a241e" /><stop offset="100%" stop-color="#14110e" /></radialGradient>
-                        <linearGradient id="goldGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#bf8530" /><stop offset="50%" stop-color="#fce288" /><stop offset="100%" stop-color="#8c5a1c" /></linearGradient>
-                    </defs>
-                    <rect x="5" y="5" width="110" height="110" rx="28" fill="url(#bgGrad)" stroke="#3d301f" stroke-width="2"/>
-                    <g stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round" fill="none" transform="translate(0, 5)">
-                        <circle cx="60" cy="85" r="6" fill="url(#goldGrad)" stroke="none" style="animation: radarPing 1.5s infinite;"/>
-                        <path d="M 42 68 A 25 25 0 0 1 78 68" style="animation: radarPing 1.5s infinite 0.2s;"/>
-                        <path d="M 26 51 A 45 45 0 0 1 94 51" style="animation: radarPing 1.5s infinite 0.4s;"/>
-                        <path d="M 10 34 A 65 65 0 0 1 110 34" style="animation: radarPing 1.5s infinite 0.6s;"/>
-                    </g>
-                </svg>
-            `;
-
-            overlay.innerHTML = `
-                <div style="width: 130px; height: 130px;">
-                    ${radarIcon}
-                </div>
-                <style>
-                    @keyframes radarPing { 0%, 100% { opacity: 0.15; filter: drop-shadow(0 0 0px transparent); } 40% { opacity: 1; filter: drop-shadow(0 0 10px #fce288); } }
-                </style>
-            `;
-            document.body.appendChild(overlay);
-        }
-        overlay.style.display = 'flex';
+        let miniRadar = document.getElementById('mini-disconnect-radar');
         
-        // عند القطع التام، نجعل البينج الحقيقي أحمر و999
+        if (!miniRadar) {
+            miniRadar = document.createElement('div');
+            miniRadar.id = 'mini-disconnect-radar';
+            
+            // حقن الأيقونة من ملف icons.js إذا لم نجدها في الـ HTML
+            if (window.SVGIcons && window.SVGIcons.disconnectIcon) {
+                miniRadar.innerHTML = window.SVGIcons.disconnectIcon;
+            }
+            document.body.appendChild(miniRadar);
+        }
+
+        miniRadar.style.display = 'block';
         this._updatePingUI(999);
     },
 
     // 🌟 دالة إخفاء الرادار وإلغاء المؤقت
     _hideDisconnectUI() {
-        const overlay = document.getElementById('luxury-disconnect-overlay');
-        if (overlay) overlay.style.display = 'none';
+        const miniRadar = document.getElementById('mini-disconnect-radar');
+        if (miniRadar) miniRadar.style.display = 'none';
         
-        // إذا عاد الإنترنت بسرعة، نلغي مؤشر الانقطاع
         if (this.disconnectTimer) {
             clearTimeout(this.disconnectTimer);
             this.disconnectTimer = null;
@@ -156,7 +128,7 @@ export const socketManager = {
         if (!this.disconnectTimer) {
             this.disconnectTimer = setTimeout(() => {
                 this._showDisconnectUI();
-            }, 5000); // مهلة 5 ثواني
+            }, 5000); 
         }
     },
 
@@ -224,7 +196,6 @@ export const socketManager = {
     },
 
     init() {
-        // تهيئة البينج الحقيقي بمجرد تشغيل اللعبة
         this._initRealPingIndicator();
 
         const eventsToTurnOff = [
@@ -241,7 +212,6 @@ export const socketManager = {
         socket.on('connect', () => {
             console.log('Connected to server successfully');
             
-            // إخفاء الرادار فور الاتصال
             this._hideDisconnectUI();
 
             const profile = this._ensureUserProfile();
@@ -259,7 +229,6 @@ export const socketManager = {
 
         socket.on('disconnect', (reason) => {
             console.warn('Disconnected:', reason);
-            // إرسال طلب عرض الرادار (لكنه سينتظر 5 ثواني أولاً)
             this._handleDisconnection();
         });
 
@@ -280,7 +249,6 @@ export const socketManager = {
             const now = Date.now();
             if (now - this.lastConnectionErrorTime > 10000) {
                 this.lastConnectionErrorTime = now;
-                // إرسال طلب عرض الرادار (سيبدأ العد التنازلي لـ 5 ثواني)
                 this._handleDisconnection();
             }
         });
