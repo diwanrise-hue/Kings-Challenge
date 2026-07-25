@@ -411,9 +411,46 @@ const SVGIcons = {
             <rect x="68" y="79" width="10" height="3" rx="1.5" fill="#292524" />
             <path d="M 14 35 C 14 30.5 17.5 27 22 27 L 78 27 C 82.5 27 86 30.5 86 35 L 86 39 L 14 39 Z" fill="#ffffff" opacity="0.18" />
         </g>
+    </svg>`,
+
+    // 13. أيقونة الرادار لفقدان الاتصال 🌟 (الجديدة)
+    disconnectIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+        <defs>
+            <radialGradient id="radarBgGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#2a241e" />
+                <stop offset="100%" stop-color="#14110e" />
+            </radialGradient>
+            <linearGradient id="radarGoldGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#bf8530" />
+                <stop offset="50%" stop-color="#fce288" />
+                <stop offset="100%" stop-color="#8c5a1c" />
+            </linearGradient>
+            <filter id="radarGoldGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#fce288" flood-opacity="0.4"/>
+            </filter>
+        </defs>
+        <style>
+            .radar-dot  { animation: radarPingAnim 1.5s infinite; animation-delay: 0s; }
+            .radar-arc1 { animation: radarPingAnim 1.5s infinite; animation-delay: 0.2s; }
+            .radar-arc2 { animation: radarPingAnim 1.5s infinite; animation-delay: 0.4s; }
+            .radar-arc3 { animation: radarPingAnim 1.5s infinite; animation-delay: 0.6s; }
+            @keyframes radarPingAnim {
+                0%, 100% { opacity: 0.15; filter: drop-shadow(0 0 0px transparent); }
+                40% { opacity: 1; filter: drop-shadow(0 0 10px #fce288); }
+            }
+        </style>
+        <rect x="5" y="5" width="110" height="110" rx="28" fill="url(#radarBgGrad)" stroke="#3d301f" stroke-width="2"/>
+        <g stroke="url(#radarGoldGrad)" stroke-width="8" stroke-linecap="round" fill="none" transform="translate(0, 5)">
+            <circle cx="60" cy="85" r="6" fill="url(#radarGoldGrad)" stroke="none" class="radar-dot"/>
+            <path d="M 42 68 A 25 25 0 0 1 78 68" class="radar-arc1"/>
+            <path d="M 26 51 A 45 45 0 0 1 94 51" class="radar-arc2"/>
+            <path d="M 10 34 A 65 65 0 0 1 110 34" class="radar-arc3"/>
+        </g>
     </svg>`
 };
 
+// جعل كائن الأيقونات عاماً لكي نتمكن من الوصول إليه من أي ملف آخر
+window.SVGIcons = SVGIcons;
 
 // هذه الدالة ستقوم بالبحث عن كل عنصر يحتوي على الخاصية `data-icon` وحقن الـ SVG فيه
 window.injectAllSVGIcons = function() {
