@@ -42,6 +42,7 @@ export const translations = {
         online_pass: "كلمة السر (اختياري):",
         mm_opp: "الخصم",
         mm_status: "جاري البحث عن خصم...",
+        searching: "جاري البحث عن خصم...", // تم إضافة هذا المفتاح لحل مشكلة نافذة البحث
         igp_friends: "الأصدقاء",
         igp_no_friends: "لا يوجد أصدقاء حالياً",
         theme_bg_0: "الخشب الفاخر",
@@ -72,7 +73,6 @@ export const translations = {
         cancel_btn: "إلغاء",
         ok_btn: "حسناً",
         
-        // --- الكلمات الجديدة المستخرجة من الأكواد ---
         opp_found: "تم إيجاد الخصم! جاري التجهيز...",
         press_start: "اضغط بدء اللعب",
         white_wins: "فاز الأبيض!",
@@ -127,7 +127,21 @@ export const translations = {
         err_id: "❌ اكتب الرقم أولاً",
         creating_room: "جاري إنشاء الغرفة...",
         connecting: "جاري الاتصال...",
-        must_capture: "يجب أسر أكبر عدد ممكن."
+        must_capture: "يجب أسر أكبر عدد ممكن.",
+
+        // --- نصوص القائمة الجانبية ولوحة الشرف والإضافات الجديدة ---
+        menu_title: "القائمة",
+        menu_bag: "الحقيبة الممتلكات",
+        menu_radio: "الراديو",
+        menu_room: "الغرفة الخاصة",
+        menu_leaderboard: "سجل الشرف",
+        menu_settings: "الضبط",
+        menu_exit: "خروج",
+        lb_title: "لوحة الشرف",
+        lb_wins: "الأكثر فوزاً",
+        lb_tokens: "الأغنى (المال)",
+        lb_unknown: "لاعب مجهول",
+        tutorial_mode: "لعبة تعليمية (مصباح مجاني / بدون جوائز)"
     },
     ku: {
         app_title: "DAMA CHALLENGE",
@@ -168,6 +182,7 @@ export const translations = {
         online_pass: "وشەی تێپەڕ (ئارەزوومەندانە):",
         mm_opp: "بەرامبەر",
         mm_status: "گەڕان بەدوای بەرامبەردا...",
+        searching: "گەڕان بەدوای بەرامبەردا...",
         igp_friends: "هاوڕێکان",
         igp_no_friends: "هیچ هاوڕێیەک نییە لە ئێستادا",
         theme_bg_0: "دارەی شاهانە",
@@ -198,7 +213,6 @@ export const translations = {
         cancel_btn: "هەڵوەشاندنەوە",
         ok_btn: "باشە",
 
-        // --- الكلمات الجديدة المستخرجة من الأكواد ---
         opp_found: "بەرامبەر دۆزرایەوە! ئامادەکردن...",
         press_start: "کرتە بکە بۆ دەستپێکردن",
         white_wins: "سپی بردەوە!",
@@ -253,7 +267,21 @@ export const translations = {
         err_id: "❌ سەرەتا ژمارەکە بنووسە",
         creating_room: "دروستکردنی ژوور...",
         connecting: "پەیوەندیکردن...",
-        must_capture: "دەبێت زۆرترین پارچە بخۆیت."
+        must_capture: "دەبێت زۆرترین پارچە بخۆیت.",
+
+        // --- نصوص القائمة الجانبية ولوحة الشرف والإضافات الجديدة ---
+        menu_title: "پێڕست",
+        menu_bag: "جانتا و کەلوپەل",
+        menu_radio: "ڕادیۆ",
+        menu_room: "ژووری تایبەت",
+        menu_leaderboard: "تۆماری شانازی",
+        menu_settings: "ڕێکخستنەکان",
+        menu_exit: "دەرچوون",
+        lb_title: "تۆماری شانازی",
+        lb_wins: "زۆرترین بردنەوە",
+        lb_tokens: "دەوڵەمەندترین (پارە)",
+        lb_unknown: "یاریزانی نەناسراو",
+        tutorial_mode: "یاری فێرکاری (تیشکی خۆڕایی / بێ پاداشت)"
     },
     en: {
         app_title: "DAMA CHALLENGE",
@@ -294,6 +322,7 @@ export const translations = {
         online_pass: "Password (Optional):",
         mm_opp: "Opponent",
         mm_status: "Searching for opponent...",
+        searching: "Searching for opponent...",
         igp_friends: "Friends",
         igp_no_friends: "No friends currently",
         theme_bg_0: "Luxury Wood",
@@ -324,7 +353,6 @@ export const translations = {
         cancel_btn: "Cancel",
         ok_btn: "OK",
 
-        // --- الكلمات الجديدة المستخرجة من الأكواد ---
         opp_found: "Opponent Found! Preparing...",
         press_start: "Press Start",
         white_wins: "White Wins!",
@@ -379,7 +407,21 @@ export const translations = {
         err_id: "❌ Enter ID first",
         creating_room: "Creating Room...",
         connecting: "Connecting...",
-        must_capture: "Must capture max pieces."
+        must_capture: "Must capture max pieces.",
+
+        // --- نصوص القائمة الجانبية ولوحة الشرف والإضافات الجديدة ---
+        menu_title: "Menu",
+        menu_bag: "Inventory",
+        menu_radio: "Radio",
+        menu_room: "Private Room",
+        menu_leaderboard: "Leaderboard",
+        menu_settings: "Settings",
+        menu_exit: "Exit",
+        lb_title: "Leaderboard",
+        lb_wins: "Most Wins",
+        lb_tokens: "Richest (Tokens)",
+        lb_unknown: "Unknown Player",
+        tutorial_mode: "Tutorial Mode (Free Hint / No Rewards)"
     }
 };
 
