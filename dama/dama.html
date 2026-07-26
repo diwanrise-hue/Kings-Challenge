@@ -729,39 +729,40 @@
     <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
         <div class="side-menu-panel">
             <div class="side-menu-header">
-                <h3 class="side-menu-title">القائمة</h3>
+                <h3 class="side-menu-title" id="menu-title-text">القائمة</h3>
                 <button class="side-menu-close" onclick="toggleSideMenu()">✕</button>
             </div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
                 <span data-icon="bagSide"></span>
-                <span>الحقيبة الممتلكات</span>
+                <span id="menu-bag-text">الحقيبة الممتلكات</span>
             </div>
 
             <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.openRadioModal()">
                 <span style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;" data-icon="radioSide"></span> 
-                <span>الراديو</span>
+                <span id="menu-radio-text">الراديو</span>
             </div>
 
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('online-modal')">
               <span data-icon="door"></span>
-              <span>الغرفة الخاصة</span>
+              <span id="menu-room-text">الغرفة الخاصة</span>
             </div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); window.showLeaderboard()">
                 <span data-icon="medal"></span>
-                <span>سجل الشرف</span>
+                <span id="menu-leaderboard-text">سجل الشرف</span>
             </div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('settings-overlay')">
                 <span data-icon="gear"></span> 
-                <span>الضبط</span>
+                <span id="menu-settings-text">الضبط</span>
             </div>
             
             <div style="flex-grow: 1;"></div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.postMessage({ type: 'EXIT_GAME' }, '*');" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
-                <span style="font-size: 36px; display: flex; align-items: center; justify-content: center; width: 38px; transform: translateY(1px);">🚪</span> <span>خروج</span>
+                <span style="font-size: 36px; display: flex; align-items: center; justify-content: center; width: 38px; transform: translateY(1px);">🚪</span> 
+                <span id="menu-exit-text">خروج</span>
             </div>
         </div>
     </div>
@@ -872,7 +873,7 @@
     <div id="leaderboard-modal" class="modal-overlay" style="z-index: 9999999;">
         <div class="settings-card leaderboard-full-screen" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000;">✕</button>
-            <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px;">🏆 لوحة الشرف</h3>
+            <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px;">🏆 <span id="lb-title-text">لوحة الشرف</span></h3>
             
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="lb-tab-wins" class="custom-tab-button active" onclick="switchLbTab('wins')">الأكثر فوزاً</button>
@@ -930,7 +931,7 @@
 
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
                 <input type="checkbox" id="tutorial-mode-checkbox" style="width: 18px; height: 18px; accent-color: #f5a623; cursor: pointer;">
-                <label for="tutorial-mode-checkbox" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0;">لعبة تعليمية (مصباح مجاني / بدون جوائز)</label>
+                <label for="tutorial-mode-checkbox" id="tutorial-mode-label" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0;">لعبة تعليمية (مصباح مجاني / بدون جوائز)</label>
             </div>
 
             <button id="cancel-new-game-btn" onclick="closeAppModal('new-game-modal')" class="save-settings-btn" style="background: transparent !important;">إلغاء</button>
@@ -1062,6 +1063,26 @@
 
         window.modalStack = [];
 
+        // 💡 دالة التحديث الديناميكي الشاملة لنصوص الـ HTML
+        window.updateHtmlTexts = function() {
+            if (!window.t) return;
+            const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.innerText = window.t(key); };
+            
+            setTxt('menu-title-text', 'menu_title');
+            setTxt('menu-bag-text', 'menu_bag');
+            setTxt('menu-radio-text', 'menu_radio');
+            setTxt('menu-room-text', 'menu_room');
+            setTxt('menu-leaderboard-text', 'menu_leaderboard');
+            setTxt('menu-settings-text', 'menu_settings');
+            setTxt('menu-exit-text', 'menu_exit');
+            
+            setTxt('lb-title-text', 'lb_title');
+            setTxt('lb-tab-wins', 'lb_wins');
+            setTxt('lb-tab-tokens', 'lb_tokens');
+            
+            setTxt('tutorial-mode-label', 'tutorial_mode');
+        };
+
         function openAppModal(id) {
             const modal = document.getElementById(id);
             if (modal) {
@@ -1096,6 +1117,8 @@
             if (boardEl) {
                 boardObserver.observe(boardEl, { childList: true, subtree: true });
             }
+            // تطبيق الترجمة على النصوص الثابتة عند التحميل
+            setTimeout(() => { if (window.updateHtmlTexts) window.updateHtmlTexts(); }, 300);
         });
 
         function toggleSideMenu() {
@@ -1119,7 +1142,8 @@
 
         function createLbItemHTML(rank, name, score, type, avatarStr) {
             let prefix = type === 'wins' ? '' : '🪙 ';
-            let suffix = type === 'wins' ? ' فوز' : '';
+            // ربط كلمة فوز في لوحة الشرف بقاموس الترجمة
+            let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : '';
             
             const div = document.createElement('div');
             div.className = 'lb-item';
@@ -1170,15 +1194,18 @@
             winsList.innerHTML = '';
             tokensList.innerHTML = '';
             
+            // جلب ترجمة "لاعب مجهول" من القاموس
+            const unknownText = window.t ? window.t('lb_unknown') : 'لاعب مجهول';
+            
             for(let i = 0; i < 20; i++) {
-                let wPlayer = winsData && winsData[i] ? winsData[i].name : `لاعب مجهول ${i+1}`;
+                let wPlayer = winsData && winsData[i] ? winsData[i].name : `${unknownText} ${i+1}`;
                 let wScore = winsData && winsData[i] ? winsData[i].score : (100 - (i * 2));
                 let wAvatar = winsData && winsData[i] ? winsData[i].avatar : null; 
                 winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins', wAvatar));
             }
 
             for(let i = 0; i < 20; i++) {
-                let tPlayer = tokensData && tokensData[i] ? tokensData[i].name : `لاعب مجهول ${i+1}`;
+                let tPlayer = tokensData && tokensData[i] ? tokensData[i].name : `${unknownText} ${i+1}`;
                 let tScore = tokensData && tokensData[i] ? tokensData[i].score : (10000 - (i * 300));
                 let tAvatar = tokensData && tokensData[i] ? tokensData[i].avatar : null; 
                 tokensList.appendChild(createLbItemHTML(i+1, tPlayer, tScore, 'tokens', tAvatar));
@@ -1486,8 +1513,19 @@
                     document.documentElement.lang = newLang;
                     document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
                     window.currentLang = newLang;
+                    
                     if (typeof window.updateUITranslations === 'function') {
                         window.updateUITranslations();
+                    }
+                    if (typeof window.updateHtmlTexts === 'function') {
+                        window.updateHtmlTexts();
+                    }
+                    
+                    // إعادة رسم لوحة الشرف لتحديث ترجمات "لاعب مجهول" و "فوز"
+                    if (document.getElementById('leaderboard-modal').style.display === 'flex') {
+                        if(window.socket && window.socket.connected) {
+                            window.socket.emit('getLeaderboard');
+                        }
                     }
                 }
                 
@@ -1566,7 +1604,7 @@
                     window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟",
                     window.t ? window.t('confirm_exit_title') : "تأكيد الخروج",
                     () => { window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); },
-                    true, "إلغاء", "تأكيد"
+                    true, window.t ? window.t('cancel_btn') : "إلغاء", window.t ? window.t('ok_btn') : "تأكيد"
                 );
             }
             history.pushState({ screen: 'dama-game' }, '');
