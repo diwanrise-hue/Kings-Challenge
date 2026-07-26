@@ -853,7 +853,7 @@
                 <button id="store-btn-tab-bg" class="custom-tab-button active" onclick="switchStoreTabCategory('bg')">خلفيات</button>
                 <button id="store-btn-tab-frames" class="custom-tab-button" onclick="switchStoreTabCategory('frames')">إطارات</button>
                 <button id="store-btn-tab-pieces" class="custom-tab-button" onclick="switchStoreTabCategory('pieces')">أحجار</button>
-                <button id="store-btn-tab-score" class="custom-tab-button" onclick="switchStoreTabCategory('score')">الأشرطة</button>
+                <!-- تمت إزالة زر تبويب الأشرطة -->
                 <button id="store-btn-tab-offers" class="custom-tab-button" onclick="switchStoreTabCategory('offers')">عروضات</button>
             </div>
 
@@ -861,7 +861,7 @@
                 <div id="store-section-bg" class="store-items-grid"></div>
                 <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
                 <div id="store-section-pieces" class="store-items-grid" style="display: none;"></div>
-                <div id="store-section-score" class="store-items-grid" style="display: none;"></div>
+                <!-- تمت إزالة حاوية الأشرطة -->
                 <div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
             </div>
             
@@ -893,14 +893,14 @@
                 <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="switchThemeGridTabCategory('bg')">خلفيات</button>
                 <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="switchThemeGridTabCategory('frames')">إطارات</button>
                 <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="switchThemeGridTabCategory('pieces')">احجار</button>
-                <button id="theme-btn-tab-score" class="custom-tab-button" onclick="switchThemeGridTabCategory('score')">الأشرطة</button>
+                <!-- تمت إزالة زر تبويب الأشرطة -->
             </div>
 
             <div class="scrollable-content">
                 <div class="themes-grid-container" id="theme-grid-section-bg"></div>
                 <div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div>
                 <div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
-                <div id="theme-grid-section-score" class="themes-grid-container" style="display: none;"></div>
+                <!-- تمت إزالة حاوية الأشرطة -->
             </div>
 
             <button id="theme-close-btn" onclick="closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">الخروج</button>
@@ -1313,8 +1313,9 @@
             }
         }
 
+        // تحديث دالة تبويبات المتجر (إزالة الأشرطة)
         function switchStoreTabCategory(category) {
-            const tabs = ['bg', 'frames', 'pieces', 'score', 'offers'];
+            const tabs = ['bg', 'frames', 'pieces', 'offers'];
             tabs.forEach(tab => {
                 const btn = document.getElementById('store-btn-tab-' + tab);
                 const sec = document.getElementById('store-section-' + tab);
@@ -1327,8 +1328,9 @@
             if(activeSec) activeSec.style.display = 'grid';
         }
 
+        // تحديث دالة تبويبات الحقيبة (إزالة الأشرطة)
         function switchThemeGridTabCategory(category) {
-            const tabs = ['bg', 'frames', 'pieces', 'score'];
+            const tabs = ['bg', 'frames', 'pieces'];
             tabs.forEach(tab => {
                 const btn = document.getElementById('theme-btn-tab-' + tab);
                 const sec = document.getElementById('theme-grid-section-' + tab);
