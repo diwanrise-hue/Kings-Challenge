@@ -429,7 +429,7 @@ export const STORE_ITEMS = {
     },
 
     // ===================================
-    // رابعاً: الأشرطة المتطابقة تماماً مع الساحات (Linked Scoreboards)
+    // رابعاً: الأشرطة المخفية (المرتبطة تلقائياً بالساحات)
     // ===================================
     'score_default': { 
         type: 'score', isDefault: true, nameAr: 'الشريط الافتراضي', nameEn: 'Default Bar', 
@@ -437,91 +437,91 @@ export const STORE_ITEMS = {
         scoreBorder1: '1px solid rgba(255,255,255,0.08)', scoreBorder2: '1px solid rgba(255,255,255,0.08)' 
     },
     'score_classic_wood': { 
-        type: 'score', cost: 500, nameAr: 'خشب كلاسيكي (مزدوج)', nameEn: 'Classic Wood Pair', 
+        type: 'score', cost: 0, nameAr: 'خشب كلاسيكي (مزدوج)', nameEn: 'Classic Wood Pair', 
         scoreBg1: 'linear-gradient(to bottom, #401a11, #250d07)', 
         scoreBg2: 'linear-gradient(to bottom, #dfb78c, #c49a6c)', 
         scoreBorder1: '1px solid #6b371b', scoreBorder2: '1px solid #9e5b33' 
     },
     'score_carved_wood': { 
-        type: 'score', cost: 800, nameAr: 'خشب محفور (مزدوج)', nameEn: 'Carved Wood Pair', 
+        type: 'score', cost: 0, nameAr: 'خشب محفور (مزدوج)', nameEn: 'Carved Wood Pair', 
         scoreBg1: 'linear-gradient(to bottom, #65320D, #3d1e08)', 
         scoreBg2: 'linear-gradient(to bottom, #D2A679, #a88561)', 
         scoreBorder1: '1px solid #DEB887', scoreBorder2: '1px solid #8B4513' 
     },
     'score_mahogany': { 
-        type: 'score', cost: 1500, nameAr: 'الماهوجني (مزدوج)', nameEn: 'Mahogany Pair', 
+        type: 'score', cost: 0, nameAr: 'الماهوجني (مزدوج)', nameEn: 'Mahogany Pair', 
         scoreBg1: 'linear-gradient(to bottom, #4a1515, #2a0b0b)', 
         scoreBg2: 'linear-gradient(to bottom, #e3a886, #b07c5a)', 
         scoreBorder1: '1px solid #ff453a', scoreBorder2: '1px solid #ffbf00' 
     },
     'score_starburst': { 
-        type: 'score', cost: 1600, nameAr: 'زخارف شعاعية (مزدوج)', nameEn: 'Starburst Pair', 
+        type: 'score', cost: 0, nameAr: 'زخارف شعاعية (مزدوج)', nameEn: 'Starburst Pair', 
         scoreBg1: 'linear-gradient(to bottom, #3b2313, #1e110a)', 
         scoreBg2: 'linear-gradient(to bottom, #e2d4b7, #c4ae8d)', 
         scoreBorder1: '1px solid #5c3a21', scoreBorder2: '1px solid #8b6540' 
     },
     'score_turquoise': { 
-        type: 'score', cost: 1700, nameAr: 'الفيروزي (مزدوج)', nameEn: 'Turquoise Pair', 
+        type: 'score', cost: 0, nameAr: 'الفيروزي (مزدوج)', nameEn: 'Turquoise Pair', 
         scoreBg1: 'linear-gradient(to bottom, #0b3d44, #062b30)', 
         scoreBg2: 'linear-gradient(to bottom, #135d66, #0e4c54)', 
         scoreBorder1: '1px solid #d4af37', scoreBorder2: '1px solid #ffd700' 
     },
     'score_blue_navy': { 
-        type: 'score', cost: 1800, nameAr: 'الرخام الأزرق (مزدوج)', nameEn: 'Navy Marble Pair', 
+        type: 'score', cost: 0, nameAr: 'الرخام الأزرق (مزدوج)', nameEn: 'Navy Marble Pair', 
         scoreBg1: 'linear-gradient(to bottom, #0f2042, #071022)', 
         scoreBg2: 'linear-gradient(to bottom, #f0ebd8, #d3cbba)', 
         scoreBorder1: '1px solid #38bdf8', scoreBorder2: '1px solid #8b6540' 
     },
     'score_black_gold': { 
-        type: 'score', cost: 2000, nameAr: 'الأسود الذهبي (مزدوج)', nameEn: 'Black Gold Pair', 
+        type: 'score', cost: 0, nameAr: 'الأسود الذهبي (مزدوج)', nameEn: 'Black Gold Pair', 
         scoreBg1: 'linear-gradient(to bottom, #1a1a1a, #000000)', 
         scoreBg2: 'linear-gradient(to bottom, #4d4d4d, #262626)', 
         scoreBorder1: '1px solid #d4af37', scoreBorder2: '1px solid #ffd700' 
     },
     'score_brown_gold': { 
-        type: 'score', cost: 2100, nameAr: 'البني الذهبي (مزدوج)', nameEn: 'Brown Gold Pair', 
+        type: 'score', cost: 0, nameAr: 'البني الذهبي (مزدوج)', nameEn: 'Brown Gold Pair', 
         scoreBg1: 'linear-gradient(to bottom, #2a170d, #140b06)', 
         scoreBg2: 'linear-gradient(to bottom, #8b5a2b, #5c3a21)', 
         scoreBorder1: '1px solid #d4af37', scoreBorder2: '1px solid #ffd700' 
     },
     'score_malachite': { 
-        type: 'score', cost: 2200, isLegendary: true, nameAr: 'الملاكيت الأخضر (مزدوج)', nameEn: 'Malachite Pair', 
+        type: 'score', cost: 0, isLegendary: true, nameAr: 'الملاكيت الأخضر (مزدوج)', nameEn: 'Malachite Pair', 
         scoreBg1: 'linear-gradient(to bottom, #004d25, #002612)', 
         scoreBg2: 'linear-gradient(to bottom, #fdfbf7, #e0dcd3)', 
         scoreBorder1: '1px solid #ffd700', scoreBorder2: '1px solid #ffd700' 
     },
     'score_royal': { 
-        type: 'score', cost: 3000, isLegendary: true, nameAr: 'الملكي الفاخر (مزدوج)', nameEn: 'Premium Royal Pair', 
+        type: 'score', cost: 0, isLegendary: true, nameAr: 'الملكي الفاخر (مزدوج)', nameEn: 'Premium Royal Pair', 
         scoreBg1: 'linear-gradient(to bottom, #150626, #0a0313)', 
         scoreBg2: 'linear-gradient(to bottom, #4a1a82, #2e1052)', 
         scoreBorder1: '1px solid #ffd700', scoreBorder2: '1px solid #d4af37' 
     },
     'score_lava': { 
-        type: 'score', cost: 3500, isLegendary: true, nameAr: 'الحمم البركانية (مزدوج)', nameEn: 'Lava Pair', 
+        type: 'score', cost: 0, isLegendary: true, nameAr: 'الحمم البركانية (مزدوج)', nameEn: 'Lava Pair', 
         scoreBg1: 'linear-gradient(to bottom, #8b0000, #4a0000)', 
         scoreBg2: 'linear-gradient(to bottom, #ff4500, #ff8c00)', 
         scoreBorder1: '1px solid #ff8c00', scoreBorder2: '1px solid #fff' 
     },
     'score_warrior': { 
-        type: 'score', cost: 3800, isLegendary: true, nameAr: 'كتيبة الأبطال (مزدوج)', nameEn: 'Hero Battalion Pair', 
+        type: 'score', cost: 0, isLegendary: true, nameAr: 'كتيبة الأبطال (مزدوج)', nameEn: 'Hero Battalion Pair', 
         scoreBg1: 'linear-gradient(to bottom, #1a252f, #0d1318)', 
         scoreBg2: 'linear-gradient(to bottom, #2c3e50, #1e2b38)', 
         scoreBorder1: '1px solid #7f8c8d', scoreBorder2: '1px solid #bdc3c7' 
     },
     'score_samurai': { 
-        type: 'score', cost: 4000, isLegendary: true, nameAr: 'الساموراي البرونزي (مزدوج)', nameEn: 'Samurai Pair', 
+        type: 'score', cost: 0, isLegendary: true, nameAr: 'الساموراي البرونزي (مزدوج)', nameEn: 'Samurai Pair', 
         scoreBg1: 'linear-gradient(to bottom, #8b6508, #4a3600)', 
         scoreBg2: 'linear-gradient(to bottom, #e6e6e6, #b3b3b3)', 
         scoreBorder1: '1px solid #ffd700', scoreBorder2: '1px solid #8b6508' 
     },
     'score_jester': { 
-        type: 'score', cost: 4500, isLegendary: true, nameAr: 'مسرح جيستر (مزدوج)', nameEn: 'Jester Theater Pair', 
+        type: 'score', cost: 0, isLegendary: true, nameAr: 'مسرح جيستر (مزدوج)', nameEn: 'Jester Theater Pair', 
         scoreBg1: 'linear-gradient(to bottom, #3b1b0b, #1a0a03)', 
         scoreBg2: 'linear-gradient(to bottom, #9e6d42, #6b4324)', 
         scoreBorder1: '1px solid #c28f5b', scoreBorder2: '1px solid #e2b385' 
     },
     'score_ruby_amber': { 
-        type: 'score', cost: 5000, isLegendary: true, nameAr: 'الياقوت والكهرمان (مزدوج)', nameEn: 'Ruby Amber Pair', 
+        type: 'score', cost: 0, isLegendary: true, nameAr: 'الياقوت والكهرمان (مزدوج)', nameEn: 'Ruby Amber Pair', 
         scoreBg1: 'linear-gradient(to bottom, #8b0000, #4a0000)', 
         scoreBg2: 'linear-gradient(to bottom, #d97706, #92400e)', 
         scoreBorder1: '1px solid #ffbf00', scoreBorder2: '1px solid #ffbf00' 
@@ -775,7 +775,6 @@ export const storeManager = {
         } else {
             if (!item) return;
             
-            // 💡 التعديل الجوهري: الربط التلقائي للشريط بالساحة أثناء التجهيز الأوفلاين
             if (item.type === 'bg') { 
                 profile.equippedBg = itemId; 
                 if (item.linkedScore) {
@@ -803,28 +802,24 @@ export const storeManager = {
         const storeFr = document.getElementById('store-section-frames'); 
         const storePc = document.getElementById('store-section-pieces');
         const storeOffers = document.getElementById('store-section-offers');
-        const storeScore = document.getElementById('store-section-score'); 
 
         const bagBg = document.getElementById('theme-grid-section-bg'); 
         const bagFr = document.getElementById('theme-grid-section-frames'); 
         const bagPc = document.getElementById('theme-grid-section-pieces');
-        const bagScore = document.getElementById('theme-grid-section-score'); 
 
         if(storeBg) storeBg.innerHTML = ''; 
         if(storeFr) storeFr.innerHTML = ''; 
         if(storePc) storePc.innerHTML = '';
         if(storeOffers) storeOffers.innerHTML = '';
-        if(storeScore) storeScore.innerHTML = '';
 
         if(bagBg) bagBg.innerHTML = ''; 
         if(bagFr) bagFr.innerHTML = ''; 
         if(bagPc) bagPc.innerHTML = '';
-        if(bagScore) bagScore.innerHTML = '';
 
         const profile = this.getProfile(); 
         const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
         const isAr = currentLang !== 'en';
-        let storePcEmpty = true, storeBgEmpty = true, storeFrEmpty = true, storeScoreEmpty = true;
+        let storePcEmpty = true, storeBgEmpty = true, storeFrEmpty = true;
 
         const sortedKeys = Object.keys(STORE_ITEMS).sort((a, b) => {
             const itemA = STORE_ITEMS[a];
@@ -842,11 +837,14 @@ export const storeManager = {
         sortedKeys.forEach(key => {
             const item = STORE_ITEMS[key];
             const targetSection = item.type; 
+
+            // 💡 إخفاء الأشرطة تماماً من المتجر والحقيبة
+            if (targetSection === 'score') return;
             
             const safePurchased = Array.isArray(profile.purchasedItems) ? profile.purchasedItems : [];
             const isPurchased = item.isDefault || safePurchased.includes(key);
             
-            const isEquipped = (profile.equippedBg === key || profile.equippedPc === key || profile.equippedFr === key || profile.equippedScore === key);
+            const isEquipped = (profile.equippedBg === key || profile.equippedPc === key || profile.equippedFr === key);
             const name = isAr ? item.nameAr : item.nameEn;
 
             const legendaryClassCard = item.isLegendary ? 'legendary-card' : ''; const legendaryClassIcon = item.isLegendary ? 'legendary-icon' : ''; const legendaryClassText = item.isLegendary ? 'legendary-text' : ''; const legendaryClassBtn = item.isLegendary ? 'legendary-btn' : '';
@@ -877,11 +875,6 @@ export const storeManager = {
                 visualHtml = `<div style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; position: relative; ${customPcStyle}" class="${legendaryClassIcon}">${item.icon || ''}</div>`;
             } else if (item.type === 'consumable') {
                 visualHtml = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: rgba(255,255,255,0.05); border-radius: 8px; margin: 5px 0; border: 1px solid rgba(255,255,255,0.1);" class="${legendaryClassIcon}">${item.icon || '💡'}</div>`;
-            } else if (item.type === 'score') {
-                visualHtml = `<div style="width: 80%; height: 35px; border-radius: 8px; margin: 10px auto; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.4);" class="${legendaryClassIcon}">
-                    <div style="flex: 1; background: ${item.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div>
-                    <div style="flex: 1; background: ${item.scoreBg1};"></div>
-                </div>`;
             }
 
             bagVisualHtml = visualHtml;
@@ -910,7 +903,6 @@ export const storeManager = {
                 if (targetSection === 'bg' && bagBg) bagBg.appendChild(gridItem); 
                 else if (targetSection === 'fr' && bagFr) bagFr.appendChild(gridItem); 
                 else if (targetSection === 'pc' && bagPc) bagPc.appendChild(gridItem);
-                else if (targetSection === 'score' && bagScore) bagScore.appendChild(gridItem);
             } else {
                 const storeCard = document.createElement('div');
                 storeCard.className = `store-item-card ${legendaryClassCard}`; storeCard.style.position = 'relative'; 
@@ -940,8 +932,6 @@ export const storeManager = {
                     if(storeFr) storeFr.appendChild(storeCard); storeFrEmpty = false; 
                 } else if (targetSection === 'consumable') {
                     if(storeOffers) storeOffers.appendChild(storeCard); 
-                } else if (targetSection === 'score') {
-                    if(storeScore) storeScore.appendChild(storeCard); storeScoreEmpty = false;
                 } else { 
                     if(storePc) storePc.appendChild(storeCard); storePcEmpty = false; 
                 }
@@ -951,7 +941,6 @@ export const storeManager = {
         if (storeBg && storeBgEmpty) storeBg.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
         if (storeFr && storeFrEmpty) storeFr.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
         if (storePc && storePcEmpty) storePc.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
-        if (storeScore && storeScoreEmpty) storeScore.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">${isAr ? 'لا توجد عناصر متاحة' : 'No items available'}</div>`;
     },
 
     init() {
@@ -1014,7 +1003,6 @@ window.storeManager = storeManager;
 window.applyTheme = function(profile) {
     if (!profile) return;
     
-    // 💡 التعديل الجوهري: إجبار شريط النقاط على التطابق مع الساحة المجهزة دائماً (Auto-Sync)
     if (profile.equippedBg) {
         storeManager.applyBoardThemeCSS(profile.equippedBg);
         
