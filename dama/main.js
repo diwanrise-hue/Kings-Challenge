@@ -372,7 +372,18 @@ ui.onClick('board', e => {
                         ui.updateVirtualBoardState(); socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, gameState.virtualBoard, gameState.currentTurn); saveGameState(); ui.startTurn();
                     } else { 
                         gameState.isMultiJumping = true; document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced')); 
-                        ui.updateVirtualBoardState(); socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, gameState.virtualBoard, gameState.currentTurn);
+                        ui.updateVirtualBoardState(); 
+
+                        // 💡 الإضافة الجديدة: حفظ حالة الرقعة في السجل بعد كل قفزة فرعية لضمان عمل زر "تراجع" بكفاءة
+                        if (!gameState.isOnlineMode) {
+                            if (!gameState.boardHistory) gameState.boardHistory = [];
+                            gameState.boardHistory.push({
+                                board: JSON.parse(JSON.stringify(gameState.virtualBoard)),
+                                turn: gameState.currentTurn
+                            });
+                        }
+
+                        socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, gameState.virtualBoard, gameState.currentTurn);
                         ui.showValidMovesHighlights(toRow, toCol); 
                     }
                 } else ui.showCustomAlert(t('must_capture'));
