@@ -149,7 +149,11 @@ export const ui = {
             'lb-title-text': 'lb_title',
             'lb-tab-wins': 'lb_wins',
             'lb-tab-tokens': 'lb_tokens',
-            'tutorial-mode-label': 'tutorial_mode'
+            'tutorial-mode-label': 'tutorial_mode',
+
+            // 💡 إضافة نصوص حالة البحث لحل مشكلة عدم الترجمة
+            'online-status-text': 'searching',
+            'mm-status-label': 'searching'
         };
         
         Object.keys(idToKeyMap).forEach(id => setHtml(id, idToKeyMap[id]));
