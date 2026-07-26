@@ -109,41 +109,62 @@ export const ui = {
         const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
         document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
         
-        const setHtml = (id, txt) => { const e = this.getEl(id); if (e) e.innerText = txt || ""; };
+        const setHtml = (id, key) => { 
+            const e = this.getEl(id); 
+            if (e) e.innerText = t(key) || key; 
+        };
         const setPlaceholder = (id, txt) => { const e = this.getEl(id); if (e) e.placeholder = txt || ""; };
         
-        const tObj = translations[currentLang] || translations.ar;
+        setHtml('main-title', 'app_title');
+        setHtml('set-title', 'set_title');
+        setHtml('save-settings-btn', 'save_settings_btn');
+        setHtml('lang-label', 'langLabel');
+        setHtml('new-game-title', 'new_game_title');
+        setHtml('choose-color-label', 'new_game_color');
+        setHtml('cancel-new-game-btn', 'btn_cancel');
+        setHtml('sfx-lbl', 'sfx_lbl');
+        setHtml('online-create-btn', 'online_create');
+        setHtml('online-join-btn', 'online_join');
+        setHtml('mm-cancel-btn', 'mm_cancel');
+        setHtml('close-modal-btn', 'btn_close');
+        setHtml('add-friend-label', 'addFriendLabel');
+        setHtml('matchmaking-title', 'mm_title');
+        setHtml('create-room-title', 'online_title');
+        setHtml('room-id-label', 'online_id');
+        setHtml('room-password-label', 'online_pass');
+        setHtml('add-friend-btn', 'addFriend');
+        setHtml('igp-title', 'igp_title');
+        setHtml('igp-lbl-games', 'igp_games');
+        setHtml('igp-lbl-wins', 'igp_wins');
+        setHtml('igp-lbl-losses', 'igp_losses');
+        setHtml('store-title', 'store_title');
+        setHtml('store-desc', 'store_desc');
+        setHtml('store-btn-tab-bg', 'tab_bg');
+        setHtml('store-btn-tab-frames', 'tab_frames');
+        setHtml('store-btn-tab-pieces', 'tab_pieces');
+        setHtml('store-btn-tab-offers', 'tab_offers');
+        setHtml('themes-grid-title', 'theme_title');
+        setHtml('theme-btn-tab-bg', 'theme_bg');
+        setHtml('theme-btn-tab-frames', 'theme_frames');
+        setHtml('theme-btn-tab-pieces', 'theme_pieces');
+        setHtml('custom-alert-title', 'alert_title');
+        setHtml('custom-alert-ok', 'alert_ok');
+        setHtml('game-over-title', 'go_title');
+        setHtml('rematch-btn', 'go_rematch');
+        setHtml('igp-lbl-friends', 'igp_friends');
+        setHtml('igp-friends-list', 'igp_no_friends');
+        setHtml('lbl-add-friend-title', 'addFriendLabel');
+        setHtml('theme-bg-0', 'theme_bg_0');
+        setHtml('theme-pc-0', 'theme_pc_0');
+        setHtml('card-my-name', 'badge_you');
+        setHtml('badge-username-display-game', 'badge_you');
         
-        const idToKeyMap = {
-            'main-title': 'app_title', 'set-title': 'settings_title', 
-            'save-settings-btn': 'save_btn', 'lang-label': 'langLabel', 
-            'new-game-title': 'new_game', 'choose-color-label': 'choose_color', 
-            'cancel-new-game-btn': 'cancel_btn', 'sfx-lbl': 'sfx_volume', 
-            'online-create-btn': 'create_room', 'online-join-btn': 'join_room', 
-            'mm-cancel-btn': 'cancel_search', 'close-modal-btn': 'btn_close', 
-            'add-friend-label': 'addFriendLabel', 'matchmaking-title': 'search_title', 'create-room-title': 'room', 
-            'room-id-label': 'room_id_label', 'add-friend-btn': 'addFriend', 
-            'igp-title': 'igp_title', 'igp-lbl-games': 'igp_games', 'igp-lbl-wins': 'igp_wins', 'igp-lbl-losses': 'igp_losses',
-            'store-title': 'store_title', 'store-desc': 'store_desc',
-            'store-btn-tab-bg': 'tab_bg', 'store-btn-tab-frames': 'tab_frames', 'store-btn-tab-pieces': 'tab_pieces', 'store-btn-tab-offers': 'tab_offers',
-            'themes-grid-title': 'theme_title', 
-            'theme-btn-tab-bg': 'theme_bg', 'theme-btn-tab-frames': 'theme_frames', 'theme-btn-tab-pieces': 'theme_pieces',
-            'custom-alert-title': 'alert_title', 'custom-alert-ok': 'ok_btn',
-            'game-over-title': 'match_results', 'rematch-btn': 'rematch',
-            'room-password-label': 'room_pass_label', 'mm-opp-name': 'opponent', 'mm-status-label': 'searching',
-            'igp-lbl-friends': 'igp_friends', 'igp-friends-list': 'igp_no_friends',
-            'lbl-add-friend-title': 'addFriendLabel', 'theme-bg-0': 'theme_bg_0', 'theme-pc-0': 'theme_pc_0',
-            'card-my-name': 'badge_you', 'badge-username-display-game': 'badge_you'
-        };
-        
-        Object.keys(idToKeyMap).forEach(id => setHtml(id, tObj[idToKeyMap[id]] || idToKeyMap[id]));
-        
-        setHtml('exit-game-btn', t('exit'));
-        setHtml('store-return-btn', t('exit'));
-        setHtml('theme-close-btn', t('exit'));
-        setHtml('online-close-btn', t('cancel_btn'));
-        setHtml('custom-alert-cancel', t('cancel_btn'));
-        setHtml('reset-btn', t('start'));
+        setHtml('exit-game-btn', 'exit');
+        setHtml('store-return-btn', 'exit');
+        setHtml('theme-close-btn', 'exit');
+        setHtml('online-close-btn', 'btn_close');
+        setHtml('custom-alert-cancel', 'cancel_btn');
+        setHtml('reset-btn', 'start');
 
         const resignBtn = this.getEl('resign-btn');
         if (resignBtn) {
@@ -151,22 +172,19 @@ export const ui = {
             resignBtn.innerText = t('resign');
         }
 
-        const placeholders = {
-            'online-room-input': tObj.ph_room || '',
-            'online-password-input': tObj.ph_pass || '',
-            'friend-id-input': tObj.add_friend_placeholder || ''
-        };
-        Object.keys(placeholders).forEach(id => setPlaceholder(id, placeholders[id]));
+        setPlaceholder('online-room-input', t('ph_room'));
+        setPlaceholder('online-password-input', t('ph_pass'));
+        setPlaceholder('friend-id-input', t('add_friend_placeholder'));
         
         if (window.updateInventoryUI) window.updateInventoryUI();
             
         const onlineBtnText = document.querySelector('#online-toggle-btn span:last-child');
-        if (onlineBtnText) onlineBtnText.innerText = tObj.online_btn || t('online');
+        if (onlineBtnText) onlineBtnText.innerText = t('online_btn');
 
         const turnInd = this.getEl('turn-indicator');
         if(turnInd) {
-            if(turnInd.innerText.includes('Your') || turnInd.innerText.includes('دورك') || turnInd.innerText.includes('نۆبەی تۆیە')) turnInd.innerText = tObj.turn_yours;
-            else if(turnInd.innerText.includes('Opponent') || turnInd.innerText.includes('خصم') || turnInd.innerText.includes('نۆبەی بەرامبەرە')) turnInd.innerText = tObj.turn_opps;
+            if(turnInd.innerText.includes('Your') || turnInd.innerText.includes('دورك') || turnInd.innerText.includes('نۆبەی تۆیە')) turnInd.innerText = t('turn_yours');
+            else if(turnInd.innerText.includes('Opponent') || turnInd.innerText.includes('خصم') || turnInd.innerText.includes('نۆبەی بەرامبەرە')) turnInd.innerText = t('turn_opps');
         }
 
         this.updateProfileUI();
@@ -182,7 +200,7 @@ export const ui = {
         }
         
         this.setTxt('custom-alert-title', title);
-        this.setTxt('custom-alert-ok', customOkText || t('ok_btn'));
+        this.setTxt('custom-alert-ok', customOkText || t('alert_ok'));
         this.setTxt('custom-alert-cancel', customCancelText || t('cancel_btn'));
         
         const okBtn = this.getEl('custom-alert-ok');
@@ -320,13 +338,15 @@ export const ui = {
             const oppStonesColor = isWhite ? 'black' : 'white';
             const myStonesColor = gameState.playerColor;
 
-            oppRow.style.backgroundColor = (oppStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)';
-            myRow.style.backgroundColor = (myStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)';
+            // 💡 الإصلاح الجذري لدعم أشرطة المتجر بسلاسة عبر المتغيرات الجذرية (CSS Variables)
+            oppRow.style.background = `var(--opp-score-bg, ${(oppStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)'})`;
+            myRow.style.background = `var(--my-score-bg, ${(myStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)'})`;
+            
+            oppRow.style.border = 'var(--opp-score-border, 1px solid rgba(255,255,255,0.1))';
+            myRow.style.border = 'var(--my-score-border, 1px solid rgba(255,255,255,0.1))';
             
             oppRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
             myRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
-            oppRow.style.border = '1px solid rgba(255,255,255,0.1)';
-            myRow.style.border = '1px solid rgba(255,255,255,0.1)';
         }
 
         const renderScoreDots = (container, count, color) => {
@@ -941,7 +961,7 @@ export const ui = {
                     if (isMeWin) {
                         box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", t('tokenReward') + " 50"));
                     } else { 
-                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", (translations[currentLang]?.tokenReward || "مكافأة اللعب 🪙") + " 10"));
+                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", t('tokenReward') + " 10"));
                     }
                     if (!gameState.isOnlineMode) {
                         socket.emit('claimBotReward', { isWin: isMeWin });
