@@ -10,68 +10,83 @@ export const STORE_ITEMS = {
     // ===================================
     
     'bg_wood': { 
-        type: 'bg', isDefault: true, nameAr: 'الخشب الفاخر', nameEn: 'Premium Wood', light: '#DEB887', dark: '#8B4513'
+        type: 'bg', isDefault: true, nameAr: 'الخشب الفاخر', nameEn: 'Premium Wood', light: '#DEB887', dark: '#8B4513',
+        linkedScore: 'score_default'
     },
 
     'bg_malachite': { 
         type: 'bg', cost: 3000, isLegendary: true, nameAr: 'رخام الملاكيت الأخضر', nameEn: 'Malachite Green Marble',
-        isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134548.webp'
+        isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134548.webp',
+        linkedScore: 'score_malachite'
     },
 
     'bg_carved_wood': { 
         type: 'bg', cost: 1000, nameAr: 'الخشب المحفور', nameEn: 'Carved Wood',
         cssLight: 'background: repeating-linear-gradient(45deg, #DEB887, #DEB887 10px, #D2A679 10px, #D2A679 20px); box-shadow: inset 0 0 15px rgba(100,50,0,0.5);',
-        cssDark: 'background: repeating-linear-gradient(-45deg, #8B4513, #8B4513 15px, #65320D 15px, #65320D 30px); box-shadow: inset 0 0 20px rgba(0,0,0,0.8);'
+        cssDark: 'background: repeating-linear-gradient(-45deg, #8B4513, #8B4513 15px, #65320D 15px, #65320D 30px); box-shadow: inset 0 0 20px rgba(0,0,0,0.8);',
+        linkedScore: 'score_carved_wood'
     },
 
     'bg_mosaic': { 
         type: 'bg', cost: 1500, nameAr: 'الموزاييك الملكي', nameEn: 'Royal Mosaic',
         cssLight: 'background-color: #E2D4B7; background-image: radial-gradient(circle at 50% 50%, #4A2E15 15%, transparent 18%), repeating-conic-gradient(from 0deg at 50% 50%, #C4AE8D 0deg, #C4AE8D 15deg, transparent 15deg, transparent 30deg); box-shadow: inset 0 0 10px rgba(74,46,21,0.4); border: 1px solid rgba(74,46,21,0.2);',
-        cssDark: 'background-color: #3B2314; background-image: radial-gradient(circle at 50% 50%, #E2D4B7 10%, transparent 13%), radial-gradient(circle at 50% 50%, transparent 40%, #1E110A 45%, #1E110A 50%, transparent 55%), repeating-conic-gradient(from 15deg at 50% 50%, #2A170D 0deg, #2A170D 22.5deg, transparent 22.5deg, transparent 45deg); box-shadow: inset 0 0 15px rgba(0,0,0,0.8); border: 1px solid #1E110A;'
+        cssDark: 'background-color: #3B2314; background-image: radial-gradient(circle at 50% 50%, #E2D4B7 10%, transparent 13%), radial-gradient(circle at 50% 50%, transparent 40%, #1E110A 45%, #1E110A 50%, transparent 55%), repeating-conic-gradient(from 15deg at 50% 50%, #2A170D 0deg, #2A170D 22.5deg, transparent 22.5deg, transparent 45deg); box-shadow: inset 0 0 15px rgba(0,0,0,0.8); border: 1px solid #1E110A;',
+        linkedScore: 'score_starburst'
     },
 
     'bg_image_royal': { 
-        type: 'bg', cost: 4000, isLegendary: true, nameAr: 'الساحة الملكية الفاخرة', nameEn: 'Premium Royal Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000133232.webp'
+        type: 'bg', cost: 4000, isLegendary: true, nameAr: 'الساحة الملكية الفاخرة', nameEn: 'Premium Royal Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000133232.webp',
+        linkedScore: 'score_royal'
     },
 
     'bg_image_lava': { 
-        type: 'bg', cost: 4500, isLegendary: true, nameAr: 'ساحة الحمم البركانية', nameEn: 'Volcanic Lava Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000133390.webp'
+        type: 'bg', cost: 4500, isLegendary: true, nameAr: 'ساحة الحمم البركانية', nameEn: 'Volcanic Lava Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000133390.webp',
+        linkedScore: 'score_lava'
     },
 
     'bg_custom_warrior': { 
-        type: 'bg', cost: 5000, isLegendary: true, nameAr: 'ساحة كتيبة الأبطال', nameEn: 'Hero Battalion Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134166.webp'
+        type: 'bg', cost: 5000, isLegendary: true, nameAr: 'ساحة كتيبة الأبطال', nameEn: 'Hero Battalion Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134166.webp',
+        linkedScore: 'score_warrior'
     },
 
     'bg_ruby_amber': { 
-        type: 'bg', cost: 50000, isLegendary: true, nameAr: 'الياقوت والكهرمان الملكي', nameEn: 'Royal Ruby & Amber', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/10001320889.webp'
+        type: 'bg', cost: 50000, isLegendary: true, nameAr: 'الياقوت والكهرمان الملكي', nameEn: 'Royal Ruby & Amber', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/10001320889.webp',
+        linkedScore: 'score_ruby_amber'
     },
 
     'bg_mahogany': { 
-        type: 'bg', cost: 2000, nameAr: 'ساحة الماهوجني الكلاسيكية', nameEn: 'Classic Mahogany Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134903.webp'
+        type: 'bg', cost: 2000, nameAr: 'ساحة الماهوجني الكلاسيكية', nameEn: 'Classic Mahogany Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134903.webp',
+        linkedScore: 'score_mahogany'
     },
 
     'bg_turquoise_geometric': {
-        type: 'bg', cost: 2200, nameAr: 'ساحة الفيروز والزخارف الهندسية', nameEn: 'Geometric Turquoise & Gold Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134417.webp', hasPurpleBorder: true
+        type: 'bg', cost: 2200, nameAr: 'ساحة الفيروز والزخارف الهندسية', nameEn: 'Geometric Turquoise & Gold Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134417.webp', hasPurpleBorder: true,
+        linkedScore: 'score_turquoise'
     },
 
     'bg_black_gold_marble': {
-        type: 'bg', cost: 2500, nameAr: 'ساحة الرخام الأسود والعروق الذهبية', nameEn: 'Classic Black & Gold Marble Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134427.webp', hasPurpleBorder: true
+        type: 'bg', cost: 2500, nameAr: 'ساحة الرخام الأسود والعروق الذهبية', nameEn: 'Classic Black & Gold Marble Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134427.webp', hasPurpleBorder: true,
+        linkedScore: 'score_black_gold'
     },
 
     'bg_blue_navy_marble': {
-        type: 'bg', cost: 2600, nameAr: 'ساحة الرخام الأزرق الداكن والبيج', nameEn: 'Navy Blue & Beige Marble Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136612.webp', hasPurpleBorder: true
+        type: 'bg', cost: 2600, nameAr: 'ساحة الرخام الأزرق الداكن والبيج', nameEn: 'Navy Blue & Beige Marble Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136612.webp', hasPurpleBorder: true,
+        linkedScore: 'score_blue_navy'
     },
 
     'bg_brown_gold_leaves': {
-        type: 'bg', cost: 2800, nameAr: 'ساحة الرخام البني والزخارف الذهبية', nameEn: 'Brown Marble & Golden Leaves Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136622.webp', hasPurpleBorder: true
+        type: 'bg', cost: 2800, nameAr: 'ساحة الرخام البني والزخارف الذهبية', nameEn: 'Brown Marble & Golden Leaves Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136622.webp', hasPurpleBorder: true,
+        linkedScore: 'score_brown_gold'
     },
 
     'bg_samurai_warriors': {
-        type: 'bg', cost: 100000, isLegendary: true, nameAr: 'ساحة محاربي الساموراي الأسطورية', nameEn: 'Legendary Samurai Warriors Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136302.webp'
+        type: 'bg', cost: 100000, isLegendary: true, nameAr: 'ساحة محاربي الساموراي الأسطورية', nameEn: 'Legendary Samurai Warriors Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136302.webp',
+        linkedScore: 'score_samurai'
     },
 
     'bg_jester_theater': {
-        type: 'bg', cost: 150000, isLegendary: true, nameAr: 'ساحة مسرح جيستر', nameEn: 'Jester Theater Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136557.webp'
+        type: 'bg', cost: 150000, isLegendary: true, nameAr: 'ساحة مسرح جيستر', nameEn: 'Jester Theater Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136557.webp',
+        linkedScore: 'score_jester'
     },
 
     // ===================================
@@ -414,7 +429,7 @@ export const STORE_ITEMS = {
     },
 
     // ===================================
-    // رابعاً: الأشرطة (Scoreboards) - 7 أطقم جديدة (كل طقم يحتوي على لونين)
+    // رابعاً: الأشرطة المتطابقة تماماً مع الساحات (Linked Scoreboards)
     // ===================================
     'score_default': { 
         type: 'score', isDefault: true, nameAr: 'الشريط الافتراضي', nameEn: 'Default Bar', 
@@ -427,11 +442,29 @@ export const STORE_ITEMS = {
         scoreBg2: 'linear-gradient(to bottom, #dfb78c, #c49a6c)', 
         scoreBorder1: '1px solid #6b371b', scoreBorder2: '1px solid #9e5b33' 
     },
+    'score_carved_wood': { 
+        type: 'score', cost: 800, nameAr: 'خشب محفور (مزدوج)', nameEn: 'Carved Wood Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #65320D, #3d1e08)', 
+        scoreBg2: 'linear-gradient(to bottom, #D2A679, #a88561)', 
+        scoreBorder1: '1px solid #DEB887', scoreBorder2: '1px solid #8B4513' 
+    },
+    'score_mahogany': { 
+        type: 'score', cost: 1500, nameAr: 'الماهوجني (مزدوج)', nameEn: 'Mahogany Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #4a1515, #2a0b0b)', 
+        scoreBg2: 'linear-gradient(to bottom, #e3a886, #b07c5a)', 
+        scoreBorder1: '1px solid #ff453a', scoreBorder2: '1px solid #ffbf00' 
+    },
     'score_starburst': { 
         type: 'score', cost: 1600, nameAr: 'زخارف شعاعية (مزدوج)', nameEn: 'Starburst Pair', 
         scoreBg1: 'linear-gradient(to bottom, #3b2313, #1e110a)', 
         scoreBg2: 'linear-gradient(to bottom, #e2d4b7, #c4ae8d)', 
         scoreBorder1: '1px solid #5c3a21', scoreBorder2: '1px solid #8b6540' 
+    },
+    'score_turquoise': { 
+        type: 'score', cost: 1700, nameAr: 'الفيروزي (مزدوج)', nameEn: 'Turquoise Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #0b3d44, #062b30)', 
+        scoreBg2: 'linear-gradient(to bottom, #135d66, #0e4c54)', 
+        scoreBorder1: '1px solid #d4af37', scoreBorder2: '1px solid #ffd700' 
     },
     'score_blue_navy': { 
         type: 'score', cost: 1800, nameAr: 'الرخام الأزرق (مزدوج)', nameEn: 'Navy Marble Pair', 
@@ -439,17 +472,41 @@ export const STORE_ITEMS = {
         scoreBg2: 'linear-gradient(to bottom, #f0ebd8, #d3cbba)', 
         scoreBorder1: '1px solid #38bdf8', scoreBorder2: '1px solid #8b6540' 
     },
+    'score_black_gold': { 
+        type: 'score', cost: 2000, nameAr: 'الأسود الذهبي (مزدوج)', nameEn: 'Black Gold Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #1a1a1a, #000000)', 
+        scoreBg2: 'linear-gradient(to bottom, #4d4d4d, #262626)', 
+        scoreBorder1: '1px solid #d4af37', scoreBorder2: '1px solid #ffd700' 
+    },
+    'score_brown_gold': { 
+        type: 'score', cost: 2100, nameAr: 'البني الذهبي (مزدوج)', nameEn: 'Brown Gold Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #2a170d, #140b06)', 
+        scoreBg2: 'linear-gradient(to bottom, #8b5a2b, #5c3a21)', 
+        scoreBorder1: '1px solid #d4af37', scoreBorder2: '1px solid #ffd700' 
+    },
     'score_malachite': { 
         type: 'score', cost: 2200, isLegendary: true, nameAr: 'الملاكيت الأخضر (مزدوج)', nameEn: 'Malachite Pair', 
         scoreBg1: 'linear-gradient(to bottom, #004d25, #002612)', 
         scoreBg2: 'linear-gradient(to bottom, #fdfbf7, #e0dcd3)', 
         scoreBorder1: '1px solid #ffd700', scoreBorder2: '1px solid #ffd700' 
     },
+    'score_royal': { 
+        type: 'score', cost: 3000, isLegendary: true, nameAr: 'الملكي الفاخر (مزدوج)', nameEn: 'Premium Royal Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #150626, #0a0313)', 
+        scoreBg2: 'linear-gradient(to bottom, #4a1a82, #2e1052)', 
+        scoreBorder1: '1px solid #ffd700', scoreBorder2: '1px solid #d4af37' 
+    },
     'score_lava': { 
         type: 'score', cost: 3500, isLegendary: true, nameAr: 'الحمم البركانية (مزدوج)', nameEn: 'Lava Pair', 
         scoreBg1: 'linear-gradient(to bottom, #8b0000, #4a0000)', 
         scoreBg2: 'linear-gradient(to bottom, #ff4500, #ff8c00)', 
         scoreBorder1: '1px solid #ff8c00', scoreBorder2: '1px solid #fff' 
+    },
+    'score_warrior': { 
+        type: 'score', cost: 3800, isLegendary: true, nameAr: 'كتيبة الأبطال (مزدوج)', nameEn: 'Hero Battalion Pair', 
+        scoreBg1: 'linear-gradient(to bottom, #1a252f, #0d1318)', 
+        scoreBg2: 'linear-gradient(to bottom, #2c3e50, #1e2b38)', 
+        scoreBorder1: '1px solid #7f8c8d', scoreBorder2: '1px solid #bdc3c7' 
     },
     'score_samurai': { 
         type: 'score', cost: 4000, isLegendary: true, nameAr: 'الساموراي البرونزي (مزدوج)', nameEn: 'Samurai Pair', 
@@ -675,18 +732,41 @@ export const storeManager = {
 
     buyItem(itemId) {
         let profile = this.getProfile();
-        if (!profile || !profile.id) { return window['triggerCustomAlertNotification'] ? window['triggerCustomAlertNotification'](window['currentLang'] === 'ar' ? "يرجى تسجيل الدخول أولاً!" : "Please login first!") : alert("يرجى تسجيل الدخول أولاً!"); }
+        const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
+        const isAr = currentLang !== 'en';
+        
+        if (!profile || !profile.id) { 
+            const msg = isAr ? "يرجى تسجيل الدخول أولاً!" : "Please login first!";
+            if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg);
+            else alert(msg);
+            return; 
+        }
+        
         const item = STORE_ITEMS[itemId];
         if (!item) return;
         
-        if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](window['currentLang'] === 'ar' ? "جاري معالجة الشراء عبر السيرفر..." : "Processing purchase...");
-        if (window['socket'] && window['socket'].connected) { window['socket'].emit('requestPurchase', { userId: profile.id, itemId: itemId, cost: item.cost }); } 
-        else { if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](window['currentLang'] === 'ar' ? "أنت غير متصل بالسيرفر!" : "Not connected to server!"); }
+        const processMsg = isAr ? "جاري معالجة الشراء عبر السيرفر..." : "Processing purchase...";
+        if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(processMsg);
+        
+        if (window['socket'] && window['socket'].connected) { 
+            window['socket'].emit('requestPurchase', { userId: profile.id, itemId: itemId, cost: item.cost }); 
+        } else { 
+            const errorMsg = isAr ? "أنت غير متصل بالسيرفر!" : "Not connected to server!";
+            if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(errorMsg);
+        }
     },
 
     equipItem(itemId) {
         let profile = this.getProfile();
-        if (!profile || !profile.id) { return window['triggerCustomAlertNotification'] ? window['triggerCustomAlertNotification'](window['currentLang'] === 'ar' ? "يرجى تسجيل الدخول أولاً لاستخدام العناصر!" : "Please login first to equip items!") : alert("يرجى تسجيل الدخول أولاً!"); }
+        const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
+        const isAr = currentLang !== 'en';
+
+        if (!profile || !profile.id) { 
+            const msg = isAr ? "يرجى تسجيل الدخول أولاً لاستخدام العناصر!" : "Please login first to equip items!";
+            if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg);
+            else alert(msg);
+            return; 
+        }
         
         const item = STORE_ITEMS[itemId];
 
@@ -694,7 +774,14 @@ export const storeManager = {
             window['socket'].emit('requestEquip', { userId: profile.id, itemId: itemId, itemType: item ? item.type : 'pc' }); 
         } else {
             if (!item) return;
-            if (item.type === 'bg') { profile.equippedBg = itemId; } 
+            
+            // 💡 التعديل الجوهري: الربط التلقائي للشريط بالساحة أثناء التجهيز الأوفلاين
+            if (item.type === 'bg') { 
+                profile.equippedBg = itemId; 
+                if (item.linkedScore) {
+                    profile.equippedScore = item.linkedScore;
+                }
+            } 
             else if (item.type === 'fr') { profile.equippedFr = itemId; } 
             else if (item.type === 'pc') { profile.equippedPc = itemId; }
             else if (item.type === 'score') { profile.equippedScore = itemId; }
@@ -735,7 +822,8 @@ export const storeManager = {
         if(bagScore) bagScore.innerHTML = '';
 
         const profile = this.getProfile(); 
-        const isAr = window['currentLang'] !== 'en';
+        const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
+        const isAr = currentLang !== 'en';
         let storePcEmpty = true, storeBgEmpty = true, storeFrEmpty = true, storeScoreEmpty = true;
 
         const sortedKeys = Object.keys(STORE_ITEMS).sort((a, b) => {
@@ -889,38 +977,27 @@ export const storeManager = {
             if (window['socket']) {
                 clearInterval(socketCheck); 
                 
-                // تنظيف مستمعات المتجر فقط لعدم التعارض مع ملف socketManager
-                window['socket'].off('profileUpdated'); 
-                window['socket'].off('purchaseFailed'); 
-                window['socket'].off('purchaseSuccess');
-                
-                window['socket'].on('profileUpdated', (updatedProfile) => {
-                    localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
+                if (!window.__STORE_SOCKET_INIT) {
+                    window.__STORE_SOCKET_INIT = true;
                     
-                    if (window.gameState) {
-                        window.gameState.userProfile = updatedProfile; 
-                    }
-
-                    if (window['applyProfileDataToUI']) window['applyProfileDataToUI'](updatedProfile);
+                    window['socket'].on('profileUpdated', (updatedProfile) => {
+                        this.renderUI();
+                    });
                     
-                    if (window.applyTheme) {
-                        window.applyTheme(updatedProfile);
-                    }
-                    this.renderUI();
-                });
-                
-                window['socket'].on('purchaseFailed', (msg) => { 
-                    if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
-                });
-                
-                window['socket'].on('purchaseSuccess', (msg) => { 
-                    if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
+                    window['socket'].on('purchaseFailed', (msg) => { 
+                        if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg); 
+                        else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
+                    });
                     
-                    // 🎆 إطلاق الألعاب النارية وتشغيل صوت النقود عند نجاح الشراء 🎆
-                    if (typeof window.triggerPurchaseCelebration === 'function') {
-                        window.triggerPurchaseCelebration();
-                    }
-                });
+                    window['socket'].on('purchaseSuccess', (msg) => { 
+                        if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg); 
+                        else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
+                        
+                        if (typeof window.triggerPurchaseCelebration === 'function') {
+                            window.triggerPurchaseCelebration();
+                        }
+                    });
+                }
                 
             } else if (socketAttempts >= maxAttempts) { 
                 clearInterval(socketCheck); 
@@ -936,16 +1013,25 @@ window.storeManager = storeManager;
 
 window.applyTheme = function(profile) {
     if (!profile) return;
+    
+    // 💡 التعديل الجوهري: إجبار شريط النقاط على التطابق مع الساحة المجهزة دائماً (Auto-Sync)
     if (profile.equippedBg) {
         storeManager.applyBoardThemeCSS(profile.equippedBg);
+        
+        let bgItem = STORE_ITEMS[profile.equippedBg];
+        if (bgItem && bgItem.linkedScore) {
+            storeManager.applyScoreThemeCSS(bgItem.linkedScore);
+        } else if (profile.equippedScore) {
+            storeManager.applyScoreThemeCSS(profile.equippedScore);
+        }
+    } else if (profile.equippedScore) {
+        storeManager.applyScoreThemeCSS(profile.equippedScore);
     }
+    
     if (profile.equippedFr) {
         storeManager.applyFrameThemeCSS(profile.equippedFr);
     }
     if (profile.equippedPc) {
         document.body.setAttribute('data-piece-style', profile.equippedPc);
-    }
-    if (profile.equippedScore) {
-        storeManager.applyScoreThemeCSS(profile.equippedScore);
     }
 };
