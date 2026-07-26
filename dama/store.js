@@ -430,101 +430,102 @@ export const STORE_ITEMS = {
 
     // ===================================
     // رابعاً: الأشرطة المخفية (المرتبطة تلقائياً بالساحات)
-    // تم إزالة الحدود تماماً وتفتيح الألوان لتصبح مسطحة ومتزامنة مع صور الساحات
+    // متزامنة كلياً مع ألوان مربعات الساحة وبدون أي إطارات 
     // ===================================
     'score_default': { 
         type: 'score', isDefault: true, nameAr: 'الشريط الافتراضي', nameEn: 'Default Bar', 
-        scoreBg1: 'rgba(110, 115, 130, 0.7)', scoreBg2: 'rgba(140, 145, 160, 0.7)',
+        scoreBg1: 'linear-gradient(to bottom, #757b8a, #585d6b)', 
+        scoreBg2: 'linear-gradient(to bottom, #99a0b3, #7a8194)',
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_classic_wood': { 
         type: 'score', cost: 0, nameAr: 'خشب كلاسيكي (مزدوج)', nameEn: 'Classic Wood Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #8f5038, #693522)', 
-        scoreBg2: 'linear-gradient(to bottom, #f7dfc6, #d9bb9c)', 
+        scoreBg1: 'linear-gradient(to bottom, #7a3821, #572615)', 
+        scoreBg2: 'linear-gradient(to bottom, #ebd1b5, #c9b197)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_carved_wood': { 
         type: 'score', cost: 0, nameAr: 'خشب محفور (مزدوج)', nameEn: 'Carved Wood Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #ad6832, #854b20)', 
-        scoreBg2: 'linear-gradient(to bottom, #f5dfbf, #d4ba98)', 
+        scoreBg1: 'linear-gradient(to bottom, #8a4e23, #613516)', 
+        scoreBg2: 'linear-gradient(to bottom, #e3cba8, #bfa888)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_mahogany': { 
         type: 'score', cost: 0, nameAr: 'الماهوجني (مزدوج)', nameEn: 'Mahogany Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #7a2f2f, #541c1c)', 
-        scoreBg2: 'linear-gradient(to bottom, #ebcca3, #cfa87c)', 
+        scoreBg1: 'linear-gradient(to bottom, #692424, #471717)', 
+        scoreBg2: 'linear-gradient(to bottom, #edc6ad, #c4a187)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_starburst': { 
         type: 'score', cost: 0, nameAr: 'زخارف شعاعية (مزدوج)', nameEn: 'Starburst Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #825b43, #5e3f2c)', 
-        scoreBg2: 'linear-gradient(to bottom, #ffeed4, #deb990)', 
+        scoreBg1: 'linear-gradient(to bottom, #61402a, #42291a)', 
+        scoreBg2: 'linear-gradient(to bottom, #f5e4c6, #cca781)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_turquoise': { 
         type: 'score', cost: 0, nameAr: 'الفيروزي (مزدوج)', nameEn: 'Turquoise Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #32b5c7, #218491)', 
-        scoreBg2: 'linear-gradient(to bottom, #ffffff, #e0e0e0)', 
+        scoreBg1: 'linear-gradient(to bottom, #1c92a6, #126370)', 
+        scoreBg2: 'linear-gradient(to bottom, #ffffff, #e6dcc3)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_blue_navy': { 
         type: 'score', cost: 0, nameAr: 'الرخام الأزرق (مزدوج)', nameEn: 'Navy Marble Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #456bab, #294475)', 
-        scoreBg2: 'linear-gradient(to bottom, #ffffff, #e6dcc3)', 
+        scoreBg1: 'linear-gradient(to bottom, #39578c, #22385e)', 
+        scoreBg2: 'linear-gradient(to bottom, #f2eadc, #c7beab)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_black_gold': { 
         type: 'score', cost: 0, nameAr: 'الأسود الذهبي (مزدوج)', nameEn: 'Black Gold Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #404040, #1f1f1f)', 
-        scoreBg2: 'linear-gradient(to bottom, #f0ecd8, #d4ccb4)', 
+        scoreBg1: 'linear-gradient(to bottom, #2b2b2b, #121212)', 
+        scoreBg2: 'linear-gradient(to bottom, #f2eadc, #d1c8b4)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_brown_gold': { 
         type: 'score', cost: 0, nameAr: 'البني الذهبي (مزدوج)', nameEn: 'Brown Gold Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #754b33, #54321e)', 
-        scoreBg2: 'linear-gradient(to bottom, #d49f6a, #a87648)', 
+        scoreBg1: 'linear-gradient(to bottom, #6b4028, #472918)', 
+        scoreBg2: 'linear-gradient(to bottom, #cf9761, #9c6c41)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_malachite': { 
         type: 'score', cost: 0, isLegendary: true, nameAr: 'الملاكيت الأخضر (مزدوج)', nameEn: 'Malachite Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #1d8a53, #115934)', 
-        scoreBg2: 'linear-gradient(to bottom, #f2eadc, #d1c8b4)', 
+        scoreBg1: 'linear-gradient(to bottom, #115c38, #0a3d24)', 
+        scoreBg2: 'linear-gradient(to bottom, #e3dac9, #c7beab)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_royal': { 
         type: 'score', cost: 0, isLegendary: true, nameAr: 'الملكي الفاخر (مزدوج)', nameEn: 'Premium Royal Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #673ab0, #462280)', 
-        scoreBg2: 'linear-gradient(to bottom, #9d5aeb, #773dc2)', 
+        scoreBg1: 'linear-gradient(to bottom, #593199, #371d61)', 
+        scoreBg2: 'linear-gradient(to bottom, #9955ed, #703eb0)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_lava': { 
         type: 'score', cost: 0, isLegendary: true, nameAr: 'الحمم البركانية (مزدوج)', nameEn: 'Lava Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #ff7b00, #cc4400)', 
-        scoreBg2: 'linear-gradient(to bottom, #591616, #360909)', 
+        scoreBg1: 'linear-gradient(to bottom, #f26d07, #bd4e00)', 
+        scoreBg2: 'linear-gradient(to bottom, #3b1717, #1c0808)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_warrior': { 
         type: 'score', cost: 0, isLegendary: true, nameAr: 'كتيبة الأبطال (مزدوج)', nameEn: 'Hero Battalion Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #d1d1d1, #a3a3a3)', 
-        scoreBg2: 'linear-gradient(to bottom, #5e5e5e, #3d3d3d)', 
+        scoreBg1: 'linear-gradient(to bottom, #4b5259, #2b3036)', 
+        scoreBg2: 'linear-gradient(to bottom, #c2c5c9, #989c9e)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_samurai': { 
         type: 'score', cost: 0, isLegendary: true, nameAr: 'الساموراي البرونزي (مزدوج)', nameEn: 'Samurai Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #cca23b, #9e7a24)', 
-        scoreBg2: 'linear-gradient(to bottom, #f5f5f5, #cccccc)', 
+        scoreBg1: 'linear-gradient(to bottom, #b58c28, #7a5c15)', 
+        scoreBg2: 'linear-gradient(to bottom, #e8e8e8, #a8a8a8)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_jester': { 
         type: 'score', cost: 0, isLegendary: true, nameAr: 'مسرح جيستر (مزدوج)', nameEn: 'Jester Theater Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #8c5234, #61331c)', 
-        scoreBg2: 'linear-gradient(to bottom, #e3b68f, #ba8c63)', 
+        scoreBg1: 'linear-gradient(to bottom, #6e3920, #452110)', 
+        scoreBg2: 'linear-gradient(to bottom, #d4a37b, #a67d5b)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
     'score_ruby_amber': { 
         type: 'score', cost: 0, isLegendary: true, nameAr: 'الياقوت والكهرمان (مزدوج)', nameEn: 'Ruby Amber Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #b32424, #801212)', 
-        scoreBg2: 'linear-gradient(to bottom, #e8a731, #b57a1b)', 
+        scoreBg1: 'linear-gradient(to bottom, #941313, #5e0808)', 
+        scoreBg2: 'linear-gradient(to bottom, #e39d24, #b57712)', 
         scoreBorder1: 'none', scoreBorder2: 'none' 
     },
 
