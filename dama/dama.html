@@ -254,10 +254,10 @@
         }
 
         /* ========================================== */
-        /* القائمة الجانبية وزر الهامبرغر والبروفايل  */
+        /* القائمة الجانبية وزر الهامبرغر والبروفايل (مع التبديل الديناميكي)  */
         /* ========================================== */
         .profile-badge-container { 
-            position: fixed !important; top: 15px !important; left: 15px !important; right: auto !important;
+            position: fixed !important; top: 15px !important; 
             z-index: 10001; display: flex !important; flex-direction: row !important; align-items: center; 
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 4px 4px; border-radius: 50px; 
@@ -265,6 +265,9 @@
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
             direction: ltr !important; 
         }
+        html[dir="rtl"] .profile-badge-container { left: 15px !important; right: auto !important; }
+        html[dir="ltr"] .profile-badge-container { right: 15px !important; left: auto !important; }
+
         .profile-badge-container:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); transform: scale(0.98); }
         .profile-avatar-capsule { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
         .profile-badge-info { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
@@ -273,7 +276,7 @@
         .stat-item span { color: #f5a623; font-weight: 700; font-size: 12px; }
 
         #hamburger-menu-btn {
-            position: fixed !important; top: 15px !important; right: 15px !important; left: auto !important;
+            position: fixed !important; top: 15px !important; 
             z-index: 10001;
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             width: 44px; height: 44px; border-radius: 14px !important; color: white; 
@@ -283,7 +286,22 @@
             border: 1px solid rgba(135, 206, 235, 0.4) !important;
             padding: 0;
         }
+        html[dir="rtl"] #hamburger-menu-btn { right: 15px !important; left: auto !important; }
+        html[dir="ltr"] #hamburger-menu-btn { left: 15px !important; right: auto !important; }
+
         #hamburger-menu-btn:hover { background: rgba(255, 255, 255, 0.15); transform: scale(0.95); box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important; }
+
+        #bag-quick-btn {
+            position: fixed !important; top: 15px !important; z-index: 10001;
+            background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            width: 44px; height: 44px; border-radius: 14px !important; color: white;
+            align-items: center; justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0; font-size: 20px;
+        }
+        html[dir="rtl"] #bag-quick-btn { right: 15px !important; left: auto !important; }
+        html[dir="ltr"] #bag-quick-btn { left: 15px !important; right: auto !important; }
 
         .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .side-menu-overlay.open { opacity: 1; visibility: visible; }
@@ -301,17 +319,19 @@
         .side-menu-item span:first-child { display: flex; align-items: center; justify-content: center; }
 
         /* ========================================== */
-        /* إطار الدور (Turn Box) ثابت الحجم كلياً     */
+        /* إطار الدور (Turn Box) مع إضافة الظلال      */
         /* ========================================== */
         #turn-box-container {
             display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
+            background: rgba(45, 48, 55, 0.65) !important;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(135,206,235,0.4); box-shadow: 0 0 4px rgba(135,206,235,0.3); 
             padding: 8px 16px; border-radius: 20px; 
             width: 190px !important; height: 55px !important; 
             min-width: 190px !important; max-width: 190px !important;
             min-height: 55px !important; max-height: 55px !important;
             box-sizing: border-box; overflow: hidden;
-            background: rgba(255, 255, 255, 0.05); transition: opacity 0.4s ease, visibility 0.4s ease;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
             margin: 0 !important; 
             visibility: hidden; 
             opacity: 0;
@@ -327,12 +347,14 @@
             margin: 0; font-size: 15px; font-weight: 600;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
             width: 100%; max-width: 100%; display: block;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important;
         }
 
         #turn-countdown {
-            text-align: center; color: #a1a1aa; font-weight: 600; font-size: 12px;
+            text-align: center; color: #e0e0e0; font-weight: 600; font-size: 12px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
             width: 100%; max-width: 100%; height: 15px; display: block;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important;
         }
 
         /* ========================================== */
@@ -688,7 +710,7 @@
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
     
     <!-- 🎒 زر الحقيبة السريع -->
-    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none; position: fixed; top: 15px; right: 15px; z-index: 10001; background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); width: 44px; height: 44px; border-radius: 14px !important; color: white; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0; font-size: 20px;" data-icon="bagQuick"></button>
+    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none;" data-icon="bagQuick"></button>
 
     <div id="status-area">
         <div id="match-players-card" style="display: none;">
@@ -854,7 +876,6 @@
                 <button id="store-btn-tab-bg" class="custom-tab-button active" onclick="switchStoreTabCategory('bg')">خلفيات</button>
                 <button id="store-btn-tab-frames" class="custom-tab-button" onclick="switchStoreTabCategory('frames')">إطارات</button>
                 <button id="store-btn-tab-pieces" class="custom-tab-button" onclick="switchStoreTabCategory('pieces')">أحجار</button>
-                <!-- تمت إزالة زر تبويب الأشرطة -->
                 <button id="store-btn-tab-offers" class="custom-tab-button" onclick="switchStoreTabCategory('offers')">عروضات</button>
             </div>
 
@@ -862,7 +883,6 @@
                 <div id="store-section-bg" class="store-items-grid"></div>
                 <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
                 <div id="store-section-pieces" class="store-items-grid" style="display: none;"></div>
-                <!-- تمت إزالة حاوية الأشرطة -->
                 <div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
             </div>
             
@@ -894,14 +914,12 @@
                 <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="switchThemeGridTabCategory('bg')">خلفيات</button>
                 <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="switchThemeGridTabCategory('frames')">إطارات</button>
                 <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="switchThemeGridTabCategory('pieces')">احجار</button>
-                <!-- تمت إزالة زر تبويب الأشرطة -->
             </div>
 
             <div class="scrollable-content">
                 <div class="themes-grid-container" id="theme-grid-section-bg"></div>
                 <div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div>
                 <div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
-                <!-- تمت إزالة حاوية الأشرطة -->
             </div>
 
             <button id="theme-close-btn" onclick="closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">الخروج</button>
