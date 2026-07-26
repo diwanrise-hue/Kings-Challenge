@@ -294,7 +294,8 @@
 
         #hamburger-menu-btn:hover { background: rgba(255, 255, 255, 0.15); transform: scale(0.95); box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important; }
 
-        /* 💡 تصحيح مكان زر الحقيبة السريع ليكون بجوار الهامبرغر في كل اللغات */
+        /* 💡 تصحيح مكان زر الحقيبة السريع ليكون متطابقاً تماماً مع زر الهامبرغر */
+        /* يظهر زر الحقيبة فقط أثناء المباراة عندما يختفي الهامبرغر، لذا يجب أن يأخذ نفس المكان بالضبط */
         #bag-quick-btn {
             position: fixed !important; top: 15px !important; z-index: 10001;
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
@@ -304,8 +305,8 @@
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
             border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0; font-size: 20px;
         }
-        html[dir="rtl"] #bag-quick-btn { right: 65px !important; left: auto !important; } 
-        html[dir="ltr"] #bag-quick-btn { left: 65px !important; right: auto !important; } 
+        html[dir="rtl"] #bag-quick-btn { right: 15px !important; left: auto !important; } 
+        html[dir="ltr"] #bag-quick-btn { left: 15px !important; right: auto !important; } 
 
         /* لوحة القائمة الجانبية (انزلاق ذكي) */
         .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
@@ -537,7 +538,7 @@
         .theme-grid-preview { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .theme-grid-title { color: #e0e0e0; font-size: 11px; font-weight: 600; text-align: center; line-height: 1.2; }
         
-        .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 5px 0; }
+        .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 5px; }
         .store-item-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; padding: 10px 5px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; transition: all 0.3s; }
         .store-item-card:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
 
