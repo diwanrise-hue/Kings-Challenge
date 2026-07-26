@@ -5,6 +5,9 @@ import { gameAI } from './gameAI.js';
 import { socket, socketManager } from './socketManager.js';
 import { translations, t } from './i18n.js';
 
+// 💡 تصدير دالة الترجمة للـ HTML لكي تعمل القائمة الجانبية ولوحة الشرف بنجاح
+window.t = t; 
+
 export const sfx = {
     move: new Audio('move.mp3'),
     piecesDied: new Audio('pieces_died.mp3'),
@@ -115,55 +118,47 @@ export const ui = {
         };
         const setPlaceholder = (id, txt) => { const e = this.getEl(id); if (e) e.placeholder = txt || ""; };
         
-        setHtml('main-title', 'app_title');
-        setHtml('set-title', 'set_title');
-        setHtml('save-settings-btn', 'save_settings_btn');
-        setHtml('lang-label', 'langLabel');
-        setHtml('new-game-title', 'new_game_title');
-        setHtml('choose-color-label', 'new_game_color');
-        setHtml('cancel-new-game-btn', 'btn_cancel');
-        setHtml('sfx-lbl', 'sfx_lbl');
-        setHtml('online-create-btn', 'online_create');
-        setHtml('online-join-btn', 'online_join');
-        setHtml('mm-cancel-btn', 'mm_cancel');
-        setHtml('close-modal-btn', 'btn_close');
-        setHtml('add-friend-label', 'addFriendLabel');
-        setHtml('matchmaking-title', 'mm_title');
-        setHtml('create-room-title', 'online_title');
-        setHtml('room-id-label', 'online_id');
-        setHtml('room-password-label', 'online_pass');
-        setHtml('add-friend-btn', 'addFriend');
-        setHtml('igp-title', 'igp_title');
-        setHtml('igp-lbl-games', 'igp_games');
-        setHtml('igp-lbl-wins', 'igp_wins');
-        setHtml('igp-lbl-losses', 'igp_losses');
-        setHtml('store-title', 'store_title');
-        setHtml('store-desc', 'store_desc');
-        setHtml('store-btn-tab-bg', 'tab_bg');
-        setHtml('store-btn-tab-frames', 'tab_frames');
-        setHtml('store-btn-tab-pieces', 'tab_pieces');
-        setHtml('store-btn-tab-offers', 'tab_offers');
-        setHtml('themes-grid-title', 'theme_title');
-        setHtml('theme-btn-tab-bg', 'theme_bg');
-        setHtml('theme-btn-tab-frames', 'theme_frames');
-        setHtml('theme-btn-tab-pieces', 'theme_pieces');
-        setHtml('custom-alert-title', 'alert_title');
-        setHtml('custom-alert-ok', 'alert_ok');
-        setHtml('game-over-title', 'go_title');
-        setHtml('rematch-btn', 'go_rematch');
-        setHtml('igp-lbl-friends', 'igp_friends');
-        setHtml('igp-friends-list', 'igp_no_friends');
-        setHtml('lbl-add-friend-title', 'addFriendLabel');
-        setHtml('theme-bg-0', 'theme_bg_0');
-        setHtml('theme-pc-0', 'theme_pc_0');
-        setHtml('card-my-name', 'badge_you');
-        setHtml('badge-username-display-game', 'badge_you');
+        const idToKeyMap = {
+            'main-title': 'app_title', 'set-title': 'set_title', 
+            'save-settings-btn': 'save_settings_btn', 'lang-label': 'langLabel', 
+            'new-game-title': 'new_game_title', 'choose-color-label': 'new_game_color', 
+            'cancel-new-game-btn': 'btn_cancel', 'sfx-lbl': 'sfx_lbl', 
+            'online-create-btn': 'online_create', 'online-join-btn': 'online_join', 
+            'mm-cancel-btn': 'mm_cancel', 'close-modal-btn': 'btn_close', 
+            'add-friend-label': 'addFriendLabel', 'matchmaking-title': 'mm_title', 'create-room-title': 'online_title', 
+            'room-id-label': 'online_id', 'room-password-label': 'online_pass', 'add-friend-btn': 'addFriend', 
+            'igp-title': 'igp_title', 'igp-lbl-games': 'igp_games', 'igp-lbl-wins': 'igp_wins', 'igp-lbl-losses': 'igp_losses',
+            'store-title': 'store_title', 'store-desc': 'store_desc',
+            'store-btn-tab-bg': 'tab_bg', 'store-btn-tab-frames': 'tab_frames', 'store-btn-tab-pieces': 'tab_pieces', 'store-btn-tab-offers': 'tab_offers',
+            'themes-grid-title': 'theme_title', 
+            'theme-btn-tab-bg': 'theme_bg', 'theme-btn-tab-frames': 'theme_frames', 'theme-btn-tab-pieces': 'theme_pieces',
+            'custom-alert-title': 'alert_title', 'custom-alert-ok': 'alert_ok',
+            'game-over-title': 'go_title', 'rematch-btn': 'go_rematch',
+            'igp-lbl-friends': 'igp_friends', 'igp-friends-list': 'igp_no_friends',
+            'lbl-add-friend-title': 'addFriendLabel', 'theme-bg-0': 'theme_bg_0', 'theme-pc-0': 'theme_pc_0',
+            'card-my-name': 'badge_you', 'badge-username-display-game': 'badge_you',
+            
+            // إضافة القائمة الجانبية والشرف إلى خريطة الترجمة الفورية
+            'menu-title-text': 'menu_title',
+            'menu-bag-text': 'menu_bag',
+            'menu-radio-text': 'menu_radio',
+            'menu-room-text': 'menu_room',
+            'menu-leaderboard-text': 'menu_leaderboard',
+            'menu-settings-text': 'menu_settings',
+            'menu-exit-text': 'menu_exit',
+            'lb-title-text': 'lb_title',
+            'lb-tab-wins': 'lb_wins',
+            'lb-tab-tokens': 'lb_tokens',
+            'tutorial-mode-label': 'tutorial_mode'
+        };
+        
+        Object.keys(idToKeyMap).forEach(id => setHtml(id, idToKeyMap[id]));
         
         setHtml('exit-game-btn', 'exit');
         setHtml('store-return-btn', 'exit');
         setHtml('theme-close-btn', 'exit');
-        setHtml('online-close-btn', 'btn_close');
-        setHtml('custom-alert-cancel', 'cancel_btn');
+        setHtml('online-close-btn', 'btn_cancel');
+        setHtml('custom-alert-cancel', 'btn_cancel');
         setHtml('reset-btn', 'start');
 
         const resignBtn = this.getEl('resign-btn');
@@ -172,9 +167,12 @@ export const ui = {
             resignBtn.innerText = t('resign');
         }
 
-        setPlaceholder('online-room-input', t('ph_room'));
-        setPlaceholder('online-password-input', t('ph_pass'));
-        setPlaceholder('friend-id-input', t('add_friend_placeholder'));
+        const placeholders = {
+            'online-room-input': t('ph_room'),
+            'online-password-input': t('ph_pass'),
+            'friend-id-input': t('add_friend_placeholder')
+        };
+        Object.keys(placeholders).forEach(id => setPlaceholder(id, placeholders[id]));
         
         if (window.updateInventoryUI) window.updateInventoryUI();
             
@@ -201,7 +199,7 @@ export const ui = {
         
         this.setTxt('custom-alert-title', title);
         this.setTxt('custom-alert-ok', customOkText || t('alert_ok'));
-        this.setTxt('custom-alert-cancel', customCancelText || t('cancel_btn'));
+        this.setTxt('custom-alert-cancel', customCancelText || t('btn_cancel'));
         
         const okBtn = this.getEl('custom-alert-ok');
         if (okBtn) okBtn.style.display = 'inline-block'; 
@@ -338,7 +336,6 @@ export const ui = {
             const oppStonesColor = isWhite ? 'black' : 'white';
             const myStonesColor = gameState.playerColor;
 
-            // 💡 الإصلاح الجذري لدعم أشرطة المتجر بسلاسة عبر المتغيرات الجذرية (CSS Variables)
             oppRow.style.background = `var(--opp-score-bg, ${(oppStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)'})`;
             myRow.style.background = `var(--my-score-bg, ${(myStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)'})`;
             
@@ -846,7 +843,7 @@ export const ui = {
         
         const box = this.makeEl('div', null, "background:rgba(45,48,55,0.65);backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:35px 25px;border-radius:32px;width:100%;max-width:320px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);");
         
-        box.appendChild(this.makeEl('h3', null, "margin:0 0 15px 0;color:#87ceeb;font-size:26px;font-weight:700;text-align:center;", t('match_results')));
+        box.appendChild(this.makeEl('h3', null, "margin:0 0 15px 0;color:#87ceeb;font-size:26px;font-weight:700;text-align:center;", t('go_title')));
         
         const trophy = this.makeEl('div', null, "font-size:50px;margin:10px 0 20px 0;text-shadow:0 0 15px rgba(255,215,0,0.4);", "🏆");
         box.appendChild(trophy);
@@ -886,13 +883,13 @@ export const ui = {
         if (gameState.userProfile) {
             flex.append(
                 createPlayerBox(gameState.userProfile.name, gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, isMeWin), 
-                createPlayerBox(oppName || t('opponent'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin)
+                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin)
             );
         }
         box.appendChild(flex);
         
         const btns = this.makeEl('div', null, "display:flex;gap:10px;width:100%;margin-top:25px;");
-        const rBtn = this.makeEl('button', 'modal-btn-rematch', "flex:1;background:rgba(135,206,235,0.15);color:#87ceeb;border:1px solid rgba(135,206,235,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(135,206,235,0.3);", t('rematch'));
+        const rBtn = this.makeEl('button', 'modal-btn-rematch', "flex:1;background:rgba(135,206,235,0.15);color:#87ceeb;border:1px solid rgba(135,206,235,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(135,206,235,0.3);", t('go_rematch'));
         rBtn.id = 'modal-btn-rematch';
         rBtn.onmouseenter = () => rBtn.style.transform = 'scale(0.96)';
         rBtn.onmouseleave = () => rBtn.style.transform = 'scale(1)';
@@ -956,7 +953,7 @@ export const ui = {
 
             if (isServerConnected) {
                 if (!gameState.isOnlineMode && gameState.isTutorialMode) {
-                    box.appendChild(this.makeEl('div', 'tutorial-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", "وضع تعليمي (بدون جوائز) 🚫🪙"));
+                    box.appendChild(this.makeEl('div', 'tutorial-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", t('tutorial_mode') || "وضع تعليمي (بدون جوائز) 🚫🪙"));
                 } else {
                     if (isMeWin) {
                         box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", t('tokenReward') + " 50"));
@@ -1117,7 +1114,7 @@ ui.onClick('reset-btn', () => {
                     else document.getElementById('new-game-modal').style.display = 'flex';
                 },
                 true,
-                t('cancel_btn'),
+                t('btn_cancel'),
                 t('resign')
             );
         } else {
@@ -1141,8 +1138,8 @@ ui.onClick('resign-btn', () => {
                 }
             },
             true,
-            t('cancel_btn'),
-            t('ok_btn')
+            t('btn_cancel'),
+            t('alert_ok')
         );
     } else {
         if (!hasPlayerMoved()) {
@@ -1153,8 +1150,8 @@ ui.onClick('resign-btn', () => {
                     ui.drawEmptyBoard(); 
                 },
                 true,
-                t('cancel_btn'),
-                t('ok_btn')
+                t('btn_cancel'),
+                t('alert_ok')
             );
         } else {
             ui.showCustomAlert(
@@ -1165,8 +1162,8 @@ ui.onClick('resign-btn', () => {
                     ui.showResultsModal(opponentColor);
                 },
                 true,
-                t('cancel_btn'),
-                t('ok_btn')
+                t('btn_cancel'),
+                t('alert_ok')
             );
         }
     }
@@ -1320,7 +1317,10 @@ ui.onClick('hint-btn', () => {
 });
 
 window.ui = ui;
-window.updateUITranslations = () => { ui.updateTexts(); };
+window.updateUITranslations = () => { 
+    ui.updateTexts(); 
+    if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts(); 
+};
 
 document.addEventListener('click', (e) => {
     let target = e.target;
