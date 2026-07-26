@@ -254,10 +254,12 @@
         }
 
         /* ========================================== */
-        /* القائمة الجانبية وزر الهامبرغر والبروفايل (مع التبديل الديناميكي)  */
+        /* القائمة الجانبية وزر الهامبرغر والبروفايل (تبديل ديناميكي LTR/RTL) */
         /* ========================================== */
+        
+        /* البروفايل */
         .profile-badge-container { 
-            position: fixed !important; top: 15px !important; 
+            position: fixed !important; top: 15px !important;
             z-index: 10001; display: flex !important; flex-direction: row !important; align-items: center; 
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 4px 4px; border-radius: 50px; 
@@ -265,8 +267,8 @@
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
             direction: ltr !important; 
         }
-        html[dir="rtl"] .profile-badge-container { left: 15px !important; right: auto !important; }
-        html[dir="ltr"] .profile-badge-container { right: 15px !important; left: auto !important; }
+        html[dir="rtl"] .profile-badge-container { right: 15px !important; left: auto !important; }
+        html[dir="ltr"] .profile-badge-container { left: 15px !important; right: auto !important; }
 
         .profile-badge-container:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); transform: scale(0.98); }
         .profile-avatar-capsule { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
@@ -275,6 +277,7 @@
         .stat-item { color: #bdc3c7; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; direction: ltr; }
         .stat-item span { color: #f5a623; font-weight: 700; font-size: 12px; }
 
+        /* زر الهامبرغر */
         #hamburger-menu-btn {
             position: fixed !important; top: 15px !important; 
             z-index: 10001;
@@ -286,11 +289,12 @@
             border: 1px solid rgba(135, 206, 235, 0.4) !important;
             padding: 0;
         }
-        html[dir="rtl"] #hamburger-menu-btn { right: 15px !important; left: auto !important; }
-        html[dir="ltr"] #hamburger-menu-btn { left: 15px !important; right: auto !important; }
+        html[dir="rtl"] #hamburger-menu-btn { left: 15px !important; right: auto !important; }
+        html[dir="ltr"] #hamburger-menu-btn { right: 15px !important; left: auto !important; }
 
         #hamburger-menu-btn:hover { background: rgba(255, 255, 255, 0.15); transform: scale(0.95); box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important; }
 
+        /* زر الحقيبة السريع (يكون بجوار الهامبرغر دائماً) */
         #bag-quick-btn {
             position: fixed !important; top: 15px !important; z-index: 10001;
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
@@ -300,14 +304,35 @@
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
             border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0; font-size: 20px;
         }
-        html[dir="rtl"] #bag-quick-btn { right: 15px !important; left: auto !important; }
-        html[dir="ltr"] #bag-quick-btn { left: 15px !important; right: auto !important; }
+        html[dir="rtl"] #bag-quick-btn { left: 65px !important; right: auto !important; } /* بجانب الهامبرغر يساراً */
+        html[dir="ltr"] #bag-quick-btn { right: 65px !important; left: auto !important; } /* بجانب الهامبرغر يميناً */
 
+        /* لوحة القائمة الجانبية (انزلاق ذكي) */
         .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .side-menu-overlay.open { opacity: 1; visibility: visible; }
         
-        .side-menu-panel { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(20px); border-left: 1px solid rgba(255, 255, 255, 0.1); box-shadow: -10px 0 30px rgba(0,0,0,0.5); z-index: 10000000; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; }
-        .side-menu-overlay.open .side-menu-panel { right: 0; }
+        .side-menu-panel { 
+            position: fixed; top: 0; width: 280px; height: 100%; 
+            background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(20px); 
+            box-shadow: 0 0 30px rgba(0,0,0,0.5); z-index: 10000000; 
+            display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; 
+        }
+
+        /* في العربية (RTL): القائمة تنزلق من اليسار (لأن الزر على اليسار) */
+        html[dir="rtl"] .side-menu-panel { 
+            left: -280px; right: auto; 
+            border-right: 1px solid rgba(255, 255, 255, 0.1); border-left: none; 
+            transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
+        }
+        html[dir="rtl"] .side-menu-overlay.open .side-menu-panel { left: 0; }
+
+        /* في الإنجليزية (LTR): القائمة تنزلق من اليمين (لأن الزر على اليمين) */
+        html[dir="ltr"] .side-menu-panel { 
+            right: -280px; left: auto; 
+            border-left: 1px solid rgba(255, 255, 255, 0.1); border-right: none; 
+            transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
+        }
+        html[dir="ltr"] .side-menu-overlay.open .side-menu-panel { right: 0; }
         
         .side-menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; }
         .side-menu-title { color: #fff; font-size: 18px; font-weight: 700; margin: 0; }
@@ -319,12 +344,12 @@
         .side-menu-item span:first-child { display: flex; align-items: center; justify-content: center; }
 
         /* ========================================== */
-        /* إطار الدور (Turn Box) مع إضافة الظلال      */
+        /* إطار الدور (Turn Box) مع إضافة التباين العالي (Shadow + Blur) */
         /* ========================================== */
         #turn-box-container {
             display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
             background: rgba(45, 48, 55, 0.65) !important;
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); /* خلفية زجاجية */
             border: 1px solid rgba(135,206,235,0.4); box-shadow: 0 0 4px rgba(135,206,235,0.3); 
             padding: 8px 16px; border-radius: 20px; 
             width: 190px !important; height: 55px !important; 
@@ -347,14 +372,14 @@
             margin: 0; font-size: 15px; font-weight: 600;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
             width: 100%; max-width: 100%; display: block;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; /* تباين قوي */
         }
 
         #turn-countdown {
             text-align: center; color: #e0e0e0; font-weight: 600; font-size: 12px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
             width: 100%; max-width: 100%; height: 15px; display: block;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; /* تباين قوي */
         }
 
         /* ========================================== */
@@ -982,6 +1007,7 @@
                 <button id="online-create-btn" class="save-settings-btn" style="background: rgba(255,255,255,0.15) !important;">إنشاء غرفة</button>
                 <button id="online-join-btn" class="save-settings-btn">انضمام لغرفة</button>
             </div>
+            <!-- 💡 تم إضافة آيدي الترجمة هنا لرسالة الغرفة الخاصة -->
             <p id="online-status-text" style="color: #f1c40f; font-weight: 500; font-size: 13px; margin-top: 15px; display: none;"></p>
             <button id="online-close-btn" onclick="closeAppModal('online-modal')" class="save-settings-btn" style="background: transparent !important; margin-top: 15px;">إلغاء</button>
         </div>
@@ -997,10 +1023,11 @@
                 </div>
                 <div style="text-align: center;">
                     <div id="mm-opp-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: rgba(255,255,255,0.02);">❓</div>
-                    <div id="mm-opp-name" style="color: #a1a1aa; margin-top: 10px; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">جاري البحث...</div>
+                    <div id="mm-opp-name" style="color: #a1a1aa; margin-top: 10px; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">الخصم</div>
                 </div>
             </div>
             <div style="margin: 20px 0;">
+                <!-- 💡 ربط رسالة البحث الجارية بنظام الترجمة بشكل ديناميكي -->
                 <div id="mm-status-label" class="settings-label" style="text-align: center;">جاري البحث عن خصم...</div>
                 <div class="loading-dots-container">
                     <div class="loading-dot"></div>
@@ -1081,7 +1108,7 @@
 
         window.modalStack = [];
 
-        // 💡 دالة التحديث الديناميكي الشاملة لنصوص الـ HTML
+        // 💡 دالة التحديث الديناميكي الشاملة لنصوص الـ HTML (متضمنة نصوص حالة البحث)
         window.updateHtmlTexts = function() {
             if (!window.t) return;
             const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.innerText = window.t(key); };
@@ -1099,6 +1126,14 @@
             setTxt('lb-tab-tokens', 'lb_tokens');
             
             setTxt('tutorial-mode-label', 'tutorial_mode');
+
+            // 💡 تحديث نصوص الحالة أثناء البحث إذا كانت النافذة مفتوحة
+            if (document.getElementById('matchmaking-modal').style.display === 'flex') {
+                setTxt('mm-status-label', 'searching');
+            }
+            if (document.getElementById('online-modal').style.display === 'flex') {
+                setTxt('online-status-text', 'searching');
+            }
         };
 
         function openAppModal(id) {
