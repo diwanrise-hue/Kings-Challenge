@@ -612,7 +612,11 @@ export const ui = {
             return; 
         }
 
-        if (!gameState.isOnlineMode && !gameState.isMultiJumping) {
+        // 💡 1. الإصلاح الأول: يجب تحديث حالة الرقعة من الواجهة "قبل" محاولة حفظها في السجل
+        this.updateVirtualBoardState();
+
+        // 💡 2. الإصلاح الثاني: إزالة (!gameState.isMultiJumping) للسماح بحفظ كل قفزة متتالية
+        if (!gameState.isOnlineMode) {
             if (!gameState.boardHistory) gameState.boardHistory = [];
             let currentBoardStr = JSON.stringify(gameState.virtualBoard);
             let lastSavedStr = gameState.boardHistory.length > 0 ? JSON.stringify(gameState.boardHistory[gameState.boardHistory.length - 1].board) : "";
@@ -624,7 +628,6 @@ export const ui = {
             }
         }
         
-        this.updateVirtualBoardState();
         gameState.lastJumpDir = { dr: null, dc: null };
         document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
         
