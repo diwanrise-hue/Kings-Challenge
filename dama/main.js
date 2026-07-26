@@ -37,7 +37,7 @@ export const gameState = {
     onlineFlip: false,
     pieceDirection: { white: -1, black: 1 },
     blockGameOverModal: true,
-    originalHints: null,
+    originalHints: null, // 💡 الخزنة السرية: لحفظ رصيد المصابيح الحقيقي للاعب أثناء الأونلاين
     virtualBoard: Array(8).fill(null).map(() => Array(8).fill(null)),
     
     userProfile: (() => {
@@ -52,22 +52,30 @@ export const gameState = {
 window.gameState = gameState; 
 setTimeout(() => { gameState.blockGameOverModal = false; }, 1000);
 
+// ==========================================
+// 💡 دوال نظام إدارة المصابيح الذكي في الأونلاين
+// ==========================================
 export function startOnlineHintSystem() {
     if (gameState.originalHints === null) {
+        // حفظ الرصيد الحقيقي في الخزنة
         gameState.originalHints = gameState.userProfile.hints !== undefined ? gameState.userProfile.hints : 5;
     }
+    // منح اللاعب مصباحين فقط في الأونلاين
     gameState.userProfile.hints = 2; 
     ui.updateProfileUI();
 }
 
 export function restoreOfflineHintSystem() {
     if (gameState.originalHints !== null) {
+        // استعادة الرصيد الحقيقي من الخزنة
         gameState.userProfile.hints = gameState.originalHints; 
         gameState.originalHints = null;
+        // حفظ الرصيد الحقيقي في المتصفح فوراً لحمايته
         localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
         ui.updateProfileUI();
     }
 }
+// ==========================================
 
 export function saveGameState() {
     if (gameState.isOnlineMode) return;
@@ -107,9 +115,11 @@ window.addEventListener('load', () => {
     ui.initProfileSystem();
     socketManager.init();
     
+    // التحميل الأول: إذا لم تكن هناك لعبة محفوظة سيتم تهيئة لوحة فارغة
     if (!loadGameState()) {
         ui.drawEmptyBoard();
     } else {
+        // التأكد من استعادة حالة الأزرار بعد التحميل بنجاح
         if (gameState.virtualBoard.some(r => r.some(c => c !== null))) {
             window.isMatchRunning = true;
             ui.toggleOfflineInMatchUI(true);
@@ -131,7 +141,9 @@ window.addEventListener('load', () => {
 
 window.challengeFriend = function(friendId) {
     if (!gameState.userProfile) return;
+    
     ui.setDisplay('in-game-profile-modal', 'none');
+    
     if (socketManager && typeof socketManager.sendChallenge === 'function') {
         socketManager.sendChallenge(friendId);
     } else {
@@ -140,13 +152,16 @@ window.challengeFriend = function(friendId) {
 };
 
 ui.onClick('diff-quick-select', saveGameState);
+
 ui.onClick('start-white-btn', () => { gameState.playerColor = 'white'; localStorage.removeItem('dama_saved_game'); ui.initBoard(); ui.setDisplay('new-game-modal', 'none'); });
 ui.onClick('start-black-btn', () => { gameState.playerColor = 'black'; localStorage.removeItem('dama_saved_game'); ui.initBoard(); ui.setDisplay('new-game-modal', 'none'); });
 ui.onClick('new-game-modal', e => { if (e.target.id === 'new-game-modal') ui.setDisplay('new-game-modal', 'none'); });
 ui.onClick('cancel-new-game-btn', () => ui.setDisplay('new-game-modal', 'none'));
+
 ui.onClick('settings-btn', e => { e.stopPropagation(); ui.setDisplay('settings-overlay', 'flex'); });
 ui.onClick('save-settings-btn', () => { saveGameState(); ui.setDisplay('settings-overlay', 'none'); });
 ui.onClick('settings-overlay', e => { if (e.target.id === 'settings-overlay') ui.setDisplay('settings-overlay', 'none'); });
+
 ui.onClick('lang-select-modal', e => { gameState.lang = e.target.value; ui.updateTexts(); saveGameState(); });
 
 ui.onClick('login-guest-btn', () => { gameState.userProfile = { ...gameState.userProfile, name: t('guest_prefix') + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), id: "GUEST-" + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), avatar: ui.getVal('login-avatar-select', '1000132081.png'), isCustomAvatar: false }; localStorage.setItem('dama_guest_expiry', Date.now() + (30 * 24 * 60 * 60 * 1000)); localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); });
@@ -154,6 +169,7 @@ ui.onClick('login-guest-btn', () => { gameState.userProfile = { ...gameState.use
 ui.onClick('login-submit-btn', () => { 
     let name = ui.getVal('login-name-input').trim(); 
     if (!name) return ui.showCustomAlert(t('enter_name')); 
+    // تعقيم المدخلات لمنع XSS
     name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
     gameState.userProfile = { ...gameState.userProfile, name, id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.png') }; localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); localStorage.removeItem('dama_guest_expiry'); ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); 
 });
@@ -178,7 +194,7 @@ ui.onClick('logout-btn', () => {
     const msg = isGuest ? t('guest_logout_warn') : t('logout_confirm');
         
     ui.showCustomAlert(msg, null, () => { 
-            gameState.originalHints = null; 
+            gameState.originalHints = null; // تصفير الخزنة لضمان الأمان
             localStorage.removeItem('hub_user_profile'); 
             localStorage.removeItem('dama_guest_expiry'); 
             gameState.userProfile = { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [] }; 
@@ -190,6 +206,9 @@ ui.onClick('logout-btn', () => {
 
 ui.onClick('switch-account-btn', () => { ui.setDisplay('profile-modal', 'none'); ui.setDisplay('login-modal', 'flex'); });
 
+// =========================================================================
+// 💡 زر الأونلاين ونافذة البحث
+// =========================================================================
 const onlineBtn = document.getElementById('online-toggle-btn');
 if (onlineBtn) {
     onlineBtn.addEventListener('click', (e) => {
@@ -204,6 +223,7 @@ if (onlineBtn) {
             return;
         }
 
+        // إظهار نافذة البحث بشكل إجباري ومباشر
         const mmModal = document.getElementById('matchmaking-modal');
         if (mmModal) {
             mmModal.style.display = 'flex';
@@ -229,25 +249,27 @@ if (onlineBtn) {
             myAvatarEl.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
         }
 
-        // 💡 الإصلاح هنا: فصل اسم الخصم عن النص التحتي
+        // 💡 الإصلاح هنا: فصل اسم الخصم عن النص التحتي لمنع اقتطاع الكلمات
         const oppNameEl = document.getElementById('mm-opp-name');
         const oppAvatarEl = document.getElementById('mm-opp-avatar');
         const statusLabelEl = document.getElementById('mm-status-label');
-        
-        if (oppNameEl) oppNameEl.innerText = t('mm_opp'); // نضع كلمة (الخصم) هنا
-        if (statusLabelEl) statusLabelEl.innerText = t('searching'); // نضع رسالة البحث الطويلة في الأسفل
+
+        if (oppNameEl) oppNameEl.innerText = t('mm_opp');
+        if (statusLabelEl) statusLabelEl.innerText = t('searching');
 
         if (oppAvatarEl) {
             oppAvatarEl.innerHTML = "❓";
             oppAvatarEl.style.backgroundImage = 'none';
         }
 
+        // إرسال البيانات للسيرفر
         socket.emit('joinMatchmakingPool', {
             guestId: profile.id,
             name: profile.name,
             avatar: profile.avatar
         });
 
+        // تشغيل العداد الزمني للبحث
         gameState.mmTimeLeft = 0;
         const timerEl = document.getElementById('mm-timer');
         if (timerEl) timerEl.innerText = "00:00";
@@ -262,6 +284,7 @@ if (onlineBtn) {
     });
 }
 
+// زر إلغاء البحث
 const cancelMmBtn = document.getElementById('mm-cancel-btn');
 if (cancelMmBtn) {
     cancelMmBtn.addEventListener('click', (e) => {
@@ -282,6 +305,7 @@ if (cancelMmBtn) {
         }
     });
 }
+// =========================================================================
 
 ui.onClick('room-portal-btn', () => { ui.setDisplay('online-modal', 'flex'); ui.setDisplay('online-status-text', 'none'); ui.setDisplay('online-setup-box', 'block'); });
 ui.onClick('online-close-btn', () => ui.setDisplay('online-modal', 'none'));
