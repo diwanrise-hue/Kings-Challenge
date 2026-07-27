@@ -127,6 +127,16 @@
         }
         .tab-content.active { display: flex; flex-direction: column; }
 
+        .avatars-wrapper {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
         .avatar-container {
             position: relative;
             width: 150px;
@@ -163,7 +173,7 @@
 
         .floating-avatar-display {
             position: fixed;
-            bottom: 95px; /* تطفو فوق الشريط السفلي */
+            bottom: 95px;
             left: 20px;
             z-index: 10002;
             display: none;
@@ -206,6 +216,7 @@
             transform: translateX(-50%) translateY(0);
         }
 
+        /* أنيميشن الأفاتار الأول (الزعيم) */
         .play .img-1 { animation: playImg1 2.5s forwards; }
         .play .img-2 { animation: playImg2 2.5s forwards; }
         .play .img-3 { animation: playImg3 2.5s forwards; }
@@ -215,6 +226,33 @@
         @keyframes playImg2 { 0%, 8.33% { opacity: 0; } 8.34%, 16.66% { opacity: 1; } 16.67%, 100% { opacity: 0; } }
         @keyframes playImg3 { 0%, 16.66% { opacity: 0; } 16.67%, 25.00% { opacity: 1; } 25.01%, 33.32% { opacity: 0; } 33.33%, 41.66% { opacity: 1; } 41.67%, 49.99% { opacity: 0; } 50.00%, 58.33% { opacity: 1; } 58.34%, 66.65% { opacity: 0; } 66.66%, 75.00% { opacity: 1; } 75.01%, 83.32% { opacity: 0; } 83.33%, 91.66% { opacity: 1; } 91.67%, 100% { opacity: 0; } }
         @keyframes playImg4 { 0%, 24.99% { opacity: 0; } 25.00%, 33.33% { opacity: 1; } 33.34%, 41.65% { opacity: 0; } 41.66%, 50.00% { opacity: 1; } 50.01%, 58.32% { opacity: 0; } 58.33%, 66.67% { opacity: 1; } 66.68%, 74.99% { opacity: 0; } 75.00%, 83.33% { opacity: 1; } 83.34%, 91.65% { opacity: 0; } 91.66%, 100% { opacity: 1; } }
+
+        /* 💡 أنيميشن التبديل لحجي سعيد (يتبادل بين الصورتين 4 مرات) */
+        .play-oldman .old-img-1 { animation: oldManImg1 2.5s forwards; }
+        .play-oldman .old-img-2 { animation: oldManImg2 2.5s forwards; }
+
+        @keyframes oldManImg1 {
+            0%, 12.49% { opacity: 1; }
+            12.5%, 24.99% { opacity: 0; }
+            25%, 37.49% { opacity: 1; }
+            37.5%, 49.99% { opacity: 0; }
+            50%, 62.49% { opacity: 1; }
+            62.5%, 74.99% { opacity: 0; }
+            75%, 87.49% { opacity: 1; }
+            87.5%, 99.99% { opacity: 0; }
+            100% { opacity: 1; } /* تعود الصورة للأولى في النهاية */
+        }
+        @keyframes oldManImg2 {
+            0%, 12.49% { opacity: 0; }
+            12.5%, 24.99% { opacity: 1; }
+            25%, 37.49% { opacity: 0; }
+            37.5%, 49.99% { opacity: 1; }
+            50%, 62.49% { opacity: 0; }
+            62.5%, 74.99% { opacity: 1; }
+            75%, 87.49% { opacity: 0; }
+            87.5%, 99.99% { opacity: 1; }
+            100% { opacity: 0; }
+        }
 
         .preset-list {
             display: flex;
@@ -241,19 +279,16 @@
 
     // 2. بناء عناصر التحكم المدمجة
     
-    // إنشاء زر الدردشة
     const chatBtn = document.createElement('button');
     chatBtn.id = 'gameChatBtn';
     chatBtn.className = 'game-chat-btn';
     chatBtn.title = 'الدردشة والتفاعل';
     chatBtn.innerHTML = '💬';
 
-    // البحث عن الشريط السفلي وإضافة الزر إليه بجانب زر الانسحاب
     const bottomPanel = document.getElementById('bottom-control-panel');
     if (bottomPanel) {
         const resignBtn = document.getElementById('resign-btn');
         if (resignBtn) {
-            // إدراج الزر قبل زر الانسحاب ليكون بجانبه تماماً
             bottomPanel.insertBefore(chatBtn, resignBtn);
         } else {
             bottomPanel.appendChild(chatBtn);
@@ -262,7 +297,6 @@
         document.body.appendChild(chatBtn);
     }
 
-    // حقن نوافذ وملحقات الدردشة (صور بصيغة الروابط المباشرة من جيت هاب)
     const container = document.createElement('div');
     container.innerHTML = `
         <div class="chat-popup-window" id="chatPopupWindow">
@@ -277,12 +311,21 @@
             </div>
 
             <div class="tab-content active" id="tabAvatarContent">
-                <div class="avatar-container" id="avatarContainerTrigger">
-                    <div class="white-frame"></div>
-                    <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
-                    <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
-                    <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
-                    <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
+                <div class="avatars-wrapper">
+                    <!-- 💡 الأفاتار الأول (الزعيم) -->
+                    <div class="avatar-container" id="avatarContainerTrigger">
+                        <div class="white-frame"></div>
+                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
+                        <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
+                        <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
+                        <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
+                    </div>
+
+                    <!-- 💡 الأفاتار الثاني (حجي سعيد) -->
+                    <div class="avatar-container" id="avatarOldManTrigger">
+                        <div class="white-frame"></div>
+                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي سعيد1.webp" alt="حجي سعيد" style="opacity: 1;">
+                    </div>
                 </div>
             </div>
 
@@ -298,11 +341,7 @@
 
         <div class="floating-avatar-display" id="floatingAvatarDisplay">
             <div class="avatar-container" id="floatingAvatarBox">
-                <div class="white-frame"></div>
-                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
-                <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
-                <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
-                <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
+                <!-- المحتوى هنا يتم حقنه برمجياً -->
             </div>
         </div>
 
@@ -322,7 +361,10 @@
     const tabPresetBtn = document.getElementById('tabPresetBtn');
     const tabAvatarContent = document.getElementById('tabAvatarContent');
     const tabPresetContent = document.getElementById('tabPresetContent');
+    
     const avatarContainerTrigger = document.getElementById('avatarContainerTrigger');
+    const avatarOldManTrigger = document.getElementById('avatarOldManTrigger');
+
     const gameToast = document.getElementById('gameToast');
     const bossSound = document.getElementById('bossSound');
     const floatingAvatarDisplay = document.getElementById('floatingAvatarDisplay');
@@ -373,9 +415,10 @@
         }, 2500);
     }
 
-    avatarContainerTrigger.addEventListener('click', triggerFloatingAvatar);
+    avatarContainerTrigger.addEventListener('click', () => triggerFloatingAvatar('boss'));
+    avatarOldManTrigger.addEventListener('click', () => triggerFloatingAvatar('oldman'));
 
-    function triggerFloatingAvatar() {
+    function triggerFloatingAvatar(avatarType = 'boss') {
         windowPopup.classList.remove('open');
 
         if (hideTimeout) clearTimeout(hideTimeout);
@@ -383,26 +426,56 @@
         floatingAvatarDisplay.classList.remove('show');
         void floatingAvatarDisplay.offsetWidth; // Force reflow
 
-        floatingAvatarDisplay.classList.add('show');
+        if (avatarType === 'boss') {
+            floatingAvatarBox.innerHTML = `
+                <div class="white-frame"></div>
+                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
+                <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
+                <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
+                <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
+            `;
 
-        const img1 = floatingAvatarBox.querySelector('.img-1');
-        if (img1) img1.classList.remove('default-show');
+            floatingAvatarDisplay.classList.add('show');
 
-        if (bossSound) {
-            bossSound.currentTime = 0;
-            bossSound.play().catch(error => {
-                console.log("تعذر تشغيل الصوت تلقائياً:", error);
-            });
+            const img1 = floatingAvatarBox.querySelector('.img-1');
+            if (img1) img1.classList.remove('default-show');
+
+            if (bossSound) {
+                bossSound.currentTime = 0;
+                bossSound.play().catch(error => {
+                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
+                });
+            }
+
+            floatingAvatarBox.className = 'avatar-container play';
+            
+            hideTimeout = setTimeout(() => {
+                floatingAvatarDisplay.classList.remove('show');
+                floatingAvatarBox.classList.remove('play');
+                if (img1) img1.classList.add('default-show');
+            }, 2500);
+
+        } else if (avatarType === 'oldman') {
+            // 💡 إعداد أفاتار حجي سعيد مع حقن الصورتين
+            floatingAvatarBox.innerHTML = `
+                <div class="white-frame"></div>
+                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي سعيد1.webp" alt="حجي سعيد 1">
+                <img class="old-img-2" src="${BASE_CHAT_URL}حجي سعيد2.webp" alt="حجي سعيد 2">
+            `;
+
+            floatingAvatarDisplay.classList.add('show');
+            
+            const img1 = floatingAvatarBox.querySelector('.old-img-1');
+            if (img1) img1.classList.remove('default-show');
+
+            // إضافة كلاس التشغيل الخاص بحجي سعيد
+            floatingAvatarBox.className = 'avatar-container play-oldman';
+
+            hideTimeout = setTimeout(() => {
+                floatingAvatarDisplay.classList.remove('show');
+                floatingAvatarBox.classList.remove('play-oldman');
+                if (img1) img1.classList.add('default-show');
+            }, 2500);
         }
-
-        floatingAvatarBox.classList.remove('play');
-        void floatingAvatarBox.offsetWidth; // Force reflow
-        floatingAvatarBox.classList.add('play');
-
-        hideTimeout = setTimeout(() => {
-            floatingAvatarDisplay.classList.remove('show');
-            floatingAvatarBox.classList.remove('play');
-            if (img1) img1.classList.add('default-show');
-        }, 2500);
     }
 })();
