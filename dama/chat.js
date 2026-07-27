@@ -217,9 +217,9 @@
         @keyframes playImg3 { 0%, 16.66% { opacity: 0; } 16.67%, 25.00% { opacity: 1; } 25.01%, 33.32% { opacity: 0; } 33.33%, 41.66% { opacity: 1; } 41.67%, 49.99% { opacity: 0; } 50.00%, 58.33% { opacity: 1; } 58.34%, 66.65% { opacity: 0; } 66.66%, 75.00% { opacity: 1; } 75.01%, 83.32% { opacity: 0; } 83.33%, 91.66% { opacity: 1; } 91.67%, 100% { opacity: 0; } }
         @keyframes playImg4 { 0%, 24.99% { opacity: 0; } 25.00%, 33.33% { opacity: 1; } 33.34%, 41.65% { opacity: 0; } 41.66%, 50.00% { opacity: 1; } 50.01%, 58.32% { opacity: 0; } 58.33%, 66.67% { opacity: 1; } 66.68%, 74.99% { opacity: 0; } 75.00%, 83.33% { opacity: 1; } 83.34%, 91.65% { opacity: 0; } 91.66%, 100% { opacity: 1; } }
 
-        /* أنيميشن التبديل لحجي سعيد (يتبادل بين الصورتين 4 مرات) */
-        .play-oldman .old-img-1 { animation: oldManImg1 2.5s forwards; }
-        .play-oldman .old-img-2 { animation: oldManImg2 2.5s forwards; }
+        /* 💡 زيادة سرعة التبادل لحجي سعيد (تم تقليص مدة الحركة إلى 1.2 ثانية لتكون أسرع) */
+        .play-oldman .old-img-1 { animation: oldManImg1 1.2s forwards; }
+        .play-oldman .old-img-2 { animation: oldManImg2 1.2s forwards; }
 
         @keyframes oldManImg1 {
             0%, 12.49% { opacity: 1; }
@@ -311,7 +311,7 @@
                         <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
                     </div>
 
-                    <!-- الأفاتار الثاني (حجي سعيد) 💡 تم تحديث المسار ليطابق مجلد "حجي" -->
+                    <!-- الأفاتار الثاني (حجي سعيد) -->
                     <div class="avatar-container" id="avatarOldManTrigger">
                         <div class="white-frame"></div>
                         <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1" style="opacity: 1;">
@@ -446,7 +446,6 @@
             }, 2500);
 
         } else if (avatarType === 'oldman') {
-            // 💡 إعداد أفاتار حجي سعيد مع حقن الصورتين من المسار الجديد
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
                 <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1">
