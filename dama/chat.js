@@ -9,25 +9,33 @@
         .game-chat-btn {
             display: none; 
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: none;
-            border: none;
-            outline: none;
+            bottom: 85px; /* 💡 تم رفعه ليكون فوق الشريط السفلي */
+            left: 15px;
+            background: rgba(45, 48, 55, 0.85); /* 💡 خلفية زجاجية متناسقة مع اللعبة */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(135, 206, 235, 0.4);
+            border-radius: 50%; /* شكل دائري جميل */
             color: #ffffff;
-            font-size: 28px;
+            font-size: 22px;
+            width: 48px;
+            height: 48px;
             cursor: pointer;
-            z-index: 999;
-            padding: 5px;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            z-index: 10000; /* 💡 طبقة عالية جداً ليكون فوق كل شيء */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
         }
         .game-chat-btn:active { transform: scale(0.85); }
-        .game-chat-btn:hover { opacity: 0.8; }
+        .game-chat-btn:hover { 
+            background: rgba(255, 255, 255, 0.15); 
+            box-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
+        }
 
-        /* 💡 إظهار زر الدردشة فقط عندما تكون اللعبة في وضع الأونلاين */
+        /* 💡 إظهار زر الدردشة فقط عندما تكون اللعبة في وضع الأونلاين باستخدام display: flex للتوسيط */
         body.online-mode-active .game-chat-btn {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* 💡 إغلاق نافذة الدردشة فوراً إذا خرج اللاعب من وضع الأونلاين */
@@ -37,18 +45,20 @@
 
         .chat-popup-window {
             position: fixed;
-            bottom: 75px;
-            left: 20px;
+            bottom: 145px; /* 💡 تم رفعه ليكون فوق الزر */
+            left: 15px;
             width: 90%;
-            max-width: 340px;
-            background-color: #16161e;
+            max-width: 320px;
+            background-color: rgba(22, 22, 30, 0.95); /* خلفية زجاجية داكنة */
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border-radius: 18px;
             box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7);
-            border: 1px solid #2a2a3c;
+            border: 1px solid rgba(135, 206, 235, 0.2);
             display: none;
             flex-direction: column;
             overflow: hidden;
-            z-index: 1000;
+            z-index: 10001;
             animation: slideUp 0.25s ease;
         }
         .chat-popup-window.open { display: flex; }
@@ -58,7 +68,7 @@
         }
 
         .popup-top-bar {
-            background: #1f1f2e;
+            background: rgba(255, 255, 255, 0.05);
             padding: 10px 15px;
             color: #ffffff;
             font-size: 14px;
@@ -66,7 +76,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #2a2a3c;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         .popup-top-bar button {
             background: none;
@@ -74,14 +84,15 @@
             color: #aaa;
             font-size: 16px;
             cursor: pointer;
+            transition: color 0.2s;
         }
-        .popup-top-bar button:hover { color: #fff; }
+        .popup-top-bar button:hover { color: #ff453a; }
 
         .popup-tabs {
             display: flex;
             flex-direction: row;
-            background: #1a1a26;
-            border-bottom: 1px solid #2a2a3c;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         .tab-btn {
             flex: 1;
@@ -101,8 +112,8 @@
         }
         .tab-btn.active {
             color: #ffffff;
-            background: #252538;
-            border-bottom: 2px solid #2563eb;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 2px solid #87ceeb;
         }
 
         .tab-content {
@@ -116,11 +127,13 @@
 
         .avatar-container {
             position: relative;
-            width: 170px;
-            height: 170px;
+            width: 150px;
+            height: 150px;
             overflow: visible;
             cursor: pointer;
+            transition: transform 0.2s;
         }
+        .avatar-container:hover { transform: scale(1.05); }
         .white-frame {
             position: absolute;
             bottom: 0;
@@ -131,6 +144,7 @@
             background-color: #ffffff;
             border-radius: 30px 30px 0 0;
             z-index: 1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
         .avatar-container img {
             position: absolute;
@@ -146,15 +160,15 @@
 
         .floating-avatar-display {
             position: fixed;
-            bottom: 80px;
+            bottom: 150px; /* 💡 رفعه ليظهر بوضوح */
             left: 30px;
-            z-index: 2000;
+            z-index: 10002;
             display: none;
             pointer-events: none;
         }
         .floating-avatar-display.show {
             display: flex;
-            animation: popIn 0.3s ease;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popIn {
             from { transform: scale(0.5); opacity: 0; }
@@ -163,19 +177,18 @@
 
         .game-toast {
             position: fixed;
-            bottom: 85px;
+            bottom: 150px; /* 💡 رفعه لتجنب تداخله مع الأزرار */
             left: 50%;
             transform: translateX(-50%) translateY(20px);
-            background: rgba(15, 15, 20, 0.85);
+            background: rgba(46, 204, 113, 0.95);
             color: #ffffff;
             padding: 10px 22px;
             border-radius: 20px;
-            border: none;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 0, 0, 0.5);
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
             font-size: 14px;
             font-weight: bold;
-            z-index: 3000;
+            z-index: 10005;
             opacity: 0;
             transition: all 0.3s ease;
             pointer-events: none;
@@ -209,17 +222,17 @@
             overflow-y: auto;
         }
         .preset-btn {
-            background: #252538;
+            background: rgba(255, 255, 255, 0.05);
             color: #e2e8f0;
-            border: 1px solid #3a3a52;
-            padding: 10px 12px;
-            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 12px;
             text-align: right;
             cursor: pointer;
             font-size: 13px;
             transition: all 0.2s ease;
         }
-        .preset-btn:hover { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+        .preset-btn:hover { background: rgba(135, 206, 235, 0.2); color: #ffffff; border-color: rgba(135, 206, 235, 0.5); transform: translateX(-5px); }
     `;
     document.head.appendChild(style);
 
@@ -236,13 +249,13 @@
 
             <div class="popup-tabs">
                 <button class="tab-btn" id="tabPresetBtn">💬 رسائل فورية</button>
-                <button class="tab-btn active" id="tabAvatarBtn">🎭 الافتارات والإيموتس</button>
+                <button class="tab-btn active" id="tabAvatarBtn">🎭 الافتارات</button>
             </div>
 
             <div class="tab-content active" id="tabAvatarContent">
                 <div class="avatar-container" id="avatarContainerTrigger">
                     <div class="white-frame"></div>
-                    <img class="img-1 default-show" src="boss1.png" alt="boss 1">
+                    <img class="img-1 default-show" src="boss1.png" alt="boss 1" onerror="this.src='https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp'">
                     <img class="img-2" src="boss2.png" alt="boss 2">
                     <img class="img-3" src="boss3.png" alt="boss 3">
                     <img class="img-4" src="boss4.png" alt="boss 4">
@@ -251,10 +264,10 @@
 
             <div class="tab-content" id="tabPresetContent">
                 <div class="preset-list">
-                    <button class="preset-btn" data-text="مرحباً بك، استمتع باللعبة!">👋 مرحباً بك، استمتع باللعبة!</button>
-                    <button class="preset-btn" data-text="لعبتك رائعة جداً، أحسنت!">🔥 لعبتك رائعة جداً!</button>
-                    <button class="preset-btn" data-text="انتظر، سأقوم بالرد سريعاً.">⏳ انتظر، سأقوم بالرد سريعاً.</button>
-                    <button class="preset-btn" data-text="حظا سعيدا للجميع!">⭐ حظا سعيدا للجميع!</button>
+                    <button class="preset-btn" data-text="👋 مرحباً بك، استمتع باللعبة!">👋 مرحباً بك، استمتع باللعبة!</button>
+                    <button class="preset-btn" data-text="🔥 لعبتك رائعة جداً، أحسنت!">🔥 لعبتك رائعة جداً، أحسنت!</button>
+                    <button class="preset-btn" data-text="⏳ انتظر، سأقوم بالرد سريعاً.">⏳ انتظر، سأقوم بالرد سريعاً.</button>
+                    <button class="preset-btn" data-text="⭐ حظا سعيدا للجميع!">⭐ حظا سعيدا للجميع!</button>
                 </div>
             </div>
         </div>
@@ -262,7 +275,7 @@
         <div class="floating-avatar-display" id="floatingAvatarDisplay">
             <div class="avatar-container" id="floatingAvatarBox">
                 <div class="white-frame"></div>
-                <img class="img-1 default-show" src="boss1.png" alt="boss 1">
+                <img class="img-1 default-show" src="boss1.png" alt="boss 1" onerror="this.src='https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp'">
                 <img class="img-2" src="boss2.png" alt="boss 2">
                 <img class="img-3" src="boss3.png" alt="boss 3">
                 <img class="img-4" src="boss4.png" alt="boss 4">
