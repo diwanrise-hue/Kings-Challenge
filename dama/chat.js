@@ -8,9 +8,9 @@
     style.innerHTML = `
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* 💡 زر الدردشة - مدمج ليكون بجانب زر الانسحاب داخل الشريط السفلي */
+        /* 💡 زر الدردشة - ظاهر دائماً في وضع الأونلاين والأوفلاين */
         .game-chat-btn {
-            display: none !important; /* مخفي بشكل افتراضي */
+            display: flex !important; /* ظاهر بشكل دائم */
             align-items: center;
             justify-content: center;
             background: rgba(45, 48, 55, 0.65) !important;
@@ -28,21 +28,11 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
-        
-        /* 💡 إظهار زر الدردشة فقط عندما تكون اللعبة في وضع الأونلاين */
-        body.online-mode-active .game-chat-btn {
-            display: flex !important;
-        }
 
         .game-chat-btn:hover { 
             background: rgba(255, 255, 255, 0.15) !important; 
             transform: scale(0.96) !important;
             box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important;
-        }
-
-        /* 💡 إغلاق نافذة الدردشة فوراً إذا خرج اللاعب من وضع الأونلاين */
-        body:not(.online-mode-active) .chat-popup-window {
-            display: none !important;
         }
 
         .chat-popup-window {
@@ -227,7 +217,7 @@
         @keyframes playImg3 { 0%, 16.66% { opacity: 0; } 16.67%, 25.00% { opacity: 1; } 25.01%, 33.32% { opacity: 0; } 33.33%, 41.66% { opacity: 1; } 41.67%, 49.99% { opacity: 0; } 50.00%, 58.33% { opacity: 1; } 58.34%, 66.65% { opacity: 0; } 66.66%, 75.00% { opacity: 1; } 75.01%, 83.32% { opacity: 0; } 83.33%, 91.66% { opacity: 1; } 91.67%, 100% { opacity: 0; } }
         @keyframes playImg4 { 0%, 24.99% { opacity: 0; } 25.00%, 33.33% { opacity: 1; } 33.34%, 41.65% { opacity: 0; } 41.66%, 50.00% { opacity: 1; } 50.01%, 58.32% { opacity: 0; } 58.33%, 66.67% { opacity: 1; } 66.68%, 74.99% { opacity: 0; } 75.00%, 83.33% { opacity: 1; } 83.34%, 91.65% { opacity: 0; } 91.66%, 100% { opacity: 1; } }
 
-        /* 💡 أنيميشن التبديل لحجي سعيد (يتبادل بين الصورتين 4 مرات) */
+        /* أنيميشن التبديل لحجي سعيد (يتبادل بين الصورتين 4 مرات) */
         .play-oldman .old-img-1 { animation: oldManImg1 2.5s forwards; }
         .play-oldman .old-img-2 { animation: oldManImg2 2.5s forwards; }
 
@@ -240,7 +230,7 @@
             62.5%, 74.99% { opacity: 0; }
             75%, 87.49% { opacity: 1; }
             87.5%, 99.99% { opacity: 0; }
-            100% { opacity: 1; } /* تعود الصورة للأولى في النهاية */
+            100% { opacity: 1; }
         }
         @keyframes oldManImg2 {
             0%, 12.49% { opacity: 0; }
@@ -312,7 +302,7 @@
 
             <div class="tab-content active" id="tabAvatarContent">
                 <div class="avatars-wrapper">
-                    <!-- 💡 الأفاتار الأول (الزعيم) -->
+                    <!-- الأفاتار الأول (الزعيم) -->
                     <div class="avatar-container" id="avatarContainerTrigger">
                         <div class="white-frame"></div>
                         <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
@@ -321,10 +311,10 @@
                         <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
                     </div>
 
-                    <!-- 💡 الأفاتار الثاني (حجي سعيد) -->
+                    <!-- الأفاتار الثاني (حجي سعيد) 💡 تم تحديث المسار ليطابق مجلد "حجي" -->
                     <div class="avatar-container" id="avatarOldManTrigger">
                         <div class="white-frame"></div>
-                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي سعيد1.webp" alt="حجي سعيد" style="opacity: 1;">
+                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1" style="opacity: 1;">
                     </div>
                 </div>
             </div>
@@ -456,11 +446,11 @@
             }, 2500);
 
         } else if (avatarType === 'oldman') {
-            // 💡 إعداد أفاتار حجي سعيد مع حقن الصورتين
+            // 💡 إعداد أفاتار حجي سعيد مع حقن الصورتين من المسار الجديد
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي سعيد1.webp" alt="حجي سعيد 1">
-                <img class="old-img-2" src="${BASE_CHAT_URL}حجي سعيد2.webp" alt="حجي سعيد 2">
+                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1">
+                <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp" alt="حجي سعيد 2">
             `;
 
             floatingAvatarDisplay.classList.add('show');
@@ -468,7 +458,6 @@
             const img1 = floatingAvatarBox.querySelector('.old-img-1');
             if (img1) img1.classList.remove('default-show');
 
-            // إضافة كلاس التشغيل الخاص بحجي سعيد
             floatingAvatarBox.className = 'avatar-container play-oldman';
 
             hideTimeout = setTimeout(() => {
