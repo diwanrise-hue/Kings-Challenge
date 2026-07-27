@@ -1,41 +1,43 @@
 // chat.js
 (function() {
+    // المسار المباشر لملفات الدردشة على جيت هاب حسب الصورة المرفقة
+    const BASE_CHAT_URL = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/dama/chat/";
+
     // 1. حقن التنسيقات (CSS) تلقائياً في صفحة الـ HTML
     const style = document.createElement('style');
     style.innerHTML = `
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* 💡 إخفاء زر الدردشة بشكل افتراضي */
+        /* 💡 زر الدردشة - مدمج ليكون بجانب زر الانسحاب داخل الشريط السفلي */
         .game-chat-btn {
-            display: none; 
-            position: fixed;
-            bottom: 85px; /* 💡 تم رفعه ليكون فوق الشريط السفلي */
-            left: 15px;
-            background: rgba(45, 48, 55, 0.85); /* 💡 خلفية زجاجية متناسقة مع اللعبة */
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(135, 206, 235, 0.4);
-            border-radius: 50%; /* شكل دائري جميل */
-            color: #ffffff;
-            font-size: 22px;
-            width: 48px;
-            height: 48px;
-            cursor: pointer;
-            z-index: 10000; /* 💡 طبقة عالية جداً ليكون فوق كل شيء */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-        }
-        .game-chat-btn:active { transform: scale(0.85); }
-        .game-chat-btn:hover { 
-            background: rgba(255, 255, 255, 0.15); 
-            box-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
-        }
-
-        /* 💡 إظهار زر الدردشة فقط عندما تكون اللعبة في وضع الأونلاين باستخدام display: flex للتوسيط */
-        body.online-mode-active .game-chat-btn {
-            display: flex;
+            display: none !important; /* مخفي بشكل افتراضي */
             align-items: center;
             justify-content: center;
+            background: rgba(45, 48, 55, 0.65) !important;
+            border: 1px solid rgba(135, 206, 235, 0.4) !important;
+            color: #ffffff;
+            font-size: 20px;
+            cursor: pointer;
+            width: 44px !important;
+            height: 44px !important;
+            border-radius: 12px !important;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+            padding: 0 !important;
+            box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important;
+            outline: none !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* 💡 إظهار زر الدردشة فقط عندما تكون اللعبة في وضع الأونلاين */
+        body.online-mode-active .game-chat-btn {
+            display: flex !important;
+        }
+
+        .game-chat-btn:hover { 
+            background: rgba(255, 255, 255, 0.15) !important; 
+            transform: scale(0.96) !important;
+            box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important;
         }
 
         /* 💡 إغلاق نافذة الدردشة فوراً إذا خرج اللاعب من وضع الأونلاين */
@@ -45,11 +47,11 @@
 
         .chat-popup-window {
             position: fixed;
-            bottom: 145px; /* 💡 تم رفعه ليكون فوق الزر */
+            bottom: 85px; /* يظهر فوق الشريط السفلي مباشرة */
             left: 15px;
             width: 90%;
             max-width: 320px;
-            background-color: rgba(22, 22, 30, 0.95); /* خلفية زجاجية داكنة */
+            background-color: rgba(22, 22, 30, 0.95);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border-radius: 18px;
@@ -134,6 +136,7 @@
             transition: transform 0.2s;
         }
         .avatar-container:hover { transform: scale(1.05); }
+        
         .white-frame {
             position: absolute;
             bottom: 0;
@@ -160,8 +163,8 @@
 
         .floating-avatar-display {
             position: fixed;
-            bottom: 150px; /* 💡 رفعه ليظهر بوضوح */
-            left: 30px;
+            bottom: 95px; /* تطفو فوق الشريط السفلي */
+            left: 20px;
             z-index: 10002;
             display: none;
             pointer-events: none;
@@ -177,7 +180,7 @@
 
         .game-toast {
             position: fixed;
-            bottom: 150px; /* 💡 رفعه لتجنب تداخله مع الأزرار */
+            bottom: 95px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
             background: rgba(46, 204, 113, 0.95);
@@ -236,11 +239,32 @@
     `;
     document.head.appendChild(style);
 
-    // 2. حقن هيكل عناصر الـ HTML تلقائياً في جسم الصفحة (body)
+    // 2. بناء عناصر التحكم المدمجة
+    
+    // إنشاء زر الدردشة
+    const chatBtn = document.createElement('button');
+    chatBtn.id = 'gameChatBtn';
+    chatBtn.className = 'game-chat-btn';
+    chatBtn.title = 'الدردشة والتفاعل';
+    chatBtn.innerHTML = '💬';
+
+    // البحث عن الشريط السفلي وإضافة الزر إليه بجانب زر الانسحاب
+    const bottomPanel = document.getElementById('bottom-control-panel');
+    if (bottomPanel) {
+        const resignBtn = document.getElementById('resign-btn');
+        if (resignBtn) {
+            // إدراج الزر قبل زر الانسحاب ليكون بجانبه تماماً
+            bottomPanel.insertBefore(chatBtn, resignBtn);
+        } else {
+            bottomPanel.appendChild(chatBtn);
+        }
+    } else {
+        document.body.appendChild(chatBtn);
+    }
+
+    // حقن نوافذ وملحقات الدردشة (صور بصيغة الروابط المباشرة من جيت هاب)
     const container = document.createElement('div');
     container.innerHTML = `
-        <button class="game-chat-btn" id="gameChatBtn" title="الدردشة والتفاعل">💬</button>
-
         <div class="chat-popup-window" id="chatPopupWindow">
             <div class="popup-top-bar">
                 <span>التفاعل السريع</span>
@@ -255,10 +279,10 @@
             <div class="tab-content active" id="tabAvatarContent">
                 <div class="avatar-container" id="avatarContainerTrigger">
                     <div class="white-frame"></div>
-                    <img class="img-1 default-show" src="boss1.png" alt="boss 1" onerror="this.src='https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp'">
-                    <img class="img-2" src="boss2.png" alt="boss 2">
-                    <img class="img-3" src="boss3.png" alt="boss 3">
-                    <img class="img-4" src="boss4.png" alt="boss 4">
+                    <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
+                    <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
+                    <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
+                    <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
                 </div>
             </div>
 
@@ -275,16 +299,16 @@
         <div class="floating-avatar-display" id="floatingAvatarDisplay">
             <div class="avatar-container" id="floatingAvatarBox">
                 <div class="white-frame"></div>
-                <img class="img-1 default-show" src="boss1.png" alt="boss 1" onerror="this.src='https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp'">
-                <img class="img-2" src="boss2.png" alt="boss 2">
-                <img class="img-3" src="boss3.png" alt="boss 3">
-                <img class="img-4" src="boss4.png" alt="boss 4">
+                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
+                <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
+                <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
+                <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
             </div>
         </div>
 
         <div class="game-toast" id="gameToast"></div>
 
-        <audio id="bossSound" src="laugh.mp3"></audio>
+        <audio id="bossSound" src="${BASE_CHAT_URL}laugh.mp3"></audio>
     `;
     document.body.appendChild(container);
 
@@ -292,7 +316,6 @@
     let hideTimeout;
     let toastTimeout;
 
-    const chatBtn = document.getElementById('gameChatBtn');
     const windowPopup = document.getElementById('chatPopupWindow');
     const closeChatBtn = document.getElementById('closeChatBtn');
     const tabAvatarBtn = document.getElementById('tabAvatarBtn');
