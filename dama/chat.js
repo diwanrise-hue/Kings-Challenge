@@ -1,6 +1,6 @@
 // chat.js
 (function() {
-    // المسار المباشر لملفات الدردشة على جيت هاب حسب الصورة المرفقة
+    // المسار المباشر لملفات الدردشة على جيت هاب
     const BASE_CHAT_URL = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/dama/chat/";
 
     // 1. حقن التنسيقات (CSS) تلقائياً في صفحة الـ HTML
@@ -8,9 +8,9 @@
     style.innerHTML = `
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* 💡 زر الدردشة - ظاهر دائماً في وضع الأونلاين والأوفلاين */
+        /* زر الدردشة - ظاهر دائماً في وضع الأونلاين والأوفلاين */
         .game-chat-btn {
-            display: flex !important; /* ظاهر بشكل دائم */
+            display: flex !important;
             align-items: center;
             justify-content: center;
             background: rgba(45, 48, 55, 0.65) !important;
@@ -37,7 +37,7 @@
 
         .chat-popup-window {
             position: fixed;
-            bottom: 85px; /* يظهر فوق الشريط السفلي مباشرة */
+            bottom: 85px;
             left: 15px;
             width: 90%;
             max-width: 320px;
@@ -121,7 +121,7 @@
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
             align-items: center;
             width: 100%;
@@ -129,13 +129,21 @@
 
         .avatar-container {
             position: relative;
-            width: 150px;
-            height: 150px;
             overflow: visible;
             cursor: pointer;
             transition: transform 0.2s;
         }
         .avatar-container:hover { transform: scale(1.05); }
+
+        .avatars-wrapper .avatar-container {
+            width: 65px;
+            height: 65px;
+        }
+
+        .floating-avatar-display .avatar-container {
+            width: 150px;
+            height: 150px;
+        }
         
         .white-frame {
             position: absolute;
@@ -217,7 +225,7 @@
         @keyframes playImg3 { 0%, 16.66% { opacity: 0; } 16.67%, 25.00% { opacity: 1; } 25.01%, 33.32% { opacity: 0; } 33.33%, 41.66% { opacity: 1; } 41.67%, 49.99% { opacity: 0; } 50.00%, 58.33% { opacity: 1; } 58.34%, 66.65% { opacity: 0; } 66.66%, 75.00% { opacity: 1; } 75.01%, 83.32% { opacity: 0; } 83.33%, 91.66% { opacity: 1; } 91.67%, 100% { opacity: 0; } }
         @keyframes playImg4 { 0%, 24.99% { opacity: 0; } 25.00%, 33.33% { opacity: 1; } 33.34%, 41.65% { opacity: 0; } 41.66%, 50.00% { opacity: 1; } 50.01%, 58.32% { opacity: 0; } 58.33%, 66.67% { opacity: 1; } 66.68%, 74.99% { opacity: 0; } 75.00%, 83.33% { opacity: 1; } 83.34%, 91.65% { opacity: 0; } 91.66%, 100% { opacity: 1; } }
 
-        /* 💡 زيادة سرعة التبادل لحجي سعيد (تم تقليص مدة الحركة إلى 1.2 ثانية لتكون أسرع) */
+        /* أنيميشن التبديل لحجي سعيد */
         .play-oldman .old-img-1 { animation: oldManImg1 1.2s forwards; }
         .play-oldman .old-img-2 { animation: oldManImg2 1.2s forwards; }
 
@@ -244,26 +252,76 @@
             100% { opacity: 0; }
         }
 
+        /* أنيميشن حجي حزين */
+        .play-sadman .sad-img-1 { animation: sadManImg1 2.5s forwards; }
+        .play-sadman .sad-img-2 { animation: sadManImg2 2.5s forwards; }
+        .play-sadman .sad-img-3 { animation: sadManImg3 2.5s forwards; }
+
+        @keyframes sadManImg1 {
+            0%, 11.11% { opacity: 1; }
+            11.12%, 33.32% { opacity: 0; }
+            33.33%, 44.43% { opacity: 1; }
+            44.44%, 66.65% { opacity: 0; }
+            66.66%, 77.76% { opacity: 1; }
+            77.77%, 99.99% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes sadManImg2 {
+            0%, 11.11% { opacity: 0; }
+            11.12%, 22.22% { opacity: 1; }
+            22.23%, 44.43% { opacity: 0; }
+            44.44%, 55.55% { opacity: 1; }
+            55.56%, 77.76% { opacity: 0; }
+            77.77%, 88.88% { opacity: 1; }
+            88.89%, 100% { opacity: 0; }
+        }
+        @keyframes sadManImg3 {
+            0%, 22.22% { opacity: 0; }
+            22.23%, 33.32% { opacity: 1; }
+            33.33%, 55.55% { opacity: 0; }
+            55.56%, 66.65% { opacity: 1; }
+            66.66%, 88.88% { opacity: 0; }
+            88.89%, 99.99% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* 💡 تنسيق الرسائل السريعة لتصبح شبكة (Grid) بـ 3 أعمدة مثل الصورة المرفقة */
         .preset-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
             width: 100%;
             max-height: 220px;
             overflow-y: auto;
+            direction: rtl; /* اتجاه الكتابة من اليمين لليسار */
+            padding: 5px;
         }
+        
+        /* 💡 تنسيق الزر ليكون بخلفية بيضاء وخط أسود بارز مثل الصورة */
         .preset-btn {
-            background: rgba(255, 255, 255, 0.05);
-            color: #e2e8f0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px;
-            border-radius: 12px;
-            text-align: right;
+            background: #ffffff;
+            color: #1a1a1a;
+            border: 1px solid #d1d1d1;
+            padding: 10px 4px;
+            border-radius: 8px;
+            text-align: center;
             cursor: pointer;
             font-size: 13px;
+            font-weight: bold;
             transition: all 0.2s ease;
+            box-shadow: 0 3px 0 #cccccc, 0 4px 6px rgba(0,0,0,0.2); /* تأثير زر 3D خفيف */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 45px;
         }
-        .preset-btn:hover { background: rgba(135, 206, 235, 0.2); color: #ffffff; border-color: rgba(135, 206, 235, 0.5); transform: translateX(-5px); }
+        .preset-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 0 0 #cccccc, 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .preset-btn:hover { 
+            background: #f0f0f0; 
+        }
     `;
     document.head.appendChild(style);
 
@@ -302,37 +360,51 @@
 
             <div class="tab-content active" id="tabAvatarContent">
                 <div class="avatars-wrapper">
-                    <!-- الأفاتار الأول (الزعيم) -->
-                    <div class="avatar-container" id="avatarContainerTrigger">
-                        <div class="white-frame"></div>
-                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
-                        <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
-                        <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
-                        <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
-                    </div>
-
-                    <!-- الأفاتار الثاني (حجي سعيد) -->
+                    
                     <div class="avatar-container" id="avatarOldManTrigger">
                         <div class="white-frame"></div>
-                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1" style="opacity: 1;">
+                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.web" alt="حجي سعيد 1" style="opacity: 1;">
+                        <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.web" alt="حجي سعيد 2">
                     </div>
+                    
+                    <div class="avatar-container" id="avatarSadHajjiTrigger">
+                        <div class="white-frame"></div>
+                        <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.web" alt="حجي حزين 1" style="opacity: 1;">
+                        <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.web" alt="حجي حزين 2">
+                        <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.web" alt="حجي حزين 3">
+                    </div>
+
+                    <div class="avatar-container" id="avatarContainerTrigger">
+                        <div class="white-frame"></div>
+                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.web" alt="boss 1">
+                        <img class="img-2" src="${BASE_CHAT_URL}boss2.web" alt="boss 2">
+                        <img class="img-3" src="${BASE_CHAT_URL}boss3.web" alt="boss 3">
+                        <img class="img-4" src="${BASE_CHAT_URL}boss4.web" alt="boss 4">
+                    </div>
+
                 </div>
             </div>
 
             <div class="tab-content" id="tabPresetContent">
                 <div class="preset-list">
-                    <button class="preset-btn" data-text="👋 مرحباً بك، استمتع باللعبة!">👋 مرحباً بك، استمتع باللعبة!</button>
-                    <button class="preset-btn" data-text="🔥 لعبتك رائعة جداً، أحسنت!">🔥 لعبتك رائعة جداً، أحسنت!</button>
-                    <button class="preset-btn" data-text="⏳ انتظر، سأقوم بالرد سريعاً.">⏳ انتظر، سأقوم بالرد سريعاً.</button>
-                    <button class="preset-btn" data-text="⭐ حظا سعيدا للجميع!">⭐ حظا سعيدا للجميع!</button>
+                    <button class="preset-btn" data-text="انضربنا بوري!">انضربنا بوري!</button>
+                    <button class="preset-btn" data-text="عفية">عفية</button>
+                    <button class="preset-btn" data-text="عاشت ايدك">عاشت ايدك</button>
+                    
+                    <button class="preset-btn" data-text="دوس خالي">دوس خالي</button>
+                    <button class="preset-btn" data-text="فداك">فداك</button>
+                    <button class="preset-btn" data-text="هاي شنو؟">هاي شنو؟</button>
+                    
+                    <button class="preset-btn" data-text="آسف">آسف</button>
+                    <button class="preset-btn" data-text="الله بالخير">الله بالخير</button>
+                    <button class="preset-btn" data-text="يمعود شسالفة!">يمعود شسالفة!</button>
                 </div>
             </div>
         </div>
 
         <div class="floating-avatar-display" id="floatingAvatarDisplay">
             <div class="avatar-container" id="floatingAvatarBox">
-                <!-- المحتوى هنا يتم حقنه برمجياً -->
-            </div>
+                </div>
         </div>
 
         <div class="game-toast" id="gameToast"></div>
@@ -354,6 +426,7 @@
     
     const avatarContainerTrigger = document.getElementById('avatarContainerTrigger');
     const avatarOldManTrigger = document.getElementById('avatarOldManTrigger');
+    const avatarSadHajjiTrigger = document.getElementById('avatarSadHajjiTrigger');
 
     const gameToast = document.getElementById('gameToast');
     const bossSound = document.getElementById('bossSound');
@@ -407,6 +480,7 @@
 
     avatarContainerTrigger.addEventListener('click', () => triggerFloatingAvatar('boss'));
     avatarOldManTrigger.addEventListener('click', () => triggerFloatingAvatar('oldman'));
+    avatarSadHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('sadhajji'));
 
     function triggerFloatingAvatar(avatarType = 'boss') {
         windowPopup.classList.remove('open');
@@ -419,10 +493,10 @@
         if (avatarType === 'boss') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
-                <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
-                <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
-                <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
+                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.web" alt="boss 1">
+                <img class="img-2" src="${BASE_CHAT_URL}boss2.web" alt="boss 2">
+                <img class="img-3" src="${BASE_CHAT_URL}boss3.web" alt="boss 3">
+                <img class="img-4" src="${BASE_CHAT_URL}boss4.web" alt="boss 4">
             `;
 
             floatingAvatarDisplay.classList.add('show');
@@ -448,8 +522,8 @@
         } else if (avatarType === 'oldman') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1">
-                <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp" alt="حجي سعيد 2">
+                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.web" alt="حجي سعيد 1">
+                <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.web" alt="حجي سعيد 2">
             `;
 
             floatingAvatarDisplay.classList.add('show');
@@ -462,6 +536,27 @@
             hideTimeout = setTimeout(() => {
                 floatingAvatarDisplay.classList.remove('show');
                 floatingAvatarBox.classList.remove('play-oldman');
+                if (img1) img1.classList.add('default-show');
+            }, 2500);
+
+        } else if (avatarType === 'sadhajji') {
+            floatingAvatarBox.innerHTML = `
+                <div class="white-frame"></div>
+                <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.web" alt="حجي حزين 1">
+                <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.web" alt="حجي حزين 2">
+                <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.web" alt="حجي حزين 3">
+            `;
+
+            floatingAvatarDisplay.classList.add('show');
+            
+            const img1 = floatingAvatarBox.querySelector('.sad-img-1');
+            if (img1) img1.classList.remove('default-show');
+
+            floatingAvatarBox.className = 'avatar-container play-sadman';
+
+            hideTimeout = setTimeout(() => {
+                floatingAvatarDisplay.classList.remove('show');
+                floatingAvatarBox.classList.remove('play-sadman');
                 if (img1) img1.classList.add('default-show');
             }, 2500);
         }
