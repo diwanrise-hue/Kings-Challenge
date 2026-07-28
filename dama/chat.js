@@ -8,9 +8,9 @@
     style.innerHTML = `
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* زر الدردشة - ظاهر دائماً في وضع الأونلاين والأوفلاين */
+        /* 💡 زر الدردشة - ظاهر دائماً في وضع الأونلاين والأوفلاين */
         .game-chat-btn {
-            display: flex !important;
+            display: flex !important; /* ظاهر بشكل دائم */
             align-items: center;
             justify-content: center;
             background: rgba(45, 48, 55, 0.65) !important;
@@ -37,7 +37,7 @@
 
         .chat-popup-window {
             position: fixed;
-            bottom: 85px;
+            bottom: 85px; /* يظهر فوق الشريط السفلي مباشرة */
             left: 15px;
             width: 90%;
             max-width: 320px;
@@ -121,7 +121,7 @@
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 10px; /* تقليل المسافة لتسع 4 أيقونات */
             justify-content: center;
             align-items: center;
             width: 100%;
@@ -134,12 +134,14 @@
             transition: transform 0.2s;
         }
         .avatar-container:hover { transform: scale(1.05); }
-
+        
+        /* 💡 تصغير الأفاتارات داخل القائمة فقط */
         .avatars-wrapper .avatar-container {
             width: 65px;
             height: 65px;
         }
 
+        /* 💡 الحفاظ على الحجم الكبير للأفاتار الذي يظهر على الشاشة */
         .floating-avatar-display .avatar-container {
             width: 150px;
             height: 150px;
@@ -252,7 +254,7 @@
             100% { opacity: 0; }
         }
 
-        /* أنيميشن حجي حزين */
+        /* 💡 أنيميشن حجي حزين (بسلاسة وبدون تقطيع) */
         .play-sadman .sad-img-1 { animation: sadManImg1 2.5s forwards; }
         .play-sadman .sad-img-2 { animation: sadManImg2 2.5s forwards; }
         .play-sadman .sad-img-3 { animation: sadManImg3 2.5s forwards; }
@@ -285,7 +287,7 @@
             100% { opacity: 0; }
         }
 
-        /* تنسيق الرسائل السريعة لتصبح شبكة بـ 3 أعمدة */
+        /* 💡 تنسيق الرسائل السريعة في 3 أعمدة */
         .preset-list {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -297,7 +299,6 @@
             padding: 5px;
         }
         
-        /* تنسيق الزر ليكون بخلفية بيضاء وخط أسود بارز */
         .preset-btn {
             background: #ffffff;
             color: #1a1a1a;
@@ -478,4 +479,87 @@
         }, 2500);
     }
 
-    avatarContainerTrigger.addEventListener('
+    avatarContainerTrigger.addEventListener('click', () => triggerFloatingAvatar('boss'));
+    avatarOldManTrigger.addEventListener('click', () => triggerFloatingAvatar('oldman'));
+    avatarSadHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('sadhajji'));
+
+    function triggerFloatingAvatar(avatarType = 'boss') {
+        windowPopup.classList.remove('open');
+
+        if (hideTimeout) clearTimeout(hideTimeout);
+
+        floatingAvatarDisplay.classList.remove('show');
+        void floatingAvatarDisplay.offsetWidth; // Force reflow
+
+        if (avatarType === 'boss') {
+            floatingAvatarBox.innerHTML = `
+                <div class="white-frame"></div>
+                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
+                <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
+                <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
+                <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
+            `;
+
+            floatingAvatarDisplay.classList.add('show');
+
+            const img1 = floatingAvatarBox.querySelector('.img-1');
+            if (img1) img1.classList.remove('default-show');
+
+            if (bossSound) {
+                bossSound.currentTime = 0;
+                bossSound.play().catch(error => {
+                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
+                });
+            }
+
+            floatingAvatarBox.className = 'avatar-container play';
+            
+            hideTimeout = setTimeout(() => {
+                floatingAvatarDisplay.classList.remove('show');
+                floatingAvatarBox.classList.remove('play');
+                if (img1) img1.classList.add('default-show');
+            }, 2500);
+
+        } else if (avatarType === 'oldman') {
+            floatingAvatarBox.innerHTML = `
+                <div class="white-frame"></div>
+                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1">
+                <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp" alt="حجي سعيد 2">
+            `;
+
+            floatingAvatarDisplay.classList.add('show');
+            
+            const img1 = floatingAvatarBox.querySelector('.old-img-1');
+            if (img1) img1.classList.remove('default-show');
+
+            floatingAvatarBox.className = 'avatar-container play-oldman';
+
+            hideTimeout = setTimeout(() => {
+                floatingAvatarDisplay.classList.remove('show');
+                floatingAvatarBox.classList.remove('play-oldman');
+                if (img1) img1.classList.add('default-show');
+            }, 2500);
+
+        } else if (avatarType === 'sadhajji') {
+            floatingAvatarBox.innerHTML = `
+                <div class="white-frame"></div>
+                <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp" alt="حجي حزين 1">
+                <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp" alt="حجي حزين 2">
+                <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp" alt="حجي حزين 3">
+            `;
+
+            floatingAvatarDisplay.classList.add('show');
+            
+            const img1 = floatingAvatarBox.querySelector('.sad-img-1');
+            if (img1) img1.classList.remove('default-show');
+
+            floatingAvatarBox.className = 'avatar-container play-sadman';
+
+            hideTimeout = setTimeout(() => {
+                floatingAvatarDisplay.classList.remove('show');
+                floatingAvatarBox.classList.remove('play-sadman');
+                if (img1) img1.classList.add('default-show');
+            }, 2500);
+        }
+    }
+})();
