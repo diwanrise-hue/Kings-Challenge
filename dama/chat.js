@@ -285,7 +285,7 @@
             100% { opacity: 0; }
         }
 
-        /* 💡 تنسيق الرسائل السريعة لتصبح شبكة (Grid) بـ 3 أعمدة مثل الصورة المرفقة */
+        /* تنسيق الرسائل السريعة لتصبح شبكة بـ 3 أعمدة */
         .preset-list {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -297,7 +297,7 @@
             padding: 5px;
         }
         
-        /* 💡 تنسيق الزر ليكون بخلفية بيضاء وخط أسود بارز مثل الصورة */
+        /* تنسيق الزر ليكون بخلفية بيضاء وخط أسود بارز */
         .preset-btn {
             background: #ffffff;
             color: #1a1a1a;
@@ -309,7 +309,7 @@
             font-size: 13px;
             font-weight: bold;
             transition: all 0.2s ease;
-            box-shadow: 0 3px 0 #cccccc, 0 4px 6px rgba(0,0,0,0.2); /* تأثير زر 3D خفيف */
+            box-shadow: 0 3px 0 #cccccc, 0 4px 6px rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -363,23 +363,23 @@
                     
                     <div class="avatar-container" id="avatarOldManTrigger">
                         <div class="white-frame"></div>
-                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.web" alt="حجي سعيد 1" style="opacity: 1;">
-                        <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.web" alt="حجي سعيد 2">
+                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1" style="opacity: 1;">
+                        <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp" alt="حجي سعيد 2">
                     </div>
                     
                     <div class="avatar-container" id="avatarSadHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.web" alt="حجي حزين 1" style="opacity: 1;">
-                        <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.web" alt="حجي حزين 2">
-                        <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.web" alt="حجي حزين 3">
+                        <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp" alt="حجي حزين 1" style="opacity: 1;">
+                        <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp" alt="حجي حزين 2">
+                        <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp" alt="حجي حزين 3">
                     </div>
 
                     <div class="avatar-container" id="avatarContainerTrigger">
                         <div class="white-frame"></div>
-                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.web" alt="boss 1">
-                        <img class="img-2" src="${BASE_CHAT_URL}boss2.web" alt="boss 2">
-                        <img class="img-3" src="${BASE_CHAT_URL}boss3.web" alt="boss 3">
-                        <img class="img-4" src="${BASE_CHAT_URL}boss4.web" alt="boss 4">
+                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
+                        <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
+                        <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
+                        <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
                     </div>
 
                 </div>
@@ -387,17 +387,17 @@
 
             <div class="tab-content" id="tabPresetContent">
                 <div class="preset-list">
-                    <button class="preset-btn" data-text="انضربنا بوري!">انضربنا بوري!</button>
-                    <button class="preset-btn" data-text="عفية">عفية</button>
-                    <button class="preset-btn" data-text="عاشت ايدك">عاشت ايدك</button>
+                    <button class="preset-btn" data-text="يا للخسارة!">يا للخسارة!</button>
+                    <button class="preset-btn" data-text="أحسنت!">أحسنت!</button>
+                    <button class="preset-btn" data-text="سلمت يداك">سلمت يداك</button>
                     
-                    <button class="preset-btn" data-text="دوس خالي">دوس خالي</button>
-                    <button class="preset-btn" data-text="فداك">فداك</button>
-                    <button class="preset-btn" data-text="هاي شنو؟">هاي شنو؟</button>
+                    <button class="preset-btn" data-text="انطلق!">انطلق!</button>
+                    <button class="preset-btn" data-text="لا عليك">لا عليك</button>
+                    <button class="preset-btn" data-text="ما هذا؟">ما هذا؟</button>
                     
-                    <button class="preset-btn" data-text="آسف">آسف</button>
-                    <button class="preset-btn" data-text="الله بالخير">الله بالخير</button>
-                    <button class="preset-btn" data-text="يمعود شسالفة!">يمعود شسالفة!</button>
+                    <button class="preset-btn" data-text="أعتذر">أعتذر</button>
+                    <button class="preset-btn" data-text="طاب يومك">طاب يومك</button>
+                    <button class="preset-btn" data-text="عجباً، ماذا يحدث!">عجباً، ماذا يحدث!</button>
                 </div>
             </div>
         </div>
@@ -478,87 +478,4 @@
         }, 2500);
     }
 
-    avatarContainerTrigger.addEventListener('click', () => triggerFloatingAvatar('boss'));
-    avatarOldManTrigger.addEventListener('click', () => triggerFloatingAvatar('oldman'));
-    avatarSadHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('sadhajji'));
-
-    function triggerFloatingAvatar(avatarType = 'boss') {
-        windowPopup.classList.remove('open');
-
-        if (hideTimeout) clearTimeout(hideTimeout);
-
-        floatingAvatarDisplay.classList.remove('show');
-        void floatingAvatarDisplay.offsetWidth; // Force reflow
-
-        if (avatarType === 'boss') {
-            floatingAvatarBox.innerHTML = `
-                <div class="white-frame"></div>
-                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.web" alt="boss 1">
-                <img class="img-2" src="${BASE_CHAT_URL}boss2.web" alt="boss 2">
-                <img class="img-3" src="${BASE_CHAT_URL}boss3.web" alt="boss 3">
-                <img class="img-4" src="${BASE_CHAT_URL}boss4.web" alt="boss 4">
-            `;
-
-            floatingAvatarDisplay.classList.add('show');
-
-            const img1 = floatingAvatarBox.querySelector('.img-1');
-            if (img1) img1.classList.remove('default-show');
-
-            if (bossSound) {
-                bossSound.currentTime = 0;
-                bossSound.play().catch(error => {
-                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
-                });
-            }
-
-            floatingAvatarBox.className = 'avatar-container play';
-            
-            hideTimeout = setTimeout(() => {
-                floatingAvatarDisplay.classList.remove('show');
-                floatingAvatarBox.classList.remove('play');
-                if (img1) img1.classList.add('default-show');
-            }, 2500);
-
-        } else if (avatarType === 'oldman') {
-            floatingAvatarBox.innerHTML = `
-                <div class="white-frame"></div>
-                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.web" alt="حجي سعيد 1">
-                <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.web" alt="حجي سعيد 2">
-            `;
-
-            floatingAvatarDisplay.classList.add('show');
-            
-            const img1 = floatingAvatarBox.querySelector('.old-img-1');
-            if (img1) img1.classList.remove('default-show');
-
-            floatingAvatarBox.className = 'avatar-container play-oldman';
-
-            hideTimeout = setTimeout(() => {
-                floatingAvatarDisplay.classList.remove('show');
-                floatingAvatarBox.classList.remove('play-oldman');
-                if (img1) img1.classList.add('default-show');
-            }, 2500);
-
-        } else if (avatarType === 'sadhajji') {
-            floatingAvatarBox.innerHTML = `
-                <div class="white-frame"></div>
-                <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.web" alt="حجي حزين 1">
-                <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.web" alt="حجي حزين 2">
-                <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.web" alt="حجي حزين 3">
-            `;
-
-            floatingAvatarDisplay.classList.add('show');
-            
-            const img1 = floatingAvatarBox.querySelector('.sad-img-1');
-            if (img1) img1.classList.remove('default-show');
-
-            floatingAvatarBox.className = 'avatar-container play-sadman';
-
-            hideTimeout = setTimeout(() => {
-                floatingAvatarDisplay.classList.remove('show');
-                floatingAvatarBox.classList.remove('play-sadman');
-                if (img1) img1.classList.add('default-show');
-            }, 2500);
-        }
-    }
-})();
+    avatarContainerTrigger.addEventListener('
