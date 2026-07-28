@@ -8,9 +8,9 @@
     style.innerHTML = `
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* 💡 زر الدردشة - ظاهر دائماً في وضع الأونلاين والأوفلاين */
+        /* زر الدردشة - ظاهر دائماً في وضع الأونلاين والأوفلاين */
         .game-chat-btn {
-            display: flex !important; /* ظاهر بشكل دائم */
+            display: flex !important;
             align-items: center;
             justify-content: center;
             background: rgba(45, 48, 55, 0.65) !important;
@@ -37,7 +37,7 @@
 
         .chat-popup-window {
             position: fixed;
-            bottom: 85px; /* يظهر فوق الشريط السفلي مباشرة */
+            bottom: 85px;
             left: 15px;
             width: 90%;
             max-width: 320px;
@@ -121,7 +121,7 @@
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
-            gap: 10px; /* تقليل المسافة لتسع 4 أيقونات */
+            gap: 10px;
             justify-content: center;
             align-items: center;
             width: 100%;
@@ -134,14 +134,12 @@
             transition: transform 0.2s;
         }
         .avatar-container:hover { transform: scale(1.05); }
-        
-        /* 💡 تصغير الأفاتارات داخل القائمة فقط */
+
         .avatars-wrapper .avatar-container {
             width: 65px;
             height: 65px;
         }
 
-        /* 💡 الحفاظ على الحجم الكبير للأفاتار الذي يظهر على الشاشة */
         .floating-avatar-display .avatar-container {
             width: 150px;
             height: 150px;
@@ -254,7 +252,7 @@
             100% { opacity: 0; }
         }
 
-        /* 💡 أنيميشن حجي حزين (بسلاسة وبدون تقطيع) */
+        /* أنيميشن حجي حزين */
         .play-sadman .sad-img-1 { animation: sadManImg1 2.5s forwards; }
         .play-sadman .sad-img-2 { animation: sadManImg2 2.5s forwards; }
         .play-sadman .sad-img-3 { animation: sadManImg3 2.5s forwards; }
@@ -287,7 +285,96 @@
             100% { opacity: 0; }
         }
 
-        /* 💡 تنسيق الرسائل السريعة في 3 أعمدة */
+        /* أنيميشن حجي مفكر */
+        .play-thinkingman .think-img-1 { animation: thinkManImg1 2.5s forwards; }
+        .play-thinkingman .think-img-2 { animation: thinkManImg2 2.5s forwards; }
+        .play-thinkingman .think-img-3 { animation: thinkManImg3 2.5s forwards; }
+
+        @keyframes thinkManImg1 {
+            0%, 33.33% { opacity: 1; }
+            33.34%, 100% { opacity: 0; }
+        }
+        @keyframes thinkManImg2 {
+            0%, 33.33% { opacity: 0; }
+            33.34%, 66.66% { opacity: 1; }
+            66.67%, 100% { opacity: 0; }
+        }
+        @keyframes thinkManImg3 {
+            0%, 66.66% { opacity: 0; }
+            66.67%, 99.99% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* أنيميشن حجي يضحك */
+        .play-laughingman .laugh-img-1 { animation: laughManImg1 1.2s forwards; }
+        .play-laughingman .laugh-img-2 { animation: laughManImg2 1.2s forwards; }
+
+        @keyframes laughManImg1 {
+            0%, 12.49% { opacity: 1; }
+            12.5%, 24.99% { opacity: 0; }
+            25%, 37.49% { opacity: 1; }
+            37.5%, 49.99% { opacity: 0; }
+            50%, 62.49% { opacity: 1; }
+            62.5%, 74.99% { opacity: 0; }
+            75%, 87.49% { opacity: 1; }
+            87.5%, 99.99% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes laughManImg2 {
+            0%, 12.49% { opacity: 0; }
+            12.5%, 24.99% { opacity: 1; }
+            25%, 37.49% { opacity: 0; }
+            37.5%, 49.99% { opacity: 1; }
+            50%, 62.49% { opacity: 0; }
+            62.5%, 74.99% { opacity: 1; }
+            75%, 87.49% { opacity: 0; }
+            87.5%, 99.99% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* أنيميشن حجي مندهش */
+        .play-surprisedman .surprised-img-1 { animation: surprisedManImg1 1.2s forwards; }
+        .play-surprisedman .surprised-img-2 { animation: surprisedManImg2 1.2s forwards; }
+
+        @keyframes surprisedManImg1 {
+            0%, 12.49% { opacity: 1; }
+            12.5%, 24.99% { opacity: 0; }
+            25%, 37.49% { opacity: 1; }
+            37.5%, 49.99% { opacity: 0; }
+            50%, 62.49% { opacity: 1; }
+            62.5%, 74.99% { opacity: 0; }
+            75%, 87.49% { opacity: 1; }
+            87.5%, 99.99% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes surprisedManImg2 {
+            0%, 12.49% { opacity: 0; }
+            12.5%, 24.99% { opacity: 1; }
+            25%, 37.49% { opacity: 0; }
+            37.5%, 49.99% { opacity: 1; }
+            50%, 62.49% { opacity: 0; }
+            62.5%, 74.99% { opacity: 1; }
+            75%, 87.49% { opacity: 0; }
+            87.5%, 99.99% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* أنيميشن حجي نعسان */
+        .play-sleepyman .sleepy-img-1 { animation: sleepyManImg1 2.5s forwards; }
+        .play-sleepyman .sleepy-img-2 { animation: sleepyManImg2 2.5s forwards; }
+
+        @keyframes sleepyManImg1 {
+            0%, 15% { opacity: 1; }
+            15.01%, 85% { opacity: 0; }
+            85.01%, 100% { opacity: 1; }
+        }
+        @keyframes sleepyManImg2 {
+            0%, 15% { opacity: 0; }
+            15.01%, 85% { opacity: 1; }
+            85.01%, 100% { opacity: 0; }
+        }
+
+        /* تنسيق الرسائل السريعة في 3 أعمدة */
         .preset-list {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -295,7 +382,7 @@
             width: 100%;
             max-height: 220px;
             overflow-y: auto;
-            direction: rtl; /* اتجاه الكتابة من اليمين لليسار */
+            direction: rtl;
             padding: 5px;
         }
         
@@ -362,12 +449,14 @@
             <div class="tab-content active" id="tabAvatarContent">
                 <div class="avatars-wrapper">
                     
+                    <!-- 1. الأفاتار الأول (حجي سعيد - لايك) -->
                     <div class="avatar-container" id="avatarOldManTrigger">
                         <div class="white-frame"></div>
                         <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1" style="opacity: 1;">
                         <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp" alt="حجي سعيد 2">
                     </div>
                     
+                    <!-- 2. الأفاتار الثاني (حجي حزين) -->
                     <div class="avatar-container" id="avatarSadHajjiTrigger">
                         <div class="white-frame"></div>
                         <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp" alt="حجي حزين 1" style="opacity: 1;">
@@ -375,6 +464,36 @@
                         <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp" alt="حجي حزين 3">
                     </div>
 
+                    <!-- 3. الأفاتار الثالث (حجي مفكر) -->
+                    <div class="avatar-container" id="avatarThinkingHajjiTrigger">
+                        <div class="white-frame"></div>
+                        <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي مفكر1.webp" alt="حجي مفكر 1" style="opacity: 1;">
+                        <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي مفكر2.webp" alt="حجي مفكر 2">
+                        <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي مفكر3.webp" alt="حجي مفكر 3">
+                    </div>
+
+                    <!-- 4. الأفاتار الرابع (حجي يضحك) -->
+                    <div class="avatar-container" id="avatarLaughingHajjiTrigger">
+                        <div class="white-frame"></div>
+                        <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي يضحك1.webp" alt="حجي يضحك 1" style="opacity: 1;">
+                        <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي يضحك2.webp" alt="حجي يضحك 2">
+                    </div>
+
+                    <!-- 5. الأفاتار الخامس (حجي مندهش) -->
+                    <div class="avatar-container" id="avatarSurprisedHajjiTrigger">
+                        <div class="white-frame"></div>
+                        <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي مندهش1.webp" alt="حجي مندهش 1" style="opacity: 1;">
+                        <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي مندهش2.webp" alt="حجي مندهش 2">
+                    </div>
+
+                    <!-- 6. الأفاتار السادس (حجي نعسان) - 💡 تم التعديل إلى webp هنا -->
+                    <div class="avatar-container" id="avatarSleepyHajjiTrigger">
+                        <div class="white-frame"></div>
+                        <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي نعسان1.webp" alt="حجي نعسان 1" style="opacity: 1;">
+                        <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي نعسان2.webp" alt="حجي نعسان 2">
+                    </div>
+
+                    <!-- 7. الأفاتار الأخير (الزعيم Boss) -->
                     <div class="avatar-container" id="avatarContainerTrigger">
                         <div class="white-frame"></div>
                         <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
@@ -405,7 +524,8 @@
 
         <div class="floating-avatar-display" id="floatingAvatarDisplay">
             <div class="avatar-container" id="floatingAvatarBox">
-                </div>
+                <!-- المحتوى هنا يتم حقنه برمجياً -->
+            </div>
         </div>
 
         <div class="game-toast" id="gameToast"></div>
@@ -428,6 +548,10 @@
     const avatarContainerTrigger = document.getElementById('avatarContainerTrigger');
     const avatarOldManTrigger = document.getElementById('avatarOldManTrigger');
     const avatarSadHajjiTrigger = document.getElementById('avatarSadHajjiTrigger');
+    const avatarThinkingHajjiTrigger = document.getElementById('avatarThinkingHajjiTrigger');
+    const avatarLaughingHajjiTrigger = document.getElementById('avatarLaughingHajjiTrigger');
+    const avatarSurprisedHajjiTrigger = document.getElementById('avatarSurprisedHajjiTrigger');
+    const avatarSleepyHajjiTrigger = document.getElementById('avatarSleepyHajjiTrigger');
 
     const gameToast = document.getElementById('gameToast');
     const bossSound = document.getElementById('bossSound');
@@ -482,6 +606,10 @@
     avatarContainerTrigger.addEventListener('click', () => triggerFloatingAvatar('boss'));
     avatarOldManTrigger.addEventListener('click', () => triggerFloatingAvatar('oldman'));
     avatarSadHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('sadhajji'));
+    avatarThinkingHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('thinkinghajji'));
+    avatarLaughingHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('laughinghajji'));
+    avatarSurprisedHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('surprisedhajji'));
+    avatarSleepyHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('sleepyhajji'));
 
     function triggerFloatingAvatar(avatarType = 'boss') {
         windowPopup.classList.remove('open');
@@ -558,6 +686,88 @@
             hideTimeout = setTimeout(() => {
                 floatingAvatarDisplay.classList.remove('show');
                 floatingAvatarBox.classList.remove('play-sadman');
+                if (img1) img1.classList.add('default-show');
+            }, 2500);
+
+        } else if (avatarType === 'thinkinghajji') {
+            floatingAvatarBox.innerHTML = `
+                <div class="white-frame"></div>
+                <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي مفكر1.webp" alt="حجي مفكر 1">
+                <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي مفكر2.webp" alt="حجي مفكر 2">
+                <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي مفكر3.webp" alt="حجي مفكر 3">
+            `;
+
+            floatingAvatarDisplay.classList.add('show');
+            
+            const img1 = floatingAvatarBox.querySelector('.think-img-1');
+            if (img1) img1.classList.remove('default-show');
+
+            floatingAvatarBox.className = 'avatar-container play-thinkingman';
+
+            hideTimeout = setTimeout(() => {
+                floatingAvatarDisplay.classList.remove('show');
+                floatingAvatarBox.classList.remove('play-thinkingman');
+                if (img1) img1.classList.add('default-show');
+            }, 2500);
+
+        } else if (avatarType === 'laughinghajji') {
+            floatingAvatarBox.innerHTML = `
+                <div class="white-frame"></div>
+                <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي يضحك1.webp" alt="حجي يضحك 1">
+                <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي يضحك2.webp" alt="حجي يضحك 2">
+            `;
+
+            floatingAvatarDisplay.classList.add('show');
+            
+            const img1 = floatingAvatarBox.querySelector('.laugh-img-1');
+            if (img1) img1.classList.remove('default-show');
+
+            floatingAvatarBox.className = 'avatar-container play-laughingman';
+
+            hideTimeout = setTimeout(() => {
+                floatingAvatarDisplay.classList.remove('show');
+                floatingAvatarBox.classList.remove('play-laughingman');
+                if (img1) img1.classList.add('default-show');
+            }, 2500);
+
+        } else if (avatarType === 'surprisedhajji') {
+            floatingAvatarBox.innerHTML = `
+                <div class="white-frame"></div>
+                <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي مندهش1.webp" alt="حجي مندهش 1">
+                <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي مندهش2.webp" alt="حجي مندهش 2">
+            `;
+
+            floatingAvatarDisplay.classList.add('show');
+            
+            const img1 = floatingAvatarBox.querySelector('.surprised-img-1');
+            if (img1) img1.classList.remove('default-show');
+
+            floatingAvatarBox.className = 'avatar-container play-surprisedman';
+
+            hideTimeout = setTimeout(() => {
+                floatingAvatarDisplay.classList.remove('show');
+                floatingAvatarBox.classList.remove('play-surprisedman');
+                if (img1) img1.classList.add('default-show');
+            }, 2500);
+
+        } else if (avatarType === 'sleepyhajji') {
+            // 💡 تم التعديل إلى webp هنا أيضاً
+            floatingAvatarBox.innerHTML = `
+                <div class="white-frame"></div>
+                <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي نعسان1.webp" alt="حجي نعسان 1">
+                <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي نعسان2.webp" alt="حجي نعسان 2">
+            `;
+
+            floatingAvatarDisplay.classList.add('show');
+            
+            const img1 = floatingAvatarBox.querySelector('.sleepy-img-1');
+            if (img1) img1.classList.remove('default-show');
+
+            floatingAvatarBox.className = 'avatar-container play-sleepyman';
+
+            hideTimeout = setTimeout(() => {
+                floatingAvatarDisplay.classList.remove('show');
+                floatingAvatarBox.classList.remove('play-sleepyman');
                 if (img1) img1.classList.add('default-show');
             }, 2500);
         }
