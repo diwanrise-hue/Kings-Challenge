@@ -434,6 +434,8 @@
     }
 
     const container = document.createElement('div');
+    
+    // 💡 تم إضافة v=2 لكل الروابط لتحديث الكاش فوراً، وتم استخدام %20 بدلاً من المسافة في صور (حجي يفكر)
     container.innerHTML = `
         <div class="chat-popup-window" id="chatPopupWindow">
             <div class="popup-top-bar">
@@ -451,48 +453,48 @@
                     
                     <div class="avatar-container" id="avatarOldManTrigger">
                         <div class="white-frame"></div>
-                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1" style="opacity: 1;">
-                        <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp" alt="حجي سعيد 2">
+                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp?v=2" alt="حجي سعيد 1" style="opacity: 1;">
+                        <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp?v=2" alt="حجي سعيد 2">
                     </div>
                     
                     <div class="avatar-container" id="avatarSadHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp" alt="حجي حزين 1" style="opacity: 1;">
-                        <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp" alt="حجي حزين 2">
-                        <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp" alt="حجي حزين 3">
+                        <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp?v=2" alt="حجي حزين 1" style="opacity: 1;">
+                        <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp?v=2" alt="حجي حزين 2">
+                        <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp?v=2" alt="حجي حزين 3">
                     </div>
 
                     <div class="avatar-container" id="avatarThinkingHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي يفكر1.webp" alt="حجي يفكر 1" style="opacity: 1;">
-                        <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي يفكر2.webp" alt="حجي يفكر 2">
-                        <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي يفكر3.webp" alt="حجي يفكر 3">
+                        <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20يفكر%201.webp?v=2" alt="حجي يفكر 1" style="opacity: 1;">
+                        <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي%20يفكر%202.webp?v=2" alt="حجي يفكر 2">
+                        <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي%20يفكر%203.webp?v=2" alt="حجي يفكر 3">
                     </div>
 
                     <div class="avatar-container" id="avatarLaughingHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي يضحك1.webp" alt="حجي يضحك 1" style="opacity: 1;">
-                        <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي يضحك2.webp" alt="حجي يضحك 2">
+                        <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي يضحك1.webp?v=2" alt="حجي يضحك 1" style="opacity: 1;">
+                        <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي يضحك2.webp?v=2" alt="حجي يضحك 2">
                     </div>
 
                     <div class="avatar-container" id="avatarSurprisedHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي مندهش1.webp" alt="حجي مندهش 1" style="opacity: 1;">
-                        <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي مندهش2.webp" alt="حجي مندهش 2">
+                        <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي مندهش1.webp?v=2" alt="حجي مندهش 1" style="opacity: 1;">
+                        <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي مندهش2.webp?v=2" alt="حجي مندهش 2">
                     </div>
 
                     <div class="avatar-container" id="avatarSleepyHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي نعسان1.webp" alt="حجي نعسان 1" style="opacity: 1;">
-                        <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي نعسان2.webp" alt="حجي نعسان 2">
+                        <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي نعسان1.webp?v=2" alt="حجي نعسان 1" style="opacity: 1;">
+                        <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي نعسان2.webp?v=2" alt="حجي نعسان 2">
                     </div>
 
                     <div class="avatar-container" id="avatarContainerTrigger">
                         <div class="white-frame"></div>
-                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
-                        <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
-                        <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
-                        <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
+                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png?v=2" alt="boss 1">
+                        <img class="img-2" src="${BASE_CHAT_URL}boss2.png?v=2" alt="boss 2">
+                        <img class="img-3" src="${BASE_CHAT_URL}boss3.png?v=2" alt="boss 3">
+                        <img class="img-4" src="${BASE_CHAT_URL}boss4.png?v=2" alt="boss 4">
                     </div>
 
                 </div>
@@ -614,10 +616,10 @@
         if (avatarType === 'boss') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png" alt="boss 1">
-                <img class="img-2" src="${BASE_CHAT_URL}boss2.png" alt="boss 2">
-                <img class="img-3" src="${BASE_CHAT_URL}boss3.png" alt="boss 3">
-                <img class="img-4" src="${BASE_CHAT_URL}boss4.png" alt="boss 4">
+                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png?v=2" alt="boss 1">
+                <img class="img-2" src="${BASE_CHAT_URL}boss2.png?v=2" alt="boss 2">
+                <img class="img-3" src="${BASE_CHAT_URL}boss3.png?v=2" alt="boss 3">
+                <img class="img-4" src="${BASE_CHAT_URL}boss4.png?v=2" alt="boss 4">
             `;
 
             floatingAvatarDisplay.classList.add('show');
@@ -643,8 +645,8 @@
         } else if (avatarType === 'oldman') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp" alt="حجي سعيد 1">
-                <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp" alt="حجي سعيد 2">
+                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp?v=2" alt="حجي سعيد 1">
+                <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp?v=2" alt="حجي سعيد 2">
             `;
 
             floatingAvatarDisplay.classList.add('show');
@@ -663,9 +665,9 @@
         } else if (avatarType === 'sadhajji') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp" alt="حجي حزين 1">
-                <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp" alt="حجي حزين 2">
-                <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp" alt="حجي حزين 3">
+                <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp?v=2" alt="حجي حزين 1">
+                <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp?v=2" alt="حجي حزين 2">
+                <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp?v=2" alt="حجي حزين 3">
             `;
 
             floatingAvatarDisplay.classList.add('show');
@@ -682,12 +684,11 @@
             }, 2500);
 
         } else if (avatarType === 'thinkinghajji') {
-            // 💡 إزالة المسافات من أسماء حجي يفكر لتتطابق مع المستودع
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي يفكر1.webp" alt="حجي يفكر 1">
-                <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي يفكر2.webp" alt="حجي يفكر 2">
-                <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي يفكر3.webp" alt="حجي يفكر 3">
+                <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20يفكر%201.webp?v=2" alt="حجي يفكر 1">
+                <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي%20يفكر%202.webp?v=2" alt="حجي يفكر 2">
+                <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي%20يفكر%203.webp?v=2" alt="حجي يفكر 3">
             `;
 
             floatingAvatarDisplay.classList.add('show');
@@ -706,8 +707,8 @@
         } else if (avatarType === 'laughinghajji') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي يضحك1.webp" alt="حجي يضحك 1">
-                <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي يضحك2.webp" alt="حجي يضحك 2">
+                <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي يضحك1.webp?v=2" alt="حجي يضحك 1">
+                <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي يضحك2.webp?v=2" alt="حجي يضحك 2">
             `;
 
             floatingAvatarDisplay.classList.add('show');
@@ -726,8 +727,8 @@
         } else if (avatarType === 'surprisedhajji') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي مندهش1.webp" alt="حجي مندهش 1">
-                <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي مندهش2.webp" alt="حجي مندهش 2">
+                <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي مندهش1.webp?v=2" alt="حجي مندهش 1">
+                <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي مندهش2.webp?v=2" alt="حجي مندهش 2">
             `;
 
             floatingAvatarDisplay.classList.add('show');
@@ -744,11 +745,10 @@
             }, 2500);
 
         } else if (avatarType === 'sleepyhajji') {
-            // 💡 إزالة المسافات من أسماء حجي نعسان للتأكيد
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي نعسان1.webp" alt="حجي نعسان 1">
-                <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي نعسان2.webp" alt="حجي نعسان 2">
+                <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي نعسان1.webp?v=2" alt="حجي نعسان 1">
+                <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي نعسان2.webp?v=2" alt="حجي نعسان 2">
             `;
 
             floatingAvatarDisplay.classList.add('show');
