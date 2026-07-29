@@ -134,23 +134,23 @@
         }
 
         /* ---------------------------------------------------- */
-        /* 💬 تنسيقات فقاعة الحوار والأفاتارات العلوية المطلقة     */
+        /* 💬 تنسيقات فقاعة الحوار والأفاتارات العلوية (متطابقة مع الرسائل الفورية) */
         /* ---------------------------------------------------- */
         
         .in-game-chat-bubble {
             position: fixed;
             background: #ffffff;
             color: #1a1a1a;
-            padding: 8px 14px;
-            border-radius: 16px;
-            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 18px;
+            font-size: 14px;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
             z-index: 999999;
             white-space: nowrap;
             pointer-events: none;
             animation: popBubble 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #d1d1d1;
         }
 
         /* ذيل الفقاعة */
@@ -167,8 +167,8 @@
 
         .in-game-avatar-popup {
             position: fixed;
-            width: 110px;
-            height: 110px;
+            width: 95px;
+            height: 95px;
             z-index: 999999;
             pointer-events: none;
             display: flex;
@@ -178,7 +178,7 @@
         }
 
         @keyframes popBubble {
-            from { transform: translate(-50%, 10px) scale(0.5); opacity: 0; }
+            from { transform: translate(-50%, 15px) scale(0.5); opacity: 0; }
             to { transform: translate(-50%, 0) scale(1); opacity: 1; }
         }
 
@@ -470,14 +470,32 @@
         }
     }
 
-    // 💡 الدالة المصححة والمحسنة لعرض الأفاتارات والرسائل بدقة مطلقة فوق صور البروفايل
+    // 💡 الدالة المصححة بدقة: تستهدف عناصر البطاقة العليا بشكل صحيح ومطابق تماماً للرسائل الفورية
     window.playInGameChat = function(sender, type, value) {
-        const targetElementId = sender === 'me' ? 'card-my-avatar' : 'card-opp-avatar';
-        const targetElement = document.getElementById(targetElementId);
+        // في بطاقة اللاعبين، اليسار دائماً ممثل لـ "أنت" (عند العميل نفسه) واليمين للـ "خصم" أو العكس بناءً على مكان الـ Avatar في DOM
+        // سنعتمد على الفحص المباشر لعناصر الـ HTML الموجودة في كرت المباراة العلوي
+        let targetElement = null;
         
+        const myAvatarEl = document.getElementById('card-my-avatar');
+        const oppAvatarEl = document.getElementById('card-opp-avatar');
+
+        if (sender === 'me') {
+            // اللاعب المحلي دائماً يرى صورته في إحدى الجهتين، لنجعلها تعتمد على الـ ID الصحيح للبطاقة
+            targetElement = myAvatarEl || document.querySelector('.match-players-avatar-me');
+        } else {
+            targetElement = oppAvatarEl || document.querySelector('.match-players-avatar-opp');
+        }
+
+        // إذا فشل العثور بالطريقة السابقة، نبحث عن حاوية الصور داخل الكرت العلوي مباشرة
+        if (!targetElement) {
+            const avatarsInCard = document.querySelectorAll('#match-players-card [class*="avatar"]');
+            if (avatarsInCard.length >= 2) {
+                targetElement = sender === 'me' ? avatarsInCard[0] : avatarsInCard[1];
+            }
+        }
+
         if (!targetElement) return;
 
-        // حساب موقع صورة البروفايل بدقة على الشاشة (Viewport Coordinates)
         const rect = targetElement.getBoundingClientRect();
         const centerX = rect.left + (rect.width / 2);
         const topY = rect.top;
@@ -491,9 +509,8 @@
             bubble.className = 'in-game-chat-bubble';
             bubble.textContent = value;
             
-            // تحديد الموقع فوق الصورة تماماً
             bubble.style.left = centerX + 'px';
-            bubble.style.top = (topY - 45) + 'px';
+            bubble.style.top = (topY - 50) + 'px';
 
             document.body.appendChild(bubble);
 
@@ -510,9 +527,9 @@
             avatarBox.id = 'active-chat-avatar-' + sender;
             avatarBox.className = 'in-game-avatar-popup avatar-container';
             
-            // تحديد الموقع فوق الصورة تماماً وبشكل منفصل عن أي حاوية مقصوصة
+            // جعل الأفاتار يظهر تماماً في نفس مكان وفوق إحداثيات صورة البروفايل
             avatarBox.style.left = centerX + 'px';
-            avatarBox.style.top = (topY - 35) + 'px';
+            avatarBox.style.top = (topY - 45) + 'px';
 
             let htmlContent = '';
             let audioId = '';
