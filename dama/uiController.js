@@ -263,6 +263,9 @@ export const ui = {
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
         
+        // إخفاء زر الدردشة في وضع الأوفلاين
+        this.setDisplay('gameChatBtn', 'none');
+        
         if (active && gameState.isTutorialMode) {
             this.setDisplay('undo-btn', 'inline-block');
         } else {
@@ -287,7 +290,7 @@ export const ui = {
             'resign-btn': onlineState, 
             'undo-btn': 'none', 
             'match-players-card': active ? 'flex' : 'none',
-            'chat-btn': active ? 'flex' : 'none' 
+            'gameChatBtn': active ? 'flex' : 'none' 
         };
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
