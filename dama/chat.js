@@ -8,9 +8,9 @@
     style.innerHTML = `
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* زر الدردشة - ظاهر دائماً في وضع الأونلاين والأوفلاين */
+        /* زر الدردشة - مخفي افتراضياً، ويظهر برمجياً في الأونلاين فقط */
         .game-chat-btn {
-            display: flex !important;
+            display: none !important; 
             align-items: center;
             justify-content: center;
             background: rgba(45, 48, 55, 0.65) !important;
@@ -42,7 +42,7 @@
             left: 50%;
             transform: translateX(-50%) translateY(20px);
             width: 95%; 
-            max-width: 360px; /* العرض المثالي لاستيعاب 4 أفاتارات في الصف الأول و 3 في الثاني */
+            max-width: 360px; 
             background-color: rgba(22, 22, 30, 0.95);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
@@ -133,6 +133,62 @@
             width: 100%;
         }
 
+        /* ---------------------------------------------------- */
+        /* 💬 ستايلات فقاعة الحوار والأفاتارات العلوية (الجديدة) */
+        /* ---------------------------------------------------- */
+        
+        .in-game-chat-bubble {
+            position: absolute;
+            background: #ffffff;
+            color: #1a1a1a;
+            padding: 8px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 10005;
+            white-space: nowrap;
+            pointer-events: none;
+            animation: popBubble 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            top: 65px; /* تظهر أسفل صورة اللاعب بقليل */
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid #e0e0e0;
+        }
+
+        /* ذيل الفقاعة */
+        .in-game-chat-bubble::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 8px 8px 8px;
+            border-style: solid;
+            border-color: transparent transparent #ffffff transparent;
+        }
+
+        .in-game-avatar-popup {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            z-index: 10005;
+            pointer-events: none;
+            top: -20px; /* تظهر فوق صورة اللاعب مباشرة */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes popBubble {
+            from { transform: translateX(-50%) scale(0.5); opacity: 0; }
+            to { transform: translateX(-50%) scale(1); opacity: 1; }
+        }
+
+        /* ---------------------------------------------------- */
+
         .avatar-container {
             position: relative;
             overflow: visible;
@@ -141,17 +197,11 @@
         }
         .avatar-container:hover { transform: scale(1.05); }
 
-        /* حجم الأفاتارات (صفين فقط) */
         .avatars-wrapper .avatar-container {
             width: 75px; 
             height: 75px; 
         }
 
-        .floating-avatar-display .avatar-container {
-            width: 130px;
-            height: 130px;
-        }
-        
         .white-frame {
             position: absolute;
             bottom: 0;
@@ -164,6 +214,7 @@
             z-index: 1;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
+        
         .avatar-container img {
             position: absolute;
             top: 0;
@@ -175,51 +226,6 @@
             z-index: 2;
         }
         .avatar-container img.default-show { opacity: 1; }
-
-        .floating-avatar-display {
-            position: fixed;
-            bottom: 85px;
-            left: 20px;
-            z-index: 10002;
-            display: none;
-            pointer-events: none;
-        }
-        .floating-avatar-display.show {
-            display: flex;
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes popIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .game-toast {
-            position: fixed;
-            bottom: 85px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: rgba(46, 204, 113, 0.95);
-            color: #ffffff;
-            padding: 8px 18px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
-            font-size: 13px;
-            font-weight: bold;
-            z-index: 10005;
-            opacity: 0;
-            transition: all 0.3s ease;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-align: center;
-            max-width: 90%;
-        }
-        .game-toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
 
         /* أنيميشن الأفاتار الأول (الزعيم) */
         .play .img-1 { animation: playImg1 2.5s forwards; }
@@ -236,107 +242,33 @@
         .play-oldman .old-img-1 { animation: oldManImg1 1.4s forwards; }
         .play-oldman .old-img-2 { animation: oldManImg2 1.4s forwards; }
 
-        @keyframes oldManImg1 {
-            0%, 12.49% { opacity: 1; }
-            12.5%, 24.99% { opacity: 0; }
-            25%, 37.49% { opacity: 1; }
-            37.5%, 49.99% { opacity: 0; }
-            50%, 62.49% { opacity: 1; }
-            62.5%, 74.99% { opacity: 0; }
-            75%, 87.49% { opacity: 1; }
-            87.5%, 99.99% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-        @keyframes oldManImg2 {
-            0%, 12.49% { opacity: 0; }
-            12.5%, 24.99% { opacity: 1; }
-            25%, 37.49% { opacity: 0; }
-            37.5%, 49.99% { opacity: 1; }
-            50%, 62.49% { opacity: 0; }
-            62.5%, 74.99% { opacity: 1; }
-            75%, 87.49% { opacity: 0; }
-            87.5%, 99.99% { opacity: 1; }
-            100% { opacity: 0; }
-        }
+        @keyframes oldManImg1 { 0%, 12.49% { opacity: 1; } 12.5%, 24.99% { opacity: 0; } 25%, 37.49% { opacity: 1; } 37.5%, 49.99% { opacity: 0; } 50%, 62.49% { opacity: 1; } 62.5%, 74.99% { opacity: 0; } 75%, 87.49% { opacity: 1; } 87.5%, 99.99% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes oldManImg2 { 0%, 12.49% { opacity: 0; } 12.5%, 24.99% { opacity: 1; } 25%, 37.49% { opacity: 0; } 37.5%, 49.99% { opacity: 1; } 50%, 62.49% { opacity: 0; } 62.5%, 74.99% { opacity: 1; } 75%, 87.49% { opacity: 0; } 87.5%, 99.99% { opacity: 1; } 100% { opacity: 0; } }
 
         /* أنيميشن حجي حزين */
         .play-sadman .sad-img-1 { animation: sadManImg1 2.5s forwards; }
         .play-sadman .sad-img-2 { animation: sadManImg2 2.5s forwards; }
         .play-sadman .sad-img-3 { animation: sadManImg3 2.5s forwards; }
 
-        @keyframes sadManImg1 {
-            0%, 19.99% { opacity: 1; }
-            20%, 100% { opacity: 0; }
-        }
-        @keyframes sadManImg2 {
-            0%, 19.99% { opacity: 0; }
-            20%, 39.99% { opacity: 1; }
-            40%, 59.99% { opacity: 0; }
-            60%, 79.99% { opacity: 1; }
-            80%, 100% { opacity: 0; }
-        }
-        @keyframes sadManImg3 {
-            0%, 39.99% { opacity: 0; }
-            40%, 59.99% { opacity: 1; }
-            60%, 79.99% { opacity: 0; }
-            80%, 100% { opacity: 1; }
-        }
+        @keyframes sadManImg1 { 0%, 19.99% { opacity: 1; } 20%, 100% { opacity: 0; } }
+        @keyframes sadManImg2 { 0%, 19.99% { opacity: 0; } 20%, 39.99% { opacity: 1; } 40%, 59.99% { opacity: 0; } 60%, 79.99% { opacity: 1; } 80%, 100% { opacity: 0; } }
+        @keyframes sadManImg3 { 0%, 39.99% { opacity: 0; } 40%, 59.99% { opacity: 1; } 60%, 79.99% { opacity: 0; } 80%, 100% { opacity: 1; } }
 
-        /* أنيميشن حجي مفكر بالتسلسل السريع */
+        /* أنيميشن حجي مفكر */
         .play-thinkingman .think-img-1 { animation: thinkManImg1 1.2s forwards; }
         .play-thinkingman .think-img-2 { animation: thinkManImg2 1.2s forwards; }
         .play-thinkingman .think-img-3 { animation: thinkManImg3 1.2s forwards; }
 
-        @keyframes thinkManImg1 {
-            0%, 14.28% { opacity: 1; }
-            14.29%, 57.14% { opacity: 0; }
-            57.15%, 71.42% { opacity: 1; }
-            71.43%, 100% { opacity: 0; }
-        }
-        @keyframes thinkManImg2 {
-            0%, 14.28% { opacity: 0; }
-            14.29%, 28.57% { opacity: 1; }
-            28.58%, 42.85% { opacity: 0; }
-            42.86%, 57.14% { opacity: 1; }
-            57.15%, 71.42% { opacity: 0; }
-            71.43%, 85.71% { opacity: 1; }
-            85.72%, 100% { opacity: 0; }
-        }
-        @keyframes thinkManImg3 {
-            0%, 28.57% { opacity: 0; }
-            28.58%, 42.85% { opacity: 1; }
-            42.86%, 85.71% { opacity: 0; }
-            85.72%, 100% { opacity: 1; }
-        }
+        @keyframes thinkManImg1 { 0%, 14.28% { opacity: 1; } 14.29%, 57.14% { opacity: 0; } 57.15%, 71.42% { opacity: 1; } 71.43%, 100% { opacity: 0; } }
+        @keyframes thinkManImg2 { 0%, 14.28% { opacity: 0; } 14.29%, 28.57% { opacity: 1; } 28.58%, 42.85% { opacity: 0; } 42.86%, 57.14% { opacity: 1; } 57.15%, 71.42% { opacity: 0; } 71.43%, 85.71% { opacity: 1; } 85.72%, 100% { opacity: 0; } }
+        @keyframes thinkManImg3 { 0%, 28.57% { opacity: 0; } 28.58%, 42.85% { opacity: 1; } 42.86%, 85.71% { opacity: 0; } 85.72%, 100% { opacity: 1; } }
 
         /* أنيميشن حجي يضحك */
         .play-laughingman .laugh-img-1 { animation: laughManImg1 1.8s forwards; }
         .play-laughingman .laugh-img-2 { animation: laughManImg2 1.8s forwards; }
 
-        @keyframes laughManImg1 {
-            0%, 9.99% { opacity: 1; }
-            10%, 19.99% { opacity: 0; }
-            20%, 29.99% { opacity: 1; }
-            30%, 39.99% { opacity: 0; }
-            40%, 49.99% { opacity: 1; }
-            50%, 59.99% { opacity: 0; }
-            60%, 69.99% { opacity: 1; }
-            70%, 79.99% { opacity: 0; }
-            80%, 89.99% { opacity: 1; }
-            90%, 100% { opacity: 0; }
-        }
-        @keyframes laughManImg2 {
-            0%, 9.99% { opacity: 0; }
-            10%, 19.99% { opacity: 1; }
-            20%, 29.99% { opacity: 0; }
-            30%, 39.99% { opacity: 1; }
-            40%, 49.99% { opacity: 0; }
-            50%, 59.99% { opacity: 1; }
-            60%, 69.99% { opacity: 0; }
-            70%, 79.99% { opacity: 1; }
-            80%, 89.99% { opacity: 0; }
-            90%, 100% { opacity: 1; }
-        }
+        @keyframes laughManImg1 { 0%, 9.99% { opacity: 1; } 10%, 19.99% { opacity: 0; } 20%, 29.99% { opacity: 1; } 30%, 39.99% { opacity: 0; } 40%, 49.99% { opacity: 1; } 50%, 59.99% { opacity: 0; } 60%, 69.99% { opacity: 1; } 70%, 79.99% { opacity: 0; } 80%, 89.99% { opacity: 1; } 90%, 100% { opacity: 0; } }
+        @keyframes laughManImg2 { 0%, 9.99% { opacity: 0; } 10%, 19.99% { opacity: 1; } 20%, 29.99% { opacity: 0; } 30%, 39.99% { opacity: 1; } 40%, 49.99% { opacity: 0; } 50%, 59.99% { opacity: 1; } 60%, 69.99% { opacity: 0; } 70%, 79.99% { opacity: 1; } 80%, 89.99% { opacity: 0; } 90%, 100% { opacity: 1; } }
 
         /* أنيميشن حجي مندهش */
         .play-surprisedman .surprised-img-1 { animation: surprisedManImg1 2.5s forwards; }
@@ -344,91 +276,27 @@
         .play-surprisedman .surprised-img-3 { animation: surprisedManImg3 1s forwards; }
         .play-surprisedman .surprised-img-4 { animation: surprisedManImg4 1s forwards; }
 
-        @keyframes surprisedManImg1 {
-            0%, 14% { opacity: 1; }
-            14.01%, 100% { opacity: 0; }
-        }
-        @keyframes surprisedManImg2 {
-            0%, 14% { opacity: 0; }
-            14.01%, 28% { opacity: 1; }
-            28.01%, 100% { opacity: 0; }
-        }
-        @keyframes surprisedManImg3 {
-            0%, 28% { opacity: 0; }
-            28.01%, 42% { opacity: 1; } 
-            42.01%, 56% { opacity: 0; }
-            56.01%, 70% { opacity: 1; } 
-            70.01%, 84% { opacity: 0; }
-            84.01%, 100% { opacity: 1; } 
-        }
-        @keyframes surprisedManImg4 {
-            0%, 42% { opacity: 0; }
-            42.01%, 56% { opacity: 1; } 
-            56.01%, 70% { opacity: 0; }
-            70.01%, 84% { opacity: 1; } 
-            84.01%, 100% { opacity: 0; }
-        }
+        @keyframes surprisedManImg1 { 0%, 14% { opacity: 1; } 14.01%, 100% { opacity: 0; } }
+        @keyframes surprisedManImg2 { 0%, 14% { opacity: 0; } 14.01%, 28% { opacity: 1; } 28.01%, 100% { opacity: 0; } }
+        @keyframes surprisedManImg3 { 0%, 28% { opacity: 0; } 28.01%, 42% { opacity: 1; } 42.01%, 56% { opacity: 0; } 56.01%, 70% { opacity: 1; } 70.01%, 84% { opacity: 0; } 84.01%, 100% { opacity: 1; } }
+        @keyframes surprisedManImg4 { 0%, 42% { opacity: 0; } 42.01%, 56% { opacity: 1; } 56.01%, 70% { opacity: 0; } 70.01%, 84% { opacity: 1; } 84.01%, 100% { opacity: 0; } }
 
-        /* أنيميشن حجي نعسان يتبادل بسرعة */
+        /* أنيميشن حجي نعسان */
         .play-sleepyman .sleepy-img-1 { animation: sleepyManImg1 1.8s forwards; }
         .play-sleepyman .sleepy-img-2 { animation: sleepyManImg2 1.8s forwards; }
 
-        @keyframes sleepyManImg1 {
-            0%, 20% { opacity: 1; }
-            20.01%, 40% { opacity: 0; }
-            40.01%, 60% { opacity: 1; }
-            60.01%, 80% { opacity: 0; }
-            80.01%, 100% { opacity: 1; }
-        }
-        @keyframes sleepyManImg2 {
-            0%, 20% { opacity: 0; }
-            20.01%, 40% { opacity: 1; }
-            40.01%, 60% { opacity: 0; }
-            60.01%, 80% { opacity: 1; }
-            80.01%, 100% { opacity: 0; }
-        }
+        @keyframes sleepyManImg1 { 0%, 20% { opacity: 1; } 20.01%, 40% { opacity: 0; } 40.01%, 60% { opacity: 1; } 60.01%, 80% { opacity: 0; } 80.01%, 100% { opacity: 1; } }
+        @keyframes sleepyManImg2 { 0%, 20% { opacity: 0; } 20.01%, 40% { opacity: 1; } 40.01%, 60% { opacity: 0; } 60.01%, 80% { opacity: 1; } 80.01%, 100% { opacity: 0; } }
 
-        /* ضبط مساحة الرسائل الفورية لتطابق ارتفاع صفين من الأفاتارات وتتيح التمرير */
-        .preset-list {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            width: 100%;
-            max-height: 158px; 
-            overflow-y: auto;
-            direction: rtl;
-            padding: 2px;
-        }
-        
-        .preset-btn {
-            background: #ffffff;
-            color: #1a1a1a;
-            border: 1px solid #d1d1d1;
-            padding: 6px 2px;
-            border-radius: 6px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: bold;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 0 #cccccc, 0 3px 5px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 38px;
-        }
-        .preset-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 0 0 #cccccc, 0 1px 2px rgba(0,0,0,0.1);
-        }
-        .preset-btn:hover { 
-            background: #f0f0f0; 
-        }
+        /* الرسائل الفورية */
+        .preset-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-height: 158px; overflow-y: auto; direction: rtl; padding: 2px; }
+        .preset-btn { background: #ffffff; color: #1a1a1a; border: 1px solid #d1d1d1; padding: 6px 2px; border-radius: 6px; text-align: center; cursor: pointer; font-size: 11px; font-weight: bold; transition: all 0.2s ease; box-shadow: 0 2px 0 #cccccc, 0 3px 5px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; min-height: 38px; }
+        .preset-btn:active { transform: translateY(2px); box-shadow: 0 0 0 #cccccc, 0 1px 2px rgba(0,0,0,0.1); }
+        .preset-btn:hover { background: #f0f0f0; }
     `;
     document.head.appendChild(style);
 
     // 2. بناء عناصر التحكم المدمجة
-    
     const chatBtn = document.createElement('button');
     chatBtn.id = 'gameChatBtn';
     chatBtn.className = 'game-chat-btn';
@@ -448,105 +316,84 @@
     }
 
     const container = document.createElement('div');
-    
     container.innerHTML = `
         <div class="chat-popup-window" id="chatPopupWindow">
             <div class="popup-top-bar">
                 <span>التفاعل السريع</span>
                 <button id="closeChatBtn">✕</button>
             </div>
-
             <div class="popup-tabs">
                 <button class="tab-btn" id="tabPresetBtn">💬 رسائل فورية</button>
                 <button class="tab-btn active" id="tabAvatarBtn">🎭 الافتارات</button>
             </div>
-
             <div class="tab-content active" id="tabAvatarContent">
                 <div class="avatars-wrapper">
-                    
-                    <div class="avatar-container" id="avatarOldManTrigger">
+                    <div class="avatar-container" data-avatar="oldman">
                         <div class="white-frame"></div>
-                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp?v=13" alt="حجي سعيد 1" style="opacity: 1;">
-                        <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp?v=13" alt="حجي سعيد 2">
+                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp?v=13">
+                        <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp?v=13">
                     </div>
-                    
-                    <div class="avatar-container" id="avatarSadHajjiTrigger">
+                    <div class="avatar-container" data-avatar="sadhajji">
                         <div class="white-frame"></div>
-                        <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp?v=13" alt="حجي حزين 1" style="opacity: 1;">
-                        <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp?v=13" alt="حجي حزين 2">
-                        <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp?v=13" alt="حجي حزين 3">
+                        <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp?v=13">
+                        <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp?v=13">
+                        <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp?v=13">
                     </div>
-
-                    <div class="avatar-container" id="avatarThinkingHajjiTrigger">
+                    <div class="avatar-container" data-avatar="thinkinghajji">
                         <div class="white-frame"></div>
-                        <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يفكر1.webp?v=13" alt="حجي يفكر 1" style="opacity: 1;">
-                        <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي_يفكر2.webp?v=13" alt="حجي يفكر 2">
-                        <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي_يفكر3.webp?v=13" alt="حجي يفكر 3">
+                        <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يفكر1.webp?v=13">
+                        <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي_يفكر2.webp?v=13">
+                        <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي_يفكر3.webp?v=13">
                     </div>
-
-                    <div class="avatar-container" id="avatarLaughingHajjiTrigger">
+                    <div class="avatar-container" data-avatar="laughinghajji">
                         <div class="white-frame"></div>
-                        <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يضحك1.webp?v=13" alt="حجي يضحك 1" style="opacity: 1;">
-                        <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي_يضحك2.webp?v=13" alt="حجي يضحك 2">
+                        <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يضحك1.webp?v=13">
+                        <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي_يضحك2.webp?v=13">
                     </div>
-
-                    <div class="avatar-container" id="avatarSurprisedHajjiTrigger">
+                    <div class="avatar-container" data-avatar="surprisedhajji">
                         <div class="white-frame"></div>
-                        <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_مندهش1.webp?v=13" alt="حجي مندهش 1" style="opacity: 1;">
-                        <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي_مندهش2.webp?v=13" alt="حجي مندهش 2">
-                        <img class="surprised-img-3" src="${BASE_CHAT_URL}حجي/حجي_مندهش3.webp?v=13" alt="حجي مندهش 3">
-                        <img class="surprised-img-4" src="${BASE_CHAT_URL}حجي/حجي_مندهش4.webp?v=13" alt="حجي مندهش 4">
+                        <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_مندهش1.webp?v=13">
+                        <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي_مندهش2.webp?v=13">
+                        <img class="surprised-img-3" src="${BASE_CHAT_URL}حجي/حجي_مندهش3.webp?v=13">
+                        <img class="surprised-img-4" src="${BASE_CHAT_URL}حجي/حجي_مندهش4.webp?v=13">
                     </div>
-
-                    <div class="avatar-container" id="avatarSleepyHajjiTrigger">
+                    <div class="avatar-container" data-avatar="sleepyhajji">
                         <div class="white-frame"></div>
-                        <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_نعسان1.webp?v=13" alt="حجي نعسان 1" style="opacity: 1;">
-                        <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي_نعسان2.webp?v=13" alt="حجي نعسان 2">
+                        <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_نعسان1.webp?v=13">
+                        <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي_نعسان2.webp?v=13">
                     </div>
-
-                    <div class="avatar-container" id="avatarContainerTrigger">
+                    <div class="avatar-container" data-avatar="boss">
                         <div class="white-frame"></div>
-                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png?v=13" alt="boss 1">
-                        <img class="img-2" src="${BASE_CHAT_URL}boss2.png?v=13" alt="boss 2">
-                        <img class="img-3" src="${BASE_CHAT_URL}boss3.png?v=13" alt="boss 3">
-                        <img class="img-4" src="${BASE_CHAT_URL}boss4.png?v=13" alt="boss 4">
+                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png?v=13">
+                        <img class="img-2" src="${BASE_CHAT_URL}boss2.png?v=13">
+                        <img class="img-3" src="${BASE_CHAT_URL}boss3.png?v=13">
+                        <img class="img-4" src="${BASE_CHAT_URL}boss4.png?v=13">
                     </div>
-
                 </div>
             </div>
-
             <div class="tab-content" id="tabPresetContent">
                 <div class="preset-list">
-                    <!-- الكلمات الجديدة المضافة من الصورة -->
                     <button class="preset-btn" data-text="يا للخسارة!">يا للخسارة!</button>
                     <button class="preset-btn" data-text="أحسنت!">أحسنت!</button>
                     <button class="preset-btn" data-text="سلمت يداك">سلمت يداك</button>
-                    
                     <button class="preset-btn" data-text="انطلق!">انطلق!</button>
                     <button class="preset-btn" data-text="لا عليك">لا عليك</button>
                     <button class="preset-btn" data-text="ما هذا؟">ما هذا؟</button>
-                    
                     <button class="preset-btn" data-text="أعتذر">أعتذر</button>
                     <button class="preset-btn" data-text="طاب يومك">طاب يومك</button>
                     <button class="preset-btn" data-text="عجباً، ماذا يحدث!">عجباً، ماذا يحدث!</button>
-
-                    <!-- الكلمات السابقة التي تم تعريبها -->
                     <button class="preset-btn" data-text="مرحباً بك">مرحباً بك</button>
                     <button class="preset-btn" data-text="أداءٌ رائع!">أداءٌ رائع!</button>
                     <button class="preset-btn" data-text="أسرع لو سمحت">أسرع لو سمحت</button>
-
                     <button class="preset-btn" data-text="أحسنت صنعاً">أحسنت صنعاً</button>
                     <button class="preset-btn" data-text="لاعبٌ ماهر!">لاعبٌ ماهر!</button>
                     <button class="preset-btn" data-text="حركةٌ ذكية">حركةٌ ذكية</button>
-
                     <button class="preset-btn" data-text="الفوز حليفنا">الفوز حليفنا</button>
                     <button class="preset-btn" data-text="فوزٌ ساحق!">فوزٌ ساحق!</button>
                     <button class="preset-btn" data-text="مباركٌ لك!">مباركٌ لك!</button>
-
                     <button class="preset-btn" data-text="يا للروعة!">يا للروعة!</button>
                     <button class="preset-btn" data-text="أضحكتني!">أضحكتني!</button>
                     <button class="preset-btn" data-text="المعذرة!">المعذرة!</button>
-
                     <button class="preset-btn" data-text="لا بأس، لا عليك">لا بأس، لا عليك</button>
                     <button class="preset-btn" data-text="تدرّب جيداً">تدرّب جيداً</button>
                     <button class="preset-btn" data-text="لماذا!">لماذا!</button>
@@ -554,26 +401,19 @@
             </div>
         </div>
 
-        <div class="floating-avatar-display" id="floatingAvatarDisplay">
-            <div class="avatar-container" id="floatingAvatarBox">
-                </div>
-        </div>
-
-        <div class="game-toast" id="gameToast"></div>
-
-        <audio id="bossSound" src="${BASE_CHAT_URL}laugh.mp3"></audio>
-        <audio id="saeedSound" src="${BASE_CHAT_URL}حجي/ضحك_لايك.mp3"></audio>
-        <audio id="laughingHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_يضحك.mp3"></audio>
-        <audio id="sadHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_حزين.mp3"></audio>
-        <audio id="sleepyHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_نعسان.mp3"></audio>
-        <audio id="thinkingHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_يفكر.mp3"></audio>
-        <audio id="surprisedHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_مندهش.mp3"></audio>
+        <!-- إضافة الملفات الصوتية مع بادئة chat_ لتجنب أي تضارب -->
+        <audio id="chat_bossSound" src="${BASE_CHAT_URL}laugh.mp3"></audio>
+        <audio id="chat_saeedSound" src="${BASE_CHAT_URL}حجي/ضحك_لايك.mp3"></audio>
+        <audio id="chat_laughingHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_يضحك.mp3"></audio>
+        <audio id="chat_sadHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_حزين.mp3"></audio>
+        <audio id="chat_sleepyHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_نعسان.mp3"></audio>
+        <audio id="chat_thinkingHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_يفكر.mp3"></audio>
+        <audio id="chat_surprisedHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_مندهش.mp3"></audio>
     `;
     document.body.appendChild(container);
 
     // 3. الأكواد البرمجية للوظائف (JavaScript Logic)
-    let hideTimeout;
-    let toastTimeout;
+    let hideTimeouts = { me: null, opp: null };
 
     const windowPopup = document.getElementById('chatPopupWindow');
     const closeChatBtn = document.getElementById('closeChatBtn');
@@ -581,25 +421,6 @@
     const tabPresetBtn = document.getElementById('tabPresetBtn');
     const tabAvatarContent = document.getElementById('tabAvatarContent');
     const tabPresetContent = document.getElementById('tabPresetContent');
-    
-    const avatarContainerTrigger = document.getElementById('avatarContainerTrigger');
-    const avatarOldManTrigger = document.getElementById('avatarOldManTrigger');
-    const avatarSadHajjiTrigger = document.getElementById('avatarSadHajjiTrigger');
-    const avatarThinkingHajjiTrigger = document.getElementById('avatarThinkingHajjiTrigger');
-    const avatarLaughingHajjiTrigger = document.getElementById('avatarLaughingHajjiTrigger');
-    const avatarSurprisedHajjiTrigger = document.getElementById('avatarSurprisedHajjiTrigger');
-    const avatarSleepyHajjiTrigger = document.getElementById('avatarSleepyHajjiTrigger');
-
-    const gameToast = document.getElementById('gameToast');
-    const bossSound = document.getElementById('bossSound');
-    const saeedSound = document.getElementById('saeedSound');
-    const laughingHajjiSound = document.getElementById('laughingHajjiSound');
-    const sadHajjiSound = document.getElementById('sadHajjiSound');
-    const sleepyHajjiSound = document.getElementById('sleepyHajjiSound');
-    const thinkingHajjiSound = document.getElementById('thinkingHajjiSound');
-    const surprisedHajjiSound = document.getElementById('surprisedHajjiSound');
-    const floatingAvatarDisplay = document.getElementById('floatingAvatarDisplay');
-    const floatingAvatarBox = document.getElementById('floatingAvatarBox');
 
     function toggleChatWindow() {
         windowPopup.classList.toggle('open');
@@ -628,234 +449,126 @@
     tabAvatarBtn.addEventListener('click', () => switchTab('avatar'));
     tabPresetBtn.addEventListener('click', () => switchTab('preset'));
 
+    // استماع لضغطات المستخدم للرسائل النصية
     document.querySelectorAll('.preset-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const text = btn.getAttribute('data-text');
-            selectPreset(text);
+            windowPopup.classList.remove('open');
+            handleOutboundChat('text', text);
         });
     });
 
-    function selectPreset(text) {
-        windowPopup.classList.remove('open');
-        gameToast.textContent = text;
-        gameToast.classList.add('show');
+    // استماع لضغطات المستخدم للأفاتارات
+    document.querySelectorAll('.avatar-container[data-avatar]').forEach(el => {
+        el.addEventListener('click', () => {
+            const avatarId = el.getAttribute('data-avatar');
+            windowPopup.classList.remove('open');
+            handleOutboundChat('avatar', avatarId);
+        });
+    });
 
-        if (toastTimeout) clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => {
-            gameToast.classList.remove('show');
-        }, 2500);
-    }
-
-    avatarContainerTrigger.addEventListener('click', () => triggerFloatingAvatar('boss'));
-    avatarOldManTrigger.addEventListener('click', () => triggerFloatingAvatar('oldman'));
-    avatarSadHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('sadhajji'));
-    avatarThinkingHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('thinkinghajji'));
-    avatarLaughingHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('laughinghajji'));
-    avatarSurprisedHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('surprisedhajji'));
-    avatarSleepyHajjiTrigger.addEventListener('click', () => triggerFloatingAvatar('sleepyhajji'));
-
-    function triggerFloatingAvatar(avatarType = 'boss') {
-        windowPopup.classList.remove('open');
-
-        if (hideTimeout) clearTimeout(hideTimeout);
-
-        floatingAvatarDisplay.classList.remove('show');
-        void floatingAvatarDisplay.offsetWidth; 
-
-        if (avatarType === 'boss') {
-            floatingAvatarBox.innerHTML = `
-                <div class="white-frame"></div>
-                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png?v=13" alt="boss 1">
-                <img class="img-2" src="${BASE_CHAT_URL}boss2.png?v=13" alt="boss 2">
-                <img class="img-3" src="${BASE_CHAT_URL}boss3.png?v=13" alt="boss 3">
-                <img class="img-4" src="${BASE_CHAT_URL}boss4.png?v=13" alt="boss 4">
-            `;
-
-            floatingAvatarDisplay.classList.add('show');
-
-            const img1 = floatingAvatarBox.querySelector('.img-1');
-            if (img1) img1.classList.remove('default-show');
-
-            if (bossSound) {
-                bossSound.currentTime = 0;
-                bossSound.play().catch(error => {
-                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
-                });
-            }
-
-            floatingAvatarBox.className = 'avatar-container play';
-            
-            hideTimeout = setTimeout(() => {
-                floatingAvatarDisplay.classList.remove('show');
-                floatingAvatarBox.classList.remove('play');
-                if (img1) img1.classList.add('default-show');
-            }, 2500);
-
-        } else if (avatarType === 'oldman') {
-            floatingAvatarBox.innerHTML = `
-                <div class="white-frame"></div>
-                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp?v=13" alt="حجي سعيد 1">
-                <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp?v=13" alt="حجي سعيد 2">
-            `;
-
-            floatingAvatarDisplay.classList.add('show');
-            
-            const img1 = floatingAvatarBox.querySelector('.old-img-1');
-            if (img1) img1.classList.remove('default-show');
-
-            if (saeedSound) {
-                saeedSound.currentTime = 0;
-                saeedSound.play().catch(error => {
-                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
-                });
-            }
-
-            floatingAvatarBox.className = 'avatar-container play-oldman';
-
-            hideTimeout = setTimeout(() => {
-                floatingAvatarDisplay.classList.remove('show');
-                floatingAvatarBox.classList.remove('play-oldman');
-                if (img1) img1.classList.add('default-show');
-            }, 2500);
-
-        } else if (avatarType === 'sadhajji') {
-            floatingAvatarBox.innerHTML = `
-                <div class="white-frame"></div>
-                <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp?v=13" alt="حجي حزين 1">
-                <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp?v=13" alt="حجي حزين 2">
-                <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp?v=13" alt="حجي حزين 3">
-            `;
-
-            floatingAvatarDisplay.classList.add('show');
-            
-            const img1 = floatingAvatarBox.querySelector('.sad-img-1');
-            if (img1) img1.classList.remove('default-show');
-
-            if (sadHajjiSound) {
-                sadHajjiSound.currentTime = 0;
-                sadHajjiSound.play().catch(error => {
-                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
-                });
-            }
-
-            floatingAvatarBox.className = 'avatar-container play-sadman';
-
-            hideTimeout = setTimeout(() => {
-                floatingAvatarDisplay.classList.remove('show');
-                floatingAvatarBox.classList.remove('play-sadman');
-                if (img1) img1.classList.add('default-show');
-            }, 2500);
-
-        } else if (avatarType === 'thinkinghajji') {
-            floatingAvatarBox.innerHTML = `
-                <div class="white-frame"></div>
-                <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يفكر1.webp?v=13" alt="حجي يفكر 1">
-                <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي_يفكر2.webp?v=13" alt="حجي يفكر 2">
-                <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي_يفكر3.webp?v=13" alt="حجي يفكر 3">
-            `;
-
-            floatingAvatarDisplay.classList.add('show');
-            
-            const img1 = floatingAvatarBox.querySelector('.think-img-1');
-            if (img1) img1.classList.remove('default-show');
-
-            if (thinkingHajjiSound) {
-                thinkingHajjiSound.currentTime = 0;
-                thinkingHajjiSound.play().catch(error => {
-                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
-                });
-            }
-
-            floatingAvatarBox.className = 'avatar-container play-thinkingman';
-
-            hideTimeout = setTimeout(() => {
-                floatingAvatarDisplay.classList.remove('show');
-                floatingAvatarBox.classList.remove('play-thinkingman');
-                if (img1) img1.classList.add('default-show');
-            }, 2500);
-
-        } else if (avatarType === 'laughinghajji') {
-            floatingAvatarBox.innerHTML = `
-                <div class="white-frame"></div>
-                <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يضحك1.webp?v=13" alt="حجي يضحك 1">
-                <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي_يضحك2.webp?v=13" alt="حجي يضحك 2">
-            `;
-
-            floatingAvatarDisplay.classList.add('show');
-            
-            const img1 = floatingAvatarBox.querySelector('.laugh-img-1');
-            if (img1) img1.classList.remove('default-show');
-
-            if (laughingHajjiSound) {
-                laughingHajjiSound.currentTime = 0;
-                laughingHajjiSound.play().catch(error => {
-                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
-                });
-            }
-
-            floatingAvatarBox.className = 'avatar-container play-laughingman';
-
-            hideTimeout = setTimeout(() => {
-                floatingAvatarDisplay.classList.remove('show');
-                floatingAvatarBox.classList.remove('play-laughingman');
-                if (img1) img1.classList.add('default-show');
-            }, 2500);
-
-        } else if (avatarType === 'surprisedhajji') {
-            floatingAvatarBox.innerHTML = `
-                <div class="white-frame"></div>
-                <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_مندهش1.webp?v=13" alt="حجي مندهش 1">
-                <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي_مندهش2.webp?v=13" alt="حجي مندهش 2">
-                <img class="surprised-img-3" src="${BASE_CHAT_URL}حجي/حجي_مندهش3.webp?v=13" alt="حجي مندهش 3">
-                <img class="surprised-img-4" src="${BASE_CHAT_URL}حجي/حجي_مندهش4.webp?v=13" alt="حجي مندهش 4">
-            `;
-
-            floatingAvatarDisplay.classList.add('show');
-            
-            const img1 = floatingAvatarBox.querySelector('.surprised-img-1');
-            if (img1) img1.classList.remove('default-show');
-
-            if (surprisedHajjiSound) {
-                surprisedHajjiSound.currentTime = 0;
-                surprisedHajjiSound.play().catch(error => {
-                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
-                });
-            }
-
-            floatingAvatarBox.className = 'avatar-container play-surprisedman';
-
-            hideTimeout = setTimeout(() => {
-                floatingAvatarDisplay.classList.remove('show');
-                floatingAvatarBox.classList.remove('play-surprisedman');
-                if (img1) img1.classList.add('default-show');
-            }, 2500);
-
-        } else if (avatarType === 'sleepyhajji') {
-            floatingAvatarBox.innerHTML = `
-                <div class="white-frame"></div>
-                <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_نعسان1.webp?v=13" alt="حجي نعسان 1">
-                <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي_نعسان2.webp?v=13" alt="حجي نعسان 2">
-            `;
-
-            floatingAvatarDisplay.classList.add('show');
-            
-            const img1 = floatingAvatarBox.querySelector('.sleepy-img-1');
-            if (img1) img1.classList.remove('default-show');
-
-            if (sleepyHajjiSound) {
-                sleepyHajjiSound.currentTime = 0;
-                sleepyHajjiSound.play().catch(error => {
-                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
-                });
-            }
-
-            floatingAvatarBox.className = 'avatar-container play-sleepyman';
-
-            hideTimeout = setTimeout(() => {
-                floatingAvatarDisplay.classList.remove('show');
-                floatingAvatarBox.classList.remove('play-sleepyman');
-                if (img1) img1.classList.add('default-show');
-            }, 2500);
+    // دالة الإرسال للسيرفر وعرضها محلياً
+    function handleOutboundChat(type, value) {
+        // العرض عند اللاعب نفسه أولاً
+        window.playInGameChat('me', type, value);
+        
+        // إرسالها للسيرفر (عن طريق socketManager إذا كان متصلاً)
+        if (window.socketManager && typeof window.socketManager.sendChatData === 'function') {
+            window.socketManager.sendChatData(type, value);
         }
     }
+
+    // 💡 الدالة الشاملة لعرض الدردشة والأفاتارات (متاحة للـ socketManager أيضاً)
+    window.playInGameChat = function(sender, type, value) {
+        // تحديد مكان العرض (أنت أم الخصم) بناءً على حاوية الصور في الأعلى
+        const targetElementId = sender === 'me' ? 'card-my-avatar' : 'card-opp-avatar';
+        const targetElement = document.getElementById(targetElementId);
+        
+        if (!targetElement) return;
+
+        // تجهيز حاوية البروفايل لتكون Position Relative لكي تظهر الفقاعة والأفاتار فوقها
+        if (getComputedStyle(targetElement.parentElement).position === 'static') {
+            targetElement.parentElement.style.position = 'relative';
+        }
+
+        if (type === 'text') {
+            // تنظيف أي رسالة سابقة لنفس اللاعب
+            const oldBubble = targetElement.parentElement.querySelector('.in-game-chat-bubble');
+            if (oldBubble) oldBubble.remove();
+
+            const bubble = document.createElement('div');
+            bubble.className = 'in-game-chat-bubble';
+            bubble.textContent = value;
+            targetElement.parentElement.appendChild(bubble);
+
+            setTimeout(() => {
+                if (bubble.parentElement) bubble.remove();
+            }, 3000);
+
+        } else if (type === 'avatar') {
+            // تنظيف أي أفاتار سابق
+            const oldAvatar = targetElement.parentElement.querySelector('.in-game-avatar-popup');
+            if (oldAvatar) oldAvatar.remove();
+            if (hideTimeouts[sender]) clearTimeout(hideTimeouts[sender]);
+
+            const avatarBox = document.createElement('div');
+            avatarBox.className = 'in-game-avatar-popup avatar-container';
+            
+            let htmlContent = '';
+            let audioId = '';
+            let animClass = '';
+
+            switch(value) {
+                case 'boss':
+                    htmlContent = `<div class="white-frame"></div><img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png?v=13"><img class="img-2" src="${BASE_CHAT_URL}boss2.png?v=13"><img class="img-3" src="${BASE_CHAT_URL}boss3.png?v=13"><img class="img-4" src="${BASE_CHAT_URL}boss4.png?v=13">`;
+                    audioId = 'chat_bossSound'; animClass = 'play';
+                    break;
+                case 'oldman':
+                    htmlContent = `<div class="white-frame"></div><img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp?v=13"><img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp?v=13">`;
+                    audioId = 'chat_saeedSound'; animClass = 'play-oldman';
+                    break;
+                case 'sadhajji':
+                    htmlContent = `<div class="white-frame"></div><img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp?v=13"><img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp?v=13"><img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp?v=13">`;
+                    audioId = 'chat_sadHajjiSound'; animClass = 'play-sadman';
+                    break;
+                case 'thinkinghajji':
+                    htmlContent = `<div class="white-frame"></div><img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يفكر1.webp?v=13"><img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي_يفكر2.webp?v=13"><img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي_يفكر3.webp?v=13">`;
+                    audioId = 'chat_thinkingHajjiSound'; animClass = 'play-thinkingman';
+                    break;
+                case 'laughinghajji':
+                    htmlContent = `<div class="white-frame"></div><img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يضحك1.webp?v=13"><img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي_يضحك2.webp?v=13">`;
+                    audioId = 'chat_laughingHajjiSound'; animClass = 'play-laughingman';
+                    break;
+                case 'surprisedhajji':
+                    htmlContent = `<div class="white-frame"></div><img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_مندهش1.webp?v=13"><img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي_مندهش2.webp?v=13"><img class="surprised-img-3" src="${BASE_CHAT_URL}حجي/حجي_مندهش3.webp?v=13"><img class="surprised-img-4" src="${BASE_CHAT_URL}حجي/حجي_مندهش4.webp?v=13">`;
+                    audioId = 'chat_surprisedHajjiSound'; animClass = 'play-surprisedman';
+                    break;
+                case 'sleepyhajji':
+                    htmlContent = `<div class="white-frame"></div><img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_نعسان1.webp?v=13"><img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي_نعسان2.webp?v=13">`;
+                    audioId = 'chat_sleepyHajjiSound'; animClass = 'play-sleepyman';
+                    break;
+            }
+
+            avatarBox.innerHTML = htmlContent;
+            avatarBox.classList.add(animClass);
+            
+            // إخفاء الصورة الافتراضية أثناء الأنيميشن
+            const img1 = avatarBox.querySelector('img.default-show');
+            if (img1) img1.classList.remove('default-show');
+
+            targetElement.parentElement.appendChild(avatarBox);
+
+            // تشغيل الصوت
+            const audioEl = document.getElementById(audioId);
+            if (audioEl) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(e => console.log('Audio play error:', e));
+            }
+
+            hideTimeouts[sender] = setTimeout(() => {
+                if (avatarBox.parentElement) avatarBox.remove();
+            }, 2500);
+        }
+    };
+
 })();
