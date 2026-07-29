@@ -149,21 +149,21 @@
             z-index: 999999;
             white-space: nowrap;
             pointer-events: none;
-            transform-origin: bottom center; 
+            transform-origin: top center; /* التمدد من الأعلى للأسفل */
             animation: popInElement 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             border: 2px solid #e0e0e0;
         }
 
-        /* ذيل الفقاعة */
+        /* ذيل الفقاعة - تم تعديله ليؤشر للأعلى وتظهر الرسالة أسفل الصورة */
         .in-game-chat-bubble::before {
             content: '';
             position: absolute;
-            bottom: -8px;
+            top: -8px; 
             left: 50%;
             transform: translateX(-50%);
-            border-width: 8px 8px 0 8px;
+            border-width: 0 8px 8px 8px;
             border-style: solid;
-            border-color: #ffffff transparent transparent transparent;
+            border-color: transparent transparent #ffffff transparent;
         }
 
         .in-game-avatar-popup {
@@ -175,7 +175,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transform-origin: bottom center; 
+            transform-origin: center center; 
             animation: popInElement 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
@@ -225,7 +225,7 @@
         }
         .avatar-container img.default-show { opacity: 1; }
 
-        /* أنيميشن الأفاتار الأول (الزعيم) */
+        /* أنيميشن الأفاتار */
         .play .img-1 { animation: playImg1 2.5s forwards; }
         .play .img-2 { animation: playImg2 2.5s forwards; }
         .play .img-3 { animation: playImg3 2.5s forwards; }
@@ -236,53 +236,41 @@
         @keyframes playImg3 { 0%, 16.66% { opacity: 0; } 16.67%, 25.00% { opacity: 1; } 25.01%, 33.32% { opacity: 0; } 33.33%, 41.66% { opacity: 1; } 41.67%, 49.99% { opacity: 0; } 50.00%, 58.33% { opacity: 1; } 58.34%, 66.65% { opacity: 0; } 66.66%, 75.00% { opacity: 1; } 75.01%, 83.32% { opacity: 0; } 83.33%, 91.66% { opacity: 1; } 91.67%, 100% { opacity: 0; } }
         @keyframes playImg4 { 0%, 24.99% { opacity: 0; } 25.00%, 33.33% { opacity: 1; } 33.34%, 41.65% { opacity: 0; } 41.66%, 50.00% { opacity: 1; } 50.01%, 58.32% { opacity: 0; } 58.33%, 66.67% { opacity: 1; } 66.68%, 74.99% { opacity: 0; } 75.00%, 83.33% { opacity: 1; } 83.34%, 91.65% { opacity: 0; } 91.66%, 100% { opacity: 1; } }
 
-        /* أنيميشن التبديل لحجي سعيد */
         .play-oldman .old-img-1 { animation: oldManImg1 1.4s forwards; }
         .play-oldman .old-img-2 { animation: oldManImg2 1.4s forwards; }
-
         @keyframes oldManImg1 { 0%, 12.49% { opacity: 1; } 12.5%, 24.99% { opacity: 0; } 25%, 37.49% { opacity: 1; } 37.5%, 49.99% { opacity: 0; } 50%, 62.49% { opacity: 1; } 62.5%, 74.99% { opacity: 0; } 75%, 87.49% { opacity: 1; } 87.5%, 99.99% { opacity: 0; } 100% { opacity: 1; } }
         @keyframes oldManImg2 { 0%, 12.49% { opacity: 0; } 12.5%, 24.99% { opacity: 1; } 25%, 37.49% { opacity: 0; } 37.5%, 49.99% { opacity: 1; } 50%, 62.49% { opacity: 0; } 62.5%, 74.99% { opacity: 1; } 75%, 87.49% { opacity: 0; } 87.5%, 99.99% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* أنيميشن حجي حزين */
         .play-sadman .sad-img-1 { animation: sadManImg1 2.5s forwards; }
         .play-sadman .sad-img-2 { animation: sadManImg2 2.5s forwards; }
         .play-sadman .sad-img-3 { animation: sadManImg3 2.5s forwards; }
-
         @keyframes sadManImg1 { 0%, 19.99% { opacity: 1; } 20%, 100% { opacity: 0; } }
         @keyframes sadManImg2 { 0%, 19.99% { opacity: 0; } 20%, 39.99% { opacity: 1; } 40%, 59.99% { opacity: 0; } 60%, 79.99% { opacity: 1; } 80%, 100% { opacity: 0; } }
         @keyframes sadManImg3 { 0%, 39.99% { opacity: 0; } 40%, 59.99% { opacity: 1; } 60%, 79.99% { opacity: 0; } 80%, 100% { opacity: 1; } }
 
-        /* أنيميشن حجي مفكر */
         .play-thinkingman .think-img-1 { animation: thinkManImg1 1.2s forwards; }
         .play-thinkingman .think-img-2 { animation: thinkManImg2 1.2s forwards; }
         .play-thinkingman .think-img-3 { animation: thinkManImg3 1.2s forwards; }
-
         @keyframes thinkManImg1 { 0%, 14.28% { opacity: 1; } 14.29%, 57.14% { opacity: 0; } 57.15%, 71.42% { opacity: 1; } 71.43%, 100% { opacity: 0; } }
         @keyframes thinkManImg2 { 0%, 14.28% { opacity: 0; } 14.29%, 28.57% { opacity: 1; } 28.58%, 42.85% { opacity: 0; } 42.86%, 57.14% { opacity: 1; } 57.15%, 71.42% { opacity: 0; } 71.43%, 85.71% { opacity: 1; } 85.72%, 100% { opacity: 0; } }
         @keyframes thinkManImg3 { 0%, 28.57% { opacity: 0; } 28.58%, 42.85% { opacity: 1; } 42.86%, 85.71% { opacity: 0; } 85.72%, 100% { opacity: 1; } }
 
-        /* أنيميشن حجي يضحك */
         .play-laughingman .laugh-img-1 { animation: laughManImg1 1.8s forwards; }
         .play-laughingman .laugh-img-2 { animation: laughManImg2 1.8s forwards; }
-
         @keyframes laughManImg1 { 0%, 9.99% { opacity: 1; } 10%, 19.99% { opacity: 0; } 20%, 29.99% { opacity: 1; } 30%, 39.99% { opacity: 0; } 40%, 49.99% { opacity: 1; } 50%, 59.99% { opacity: 0; } 60%, 69.99% { opacity: 1; } 70%, 79.99% { opacity: 0; } 80%, 89.99% { opacity: 1; } 90%, 100% { opacity: 0; } }
         @keyframes laughManImg2 { 0%, 9.99% { opacity: 0; } 10%, 19.99% { opacity: 1; } 20%, 29.99% { opacity: 0; } 30%, 39.99% { opacity: 1; } 40%, 49.99% { opacity: 0; } 50%, 59.99% { opacity: 1; } 60%, 69.99% { opacity: 0; } 70%, 79.99% { opacity: 1; } 80%, 89.99% { opacity: 0; } 90%, 100% { opacity: 1; } }
 
-        /* أنيميشن حجي مندهش */
         .play-surprisedman .surprised-img-1 { animation: surprisedManImg1 2.5s forwards; }
         .play-surprisedman .surprised-img-2 { animation: surprisedManImg2 2.5s forwards; }
         .play-surprisedman .surprised-img-3 { animation: surprisedManImg3 1s forwards; }
         .play-surprisedman .surprised-img-4 { animation: surprisedManImg4 1s forwards; }
-
         @keyframes surprisedManImg1 { 0%, 14% { opacity: 1; } 14.01%, 100% { opacity: 0; } }
         @keyframes surprisedManImg2 { 0%, 14% { opacity: 0; } 14.01%, 28% { opacity: 1; } 28.01%, 100% { opacity: 0; } }
         @keyframes surprisedManImg3 { 0%, 28% { opacity: 0; } 28.01%, 42% { opacity: 1; } 42.01%, 56% { opacity: 0; } 56.01%, 70% { opacity: 1; } 70.01%, 84% { opacity: 0; } 84.01%, 100% { opacity: 1; } }
         @keyframes surprisedManImg4 { 0%, 42% { opacity: 0; } 42.01%, 56% { opacity: 1; } 56.01%, 70% { opacity: 0; } 70.01%, 84% { opacity: 1; } 84.01%, 100% { opacity: 0; } }
 
-        /* أنيميشن حجي نعسان */
         .play-sleepyman .sleepy-img-1 { animation: sleepyManImg1 1.8s forwards; }
         .play-sleepyman .sleepy-img-2 { animation: sleepyManImg2 1.8s forwards; }
-
         @keyframes sleepyManImg1 { 0%, 20% { opacity: 1; } 20.01%, 40% { opacity: 0; } 40.01%, 60% { opacity: 1; } 60.01%, 80% { opacity: 0; } 80.01%, 100% { opacity: 1; } }
         @keyframes sleepyManImg2 { 0%, 20% { opacity: 0; } 20.01%, 40% { opacity: 1; } 40.01%, 60% { opacity: 0; } 60.01%, 80% { opacity: 1; } 80.01%, 100% { opacity: 0; } }
 
@@ -468,20 +456,22 @@
         }
     }
 
-    // 💡 الدالة المصححة والمحسنة لعرض الأفاتارات والرسائل بدقة مطلقة فوق صور البروفايل
+    // 💡 الدالة المصححة والمحسنة لعرض الأفاتارات والرسائل
     window.playInGameChat = function(sender, type, value) {
         const targetElementId = sender === 'me' ? 'card-my-avatar' : 'card-opp-avatar';
         const targetElement = document.getElementById(targetElementId);
         
         if (!targetElement) return;
 
-        // حساب موقع صورة البروفايل بدقة على الشاشة 
+        // حساب الإحداثيات بدقة 
         const rect = targetElement.getBoundingClientRect();
-        const centerX = rect.left + (rect.width / 2);
+        const avatarCenterX = rect.left + (rect.width / 2);
         
-        // حساب المسافة من أسفل الشاشة إلى "أعلى" صورة البروفايل.
-        // هذا سيجعل الرسالة والأفاتار يجلسان تماماً فوق الصورة بغض النظر عن حجمهما.
-        const bottomY = window.innerHeight - rect.top;
+        // حساب منتصف الشاشة الأفقي (موقع كلمة VS)
+        const screenCenter = window.innerWidth / 2;
+        
+        // معرفة ما إذا كانت صورة اللاعب تقع في النصف الأيسر أم الأيمن
+        const isSenderLeft = avatarCenterX < screenCenter;
 
         if (type === 'text') {
             const oldBubble = document.getElementById('active-chat-bubble-' + sender);
@@ -492,10 +482,10 @@
             bubble.className = 'in-game-chat-bubble';
             bubble.textContent = value;
             
-            // تحديد الموقع
-            bubble.style.left = centerX + 'px';
-            bubble.style.bottom = (bottomY + 12) + 'px'; // 12 بكسل مسافة فوق الصورة
-            bubble.style.top = 'auto'; // إلغاء أي تأثير سابق
+            // تحديد الموقع: أسفل صورة البروفايل لتجنب قص الرسالة أعلى الشاشة
+            bubble.style.left = avatarCenterX + 'px';
+            bubble.style.top = (rect.bottom + 12) + 'px'; 
+            bubble.style.bottom = 'auto'; 
 
             document.body.appendChild(bubble);
 
@@ -512,10 +502,16 @@
             avatarBox.id = 'active-chat-avatar-' + sender;
             avatarBox.className = 'in-game-avatar-popup avatar-container';
             
-            // تحديد الموقع (نفس إحداثيات الرسالة النصية تماماً)
-            avatarBox.style.left = centerX + 'px';
-            avatarBox.style.bottom = (bottomY + 12) + 'px'; // نفس الـ 12 بكسل مسافة فوق الصورة
-            avatarBox.style.top = 'auto'; // إلغاء تأثير الـ top لمنع تغطية البروفايل
+            // 💡 الموقع الأفقي: يتمركز فوق الـ VS مع إزاحة خفيفة (30 بكسل) باتجاه اللاعب المرسل
+            const popupX = screenCenter + (isSenderLeft ? -30 : 30);
+            
+            // 💡 الموقع العمودي: في نفس مستوى صور البروفايل (منتصف الصورة)
+            // نطرح 55 لأن ارتفاع كونتينر الافتار هو 110 بكسل (للتوسيط العمودي التام)
+            const popupY = rect.top + (rect.height / 2) - 55;
+
+            avatarBox.style.left = popupX + 'px';
+            avatarBox.style.top = popupY + 'px'; 
+            avatarBox.style.bottom = 'auto'; 
 
             let htmlContent = '';
             let audioId = '';
