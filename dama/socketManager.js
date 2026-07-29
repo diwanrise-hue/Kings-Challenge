@@ -222,6 +222,9 @@ export const socketManager = {
     },
 
     init() {
+        // فضح (Export) المدير للنافذة العامة لكي يستخدمه ملف chat.js بسهولة
+        window.socketManager = this;
+
         this._initRealPingIndicator();
 
         const eventsToTurnOff = [
@@ -231,9 +234,16 @@ export const socketManager = {
             'rematchOffer', 'rematchAccepted', 'error', 'receiveChallenge',
             'challengeResponse', 'profileUpdated', 'friendAddedNotification',
             'friendAddSuccess', 'friendAddFailed', 'opponentLeftRoom', 'roomClosedByTimeout',
-            'connect_error', 'syncTime'
+            'connect_error', 'syncTime', 'receiveChat'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
+
+        // 💬 استقبال الدردشة من الخصم وعرضها
+        socket.on('receiveChat', (data) => {
+            if (window.playInGameChat && data) {
+                window.playInGameChat('opp', data.type, data.value);
+            }
+        });
 
         socket.on('connect', () => {
             console.log('Connected to server successfully');
@@ -691,6 +701,17 @@ export const socketManager = {
         socket.on('friendAddFailed', (data) => {
             if (data) this._showToast(data.msg);
         });
+    },
+
+    // 💬 دالة إرسال الدردشة والافتارات للخصم
+    sendChatData(type, value) {
+        if (gameState.isOnlineMode && gameState.onlineRoomID && socket.connected) {
+            socket.emit('sendChat', { 
+                roomID: String(gameState.onlineRoomID).trim(), 
+                type: type, 
+                value: value 
+            });
+        }
     },
 
     sendMoveToServer(fromR, fromC, toR, toC, boardState, nextTurn) {
