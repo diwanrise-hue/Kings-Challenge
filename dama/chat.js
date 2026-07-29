@@ -35,35 +35,38 @@
             box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important;
         }
 
+        /* القائمة المنسدلة للدردشة */
         .chat-popup-window {
             position: fixed;
-            bottom: 85px;
-            left: 15px;
-            width: 90%;
-            max-width: 320px;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            width: 95%; 
+            max-width: 360px; /* العرض المثالي لاستيعاب 4 أفاتارات في الصف الأول و 3 في الثاني */
             background-color: rgba(22, 22, 30, 0.95);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            border-radius: 18px;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
             border: 1px solid rgba(135, 206, 235, 0.2);
             display: none;
             flex-direction: column;
             overflow: hidden;
             z-index: 10001;
-            animation: slideUp 0.25s ease;
+            opacity: 0;
+            transition: all 0.25s ease;
         }
-        .chat-popup-window.open { display: flex; }
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .chat-popup-window.open { 
+            display: flex; 
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
         }
 
         .popup-top-bar {
             background: rgba(255, 255, 255, 0.05);
-            padding: 10px 15px;
+            padding: 8px 12px;
             color: #ffffff;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
@@ -77,6 +80,9 @@
             font-size: 16px;
             cursor: pointer;
             transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .popup-top-bar button:hover { color: #ff453a; }
 
@@ -88,11 +94,11 @@
         }
         .tab-btn {
             flex: 1;
-            padding: 12px;
+            padding: 10px;
             background: none;
             border: none;
             color: #8888a0;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -110,8 +116,8 @@
 
         .tab-content {
             display: none;
-            padding: 20px 15px;
-            min-height: 220px;
+            padding: 10px; 
+            min-height: auto; 
             justify-content: center;
             align-items: center;
         }
@@ -121,7 +127,7 @@
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             align-items: center;
             width: 100%;
@@ -135,14 +141,15 @@
         }
         .avatar-container:hover { transform: scale(1.05); }
 
+        /* حجم الأفاتارات (صفين فقط) */
         .avatars-wrapper .avatar-container {
-            width: 65px;
-            height: 65px;
+            width: 75px; 
+            height: 75px; 
         }
 
         .floating-avatar-display .avatar-container {
-            width: 150px;
-            height: 150px;
+            width: 130px;
+            height: 130px;
         }
         
         .white-frame {
@@ -153,9 +160,9 @@
             width: 82%;
             height: 75%;
             background-color: #ffffff;
-            border-radius: 30px 30px 0 0;
+            border-radius: 20px 20px 0 0;
             z-index: 1;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         .avatar-container img {
             position: absolute;
@@ -171,7 +178,7 @@
 
         .floating-avatar-display {
             position: fixed;
-            bottom: 95px;
+            bottom: 85px;
             left: 20px;
             z-index: 10002;
             display: none;
@@ -188,16 +195,16 @@
 
         .game-toast {
             position: fixed;
-            bottom: 95px;
+            bottom: 85px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
             background: rgba(46, 204, 113, 0.95);
             color: #ffffff;
-            padding: 10px 22px;
+            padding: 8px 18px;
             border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.2);
             box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             z-index: 10005;
             opacity: 0;
@@ -226,8 +233,8 @@
         @keyframes playImg4 { 0%, 24.99% { opacity: 0; } 25.00%, 33.33% { opacity: 1; } 33.34%, 41.65% { opacity: 0; } 41.66%, 50.00% { opacity: 1; } 50.01%, 58.32% { opacity: 0; } 58.33%, 66.67% { opacity: 1; } 66.68%, 74.99% { opacity: 0; } 75.00%, 83.33% { opacity: 1; } 83.34%, 91.65% { opacity: 0; } 91.66%, 100% { opacity: 1; } }
 
         /* أنيميشن التبديل لحجي سعيد */
-        .play-oldman .old-img-1 { animation: oldManImg1 1.2s forwards; }
-        .play-oldman .old-img-2 { animation: oldManImg2 1.2s forwards; }
+        .play-oldman .old-img-1 { animation: oldManImg1 1.4s forwards; }
+        .play-oldman .old-img-2 { animation: oldManImg2 1.4s forwards; }
 
         @keyframes oldManImg1 {
             0%, 12.49% { opacity: 1; }
@@ -258,154 +265,161 @@
         .play-sadman .sad-img-3 { animation: sadManImg3 2.5s forwards; }
 
         @keyframes sadManImg1 {
-            0%, 11.11% { opacity: 1; }
-            11.12%, 33.32% { opacity: 0; }
-            33.33%, 44.43% { opacity: 1; }
-            44.44%, 66.65% { opacity: 0; }
-            66.66%, 77.76% { opacity: 1; }
-            77.77%, 99.99% { opacity: 0; }
-            100% { opacity: 1; }
+            0%, 19.99% { opacity: 1; }
+            20%, 100% { opacity: 0; }
         }
         @keyframes sadManImg2 {
-            0%, 11.11% { opacity: 0; }
-            11.12%, 22.22% { opacity: 1; }
-            22.23%, 44.43% { opacity: 0; }
-            44.44%, 55.55% { opacity: 1; }
-            55.56%, 77.76% { opacity: 0; }
-            77.77%, 88.88% { opacity: 1; }
-            88.89%, 100% { opacity: 0; }
+            0%, 19.99% { opacity: 0; }
+            20%, 39.99% { opacity: 1; }
+            40%, 59.99% { opacity: 0; }
+            60%, 79.99% { opacity: 1; }
+            80%, 100% { opacity: 0; }
         }
         @keyframes sadManImg3 {
-            0%, 22.22% { opacity: 0; }
-            22.23%, 33.32% { opacity: 1; }
-            33.33%, 55.55% { opacity: 0; }
-            55.56%, 66.65% { opacity: 1; }
-            66.66%, 88.88% { opacity: 0; }
-            88.89%, 99.99% { opacity: 1; }
-            100% { opacity: 0; }
+            0%, 39.99% { opacity: 0; }
+            40%, 59.99% { opacity: 1; }
+            60%, 79.99% { opacity: 0; }
+            80%, 100% { opacity: 1; }
         }
 
-        /* أنيميشن حجي مفكر */
-        .play-thinkingman .think-img-1 { animation: thinkManImg1 2.5s forwards; }
-        .play-thinkingman .think-img-2 { animation: thinkManImg2 2.5s forwards; }
-        .play-thinkingman .think-img-3 { animation: thinkManImg3 2.5s forwards; }
+        /* أنيميشن حجي مفكر بالتسلسل السريع */
+        .play-thinkingman .think-img-1 { animation: thinkManImg1 1.2s forwards; }
+        .play-thinkingman .think-img-2 { animation: thinkManImg2 1.2s forwards; }
+        .play-thinkingman .think-img-3 { animation: thinkManImg3 1.2s forwards; }
 
         @keyframes thinkManImg1 {
-            0%, 33.33% { opacity: 1; }
-            33.34%, 100% { opacity: 0; }
+            0%, 14.28% { opacity: 1; }
+            14.29%, 57.14% { opacity: 0; }
+            57.15%, 71.42% { opacity: 1; }
+            71.43%, 100% { opacity: 0; }
         }
         @keyframes thinkManImg2 {
-            0%, 33.33% { opacity: 0; }
-            33.34%, 66.66% { opacity: 1; }
-            66.67%, 100% { opacity: 0; }
+            0%, 14.28% { opacity: 0; }
+            14.29%, 28.57% { opacity: 1; }
+            28.58%, 42.85% { opacity: 0; }
+            42.86%, 57.14% { opacity: 1; }
+            57.15%, 71.42% { opacity: 0; }
+            71.43%, 85.71% { opacity: 1; }
+            85.72%, 100% { opacity: 0; }
         }
         @keyframes thinkManImg3 {
-            0%, 66.66% { opacity: 0; }
-            66.67%, 99.99% { opacity: 1; }
-            100% { opacity: 0; }
+            0%, 28.57% { opacity: 0; }
+            28.58%, 42.85% { opacity: 1; }
+            42.86%, 85.71% { opacity: 0; }
+            85.72%, 100% { opacity: 1; }
         }
 
         /* أنيميشن حجي يضحك */
-        .play-laughingman .laugh-img-1 { animation: laughManImg1 1.2s forwards; }
-        .play-laughingman .laugh-img-2 { animation: laughManImg2 1.2s forwards; }
+        .play-laughingman .laugh-img-1 { animation: laughManImg1 1.8s forwards; }
+        .play-laughingman .laugh-img-2 { animation: laughManImg2 1.8s forwards; }
 
         @keyframes laughManImg1 {
-            0%, 12.49% { opacity: 1; }
-            12.5%, 24.99% { opacity: 0; }
-            25%, 37.49% { opacity: 1; }
-            37.5%, 49.99% { opacity: 0; }
-            50%, 62.49% { opacity: 1; }
-            62.5%, 74.99% { opacity: 0; }
-            75%, 87.49% { opacity: 1; }
-            87.5%, 99.99% { opacity: 0; }
-            100% { opacity: 1; }
+            0%, 9.99% { opacity: 1; }
+            10%, 19.99% { opacity: 0; }
+            20%, 29.99% { opacity: 1; }
+            30%, 39.99% { opacity: 0; }
+            40%, 49.99% { opacity: 1; }
+            50%, 59.99% { opacity: 0; }
+            60%, 69.99% { opacity: 1; }
+            70%, 79.99% { opacity: 0; }
+            80%, 89.99% { opacity: 1; }
+            90%, 100% { opacity: 0; }
         }
         @keyframes laughManImg2 {
-            0%, 12.49% { opacity: 0; }
-            12.5%, 24.99% { opacity: 1; }
-            25%, 37.49% { opacity: 0; }
-            37.5%, 49.99% { opacity: 1; }
-            50%, 62.49% { opacity: 0; }
-            62.5%, 74.99% { opacity: 1; }
-            75%, 87.49% { opacity: 0; }
-            87.5%, 99.99% { opacity: 1; }
-            100% { opacity: 0; }
+            0%, 9.99% { opacity: 0; }
+            10%, 19.99% { opacity: 1; }
+            20%, 29.99% { opacity: 0; }
+            30%, 39.99% { opacity: 1; }
+            40%, 49.99% { opacity: 0; }
+            50%, 59.99% { opacity: 1; }
+            60%, 69.99% { opacity: 0; }
+            70%, 79.99% { opacity: 1; }
+            80%, 89.99% { opacity: 0; }
+            90%, 100% { opacity: 1; }
         }
 
         /* أنيميشن حجي مندهش */
-        .play-surprisedman .surprised-img-1 { animation: surprisedManImg1 1.2s forwards; }
-        .play-surprisedman .surprised-img-2 { animation: surprisedManImg2 1.2s forwards; }
+        .play-surprisedman .surprised-img-1 { animation: surprisedManImg1 2.5s forwards; }
+        .play-surprisedman .surprised-img-2 { animation: surprisedManImg2 2.5s forwards; }
+        .play-surprisedman .surprised-img-3 { animation: surprisedManImg3 1s forwards; }
+        .play-surprisedman .surprised-img-4 { animation: surprisedManImg4 1s forwards; }
 
         @keyframes surprisedManImg1 {
-            0%, 12.49% { opacity: 1; }
-            12.5%, 24.99% { opacity: 0; }
-            25%, 37.49% { opacity: 1; }
-            37.5%, 49.99% { opacity: 0; }
-            50%, 62.49% { opacity: 1; }
-            62.5%, 74.99% { opacity: 0; }
-            75%, 87.49% { opacity: 1; }
-            87.5%, 99.99% { opacity: 0; }
-            100% { opacity: 1; }
+            0%, 14% { opacity: 1; }
+            14.01%, 100% { opacity: 0; }
         }
         @keyframes surprisedManImg2 {
-            0%, 12.49% { opacity: 0; }
-            12.5%, 24.99% { opacity: 1; }
-            25%, 37.49% { opacity: 0; }
-            37.5%, 49.99% { opacity: 1; }
-            50%, 62.49% { opacity: 0; }
-            62.5%, 74.99% { opacity: 1; }
-            75%, 87.49% { opacity: 0; }
-            87.5%, 99.99% { opacity: 1; }
-            100% { opacity: 0; }
+            0%, 14% { opacity: 0; }
+            14.01%, 28% { opacity: 1; }
+            28.01%, 100% { opacity: 0; }
+        }
+        @keyframes surprisedManImg3 {
+            0%, 28% { opacity: 0; }
+            28.01%, 42% { opacity: 1; } 
+            42.01%, 56% { opacity: 0; }
+            56.01%, 70% { opacity: 1; } 
+            70.01%, 84% { opacity: 0; }
+            84.01%, 100% { opacity: 1; } 
+        }
+        @keyframes surprisedManImg4 {
+            0%, 42% { opacity: 0; }
+            42.01%, 56% { opacity: 1; } 
+            56.01%, 70% { opacity: 0; }
+            70.01%, 84% { opacity: 1; } 
+            84.01%, 100% { opacity: 0; }
         }
 
-        /* أنيميشن حجي نعسان */
-        .play-sleepyman .sleepy-img-1 { animation: sleepyManImg1 2.5s forwards; }
-        .play-sleepyman .sleepy-img-2 { animation: sleepyManImg2 2.5s forwards; }
+        /* أنيميشن حجي نعسان يتبادل بسرعة */
+        .play-sleepyman .sleepy-img-1 { animation: sleepyManImg1 1.8s forwards; }
+        .play-sleepyman .sleepy-img-2 { animation: sleepyManImg2 1.8s forwards; }
 
         @keyframes sleepyManImg1 {
-            0%, 15% { opacity: 1; }
-            15.01%, 85% { opacity: 0; }
-            85.01%, 100% { opacity: 1; }
+            0%, 20% { opacity: 1; }
+            20.01%, 40% { opacity: 0; }
+            40.01%, 60% { opacity: 1; }
+            60.01%, 80% { opacity: 0; }
+            80.01%, 100% { opacity: 1; }
         }
         @keyframes sleepyManImg2 {
-            0%, 15% { opacity: 0; }
-            15.01%, 85% { opacity: 1; }
-            85.01%, 100% { opacity: 0; }
+            0%, 20% { opacity: 0; }
+            20.01%, 40% { opacity: 1; }
+            40.01%, 60% { opacity: 0; }
+            60.01%, 80% { opacity: 1; }
+            80.01%, 100% { opacity: 0; }
         }
 
-        /* تنسيق الرسائل السريعة في 3 أعمدة */
+        /* ضبط مساحة الرسائل الفورية لتطابق ارتفاع صفين من الأفاتارات وتتيح التمرير */
         .preset-list {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 8px;
             width: 100%;
-            max-height: 220px;
+            max-height: 158px; 
             overflow-y: auto;
             direction: rtl;
-            padding: 5px;
+            padding: 2px;
         }
         
         .preset-btn {
             background: #ffffff;
             color: #1a1a1a;
             border: 1px solid #d1d1d1;
-            padding: 10px 4px;
-            border-radius: 8px;
+            padding: 6px 2px;
+            border-radius: 6px;
             text-align: center;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: bold;
             transition: all 0.2s ease;
-            box-shadow: 0 3px 0 #cccccc, 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 0 #cccccc, 0 3px 5px rgba(0,0,0,0.15);
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 45px;
+            min-height: 38px;
         }
         .preset-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 0 0 #cccccc, 0 1px 2px rgba(0,0,0,0.2);
+            transform: translateY(2px);
+            box-shadow: 0 0 0 #cccccc, 0 1px 2px rgba(0,0,0,0.1);
         }
         .preset-btn:hover { 
             background: #f0f0f0; 
@@ -435,7 +449,6 @@
 
     const container = document.createElement('div');
     
-    // 💡 تم استخدام v=3 وإضافة %20 بدل المسافات لتعمل الصور بنسبة 100%
     container.innerHTML = `
         <div class="chat-popup-window" id="chatPopupWindow">
             <div class="popup-top-bar">
@@ -453,48 +466,50 @@
                     
                     <div class="avatar-container" id="avatarOldManTrigger">
                         <div class="white-frame"></div>
-                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20سعيد1.webp?v=3" alt="حجي سعيد 1" style="opacity: 1;">
-                        <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي%20سعيد2.webp?v=3" alt="حجي سعيد 2">
+                        <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp?v=13" alt="حجي سعيد 1" style="opacity: 1;">
+                        <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp?v=13" alt="حجي سعيد 2">
                     </div>
                     
                     <div class="avatar-container" id="avatarSadHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20حزين1.webp?v=3" alt="حجي حزين 1" style="opacity: 1;">
-                        <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي%20حزين2.webp?v=3" alt="حجي حزين 2">
-                        <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي%20حزين3.webp?v=3" alt="حجي حزين 3">
+                        <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp?v=13" alt="حجي حزين 1" style="opacity: 1;">
+                        <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp?v=13" alt="حجي حزين 2">
+                        <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp?v=13" alt="حجي حزين 3">
                     </div>
 
                     <div class="avatar-container" id="avatarThinkingHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20يفكر1.webp?v=3" alt="حجي يفكر 1" style="opacity: 1;">
-                        <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي%20يفكر2.webp?v=3" alt="حجي يفكر 2">
-                        <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي%20يفكر3.webp?v=3" alt="حجي يفكر 3">
+                        <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يفكر1.webp?v=13" alt="حجي يفكر 1" style="opacity: 1;">
+                        <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي_يفكر2.webp?v=13" alt="حجي يفكر 2">
+                        <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي_يفكر3.webp?v=13" alt="حجي يفكر 3">
                     </div>
 
                     <div class="avatar-container" id="avatarLaughingHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20يضحك1.webp?v=3" alt="حجي يضحك 1" style="opacity: 1;">
-                        <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي%20يضحك2.webp?v=3" alt="حجي يضحك 2">
+                        <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يضحك1.webp?v=13" alt="حجي يضحك 1" style="opacity: 1;">
+                        <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي_يضحك2.webp?v=13" alt="حجي يضحك 2">
                     </div>
 
                     <div class="avatar-container" id="avatarSurprisedHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20مندهش1.webp?v=3" alt="حجي مندهش 1" style="opacity: 1;">
-                        <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي%20مندهش2.webp?v=3" alt="حجي مندهش 2">
+                        <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_مندهش1.webp?v=13" alt="حجي مندهش 1" style="opacity: 1;">
+                        <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي_مندهش2.webp?v=13" alt="حجي مندهش 2">
+                        <img class="surprised-img-3" src="${BASE_CHAT_URL}حجي/حجي_مندهش3.webp?v=13" alt="حجي مندهش 3">
+                        <img class="surprised-img-4" src="${BASE_CHAT_URL}حجي/حجي_مندهش4.webp?v=13" alt="حجي مندهش 4">
                     </div>
 
                     <div class="avatar-container" id="avatarSleepyHajjiTrigger">
                         <div class="white-frame"></div>
-                        <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20نعسان1.webp?v=3" alt="حجي نعسان 1" style="opacity: 1;">
-                        <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي%20نعسان2.webp?v=3" alt="حجي نعسان 2">
+                        <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_نعسان1.webp?v=13" alt="حجي نعسان 1" style="opacity: 1;">
+                        <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي_نعسان2.webp?v=13" alt="حجي نعسان 2">
                     </div>
 
                     <div class="avatar-container" id="avatarContainerTrigger">
                         <div class="white-frame"></div>
-                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png?v=3" alt="boss 1">
-                        <img class="img-2" src="${BASE_CHAT_URL}boss2.png?v=3" alt="boss 2">
-                        <img class="img-3" src="${BASE_CHAT_URL}boss3.png?v=3" alt="boss 3">
-                        <img class="img-4" src="${BASE_CHAT_URL}boss4.png?v=3" alt="boss 4">
+                        <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png?v=13" alt="boss 1">
+                        <img class="img-2" src="${BASE_CHAT_URL}boss2.png?v=13" alt="boss 2">
+                        <img class="img-3" src="${BASE_CHAT_URL}boss3.png?v=13" alt="boss 3">
+                        <img class="img-4" src="${BASE_CHAT_URL}boss4.png?v=13" alt="boss 4">
                     </div>
 
                 </div>
@@ -502,6 +517,7 @@
 
             <div class="tab-content" id="tabPresetContent">
                 <div class="preset-list">
+                    <!-- الكلمات الجديدة المضافة من الصورة -->
                     <button class="preset-btn" data-text="يا للخسارة!">يا للخسارة!</button>
                     <button class="preset-btn" data-text="أحسنت!">أحسنت!</button>
                     <button class="preset-btn" data-text="سلمت يداك">سلمت يداك</button>
@@ -513,6 +529,27 @@
                     <button class="preset-btn" data-text="أعتذر">أعتذر</button>
                     <button class="preset-btn" data-text="طاب يومك">طاب يومك</button>
                     <button class="preset-btn" data-text="عجباً، ماذا يحدث!">عجباً، ماذا يحدث!</button>
+
+                    <!-- الكلمات السابقة التي تم تعريبها -->
+                    <button class="preset-btn" data-text="مرحباً بك">مرحباً بك</button>
+                    <button class="preset-btn" data-text="أداءٌ رائع!">أداءٌ رائع!</button>
+                    <button class="preset-btn" data-text="أسرع لو سمحت">أسرع لو سمحت</button>
+
+                    <button class="preset-btn" data-text="أحسنت صنعاً">أحسنت صنعاً</button>
+                    <button class="preset-btn" data-text="لاعبٌ ماهر!">لاعبٌ ماهر!</button>
+                    <button class="preset-btn" data-text="حركةٌ ذكية">حركةٌ ذكية</button>
+
+                    <button class="preset-btn" data-text="الفوز حليفنا">الفوز حليفنا</button>
+                    <button class="preset-btn" data-text="فوزٌ ساحق!">فوزٌ ساحق!</button>
+                    <button class="preset-btn" data-text="مباركٌ لك!">مباركٌ لك!</button>
+
+                    <button class="preset-btn" data-text="يا للروعة!">يا للروعة!</button>
+                    <button class="preset-btn" data-text="أضحكتني!">أضحكتني!</button>
+                    <button class="preset-btn" data-text="المعذرة!">المعذرة!</button>
+
+                    <button class="preset-btn" data-text="لا بأس، لا عليك">لا بأس، لا عليك</button>
+                    <button class="preset-btn" data-text="تدرّب جيداً">تدرّب جيداً</button>
+                    <button class="preset-btn" data-text="لماذا!">لماذا!</button>
                 </div>
             </div>
         </div>
@@ -525,6 +562,12 @@
         <div class="game-toast" id="gameToast"></div>
 
         <audio id="bossSound" src="${BASE_CHAT_URL}laugh.mp3"></audio>
+        <audio id="saeedSound" src="${BASE_CHAT_URL}حجي/ضحك_لايك.mp3"></audio>
+        <audio id="laughingHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_يضحك.mp3"></audio>
+        <audio id="sadHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_حزين.mp3"></audio>
+        <audio id="sleepyHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_نعسان.mp3"></audio>
+        <audio id="thinkingHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_يفكر.mp3"></audio>
+        <audio id="surprisedHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_مندهش.mp3"></audio>
     `;
     document.body.appendChild(container);
 
@@ -549,6 +592,12 @@
 
     const gameToast = document.getElementById('gameToast');
     const bossSound = document.getElementById('bossSound');
+    const saeedSound = document.getElementById('saeedSound');
+    const laughingHajjiSound = document.getElementById('laughingHajjiSound');
+    const sadHajjiSound = document.getElementById('sadHajjiSound');
+    const sleepyHajjiSound = document.getElementById('sleepyHajjiSound');
+    const thinkingHajjiSound = document.getElementById('thinkingHajjiSound');
+    const surprisedHajjiSound = document.getElementById('surprisedHajjiSound');
     const floatingAvatarDisplay = document.getElementById('floatingAvatarDisplay');
     const floatingAvatarBox = document.getElementById('floatingAvatarBox');
 
@@ -611,15 +660,15 @@
         if (hideTimeout) clearTimeout(hideTimeout);
 
         floatingAvatarDisplay.classList.remove('show');
-        void floatingAvatarDisplay.offsetWidth; // Force reflow
+        void floatingAvatarDisplay.offsetWidth; 
 
         if (avatarType === 'boss') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png?v=3" alt="boss 1">
-                <img class="img-2" src="${BASE_CHAT_URL}boss2.png?v=3" alt="boss 2">
-                <img class="img-3" src="${BASE_CHAT_URL}boss3.png?v=3" alt="boss 3">
-                <img class="img-4" src="${BASE_CHAT_URL}boss4.png?v=3" alt="boss 4">
+                <img class="img-1 default-show" src="${BASE_CHAT_URL}boss1.png?v=13" alt="boss 1">
+                <img class="img-2" src="${BASE_CHAT_URL}boss2.png?v=13" alt="boss 2">
+                <img class="img-3" src="${BASE_CHAT_URL}boss3.png?v=13" alt="boss 3">
+                <img class="img-4" src="${BASE_CHAT_URL}boss4.png?v=13" alt="boss 4">
             `;
 
             floatingAvatarDisplay.classList.add('show');
@@ -645,14 +694,21 @@
         } else if (avatarType === 'oldman') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20سعيد1.webp?v=3" alt="حجي سعيد 1">
-                <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي%20سعيد2.webp?v=3" alt="حجي سعيد 2">
+                <img class="old-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي سعيد1.webp?v=13" alt="حجي سعيد 1">
+                <img class="old-img-2" src="${BASE_CHAT_URL}حجي/حجي سعيد2.webp?v=13" alt="حجي سعيد 2">
             `;
 
             floatingAvatarDisplay.classList.add('show');
             
             const img1 = floatingAvatarBox.querySelector('.old-img-1');
             if (img1) img1.classList.remove('default-show');
+
+            if (saeedSound) {
+                saeedSound.currentTime = 0;
+                saeedSound.play().catch(error => {
+                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
+                });
+            }
 
             floatingAvatarBox.className = 'avatar-container play-oldman';
 
@@ -665,15 +721,22 @@
         } else if (avatarType === 'sadhajji') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20حزين1.webp?v=3" alt="حجي حزين 1">
-                <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي%20حزين2.webp?v=3" alt="حجي حزين 2">
-                <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي%20حزين3.webp?v=3" alt="حجي حزين 3">
+                <img class="sad-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي حزين1.webp?v=13" alt="حجي حزين 1">
+                <img class="sad-img-2" src="${BASE_CHAT_URL}حجي/حجي حزين2.webp?v=13" alt="حجي حزين 2">
+                <img class="sad-img-3" src="${BASE_CHAT_URL}حجي/حجي حزين3.webp?v=13" alt="حجي حزين 3">
             `;
 
             floatingAvatarDisplay.classList.add('show');
             
             const img1 = floatingAvatarBox.querySelector('.sad-img-1');
             if (img1) img1.classList.remove('default-show');
+
+            if (sadHajjiSound) {
+                sadHajjiSound.currentTime = 0;
+                sadHajjiSound.play().catch(error => {
+                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
+                });
+            }
 
             floatingAvatarBox.className = 'avatar-container play-sadman';
 
@@ -686,15 +749,22 @@
         } else if (avatarType === 'thinkinghajji') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20يفكر1.webp?v=3" alt="حجي يفكر 1">
-                <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي%20يفكر2.webp?v=3" alt="حجي يفكر 2">
-                <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي%20يفكر3.webp?v=3" alt="حجي يفكر 3">
+                <img class="think-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يفكر1.webp?v=13" alt="حجي يفكر 1">
+                <img class="think-img-2" src="${BASE_CHAT_URL}حجي/حجي_يفكر2.webp?v=13" alt="حجي يفكر 2">
+                <img class="think-img-3" src="${BASE_CHAT_URL}حجي/حجي_يفكر3.webp?v=13" alt="حجي يفكر 3">
             `;
 
             floatingAvatarDisplay.classList.add('show');
             
             const img1 = floatingAvatarBox.querySelector('.think-img-1');
             if (img1) img1.classList.remove('default-show');
+
+            if (thinkingHajjiSound) {
+                thinkingHajjiSound.currentTime = 0;
+                thinkingHajjiSound.play().catch(error => {
+                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
+                });
+            }
 
             floatingAvatarBox.className = 'avatar-container play-thinkingman';
 
@@ -707,14 +777,21 @@
         } else if (avatarType === 'laughinghajji') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20يضحك1.webp?v=3" alt="حجي يضحك 1">
-                <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي%20يضحك2.webp?v=3" alt="حجي يضحك 2">
+                <img class="laugh-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_يضحك1.webp?v=13" alt="حجي يضحك 1">
+                <img class="laugh-img-2" src="${BASE_CHAT_URL}حجي/حجي_يضحك2.webp?v=13" alt="حجي يضحك 2">
             `;
 
             floatingAvatarDisplay.classList.add('show');
             
             const img1 = floatingAvatarBox.querySelector('.laugh-img-1');
             if (img1) img1.classList.remove('default-show');
+
+            if (laughingHajjiSound) {
+                laughingHajjiSound.currentTime = 0;
+                laughingHajjiSound.play().catch(error => {
+                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
+                });
+            }
 
             floatingAvatarBox.className = 'avatar-container play-laughingman';
 
@@ -727,14 +804,23 @@
         } else if (avatarType === 'surprisedhajji') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20مندهش1.webp?v=3" alt="حجي مندهش 1">
-                <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي%20مندهش2.webp?v=3" alt="حجي مندهش 2">
+                <img class="surprised-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_مندهش1.webp?v=13" alt="حجي مندهش 1">
+                <img class="surprised-img-2" src="${BASE_CHAT_URL}حجي/حجي_مندهش2.webp?v=13" alt="حجي مندهش 2">
+                <img class="surprised-img-3" src="${BASE_CHAT_URL}حجي/حجي_مندهش3.webp?v=13" alt="حجي مندهش 3">
+                <img class="surprised-img-4" src="${BASE_CHAT_URL}حجي/حجي_مندهش4.webp?v=13" alt="حجي مندهش 4">
             `;
 
             floatingAvatarDisplay.classList.add('show');
             
             const img1 = floatingAvatarBox.querySelector('.surprised-img-1');
             if (img1) img1.classList.remove('default-show');
+
+            if (surprisedHajjiSound) {
+                surprisedHajjiSound.currentTime = 0;
+                surprisedHajjiSound.play().catch(error => {
+                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
+                });
+            }
 
             floatingAvatarBox.className = 'avatar-container play-surprisedman';
 
@@ -747,14 +833,21 @@
         } else if (avatarType === 'sleepyhajji') {
             floatingAvatarBox.innerHTML = `
                 <div class="white-frame"></div>
-                <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي%20نعسان1.webp?v=3" alt="حجي نعسان 1">
-                <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي%20نعسان2.webp?v=3" alt="حجي نعسان 2">
+                <img class="sleepy-img-1 default-show" src="${BASE_CHAT_URL}حجي/حجي_نعسان1.webp?v=13" alt="حجي نعسان 1">
+                <img class="sleepy-img-2" src="${BASE_CHAT_URL}حجي/حجي_نعسان2.webp?v=13" alt="حجي نعسان 2">
             `;
 
             floatingAvatarDisplay.classList.add('show');
             
             const img1 = floatingAvatarBox.querySelector('.sleepy-img-1');
             if (img1) img1.classList.remove('default-show');
+
+            if (sleepyHajjiSound) {
+                sleepyHajjiSound.currentTime = 0;
+                sleepyHajjiSound.play().catch(error => {
+                    console.log("تعذر تشغيل الصوت تلقائياً:", error);
+                });
+            }
 
             floatingAvatarBox.className = 'avatar-container play-sleepyman';
 
