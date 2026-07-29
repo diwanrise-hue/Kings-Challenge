@@ -134,11 +134,11 @@
         }
 
         /* ---------------------------------------------------- */
-        /* 💬 ستايلات فقاعة الحوار والأفاتارات العلوية (الجديدة) */
+        /* 💬 تنسيقات فقاعة الحوار والأفاتارات العلوية المطلقة     */
         /* ---------------------------------------------------- */
         
         .in-game-chat-bubble {
-            position: absolute;
+            position: fixed;
             background: #ffffff;
             color: #1a1a1a;
             padding: 8px 14px;
@@ -146,13 +146,10 @@
             font-size: 13px;
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            z-index: 10005;
+            z-index: 999999;
             white-space: nowrap;
             pointer-events: none;
             animation: popBubble 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            top: 65px; /* تظهر أسفل صورة اللاعب بقليل */
-            left: 50%;
-            transform: translateX(-50%);
             border: 2px solid #e0e0e0;
         }
 
@@ -160,31 +157,34 @@
         .in-game-chat-bubble::before {
             content: '';
             position: absolute;
-            top: -8px;
+            bottom: -8px;
             left: 50%;
             transform: translateX(-50%);
-            border-width: 0 8px 8px 8px;
+            border-width: 8px 8px 0 8px;
             border-style: solid;
-            border-color: transparent transparent #ffffff transparent;
+            border-color: #ffffff transparent transparent transparent;
         }
 
         .in-game-avatar-popup {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            z-index: 10005;
+            position: fixed;
+            width: 110px;
+            height: 110px;
+            z-index: 999999;
             pointer-events: none;
-            top: -20px; /* تظهر فوق صورة اللاعب مباشرة */
-            left: 50%;
-            transform: translateX(-50%);
             display: flex;
             justify-content: center;
             align-items: center;
+            animation: popInAvatar 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         @keyframes popBubble {
-            from { transform: translateX(-50%) scale(0.5); opacity: 0; }
-            to { transform: translateX(-50%) scale(1); opacity: 1; }
+            from { transform: translate(-50%, 10px) scale(0.5); opacity: 0; }
+            to { transform: translate(-50%, 0) scale(1); opacity: 1; }
+        }
+
+        @keyframes popInAvatar {
+            from { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
+            to { transform: translate(-50%, 0) scale(1); opacity: 1; }
         }
 
         /* ---------------------------------------------------- */
@@ -401,7 +401,6 @@
             </div>
         </div>
 
-        <!-- إضافة الملفات الصوتية مع بادئة chat_ لتجنب أي تضارب -->
         <audio id="chat_bossSound" src="${BASE_CHAT_URL}laugh.mp3"></audio>
         <audio id="chat_saeedSound" src="${BASE_CHAT_URL}حجي/ضحك_لايك.mp3"></audio>
         <audio id="chat_laughingHajjiSound" src="${BASE_CHAT_URL}حجي/حجي_يضحك.mp3"></audio>
@@ -412,7 +411,6 @@
     `;
     document.body.appendChild(container);
 
-    // 3. الأكواد البرمجية للوظائف (JavaScript Logic)
     let hideTimeouts = { me: null, opp: null };
 
     const windowPopup = document.getElementById('chatPopupWindow');
@@ -449,7 +447,6 @@
     tabAvatarBtn.addEventListener('click', () => switchTab('avatar'));
     tabPresetBtn.addEventListener('click', () => switchTab('preset'));
 
-    // استماع لضغطات المستخدم للرسائل النصية
     document.querySelectorAll('.preset-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const text = btn.getAttribute('data-text');
@@ -458,7 +455,6 @@
         });
     });
 
-    // استماع لضغطات المستخدم للأفاتارات
     document.querySelectorAll('.avatar-container[data-avatar]').forEach(el => {
         el.addEventListener('click', () => {
             const avatarId = el.getAttribute('data-avatar');
@@ -467,53 +463,57 @@
         });
     });
 
-    // دالة الإرسال للسيرفر وعرضها محلياً
     function handleOutboundChat(type, value) {
-        // العرض عند اللاعب نفسه أولاً
         window.playInGameChat('me', type, value);
-        
-        // إرسالها للسيرفر (عن طريق socketManager إذا كان متصلاً)
         if (window.socketManager && typeof window.socketManager.sendChatData === 'function') {
             window.socketManager.sendChatData(type, value);
         }
     }
 
-    // 💡 الدالة الشاملة لعرض الدردشة والأفاتارات (متاحة للـ socketManager أيضاً)
+    // 💡 الدالة المصححة والمحسنة لعرض الأفاتارات والرسائل بدقة مطلقة فوق صور البروفايل
     window.playInGameChat = function(sender, type, value) {
-        // تحديد مكان العرض (أنت أم الخصم) بناءً على حاوية الصور في الأعلى
         const targetElementId = sender === 'me' ? 'card-my-avatar' : 'card-opp-avatar';
         const targetElement = document.getElementById(targetElementId);
         
         if (!targetElement) return;
 
-        // تجهيز حاوية البروفايل لتكون Position Relative لكي تظهر الفقاعة والأفاتار فوقها
-        if (getComputedStyle(targetElement.parentElement).position === 'static') {
-            targetElement.parentElement.style.position = 'relative';
-        }
+        // حساب موقع صورة البروفايل بدقة على الشاشة (Viewport Coordinates)
+        const rect = targetElement.getBoundingClientRect();
+        const centerX = rect.left + (rect.width / 2);
+        const topY = rect.top;
 
         if (type === 'text') {
-            // تنظيف أي رسالة سابقة لنفس اللاعب
-            const oldBubble = targetElement.parentElement.querySelector('.in-game-chat-bubble');
+            const oldBubble = document.getElementById('active-chat-bubble-' + sender);
             if (oldBubble) oldBubble.remove();
 
             const bubble = document.createElement('div');
+            bubble.id = 'active-chat-bubble-' + sender;
             bubble.className = 'in-game-chat-bubble';
             bubble.textContent = value;
-            targetElement.parentElement.appendChild(bubble);
+            
+            // تحديد الموقع فوق الصورة تماماً
+            bubble.style.left = centerX + 'px';
+            bubble.style.top = (topY - 45) + 'px';
+
+            document.body.appendChild(bubble);
 
             setTimeout(() => {
                 if (bubble.parentElement) bubble.remove();
             }, 3000);
 
         } else if (type === 'avatar') {
-            // تنظيف أي أفاتار سابق
-            const oldAvatar = targetElement.parentElement.querySelector('.in-game-avatar-popup');
+            const oldAvatar = document.getElementById('active-chat-avatar-' + sender);
             if (oldAvatar) oldAvatar.remove();
             if (hideTimeouts[sender]) clearTimeout(hideTimeouts[sender]);
 
             const avatarBox = document.createElement('div');
+            avatarBox.id = 'active-chat-avatar-' + sender;
             avatarBox.className = 'in-game-avatar-popup avatar-container';
             
+            // تحديد الموقع فوق الصورة تماماً وبشكل منفصل عن أي حاوية مقصوصة
+            avatarBox.style.left = centerX + 'px';
+            avatarBox.style.top = (topY - 35) + 'px';
+
             let htmlContent = '';
             let audioId = '';
             let animClass = '';
@@ -552,13 +552,11 @@
             avatarBox.innerHTML = htmlContent;
             avatarBox.classList.add(animClass);
             
-            // إخفاء الصورة الافتراضية أثناء الأنيميشن
             const img1 = avatarBox.querySelector('img.default-show');
             if (img1) img1.classList.remove('default-show');
 
-            targetElement.parentElement.appendChild(avatarBox);
+            document.body.appendChild(avatarBox);
 
-            // تشغيل الصوت
             const audioEl = document.getElementById(audioId);
             if (audioEl) {
                 audioEl.currentTime = 0;
