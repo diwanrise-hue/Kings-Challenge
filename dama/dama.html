@@ -480,7 +480,8 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.6), inset 0 -2px 4px rgba(0,0,0,0.4);
         }
 
-        .wheel-inner { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0,0,0,0.6); position: relative; overflow: hidden; background: conic-gradient(#d35400 0deg 45deg, #2980b9 45deg 90deg, #27ae60 90deg 135deg, #16a085 135deg 180deg, #8e44ad 180deg 225deg, #c0392b 225deg 270deg, #f39c12 270deg 315deg, #5c4a1b 315deg 360deg); }
+        /* 💡 إزالة overflow: hidden للسماح للدبابيس بالظهور فوق الإطار الأصفر */
+        .wheel-inner { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0,0,0,0.6); position: relative; background: conic-gradient(#d35400 0deg 45deg, #2980b9 45deg 90deg, #27ae60 90deg 135deg, #16a085 135deg 180deg, #8e44ad 180deg 225deg, #c0392b 225deg 270deg, #f39c12 270deg 315deg, #5c4a1b 315deg 360deg); }
         .wheel-text { position: absolute; top: 20px; left: 50%; transform-origin: center 120px; text-align: center; font-size: 15px; font-weight: 800; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); white-space: nowrap; }
         .w-1 { transform: translateX(-50%) rotate(22.5deg); } .w-2 { transform: translateX(-50%) rotate(67.5deg); } .w-3 { transform: translateX(-50%) rotate(112.5deg); } .w-4 { transform: translateX(-50%) rotate(157.5deg); } .w-5 { transform: translateX(-50%) rotate(202.5deg); } .w-6 { transform: translateX(-50%) rotate(247.5deg); } .w-7 { transform: translateX(-50%) rotate(292.5deg); } .w-8 { transform: translateX(-50%) rotate(337.5deg); color: #ffd700; font-size: 16px; }
         .wheel-center-pin { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 45px; height: 45px; background: radial-gradient(circle, #ffffff, #f1c40f); border: 4px solid #d4af37; border-radius: 50%; z-index: 5; box-shadow: 0 4px 10px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 18px; }
@@ -669,15 +670,15 @@
                     <div class="wheel-text w-7">250 🪙</div>
                     <div class="wheel-text w-8">1000 🎁</div>
 
-                    <!-- 👇 الدبابيس الثمانية المضبوطة بدقة على حافة العجلة 👇 -->
-                    <div class="wheel-pin" style="transform: rotate(0deg) translateY(-136px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(45deg) translateY(-136px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(90deg) translateY(-136px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(135deg) translateY(-136px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(180deg) translateY(-136px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(225deg) translateY(-136px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(270deg) translateY(-136px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(315deg) translateY(-136px);"></div>
+                    <!-- 👇 الدبابيس الثمانية المضبوطة بدقة على حافة العجلة (تم تعديل المسافة) 👇 -->
+                    <div class="wheel-pin" style="transform: rotate(0deg) translateY(-142px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(45deg) translateY(-142px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(90deg) translateY(-142px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(135deg) translateY(-142px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(180deg) translateY(-142px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(225deg) translateY(-142px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(270deg) translateY(-142px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(315deg) translateY(-142px);"></div>
                 </div>
                 <div class="wheel-center-pin">⭐️</div>
             </div>
