@@ -5,7 +5,6 @@ import { gameAI } from './gameAI.js';
 import { socket, socketManager } from './socketManager.js';
 import { translations, t } from './i18n.js';
 
-// 💡 تصدير دالة الترجمة للـ HTML لكي تعمل القائمة الجانبية ولوحة الشرف بنجاح
 window.t = t; 
 
 export const sfx = {
@@ -31,6 +30,7 @@ window.isMatchRunning = false;
 export const ui = {
     sfx: sfx,
     clickHandlers: new Map(), 
+    currentWheelDeg: 0, 
 
     translate(arTxt, enTxt) {
         return t(arTxt) || arTxt;
@@ -138,7 +138,6 @@ export const ui = {
             'lbl-add-friend-title': 'addFriendLabel', 'theme-bg-0': 'theme_bg_0', 'theme-pc-0': 'theme_pc_0',
             'card-my-name': 'badge_you', 'badge-username-display-game': 'badge_you',
             
-            // إضافة القائمة الجانبية والشرف إلى خريطة الترجمة الفورية
             'menu-title-text': 'menu_title',
             'menu-bag-text': 'menu_bag',
             'menu-radio-text': 'menu_radio',
@@ -150,8 +149,6 @@ export const ui = {
             'lb-tab-wins': 'lb_wins',
             'lb-tab-tokens': 'lb_tokens',
             'tutorial-mode-label': 'tutorial_mode',
-
-            // 💡 إضافة نصوص حالة البحث لحل مشكلة عدم الترجمة
             'online-status-text': 'searching',
             'mm-status-label': 'searching'
         };
@@ -228,6 +225,100 @@ export const ui = {
         });
     },
 
+    // =========================================================
+    // 🌟 حساب المستوى والرتبة بصرياً (Level & Rank Engine)
+    // =========================================================
+    calculateLevelInfo(xpStr) {
+        let currentXp = parseInt(xpStr) || 0;
+        
+        // معادلة الصعوبة: المستوى يزداد بشكل جذري ليصبح أبطأ كلما تقدم اللاعب
+        // XP = (Level - 1)^2 * 50
+        let level = Math.floor(Math.sqrt(currentXp / 50)) + 1;
+        if (level > 200) level = 200; // الحد الأقصى
+        
+        let xpForCurrentLevel = Math.pow(level - 1, 2) * 50;
+        let xpForNextLevel = Math.pow(level, 2) * 50;
+        if (level === 200) xpForNextLevel = xpForCurrentLevel; 
+        
+        let progressXp = currentXp - xpForCurrentLevel;
+        let requiredXp = xpForNextLevel - xpForCurrentLevel;
+        let percentage = level === 200 ? 100 : Math.min(100, Math.max(0, (progressXp / requiredXp) * 100));
+
+        // نظام الألقاب
+        let title = t('title_beginner') || "مبتدئ";
+        if (level >= 100) title = t('title_grandmaster') || "جراند ماستر";
+        else if (level >= 50) title = t('title_master') || "معلم الدامة";
+        else if (level >= 30) title = t('title_expert') || "خبير";
+        else if (level >= 10) title = t('title_duelist') || "مبارز";
+
+        // نظام الرتب التنافسية بناءً على الخبرة
+        let rank = "برونزي"; let rankIcon = "🥉";
+        if (currentXp >= 5000) { rank = "أسطوري"; rankIcon = "👑"; }
+        else if (currentXp >= 2500) { rank = "ماسي"; rankIcon = "💎"; }
+        else if (currentXp >= 1200) { rank = "ذهبي"; rankIcon = "🥇"; }
+        else if (currentXp >= 500) { rank = "فضي"; rankIcon = "🥈"; }
+
+        return { level, title, rank, rankIcon, progressXp, requiredXp, percentage };
+    },
+
+    // =========================================================
+    // 🌟 دالة إظهار شاشة الترقية (Level Up Modal)
+    // =========================================================
+    showLevelUpModal(newLevel, title, rewardsHtml) {
+        this.setTxt('level-up-num', newLevel);
+        this.setTxt('level-up-title', `لقب: ${title}`);
+        
+        const rewardsContainer = this.getEl('level-up-rewards');
+        if (rewardsContainer) rewardsContainer.innerHTML = rewardsHtml;
+        
+        this.playSound(sfx.win);
+        
+        const modalEl = this.getEl('level-up-modal');
+        if (modalEl) modalEl.style.display = 'flex';
+    },
+
+    animateLuckySpin(prizeIndex, onComplete) {
+        const wheel = this.getEl('lucky-wheel-inner');
+        const btnFree = this.getEl('spin-free-btn');
+        const btnPaid = this.getEl('spin-paid-btn');
+        if (!wheel) return;
+
+        if (btnFree) btnFree.style.pointerEvents = 'none';
+        if (btnPaid) btnPaid.style.pointerEvents = 'none';
+
+        const extraSpins = 5 * 360; 
+        const targetDeg = extraSpins + (360 - (prizeIndex * 45 + 22.5));
+
+        const currentMod = this.currentWheelDeg % 360;
+        const targetMod = targetDeg % 360;
+        let diff = targetMod - currentMod;
+        if (diff < 0) diff += 360; 
+        
+        this.currentWheelDeg += extraSpins + diff;
+
+        wheel.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+        wheel.style.transform = `rotate(${this.currentWheelDeg}deg)`;
+
+        let tickAudio = sfx.move;
+        let spinDuration = 5000;
+        let tickInterval = setInterval(() => {
+            if (tickAudio) {
+                tickAudio.currentTime = 0;
+                let playPromise = tickAudio.play();
+                if (playPromise !== undefined) playPromise.catch(() => {});
+            }
+        }, 300); 
+        
+        setTimeout(() => { clearInterval(tickInterval); }, 3500); 
+
+        setTimeout(() => {
+            this.playSound(sfx.win); 
+            if (btnFree) btnFree.style.pointerEvents = 'auto';
+            if (btnPaid) btnPaid.style.pointerEvents = 'auto';
+            if (onComplete) onComplete();
+        }, spinDuration + 100);
+    },
+
     animateMatchFound(oppName, oppAvatar, onComplete) {
         this.setTxt('mm-opp-name', oppName);
         this.applyAvatar('mm-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
@@ -257,13 +348,13 @@ export const ui = {
         
         this.setDisplay('online-toggle-btn', flexState);
         this.setDisplay('store-portal-corner-btn', flexState);
+        this.setDisplay('lucky-spin-portal-btn', flexState); 
         this.setDisplay('hamburger-menu-btn', flexState);
         
         this.setDisplay('diff-quick-select', inlineState);
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
         
-        // 💡 إخفاء زر الدردشة وزر المايك في وضع الأوفلاين
         this.setDisplay('gameChatBtn', 'none');
         this.setDisplay('mic-toggle-btn', 'none');
         
@@ -281,12 +372,12 @@ export const ui = {
         
         window.isMatchRunning = active;
         
-        // 💡 إظهار الأزرار المخصصة للأونلاين (الدردشة والمايك) عندما يكون active = true
         const displays = {
             'reset-btn': normalState, 
             'diff-quick-select': normalState, 
             'online-toggle-btn': flexState,
             'store-portal-corner-btn': flexState,
+            'lucky-spin-portal-btn': flexState, 
             'hamburger-menu-btn': flexState,
             'bag-quick-btn': 'none',
             'resign-btn': onlineState, 
@@ -302,6 +393,32 @@ export const ui = {
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             this.setTxt('card-opp-name', oppName);
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
+            
+            // 🌟 رسم المستوى في شريط الأونلاين
+            let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
+            let myCardLevel = this.getEl('card-my-level');
+            if (myCardLevel) myCardLevel.textContent = `Lv.${myLvlInfo.level}`;
+            
+            let oppCardLevel = this.getEl('card-opp-level');
+            if (oppCardLevel) {
+                if (gameState.currentOpponentXp !== undefined) {
+                    let oppLvlInfo = this.calculateLevelInfo(gameState.currentOpponentXp);
+                    oppCardLevel.textContent = `Lv.${oppLvlInfo.level}`;
+                    oppCardLevel.style.background = "#ff453a"; 
+                } else {
+                    oppCardLevel.textContent = `Lv.?`;
+                    oppCardLevel.style.background = "#555";
+                }
+            }
+            
+            const vsTextEl = document.querySelector('.match-vs-text');
+            if (vsTextEl) {
+                if (gameState.roomBet && gameState.roomBet > 0) {
+                    vsTextEl.innerHTML = `VS<br><span style="font-size:14px; color:#ffd700; text-shadow:0 0 8px rgba(255, 215, 0, 0.5); display:block; margin-top:2px;">💰 ${gameState.roomBet * 2}</span>`;
+                } else {
+                    vsTextEl.innerHTML = `VS`;
+                }
+            }
         }
     },
 
@@ -618,10 +735,8 @@ export const ui = {
             return; 
         }
 
-        // 💡 1. الإصلاح الأول: يجب تحديث حالة الرقعة من الواجهة "قبل" محاولة حفظها في السجل
         this.updateVirtualBoardState();
 
-        // 💡 2. الإصلاح الثاني: إزالة (!gameState.isMultiJumping) للسماح بحفظ كل قفزة متتالية
         if (!gameState.isOnlineMode) {
             if (!gameState.boardHistory) gameState.boardHistory = [];
             let currentBoardStr = JSON.stringify(gameState.virtualBoard);
@@ -970,10 +1085,16 @@ export const ui = {
                 } else {
                     let displayReward = 0;
                     let isBossLevel = false;
+                    let isBetMatch = false;
                     let lvl = parseInt(this.getVal('diff-quick-select', '3')) || 3;
 
                     if (gameState.isOnlineMode) {
-                        displayReward = isMeWin ? 120 : 0;
+                        if (gameState.roomBet && gameState.roomBet > 0) {
+                            isBetMatch = true;
+                            displayReward = isMeWin ? (gameState.roomBet * 2) : gameState.roomBet;
+                        } else {
+                            displayReward = isMeWin ? 120 : 0;
+                        }
                     } else {
                         if (isMeWin) {
                             if (lvl <= 2) displayReward = 10;
@@ -990,33 +1111,35 @@ export const ui = {
                     }
 
                     if (displayReward !== 0) {
-                        let rewardText = isBossLevel 
-                            ? `👑 مكافأة الزعيم: ${displayReward} 🪙` 
-                            : `${(t('tokenReward') || 'المكافأة:')} ${displayReward}`;
-                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", rewardText));
+                        let rewardText = "";
+                        let alertColor = "#f5a623";
+
+                        if (isBetMatch) {
+                            if (isMeWin) {
+                                rewardText = `💰 جائزة الرهان: +${displayReward} 🪙`;
+                                alertColor = "#30d158"; 
+                            } else {
+                                rewardText = `💸 خسارة الرهان: -${displayReward} 🪙`;
+                                alertColor = "#ff453a"; 
+                            }
+                        } else if (isBossLevel) {
+                            rewardText = `👑 مكافأة الزعيم: ${displayReward} 🪙`;
+                        } else {
+                            rewardText = `${(t('tokenReward') || 'المكافأة:')} ${displayReward}`;
+                        }
+                        
+                        box.appendChild(this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`, rewardText));
                     }
 
+                    // 🛡️ حماية النظام: السيرفر هو من سيضيف العملات فقط
                     if (!gameState.isOnlineMode) {
                         socket.emit('claimBotReward', { isWin: isMeWin, level: lvl });
                     }
                 }
             } else {
-                const offlineMsg = t('offline_mode');
+                // 🛡️ حماية النظام: لا يتم حفظ أي جوائز أو مستويات في الأوفلاين
+                const offlineMsg = t('offline_mode') || "أنت تلعب بدون إنترنت (لن يتم حساب الخبرة أو الجوائز)";
                 box.appendChild(this.makeEl('div', 'offline-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", offlineMsg));
-                
-                gameState.userProfile.gamesPlayed++;
-                if (isMeWin) gameState.userProfile.wins++;
-                else gameState.userProfile.losses++;
-                
-                if (gameState.userProfile.id) {
-                    gameState.userProfile.id = gameState.userProfile.id.toUpperCase();
-                }
-                
-                let profileToSave = { ...gameState.userProfile };
-                if (gameState.originalHints !== undefined && gameState.originalHints !== null) {
-                    profileToSave.hints = gameState.originalHints;
-                }
-                localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
             }
             
             if (window.parent) {
@@ -1040,6 +1163,27 @@ export const ui = {
             window.applyProfileDataToUI(gameState.userProfile);
         }
         
+        // 🌟 حساب وعرض المستويات والرتب في البروفايل
+        let prof = gameState.userProfile;
+        let lvlInfo = this.calculateLevelInfo(prof.xp || 0);
+
+        const badgeLevel = this.getEl('badge-level');
+        const badgeRing = this.getEl('badge-xp-ring');
+        if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
+        if (badgeRing) badgeRing.style.background = `conic-gradient(#34c759 ${lvlInfo.percentage}%, rgba(255,255,255,0.1) 0%)`;
+
+        const igpLevel = this.getEl('igp-level');
+        const igpRing = this.getEl('igp-xp-ring');
+        const igpRank = this.getEl('igp-rank-title');
+        const igpXpFill = this.getEl('igp-xp-fill');
+        const igpXpText = this.getEl('igp-xp-text');
+
+        if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
+        if (igpRing) igpRing.style.background = `conic-gradient(#34c759 ${lvlInfo.percentage}%, rgba(255,255,255,0.1) 0%)`;
+        if (igpRank) igpRank.innerHTML = `الرتبة: ${lvlInfo.rankIcon} ${lvlInfo.rank} | ${lvlInfo.title}`;
+        if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
+        if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
+
         const hintCounter = document.getElementById('hint-counter');
         if (hintCounter) {
             if (gameState.isTutorialMode && !gameState.isOnlineMode) {
@@ -1139,9 +1283,6 @@ ui.onClick('reset-btn', () => {
                 t('alert_title'),
                 () => { 
                     if (!gameState.isTutorialMode && gameState.userProfile) {
-                        gameState.userProfile.losses++;
-                        gameState.userProfile.gamesPlayed++;
-                        localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
                         ui.updateProfileUI();
                         if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
                     }
@@ -1400,7 +1541,6 @@ if (!document.getElementById('forced-overlay-style')) {
     const forcedStyle = document.createElement('style');
     forcedStyle.id = 'forced-overlay-style';
     forcedStyle.innerHTML = `
-        /* 1. إعطاء الخلية الحاضنة إطاراً رفيعاً ومحدداً */
         .cell:has(.piece.multi-choice) {
             position: relative !important;
             border: 2px solid #ff453a !important; 
@@ -1408,24 +1548,16 @@ if (!document.getElementById('forced-overlay-style')) {
             border-radius: inherit;
         }
 
-        /* 2. التوهج المزدوج المتغير ليناسب جميع ألوان الرقعة */
         @keyframes dangerPulse {
-            0% {
-                box-shadow: 0 0 8px #ff453a, inset 0 0 15px rgba(255, 69, 58, 0.5);
-                border-color: #ff453a;
-            }
-            100% {
-                box-shadow: 0 0 20px #ff453a, 0 0 30px #ffd700, inset 0 0 35px rgba(255, 69, 58, 0.8);
-                border-color: #ffd700; /* يتحول للذهبي في ذروة النبض للتباين العالي */
-            }
+            0% { box-shadow: 0 0 8px #ff453a, inset 0 0 15px rgba(255, 69, 58, 0.5); border-color: #ff453a; }
+            100% { box-shadow: 0 0 20px #ff453a, 0 0 30px #ffd700, inset 0 0 35px rgba(255, 69, 58, 0.8); border-color: #ffd700; }
         }
 
-        /* 3. رفع الحجر ليكون فوق الإشعاع مع إضافة ظل داكن يفصله عن الرقعة */
         .cell:has(.piece.multi-choice) .piece {
             z-index: 2 !important; 
             position: relative !important;
-            transform: scale(1.08) !important; /* تكبير بسيط وجميل للحجر الإجباري */
-            filter: drop-shadow(0 5px 12px rgba(0,0,0,0.8)) !important; /* ظل أسود قوي للحجر نفسه */
+            transform: scale(1.08) !important; 
+            filter: drop-shadow(0 5px 12px rgba(0,0,0,0.8)) !important; 
             transition: transform 0.2s ease, filter 0.2s ease;
         }
     `;
