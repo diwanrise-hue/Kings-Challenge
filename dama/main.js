@@ -85,13 +85,13 @@ export function updateSpinTimerDisplay(nextFreeTime) {
         const timerEl = document.getElementById('spin-timer');
         const freeBtn = document.getElementById('spin-free-btn');
         const paidBtn = document.getElementById('spin-paid-btn');
-        const notifyBadge = document.getElementById('spin-notify-badge');
+        const menuNotifyBadge = document.getElementById('menu-spin-notify-badge'); // النقطة الخضراء في القائمة
         
         if (!nextFreeTime || now >= nextFreeTime) {
             if (timerEl) timerEl.innerText = "اللفة المجانية جاهزة! 🎁";
             if (freeBtn) { freeBtn.style.display = 'flex'; }
             if (paidBtn) paidBtn.style.display = 'none';
-            if (notifyBadge) notifyBadge.style.display = 'block';
+            if (menuNotifyBadge) menuNotifyBadge.style.display = 'block'; // إظهار النقطة الخضراء
             clearInterval(spinTimerInterval);
             spinTimerInterval = null;
         } else {
@@ -102,7 +102,7 @@ export function updateSpinTimerDisplay(nextFreeTime) {
             if (timerEl) timerEl.innerText = `اللفة المجانية القادمة بعد: ${h}:${m}:${s}`;
             if (freeBtn) freeBtn.style.display = 'none';
             if (paidBtn) { paidBtn.style.display = 'flex'; }
-            if (notifyBadge) notifyBadge.style.display = 'none';
+            if (menuNotifyBadge) menuNotifyBadge.style.display = 'none'; // إخفاء النقطة الخضراء
         }
     };
     
@@ -250,6 +250,7 @@ ui.onClick('switch-account-btn', () => { ui.setDisplay('profile-modal', 'none');
 // =========================================================================
 
 ui.onClick('spin-free-btn', () => {
+    if (window.isSpinning) return; // منع النقر إذا كانت العجلة تدور
     if (socket && socket.connected) {
         // نغير النص مؤقتاً لتجنب النقرات المتكررة
         const btn = document.getElementById('spin-free-btn');
@@ -261,13 +262,20 @@ ui.onClick('spin-free-btn', () => {
 });
 
 ui.onClick('spin-paid-btn', () => {
-    if (gameState.userProfile.tokens < 100) {
-        return ui.showCustomAlert("رصيدك غير كافٍ للفة الإضافية (مطلوب 100 🪙)", "عذراً");
+    if (window.isSpinning) return; // منع النقر المتكرر السريع
+    
+    // التكلفة مرفوعة إلى 200
+    if (gameState.userProfile.tokens < 200) {
+        return ui.showCustomAlert("رصيدك غير كافٍ للفة الإضافية (مطلوب 200 🪙)", "عذراً");
     }
+    
     if (socket && socket.connected) {
-        ui.showCustomAlert("سيتم خصم 100 🪙 من رصيدك مقابل هذه اللفة الإضافية. هل أنت مستعد؟", "تأكيد اللفة", () => {
+        ui.showCustomAlert("سيتم خصم 200 🪙 من رصيدك مقابل هذه اللفة الإضافية. هل أنت مستعد؟", "تأكيد اللفة", () => {
             const btn = document.getElementById('spin-paid-btn');
-            if (btn) btn.innerText = "جاري الدفع...";
+            if (btn) {
+                btn.innerText = "جاري الدفع...";
+                btn.style.pointerEvents = 'none'; // إقفال الزر مؤقتاً لمنع السبام
+            }
             socket.emit('requestLuckySpin', { type: 'paid', guestId: gameState.userProfile.id });
         }, true, "إلغاء", "نعم، لف العجلة!");
     } else {
@@ -281,7 +289,7 @@ socket.on('luckySpinResult', (data) => {
     const freeBtn = document.getElementById('spin-free-btn');
     if (freeBtn) freeBtn.innerText = "لفة مجانية 🆓";
     const paidBtn = document.getElementById('spin-paid-btn');
-    if (paidBtn) paidBtn.innerText = "لفة إضافية (100 🪙)";
+    if (paidBtn) paidBtn.innerText = "لفة إضافية (200 🪙)";
 
     if (data.success) {
         ui.animateLuckySpin(data.prizeIndex, () => {
@@ -300,9 +308,22 @@ socket.on('luckySpinResult', (data) => {
     }
 });
 
-// استلام تحديثات البروفايل لمزامنة العداد إذا تم تحديثه من جهاز آخر
+// استلام تحديثات البروفايل لمزامنة الرصيد والعداد فوراً
 socket.on('profileUpdated', (profile) => {
-    if (profile && profile.nextFreeSpin) {
+    if (!profile) return;
+    
+    // دمج البيانات الجديدة وتحديث اللوكال ستورج فوراً
+    gameState.userProfile = { ...gameState.userProfile, ...profile };
+    localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
+    
+    // تحديث الواجهات
+    if (typeof window.applyProfileDataToUI === 'function') {
+        window.applyProfileDataToUI(gameState.userProfile);
+    }
+    ui.updateProfileUI();
+
+    // تحديث المؤقتات
+    if (profile.nextFreeSpin) {
         updateSpinTimerDisplay(profile.nextFreeSpin);
     }
 });
