@@ -446,6 +446,39 @@ const SVGIcons = {
             <path d="M 26 51 A 45 45 0 0 1 94 51" class="radar-arc2"/>
             <path d="M 10 34 A 65 65 0 0 1 110 34" class="radar-arc3"/>
         </g>
+    </svg>`,
+
+    // 14. عجلة الحظ (Lucky Spin)
+    luckySpin: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%">
+        <defs>
+            <linearGradient id="spin-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFE066" />
+                <stop offset="50%" stop-color="#F8B500" />
+                <stop offset="100%" stop-color="#B8860B" />
+            </linearGradient>
+            <filter id="spin-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="1.5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        <!-- التوهج الخلفي -->
+        <circle cx="12" cy="12" r="11" fill="rgba(248, 181, 0, 0.25)" filter="url(#spin-glow)" />
+        
+        <!-- إطار العجلة -->
+        <circle cx="12" cy="12" r="10" fill="#1e1e24" stroke="url(#spin-gold)" stroke-width="1.8" />
+        
+        <!-- القطع الملونة -->
+        <path d="M12 12 L12 2 A10 10 0 0 1 22 12 Z" fill="#FF453A" /> <!-- أحمر -->
+        <path d="M12 12 L22 12 A10 10 0 0 1 12 22 Z" fill="#0A84FF" /> <!-- أزرق -->
+        <path d="M12 12 L12 22 A10 10 0 0 1 2 12 Z" fill="#FFD60A" /> <!-- أصفر -->
+        <path d="M12 12 L2 12 A10 10 0 0 1 12 2 Z" fill="#30D158" /> <!-- أخضر -->
+        
+        <!-- الزر المركزي -->
+        <circle cx="12" cy="12" r="3" fill="url(#spin-gold)" stroke="#8B6508" stroke-width="0.8" />
+        <circle cx="12" cy="12" r="1.5" fill="#FFF" opacity="0.4" />
+        
+        <!-- مؤشر السهم العلوي -->
+        <path d="M12 0 L14.5 4.5 L9.5 4.5 Z" fill="url(#spin-gold)" filter="url(#spin-glow)" stroke="#8B6508" stroke-width="0.5" />
     </svg>`
 };
 
