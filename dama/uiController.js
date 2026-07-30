@@ -271,10 +271,14 @@ export const ui = {
         if (modalEl) modalEl.style.display = 'flex';
     },
 
+    // =========================================================
+    // 🎡 محرك التزامن الفيزيائي لعجلة الحظ
+    // =========================================================
     animateLuckySpin(prizeIndex, onComplete) {
-        window.isSpinning = true; // 🔒 قفل النافذة: العجلة تدور الآن
+        window.isSpinning = true; 
         
         const wheel = this.getEl('lucky-wheel-inner');
+        const pointer = this.getEl('lucky-wheel-pointer'); 
         const btnFree = this.getEl('spin-free-btn');
         const btnPaid = this.getEl('spin-paid-btn');
         if (!wheel) return;
@@ -290,49 +294,73 @@ export const ui = {
         let diff = targetMod - currentMod;
         if (diff < 0) diff += 360; 
         
-        this.currentWheelDeg += extraSpins + diff;
+        let startDeg = this.currentWheelDeg;
+        let totalChange = extraSpins + diff;
+        this.currentWheelDeg += totalChange;
 
-        wheel.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
-        wheel.style.transform = `rotate(${this.currentWheelDeg}deg)`;
+        // 🛑 إيقاف الـ CSS Transition لأننا سنحرك العجلة برمجياً لضمان التزامن 100%
+        wheel.style.transition = 'none';
 
         let tickAudio = sfx.spinTick;
         let spinDuration = 5000;
-        let startTime = Date.now();
+        let startTime = performance.now();
+        
+        // تتبع آخر دبوس مر عليه السهم لمعرفة متى نضرب بالضبط!
+        let lastPinPassed = Math.floor(startDeg / 45);
 
-        // 💡 نظام التكتكة الديناميكي (يتطابق مع تباطؤ العجلة)
-        const scheduleTick = () => {
-            let elapsed = Date.now() - startTime;
-            if (elapsed >= spinDuration) return; // إيقاف الصوت عند توقف العجلة
+        // 💡 المحرك الفيزيائي
+        const animateTick = (currentTime) => {
+            if (!window.isSpinning) return;
+            
+            let elapsed = currentTime - startTime;
+            if (elapsed >= spinDuration) elapsed = spinDuration;
 
-            // حساب نسبة التقدم من 0 إلى 1
-            let progress = elapsed / spinDuration;
+            // معادلة التباطؤ الفيزيائي (Cubic Ease Out) لتبدو حركتها واقعية
+            let t = elapsed / spinDuration;
+            let easeOut = 1 - Math.pow(1 - t, 3);
+            let currentSimulatedAngle = startDeg + (totalChange * easeOut);
 
-            if (tickAudio) {
-                let clonedTick = tickAudio.cloneNode();
-                clonedTick.volume = tickAudio.volume || parseFloat(localStorage.getItem('sfx_volume') || '0.7');
-                let playPromise = clonedTick.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(() => {});
+            // تحريك العجلة إطاراً بإطار
+            wheel.style.transform = `rotate(${currentSimulatedAngle}deg)`;
+
+            // 🎯 حساب الدبوس الحالي بدقة متناهية (كل 45 درجة يوجد دبوس)
+            let currentPin = Math.floor(currentSimulatedAngle / 45);
+            
+            // إذا عبر السهم دبوساً جديداً
+            if (currentPin > lastPinPassed) {
+                lastPinPassed = currentPin;
+
+                // 1. إصدار صوت التكتكة (بالضبط عند الاصطدام)
+                if (tickAudio) {
+                    let clonedTick = tickAudio.cloneNode();
+                    clonedTick.volume = tickAudio.volume || parseFloat(localStorage.getItem('sfx_volume') || '0.7');
+                    clonedTick.play().catch(() => {});
+                    clonedTick.onended = () => clonedTick.remove();
                 }
-                clonedTick.onended = () => { clonedTick.remove(); };
+
+                // 2. ضربة فيزيائية للسهم (ينضغط لليسار ثم يرتد بقوة الدبوس)
+                if (pointer) {
+                    pointer.style.transform = 'translateX(-50%) rotate(-30deg)';
+                    setTimeout(() => {
+                        pointer.style.transform = 'translateX(-50%) rotate(0deg)';
+                    }, 60); 
+                }
             }
 
-            // معادلة التباطؤ: يبدأ سريعاً (40ms) ثم يتباطأ تدريجياً ليطابق حركة العجلة حتى (800ms)
-            let nextDelay = 40 + Math.pow(progress, 3) * 760;
-            
-            setTimeout(scheduleTick, nextDelay);
+            if (elapsed < spinDuration) {
+                requestAnimationFrame(animateTick);
+            } else {
+                // انتهى الدوران
+                window.isSpinning = false; 
+                this.playSound(sfx.win); 
+                if (btnFree) btnFree.style.pointerEvents = 'auto';
+                if (btnPaid) btnPaid.style.pointerEvents = 'auto';
+                if (onComplete) onComplete();
+            }
         };
 
-        // بدء أول تكتكة
-        scheduleTick();
-
-        setTimeout(() => {
-            window.isSpinning = false; // 🔓 فتح القفل: انتهى الدوران
-            this.playSound(sfx.win); 
-            if (btnFree) btnFree.style.pointerEvents = 'auto';
-            if (btnPaid) btnPaid.style.pointerEvents = 'auto';
-            if (onComplete) onComplete();
-        }, spinDuration + 100);
+        // بدء تشغيل المحرك
+        requestAnimationFrame(animateTick);
     },
 
     animateMatchFound(oppName, oppAvatar, onComplete) {
