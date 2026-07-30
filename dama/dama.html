@@ -220,33 +220,15 @@
         /* ========================================== */
         /* 🌟 نظام المستوى والرتب (Levels & Ranks)   */
         /* ========================================== */
-        .avatar-wrapper { 
-            position: relative; 
-            width: 42px; height: 42px; 
-            display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 8px; /* 💡 مسافة لتجنب التداخل مع مربع المستوى */
-        }
         
         .xp-ring {
-            position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
-            border-radius: 50%; background: conic-gradient(#34c759 0%, #34c759 0%, rgba(255,255,255,0.1) 0%);
-            z-index: 0; transition: background 0.5s ease;
+            transition: background 0.5s ease;
         }
         
         .profile-avatar-capsule { 
-            width: 100%; height: 100%; border-radius: 50%; border: 2px solid #282a32; 
             display: flex; align-items: center; justify-content: center; font-size: 20px; 
             background-size: cover; background-position: center; overflow: hidden; 
-            background-color: rgba(255,255,255,0.05); z-index: 1; position: relative;
-        }
-        
-        .level-badge-small {
-            position: absolute; 
-            bottom: -10px; /* 💡 دفع العلامة لتكون خارج الصورة بالكامل وتلتصق بالجزء السفلي */
-            left: 50%; transform: translateX(-50%);
-            background: #ff453a; color: white; font-size: 10px; padding: 2px 8px; 
-            border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; 
-            z-index: 10; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            background-color: rgba(255,255,255,0.05); position: relative;
         }
 
         .rank-icon-small {
@@ -270,13 +252,13 @@
             font-size: 9px; font-weight: 800; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        /* البروفايل العلوي */
+        /* البروفايل العلوي الجديد: الكبسولة المتكاملة */
         .profile-badge-container { 
             position: fixed !important; top: 15px !important;
             z-index: 10001; display: flex !important; flex-direction: row !important; align-items: center; 
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08); 
-            padding: 4px 12px 8px 6px; /* 💡 زيادة الـ padding السفلي ليتسع للمستوى */
+            padding: 6px 14px 6px 6px; 
             border-radius: 50px; 
             gap: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); cursor: pointer; 
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
@@ -411,8 +393,7 @@
         @keyframes badgePulse { 0% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.8; } }
 
         #match-players-card { background: rgba(45, 48, 55, 0.6) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important; }
-        .match-players-flex { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 80px; position: relative; }
-        .match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
+        .match-players-flex { display: flex; flex-direction: column; align-items: center; width: 80px; position: relative; }
         .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ffffff !important; display: flex; align-items: center; justify-content: center; }
         .match-vs-text { color: #a1a1aa; font-weight: 300; font-size: 16px; text-align: center; }
 
@@ -447,7 +428,6 @@
             margin: 0 auto 30px auto; 
         }
         
-        /* توهج ذهبي نابض خلف العجلة لإضافة فخامة */
         .wheel-container::before {
             content: ''; position: absolute;
             top: -20px; left: -20px; right: -20px; bottom: -20px;
@@ -459,11 +439,14 @@
         @keyframes pulseAura { 0% { transform: scale(0.9); opacity: 0.6; } 100% { transform: scale(1.1); opacity: 1; } }
 
         .wheel-pointer-wrapper { 
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%); 
-            z-index: 20; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8));
+            position: absolute; 
+            top: -28px; /* 👈 تم رفعه لأعلى ليتلامس مع الدبابيس بواقعية */
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 20; 
+            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8));
             transform-origin: top center;
-            /* تباطؤ فيزيائي مرن لحركة الإبرة */
-            transition: transform 0.06s cubic-bezier(0.25, 1.5, 0.5, 1);
+            transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             will-change: transform;
         }
         .wheel-pointer-shape {
@@ -486,7 +469,6 @@
             border: 12px solid #b8860b; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.9); 
             position: relative; overflow: visible; z-index: 10;
-            /* 🚀 تفعيل التسريع الرسومي (GPU Acceleration) لضمان 60fps */
             transform: translateZ(0); 
             will-change: transform;
             background: conic-gradient(
@@ -531,8 +513,6 @@
             background: conic-gradient(transparent 0deg, rgba(255,215,0,0.3) 20deg, transparent 40deg, rgba(255,215,0,0.3) 60deg, transparent 80deg, rgba(255,215,0,0.3) 100deg, transparent 120deg, rgba(255,215,0,0.3) 140deg, transparent 160deg, rgba(255,215,0,0.3) 180deg, transparent 200deg, rgba(255,215,0,0.3) 220deg, transparent 240deg, rgba(255,215,0,0.3) 260deg, transparent 280deg, rgba(255,215,0,0.3) 300deg, transparent 320deg, rgba(255,215,0,0.3) 340deg, transparent 360deg);
             animation: shineRays 15s linear infinite; z-index: -1; pointer-events: none;
         }
-
-        /* 🌟 تصميم القصاصات (Confetti) */
         .confetti { position: absolute; width: 10px; height: 10px; background: #ffd700; top: -10px; z-index: 999999; animation: fall 3s linear forwards; }
         @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
     </style>
@@ -572,15 +552,19 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
+    <!-- 🌟 الشاشة العلوية الجديدة: الكبسولة المدمجة للمستوى والخبرة -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
-        <div class="avatar-wrapper">
-            <div class="xp-ring" id="badge-xp-ring"></div>
-            <div class="profile-avatar-capsule" id="badge-avatar"></div>
-            <div class="level-badge-small" id="badge-level">Lv.1</div>
-        </div>
-        <div class="profile-badge-info">
-            <span id="badge-username-display-game" class="profile-badge-name">أنت</span>
-            <div class="stat-item">
+        <div class="profile-avatar-capsule" id="badge-avatar" style="width: 42px; height: 42px; flex-shrink: 0; border: 2px solid #282a32; border-radius: 50%;"></div>
+        
+        <div class="profile-badge-info" style="width: 100%; display: flex; flex-direction: column; gap: 2px; padding-right: 5px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px;">
+                <span id="badge-username-display-game" class="profile-badge-name" style="max-width: 75px;">أنت</span>
+                <div style="display: flex; align-items: center; background: rgba(0,0,0,0.35); border-radius: 12px; padding: 2px 6px; border: 1px solid rgba(255,255,255,0.08); gap: 4px;">
+                    <div class="xp-ring" id="badge-xp-ring" style="width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 0 3px rgba(0,0,0,0.8);"></div>
+                    <span id="badge-level" style="color: #34c759; font-size: 11px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">Lv.1</span>
+                </div>
+            </div>
+            <div class="stat-item" style="justify-content: flex-start;">
                 🪙 <span id="profile-stat-tokens-badge">0</span>
             </div>
         </div>
@@ -592,18 +576,14 @@
     <div id="status-area">
         <div id="match-players-card" style="display: none;">
             <div class="match-players-flex">
-                <div class="avatar-wrapper" style="width: 50px; height: 50px; margin-bottom: 10px;">
-                    <div id="card-my-avatar" class="profile-avatar-capsule" style="border: 2px solid #282a32;"></div>
-                    <div class="level-badge-small" id="card-my-level">Lv.1</div>
-                </div>
+                <div id="card-my-avatar" class="profile-avatar-capsule" style="width: 50px; height: 50px; border: 2px solid #282a32; border-radius: 50%;"></div>
+                <span id="card-my-level" style="display: inline-block; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); color: #34c759; font-size: 10px; font-weight: 800; margin-top: 4px; margin-bottom: 2px;">Lv.1</span>
                 <span id="card-my-name" class="match-players-name">أنت</span>
             </div>
             <span class="match-vs-text">VS</span>
             <div class="match-players-flex">
-                <div class="avatar-wrapper" style="width: 50px; height: 50px; margin-bottom: 10px;">
-                    <div id="card-opp-avatar" class="profile-avatar-capsule" style="border: 2px solid #282a32;">❓</div>
-                    <div class="level-badge-small" id="card-opp-level" style="background:#555;">Lv.?</div>
-                </div>
+                <div id="card-opp-avatar" class="profile-avatar-capsule" style="width: 50px; height: 50px; border: 2px solid #282a32; border-radius: 50%; background-color:#555; display:flex; align-items:center; justify-content:center; font-size:24px;">❓</div>
+                <span id="card-opp-level" style="display: inline-block; background: #555; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 10px; font-weight: 800; margin-top: 4px; margin-bottom: 2px;">Lv.?</span>
                 <span id="card-opp-name" class="match-players-name">الخصم</span>
             </div>
         </div>
@@ -635,7 +615,6 @@
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('lucky-spin-modal')">
                 <span style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; position: relative;" data-icon="luckySpin">
-                    <!-- النقطة الخضراء للإشعار بوجود لفة مجانية -->
                     <span class="notification-badge" id="menu-spin-notify-badge" style="display: none; background-color: #30d158; box-shadow: 0 0 8px #30d158; width: 12px; height: 12px; right: -6px; left: auto; top: -6px; position: absolute;"></span>
                 </span>
                 <span id="menu-spin-text">عجلة الحظ</span>
@@ -695,7 +674,8 @@
                 <div class="wheel-pointer-wrapper" id="lucky-wheel-pointer">
                     <div class="wheel-pointer-shape"></div>
                 </div>
-                <div class="wheel-inner" id="lucky-wheel-inner">
+                <!-- 👈 تم إضافة إمالة مبدئية ليبدأ السهم بين مسمارين -->
+                <div class="wheel-inner" id="lucky-wheel-inner" style="transform: rotate(22.5deg);">
                     <div class="wheel-text w-1">50 🪙</div>
                     <div class="wheel-text w-2">100 🪙</div>
                     <div class="wheel-text w-3">1 💡</div>
@@ -746,20 +726,23 @@
         </div>
     </div>
 
+    <!-- 🌟 شاشة البروفايل: الكبسولة المدمجة للمستوى والخبرة -->
     <div id="in-game-profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             <h3 id="igp-title" style="margin-bottom: 15px;">الملف الشخصي</h3>
             
-            <div class="avatar-wrapper" style="width: 80px; height: 80px; margin-bottom: 20px;">
-                <div class="xp-ring" id="igp-xp-ring"></div>
-                <div class="profile-avatar-capsule" id="igp-avatar" style="border-width: 3px;"></div>
-                <div class="level-badge-small" id="igp-level" style="font-size: 12px; padding: 3px 10px; bottom: -12px;">Lv.1</div>
+            <div class="profile-avatar-capsule" id="igp-avatar" style="width: 80px; height: 80px; border: 3px solid #282a32; border-radius: 50%; margin-bottom: 15px;"></div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-bottom: 5px;">
+                <h4 id="igp-name" style="margin: 0; font-size: 22px; font-weight: 700; color: white;">الاسم</h4>
+                <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
+                    <div class="xp-ring" id="igp-xp-ring" style="width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 3px rgba(0,0,0,0.8);"></div>
+                    <span id="igp-level" style="color: #34c759; font-size: 14px; font-weight: 800;">Lv.1</span>
+                </div>
             </div>
             
-            <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
-            
-            <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; margin-bottom: 5px;">الرتبة: 🥉 برونزي</div>
+            <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; margin-bottom: 15px;">الرتبة: 🥉 برونزي</div>
 
             <div style="width: 100%; margin-bottom: 20px;">
                 <div class="xp-bar-bg">
