@@ -1,4 +1,4 @@
-<!---dama.html--->
+<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -433,7 +433,31 @@
         /* 🎡 عجلة الحظ (Lucky Spin) - CSS            */
         /* ========================================== */
         .wheel-container { position: relative; width: 280px; height: 280px; margin: 0 auto 30px auto; }
+        
         .wheel-pointer { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 38px; color: #ff453a; z-index: 10; text-shadow: 0 4px 8px rgba(0,0,0,0.5); filter: drop-shadow(0 0 5px rgba(255,255,255,0.4)); }
+        
+        /* 💡 ستايل اهتزاز السهم */
+        #lucky-wheel-pointer {
+            transform-origin: top center;
+            transition: transform 0.05s ease-out;
+        }
+
+        /* 💡 ستايل الدبابيس الفضية */
+        .wheel-pin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, #ffffff, #bdc3c7);
+            border: 2px solid #7f8c8d;
+            border-radius: 50%;
+            margin-top: -7px;
+            margin-left: -7px;
+            z-index: 15;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,1);
+        }
+
         .wheel-inner { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0,0,0,0.6); position: relative; overflow: hidden; background: conic-gradient(#d35400 0deg 45deg, #2980b9 45deg 90deg, #27ae60 90deg 135deg, #16a085 135deg 180deg, #8e44ad 180deg 225deg, #c0392b 225deg 270deg, #f39c12 270deg 315deg, #5c4a1b 315deg 360deg); }
         .wheel-text { position: absolute; top: 20px; left: 50%; transform-origin: center 120px; text-align: center; font-size: 15px; font-weight: 800; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); white-space: nowrap; }
         .w-1 { transform: translateX(-50%) rotate(22.5deg); } .w-2 { transform: translateX(-50%) rotate(67.5deg); } .w-3 { transform: translateX(-50%) rotate(112.5deg); } .w-4 { transform: translateX(-50%) rotate(157.5deg); } .w-5 { transform: translateX(-50%) rotate(202.5deg); } .w-6 { transform: translateX(-50%) rotate(247.5deg); } .w-7 { transform: translateX(-50%) rotate(292.5deg); } .w-8 { transform: translateX(-50%) rotate(337.5deg); color: #ffd700; font-size: 16px; }
@@ -612,7 +636,7 @@
             <p class="settings-label" style="text-align:center; margin-bottom: 25px; color: #fff;">جرب حظك واربح جوائز وخصومات نادرة!</p>
 
             <div class="wheel-container">
-                <div class="wheel-pointer">🔻</div>
+                <div class="wheel-pointer" id="lucky-wheel-pointer">🔻</div>
                 <div class="wheel-inner" id="lucky-wheel-inner">
                     <div class="wheel-text w-1">50 🪙</div>
                     <div class="wheel-text w-2">100 🪙</div>
@@ -622,6 +646,16 @@
                     <div class="wheel-text w-6">50% 🎫</div>
                     <div class="wheel-text w-7">250 🪙</div>
                     <div class="wheel-text w-8">1000 🎁</div>
+
+                    <!-- 👇 الدبابيس الثمانية التي أضفناها على حواف الخانات 👇 -->
+                    <div class="wheel-pin" style="transform: rotate(0deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(45deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(90deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(135deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(180deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(225deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(270deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(315deg) translateY(-133px);"></div>
                 </div>
                 <div class="wheel-center-pin">⭐️</div>
             </div>
@@ -946,7 +980,6 @@
         }
 
         function closeAppModal(id) {
-            // 🛑 يمنع إغلاق النافذة إذا كانت العجلة تدور
             if (id === 'lucky-spin-modal' && window.isSpinning) return; 
 
             const modal = document.getElementById(id);
@@ -979,7 +1012,6 @@
             document.getElementById('lb-tab-' + tab).classList.add('active'); document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
         }
 
-        // 💡 تحديث تصميم عناصر لوحة الشرف لتدعم إظهار شارة الرتبة (Rank Badge)
         function createLbItemHTML(rank, name, score, type, avatarStr, playerRankInfo) {
             let prefix = type === 'wins' ? '' : '🪙 ';
             let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : '';
@@ -1036,7 +1068,6 @@
                 let wPlayer = winsData && winsData[i] ? winsData[i].name : `${unknownText} ${i+1}`;
                 let wScore = winsData && winsData[i] ? winsData[i].score : (100 - (i * 2));
                 let wAvatar = winsData && winsData[i] ? winsData[i].avatar : null; 
-                // سنمرر بيانات الرتبة لاحقاً من السيرفر (rankInfo)
                 let wRankInfo = winsData && winsData[i] ? winsData[i].rankInfo : null; 
                 winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins', wAvatar, wRankInfo));
             }
@@ -1266,7 +1297,6 @@
         window.addEventListener('load', () => { history.replaceState({ screen: 'dama-game' }, ''); });
 
         window.addEventListener('popstate', function(event) {
-            // 🛑 حماية الرجوع من الهاتف أثناء الدوران
             if (window.isSpinning) {
                 history.pushState({ modalOpen: 'lucky-spin-modal' }, '');
                 return;
