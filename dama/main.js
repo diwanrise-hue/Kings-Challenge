@@ -37,7 +37,8 @@ export const gameState = {
     onlineFlip: false,
     pieceDirection: { white: -1, black: 1 },
     blockGameOverModal: true,
-    originalHints: null, // 💡 الخزنة السرية: لحفظ رصيد المصابيح الحقيقي للاعب أثناء الأونلاين
+    originalHints: null, 
+    roomBet: 0, 
     virtualBoard: Array(8).fill(null).map(() => Array(8).fill(null)),
     
     userProfile: (() => {
@@ -45,7 +46,7 @@ export const gameState = {
         if (stored) {
             try { return JSON.parse(stored); } catch(e) { console.error("Error parsing profile:", e); }
         }
-        return { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5 };
+        return { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0 };
     })()
 };
 
@@ -57,25 +58,59 @@ setTimeout(() => { gameState.blockGameOverModal = false; }, 1000);
 // ==========================================
 export function startOnlineHintSystem() {
     if (gameState.originalHints === null) {
-        // حفظ الرصيد الحقيقي في الخزنة
         gameState.originalHints = gameState.userProfile.hints !== undefined ? gameState.userProfile.hints : 5;
     }
-    // منح اللاعب مصباحين فقط في الأونلاين
     gameState.userProfile.hints = 2; 
     ui.updateProfileUI();
 }
 
 export function restoreOfflineHintSystem() {
     if (gameState.originalHints !== null) {
-        // استعادة الرصيد الحقيقي من الخزنة
         gameState.userProfile.hints = gameState.originalHints; 
         gameState.originalHints = null;
-        // حفظ الرصيد الحقيقي في المتصفح فوراً لحمايته
         localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
         ui.updateProfileUI();
     }
 }
+
 // ==========================================
+// 🎡 نظام مؤقت عجلة الحظ (Lucky Spin Timer)
+// ==========================================
+let spinTimerInterval = null;
+export function updateSpinTimerDisplay(nextFreeTime) {
+    if (spinTimerInterval) clearInterval(spinTimerInterval);
+    
+    const tick = () => {
+        const now = Date.now();
+        const timerEl = document.getElementById('spin-timer');
+        const freeBtn = document.getElementById('spin-free-btn');
+        const paidBtn = document.getElementById('spin-paid-btn');
+        const notifyBadge = document.getElementById('spin-notify-badge');
+        
+        if (!nextFreeTime || now >= nextFreeTime) {
+            if (timerEl) timerEl.innerText = "اللفة المجانية جاهزة! 🎁";
+            if (freeBtn) { freeBtn.style.display = 'flex'; }
+            if (paidBtn) paidBtn.style.display = 'none';
+            if (notifyBadge) notifyBadge.style.display = 'block';
+            clearInterval(spinTimerInterval);
+            spinTimerInterval = null;
+        } else {
+            let diff = Math.floor((nextFreeTime - now) / 1000);
+            let h = String(Math.floor(diff / 3600)).padStart(2, '0');
+            let m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+            let s = String(diff % 60).padStart(2, '0');
+            if (timerEl) timerEl.innerText = `اللفة المجانية القادمة بعد: ${h}:${m}:${s}`;
+            if (freeBtn) freeBtn.style.display = 'none';
+            if (paidBtn) { paidBtn.style.display = 'flex'; }
+            if (notifyBadge) notifyBadge.style.display = 'none';
+        }
+    };
+    
+    tick();
+    if (nextFreeTime && nextFreeTime > Date.now()) {
+        spinTimerInterval = setInterval(tick, 1000);
+    }
+}
 
 export function saveGameState() {
     if (gameState.isOnlineMode) return;
@@ -115,11 +150,9 @@ window.addEventListener('load', () => {
     ui.initProfileSystem();
     socketManager.init();
     
-    // التحميل الأول: إذا لم تكن هناك لعبة محفوظة سيتم تهيئة لوحة فارغة
     if (!loadGameState()) {
         ui.drawEmptyBoard();
     } else {
-        // التأكد من استعادة حالة الأزرار بعد التحميل بنجاح
         if (gameState.virtualBoard.some(r => r.some(c => c !== null))) {
             window.isMatchRunning = true;
             ui.toggleOfflineInMatchUI(true);
@@ -127,6 +160,13 @@ window.addEventListener('load', () => {
         ui.renderBoard();
         ui.updateTexts();
         ui.startTurn();
+    }
+
+    // 🎡 تشغيل العداد التنازلي لعجلة الحظ عند التحميل
+    if (gameState.userProfile && gameState.userProfile.nextFreeSpin) {
+        updateSpinTimerDisplay(gameState.userProfile.nextFreeSpin);
+    } else {
+        updateSpinTimerDisplay(0);
     }
     
     if (!socket.connected) socket.connect();
@@ -169,7 +209,6 @@ ui.onClick('login-guest-btn', () => { gameState.userProfile = { ...gameState.use
 ui.onClick('login-submit-btn', () => { 
     let name = ui.getVal('login-name-input').trim(); 
     if (!name) return ui.showCustomAlert(t('enter_name')); 
-    // تعقيم المدخلات لمنع XSS
     name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
     gameState.userProfile = { ...gameState.userProfile, name, id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.png') }; localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); localStorage.removeItem('dama_guest_expiry'); ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); 
 });
@@ -194,10 +233,10 @@ ui.onClick('logout-btn', () => {
     const msg = isGuest ? t('guest_logout_warn') : t('logout_confirm');
         
     ui.showCustomAlert(msg, null, () => { 
-            gameState.originalHints = null; // تصفير الخزنة لضمان الأمان
+            gameState.originalHints = null; 
             localStorage.removeItem('hub_user_profile'); 
             localStorage.removeItem('dama_guest_expiry'); 
-            gameState.userProfile = { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [] }; 
+            gameState.userProfile = { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0 }; 
             ui.setDisplay('profile-modal', 'none'); 
             ui.setDisplay('login-modal', 'flex'); 
             if (typeof window.applyProfileDataToUI === 'function') window.applyProfileDataToUI(gameState.userProfile);
@@ -205,6 +244,69 @@ ui.onClick('logout-btn', () => {
 });
 
 ui.onClick('switch-account-btn', () => { ui.setDisplay('profile-modal', 'none'); ui.setDisplay('login-modal', 'flex'); });
+
+// =========================================================================
+// 🎡 أزرار وأحداث عجلة الحظ (Lucky Spin)
+// =========================================================================
+
+ui.onClick('spin-free-btn', () => {
+    if (socket && socket.connected) {
+        // نغير النص مؤقتاً لتجنب النقرات المتكررة
+        const btn = document.getElementById('spin-free-btn');
+        if (btn) btn.innerText = "جاري التحقق...";
+        socket.emit('requestLuckySpin', { type: 'free', guestId: gameState.userProfile.id });
+    } else {
+        ui.showCustomAlert(t('server_disconnected') || "يرجى الاتصال بالإنترنت أولاً للعب عجلة الحظ!");
+    }
+});
+
+ui.onClick('spin-paid-btn', () => {
+    if (gameState.userProfile.tokens < 100) {
+        return ui.showCustomAlert("رصيدك غير كافٍ للفة الإضافية (مطلوب 100 🪙)", "عذراً");
+    }
+    if (socket && socket.connected) {
+        ui.showCustomAlert("سيتم خصم 100 🪙 من رصيدك مقابل هذه اللفة الإضافية. هل أنت مستعد؟", "تأكيد اللفة", () => {
+            const btn = document.getElementById('spin-paid-btn');
+            if (btn) btn.innerText = "جاري الدفع...";
+            socket.emit('requestLuckySpin', { type: 'paid', guestId: gameState.userProfile.id });
+        }, true, "إلغاء", "نعم، لف العجلة!");
+    } else {
+        ui.showCustomAlert(t('server_disconnected') || "يرجى الاتصال بالإنترنت أولاً للعب عجلة الحظ!");
+    }
+});
+
+// استلام نتيجة عجلة الحظ من السيرفر وبدء الحركة
+socket.on('luckySpinResult', (data) => {
+    // إعادة نصوص الأزرار لطبيعتها
+    const freeBtn = document.getElementById('spin-free-btn');
+    if (freeBtn) freeBtn.innerText = "لفة مجانية 🆓";
+    const paidBtn = document.getElementById('spin-paid-btn');
+    if (paidBtn) paidBtn.innerText = "لفة إضافية (100 🪙)";
+
+    if (data.success) {
+        ui.animateLuckySpin(data.prizeIndex, () => {
+            // بعد انتهاء حركة الدوران نعرض رسالة الفوز
+            ui.showCustomAlert(data.message, "🎉 مبروك!");
+            
+            // تحديث وقت اللفة المجانية القادمة
+            if (data.nextFreeSpinTime) {
+                gameState.userProfile.nextFreeSpin = data.nextFreeSpinTime;
+                localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
+                updateSpinTimerDisplay(data.nextFreeSpinTime);
+            }
+        });
+    } else {
+        ui.showCustomAlert(data.message, "عذراً");
+    }
+});
+
+// استلام تحديثات البروفايل لمزامنة العداد إذا تم تحديثه من جهاز آخر
+socket.on('profileUpdated', (profile) => {
+    if (profile && profile.nextFreeSpin) {
+        updateSpinTimerDisplay(profile.nextFreeSpin);
+    }
+});
+// =========================================================================
 
 // =========================================================================
 // 💡 زر الأونلاين ونافذة البحث
@@ -223,7 +325,6 @@ if (onlineBtn) {
             return;
         }
 
-        // إظهار نافذة البحث بشكل إجباري ومباشر
         const mmModal = document.getElementById('matchmaking-modal');
         if (mmModal) {
             mmModal.style.display = 'flex';
@@ -249,7 +350,6 @@ if (onlineBtn) {
             myAvatarEl.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
         }
 
-        // 💡 الإصلاح هنا: فصل اسم الخصم عن النص التحتي لمنع اقتطاع الكلمات
         const oppNameEl = document.getElementById('mm-opp-name');
         const oppAvatarEl = document.getElementById('mm-opp-avatar');
         const statusLabelEl = document.getElementById('mm-status-label');
@@ -262,14 +362,12 @@ if (onlineBtn) {
             oppAvatarEl.style.backgroundImage = 'none';
         }
 
-        // إرسال البيانات للسيرفر
         socket.emit('joinMatchmakingPool', {
             guestId: profile.id,
             name: profile.name,
             avatar: profile.avatar
         });
 
-        // تشغيل العداد الزمني للبحث
         gameState.mmTimeLeft = 0;
         const timerEl = document.getElementById('mm-timer');
         if (timerEl) timerEl.innerText = "00:00";
@@ -284,7 +382,6 @@ if (onlineBtn) {
     });
 }
 
-// زر إلغاء البحث
 const cancelMmBtn = document.getElementById('mm-cancel-btn');
 if (cancelMmBtn) {
     cancelMmBtn.addEventListener('click', (e) => {
@@ -310,9 +407,26 @@ if (cancelMmBtn) {
 ui.onClick('room-portal-btn', () => { ui.setDisplay('online-modal', 'flex'); ui.setDisplay('online-status-text', 'none'); ui.setDisplay('online-setup-box', 'block'); });
 ui.onClick('online-close-btn', () => ui.setDisplay('online-modal', 'none'));
 
-const handleRoomBtn = (action, msg) => { ui.startOnlineGame(); clearInterval(gameState.mmInterval); const rID = ui.getVal('online-room-input').trim(); if (!rID) return socketManager.showStatusMsg(t('err_id')); socketManager.handleRoomAction(action, rID); socketManager.showStatusMsg(msg); };
+const handleRoomBtn = (action, msg) => { 
+    ui.startOnlineGame(); 
+    clearInterval(gameState.mmInterval); 
+    const rID = ui.getVal('online-room-input').trim(); 
+    if (!rID) return socketManager.showStatusMsg(t('err_id')); 
+    
+    let betAmt = 0;
+    const betSelect = document.getElementById('room-bet-input');
+    if (betSelect) betAmt = parseInt(betSelect.value) || 0;
+
+    socketManager.handleRoomAction(action, rID, betAmt); 
+    socketManager.showStatusMsg(msg); 
+};
+
 ui.onClick('online-create-btn', () => handleRoomBtn('createRoom', t('creating_room')));
 ui.onClick('online-join-btn', () => handleRoomBtn('joinRoom', t('connecting')));
+
+socket.on('gameStart', (data) => {
+    gameState.roomBet = data.roomBet || 0;
+});
 
 ui.onClick('board', e => {
     if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
@@ -374,7 +488,6 @@ ui.onClick('board', e => {
                         gameState.isMultiJumping = true; document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced')); 
                         ui.updateVirtualBoardState(); 
 
-                        // 💡 الإضافة الجديدة: حفظ حالة الرقعة في السجل بعد كل قفزة فرعية لضمان عمل زر "تراجع" بكفاءة
                         if (!gameState.isOnlineMode) {
                             if (!gameState.boardHistory) gameState.boardHistory = [];
                             gameState.boardHistory.push({
@@ -421,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.applyProfileDataToUI(userObj);
         }
     } else {
-        let defaultProfile = { id: '#00000', name: t('badge_you'), avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0 };
+        let defaultProfile = { id: '#00000', name: t('badge_you'), avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
         if (typeof window.applyProfileDataToUI === 'function') {
             window.applyProfileDataToUI(defaultProfile);
         }
