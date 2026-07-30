@@ -13,7 +13,8 @@ export const sfx = {
     kingDied: new Audio('king_died.mp3'),
     kingCreated: new Audio('king_created.mp3'),
     win: new Audio('win.mp3'),
-    clock: new Audio('clock.mp3')
+    clock: new Audio('clock.mp3'),
+    spinTick: new Audio('spin_tick.mp3') // 👈 الصوت الجديد المخصص لعجلة الحظ
 };
 
 let aiSharedWorker = null;
@@ -301,15 +302,17 @@ export const ui = {
         wheel.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
         wheel.style.transform = `rotate(${this.currentWheelDeg}deg)`;
 
-        let tickAudio = sfx.move;
+        // 👈 استخدام الصوت المخصص السريع بدلاً من صوت تحريك القطع
+        let tickAudio = sfx.spinTick;
         let spinDuration = 5000;
+        // 👈 تسريع تكتكة الصوت إلى 150 ملي ثانية ليتزامن مع سرعة العجلة
         let tickInterval = setInterval(() => {
             if (tickAudio) {
                 tickAudio.currentTime = 0;
                 let playPromise = tickAudio.play();
                 if (playPromise !== undefined) playPromise.catch(() => {});
             }
-        }, 300); 
+        }, 150); 
         
         setTimeout(() => { clearInterval(tickInterval); }, 3500); 
 
