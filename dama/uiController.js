@@ -14,7 +14,7 @@ export const sfx = {
     kingCreated: new Audio('king_created.mp3'),
     win: new Audio('win.mp3'),
     clock: new Audio('clock.mp3'),
-    spinTick: new Audio('spin_tick.mp3') // 👈 الصوت الجديد المخصص لعجلة الحظ
+    spinTick: new Audio('spin_tick.mp3') // 👈 الصوت المخصص لعجلة الحظ
 };
 
 let aiSharedWorker = null;
@@ -232,10 +232,8 @@ export const ui = {
     calculateLevelInfo(xpStr) {
         let currentXp = parseInt(xpStr) || 0;
         
-        // معادلة الصعوبة: المستوى يزداد بشكل جذري ليصبح أبطأ كلما تقدم اللاعب
-        // XP = (Level - 1)^2 * 50
         let level = Math.floor(Math.sqrt(currentXp / 50)) + 1;
-        if (level > 200) level = 200; // الحد الأقصى
+        if (level > 200) level = 200; 
         
         let xpForCurrentLevel = Math.pow(level - 1, 2) * 50;
         let xpForNextLevel = Math.pow(level, 2) * 50;
@@ -245,14 +243,12 @@ export const ui = {
         let requiredXp = xpForNextLevel - xpForCurrentLevel;
         let percentage = level === 200 ? 100 : Math.min(100, Math.max(0, (progressXp / requiredXp) * 100));
 
-        // نظام الألقاب
         let title = t('title_beginner') || "مبتدئ";
         if (level >= 100) title = t('title_grandmaster') || "جراند ماستر";
         else if (level >= 50) title = t('title_master') || "معلم الدامة";
         else if (level >= 30) title = t('title_expert') || "خبير";
         else if (level >= 10) title = t('title_duelist') || "مبارز";
 
-        // نظام الرتب التنافسية بناءً على الخبرة
         let rank = "برونزي"; let rankIcon = "🥉";
         if (currentXp >= 5000) { rank = "أسطوري"; rankIcon = "👑"; }
         else if (currentXp >= 2500) { rank = "ماسي"; rankIcon = "💎"; }
@@ -262,9 +258,6 @@ export const ui = {
         return { level, title, rank, rankIcon, progressXp, requiredXp, percentage };
     },
 
-    // =========================================================
-    // 🌟 دالة إظهار شاشة الترقية (Level Up Modal)
-    // =========================================================
     showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
         this.setTxt('level-up-title', `لقب: ${title}`);
@@ -302,15 +295,19 @@ export const ui = {
         wheel.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
         wheel.style.transform = `rotate(${this.currentWheelDeg}deg)`;
 
-        // 👈 استخدام الصوت المخصص السريع بدلاً من صوت تحريك القطع
         let tickAudio = sfx.spinTick;
         let spinDuration = 5000;
-        // 👈 تسريع تكتكة الصوت إلى 150 ملي ثانية ليتزامن مع سرعة العجلة
+        
+        // استخدام تقنية استنساخ الصوت (cloneNode) لمنع التقاطع والتشويش الصوتي
         let tickInterval = setInterval(() => {
             if (tickAudio) {
-                tickAudio.currentTime = 0;
-                let playPromise = tickAudio.play();
-                if (playPromise !== undefined) playPromise.catch(() => {});
+                let clonedTick = tickAudio.cloneNode();
+                clonedTick.volume = tickAudio.volume || parseFloat(localStorage.getItem('sfx_volume') || '0.7');
+                let playPromise = clonedTick.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {});
+                }
+                clonedTick.onended = () => { clonedTick.remove(); };
             }
         }, 150); 
         
@@ -400,7 +397,6 @@ export const ui = {
             this.setTxt('card-opp-name', oppName);
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
             
-            // 🌟 رسم المستوى في شريط الأونلاين
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
             let myCardLevel = this.getEl('card-my-level');
             if (myCardLevel) myCardLevel.textContent = `Lv.${myLvlInfo.level}`;
@@ -1137,13 +1133,11 @@ export const ui = {
                         box.appendChild(this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`, rewardText));
                     }
 
-                    // 🛡️ حماية النظام: السيرفر هو من سيضيف العملات فقط
                     if (!gameState.isOnlineMode) {
                         socket.emit('claimBotReward', { isWin: isMeWin, level: lvl });
                     }
                 }
             } else {
-                // 🛡️ حماية النظام: لا يتم حفظ أي جوائز أو مستويات في الأوفلاين
                 const offlineMsg = t('offline_mode') || "أنت تلعب بدون إنترنت (لن يتم حساب الخبرة أو الجوائز)";
                 box.appendChild(this.makeEl('div', 'offline-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", offlineMsg));
             }
@@ -1169,7 +1163,6 @@ export const ui = {
             window.applyProfileDataToUI(gameState.userProfile);
         }
         
-        // 🌟 حساب وعرض المستويات والرتب في البروفايل
         let prof = gameState.userProfile;
         let lvlInfo = this.calculateLevelInfo(prof.xp || 0);
 
