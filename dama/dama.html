@@ -1,3 +1,4 @@
+<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -223,7 +224,7 @@
             position: relative; 
             width: 42px; height: 42px; 
             display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 12px; 
+            margin-bottom: 8px; /* 💡 توفير مساحة أسفل الصورة للعلامة */
         }
         
         .xp-ring {
@@ -241,9 +242,9 @@
         
         .level-badge-small {
             position: absolute; 
-            bottom: -12px; 
+            bottom: -10px; /* 💡 دفع العلامة لتكون خارج الصورة بالكامل وتلتصق بالجزء السفلي */
             left: 50%; transform: translateX(-50%);
-            background: #ff453a; color: white; font-size: 9px; padding: 2px 6px; 
+            background: #ff453a; color: white; font-size: 10px; padding: 2px 8px; 
             border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; 
             z-index: 10; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
@@ -274,7 +275,9 @@
             position: fixed !important; top: 15px !important;
             z-index: 10001; display: flex !important; flex-direction: row !important; align-items: center; 
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 4px 6px; border-radius: 50px; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            padding: 4px 12px 8px 6px; /* 💡 زيادة الـ padding السفلي ليتسع للمستوى */
+            border-radius: 50px; 
             gap: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); cursor: pointer; 
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
             direction: ltr !important; 
@@ -440,15 +443,28 @@
         /* ========================================== */
         .wheel-container { position: relative; width: 280px; height: 280px; margin: 0 auto 30px auto; }
         
-        .wheel-pointer { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 38px; color: #ff453a; z-index: 10; text-shadow: 0 4px 8px rgba(0,0,0,0.5); filter: drop-shadow(0 0 5px rgba(255,255,255,0.4)); }
+        /* 💡 ستايل السهم (الإبرة) الجديد النحيف */
+        .wheel-pointer { 
+            position: absolute; 
+            top: -20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 35px solid #ff453a; 
+            z-index: 20; 
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); 
+        }
         
-        /* 💡 ستايل اهتزاز السهم */
+        /* 💡 اهتزاز الإبرة مع مرونة فيزيائية */
         #lucky-wheel-pointer {
             transform-origin: top center;
             transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* 💡 ستايل الدبابيس الفضية */
+        /* 💡 ستايل الدبابيس الفضية (Pins) البارزة */
         .wheel-pin {
             position: absolute;
             top: 50%;
@@ -523,7 +539,7 @@
     <input type="hidden" id="game-mode" value="ai">
 
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
-        <div class="avatar-wrapper">
+        <div class="avatar-wrapper" style="margin-bottom: 4px;">
             <div class="xp-ring" id="badge-xp-ring"></div>
             <div class="profile-avatar-capsule" id="badge-avatar"></div>
             <div class="level-badge-small" id="badge-level">Lv.1</div>
@@ -542,16 +558,16 @@
     <div id="status-area">
         <div id="match-players-card" style="display: none;">
             <div class="match-players-flex">
-                <div class="avatar-wrapper">
-                    <div id="card-my-avatar" class="match-players-avatar-me" style="border: 2px solid #282a32;"></div>
+                <div class="avatar-wrapper" style="width: 50px; height: 50px; margin-bottom: 10px;">
+                    <div id="card-my-avatar" class="profile-avatar-capsule" style="border: 2px solid #282a32;"></div>
                     <div class="level-badge-small" id="card-my-level">Lv.1</div>
                 </div>
                 <span id="card-my-name" class="match-players-name">أنت</span>
             </div>
             <span class="match-vs-text">VS</span>
             <div class="match-players-flex">
-                <div class="avatar-wrapper">
-                    <div id="card-opp-avatar" class="match-players-avatar-opp" style="border: 2px solid #282a32;">❓</div>
+                <div class="avatar-wrapper" style="width: 50px; height: 50px; margin-bottom: 10px;">
+                    <div id="card-opp-avatar" class="profile-avatar-capsule" style="border: 2px solid #282a32;">❓</div>
                     <div class="level-badge-small" id="card-opp-level" style="background:#555;">Lv.?</div>
                 </div>
                 <span id="card-opp-name" class="match-players-name">الخصم</span>
@@ -642,7 +658,7 @@
             <p class="settings-label" style="text-align:center; margin-bottom: 25px; color: #fff;">جرب حظك واربح جوائز وخصومات نادرة!</p>
 
             <div class="wheel-container">
-                <div class="wheel-pointer" id="lucky-wheel-pointer">🔻</div>
+                <div class="wheel-pointer" id="lucky-wheel-pointer"></div>
                 <div class="wheel-inner" id="lucky-wheel-inner">
                     <div class="wheel-text w-1">50 🪙</div>
                     <div class="wheel-text w-2">100 🪙</div>
@@ -653,14 +669,15 @@
                     <div class="wheel-text w-7">250 🪙</div>
                     <div class="wheel-text w-8">1000 🎁</div>
 
-                    <div class="wheel-pin" style="transform: rotate(0deg) translateY(-135px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(45deg) translateY(-135px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(90deg) translateY(-135px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(135deg) translateY(-135px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(180deg) translateY(-135px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(225deg) translateY(-135px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(270deg) translateY(-135px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(315deg) translateY(-135px);"></div>
+                    <!-- 👇 الدبابيس الثمانية المضبوطة بدقة على حافة العجلة 👇 -->
+                    <div class="wheel-pin" style="transform: rotate(0deg) translateY(-136px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(45deg) translateY(-136px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(90deg) translateY(-136px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(135deg) translateY(-136px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(180deg) translateY(-136px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(225deg) translateY(-136px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(270deg) translateY(-136px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(315deg) translateY(-136px);"></div>
                 </div>
                 <div class="wheel-center-pin">⭐️</div>
             </div>
@@ -699,10 +716,10 @@
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             <h3 id="igp-title" style="margin-bottom: 15px;">الملف الشخصي</h3>
             
-            <div class="avatar-wrapper" style="width: 80px; height: 80px; margin-bottom: 10px;">
+            <div class="avatar-wrapper" style="width: 80px; height: 80px; margin-bottom: 20px;">
                 <div class="xp-ring" id="igp-xp-ring"></div>
                 <div class="profile-avatar-capsule" id="igp-avatar" style="border-width: 3px;"></div>
-                <div class="level-badge-small" id="igp-level" style="font-size: 12px; padding: 3px 8px; bottom: -8px;">Lv.1</div>
+                <div class="level-badge-small" id="igp-level" style="font-size: 12px; padding: 3px 10px; bottom: -12px;">Lv.1</div>
             </div>
             
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
