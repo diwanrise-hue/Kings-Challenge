@@ -252,25 +252,29 @@
             font-size: 9px; font-weight: 800; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        /* البروفايل العلوي الجديد: الكبسولة المتكاملة */
+        /* 🌟 تصميم الكبسولة العلوية الجديد (مطابق للذكاء الاصطناعي) */
         .profile-badge-container { 
             position: fixed !important; top: 15px !important;
             z-index: 10001; display: flex !important; flex-direction: row !important; align-items: center; 
-            background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            padding: 6px 14px 6px 6px; 
+            background: linear-gradient(to right, #0a0e17, #161e2e); 
+            border: 1px solid #232d42; 
+            padding: 5px 20px 5px 5px; 
             border-radius: 50px; 
-            gap: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); cursor: pointer; 
+            gap: 15px; 
+            box-shadow: inset -4px 0 12px rgba(167, 255, 131, 0.1), inset -10px 0 25px rgba(52, 199, 89, 0.15), 0 10px 25px rgba(0,0,0,0.6); 
+            cursor: pointer; 
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
             direction: ltr !important; 
         }
         html[dir="rtl"] .profile-badge-container { left: 15px !important; right: auto !important; }
         html[dir="ltr"] .profile-badge-container { right: 15px !important; left: auto !important; }
-        .profile-badge-container:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); transform: scale(0.98); }
-        .profile-badge-info { display: flex; flex-direction: column; align-items: flex-start; gap: 0px; }
-        .profile-badge-name { color: #ffffff; font-size: 13px; font-weight: 700; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; }
-        .stat-item { color: #bdc3c7; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; direction: ltr; }
-        .stat-item span { color: #f5a623; font-weight: 700; font-size: 12px; }
+        .profile-badge-container:hover { 
+            transform: scale(0.98); 
+            box-shadow: inset -4px 0 12px rgba(167, 255, 131, 0.2), inset -10px 0 25px rgba(52, 199, 89, 0.25), 0 5px 15px rgba(0,0,0,0.7); 
+        }
+        
+        .profile-badge-info { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; padding-right: 5px; }
+        .profile-badge-name { color: #ffffff; font-size: 16px; font-weight: 700; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.5px; }
 
         /* الأزرار العلوية */
         #hamburger-menu-btn, #bag-quick-btn {
@@ -440,7 +444,7 @@
 
         .wheel-pointer-wrapper { 
             position: absolute; 
-            top: -28px; /* 👈 تم رفعه لأعلى ليتلامس مع الدبابيس بواقعية */
+            top: -28px; 
             left: 50%; 
             transform: translateX(-50%); 
             z-index: 20; 
@@ -552,21 +556,46 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <!-- 🌟 الشاشة العلوية الجديدة: الكبسولة المدمجة للمستوى والخبرة -->
+    <!-- 🌟 الشاشة العلوية الجديدة: الكبسولة المدمجة المستوحاة من الذكاء الاصطناعي -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
-        <div class="profile-avatar-capsule" id="badge-avatar" style="width: 42px; height: 42px; flex-shrink: 0; border: 2px solid #282a32; border-radius: 50%;"></div>
         
-        <div class="profile-badge-info" style="width: 100%; display: flex; flex-direction: column; gap: 2px; padding-right: 5px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px;">
-                <span id="badge-username-display-game" class="profile-badge-name" style="max-width: 75px;">أنت</span>
-                <div style="display: flex; align-items: center; background: rgba(0,0,0,0.35); border-radius: 12px; padding: 2px 6px; border: 1px solid rgba(255,255,255,0.08); gap: 4px;">
-                    <div class="xp-ring" id="badge-xp-ring" style="width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 0 3px rgba(0,0,0,0.8);"></div>
-                    <span id="badge-level" style="color: #34c759; font-size: 11px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">Lv.1</span>
-                </div>
+        <!-- إطار الصورة (Bezel) -->
+        <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 75px; height: 75px; background: #12161f; border-radius: 50%; box-shadow: 0 0 15px rgba(0,0,0,0.9);">
+            <!-- الزخارف الميكانيكية للإطار (Diamonds) -->
+            <div style="position: absolute; top: 3px; left: 50%; transform: translateX(-50%); color: #475569; font-size: 8px;">❖</div>
+            <div style="position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); color: #475569; font-size: 8px;">❖</div>
+            <div style="position: absolute; left: 3px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 8px;">❖</div>
+            <div style="position: absolute; right: 3px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 8px;">❖</div>
+            
+            <!-- الصورة الشخصية -->
+            <div class="profile-avatar-capsule" id="badge-avatar" style="width: 53px; height: 53px; border-radius: 50%; box-shadow: inset 0 2px 8px rgba(0,0,0,0.8); background-color: #000; z-index: 2;"></div>
+            
+            <!-- النجمة اليسرى -->
+            <div style="position: absolute; bottom: -4px; left: -8px; font-size: 18px; text-shadow: 0 0 8px #fde047; z-index: 3; animation: pulseAura 2s infinite alternate;">✨</div>
+        </div>
+        
+        <!-- قسم المعلومات -->
+        <div class="profile-badge-info">
+            <!-- الاسم -->
+            <span id="badge-username-display-game" class="profile-badge-name">أنت</span>
+            
+            <!-- الرصيد (Tokens) -->
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span id="profile-stat-tokens-badge" style="color: #f5a623; font-size: 20px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0</span>
+                <div style="width: 22px; height: 22px; background: radial-gradient(circle at 30% 30%, #fde047, #b45309); border-radius: 50%; border: 1.5px solid #78350f; box-shadow: inset 0 1px 3px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #451a03; font-weight: 900;">🪙</div>
             </div>
-            <div class="stat-item" style="justify-content: flex-start;">
-                🪙 <span id="profile-stat-tokens-badge">0</span>
+
+            <!-- كبسولة المستوى (البيضوية) -->
+            <div style="background: rgba(22, 30, 46, 0.9); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 3px 12px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.4); margin-top: 2px;">
+                <span style="color: #475569; font-size: 11px;">🌿</span>
+                <span id="badge-level" style="color: #ffffff; font-size: 12px; font-weight: 800;">Lv.1</span>
+                
+                <!-- شريط الخبرة (حلقة دائرية متوافقة مع الكود القديم) -->
+                <div class="xp-ring" id="badge-xp-ring" style="position: relative; width: 12px; height: 12px; border-radius: 50%; top: 0; left: 0; right: 0; bottom: 0; box-shadow: inset 0 0 4px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);"></div>
             </div>
+            
+            <!-- النجمة اليمنى -->
+            <div style="position: absolute; bottom: 2px; right: 10px; font-size: 14px; opacity: 0.8; text-shadow: 0 0 5px #fff; animation: pulseAura 2.5s infinite alternate-reverse;">✨</div>
         </div>
     </div>
     
@@ -674,7 +703,6 @@
                 <div class="wheel-pointer-wrapper" id="lucky-wheel-pointer">
                     <div class="wheel-pointer-shape"></div>
                 </div>
-                <!-- 👈 تم إضافة إمالة مبدئية ليبدأ السهم بين مسمارين -->
                 <div class="wheel-inner" id="lucky-wheel-inner" style="transform: rotate(22.5deg);">
                     <div class="wheel-text w-1">50 🪙</div>
                     <div class="wheel-text w-2">100 🪙</div>
@@ -726,21 +754,19 @@
         </div>
     </div>
 
-    <!-- 🌟 شاشة البروفايل: الكبسولة المدمجة للمستوى والخبرة -->
+    <!-- شاشة البروفايل الداخلية -->
     <div id="in-game-profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             <h3 id="igp-title" style="margin-bottom: 15px;">الملف الشخصي</h3>
             
-            <div class="profile-avatar-capsule" id="igp-avatar" style="width: 80px; height: 80px; border: 3px solid #282a32; border-radius: 50%; margin-bottom: 15px;"></div>
-            
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-bottom: 5px;">
-                <h4 id="igp-name" style="margin: 0; font-size: 22px; font-weight: 700; color: white;">الاسم</h4>
-                <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
-                    <div class="xp-ring" id="igp-xp-ring" style="width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 3px rgba(0,0,0,0.8);"></div>
-                    <span id="igp-level" style="color: #34c759; font-size: 14px; font-weight: 800;">Lv.1</span>
-                </div>
+            <div class="avatar-wrapper" style="width: 80px; height: 80px; margin-bottom: 20px;">
+                <div class="xp-ring" id="igp-xp-ring"></div>
+                <div class="profile-avatar-capsule" id="igp-avatar" style="border-width: 3px;"></div>
+                <div class="level-badge-small" id="igp-level" style="font-size: 12px; padding: 3px 10px; bottom: -12px;">Lv.1</div>
             </div>
+            
+            <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
             
             <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; margin-bottom: 15px;">الرتبة: 🥉 برونزي</div>
 
