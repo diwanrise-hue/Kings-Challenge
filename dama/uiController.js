@@ -207,7 +207,7 @@ export const ui = {
         
         const modalEl = this.getEl('custom-alert-modal');
         if (modalEl) {
-            modalEl.style.setProperty('z-index', '9999999', 'important');
+            modalEl.style.setProperty('z-index', '99999999', 'important');
             modalEl.style.display = 'flex'; 
         }
         
@@ -278,6 +278,8 @@ export const ui = {
     },
 
     animateLuckySpin(prizeIndex, onComplete) {
+        window.isSpinning = true; // 🔒 قفل النافذة: العجلة تدور الآن
+        
         const wheel = this.getEl('lucky-wheel-inner');
         const btnFree = this.getEl('spin-free-btn');
         const btnPaid = this.getEl('spin-paid-btn');
@@ -312,6 +314,7 @@ export const ui = {
         setTimeout(() => { clearInterval(tickInterval); }, 3500); 
 
         setTimeout(() => {
+            window.isSpinning = false; // 🔓 فتح القفل: انتهى الدوران
             this.playSound(sfx.win); 
             if (btnFree) btnFree.style.pointerEvents = 'auto';
             if (btnPaid) btnPaid.style.pointerEvents = 'auto';
