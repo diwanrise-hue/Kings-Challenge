@@ -342,7 +342,7 @@ export const ui = {
                 if (pointer) {
                     pointer.style.transform = 'translateX(-50%) rotate(-30deg)';
                     setTimeout(() => {
-                        pointer.style.transform = 'translateX(-50%) rotate(0deg)';
+                        if (pointer) pointer.style.transform = 'translateX(-50%) rotate(0deg)';
                     }, 60); 
                 }
             }
