@@ -968,13 +968,36 @@ export const ui = {
                 if (!gameState.isOnlineMode && gameState.isTutorialMode) {
                     box.appendChild(this.makeEl('div', 'tutorial-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", t('tutorial_mode') || "وضع تعليمي (بدون جوائز) 🚫🪙"));
                 } else {
-                    if (isMeWin) {
-                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", t('tokenReward') + " 50"));
-                    } else { 
-                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", t('tokenReward') + " 10"));
+                    let displayReward = 0;
+                    let isBossLevel = false;
+                    let lvl = parseInt(this.getVal('diff-quick-select', '3')) || 3;
+
+                    if (gameState.isOnlineMode) {
+                        displayReward = isMeWin ? 120 : 0;
+                    } else {
+                        if (isMeWin) {
+                            if (lvl <= 2) displayReward = 10;
+                            else if (lvl <= 4) displayReward = 15;
+                            else if (lvl <= 6) displayReward = 50;
+                            else if (lvl <= 8) displayReward = 100;
+                            else if (lvl === 9) {
+                                displayReward = "100 أو 400";
+                                isBossLevel = true;
+                            }
+                        } else {
+                            displayReward = 10;
+                        }
                     }
+
+                    if (displayReward !== 0) {
+                        let rewardText = isBossLevel 
+                            ? `👑 مكافأة الزعيم: ${displayReward} 🪙` 
+                            : `${(t('tokenReward') || 'المكافأة:')} ${displayReward}`;
+                        box.appendChild(this.makeEl('div', 'token-reward-alert', "margin-top:15px;color:#f5a623;font-weight:700;font-size:15px;", rewardText));
+                    }
+
                     if (!gameState.isOnlineMode) {
-                        socket.emit('claimBotReward', { isWin: isMeWin });
+                        socket.emit('claimBotReward', { isWin: isMeWin, level: lvl });
                     }
                 }
             } else {
