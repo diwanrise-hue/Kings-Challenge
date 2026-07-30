@@ -1,4 +1,3 @@
-<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -336,7 +335,7 @@
 
         /* النوافذ الكبيرة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-        #custom-alert-modal { z-index: 20000000 !important; }
+        #custom-alert-modal { z-index: 99999999 !important; }
         #purchase-modal { z-index: 20000001 !important; }
         #lucky-spin-modal { z-index: 20000002 !important; }
         #level-up-modal { z-index: 20000003 !important; } /* شاشة الترقية */
@@ -492,7 +491,6 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <!-- كبسولة البروفايل الرئيسية (تم إضافة شريط ومربع المستوى) -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
         <div class="avatar-wrapper">
             <div class="xp-ring" id="badge-xp-ring"></div>
@@ -547,7 +545,6 @@
         <div id="board"></div> 
     </div>
 
-    <!-- محتوى القائمة الجانبية -->
     <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
         <div class="side-menu-panel">
             <div class="side-menu-header">
@@ -555,9 +552,12 @@
                 <button class="side-menu-close" onclick="toggleSideMenu()">✕</button>
             </div>
             
-            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('lucky-spin-modal')" style="background: rgba(241, 196, 15, 0.15); border-color: rgba(241, 196, 15, 0.3);">
-                <span style="font-size: 20px;">🎡</span>
-                <span id="menu-spin-text" style="color: #f1c40f;">عجلة الحظ</span>
+            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('lucky-spin-modal')">
+                <span style="font-size: 20px; position: relative;">
+                    🎡
+                    <span class="notification-badge" id="menu-spin-notify-badge" style="display: none; background-color: #30d158; box-shadow: 0 0 8px #30d158; width: 12px; height: 12px; right: -4px; left: auto; top: -4px;"></span>
+                </span>
+                <span id="menu-spin-text">عجلة الحظ</span>
             </div>
 
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
@@ -602,14 +602,8 @@
         <span style="font-size: 13px; font-weight: 600;">اونلاين</span>
     </button>
 
-    <button id="lucky-spin-portal-btn" onclick="openAppModal('lucky-spin-modal')" style="position: fixed; bottom: 135px; left: 15px; z-index: 9998; width: 46px; height: 46px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 22px; background: rgba(241, 196, 15, 0.15) !important; border-color: rgba(241, 196, 15, 0.4) !important;" title="عجلة الحظ">
-        <span class="notification-badge" id="spin-notify-badge"></span>
-        🎡
-    </button>
-
     <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 75px; right: 15px; z-index: 9998; width: 46px; height: 46px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي" data-icon="storePortal"></button>
 
-    <!-- 🎡 نافذة عجلة الحظ (Lucky Spin Modal) -->
     <div id="lucky-spin-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 360px;">
             <button class="modal-close-btn" onclick="closeAppModal('lucky-spin-modal')" style="left:15px; right:auto;">✕</button>
@@ -634,15 +628,13 @@
             <div id="spin-timer" style="color: #a1a1aa; font-size: 14px; margin-bottom: 15px; font-weight: 600;">اللفة المجانية جاهزة!</div>
 
             <button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important;">لفة مجانية 🆓</button>
-            <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none;">لفة إضافية (100 🪙)</button>
+            <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none;">لفة إضافية (200 🪙)</button>
         </div>
     </div>
 
-    <!-- 🌟 نافذة المستوى الجديد (Level Up Modal) -->
     <div id="level-up-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; overflow: hidden; position: relative;">
-            <div class="level-up-rays"></div> <!-- أشعة الخلفية الدوارة -->
-            <button class="modal-close-btn" onclick="closeAppModal('level-up-modal')" style="left:15px; right:auto;">✕</button>
+            <div class="level-up-rays"></div> <button class="modal-close-btn" onclick="closeAppModal('level-up-modal')" style="left:15px; right:auto;">✕</button>
             
             <h3 style="color:#ffd700; font-size: 26px; text-shadow: 0 0 10px rgba(255,215,0,0.6); margin-bottom: 10px;">ترقية جديدة! ⬆️</h3>
             
@@ -662,13 +654,11 @@
         </div>
     </div>
 
-    <!-- نافذة الملف الشخصي الداخلي (مع شريط الـ XP) -->
     <div id="in-game-profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             <h3 id="igp-title" style="margin-bottom: 15px;">الملف الشخصي</h3>
             
-            <!-- صورة البروفايل الكبيرة مع شريط دائري -->
             <div class="avatar-wrapper" style="width: 80px; height: 80px; margin-bottom: 10px;">
                 <div class="xp-ring" id="igp-xp-ring"></div>
                 <div class="profile-avatar-capsule" id="igp-avatar" style="border-width: 3px;"></div>
@@ -720,7 +710,6 @@
         </div>
     </div>
 
-    <!-- باقي النوافذ كما هي (المتجر، الإعدادات، الدخول...) -->
     <div id="login-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('login-modal')" style="left:15px; right:auto;">✕</button>
@@ -915,7 +904,6 @@
         </div>
     </div>
     
-    <!-- الأزرار السفلية -->
     <div class="control-panel" id="bottom-control-panel">
         <button id="reset-btn" title="Reset">بدء</button>
         <select id="diff-quick-select" title="Difficulty">
@@ -935,7 +923,6 @@
         <button id="resign-btn" title="الانسحاب" style="display: none; font-weight: bold;">الانسحاب</button>
     </div>
 
-    <!-- استدعاء ملف الأيقونات قبل السكربتات الأخرى -->
     <script src="icons.js"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
@@ -958,6 +945,9 @@
         }
 
         function closeAppModal(id) {
+            // 🛑 يمنع إغلاق النافذة إذا كانت العجلة تدور
+            if (id === 'lucky-spin-modal' && window.isSpinning) return; 
+
             const modal = document.getElementById(id);
             if (modal && modal.style.display === 'flex') {
                 if (window.modalStack[window.modalStack.length - 1] === id) history.back(); 
@@ -1275,6 +1265,12 @@
         window.addEventListener('load', () => { history.replaceState({ screen: 'dama-game' }, ''); });
 
         window.addEventListener('popstate', function(event) {
+            // 🛑 حماية الرجوع من الهاتف أثناء الدوران
+            if (window.isSpinning) {
+                history.pushState({ modalOpen: 'lucky-spin-modal' }, '');
+                return;
+            }
+
             if (window.modalStack.length > 0) { const topModalId = window.modalStack.pop(); const topModal = document.getElementById(topModalId); if (topModal) topModal.style.display = 'none'; return; }
             if (window.isMatchRunning) { const resignBtn = document.getElementById('resign-btn'); if (resignBtn) resignBtn.click(); history.pushState({ screen: 'dama-game' }, ''); return; }
             if (window.ui && window.ui.showCustomAlert) {
