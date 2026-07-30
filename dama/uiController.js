@@ -263,8 +263,9 @@ export const ui = {
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
         
-        // إخفاء زر الدردشة في وضع الأوفلاين
+        // 💡 إخفاء زر الدردشة وزر المايك في وضع الأوفلاين
         this.setDisplay('gameChatBtn', 'none');
+        this.setDisplay('mic-toggle-btn', 'none');
         
         if (active && gameState.isTutorialMode) {
             this.setDisplay('undo-btn', 'inline-block');
@@ -280,6 +281,7 @@ export const ui = {
         
         window.isMatchRunning = active;
         
+        // 💡 إظهار الأزرار المخصصة للأونلاين (الدردشة والمايك) عندما يكون active = true
         const displays = {
             'reset-btn': normalState, 
             'diff-quick-select': normalState, 
@@ -290,7 +292,8 @@ export const ui = {
             'resign-btn': onlineState, 
             'undo-btn': 'none', 
             'match-players-card': active ? 'flex' : 'none',
-            'gameChatBtn': active ? 'flex' : 'none' 
+            'gameChatBtn': active ? 'flex' : 'none',
+            'mic-toggle-btn': active ? 'flex' : 'none'
         };
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
