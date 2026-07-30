@@ -14,7 +14,6 @@
         :root { 
             --light-cell: #DEB887; 
             --dark-cell: #8B4513;
-            /* متغيرات شريط الأحجار (مزدوجة الألوان) */
             --my-score-bg: rgba(30, 32, 40, 0.6);
             --opp-score-bg: rgba(30, 32, 40, 0.6);
             --my-score-border: 1px solid rgba(255,255,255,0.08);
@@ -32,13 +31,7 @@
         }
 
         #status-area {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 45px;
-            margin-bottom: 10px;
+            width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 45px; margin-bottom: 10px;
         }
         
         /* ========================================== */
@@ -64,15 +57,8 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        #my-score-row {
-            background: var(--my-score-bg);
-            border: var(--my-score-border);
-        }
-
-        #opponent-score-row {
-            background: var(--opp-score-bg);
-            border: var(--opp-score-border);
-        }
+        #my-score-row { background: var(--my-score-bg); border: var(--my-score-border); }
+        #opponent-score-row { background: var(--opp-score-bg); border: var(--opp-score-border); }
         
         .mini-piece-empty { 
             width: 18px; height: 18px; border-radius: 50%; 
@@ -193,11 +179,11 @@
         #resign-btn { background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; }
         #resign-btn:hover { background: rgba(255, 69, 58, 0.25) !important; }
 
-        #online-toggle-btn, #store-portal-corner-btn {
+        #online-toggle-btn, #store-portal-corner-btn, #lucky-spin-portal-btn {
             background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(10px);
             border-radius: 14px !important; transition: all 0.3s !important;
         }
-        #online-toggle-btn:hover, #store-portal-corner-btn:hover {
+        #online-toggle-btn:hover, #store-portal-corner-btn:hover, #lucky-spin-portal-btn:hover {
             background: rgba(255,255,255,0.15) !important; transform: scale(1.05);
         }
 
@@ -207,45 +193,23 @@
             70% { box-shadow: 0 0 20px #f1c40f, inset 0 0 10px #f1c40f; transform: scale(1.1) rotate(5deg); background: rgba(241, 196, 15, 0.2) !important; }
             100% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; transform: scale(1); }
         }
-
-        .lamp-active {
-            animation: magicGlow 0.8s ease-in-out;
-        }
+        .lamp-active { animation: magicGlow 0.8s ease-in-out; }
 
         @keyframes storeGlowEffect {
             0% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.3), inset 0 0 5px rgba(241, 196, 15, 0.2); }
             50% { box-shadow: 0 0 15px rgba(241, 196, 15, 0.7), inset 0 0 10px rgba(241, 196, 15, 0.5); border-color: rgba(241, 196, 15, 0.8) !important; transform: scale(1.04); }
             100% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.3), inset 0 0 5px rgba(241, 196, 15, 0.2); }
         }
-        #store-portal-corner-btn {
-            animation: storeGlowEffect 2.5s infinite ease-in-out;
-        }
+        #store-portal-corner-btn { animation: storeGlowEffect 2.5s infinite ease-in-out; }
 
-        /* ========================================== */
-        /* ستايل النقطة الخاصة بحالة الراديو          */
-        /* ========================================== */
         .radio-status-dot {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid #282a32;
-            background-color: transparent;
-            box-shadow: none;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 10;
+            position: absolute; top: -2px; right: -2px; width: 12px; height: 12px;
+            border-radius: 50%; border: 2px solid #282a32; background-color: transparent;
+            box-shadow: none; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 10;
         }
         .radio-status-dot.active {
-            opacity: 1;
-            visibility: visible;
-            background-color: #30d158; /* أخضر (يعمل) */
-            border-color: #282a32;
-            box-shadow: 0 0 8px rgba(48, 209, 88, 0.6);
-            animation: radioPulse 1.5s infinite ease-in-out;
+            opacity: 1; visibility: visible; background-color: #30d158; border-color: #282a32;
+            box-shadow: 0 0 8px rgba(48, 209, 88, 0.6); animation: radioPulse 1.5s infinite ease-in-out;
         }
         @keyframes radioPulse {
             0% { transform: scale(0.95); box-shadow: 0 0 5px rgba(48, 209, 88, 0.5); }
@@ -254,249 +218,149 @@
         }
 
         /* ========================================== */
-        /* القائمة الجانبية وزر الهامبرغر والبروفايل (تبديل ديناميكي LTR/RTL) */
+        /* 🌟 نظام المستوى والرتب (Levels & Ranks)   */
         /* ========================================== */
+        .avatar-wrapper { position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; }
         
-        /* البروفايل */
+        .xp-ring {
+            position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border-radius: 50%; background: conic-gradient(#34c759 0%, #34c759 0%, rgba(255,255,255,0.1) 0%);
+            z-index: 0; transition: background 0.5s ease;
+        }
+        
+        .profile-avatar-capsule { 
+            width: 100%; height: 100%; border-radius: 50%; border: 2px solid #282a32; 
+            display: flex; align-items: center; justify-content: center; font-size: 20px; 
+            background-size: cover; background-position: center; overflow: hidden; 
+            background-color: rgba(255,255,255,0.05); z-index: 1; position: relative;
+        }
+        
+        .level-badge-small {
+            position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+            background: #ff453a; color: white; font-size: 9px; padding: 2px 6px; 
+            border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; 
+            z-index: 5; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .rank-icon-small {
+            font-size: 14px; margin-left: 4px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.3));
+        }
+
+        .xp-bar-bg {
+            width: 100%; height: 12px; background: rgba(0,0,0,0.4); 
+            border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); 
+            margin-top: 10px; position: relative; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+        
+        .xp-bar-fill {
+            height: 100%; background: linear-gradient(90deg, #34c759, #2ecc71); 
+            width: 0%; border-radius: 10px; transition: width 0.5s ease-out;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
+        
+        .xp-bar-text {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 9px; font-weight: 800; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        /* البروفايل العلوي */
         .profile-badge-container { 
             position: fixed !important; top: 15px !important;
             z-index: 10001; display: flex !important; flex-direction: row !important; align-items: center; 
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 4px 4px; border-radius: 50px; 
+            border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 4px 6px; border-radius: 50px; 
             gap: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); cursor: pointer; 
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
             direction: ltr !important; 
         }
-        /* في العربية: البروفايل يسار */
         html[dir="rtl"] .profile-badge-container { left: 15px !important; right: auto !important; }
-        /* في الإنجليزية: البروفايل يمين */
         html[dir="ltr"] .profile-badge-container { right: 15px !important; left: auto !important; }
-
         .profile-badge-container:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); transform: scale(0.98); }
-        .profile-avatar-capsule { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
-        .profile-badge-info { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-        .profile-badge-name { color: #ffffff; font-size: 13px; font-weight: 600; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .profile-badge-info { display: flex; flex-direction: column; align-items: flex-start; gap: 0px; }
+        .profile-badge-name { color: #ffffff; font-size: 13px; font-weight: 700; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; }
         .stat-item { color: #bdc3c7; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; direction: ltr; }
         .stat-item span { color: #f5a623; font-weight: 700; font-size: 12px; }
 
-        /* زر الهامبرغر */
-        #hamburger-menu-btn {
-            position: fixed !important; top: 15px !important; 
-            z-index: 10001;
+        /* الأزرار العلوية */
+        #hamburger-menu-btn, #bag-quick-btn {
+            position: fixed !important; top: 15px !important; z-index: 10001;
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             width: 44px; height: 44px; border-radius: 14px !important; color: white; 
             display: flex; align-items: center; justify-content: center; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; 
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-            border: 1px solid rgba(135, 206, 235, 0.4) !important;
-            padding: 0;
+            border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0;
         }
-        /* في العربية: القائمة يمين */
-        html[dir="rtl"] #hamburger-menu-btn { right: 15px !important; left: auto !important; }
-        /* في الإنجليزية: القائمة يسار */
-        html[dir="ltr"] #hamburger-menu-btn { left: 15px !important; right: auto !important; }
+        html[dir="rtl"] #hamburger-menu-btn, html[dir="rtl"] #bag-quick-btn { right: 15px !important; left: auto !important; }
+        html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px !important; right: auto !important; }
+        #hamburger-menu-btn:hover, #bag-quick-btn:hover { background: rgba(255, 255, 255, 0.15); transform: scale(0.95); box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important; }
+        #bag-quick-btn { font-size: 20px; }
 
-        #hamburger-menu-btn:hover { background: rgba(255, 255, 255, 0.15); transform: scale(0.95); box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important; }
-
-        /* زر الحقيبة السريع (يكون بجوار الهامبرغر دائماً) */
-        #bag-quick-btn {
-            position: fixed !important; top: 15px !important; z-index: 10001;
-            background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            width: 44px; height: 44px; border-radius: 14px !important; color: white;
-            align-items: center; justify-content: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-            border: 1px solid rgba(135, 206, 235, 0.4) !important; padding: 0; font-size: 20px;
-        }
-        html[dir="rtl"] #bag-quick-btn { right: 15px !important; left: auto !important; } /* بجانب الهامبرغر يميناً */
-        html[dir="ltr"] #bag-quick-btn { left: 15px !important; right: auto !important; } /* بجانب الهامبرغر يساراً */
-
-        /* لوحة القائمة الجانبية (انزلاق ذكي) */
+        /* القائمة الجانبية */
         .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .side-menu-overlay.open { opacity: 1; visibility: visible; }
-        
-        .side-menu-panel { 
-            position: fixed; top: 0; width: 280px; height: 100%; 
-            background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(20px); 
-            box-shadow: 0 0 30px rgba(0,0,0,0.5); z-index: 10000000; 
-            display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; 
-        }
-
-        /* في العربية (RTL): القائمة تنزلق من اليمين (حيث يوجد الزر) */
-        html[dir="rtl"] .side-menu-panel { 
-            right: -280px; left: auto; 
-            border-left: 1px solid rgba(255, 255, 255, 0.1); border-right: none; 
-            transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-        }
+        .side-menu-panel { position: fixed; top: 0; width: 280px; height: 100%; background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(20px); box-shadow: 0 0 30px rgba(0,0,0,0.5); z-index: 10000000; display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; }
+        html[dir="rtl"] .side-menu-panel { right: -280px; left: auto; border-left: 1px solid rgba(255, 255, 255, 0.1); border-right: none; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
         html[dir="rtl"] .side-menu-overlay.open .side-menu-panel { right: 0; }
-
-        /* في الإنجليزية (LTR): القائمة تنزلق من اليسار (حيث يوجد الزر) */
-        html[dir="ltr"] .side-menu-panel { 
-            left: -280px; right: auto; 
-            border-right: 1px solid rgba(255, 255, 255, 0.1); border-left: none; 
-            transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-        }
+        html[dir="ltr"] .side-menu-panel { left: -280px; right: auto; border-right: 1px solid rgba(255, 255, 255, 0.1); border-left: none; transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
         html[dir="ltr"] .side-menu-overlay.open .side-menu-panel { left: 0; }
-        
         .side-menu-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; }
         .side-menu-title { color: #fff; font-size: 18px; font-weight: 700; margin: 0; }
         .side-menu-close { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: white; font-size: 16px; cursor: pointer; transition: 0.3s; padding: 0; }
         .side-menu-close:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
-        
-        .side-menu-item { display: flex; align-items: center; gap: 15px; padding: 10px 15px; min-height: 52px; box-sizing: border-box; margin-bottom: 12px; border-radius: 14px; background: rgba(255,255,255,0.04); color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); overflow: visible; }
+        .side-menu-item { display: flex; align-items: center; gap: 15px; padding: 10px 15px; min-height: 52px; box-sizing: border-box; margin-bottom: 12px; border-radius: 14px; background: rgba(255,255,255,0.04); color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); }
         .side-menu-item:hover { background: rgba(255,255,255,0.1); border-color: rgba(135,206,235,0.4); transform: translateX(-5px); }
-        .side-menu-item span:first-child { display: flex; align-items: center; justify-content: center; }
 
-        /* ========================================== */
-        /* إطار الدور (Turn Box) مع إضافة التباين العالي (Shadow + Blur) */
-        /* ========================================== */
+        /* إطار الدور والتفكير */
         #turn-box-container {
             display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
             background: rgba(45, 48, 55, 0.65) !important;
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); /* خلفية زجاجية تضمن القراءة */
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); 
             border: 1px solid rgba(135,206,235,0.4); box-shadow: 0 0 4px rgba(135,206,235,0.3); 
             padding: 8px 16px; border-radius: 20px; 
             width: 190px !important; height: 55px !important; 
-            min-width: 190px !important; max-width: 190px !important;
-            min-height: 55px !important; max-height: 55px !important;
-            box-sizing: border-box; overflow: hidden;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
-            margin: 0 !important; 
-            visibility: hidden; 
-            opacity: 0;
+            box-sizing: border-box; transition: opacity 0.4s ease, visibility 0.4s ease;
+            margin: 0 !important; visibility: hidden; opacity: 0;
         }
-
-        body.game-active #turn-box-container {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        #turn-indicator {
-            text-align: center; color: white; transition: all 0.3s; 
-            margin: 0; font-size: 15px; font-weight: 600;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-            width: 100%; max-width: 100%; display: block;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; /* تباين قوي */
-        }
-
-        #turn-countdown {
-            text-align: center; color: #e0e0e0; font-weight: 600; font-size: 12px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-            width: 100%; max-width: 100%; height: 15px; display: block;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; /* تباين قوي */
-        }
-
-        /* ========================================== */
-        /* نقاط التفكير الخاصة بالبوت (Thinking Dots) */
-        /* ========================================== */
-        .thinking-dots {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            height: 20px;
-        }
-        .thinking-dots span {
-            display: inline-block;
-            width: 7px; height: 7px; background-color: #87ceeb; border-radius: 50%;
-            animation: thinkPulse 1.4s infinite ease-in-out both;
-        }
+        body.game-active #turn-box-container { visibility: visible; opacity: 1; }
+        #turn-indicator, #turn-countdown { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; }
+        #turn-indicator { color: white; font-size: 15px; font-weight: 600; margin: 0; }
+        #turn-countdown { color: #e0e0e0; font-weight: 600; font-size: 12px; height: 15px; }
+        .thinking-dots { display: flex; align-items: center; justify-content: center; gap: 5px; height: 20px; }
+        .thinking-dots span { display: inline-block; width: 7px; height: 7px; background-color: #87ceeb; border-radius: 50%; animation: thinkPulse 1.4s infinite ease-in-out both; }
         .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
         .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
-        
-        @keyframes thinkPulse {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; }
-        }
+        @keyframes thinkPulse { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
-        /* ========================================== */
-        /* رادار انقطاع الإنترنت (فوق البينج مباشرة) */
-        /* ========================================== */
-        #mini-disconnect-radar {
-            display: none;
-            position: absolute;
-            top: 50%;
-            right: -46px; /* يمين الإطار مباشرة */
-            transform: translateY(-50%) translateY(-22px); /* رفعه قليلاً ليكون فوق البينج تماماً */
-            border-radius: 12px;
-            width: 38px;
-            height: 38px;
-            z-index: 99999;
-            background: rgba(15, 18, 25, 0.85);
-            padding: 4px;
-            border: 1px solid rgba(255, 69, 58, 0.4);
-            box-shadow: 0 0 12px rgba(255, 69, 58, 0.3);
-            pointer-events: none;
-            box-sizing: border-box;
-            align-items: center;
-            justify-content: center;
-        }
+        #mini-disconnect-radar { display: none; position: absolute; top: 50%; right: -46px; transform: translateY(-50%) translateY(-22px); border-radius: 12px; width: 38px; height: 38px; z-index: 99999; background: rgba(15, 18, 25, 0.85); padding: 4px; border: 1px solid rgba(255, 69, 58, 0.4); box-shadow: 0 0 12px rgba(255, 69, 58, 0.3); }
 
-        /* ========================================== */
-        /* التصميم الداخلي للنوافذ الكبيرة              */
-        /* ========================================== */
+        /* النوافذ الكبيرة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-        
         #custom-alert-modal { z-index: 20000000 !important; }
         #purchase-modal { z-index: 20000001 !important; }
+        #lucky-spin-modal { z-index: 20000002 !important; }
+        #level-up-modal { z-index: 20000003 !important; } /* شاشة الترقية */
         
-        .settings-card { 
-            background: rgba(45, 48, 55, 0.65) !important; 
-            backdrop-filter: blur(35px) !important; -webkit-backdrop-filter: blur(35px) !important;
-            border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05) !important; 
-            text-align: center; max-height: 90vh; overflow-y: auto; 
-            animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-            transition: all 0.3s ease;
-            display: flex; flex-direction: column; 
-        }
-
-        #store-modal .settings-card, #themes-grid-overlay .settings-card {
-            width: 95%; max-width: 480px; height: 90vh; max-height: 700px; padding-top: 30px;
-        }
-        
-        .leaderboard-full-screen {
-            width: 95% !important; 
-            height: 90vh !important;
-            max-width: 500px !important; 
-            max-height: 90vh !important;
-            border-radius: 32px !important; 
-            padding: 35px 20px 20px 20px !important;
-            display: flex; flex-direction: column;
-            margin: auto;
-        }
-
+        .settings-card { background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(35px) !important; -webkit-backdrop-filter: blur(35px) !important; border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05) !important; text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+        #store-modal .settings-card, #themes-grid-overlay .settings-card { width: 95%; max-width: 480px; padding-top: 30px; }
+        .leaderboard-full-screen { width: 95% !important; height: 90vh !important; max-width: 500px !important; border-radius: 32px !important; padding: 35px 20px 20px 20px !important; }
         .settings-card::-webkit-scrollbar { display: none; }
         @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
         
-        .scrollable-content {
-            flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 5px; margin-bottom: 15px; -webkit-overflow-scrolling: touch;
-        }
+        .scrollable-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 5px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
         .scrollable-content::-webkit-scrollbar { width: 5px; }
         .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .scrollable-content::-webkit-scrollbar-thumb { background: rgba(135, 206, 235, 0.5); border-radius: 10px; }
 
         .modal-close-btn { position: absolute; top: 20px; left: 20px; background: transparent; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer; transition: 0.3s; z-index: 10; border: none !important; box-shadow: none !important; }
-        .modal-close-btn:hover { color: white; transform: scale(1.1); box-shadow: none !important; }
-
+        .modal-close-btn:hover { color: white; transform: scale(1.1); }
         .settings-card h3 { color: #fff; margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 700; }
         .settings-label { display: block; color: #a1a1aa; font-size: 13px; font-weight: 500; margin-bottom: 8px; text-align: start; padding: 0 10px; }
         
-        .settings-card .online-input, .settings-card select { 
-            width: 100%; height: 50px; margin-bottom: 15px; padding: 0 20px; 
-            border-radius: 50px !important; border: 1px solid rgba(255,255,255,0.1) !important; 
-            background: rgba(255, 255, 255, 0.06) !important; color: white; font-weight: 500; font-size: 14px; 
-            box-sizing: border-box; text-align: center; transition: all 0.3s ease; appearance: none;
-            box-shadow: none !important;
-        }
+        .settings-card .online-input, .settings-card select { width: 100%; height: 50px; margin-bottom: 15px; padding: 0 20px; border-radius: 50px !important; border: 1px solid rgba(255,255,255,0.1) !important; background: rgba(255, 255, 255, 0.06) !important; color: white; font-weight: 500; font-size: 14px; box-sizing: border-box; text-align: center; appearance: none; }
         .settings-card .online-input:focus, .settings-card select:focus { border-color: rgba(255,255,255,0.3) !important; background: rgba(255,255,255,0.1) !important; outline: none; }
         
-        .settings-card .save-settings-btn, .settings-card .store-buy-btn { 
-            width: 100%; height: 50px; padding: 0 20px; background: rgba(255,255,255,0.08) !important; 
-            border-radius: 50px !important; color: white !important; font-weight: 600; font-size: 15px; 
-            margin-top: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important; 
-            box-shadow: none !important; display: flex; align-items: center; justify-content: center;
-        }
+        .settings-card .save-settings-btn, .settings-card .store-buy-btn { width: 100%; height: 50px; padding: 0 20px; background: rgba(255,255,255,0.08) !important; border-radius: 50px !important; color: white !important; font-weight: 600; font-size: 15px; margin-top: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important; display: flex; align-items: center; justify-content: center; }
         .settings-card .save-settings-btn:hover, .settings-card .store-buy-btn:hover { background: rgba(255, 255, 255, 0.15) !important; transform: scale(0.98); }
 
         .audio-controls { background: rgba(255, 255, 255, 0.04); padding: 15px; border-radius: 20px; margin-top: 10px; text-align: start; border: 1px solid rgba(255,255,255,0.05); }
@@ -504,45 +368,28 @@
         .audio-controls input[type="range"] { width: 100%; margin-bottom: 5px; accent-color: #ffffff; }
         
         .custom-nav-tabs { display: flex; gap: 4px; margin-bottom: 10px; background: rgba(255, 255, 255, 0.06); padding: 4px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; }
-        .custom-tab-button { flex: 1; min-width: 60px; height: 36px; border-radius: 50px; background: transparent; color: #a1a1aa; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: center; padding: 0 5px; }
+        .custom-tab-button { flex: 1; min-width: 60px; height: 36px; border-radius: 50px; background: transparent; color: #a1a1aa; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
         .custom-tab-button.active { background: rgba(255,255,255,0.1); color: white; }
 
-        .lb-list-container {
-            display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;
-        }
-
-        .lb-item {
-            display: flex; align-items: center; padding: 12px;
-            background: rgba(255,255,255,0.05); border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease;
-        }
-        
+        .lb-list-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
+        .lb-item { display: flex; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
         .lb-rank { font-size: 16px; font-weight: 800; width: 35px; text-align: center; color: #a1a1aa; }
-        .lb-avatar { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,0.05); overflow: hidden; margin-left: 12px; margin-right: 5px; }
+        .lb-avatar { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,0.05); overflow: hidden; margin-left: 12px; margin-right: 5px; position: relative; }
         .lb-info { flex: 1; text-align: right; display: flex; flex-direction: column; }
-        .lb-name { font-size: 15px; font-weight: 700; color: white; transition: all 0.3s; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+        .lb-name { font-size: 15px; font-weight: 700; color: white; display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
         .lb-score { font-size: 13px; font-weight: 600; color: #f5a623; margin-top: 4px; }
-
         .lb-item:nth-child(1) .lb-rank { color: #FFD700; font-size: 20px; }
-        .lb-item:nth-child(1) .lb-avatar { border-color: #FFD700; box-shadow: 0 0 15px rgba(255,215,0,0.4), inset 0 0 10px rgba(255,215,0,0.2); }
-        .lb-item:nth-child(1) .lb-name { color: #FFD700; text-shadow: 0 0 8px rgba(255,215,0,0.4); }
-
         .lb-item:nth-child(2) .lb-rank { color: #FF453A; font-size: 18px; }
-        .lb-item:nth-child(2) .lb-avatar { border-color: #FF453A; box-shadow: 0 0 15px rgba(255,69,58,0.4), inset 0 0 10px rgba(255,69,58,0.2); }
-        .lb-item:nth-child(2) .lb-name { color: #FF453A; text-shadow: 0 0 8px rgba(255,69,58,0.4); }
-
         .lb-item:nth-child(3) .lb-rank { color: #9B59B6; font-size: 18px; }
-        .lb-item:nth-child(3) .lb-avatar { border-color: #9B59B6; box-shadow: 0 0 15px rgba(155,89,182,0.4), inset 0 0 10px rgba(155,89,182,0.2); }
-        .lb-item:nth-child(3) .lb-name { color: #9B59B6; text-shadow: 0 0 8px rgba(155,89,182,0.4); }
 
         .themes-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 5px 0; }
-        .theme-grid-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 10px 4px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .theme-grid-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 10px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
         .theme-grid-item:hover, .theme-grid-item.active { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); }
-        .theme-grid-preview { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        .theme-grid-title { color: #e0e0e0; font-size: 11px; font-weight: 600; text-align: center; line-height: 1.2; }
+        .theme-grid-preview { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); }
+        .theme-grid-title { color: #e0e0e0; font-size: 11px; font-weight: 600; text-align: center; }
         
         .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 5px; }
-        .store-item-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; padding: 10px 5px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; transition: all 0.3s; }
+        .store-item-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; padding: 10px 5px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
         .store-item-card:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
 
         .loading-dots-container { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
@@ -555,142 +402,63 @@
         @keyframes badgePulse { 0% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.8; } }
 
         #match-players-card { background: rgba(45, 48, 55, 0.6) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important; }
-        .match-players-flex { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 80px; }
+        .match-players-flex { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 80px; position: relative; }
         .match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
-        .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ffffff !important; }
-        .match-vs-text { color: #a1a1aa; font-weight: 300; font-size: 16px; }
+        .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ffffff !important; display: flex; align-items: center; justify-content: center; }
+        .match-vs-text { color: #a1a1aa; font-weight: 300; font-size: 16px; text-align: center; }
 
-        button, select, .control-panel button, .control-panel select, 
-        .settings-card, 
-        .save-settings-btn, .store-buy-btn, .custom-tab-button, 
-        .modal-close-btn, #hamburger-menu-btn, #online-toggle-btn, #store-portal-corner-btn {
-            border: 1px solid rgba(135, 206, 235, 0.4) !important;
-            box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important;
-            outline: none !important;
-        }
-        button:hover, select:hover, .settings-card:hover {
-            box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important;
-        }
+        button, select, .control-panel button, .control-panel select, .settings-card, .save-settings-btn, .store-buy-btn, .custom-tab-button, .modal-close-btn, #hamburger-menu-btn, #online-toggle-btn, #store-portal-corner-btn, #lucky-spin-portal-btn { border: 1px solid rgba(135, 206, 235, 0.4) !important; box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important; outline: none !important; }
+        button:hover, select:hover, .settings-card:hover { box-shadow: 0 0 8px rgba(135, 206, 235, 0.6) !important; }
 
-        .purchase-preview-box { width: 100px; height: 100px; margin: 20px auto; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+        .purchase-preview-box { width: 100px; height: 100px; margin: 20px auto; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
         .legendary-icon { box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); }
 
-        #toast-notification {
-            position: fixed;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(46, 204, 113, 0.95);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 14px;
-            z-index: 9999999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        #toast-notification.show {
-            opacity: 1;
-            visibility: visible;
-            bottom: 120px;
-        }
+        #toast-notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: rgba(46, 204, 113, 0.95); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 14px; z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.3); backdrop-filter: blur(10px); pointer-events: none; white-space: nowrap; }
+        #toast-notification.show { opacity: 1; visibility: visible; bottom: 120px; }
 
-        #game-over-modal > div { background: rgba(30, 32, 40, 0.75) !important; backdrop-filter: blur(40px) saturate(180%) !important; -webkit-backdrop-filter: blur(40px) saturate(180%) !important; border: 1px solid rgba(135, 206, 235, 0.2) !important; border-radius: 36px !important; box-shadow: 0 30px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08) !important; padding: 35px 25px !important; }
-        #game-over-modal div[style*="border"], #game-over-modal div[style*="#f1c40f"], #game-over-modal div[style*="gold"] { border: none !important; }
-        #game-over-modal h2, #game-over-modal h3 { color: #ffffff !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: none !important; }
-        #game-over-modal div[style*="green"], #game-over-modal span[style*="green"], #game-over-modal div[style*="#2ecc71"], #game-over-modal span[style*="#2ecc71"] { background: rgba(48, 209, 88, 0.15) !important; color: #30d158 !important; border: 1px solid rgba(48, 209, 88, 0.3) !important; border-radius: 50px !important; padding: 5px 16px !important; box-shadow: none !important; display: inline-block !important; margin-top: 10px !important; font-weight: 600 !important; font-size: 13px !important; }
-        #game-over-modal div[style*="red"], #game-over-modal span[style*="red"], #game-over-modal div[style*="#e74c3c"], #game-over-modal span[style*="#e74c3c"] { background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; border: 1px solid rgba(255, 69, 58, 0.3) !important; border-radius: 50px !important; padding: 5px 16px !important; box-shadow: none !important; display: inline-block !important; margin-top: 10px !important; font-weight: 600 !important; font-size: 13px !important; }
-        #game-over-modal button { border-radius: 50px !important; height: 50px !important; font-weight: 600 !important; font-size: 16px !important; margin-top: 12px !important; box-shadow: none !important; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important; width: 100% !important; }
-        #game-over-modal button[style*="green"], #game-over-modal button[style*="#2ecc71"], #rematch-btn { background: rgba(48, 209, 88, 0.12) !important; color: #30d158 !important; border: 1px solid rgba(48, 209, 88, 0.25) !important; }
-        #game-over-modal button[style*="red"], #game-over-modal button[style*="#e74c3c"], #exit-game-btn { background: rgba(255, 69, 58, 0.12) !important; color: #ff453a !important; border: 1px solid rgba(255, 69, 58, 0.25) !important; }
-        #game-over-modal button:hover { transform: scale(0.96) !important; }
-        #game-over-modal img { border: 1px solid rgba(255, 255, 255, 0.15) !important; border-radius: 50% !important; background: rgba(255, 255, 255, 0.05) !important; padding: 4px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important; }
+        #game-over-modal > div { background: rgba(30, 32, 40, 0.75) !important; backdrop-filter: blur(40px) saturate(180%) !important; border-radius: 36px !important; padding: 35px 25px !important; }
+        #game-over-modal div[style*="border"], #game-over-modal div[style*="#f1c40f"] { border: none !important; }
+        #game-over-modal h3 { color: #ffffff !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; }
         
-        .modern-bot-avatar {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
-            box-shadow: 0 8px 20px rgba(42, 82, 152, 0.5), inset 0 0 12px rgba(255,255,255,0.3) !important;
-            border: 2px solid #87ceeb !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            color: white !important;
-            border-radius: 50% !important;
+        body.online-mode-active { padding-top: 15px !important; }
+        body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+        body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
+        body.online-mode-active #match-players-card { width: 95vw !important; max-width: 500px !important; flex-direction: row !important; justify-content: space-between !important; padding: 10px 30px !important; margin-bottom: 15px !important; }
+        body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #a1a1aa !important; }
+        body.online-mode-active #turn-box-container { margin-bottom: 15px !important; }
+        body.online-mode-active .scoreboard { order: 2 !important; }
+        body.online-mode-active .game-container { order: 3 !important; }
+
+        /* ========================================== */
+        /* 🎡 عجلة الحظ (Lucky Spin) - CSS            */
+        /* ========================================== */
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 0 auto 30px auto; }
+        .wheel-pointer { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 38px; color: #ff453a; z-index: 10; text-shadow: 0 4px 8px rgba(0,0,0,0.5); filter: drop-shadow(0 0 5px rgba(255,255,255,0.4)); }
+        .wheel-inner { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0,0,0,0.6); position: relative; overflow: hidden; background: conic-gradient(#d35400 0deg 45deg, #2980b9 45deg 90deg, #27ae60 90deg 135deg, #16a085 135deg 180deg, #8e44ad 180deg 225deg, #c0392b 225deg 270deg, #f39c12 270deg 315deg, #5c4a1b 315deg 360deg); }
+        .wheel-text { position: absolute; top: 20px; left: 50%; transform-origin: center 120px; text-align: center; font-size: 15px; font-weight: 800; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); white-space: nowrap; }
+        .w-1 { transform: translateX(-50%) rotate(22.5deg); } .w-2 { transform: translateX(-50%) rotate(67.5deg); } .w-3 { transform: translateX(-50%) rotate(112.5deg); } .w-4 { transform: translateX(-50%) rotate(157.5deg); } .w-5 { transform: translateX(-50%) rotate(202.5deg); } .w-6 { transform: translateX(-50%) rotate(247.5deg); } .w-7 { transform: translateX(-50%) rotate(292.5deg); } .w-8 { transform: translateX(-50%) rotate(337.5deg); color: #ffd700; font-size: 16px; }
+        .wheel-center-pin { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 45px; height: 45px; background: radial-gradient(circle, #ffffff, #f1c40f); border: 4px solid #d4af37; border-radius: 50%; z-index: 5; box-shadow: 0 4px 10px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+        /* ========================================== */
+        /* 🌟 أنيميشن شاشة الترقية (Level Up Modal)  */
+        /* ========================================== */
+        @keyframes shineRays {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
-        .modern-bot-avatar svg {
-            width: 55%;
-            height: 55%;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
-            animation: botFloat 3s ease-in-out infinite;
-        }
-        @keyframes botFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+        .level-up-rays {
+            position: absolute; top: 50%; left: 50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent 0deg, rgba(255,215,0,0.3) 20deg, transparent 40deg, rgba(255,215,0,0.3) 60deg, transparent 80deg, rgba(255,215,0,0.3) 100deg, transparent 120deg, rgba(255,215,0,0.3) 140deg, transparent 160deg, rgba(255,215,0,0.3) 180deg, transparent 200deg, rgba(255,215,0,0.3) 220deg, transparent 240deg, rgba(255,215,0,0.3) 260deg, transparent 280deg, rgba(255,215,0,0.3) 300deg, transparent 320deg, rgba(255,215,0,0.3) 340deg, transparent 360deg);
+            animation: shineRays 15s linear infinite; z-index: -1; pointer-events: none;
         }
 
-        body.online-mode-active {
-            padding-top: 15px !important;
-        }
-
-        body.online-mode-active #profile-badge,
-        body.online-mode-active #hamburger-menu-btn,
-        body.online-mode-active #undo-btn {
-            display: none !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-        }
-
-        body.online-mode-active #status-area {
-            margin-top: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            width: 100% !important;
-            order: 1 !important;
-        }
-
-        body.online-mode-active #match-players-card {
-            width: 95vw !important;
-            max-width: 500px !important;
-            flex-direction: row !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            padding: 10px 30px !important;
-            margin-bottom: 15px !important;
-            box-sizing: border-box !important;
-        }
-
-        body.online-mode-active .match-vs-text {
-            font-size: 24px !important;
-            font-weight: 800 !important;
-            color: #a1a1aa !important;
-        }
-
-        body.online-mode-active #turn-box-container {
-            margin-bottom: 15px !important;
-        }
-
-        body.online-mode-active .scoreboard {
-            order: 2 !important;
-        }
-
-        body.online-mode-active .game-container {
-            order: 3 !important;
-        }
+        /* 🌟 تصميم القصاصات (Confetti) */
+        .confetti { position: absolute; width: 10px; height: 10px; background: #ffd700; top: -10px; z-index: 999999; animation: fall 3s linear forwards; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
     </style>
 </head>
 <body data-piece-style="pc_original">
     
-    <!-- 
-    =============================================================
-    معترض البيانات (Data Interceptor) الذكي لحماية مسارات الصور
-    ============================================================= 
-    -->
     <script>
         const originalGetItem = localStorage.getItem;
         localStorage.getItem = function(key) {
@@ -724,9 +492,13 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <!-- كبسولة البروفايل -->
+    <!-- كبسولة البروفايل الرئيسية (تم إضافة شريط ومربع المستوى) -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
-        <div class="profile-avatar-capsule" id="badge-avatar"></div>
+        <div class="avatar-wrapper">
+            <div class="xp-ring" id="badge-xp-ring"></div>
+            <div class="profile-avatar-capsule" id="badge-avatar"></div>
+            <div class="level-badge-small" id="badge-level">Lv.1</div>
+        </div>
         <div class="profile-badge-info">
             <span id="badge-username-display-game" class="profile-badge-name">أنت</span>
             <div class="stat-item">
@@ -735,30 +507,30 @@
         </div>
     </div>
     
-    <!-- القائمة الجانبية -->
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
-    
-    <!-- 🎒 زر الحقيبة السريع -->
     <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none;" data-icon="bagQuick"></button>
 
     <div id="status-area">
         <div id="match-players-card" style="display: none;">
             <div class="match-players-flex">
-                <div id="card-my-avatar" class="match-players-avatar-me"></div>
+                <div class="avatar-wrapper">
+                    <div id="card-my-avatar" class="match-players-avatar-me" style="border: 2px solid #282a32;"></div>
+                    <div class="level-badge-small" id="card-my-level">Lv.1</div>
+                </div>
                 <span id="card-my-name" class="match-players-name">أنت</span>
             </div>
             <span class="match-vs-text">VS</span>
             <div class="match-players-flex">
-                <div id="card-opp-avatar" class="match-players-avatar-opp">❓</div>
+                <div class="avatar-wrapper">
+                    <div id="card-opp-avatar" class="match-players-avatar-opp" style="border: 2px solid #282a32;">❓</div>
+                    <div class="level-badge-small" id="card-opp-level" style="background:#555;">Lv.?</div>
+                </div>
                 <span id="card-opp-name" class="match-players-name">الخصم</span>
             </div>
         </div>
 
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-            
-            <!-- 🌟 حاوية الرادار الذكي (فوق البينج مباشرة في الجانب الأيمن) -->
             <div id="mini-disconnect-radar"></div>
-
             <div id="turn-box-container">
                 <h3 id="turn-indicator">Your Turn</h3>
                 <div id="turn-countdown"></div>
@@ -766,7 +538,6 @@
         </div>
     </div>
 
-    <!-- لوحة النقاط العلوية -->
     <div class="scoreboard">
         <div id="opponent-score-row" class="score-row"></div>
         <div id="my-score-row" class="score-row"></div>
@@ -784,6 +555,11 @@
                 <button class="side-menu-close" onclick="toggleSideMenu()">✕</button>
             </div>
             
+            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('lucky-spin-modal')" style="background: rgba(241, 196, 15, 0.15); border-color: rgba(241, 196, 15, 0.3);">
+                <span style="font-size: 20px;">🎡</span>
+                <span id="menu-spin-text" style="color: #f1c40f;">عجلة الحظ</span>
+            </div>
+
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
                 <span data-icon="bagSide"></span>
                 <span id="menu-bag-text">الحقيبة الممتلكات</span>
@@ -821,42 +597,96 @@
     <div id="toast-notification">✨ تم التغيير بنجاح</div>
 
     <button id="online-toggle-btn" title="البحث العشوائي" style="position: fixed; bottom: 75px; left: 15px; z-index: 9998; height: 46px; width: 102px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
-        <span class="notification-badge"></span>
+        <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
         <span data-icon="globe"></span>
         <span style="font-size: 13px; font-weight: 600;">اونلاين</span>
     </button>
 
+    <button id="lucky-spin-portal-btn" onclick="openAppModal('lucky-spin-modal')" style="position: fixed; bottom: 135px; left: 15px; z-index: 9998; width: 46px; height: 46px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 22px; background: rgba(241, 196, 15, 0.15) !important; border-color: rgba(241, 196, 15, 0.4) !important;" title="عجلة الحظ">
+        <span class="notification-badge" id="spin-notify-badge"></span>
+        🎡
+    </button>
+
     <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 75px; right: 15px; z-index: 9998; width: 46px; height: 46px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي" data-icon="storePortal"></button>
 
-    <div id="login-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto">
-            <button class="modal-close-btn" onclick="closeAppModal('login-modal')" style="left:15px; right:auto;">✕</button>
-            <h3>تسجيل الدخول</h3>
-            
-            <label class="settings-label" for="login-name-input">الاسم</label>
-            <input type="text" id="login-name-input" class="online-input" placeholder="أدخل اسمك">
+    <!-- 🎡 نافذة عجلة الحظ (Lucky Spin Modal) -->
+    <div id="lucky-spin-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto" style="max-width: 360px;">
+            <button class="modal-close-btn" onclick="closeAppModal('lucky-spin-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 24px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">عجلة الحظ 🎡</h3>
+            <p class="settings-label" style="text-align:center; margin-bottom: 25px; color: #fff;">جرب حظك واربح جوائز وخصومات نادرة!</p>
 
-            <label class="settings-label" for="login-password-input">كلمة المرور / Password</label>
-            <input type="password" id="login-password-input" class="online-input" placeholder="كلمة المرور">
+            <div class="wheel-container">
+                <div class="wheel-pointer">🔻</div>
+                <div class="wheel-inner" id="lucky-wheel-inner">
+                    <div class="wheel-text w-1">50 🪙</div>
+                    <div class="wheel-text w-2">100 🪙</div>
+                    <div class="wheel-text w-3">1 💡</div>
+                    <div class="wheel-text w-4">3 💡</div>
+                    <div class="wheel-text w-5">25% 🎫</div>
+                    <div class="wheel-text w-6">50% 🎫</div>
+                    <div class="wheel-text w-7">250 🪙</div>
+                    <div class="wheel-text w-8">1000 🎁</div>
+                </div>
+                <div class="wheel-center-pin">⭐️</div>
+            </div>
 
-            <label class="settings-label" for="login-avatar-select">الشخصية</label>
-            <select id="login-avatar-select" class="online-input">
-                <option value="avatar1">شخصية 1</option>
-            </select>
+            <div id="spin-timer" style="color: #a1a1aa; font-size: 14px; margin-bottom: 15px; font-weight: 600;">اللفة المجانية جاهزة!</div>
 
-            <button id="login-submit-btn" class="save-settings-btn">دخول</button>
+            <button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important;">لفة مجانية 🆓</button>
+            <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none;">لفة إضافية (100 🪙)</button>
         </div>
     </div>
 
+    <!-- 🌟 نافذة المستوى الجديد (Level Up Modal) -->
+    <div id="level-up-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto" style="max-width: 320px; overflow: hidden; position: relative;">
+            <div class="level-up-rays"></div> <!-- أشعة الخلفية الدوارة -->
+            <button class="modal-close-btn" onclick="closeAppModal('level-up-modal')" style="left:15px; right:auto;">✕</button>
+            
+            <h3 style="color:#ffd700; font-size: 26px; text-shadow: 0 0 10px rgba(255,215,0,0.6); margin-bottom: 10px;">ترقية جديدة! ⬆️</h3>
+            
+            <div style="font-size: 60px; margin: 15px 0; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));">🏅</div>
+            
+            <p style="color: white; font-size: 18px; margin: 0 0 5px 0; font-weight: 700;">وصلت إلى المستوى <span id="level-up-num" style="color: #34c759; font-size: 22px;">2</span></p>
+            <p id="level-up-title" style="color: #f5a623; font-size: 14px; margin: 0 0 20px 0; font-weight: 600;">لقب: مبارز</p>
+
+            <div style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,215,0,0.3);">
+                <h4 style="color: #a1a1aa; margin: 0 0 10px 0; font-size: 13px;">المكافآت:</h4>
+                <div id="level-up-rewards" style="color: white; font-weight: bold; font-size: 16px; line-height: 1.8;">
+                    +100 🪙
+                </div>
+            </div>
+
+            <button onclick="closeAppModal('level-up-modal')" class="save-settings-btn" style="background: linear-gradient(135deg, #f5a623, #d35400) !important; color: white !important;">استلام الجوائز</button>
+        </div>
+    </div>
+
+    <!-- نافذة الملف الشخصي الداخلي (مع شريط الـ XP) -->
     <div id="in-game-profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
-            <h3 id="igp-title" style="margin-bottom: 25px;">الملف الشخصي</h3>
-            <div class="profile-display-avatar" id="igp-avatar" style="width: 80px; height: 80px; margin: 0 auto 15px auto; border-radius: 50%; padding: 2px; border: 1px solid rgba(255,255,255,0.2); position: relative;"></div>
+            <h3 id="igp-title" style="margin-bottom: 15px;">الملف الشخصي</h3>
             
-            <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%;">الاسم</h4>
+            <!-- صورة البروفايل الكبيرة مع شريط دائري -->
+            <div class="avatar-wrapper" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                <div class="xp-ring" id="igp-xp-ring"></div>
+                <div class="profile-avatar-capsule" id="igp-avatar" style="border-width: 3px;"></div>
+                <div class="level-badge-small" id="igp-level" style="font-size: 12px; padding: 3px 8px; bottom: -8px;">Lv.1</div>
+            </div>
             
-            <div onclick="copyMyId()" id="copy-id-btn" style="cursor: pointer; color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-family: monospace; padding: 4px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;" title="نسخ المعرف" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+            <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
+            
+            <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; margin-bottom: 5px;">الرتبة: 🥉 برونزي</div>
+
+            <div style="width: 100%; margin-bottom: 20px;">
+                <div class="xp-bar-bg">
+                    <div class="xp-bar-fill" id="igp-xp-fill"></div>
+                    <div class="xp-bar-text" id="igp-xp-text">0 / 100 XP</div>
+                </div>
+            </div>
+            
+            <div onclick="copyMyId()" id="copy-id-btn" style="cursor: pointer; color: #a1a1aa; font-size: 13px; margin-bottom: 15px; font-family: monospace; padding: 4px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;" title="نسخ المعرف">
                 <span>ID: <span id="igp-id-display" style="color: white; font-weight: bold;">...</span></span>
                 <span data-icon="copyId"></span>
             </div>
@@ -890,7 +720,23 @@
         </div>
     </div>
 
-    <!-- نافذة المتجر -->
+    <!-- باقي النوافذ كما هي (المتجر، الإعدادات، الدخول...) -->
+    <div id="login-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto">
+            <button class="modal-close-btn" onclick="closeAppModal('login-modal')" style="left:15px; right:auto;">✕</button>
+            <h3>تسجيل الدخول</h3>
+            <label class="settings-label" for="login-name-input">الاسم</label>
+            <input type="text" id="login-name-input" class="online-input" placeholder="أدخل اسمك">
+            <label class="settings-label" for="login-password-input">كلمة المرور / Password</label>
+            <input type="password" id="login-password-input" class="online-input" placeholder="كلمة المرور">
+            <label class="settings-label" for="login-avatar-select">الشخصية</label>
+            <select id="login-avatar-select" class="online-input">
+                <option value="avatar1">شخصية 1</option>
+            </select>
+            <button id="login-submit-btn" class="save-settings-btn">دخول</button>
+        </div>
+    </div>
+
     <div id="store-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <div style="position: absolute; top: 18px; right: 20px;" class="stat-item">
@@ -934,23 +780,19 @@
         </div>
     </div>
 
-    <!-- نافذة الحقيبة -->
     <div id="themes-grid-overlay" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <h3 id="themes-grid-title" style="margin-bottom: 15px; font-size: 20px;">المظهر والأزياء</h3>
-            
             <div class="custom-nav-tabs">
                 <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="switchThemeGridTabCategory('bg')">خلفيات</button>
                 <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="switchThemeGridTabCategory('frames')">إطارات</button>
                 <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="switchThemeGridTabCategory('pieces')">احجار</button>
             </div>
-
             <div class="scrollable-content">
                 <div class="themes-grid-container" id="theme-grid-section-bg"></div>
                 <div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div>
                 <div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
             </div>
-
             <button id="theme-close-btn" onclick="closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">الخروج</button>
         </div>
     </div>
@@ -1004,14 +846,20 @@
             <div id="online-setup-box">
                 <label class="settings-label" id="room-id-label" for="online-room-input">رقم أو اسم الغرفة:</label>
                 <input type="text" id="online-room-input" class="online-input" placeholder="مثال: 12345">
-                
                 <label class="settings-label" id="room-password-label" for="online-password-input">كلمة السر (اختياري):</label>
                 <input type="password" id="online-password-input" class="online-input" placeholder="اتركها فارغة للعام">
-
+                <label class="settings-label" id="room-bet-label" for="room-bet-input">مبلغ الرهان لكل لاعب (اختياري):</label>
+                <select id="room-bet-input" class="online-input">
+                    <option value="0">بدون رهان (مجاني)</option>
+                    <option value="50">50 🪙 (الجائزة الكبرى: 100)</option>
+                    <option value="100">100 🪙 (الجائزة الكبرى: 200)</option>
+                    <option value="200">200 🪙 (الجائزة الكبرى: 400)</option>
+                    <option value="500">500 🪙 (الجائزة الكبرى: 1000)</option>
+                    <option value="1000">1000 🪙 (الجائزة الكبرى: 2000)</option>
+                </select>
                 <button id="online-create-btn" class="save-settings-btn" style="background: rgba(255,255,255,0.15) !important;">إنشاء غرفة</button>
                 <button id="online-join-btn" class="save-settings-btn">انضمام لغرفة</button>
             </div>
-            <!-- 💡 تم إضافة آيدي الترجمة هنا لرسالة الغرفة الخاصة -->
             <p id="online-status-text" style="color: #f1c40f; font-weight: 500; font-size: 13px; margin-top: 15px; display: none;"></p>
             <button id="online-close-btn" onclick="closeAppModal('online-modal')" class="save-settings-btn" style="background: transparent !important; margin-top: 15px;">إلغاء</button>
         </div>
@@ -1031,7 +879,6 @@
                 </div>
             </div>
             <div style="margin: 20px 0;">
-                <!-- 💡 ربط رسالة البحث الجارية بنظام الترجمة بشكل ديناميكي -->
                 <div id="mm-status-label" class="settings-label" style="text-align: center;">جاري البحث عن خصم...</div>
                 <div class="loading-dots-container">
                     <div class="loading-dot"></div>
@@ -1071,35 +918,20 @@
     <!-- الأزرار السفلية -->
     <div class="control-panel" id="bottom-control-panel">
         <button id="reset-btn" title="Reset">بدء</button>
-        
         <select id="diff-quick-select" title="Difficulty">
-            <option value="1">L1</option>
-            <option value="2">L2</option>
-            <option value="3">L3</option>
-            <option value="4">L4</option>
-            <option value="5">L5</option>
-            <option value="6">L6</option>
-            <option value="7">L7</option>
-            <option value="8">L8</option>
-            <option value="9">L9</option>
+            <option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option><option value="7">L7</option><option value="8">L8</option><option value="9">L9</option>
         </select>
-        
         <button id="hint-btn" title="أفضل حركة" style="font-size: 18px; position: relative; overflow: visible; padding: 0; width: 44px; display: flex; align-items: center; justify-content: center;">
             <span data-icon="bulb" style="display: flex; align-items: center; justify-content: center;"></span>
             <span id="hint-counter" style="position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 50%; border: 1.5px solid #282a32; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10;">0</span>
         </button>
-        
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none; padding: 0; width: 44px; align-items: center; justify-content: center;">↩️</button>
-        
         <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="window.parent.toggleRadioPlayState()">
             <span id="dama-radio-status" class="radio-status-dot"></span>
             <span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
         </button>
-        
-        <!-- زر المايك الجديد -->
         <button id="mic-toggle-btn" title="المحادثة الصوتية" style="display: none; align-items: center; justify-content: center; background: rgba(45, 48, 55, 0.65) !important; border: 1px solid rgba(135, 206, 235, 0.4) !important; color: #ffffff; font-size: 18px; cursor: pointer; width: 44px !important; height: 44px !important; border-radius: 12px !important; padding: 0 !important; box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important;">
         </button>
-
         <button id="resign-btn" title="الانسحاب" style="display: none; font-weight: bold;">الانسحاب</button>
     </div>
 
@@ -1109,109 +941,69 @@
     
     <script>
         let guestId = localStorage.getItem('guestId');
-        if (!guestId) {
-            guestId = 'guest_' + Date.now() + Math.random();
-            localStorage.setItem('guestId', guestId);
-        }
-
+        if (!guestId) { guestId = 'guest_' + Date.now() + Math.random(); localStorage.setItem('guestId', guestId); }
         window.modalStack = [];
 
-        // 💡 دالة التحديث الديناميكي الشاملة لنصوص الـ HTML (متضمنة نصوص حالة البحث)
         window.updateHtmlTexts = function() {
             if (!window.t) return;
             const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.innerText = window.t(key); };
-            
-            setTxt('menu-title-text', 'menu_title');
-            setTxt('menu-bag-text', 'menu_bag');
-            setTxt('menu-radio-text', 'menu_radio');
-            setTxt('menu-room-text', 'menu_room');
-            setTxt('menu-leaderboard-text', 'menu_leaderboard');
-            setTxt('menu-settings-text', 'menu_settings');
-            setTxt('menu-exit-text', 'menu_exit');
-            
-            setTxt('lb-title-text', 'lb_title');
-            setTxt('lb-tab-wins', 'lb_wins');
-            setTxt('lb-tab-tokens', 'lb_tokens');
-            
-            setTxt('tutorial-mode-label', 'tutorial_mode');
-
-            // 💡 تحديث نصوص الحالة أثناء البحث إذا كانت النافذة مفتوحة
-            if (document.getElementById('matchmaking-modal').style.display === 'flex') {
-                setTxt('mm-status-label', 'searching');
-            }
-            if (document.getElementById('online-modal').style.display === 'flex') {
-                setTxt('online-status-text', 'searching');
-            }
+            setTxt('menu-title-text', 'menu_title'); setTxt('menu-bag-text', 'menu_bag'); setTxt('menu-radio-text', 'menu_radio'); setTxt('menu-room-text', 'menu_room'); setTxt('menu-leaderboard-text', 'menu_leaderboard'); setTxt('menu-settings-text', 'menu_settings'); setTxt('menu-exit-text', 'menu_exit'); setTxt('lb-title-text', 'lb_title'); setTxt('lb-tab-wins', 'lb_wins'); setTxt('lb-tab-tokens', 'lb_tokens'); setTxt('tutorial-mode-label', 'tutorial_mode');
+            if (document.getElementById('matchmaking-modal').style.display === 'flex') setTxt('mm-status-label', 'searching');
+            if (document.getElementById('online-modal').style.display === 'flex') setTxt('online-status-text', 'searching');
         };
 
         function openAppModal(id) {
             const modal = document.getElementById(id);
-            if (modal) {
-                modal.style.display = 'flex';
-                window.modalStack.push(id);
-                history.pushState({ modalOpen: id }, '');
-            }
+            if (modal) { modal.style.display = 'flex'; window.modalStack.push(id); history.pushState({ modalOpen: id }, ''); }
         }
 
         function closeAppModal(id) {
             const modal = document.getElementById(id);
             if (modal && modal.style.display === 'flex') {
-                if (window.modalStack[window.modalStack.length - 1] === id) {
-                    history.back(); 
-                } else {
-                    modal.style.display = 'none';
-                    window.modalStack = window.modalStack.filter(m => m !== id);
-                }
+                if (window.modalStack[window.modalStack.length - 1] === id) history.back(); 
+                else { modal.style.display = 'none'; window.modalStack = window.modalStack.filter(m => m !== id); }
             }
         }
 
         const boardObserver = new MutationObserver(() => {
-            if (document.querySelector('.piece:not(.mini)')) {
-                document.body.classList.add('game-active');
-            } else {
-                document.body.classList.remove('game-active');
-            }
+            if (document.querySelector('.piece:not(.mini)')) document.body.classList.add('game-active');
+            else document.body.classList.remove('game-active');
         });
 
         document.addEventListener('DOMContentLoaded', () => {
             const boardEl = document.getElementById('board');
-            if (boardEl) {
-                boardObserver.observe(boardEl, { childList: true, subtree: true });
-            }
-            // تطبيق الترجمة على النصوص الثابتة عند التحميل
+            if (boardEl) boardObserver.observe(boardEl, { childList: true, subtree: true });
             setTimeout(() => { if (window.updateHtmlTexts) window.updateHtmlTexts(); }, 300);
         });
 
         function toggleSideMenu() {
             const overlay = document.getElementById('side-menu-overlay');
-            if (overlay.classList.contains('open')) {
-                overlay.classList.remove('open');
-            } else {
-                overlay.classList.add('open');
-            }
+            if (overlay.classList.contains('open')) overlay.classList.remove('open');
+            else overlay.classList.add('open');
         }
 
         function switchLbTab(tab) {
-            document.getElementById('lb-tab-wins').classList.remove('active');
-            document.getElementById('lb-tab-tokens').classList.remove('active');
-            document.getElementById('leaderboard-list-wins').style.display = 'none';
-            document.getElementById('leaderboard-list-tokens').style.display = 'none';
-            
-            document.getElementById('lb-tab-' + tab).classList.add('active');
-            document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
+            document.getElementById('lb-tab-wins').classList.remove('active'); document.getElementById('lb-tab-tokens').classList.remove('active');
+            document.getElementById('leaderboard-list-wins').style.display = 'none'; document.getElementById('leaderboard-list-tokens').style.display = 'none';
+            document.getElementById('lb-tab-' + tab).classList.add('active'); document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
         }
 
-        function createLbItemHTML(rank, name, score, type, avatarStr) {
+        // 💡 تحديث تصميم عناصر لوحة الشرف لتدعم إظهار شارة الرتبة (Rank Badge)
+        function createLbItemHTML(rank, name, score, type, avatarStr, playerRankInfo) {
             let prefix = type === 'wins' ? '' : '🪙 ';
-            // ربط كلمة فوز في لوحة الشرف بقاموس الترجمة
             let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : '';
             
             const div = document.createElement('div');
             div.className = 'lb-item';
             
+            let rankIconHTML = '';
+            if (playerRankInfo && playerRankInfo.icon) {
+                rankIconHTML = `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>`;
+            }
+
             const nameEl = document.createElement('div');
             nameEl.className = 'lb-name';
-            nameEl.textContent = name;
+            nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
             
             div.innerHTML = `
                 <div class="lb-rank">#${rank}</div>
@@ -1228,48 +1020,42 @@
             if (avatarStr && avatarStr !== 'null' && avatarStr !== 'undefined') {
                 let imgSrc = avatarStr;
                 const isFullUrl = imgSrc.startsWith('http') || imgSrc.startsWith('data:image');
-                
                 if (!isFullUrl) {
                     let cleanName = imgSrc.replace(/\.\.\//g, '').replace('Photo/', '');
                     imgSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
                 }
-
                 const img = document.createElement('img');
                 img.style.cssText = "width: 100%; height: 100%; border-radius: 50%; object-fit: cover;";
-                img.onerror = function() {
-                    avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>';
-                };
+                img.onerror = function() { avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>'; };
                 img.src = imgSrc;
                 avatarContainer.appendChild(img);
             } else {
                 avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>';
             }
-            
             return div;
         }
 
         function populateLeaderboards(winsData, tokensData) {
             const winsList = document.getElementById('leaderboard-list-wins');
             const tokensList = document.getElementById('leaderboard-list-tokens');
-            
-            winsList.innerHTML = '';
-            tokensList.innerHTML = '';
-            
-            // جلب ترجمة "لاعب مجهول" من القاموس
+            winsList.innerHTML = ''; tokensList.innerHTML = '';
             const unknownText = window.t ? window.t('lb_unknown') : 'لاعب مجهول';
             
             for(let i = 0; i < 20; i++) {
                 let wPlayer = winsData && winsData[i] ? winsData[i].name : `${unknownText} ${i+1}`;
                 let wScore = winsData && winsData[i] ? winsData[i].score : (100 - (i * 2));
                 let wAvatar = winsData && winsData[i] ? winsData[i].avatar : null; 
-                winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins', wAvatar));
+                // سنمرر بيانات الرتبة لاحقاً من السيرفر (rankInfo)
+                let wRankInfo = winsData && winsData[i] ? winsData[i].rankInfo : null; 
+                winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins', wAvatar, wRankInfo));
             }
 
             for(let i = 0; i < 20; i++) {
                 let tPlayer = tokensData && tokensData[i] ? tokensData[i].name : `${unknownText} ${i+1}`;
                 let tScore = tokensData && tokensData[i] ? tokensData[i].score : (10000 - (i * 300));
                 let tAvatar = tokensData && tokensData[i] ? tokensData[i].avatar : null; 
-                tokensList.appendChild(createLbItemHTML(i+1, tPlayer, tScore, 'tokens', tAvatar));
+                let tRankInfo = tokensData && tokensData[i] ? tokensData[i].rankInfo : null;
+                tokensList.appendChild(createLbItemHTML(i+1, tPlayer, tScore, 'tokens', tAvatar, tRankInfo));
             }
         }
 
@@ -1279,7 +1065,6 @@
                 window.socket.on('leaderboardData', (data) => {
                     let formattedWins = [];
                     let formattedTokens = [];
-                    
                     if(Array.isArray(data)) {
                         for(let i=0; i<data.length; i+=2) {
                             formattedWins.push({ name: data[i], score: data[i+1] });
@@ -1297,47 +1082,23 @@
         document.addEventListener('DOMContentLoaded', () => {
             window.showLeaderboard = function() {
                 openAppModal('leaderboard-modal');
-                
-                // عرض بيانات وهمية فوراً كواجهة تحميل
                 populateLeaderboards(null, null);
-
-                if(window.socket && window.socket.connected) {
-                    window.socket.emit('getLeaderboard');
-                }
+                if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
             };
-
             setupSocketListeners();
             let socketCheckInterval = setInterval(() => {
-                if (window.socket) {
-                    setupSocketListeners();
-                    clearInterval(socketCheckInterval);
-                }
+                if (window.socket) { setupSocketListeners(); clearInterval(socketCheckInterval); }
             }, 300);
         });
 
         function getUserId() {
-            try {
-                let profile = JSON.parse(localStorage.getItem('hub_user_profile'));
-                return profile ? profile.id : guestId;
-            } catch(e) {
-                return guestId;
-            }
+            try { let profile = JSON.parse(localStorage.getItem('hub_user_profile')); return profile ? profile.id : guestId; } catch(e) { return guestId; }
         }
 
         function fallbackCopyText(text, callback) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                if (callback) callback();
-            } catch (err) {
-                console.error('فشل في نسخ المعرف: ', err);
-            }
+            const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px";
+            document.body.appendChild(textArea); textArea.focus(); textArea.select();
+            try { document.execCommand('copy'); if (callback) callback(); } catch (err) { console.error('فشل في نسخ المعرف: ', err); }
             document.body.removeChild(textArea);
         }
 
@@ -1346,150 +1107,88 @@
             if (idText && idText !== '...') {
                 const showToast = () => {
                     const toast = document.getElementById('toast-notification');
-                    if (toast) {
-                        toast.innerText = '📋 تم نسخ الـ ID بنجاح';
-                        toast.classList.add('show');
-                        setTimeout(() => toast.classList.remove('show'), 2500);
-                    }
+                    if (toast) { toast.innerText = '📋 تم نسخ الـ ID بنجاح'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
                 };
-
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(idText).then(showToast).catch(() => {
-                        fallbackCopyText(idText, showToast);
-                    });
-                } else {
-                    fallbackCopyText(idText, showToast);
-                }
+                if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(idText).then(showToast).catch(() => { fallbackCopyText(idText, showToast); });
+                } else { fallbackCopyText(idText, showToast); }
             }
         };
 
         window.showEquipNotification = function(itemType) {
             const toast = document.getElementById('toast-notification');
             if (!toast) return;
-            
             let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
             if (itemType === 'bg') msg = window.t ? window.t('toast_bg') : "تم تغيير الساحة بنجاح";
             else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
             else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
             else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
-            
-            toast.innerText = '✨ ' + msg;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2500);
+            toast.innerText = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
         };
 
         window.triggerCustomAlertNotification = function(msg) {
-            if (typeof showCustomAlert === 'function') {
-                showCustomAlert(msg);
-            } else {
+            if (typeof showCustomAlert === 'function') { showCustomAlert(msg); } else {
                 const alertModal = document.getElementById('custom-alert-modal');
                 const alertMsg = document.getElementById('custom-alert-message');
                 const alertOk = document.getElementById('custom-alert-ok');
                 const alertCancel = document.getElementById('custom-alert-cancel');
                 if (alertModal && alertMsg && alertOk) {
                     document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر';
-                    alertMsg.innerText = msg;
-                    if(alertCancel) alertCancel.style.display = 'none';
-                    openAppModal('custom-alert-modal'); 
-                    alertOk.onclick = () => closeAppModal('custom-alert-modal');
-                } else {
-                    alert(msg);
-                }
+                    alertMsg.innerText = msg; if(alertCancel) alertCancel.style.display = 'none';
+                    openAppModal('custom-alert-modal'); alertOk.onclick = () => closeAppModal('custom-alert-modal');
+                } else { alert(msg); }
             }
         }
 
-        // تحديث دالة تبويبات المتجر (إزالة الأشرطة)
         function switchStoreTabCategory(category) {
             const tabs = ['bg', 'frames', 'pieces', 'offers'];
             tabs.forEach(tab => {
-                const btn = document.getElementById('store-btn-tab-' + tab);
-                const sec = document.getElementById('store-section-' + tab);
-                if(btn) btn.classList.remove('active');
-                if(sec) sec.style.display = 'none';
+                const btn = document.getElementById('store-btn-tab-' + tab); const sec = document.getElementById('store-section-' + tab);
+                if(btn) btn.classList.remove('active'); if(sec) sec.style.display = 'none';
             });
-            const activeBtn = document.getElementById('store-btn-tab-' + category);
-            const activeSec = document.getElementById('store-section-' + category);
-            if(activeBtn) activeBtn.classList.add('active');
-            if(activeSec) activeSec.style.display = 'grid';
+            const activeBtn = document.getElementById('store-btn-tab-' + category); const activeSec = document.getElementById('store-section-' + category);
+            if(activeBtn) activeBtn.classList.add('active'); if(activeSec) activeSec.style.display = 'grid';
         }
 
-        // تحديث دالة تبويبات الحقيبة (إزالة الأشرطة)
         function switchThemeGridTabCategory(category) {
             const tabs = ['bg', 'frames', 'pieces'];
             tabs.forEach(tab => {
-                const btn = document.getElementById('theme-btn-tab-' + tab);
-                const sec = document.getElementById('theme-grid-section-' + tab);
-                if(btn) btn.classList.remove('active');
-                if(sec) sec.style.display = 'none';
+                const btn = document.getElementById('theme-btn-tab-' + tab); const sec = document.getElementById('theme-grid-section-' + tab);
+                if(btn) btn.classList.remove('active'); if(sec) sec.style.display = 'none';
             });
-            const activeBtn = document.getElementById('theme-btn-tab-' + category);
-            const activeSec = document.getElementById('theme-grid-section-' + category);
-            if(activeBtn) activeBtn.classList.add('active');
-            if(activeSec) activeSec.style.display = 'grid';
+            const activeBtn = document.getElementById('theme-btn-tab-' + category); const activeSec = document.getElementById('theme-grid-section-' + category);
+            if(activeBtn) activeBtn.classList.add('active'); if(activeSec) activeSec.style.display = 'grid';
         }
 
         window.triggerGridThemeChange = function(index, lightHex, darkHex) {
             document.documentElement.style.setProperty('--light-cell', lightHex);
             document.documentElement.style.setProperty('--dark-cell', darkHex);
-            
             if (index !== -1) {
                 const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item');
-                items.forEach((item, idx) => {
-                    if (idx === index) item.classList.add('active');
-                    else item.classList.remove('active');
-                });
+                items.forEach((item, idx) => { if (idx === index) item.classList.add('active'); else item.classList.remove('active'); });
             }
-            
             let p = localStorage.getItem('hub_user_profile');
-            if (p && index !== -1) {
-                let prof = JSON.parse(p);
-                prof.equippedBg = null; 
-                localStorage.setItem('hub_user_profile', JSON.stringify(prof));
-                if(window.updateInventoryUI) window.updateInventoryUI();
-            }
+            if (p && index !== -1) { let prof = JSON.parse(p); prof.equippedBg = null; localStorage.setItem('hub_user_profile', JSON.stringify(prof)); if(window.updateInventoryUI) window.updateInventoryUI(); }
         }
 
         function forceLockedGlobalAvatar() {
             let globalProfile = localStorage.getItem('hub_user_profile');
-            let avatarSrc = "../Photo/1000132081.webp"; 
-            let isImage = true;
-
+            let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
             if (globalProfile) {
-                try {
-                    const parsedHub = JSON.parse(globalProfile);
-                    if (parsedHub.avatar) {
-                        avatarSrc = parsedHub.avatar;
-                        isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http');
-                    }
-                } catch(e) { console.error(e); }
+                try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); } } catch(e) {}
             }
-
             if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) {
                 let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
                 avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
             }
-
             const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
-            
             targetAvatars.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                
+                const el = document.getElementById(id); if (!el) return;
                 if (isImage) {
                     const existingImg = el.querySelector('img');
                     if (!existingImg || existingImg.getAttribute('src') !== avatarSrc) {
-                        el.style.backgroundImage = 'none';
-                        el.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
+                        el.style.backgroundImage = 'none'; el.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
                     }
-                } else {
-                    if (el.textContent !== avatarSrc) {
-                        el.innerHTML = '';
-                        el.textContent = avatarSrc;
-                    }
-                }
+                } else { if (el.textContent !== avatarSrc) { el.innerHTML = ''; el.textContent = avatarSrc; } }
             });
         }
 
@@ -1498,27 +1197,15 @@
             for (let mutation of mutations) {
                 if (mutation.type === 'childList') {
                     const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG');
-                    if (!hasImg && mutation.target.textContent !== "👤") {
-                        shouldProtect = true;
-                        break;
-                    }
+                    if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; }
                 }
             }
-            if (shouldProtect) {
-                avatarGuardObserver.disconnect();
-                forceLockedGlobalAvatar();
-                startAvatarGuard();
-            }
+            if (shouldProtect) { avatarGuardObserver.disconnect(); forceLockedGlobalAvatar(); startAvatarGuard(); }
         });
 
         function startAvatarGuard() {
             const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
-            targets.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    avatarGuardObserver.observe(el, { childList: true, attributes: false });
-                }
-            });
+            targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } });
         }
 
         window.applyProfileDataToUI = function(profile) {
@@ -1526,27 +1213,16 @@
             const currentId = profile.id || getUserId();
             
             const textElements = {
-                'badge-username-display-game': profile.name,
-                'card-my-name': profile.name,
-                'mm-my-name': profile.name,
-                'profile-stat-tokens-badge': currentTokens,
-                'profile-stat-tokens-store': currentTokens, 
-                'igp-name': profile.name,
-                'igp-id-display': currentId,
-                'igp-games': profile.games !== undefined ? profile.games : 0,
-                'igp-wins': profile.wins !== undefined ? profile.wins : 0,
-                'igp-losses': profile.losses !== undefined ? profile.losses : 0
+                'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name,
+                'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 
+                'igp-name': profile.name, 'igp-id-display': currentId,
+                'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0),
+                'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0
             };
 
-            for (let id in textElements) {
-                const el = document.getElementById(id);
-                if (el) { el.innerText = textElements[id]; }
-            }
-
+            for (let id in textElements) { const el = document.getElementById(id); if (el) { el.innerText = textElements[id]; } }
             forceLockedGlobalAvatar();
-            
             if(window.updateInventoryUI) window.updateInventoryUI();
-
             window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
         }
 
@@ -1555,208 +1231,94 @@
         const originalAudioPlay = HTMLAudioElement.prototype.play;
         HTMLAudioElement.prototype.play = function() {
             const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
-            this.volume = parseFloat(savedVol);
-            return originalAudioPlay.call(this);
+            this.volume = parseFloat(savedVol); return originalAudioPlay.call(this);
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            
             let savedAppLang = localStorage.getItem('appLang') || localStorage.getItem('lang') || 'ar';
-            document.documentElement.lang = savedAppLang;
-            document.documentElement.dir = savedAppLang === 'ar' ? 'rtl' : 'ltr';
-            window.currentLang = savedAppLang;
+            document.documentElement.lang = savedAppLang; document.documentElement.dir = savedAppLang === 'ar' ? 'rtl' : 'ltr'; window.currentLang = savedAppLang;
 
             window.addEventListener('message', (event) => {
                 if (!event.data) return;
-                
                 if (event.data.type === 'LANGUAGE_CHANGED') {
-                    const newLang = event.data.lang;
-                    document.documentElement.lang = newLang;
-                    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-                    window.currentLang = newLang;
-                    
-                    if (typeof window.updateUITranslations === 'function') {
-                        window.updateUITranslations();
-                    }
-                    if (typeof window.updateHtmlTexts === 'function') {
-                        window.updateHtmlTexts();
-                    }
-                    
-                    // إعادة رسم لوحة الشرف لتحديث ترجمات "لاعب مجهول" و "فوز"
-                    if (document.getElementById('leaderboard-modal').style.display === 'flex') {
-                        if(window.socket && window.socket.connected) {
-                            window.socket.emit('getLeaderboard');
-                        }
-                    }
+                    const newLang = event.data.lang; document.documentElement.lang = newLang; document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr'; window.currentLang = newLang;
+                    if (typeof window.updateUITranslations === 'function') window.updateUITranslations();
+                    if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts();
+                    if (document.getElementById('leaderboard-modal').style.display === 'flex') { if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard'); }
                 }
-                
-                if (event.data.type === 'PROFILE_UPDATED' && event.data.profile) {
-                    window.applyProfileDataToUI(event.data.profile);
-                }
+                if (event.data.type === 'PROFILE_UPDATED' && event.data.profile) window.applyProfileDataToUI(event.data.profile);
             });
 
             let globalProfile = localStorage.getItem('hub_user_profile');
             if (globalProfile) window.applyProfileDataToUI(JSON.parse(globalProfile));
-            
-            forceLockedGlobalAvatar();
-            startAvatarGuard();
+            forceLockedGlobalAvatar(); startAvatarGuard();
 
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'hub_user_profile') {
-                    forceLockedGlobalAvatar();
-                }
-            });
+            window.addEventListener('storage', (e) => { if (e.key === 'hub_user_profile') forceLockedGlobalAvatar(); });
 
             const sfxSlider = document.getElementById('sfx-volume');
             if(sfxSlider) {
-                const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
-                sfxSlider.value = savedVol;
-                
-                sfxSlider.addEventListener('input', (e) => {
-                    const vol = parseFloat(e.target.value);
-                    localStorage.setItem('sfx_volume', vol);
-                    localStorage.setItem('dama_sfx_volume', vol);
-                });
+                const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7'; sfxSlider.value = savedVol;
+                sfxSlider.addEventListener('input', (e) => { const vol = parseFloat(e.target.value); localStorage.setItem('sfx_volume', vol); localStorage.setItem('dama_sfx_volume', vol); });
             }
 
             const btnSaveSettings = document.getElementById('save-settings-btn');
-            if(btnSaveSettings) {
-                btnSaveSettings.onclick = () => closeAppModal('settings-overlay');
-            }
-            
+            if(btnSaveSettings) btnSaveSettings.onclick = () => closeAppModal('settings-overlay');
             syncRadioStatusDot();
         });
 
         function uiStateChangeTracker() {
-            const matchCard = document.getElementById('match-players-card');
-            const isOnline = (matchCard && matchCard.style.display !== 'none');
-            
-            if (isOnline) {
-                document.body.classList.add('online-mode-active');
-            } else {
-                document.body.classList.remove('online-mode-active');
-            }
+            const matchCard = document.getElementById('match-players-card'); const isOnline = (matchCard && matchCard.style.display !== 'none');
+            if (isOnline) document.body.classList.add('online-mode-active'); else document.body.classList.remove('online-mode-active');
         }
         
-        window.addEventListener('popstate', uiStateChangeTracker);
-        document.addEventListener('click', () => setTimeout(uiStateChangeTracker, 50));
-
-        window.addEventListener('load', () => {
-            history.replaceState({ screen: 'dama-game' }, '');
-        });
+        window.addEventListener('popstate', uiStateChangeTracker); document.addEventListener('click', () => setTimeout(uiStateChangeTracker, 50));
+        window.addEventListener('load', () => { history.replaceState({ screen: 'dama-game' }, ''); });
 
         window.addEventListener('popstate', function(event) {
-            if (window.modalStack.length > 0) {
-                const topModalId = window.modalStack.pop();
-                const topModal = document.getElementById(topModalId);
-                if (topModal) topModal.style.display = 'none';
-                return; 
-            }
-
-            if (window.isMatchRunning) {
-                const resignBtn = document.getElementById('resign-btn');
-                if (resignBtn) resignBtn.click();
-                history.pushState({ screen: 'dama-game' }, ''); 
-                return;
-            }
-
+            if (window.modalStack.length > 0) { const topModalId = window.modalStack.pop(); const topModal = document.getElementById(topModalId); if (topModal) topModal.style.display = 'none'; return; }
+            if (window.isMatchRunning) { const resignBtn = document.getElementById('resign-btn'); if (resignBtn) resignBtn.click(); history.pushState({ screen: 'dama-game' }, ''); return; }
             if (window.ui && window.ui.showCustomAlert) {
-                window.ui.showCustomAlert(
-                    window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟",
-                    window.t ? window.t('confirm_exit_title') : "تأكيد الخروج",
-                    () => { window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); },
-                    true, window.t ? window.t('cancel_btn') : "إلغاء", window.t ? window.t('ok_btn') : "تأكيد"
-                );
+                window.ui.showCustomAlert( window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟", window.t ? window.t('confirm_exit_title') : "تأكيد الخروج", () => { window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); }, true, window.t ? window.t('cancel_btn') : "إلغاء", window.t ? window.t('ok_btn') : "تأكيد" );
             }
             history.pushState({ screen: 'dama-game' }, '');
         });
 
         window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
-            const nameEl = document.getElementById('modal-item-name');
-            const costEl = document.getElementById('modal-item-cost');
-            const previewEl = document.getElementById('modal-item-preview');
-            const buyBtn = document.getElementById('confirm-buy-btn');
-
-            nameEl.innerText = itemName;
-            costEl.innerText = '🪙 ' + cost;
-            
+            const nameEl = document.getElementById('modal-item-name'); const costEl = document.getElementById('modal-item-cost');
+            const previewEl = document.getElementById('modal-item-preview'); const buyBtn = document.getElementById('confirm-buy-btn');
+            nameEl.innerText = itemName; costEl.innerText = '🪙 ' + cost;
             const itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null;
-
-            previewEl.innerHTML = ''; 
-            previewEl.style.background = 'rgba(255,255,255,0.05)';
-            previewEl.style.backgroundImage = 'none';
+            previewEl.innerHTML = ''; previewEl.style.background = 'rgba(255,255,255,0.05)'; previewEl.style.backgroundImage = 'none';
 
             if(itemData) {
                 previewEl.style.border = itemData.isLegendary ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.1)';
                 previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
-
-                if (itemData.isImage) {
-                    let imgUrl = itemData.imagePath || itemData.imagePathWhite || '';
-                    previewEl.style.backgroundImage = `url('${imgUrl}')`;
-                    previewEl.style.backgroundSize = 'cover';
-                    previewEl.style.backgroundPosition = 'center';
-                } else if(itemType === 'pc') {
-                    previewEl.innerHTML = itemData.icon || '💎';
-                } else if(itemType === 'score') {
-                    previewEl.innerHTML = `<div style="width: 80%; height: 35px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2);">
-                        <div style="flex: 1; background: ${itemData.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div>
-                        <div style="flex: 1; background: ${itemData.scoreBg1};"></div>
-                    </div>`;
+                if (itemData.isImage) { let imgUrl = itemData.imagePath || itemData.imagePathWhite || ''; previewEl.style.backgroundImage = `url('${imgUrl}')`; previewEl.style.backgroundSize = 'cover'; previewEl.style.backgroundPosition = 'center';
+                } else if(itemType === 'pc') { previewEl.innerHTML = itemData.icon || '💎';
+                } else if(itemType === 'score') { previewEl.innerHTML = `<div style="width: 80%; height: 35px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2);"><div style="flex: 1; background: ${itemData.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div><div style="flex: 1; background: ${itemData.scoreBg1};"></div></div>`;
                 } else if(itemType === 'bg' || itemType === 'fr') {
-                    if (itemData.cssLight && itemData.cssDark) {
-                        previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`;
-                    } else if (itemData.cssBoard) {
-                        previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`;
-                    } else {
-                        previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`;
-                    }
+                    if (itemData.cssLight && itemData.cssDark) { previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`;
+                    } else if (itemData.cssBoard) { previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`;
+                    } else { previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`; }
                 }
-            } else {
-                previewEl.innerHTML = '🎁';
-                previewEl.className = 'purchase-preview-box';
-            }
+            } else { previewEl.innerHTML = '🎁'; previewEl.className = 'purchase-preview-box'; }
 
             buyBtn.onclick = () => {
                 closeAppModal('purchase-modal'); 
-                
                 setTimeout(() => {
-                    if (window.socket && typeof getUserId === 'function' && window.socket.connected) {
-                        window.socket.emit('requestPurchase', { 
-                            userId: getUserId(), 
-                            itemId: itemId 
-                        });
-                    } else {
-                        const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً.";
-                        if (typeof triggerCustomAlertNotification === 'function') {
-                            triggerCustomAlertNotification(msg);
-                        } else {
-                            alert(msg);
-                        }
-                    }
+                    if (window.socket && typeof getUserId === 'function' && window.socket.connected) { window.socket.emit('requestPurchase', { userId: getUserId(), itemId: itemId });
+                    } else { const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً."; if (typeof triggerCustomAlertNotification === 'function') triggerCustomAlertNotification(msg); else alert(msg); }
                 }, 120);
             };
-
             openAppModal('purchase-modal');
         };
 
         function syncRadioStatusDot() {
             const statusDot = document.getElementById('dama-radio-status');
-            if (statusDot) {
-                const isPlaying = localStorage.getItem('hub_music_enabled') === 'true';
-                if (isPlaying) {
-                    statusDot.classList.add('active');
-                } else {
-                    statusDot.classList.remove('active');
-                }
-            }
+            if (statusDot) { const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; if (isPlaying) statusDot.classList.add('active'); else statusDot.classList.remove('active'); }
         }
 
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'hub_music_enabled') {
-                syncRadioStatusDot();
-            }
-        });
-
+        window.addEventListener('storage', (e) => { if (e.key === 'hub_music_enabled') syncRadioStatusDot(); });
         setInterval(syncRadioStatusDot, 1000);
 
     </script>
@@ -1766,55 +1328,24 @@
             const bg = localStorage.getItem('custom_app_bg'); 
             if (bg) {
                 let bgUrl = bg;
-                
-                if (!bg.startsWith('http') && !bg.startsWith('data:') && !bg.startsWith('../')) {
-                    bgUrl = '../' + bg;
-                }
-
-                document.body.style.backgroundImage = `url('${bgUrl}')`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
-                document.body.style.backgroundColor = 'transparent';
-                
-            } else {
-                document.body.style.backgroundColor = '#2c3e50';
-                document.body.style.backgroundImage = 'none';
-            }
+                if (!bg.startsWith('http') && !bg.startsWith('data:') && !bg.startsWith('../')) { bgUrl = '../' + bg; }
+                document.body.style.backgroundImage = `url('${bgUrl}')`; document.body.style.backgroundSize = 'cover'; document.body.style.backgroundPosition = 'center'; document.body.style.backgroundAttachment = 'fixed'; document.body.style.backgroundColor = 'transparent';
+            } else { document.body.style.backgroundColor = '#2c3e50'; document.body.style.backgroundImage = 'none'; }
         }
-        
         document.addEventListener('DOMContentLoaded', syncGlobalBackground);
-        
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'custom_app_bg') { 
-                syncGlobalBackground();
-            }
-        });
+        window.addEventListener('storage', (e) => { if (e.key === 'custom_app_bg') syncGlobalBackground(); });
     </script>
 
     <script type="module">
         import { storeManager } from './store.js?v=999';
-        document.addEventListener('DOMContentLoaded', () => {
-            storeManager.init();
-        });
+        document.addEventListener('DOMContentLoaded', () => { storeManager.init(); });
     </script>
 
     <script type="module" src="main.js"></script>
 
     <script>
-        function requestFullScreen() {
-            const element = document.documentElement;
-            if (element.requestFullscreen) {
-                element.requestFullscreen().catch(err => console.warn("Fullscreen Error:", err));
-            } else if (element.webkitRequestFullscreen) { 
-                element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) { 
-                element.msRequestFullscreen();
-            }
-        }
-        ['click', 'touchstart'].forEach(eventType => {
-            document.body.addEventListener(eventType, requestFullScreen, { once: true });
-        });
+        function requestFullScreen() { const element = document.documentElement; if (element.requestFullscreen) { element.requestFullscreen().catch(err => console.warn("Fullscreen Error:", err)); } else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); } else if (element.msRequestFullscreen) { element.msRequestFullscreen(); } }
+        ['click', 'touchstart'].forEach(eventType => { document.body.addEventListener(eventType, requestFullScreen, { once: true }); });
     </script>
 
     <script src="chat.js"></script>
