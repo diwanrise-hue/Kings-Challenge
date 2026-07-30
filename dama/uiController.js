@@ -297,9 +297,16 @@ export const ui = {
 
         let tickAudio = sfx.spinTick;
         let spinDuration = 5000;
-        
-        // استخدام تقنية استنساخ الصوت (cloneNode) لمنع التقاطع والتشويش الصوتي
-        let tickInterval = setInterval(() => {
+        let startTime = Date.now();
+
+        // 💡 نظام التكتكة الديناميكي (يتطابق مع تباطؤ العجلة)
+        const scheduleTick = () => {
+            let elapsed = Date.now() - startTime;
+            if (elapsed >= spinDuration) return; // إيقاف الصوت عند توقف العجلة
+
+            // حساب نسبة التقدم من 0 إلى 1
+            let progress = elapsed / spinDuration;
+
             if (tickAudio) {
                 let clonedTick = tickAudio.cloneNode();
                 clonedTick.volume = tickAudio.volume || parseFloat(localStorage.getItem('sfx_volume') || '0.7');
@@ -309,9 +316,15 @@ export const ui = {
                 }
                 clonedTick.onended = () => { clonedTick.remove(); };
             }
-        }, 150); 
-        
-        setTimeout(() => { clearInterval(tickInterval); }, 3500); 
+
+            // معادلة التباطؤ: يبدأ سريعاً (40ms) ثم يتباطأ تدريجياً ليطابق حركة العجلة حتى (800ms)
+            let nextDelay = 40 + Math.pow(progress, 3) * 760;
+            
+            setTimeout(scheduleTick, nextDelay);
+        };
+
+        // بدء أول تكتكة
+        scheduleTick();
 
         setTimeout(() => {
             window.isSpinning = false; // 🔓 فتح القفل: انتهى الدوران
