@@ -9,7 +9,7 @@ window.socket = socket;
 export const gameState = {
     deviceFingerprint: localStorage.getItem('dama_device_fingerprint') || (() => {
         const fp = 'dev_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-        localStorage.setItem('dama_device_fingerprint', fp);
+        try { localStorage.setItem('dama_device_fingerprint', fp); } catch(e) { console.warn("Storage full", e); }
         return fp;
     })(),
     botMoveCount: 0,
@@ -68,7 +68,9 @@ export function restoreOfflineHintSystem() {
     if (gameState.originalHints !== null) {
         gameState.userProfile.hints = gameState.originalHints; 
         gameState.originalHints = null;
-        localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+        try { 
+            localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+        } catch(e) { console.warn("Storage full", e); }
         ui.updateProfileUI();
     }
 }
@@ -85,13 +87,13 @@ export function updateSpinTimerDisplay(nextFreeTime) {
         const timerEl = document.getElementById('spin-timer');
         const freeBtn = document.getElementById('spin-free-btn');
         const paidBtn = document.getElementById('spin-paid-btn');
-        const menuNotifyBadge = document.getElementById('menu-spin-notify-badge'); // النقطة الخضراء في القائمة
+        const menuNotifyBadge = document.getElementById('menu-spin-notify-badge'); 
         
         if (!nextFreeTime || now >= nextFreeTime) {
             if (timerEl) timerEl.innerText = "اللفة المجانية جاهزة! 🎁";
             if (freeBtn) { freeBtn.style.display = 'flex'; }
             if (paidBtn) paidBtn.style.display = 'none';
-            if (menuNotifyBadge) menuNotifyBadge.style.display = 'block'; // إظهار النقطة الخضراء
+            if (menuNotifyBadge) menuNotifyBadge.style.display = 'block'; 
             clearInterval(spinTimerInterval);
             spinTimerInterval = null;
         } else {
@@ -102,7 +104,7 @@ export function updateSpinTimerDisplay(nextFreeTime) {
             if (timerEl) timerEl.innerText = `اللفة المجانية القادمة بعد: ${h}:${m}:${s}`;
             if (freeBtn) freeBtn.style.display = 'none';
             if (paidBtn) { paidBtn.style.display = 'flex'; }
-            if (menuNotifyBadge) menuNotifyBadge.style.display = 'none'; // إخفاء النقطة الخضراء
+            if (menuNotifyBadge) menuNotifyBadge.style.display = 'none'; 
         }
     };
     
@@ -114,16 +116,20 @@ export function updateSpinTimerDisplay(nextFreeTime) {
 
 export function saveGameState() {
     if (gameState.isOnlineMode) return;
-    localStorage.setItem('dama_saved_game', JSON.stringify({
-        virtualBoard: gameState.virtualBoard,
-        currentTurn: gameState.currentTurn,
-        gameMode: document.getElementById('game-mode')?.value || 'ai',
-        difficulty: document.getElementById('diff-quick-select')?.value || '3',
-        playerColor: gameState.playerColor,
-        lang: gameState.lang,
-        gameOver: gameState.blockGameOverModal ? undefined : false,
-        pieceDirection: gameState.pieceDirection
-    }));
+    try {
+        localStorage.setItem('dama_saved_game', JSON.stringify({
+            virtualBoard: gameState.virtualBoard,
+            currentTurn: gameState.currentTurn,
+            gameMode: document.getElementById('game-mode')?.value || 'ai',
+            difficulty: document.getElementById('diff-quick-select')?.value || '3',
+            playerColor: gameState.playerColor,
+            lang: gameState.lang,
+            gameOver: gameState.blockGameOverModal ? undefined : false,
+            pieceDirection: gameState.pieceDirection
+        }));
+    } catch(e) {
+        console.warn("Storage full", e);
+    }
 }
 
 export function loadGameState() {
@@ -162,7 +168,6 @@ window.addEventListener('load', () => {
         ui.startTurn();
     }
 
-    // 🎡 تشغيل العداد التنازلي لعجلة الحظ عند التحميل
     if (gameState.userProfile && gameState.userProfile.nextFreeSpin) {
         updateSpinTimerDisplay(gameState.userProfile.nextFreeSpin);
     } else {
@@ -204,16 +209,34 @@ ui.onClick('settings-overlay', e => { if (e.target.id === 'settings-overlay') ui
 
 ui.onClick('lang-select-modal', e => { gameState.lang = e.target.value; ui.updateTexts(); saveGameState(); });
 
-ui.onClick('login-guest-btn', () => { gameState.userProfile = { ...gameState.userProfile, name: t('guest_prefix') + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), id: "GUEST-" + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), avatar: ui.getVal('login-avatar-select', '1000132081.png'), isCustomAvatar: false }; localStorage.setItem('dama_guest_expiry', Date.now() + (30 * 24 * 60 * 60 * 1000)); localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); });
+ui.onClick('login-guest-btn', () => { 
+    gameState.userProfile = { ...gameState.userProfile, name: t('guest_prefix') + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), id: "GUEST-" + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), avatar: ui.getVal('login-avatar-select', '1000132081.png'), isCustomAvatar: false }; 
+    try {
+        localStorage.setItem('dama_guest_expiry', Date.now() + (30 * 24 * 60 * 60 * 1000)); 
+        localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+    } catch (e) { console.warn("Storage full", e); }
+    ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); 
+});
 
 ui.onClick('login-submit-btn', () => { 
     let name = ui.getVal('login-name-input').trim(); 
     if (!name) return ui.showCustomAlert(t('enter_name')); 
     name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
-    gameState.userProfile = { ...gameState.userProfile, name, id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.png') }; localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); localStorage.removeItem('dama_guest_expiry'); ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); 
+    gameState.userProfile = { ...gameState.userProfile, name, id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.png') }; 
+    try {
+        localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+        localStorage.removeItem('dama_guest_expiry'); 
+    } catch (e) { console.warn("Storage full", e); }
+    ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); 
 });
 
-ui.onClick('add-friend-btn', () => { let fId = ui.getVal('friend-id-input').trim().toUpperCase(); if (!fId || fId === gameState.userProfile.id || gameState.userProfile.friends.includes(fId)) return ui.showCustomAlert(t('invalid_id')); gameState.userProfile.friends.push(fId); localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); ui.updateProfileUI(); document.getElementById('friend-id-input').value = ''; ui.showCustomAlert(t('added_success')); });
+ui.onClick('add-friend-btn', () => { 
+    let fId = ui.getVal('friend-id-input').trim().toUpperCase(); 
+    if (!fId || fId === gameState.userProfile.id || gameState.userProfile.friends.includes(fId)) return ui.showCustomAlert(t('invalid_id')); 
+    gameState.userProfile.friends.push(fId); 
+    try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
+    ui.updateProfileUI(); document.getElementById('friend-id-input').value = ''; ui.showCustomAlert(t('added_success')); 
+});
 
 document.getElementById('avatar-upload-input')?.addEventListener('change', e => { 
     const file = e.target.files[0]; 
@@ -250,9 +273,8 @@ ui.onClick('switch-account-btn', () => { ui.setDisplay('profile-modal', 'none');
 // =========================================================================
 
 ui.onClick('spin-free-btn', () => {
-    if (window.isSpinning) return; // منع النقر إذا كانت العجلة تدور
+    if (window.isSpinning) return; 
     if (socket && socket.connected) {
-        // نغير النص مؤقتاً لتجنب النقرات المتكررة
         const btn = document.getElementById('spin-free-btn');
         if (btn) btn.innerText = "جاري التحقق...";
         socket.emit('requestLuckySpin', { type: 'free', guestId: gameState.userProfile.id });
@@ -262,9 +284,8 @@ ui.onClick('spin-free-btn', () => {
 });
 
 ui.onClick('spin-paid-btn', () => {
-    if (window.isSpinning) return; // منع النقر المتكرر السريع
+    if (window.isSpinning) return; 
     
-    // التكلفة مرفوعة إلى 200
     if (gameState.userProfile.tokens < 200) {
         return ui.showCustomAlert("رصيدك غير كافٍ للفة الإضافية (مطلوب 200 🪙)", "عذراً");
     }
@@ -274,7 +295,7 @@ ui.onClick('spin-paid-btn', () => {
             const btn = document.getElementById('spin-paid-btn');
             if (btn) {
                 btn.innerText = "جاري الدفع...";
-                btn.style.pointerEvents = 'none'; // إقفال الزر مؤقتاً لمنع السبام
+                btn.style.pointerEvents = 'none'; 
             }
             socket.emit('requestLuckySpin', { type: 'paid', guestId: gameState.userProfile.id });
         }, true, "إلغاء", "نعم، لف العجلة!");
@@ -283,9 +304,7 @@ ui.onClick('spin-paid-btn', () => {
     }
 });
 
-// استلام نتيجة عجلة الحظ من السيرفر وبدء الحركة
 socket.on('luckySpinResult', (data) => {
-    // إعادة نصوص الأزرار لطبيعتها
     const freeBtn = document.getElementById('spin-free-btn');
     if (freeBtn) freeBtn.innerText = "لفة مجانية 🆓";
     const paidBtn = document.getElementById('spin-paid-btn');
@@ -293,13 +312,11 @@ socket.on('luckySpinResult', (data) => {
 
     if (data.success) {
         ui.animateLuckySpin(data.prizeIndex, () => {
-            // بعد انتهاء حركة الدوران نعرض رسالة الفوز
             ui.showCustomAlert(data.message, "🎉 مبروك!");
             
-            // تحديث وقت اللفة المجانية القادمة
             if (data.nextFreeSpinTime) {
                 gameState.userProfile.nextFreeSpin = data.nextFreeSpinTime;
-                localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
+                try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
                 updateSpinTimerDisplay(data.nextFreeSpinTime);
             }
         });
@@ -308,21 +325,17 @@ socket.on('luckySpinResult', (data) => {
     }
 });
 
-// استلام تحديثات البروفايل لمزامنة الرصيد والعداد فوراً
 socket.on('profileUpdated', (profile) => {
     if (!profile) return;
     
-    // دمج البيانات الجديدة وتحديث اللوكال ستورج فوراً
     gameState.userProfile = { ...gameState.userProfile, ...profile };
-    localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
+    try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
     
-    // تحديث الواجهات
     if (typeof window.applyProfileDataToUI === 'function') {
         window.applyProfileDataToUI(gameState.userProfile);
     }
     ui.updateProfileUI();
 
-    // تحديث المؤقتات
     if (profile.nextFreeSpin) {
         updateSpinTimerDisplay(profile.nextFreeSpin);
     }
