@@ -14,7 +14,7 @@ export const sfx = {
     kingCreated: new Audio('king_created.mp3'),
     win: new Audio('win.mp3'),
     clock: new Audio('clock.mp3'),
-    spinTick: new Audio('spin_tick.mp3') // 👈 الصوت المخصص لعجلة الحظ
+    spinTick: new Audio('spin_tick.mp3') 
 };
 
 let aiWorkerInstance = null;
@@ -156,7 +156,6 @@ export const ui = {
         
         Object.keys(idToKeyMap).forEach(id => setHtml(id, idToKeyMap[id]));
         
-        // 💡 تطبيق التعديلات: عزل "خروج" لشاشة النتيجة و"إلغاء" للمتجر
         setHtml('exit-game-btn', 'exit');
         setHtml('store-return-btn', 'btn_cancel');
         setHtml('theme-close-btn', 'btn_cancel');
@@ -227,9 +226,6 @@ export const ui = {
         });
     },
 
-    // =========================================================
-    // 🌟 حساب المستوى والرتبة بصرياً (Level & Rank Engine)
-    // =========================================================
     calculateLevelInfo(xpStr) {
         let currentXp = parseInt(xpStr) || 0;
         
@@ -272,9 +268,6 @@ export const ui = {
         if (modalEl) modalEl.style.display = 'flex';
     },
 
-    // =========================================================
-    // 🎡 محرك التزامن الفيزيائي لعجلة الحظ
-    // =========================================================
     animateLuckySpin(prizeIndex, onComplete) {
         window.isSpinning = true; 
         
@@ -940,7 +933,6 @@ export const ui = {
                     return;
                 }
                 
-                // 💡 التعديل: تسريع ملحوظ لحركة البوت (القفزات المتعددة أو بعد عدة حركات)
                 let delay = (gameState.isOnlineMode || step.midR !== null) ? 500 : (gameState.botMoveCount < 7 ? 800 : Math.floor(Math.random() * 1000) + 500);
                 setTimeout(executeStep, delay);
             }
@@ -1023,7 +1015,7 @@ export const ui = {
             
             const nameSpan = this.makeEl('span', null, "margin-top:8px;font-size:13px;font-weight:600;color:#ffffff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;", name);
             
-            const statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(48,209,88,0.15)';
+            const statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)';
             const statusColor = isWin ? '#30d158' : '#ff453a';
             const statusBorder = isWin ? 'rgba(48,209,88,0.3)' : 'rgba(255,69,58,0.3)';
             const statusText = isWin ? t('winner') : t('loser');
@@ -1118,18 +1110,21 @@ export const ui = {
                     box.appendChild(this.makeEl('div', 'tutorial-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", t('tutorial_mode') || "وضع تعليمي (بدون جوائز) 🚫🪙"));
                 } else {
                     let displayReward = 0;
+                    let xpGained = 0; 
                     let isBossLevel = false;
                     let isBetMatch = false;
                     let lvl = parseInt(this.getVal('diff-quick-select', '3')) || 3;
 
                     if (gameState.isOnlineMode) {
+                        xpGained = isMeWin ? 50 : 15; 
                         if (gameState.roomBet && gameState.roomBet > 0) {
                             isBetMatch = true;
-                            displayReward = isMeWin ? (gameState.roomBet * 2) : gameState.roomBet;
+                            displayReward = gameState.roomBet; // 🌟 تعديل: الفائز يحصل على الرهان والخاسر يفقده
                         } else {
-                            displayReward = isMeWin ? 120 : 0;
+                            displayReward = isMeWin ? 120 : 10; // 🌟 تعديل: الخاسر في البحث العشوائي يربح 10
                         }
                     } else {
+                        xpGained = isMeWin ? 25 : 5; 
                         if (isMeWin) {
                             if (lvl <= 2) displayReward = 10;
                             else if (lvl <= 4) displayReward = 15;
@@ -1157,13 +1152,18 @@ export const ui = {
                                 alertColor = "#ff453a"; 
                             }
                         } else if (isBossLevel) {
-                            rewardText = `👑 مكافأة الزعيم: ${displayReward} 🪙`;
+                            rewardText = `👑 مكافأة الزعيم: +${displayReward} 🪙`;
                         } else {
-                            rewardText = `${(t('tokenReward') || 'المكافأة:')} ${displayReward}`;
+                            // 🌟 تعديل: عرض المكافأة للفائز والخاسر (ترضية) بشكل إيجابي
+                            rewardText = `${(t('tokenReward') || 'المكافأة:')} +${displayReward} 🪙`;
+                            alertColor = isMeWin ? "#f5a623" : "#87ceeb"; 
                         }
                         
                         box.appendChild(this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`, rewardText));
                     }
+
+                    // 🌟 عرض إشعار الخبرة (XP) دائماً
+                    box.appendChild(this.makeEl('div', 'xp-reward-alert', "margin-top:8px; color:#34c759; font-weight:800; font-size:15px; text-shadow: 0 0 8px rgba(52, 199, 89, 0.4); animation: modalFadeIn 0.5s ease;", `✨ اكتساب الخبرة: +${xpGained} XP`));
 
                     if (!gameState.isOnlineMode) {
                         socket.emit('claimBotReward', { isWin: isMeWin, level: lvl });
@@ -1565,9 +1565,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// =========================================================
-// 💡 تأثير: التوهج المزدوج عالي التباين (أحمر ناري + ذهبي)
-// =========================================================
 if (!document.getElementById('forced-overlay-style')) {
     const forcedStyle = document.createElement('style');
     forcedStyle.id = 'forced-overlay-style';
