@@ -448,8 +448,8 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 14. عجلة الحظ (Lucky Spin)
-    luckySpin: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%">
+    // 14. أيقونة عجلة الحظ الملونة (Lucky Spin) 🌟
+    luckySpin: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" style="vertical-align: middle; display: inline-block;">
         <defs>
             <linearGradient id="spin-gold" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#FFE066" />
@@ -457,21 +457,19 @@ const SVGIcons = {
                 <stop offset="100%" stop-color="#B8860B" />
             </linearGradient>
             <filter id="spin-glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="1.5" result="blur" />
+                <feGaussianBlur stdDeviation="1" result="blur" />
                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
         </defs>
-        <!-- التوهج الخلفي -->
-        <circle cx="12" cy="12" r="11" fill="rgba(248, 181, 0, 0.25)" filter="url(#spin-glow)" />
-        
-        <!-- إطار العجلة -->
+        <!-- التوهج الخلفي والإطار -->
+        <circle cx="12" cy="12" r="11" fill="rgba(248, 181, 0, 0.2)" filter="url(#spin-glow)" />
         <circle cx="12" cy="12" r="10" fill="#1e1e24" stroke="url(#spin-gold)" stroke-width="1.8" />
         
         <!-- القطع الملونة -->
-        <path d="M12 12 L12 2 A10 10 0 0 1 22 12 Z" fill="#FF453A" /> <!-- أحمر -->
-        <path d="M12 12 L22 12 A10 10 0 0 1 12 22 Z" fill="#0A84FF" /> <!-- أزرق -->
-        <path d="M12 12 L12 22 A10 10 0 0 1 2 12 Z" fill="#FFD60A" /> <!-- أصفر -->
-        <path d="M12 12 L2 12 A10 10 0 0 1 12 2 Z" fill="#30D158" /> <!-- أخضر -->
+        <path d="M12 12 L12 2 A10 10 0 0 1 22 12 Z" fill="#FF453A" /> 
+        <path d="M12 12 L22 12 A10 10 0 0 1 12 22 Z" fill="#0A84FF" /> 
+        <path d="M12 12 L12 22 A10 10 0 0 1 2 12 Z" fill="#FFD60A" /> 
+        <path d="M12 12 L2 12 A10 10 0 0 1 12 2 Z" fill="#30D158" /> 
         
         <!-- الزر المركزي -->
         <circle cx="12" cy="12" r="3" fill="url(#spin-gold)" stroke="#8B6508" stroke-width="0.8" />
