@@ -1180,7 +1180,6 @@ export const ui = {
         this.toggleOfflineInMatchUI(false);
     },
 
-    // 🌟 دالة تحديث البروفايل (تتضمن التعديل السحري لتحريك شريط الـ SVG والدائرة)
     updateProfileUI() {
         if (!gameState.userProfile) return;
         
@@ -1203,13 +1202,12 @@ export const ui = {
         if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
         
         if (xpProgressPath) {
-            const totalLength = 158; // الطول الكلي التقريبي لخط الـ SVG
+            const totalLength = xpProgressPath.getTotalLength ? xpProgressPath.getTotalLength() : 150; 
             const progress = Math.min(Math.max(lvlInfo.percentage / 100, 0), 1);
-            const newOffset = totalLength * (1 - progress);
+            const newOffset = totalLength - (totalLength * progress);
             
-            // إضافة px داخل الـ Style هي الطريقة الأضمن لإجبار متصفحات الهاتف على التحريك
-            xpProgressPath.style.strokeDasharray = `${totalLength}px`;
-            xpProgressPath.style.strokeDashoffset = `${newOffset}px`;
+            xpProgressPath.style.strokeDasharray = totalLength;
+            xpProgressPath.style.strokeDashoffset = newOffset;
         }
 
         const igpLevel = this.getEl('igp-level');
