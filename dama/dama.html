@@ -227,12 +227,6 @@
             margin-bottom: 8px;
         }
         
-        .xp-ring {
-            position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
-            border-radius: 50%; background: conic-gradient(#34c759 0%, #34c759 0%, rgba(255,255,255,0.1) 0%);
-            z-index: 0; transition: background 0.5s ease;
-        }
-        
         .profile-avatar-capsule { 
             width: 100%; height: 100%; border-radius: 50%; border: 2px solid #282a32; 
             display: flex; align-items: center; justify-content: center; font-size: 20px; 
@@ -272,6 +266,7 @@
 
         /* ========================================== */
         /* 🌟 نظام البروفايل العلوي (صورة مفرغة PNG)  */
+        /* 🌟 تحويل الخط الأخضر لشريط تقدم خبرة (XP) */
         /* ========================================== */
         #profile-badge.profile-badge-container { 
             position: fixed !important; top: 15px !important; z-index: 10001; 
@@ -297,6 +292,7 @@
             z-index: 2 !important; 
         }
 
+        /* التعديل الجوهري: تحويل الخط إلى شريط تقدم ديناميكي */
         #profile-badge .xp-ring { 
             position: absolute !important; 
             bottom: 7.6px !important;  
@@ -304,13 +300,22 @@
             width: 42.8px !important;  
             height: 46px !important; 
             border-radius: 0 80px 50px 0 !important; 
-            border: 1.4px solid transparent !important;
-            border-bottom-color: #34c759 !important; 
-            border-right-color: #34c759 !important;  
-            background: transparent !important; 
+            border: none !important; /* إزالة الحدود الثابتة */
+            
+            /* الحشو يحدد سُمك شريط الخبرة الأخضر */
+            padding: 2.5px !important; 
+            box-sizing: border-box !important;
+            
+            /* يتم حقن التدرج اللوني (conic-gradient) عبر الجافاسكريبت، وهنا نضمن تغطيته لمنطقة الحدود */
+            background-clip: border-box !important;
+            
+            /* استخدام تقنية الماسك لتفريغ المنتصف وإظهار الشريط فقط على الحواف */
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            
             transform: none !important; 
-            mask: none !important;
-            -webkit-mask: none !important;
             z-index: 2 !important; 
         }
 
@@ -610,107 +615,6 @@
         @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 
         /* ========================================== */
-        /* 🌟 نظام البروفايل العلوي (صورة مفرغة PNG)  */
-        /* ========================================== */
-        #profile-badge.profile-badge-container { 
-            position: fixed !important; top: 15px !important; z-index: 10001; 
-            width: 132px !important; height: 56.8px !important; 
-            background-image: url('بروفايل.webp'); 
-            background-size: 100% 100%; background-repeat: no-repeat; background-color: transparent !important;
-            border: none !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important;
-            cursor: pointer; transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1); 
-            direction: ltr !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
-        }
-        html[dir="rtl"] #profile-badge.profile-badge-container { left: 15px !important; right: auto !important; }
-        html[dir="ltr"] #profile-badge.profile-badge-container { right: 15px !important; left: auto !important; }
-        #profile-badge.profile-badge-container:hover { transform: scale(0.96); }
-
-        #profile-badge .profile-avatar-capsule { 
-            position: absolute !important; 
-            top: 6.3px !important;    
-            left: 7.54px !important;   
-            width: 43.8px !important; 
-            height: 43.8px !important;
-            border-radius: 50% !important; 
-            border: none !important; 
-            z-index: 2 !important; 
-        }
-
-        #profile-badge .xp-ring { 
-            position: absolute !important; 
-            bottom: 7.6px !important;  
-            left: 82px !important;   
-            width: 42.8px !important;  
-            height: 46px !important; 
-            border-radius: 0 80px 50px 0 !important; 
-            border: 1.4px solid transparent !important;
-            border-bottom-color: #34c759 !important; 
-            border-right-color: #34c759 !important;  
-            background: transparent !important; 
-            transform: none !important; 
-            mask: none !important;
-            -webkit-mask: none !important;
-            z-index: 2 !important; 
-        }
-
-        #profile-badge .profile-badge-info { 
-            position: absolute !important; 
-            top: 14px !important;   
-            left: 45px !important;  
-            right: 8px !important;  
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 0.2px; 
-            z-index: 3 !important; 
-        }
-
-        #profile-badge .profile-badge-name { 
-            color: #ffffff; 
-            font-size: 10px; 
-            font-weight: 700; 
-            max-width: 60px; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            white-space: nowrap;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
-
-        #profile-badge .profile-badge-coins-row { 
-            display: flex; align-items: center; justify-content: center; gap: 4px; 
-        }
-        
-        #profile-stat-tokens-badge { 
-            color: #f5a623; 
-            font-size: 8px; 
-            font-weight: 800; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
-
-        #profile-badge .ai-level-badge { 
-            position: absolute; 
-            bottom: 4px;  
-            left: 53px;   
-            width: 23.5px; 
-            height: 0px; 
-            display: flex; align-items: center; justify-content: center; 
-            z-index: 4 !important; 
-        }
-        
-        #profile-badge #badge-level { 
-            color: #87ceeb; 
-            font-size: 8.5px; 
-            font-weight: 800; 
-            line-height: 1; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
-
-        /* إخفاء القديم في البروفايل العلوي فقط للترتيب */
-        #profile-badge .level-badge-small { display: none; }
-        #profile-badge .stat-item { display: none; }
-
-        /* ========================================== */
         /* الحفاظ على عمل التنسيقات للشاشات الداخلية  */
         /* ========================================== */
         #in-game-profile-modal .profile-avatar-capsule { position: relative !important; top: auto !important; left: auto !important; z-index: 1 !important; border: 2px solid #282a32 !important; width: 100% !important; height: 100% !important; }
@@ -758,13 +662,13 @@
     <!-- 🌟 الشاشة العلوية باستخدام إطار الـ PNG المفرغ -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
         
-        <!-- الصورة الشخصية (ستظهر خلف الفتحة الدائرية) -->
+        <!-- الصورة الشخصية -->
         <div class="profile-avatar-capsule" id="badge-avatar"></div>
         
-        <!-- قوس الخبرة (XP) على اليمين -->
+        <!-- شريط تقدم الخبرة (XP Bar) على اليمين (مدمج باستخدام الـ Mask) -->
         <div class="xp-ring" id="badge-xp-ring"></div>
 
-        <!-- البيانات: الاسم والرصيد (في المستطيل الأيمن) -->
+        <!-- البيانات: الاسم والرصيد -->
         <div class="profile-badge-info">
             <span id="badge-username-display-game" class="profile-badge-name">أنت</span>
             <div class="profile-badge-coins-row">
@@ -773,7 +677,7 @@
             </div>
         </div>
 
-        <!-- المستوى (في الكبسولة السفلية) -->
+        <!-- المستوى -->
         <div class="ai-level-badge">
             <span id="badge-level">Lv.1</span>
         </div>
@@ -1036,7 +940,7 @@
                 <div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
             </div>
             
-            <button id="store-return-btn" onclick="closeAppModal('store-modal')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">الخروج</button>
+            <button id="store-return-btn" onclick="closeAppModal('store-modal')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">إلغاء</button>
         </div>
     </div>
 
@@ -1068,7 +972,7 @@
                 <div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div>
                 <div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
             </div>
-            <button id="theme-close-btn" onclick="closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">الخروج</button>
+            <button id="theme-close-btn" onclick="closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">إلغاء</button>
         </div>
     </div>
 
@@ -1109,7 +1013,7 @@
             <p id="game-over-message" style="color: white; font-size: 19px; margin: 15px 0 25px 0; font-weight: 700; text-align: center; line-height: 1.4;"></p>
             <div style="display: flex; gap: 10px; width: 100%;">
                 <button id="rematch-btn" class="save-settings-btn" style="margin: 0; flex: 1;">إعادة اللعب</button>
-                <button id="exit-game-btn" class="save-settings-btn" style="margin: 0; flex: 1;">الخروج</button>
+                <button id="exit-game-btn" class="save-settings-btn" style="margin: 0; flex: 1;">خروج</button>
             </div>
         </div>
     </div>
@@ -1211,6 +1115,37 @@
 
     <script src="icons.js"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
+    
+    <script>
+        const originalGetItem = localStorage.getItem;
+        localStorage.getItem = function(key) {
+            let value = originalGetItem.call(this, key);
+            if (key === 'hub_user_profile' && value) {
+                try {
+                    let profile = JSON.parse(value);
+                    if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
+                        profile.avatar = '../' + profile.avatar;
+                        return JSON.stringify(profile);
+                    }
+                } catch(e) {}
+            }
+            return value;
+        };
+
+        const originalSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, value) {
+            if (key === 'hub_user_profile' && value) {
+                try {
+                    let profile = JSON.parse(value);
+                    if (profile && profile.avatar && profile.avatar.startsWith('../')) {
+                        profile.avatar = profile.avatar.replace('../', '');
+                        value = JSON.stringify(profile);
+                    }
+                } catch(e) {}
+            }
+            originalSetItem.call(this, key, value);
+        };
+    </script>
     
     <script>
         let guestId = localStorage.getItem('guestId');
@@ -1612,6 +1547,40 @@
         }
         document.addEventListener('DOMContentLoaded', syncGlobalBackground);
         window.addEventListener('storage', (e) => { if (e.key === 'custom_app_bg') syncGlobalBackground(); });
+    </script>
+    
+    <script>
+        // سكريبت لمراقبة نافذة النتائج وإضافة مكافأة الخبرة (XP) بجانب العملات
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.id === 'custom-results-modal-container') {
+                            setTimeout(() => {
+                                const tokenAlert = document.getElementById('token-reward-alert');
+                                if (tokenAlert && !document.getElementById('xp-reward-alert')) {
+                                    // التحقق من حالة الفوز من لون نص العملات
+                                    let isMeWin = tokenAlert.style.color === 'rgb(48, 209, 88)' || 
+                                                  tokenAlert.style.color === 'rgb(245, 166, 35)' || 
+                                                  tokenAlert.innerText.includes('+');
+                                    if (tokenAlert.innerText.includes('خسارة') || tokenAlert.innerText.includes('-')) isMeWin = false;
+
+                                    let isOnline = document.body.classList.contains('online-mode-active');
+                                    let xpGained = isOnline ? (isMeWin ? 50 : 15) : (isMeWin ? 25 : 5);
+                                    
+                                    const xpDiv = document.createElement('div');
+                                    xpDiv.id = 'xp-reward-alert';
+                                    xpDiv.style.cssText = "margin-top:8px; color:#34c759; font-weight:800; font-size:15px; text-shadow: 0 0 8px rgba(52, 199, 89, 0.4); animation: modalFadeIn 0.5s ease;";
+                                    xpDiv.innerText = `✨ اكتساب الخبرة: +${xpGained} XP`;
+                                    tokenAlert.parentNode.insertBefore(xpDiv, tokenAlert.nextSibling);
+                                }
+                            }, 150);
+                        }
+                    });
+                });
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
     </script>
 
     <script type="module">
