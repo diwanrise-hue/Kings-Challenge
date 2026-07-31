@@ -52,13 +52,8 @@ export const gameEngine = {
     },
 
     computeOnlineFlip(color) {
-        let topCount = 0, bottomCount = 0;
-        if(gameState && gameState.virtualBoard) {
-            gameState.virtualBoard.forEach((row, r) => row.forEach(cell => {
-                if (cell && cell.startsWith(color)) r < 4 ? topCount++ : bottomCount++;
-            }));
-        }
-        return topCount > bottomCount;
+        // 💡 التعديل هنا: إصلاح مشكلة انعكاس الرقعة عند انقطاع الإنترنت (الاعتماد على اللون بشكل ثابت)
+        return color === 'black'; 
     },
 
     getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = null) {
