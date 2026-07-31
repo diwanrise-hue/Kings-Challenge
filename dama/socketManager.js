@@ -77,12 +77,10 @@ export const socketManager = {
             }
         }
 
-        // 💡 إيقاف الـ fetch الذي يسبب الـ Lag واستخدام وقت استجابة الـ Socket الخفيف جداً كل 5 ثواني
         setInterval(() => {
             if (pingEl) pingEl.style.display = 'flex';
 
             if (socket && socket.connected) {
-                // 💡 التعديل هنا: استخدام التسلسل الآمن (Optional Chaining) لمنع الانهيار
                 let latency = (socket?.io?.engine?.pingInterval) ? Math.floor(Math.random() * 20) + 40 : Math.floor(Math.random() * 30) + 60;
                 this._updatePingUI(latency);
             } else {
@@ -235,11 +233,10 @@ export const socketManager = {
             'rematchOffer', 'rematchAccepted', 'error', 'receiveChallenge',
             'challengeResponse', 'profileUpdated', 'friendAddedNotification',
             'friendAddSuccess', 'friendAddFailed', 'opponentLeftRoom', 'roomClosedByTimeout',
-            'connect_error', 'syncTime', 'receiveChat'
+            'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
-        // 💬 استقبال الدردشة من الخصم وعرضها
         socket.on('receiveChat', (data) => {
             if (window.playInGameChat && data) {
                 window.playInGameChat('opp', data.type, data.value);
@@ -340,7 +337,6 @@ export const socketManager = {
             
             gameState.isOnlineMode = true;
             
-            // 💡 تفعيل نظام المصباح وتقييده بـ 2 للأونلاين
             startOnlineHintSystem(); 
 
             gameState.playerColor = gameState.myOnlineColor = data.color;
@@ -701,6 +697,17 @@ export const socketManager = {
 
         socket.on('friendAddFailed', (data) => {
             if (data) this._showToast(data.msg);
+        });
+
+        // 🌟 إضافة مستمع الترقية لظهور شاشة الاحتفال عند زيادة المستوى
+        socket.on('levelUpAlert', (data) => {
+            if (data && typeof ui.showLevelUpModal === 'function') {
+                let rewardsHtml = `+${data.tokens} 🪙`;
+                if (data.hints > 0) {
+                    rewardsHtml += `<br>+${data.hints} 💡`;
+                }
+                ui.showLevelUpModal(data.newLevel, data.title, rewardsHtml);
+            }
         });
     },
 
