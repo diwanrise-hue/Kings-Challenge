@@ -17,11 +17,11 @@ export const sfx = {
     spinTick: new Audio('spin_tick.mp3') // 👈 الصوت المخصص لعجلة الحظ
 };
 
-let aiSharedWorker = null;
+let aiWorkerInstance = null;
 function getAiWorker() {
     if (window.Worker) {
-        if (!aiSharedWorker) { aiSharedWorker = new Worker('aiWorker.js'); }
-        return aiSharedWorker;
+        if (!aiWorkerInstance) { aiWorkerInstance = new Worker('aiWorker.js'); }
+        return aiWorkerInstance;
     }
     return null;
 }
@@ -156,9 +156,10 @@ export const ui = {
         
         Object.keys(idToKeyMap).forEach(id => setHtml(id, idToKeyMap[id]));
         
+        // 💡 تطبيق التعديلات: عزل "خروج" لشاشة النتيجة و"إلغاء" للمتجر
         setHtml('exit-game-btn', 'exit');
-        setHtml('store-return-btn', 'exit');
-        setHtml('theme-close-btn', 'exit');
+        setHtml('store-return-btn', 'btn_cancel');
+        setHtml('theme-close-btn', 'btn_cancel');
         setHtml('online-close-btn', 'btn_cancel');
         setHtml('custom-alert-cancel', 'btn_cancel');
         setHtml('reset-btn', 'start');
@@ -298,39 +299,31 @@ export const ui = {
         let totalChange = extraSpins + diff;
         this.currentWheelDeg += totalChange;
 
-        // 🛑 إيقاف الـ CSS Transition لأننا سنحرك العجلة برمجياً لضمان التزامن 100%
         wheel.style.transition = 'none';
 
         let tickAudio = sfx.spinTick;
         let spinDuration = 5000;
         let startTime = performance.now();
         
-        // تتبع آخر دبوس مر عليه السهم لمعرفة متى نضرب بالضبط!
         let lastPinPassed = Math.floor(startDeg / 45);
 
-        // 💡 المحرك الفيزيائي
         const animateTick = (currentTime) => {
             if (!window.isSpinning) return;
             
             let elapsed = currentTime - startTime;
             if (elapsed >= spinDuration) elapsed = spinDuration;
 
-            // معادلة التباطؤ الفيزيائي (Cubic Ease Out) لتبدو حركتها واقعية
             let t = elapsed / spinDuration;
             let easeOut = 1 - Math.pow(1 - t, 3);
             let currentSimulatedAngle = startDeg + (totalChange * easeOut);
 
-            // تحريك العجلة إطاراً بإطار
             wheel.style.transform = `rotate(${currentSimulatedAngle}deg)`;
 
-            // 🎯 حساب الدبوس الحالي بدقة متناهية (كل 45 درجة يوجد دبوس)
             let currentPin = Math.floor(currentSimulatedAngle / 45);
             
-            // إذا عبر السهم دبوساً جديداً
             if (currentPin > lastPinPassed) {
                 lastPinPassed = currentPin;
 
-                // 1. إصدار صوت التكتكة (بالضبط عند الاصطدام)
                 if (tickAudio) {
                     let clonedTick = tickAudio.cloneNode();
                     clonedTick.volume = tickAudio.volume || parseFloat(localStorage.getItem('sfx_volume') || '0.7');
@@ -338,7 +331,6 @@ export const ui = {
                     clonedTick.onended = () => clonedTick.remove();
                 }
 
-                // 2. ضربة فيزيائية للسهم (ينضغط لليسار ثم يرتد بقوة الدبوس)
                 if (pointer) {
                     pointer.style.transform = 'translateX(-50%) rotate(-30deg)';
                     setTimeout(() => {
@@ -350,7 +342,6 @@ export const ui = {
             if (elapsed < spinDuration) {
                 requestAnimationFrame(animateTick);
             } else {
-                // انتهى الدوران
                 window.isSpinning = false; 
                 this.playSound(sfx.win); 
                 if (btnFree) btnFree.style.pointerEvents = 'auto';
@@ -359,7 +350,6 @@ export const ui = {
             }
         };
 
-        // بدء تشغيل المحرك
         requestAnimationFrame(animateTick);
     },
 
@@ -950,7 +940,8 @@ export const ui = {
                     return;
                 }
                 
-                let delay = gameState.isOnlineMode || step.midR !== null ? 800 : (gameState.botMoveCount < 7 ? 1000 : Math.floor(Math.random() * 3000) + 2000);
+                // 💡 التعديل: تسريع ملحوظ لحركة البوت (القفزات المتعددة أو بعد عدة حركات)
+                let delay = (gameState.isOnlineMode || step.midR !== null) ? 500 : (gameState.botMoveCount < 7 ? 800 : Math.floor(Math.random() * 1000) + 500);
                 setTimeout(executeStep, delay);
             }
             executeStep();
@@ -1032,7 +1023,7 @@ export const ui = {
             
             const nameSpan = this.makeEl('span', null, "margin-top:8px;font-size:13px;font-weight:600;color:#ffffff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;", name);
             
-            const statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)';
+            const statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(48,209,88,0.15)';
             const statusColor = isWin ? '#30d158' : '#ff453a';
             const statusBorder = isWin ? 'rgba(48,209,88,0.3)' : 'rgba(255,69,58,0.3)';
             const statusText = isWin ? t('winner') : t('loser');
