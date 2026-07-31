@@ -218,17 +218,35 @@
         }
 
         /* ========================================== */
-        /* 🌟 نظام المستوى والرتب (Levels & Ranks)   */
+        /* 🌟 نظام المستوى والرتب (القديم للأمان)      */
         /* ========================================== */
+        .avatar-wrapper { 
+            position: relative; 
+            width: 42px; height: 42px; 
+            display: flex; align-items: center; justify-content: center; 
+            margin-bottom: 8px; /* 💡 مسافة لتجنب التداخل مع مربع المستوى */
+        }
         
         .xp-ring {
-            transition: background 0.5s ease;
+            position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border-radius: 50%; background: conic-gradient(#34c759 0%, #34c759 0%, rgba(255,255,255,0.1) 0%);
+            z-index: 0; transition: background 0.5s ease;
         }
         
         .profile-avatar-capsule { 
+            width: 100%; height: 100%; border-radius: 50%; border: 2px solid #282a32; 
             display: flex; align-items: center; justify-content: center; font-size: 20px; 
             background-size: cover; background-position: center; overflow: hidden; 
-            background-color: rgba(255,255,255,0.05); position: relative;
+            background-color: rgba(255,255,255,0.05); z-index: 1; position: relative;
+        }
+        
+        .level-badge-small {
+            position: absolute; 
+            bottom: -10px; /* 💡 دفع العلامة لتكون خارج الصورة بالكامل وتلتصق بالجزء السفلي */
+            left: 50%; transform: translateX(-50%);
+            background: #ff453a; color: white; font-size: 10px; padding: 2px 8px; 
+            border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; 
+            z-index: 10; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .rank-icon-small {
@@ -252,29 +270,62 @@
             font-size: 9px; font-weight: 800; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        /* 🌟 تصميم الكبسولة العلوية الجديد (مطابق للذكاء الاصطناعي) */
-        .profile-badge-container { 
-            position: fixed !important; top: 15px !important;
-            z-index: 10001; display: flex !important; flex-direction: row !important; align-items: center; 
-            background: linear-gradient(to right, #0a0e17, #161e2e); 
-            border: 1px solid #232d42; 
-            padding: 5px 20px 5px 5px; 
-            border-radius: 50px; 
-            gap: 15px; 
-            box-shadow: inset -4px 0 12px rgba(167, 255, 131, 0.1), inset -10px 0 25px rgba(52, 199, 89, 0.15), 0 10px 25px rgba(0,0,0,0.6); 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-            direction: ltr !important; 
+        /* ========================================== */
+        /* 🌟 نظام البروفايل العلوي (صورة مفرغة PNG)  */
+        /* ========================================== */
+        #profile-badge.profile-badge-container { 
+            position: fixed !important; top: 15px !important; z-index: 10001; 
+            width: 250px !important; height: 98px !important; 
+            background-image: url('بروفايل.webp'); 
+            background-size: 100% 100%; background-repeat: no-repeat; background-color: transparent !important;
+            border: none !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important;
+            cursor: pointer; transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1); 
+            direction: ltr !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
         }
-        html[dir="rtl"] .profile-badge-container { left: 15px !important; right: auto !important; }
-        html[dir="ltr"] .profile-badge-container { right: 15px !important; left: auto !important; }
-        .profile-badge-container:hover { 
-            transform: scale(0.98); 
-            box-shadow: inset -4px 0 12px rgba(167, 255, 131, 0.2), inset -10px 0 25px rgba(52, 199, 89, 0.25), 0 5px 15px rgba(0,0,0,0.7); 
+        html[dir="rtl"] #profile-badge.profile-badge-container { left: 15px !important; right: auto !important; }
+        html[dir="ltr"] #profile-badge.profile-badge-container { right: 15px !important; left: auto !important; }
+        #profile-badge.profile-badge-container:hover { transform: scale(0.96); }
+
+        /* الصورة الشخصية خلف الدائرة */
+        #profile-badge .profile-avatar-capsule { 
+            position: absolute !important; top: 8px !important; left: 8px !important; 
+            width: 82px !important; height: 82px !important; 
+            border-radius: 50% !important; border: none !important; z-index: -1 !important; 
         }
-        
-        .profile-badge-info { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; padding-right: 5px; }
-        .profile-badge-name { color: #ffffff; font-size: 16px; font-weight: 700; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.5px; }
+
+        /* قوس الـ XP يمين الكبسولة */
+        #profile-badge .xp-ring { 
+            position: absolute !important; top: 11px !important; right: 11px !important; left: auto !important; bottom: auto !important;
+            width: 76px !important; height: 76px !important; border-radius: 50% !important; 
+            /* قص الدائرة لتصبح خطاً مقوساً يلتف حول يمين المستطيل */
+            -webkit-mask: radial-gradient(transparent 34px, #000 35px) !important; 
+            mask: radial-gradient(transparent 34px, #000 35px) !important; 
+            transform: rotate(180deg) !important; z-index: -1 !important; 
+        }
+
+        /* البيانات (الاسم والرصيد) */
+        #profile-badge .profile-badge-info { 
+            position: absolute !important; top: 24px !important; left: 100px !important; right: 30px !important; 
+            display: flex; flex-direction: column; align-items: flex-end; gap: 4px; 
+        }
+        #profile-badge .profile-badge-name { 
+            color: #ffffff; font-size: 16px; font-weight: 700; letter-spacing: 0.5px;
+            max-width: 105px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        #profile-badge .profile-badge-coins-row { display: flex; align-items: center; gap: 6px; }
+        #profile-stat-tokens-badge { color: #f5a623; font-size: 18px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+
+        /* المستوى في الكبسولة السفلية للصورة */
+        #profile-badge .ai-level-badge { 
+            position: absolute; bottom: 8px; left: 110px; width: 68px; height: 20px; 
+            display: flex; align-items: center; justify-content: center; z-index: 1; 
+        }
+        #profile-badge #badge-level { color: #87ceeb; font-size: 13px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+
+        /* إخفاء القديم في البروفايل العلوي فقط للترتيب */
+        #profile-badge .level-badge-small { display: none; }
+        #profile-badge .stat-item { display: none; }
 
         /* الأزرار العلوية */
         #hamburger-menu-btn, #bag-quick-btn {
@@ -397,7 +448,8 @@
         @keyframes badgePulse { 0% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.8; } }
 
         #match-players-card { background: rgba(45, 48, 55, 0.6) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important; }
-        .match-players-flex { display: flex; flex-direction: column; align-items: center; width: 80px; position: relative; }
+        .match-players-flex { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 80px; position: relative; }
+        .match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
         .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ffffff !important; display: flex; align-items: center; justify-content: center; }
         .match-vs-text { color: #a1a1aa; font-weight: 300; font-size: 16px; text-align: center; }
 
@@ -426,83 +478,75 @@
         /* ========================================== */
         /* 🎡 عجلة الحظ (Lucky Spin) - CSS            */
         /* ========================================== */
-        .wheel-container { 
-            position: relative; 
-            width: 280px; height: 280px; 
-            margin: 0 auto 30px auto; 
-        }
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 0 auto 30px auto; }
         
-        .wheel-container::before {
-            content: ''; position: absolute;
-            top: -20px; left: -20px; right: -20px; bottom: -20px;
-            background: radial-gradient(circle, rgba(248,181,0,0.15) 0%, transparent 70%);
-            border-radius: 50%; z-index: 0;
-            animation: pulseAura 2.5s infinite alternate ease-in-out;
-            pointer-events: none;
-        }
-        @keyframes pulseAura { 0% { transform: scale(0.9); opacity: 0.6; } 100% { transform: scale(1.1); opacity: 1; } }
-
         .wheel-pointer-wrapper { 
             position: absolute; 
-            top: -28px; 
+            top: -22px; 
             left: 50%; 
             transform: translateX(-50%); 
             z-index: 20; 
-            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8));
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
             transform-origin: top center;
             transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            will-change: transform;
         }
         .wheel-pointer-shape {
-            width: 18px; height: 42px;
-            background: linear-gradient(to right, #ffe066 0%, #f8b500 40%, #d4af37 60%, #8b6508 100%);
+            width: 18px;
+            height: 38px;
+            background: linear-gradient(to right, #ffd700 0%, #f8b500 40%, #d4af37 60%, #8b6508 100%);
             clip-path: polygon(50% 100%, 0 15%, 50% 0, 100% 15%);
         }
 
         .wheel-pin {
-            position: absolute; top: 50%; left: 50%;
-            width: 16px; height: 16px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 14px;
+            height: 14px;
             background: radial-gradient(circle at 30% 30%, #ffdf00, #d4af37, #8b6508);
-            border: 1px solid #4a3500; border-radius: 50%;
-            margin-top: -8px; margin-left: -8px; z-index: 15;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.9), inset 0 -2px 3px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.7);
+            border: 1px solid #4a3500;
+            border-radius: 50%;
+            margin-top: -7px;
+            margin-left: -7px;
+            z-index: 15;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.6), inset 0 -2px 4px rgba(0,0,0,0.4);
         }
 
         .wheel-inner { 
-            box-sizing: border-box; width: 100%; height: 100%; border-radius: 50%; 
-            border: 12px solid #b8860b; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.9); 
-            position: relative; overflow: visible; z-index: 10;
-            transform: translateZ(0); 
-            will-change: transform;
+            width: 100%; height: 100%; border-radius: 50%; 
+            border: 6px solid #b8860b; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 0 15px rgba(0,0,0,0.8); 
+            position: relative; overflow: visible; 
             background: conic-gradient(
-                #1A365D 0deg 45deg, #2E7D32 45deg 90deg, #00838F 90deg 135deg,
-                #4527A0 135deg 180deg, #b71c1c 180deg 225deg, #F9A825 225deg 270deg,
-                #4E342E 270deg 315deg, #E65100 315deg 360deg
+                #1A365D 0deg 45deg,
+                #2E7D32 45deg 90deg,
+                #00838F 90deg 135deg,
+                #4527A0 135deg 180deg,
+                #b71c1c 180deg 225deg,
+                #F9A825 225deg 270deg,
+                #4E342E 270deg 315deg,
+                #E65100 315deg 360deg
             );
         }
         
-        .wheel-text { 
-            position: absolute; top: 20px; left: 50%; transform-origin: center 108px; 
-            text-align: center; font-size: 16px; font-weight: 800; color: #fff; 
-            text-shadow: 0px 2px 4px rgba(0,0,0,0.9), 0px 0px 8px rgba(0,0,0,0.5); 
-            white-space: nowrap; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
-        }
-        
-        .w-1 { transform: translateX(-50%) rotate(22.5deg); } .w-2 { transform: translateX(-50%) rotate(67.5deg); } .w-3 { transform: translateX(-50%) rotate(112.5deg); } .w-4 { transform: translateX(-50%) rotate(157.5deg); } .w-5 { transform: translateX(-50%) rotate(202.5deg); } .w-6 { transform: translateX(-50%) rotate(247.5deg); } .w-7 { transform: translateX(-50%) rotate(292.5deg); } .w-8 { transform: translateX(-50%) rotate(337.5deg); color: #ffd700; font-size: 17px; text-shadow: 0 0 10px #d4af37, 0 2px 4px black; }
+        .wheel-text { position: absolute; top: 20px; left: 50%; transform-origin: center 120px; text-align: center; font-size: 15px; font-weight: 800; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); white-space: nowrap; }
+        .w-1 { transform: translateX(-50%) rotate(22.5deg); } .w-2 { transform: translateX(-50%) rotate(67.5deg); } .w-3 { transform: translateX(-50%) rotate(112.5deg); } .w-4 { transform: translateX(-50%) rotate(157.5deg); } .w-5 { transform: translateX(-50%) rotate(202.5deg); } .w-6 { transform: translateX(-50%) rotate(247.5deg); } .w-7 { transform: translateX(-50%) rotate(292.5deg); } .w-8 { transform: translateX(-50%) rotate(337.5deg); color: #ffd700; font-size: 16px; }
         
         .wheel-center-pin { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 52px; height: 52px; 
-            background: radial-gradient(circle, #fceabb, #f8b500, #8b6508); 
-            border: 4px solid #5c4305; border-radius: 50%; z-index: 25; 
-            box-shadow: 0 8px 15px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.7); 
+            width: 48px; height: 48px; 
+            background: radial-gradient(circle, #fceabb, #f8b500, #b8860b); 
+            border: 3px solid #8b6508; 
+            border-radius: 50%; z-index: 25; 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.6); 
             display: flex; align-items: center; justify-content: center; 
         }
         .wheel-center-pin::after {
-            content: ''; width: 30px; height: 30px;
-            background: conic-gradient(#8b6508, #ffd700, #8b6508, #ffd700, #8b6508);
-            border-radius: 50%; box-shadow: inset 0 3px 6px rgba(0,0,0,0.8);
+            content: '';
+            width: 28px; height: 28px;
+            background: conic-gradient(#b8860b, #ffd700, #b8860b, #ffd700, #b8860b);
+            border-radius: 50%;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.6);
         }
 
         /* ========================================== */
@@ -517,8 +561,67 @@
             background: conic-gradient(transparent 0deg, rgba(255,215,0,0.3) 20deg, transparent 40deg, rgba(255,215,0,0.3) 60deg, transparent 80deg, rgba(255,215,0,0.3) 100deg, transparent 120deg, rgba(255,215,0,0.3) 140deg, transparent 160deg, rgba(255,215,0,0.3) 180deg, transparent 200deg, rgba(255,215,0,0.3) 220deg, transparent 240deg, rgba(255,215,0,0.3) 260deg, transparent 280deg, rgba(255,215,0,0.3) 300deg, transparent 320deg, rgba(255,215,0,0.3) 340deg, transparent 360deg);
             animation: shineRays 15s linear infinite; z-index: -1; pointer-events: none;
         }
+
         .confetti { position: absolute; width: 10px; height: 10px; background: #ffd700; top: -10px; z-index: 999999; animation: fall 3s linear forwards; }
         @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+
+        /* ========================================== */
+        /* 🌟 نظام البروفايل العلوي (صورة مفرغة PNG)  */
+        /* ========================================== */
+        #profile-badge.profile-badge-container { 
+            position: fixed !important; top: 15px !important; z-index: 10001; 
+            width: 250px !important; height: 98px !important; 
+            background-image: url('بروفايل.webp'); 
+            background-size: 100% 100%; background-repeat: no-repeat; background-color: transparent !important;
+            border: none !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important;
+            cursor: pointer; transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1); 
+            direction: ltr !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+        }
+        html[dir="rtl"] #profile-badge.profile-badge-container { left: 15px !important; right: auto !important; }
+        html[dir="ltr"] #profile-badge.profile-badge-container { right: 15px !important; left: auto !important; }
+        #profile-badge.profile-badge-container:hover { transform: scale(0.96); }
+
+        /* الصورة الشخصية خلف الدائرة */
+        #profile-badge .profile-avatar-capsule { 
+            position: absolute !important; top: 8px !important; left: 8px !important; 
+            width: 82px !important; height: 82px !important; 
+            border-radius: 50% !important; border: none !important; z-index: -1 !important; 
+        }
+
+        /* قوس الـ XP يمين الكبسولة */
+        #profile-badge .xp-ring { 
+            position: absolute !important; top: 11px !important; right: 11px !important; left: auto !important; bottom: auto !important;
+            width: 76px !important; height: 76px !important; border-radius: 50% !important; 
+            -webkit-mask: radial-gradient(transparent 34px, #000 35px) !important; 
+            mask: radial-gradient(transparent 34px, #000 35px) !important; 
+            transform: rotate(180deg) !important; z-index: -1 !important; 
+        }
+
+        /* البيانات (الاسم والرصيد) */
+        #profile-badge .profile-badge-info { 
+            position: absolute !important; top: 24px !important; left: 100px !important; right: 30px !important; 
+            display: flex; flex-direction: column; align-items: flex-end; gap: 4px; 
+        }
+        #profile-badge .profile-badge-name { color: #ffffff; font-size: 16px; font-weight: 700; max-width: 105px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        #profile-badge .profile-badge-coins-row { display: flex; align-items: center; gap: 6px; }
+        #profile-stat-tokens-badge { color: #f5a623; font-size: 18px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+
+        /* المستوى في الكبسولة السفلية للصورة */
+        #profile-badge .ai-level-badge { position: absolute; bottom: 8px; left: 110px; width: 68px; height: 20px; display: flex; align-items: center; justify-content: center; z-index: 1; }
+        #profile-badge #badge-level { color: #87ceeb; font-size: 13px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+
+        /* إخفاء القديم في الكبسولة العلوية لتجنب التعارض */
+        #profile-badge .level-badge-small { display: none; }
+        #profile-badge .stat-item { display: none; }
+
+        /* ========================================== */
+        /* الحفاظ على عمل التنسيقات للشاشات الداخلية  */
+        /* ========================================== */
+        #in-game-profile-modal .profile-avatar-capsule { position: relative !important; top: auto !important; left: auto !important; z-index: 1 !important; border: 2px solid #282a32 !important; width: 100% !important; height: 100% !important; }
+        #in-game-profile-modal .xp-ring { position: absolute !important; width: auto !important; height: auto !important; top: -4px !important; bottom: -4px !important; left: -4px !important; right: -4px !important; -webkit-mask: none !important; mask: none !important; transform: none !important; z-index: 0 !important; border-radius: 50% !important; }
+        #in-game-profile-modal .level-badge-small { display: block; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: #ff453a; color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; z-index: 10; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .avatar-wrapper { position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+        .rank-icon-small { font-size: 14px; margin-left: 4px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); }
     </style>
 </head>
 <body data-piece-style="pc_original">
@@ -556,47 +659,29 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <!-- 🌟 الشاشة العلوية الجديدة: الكبسولة المدمجة المستوحاة من الذكاء الاصطناعي -->
+    <!-- 🌟 الشاشة العلوية باستخدام إطار الـ PNG المفرغ -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
         
-        <!-- إطار الصورة (Bezel) -->
-        <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 75px; height: 75px; background: #12161f; border-radius: 50%; box-shadow: 0 0 15px rgba(0,0,0,0.9);">
-            <!-- الزخارف الميكانيكية للإطار (Diamonds) -->
-            <div style="position: absolute; top: 3px; left: 50%; transform: translateX(-50%); color: #475569; font-size: 8px;">❖</div>
-            <div style="position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); color: #475569; font-size: 8px;">❖</div>
-            <div style="position: absolute; left: 3px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 8px;">❖</div>
-            <div style="position: absolute; right: 3px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 8px;">❖</div>
-            
-            <!-- الصورة الشخصية -->
-            <div class="profile-avatar-capsule" id="badge-avatar" style="width: 53px; height: 53px; border-radius: 50%; box-shadow: inset 0 2px 8px rgba(0,0,0,0.8); background-color: #000; z-index: 2;"></div>
-            
-            <!-- النجمة اليسرى -->
-            <div style="position: absolute; bottom: -4px; left: -8px; font-size: 18px; text-shadow: 0 0 8px #fde047; z-index: 3; animation: pulseAura 2s infinite alternate;">✨</div>
+        <!-- الصورة الشخصية (ستظهر خلف الفتحة الدائرية) -->
+        <div class="profile-avatar-capsule" id="badge-avatar"></div>
+        
+        <!-- قوس الخبرة (XP) على اليمين -->
+        <div class="xp-ring" id="badge-xp-ring"></div>
+
+        <!-- البيانات: الاسم والرصيد (في المستطيل الأيمن) -->
+        <div class="profile-badge-info">
+            <span id="badge-username-display-game" class="profile-badge-name">أنت</span>
+            <div class="profile-badge-coins-row">
+                <span id="profile-stat-tokens-badge">0</span>
+                <span style="font-size: 14px; margin-right: 2px;">🪙</span>
+            </div>
+        </div>
+
+        <!-- المستوى (في الكبسولة السفلية) -->
+        <div class="ai-level-badge">
+            <span id="badge-level">Lv.1</span>
         </div>
         
-        <!-- قسم المعلومات -->
-        <div class="profile-badge-info">
-            <!-- الاسم -->
-            <span id="badge-username-display-game" class="profile-badge-name">أنت</span>
-            
-            <!-- الرصيد (Tokens) -->
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <span id="profile-stat-tokens-badge" style="color: #f5a623; font-size: 20px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">0</span>
-                <div style="width: 22px; height: 22px; background: radial-gradient(circle at 30% 30%, #fde047, #b45309); border-radius: 50%; border: 1.5px solid #78350f; box-shadow: inset 0 1px 3px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #451a03; font-weight: 900;">🪙</div>
-            </div>
-
-            <!-- كبسولة المستوى (البيضوية) -->
-            <div style="background: rgba(22, 30, 46, 0.9); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 3px 12px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.4); margin-top: 2px;">
-                <span style="color: #475569; font-size: 11px;">🌿</span>
-                <span id="badge-level" style="color: #ffffff; font-size: 12px; font-weight: 800;">Lv.1</span>
-                
-                <!-- شريط الخبرة (حلقة دائرية متوافقة مع الكود القديم) -->
-                <div class="xp-ring" id="badge-xp-ring" style="position: relative; width: 12px; height: 12px; border-radius: 50%; top: 0; left: 0; right: 0; bottom: 0; box-shadow: inset 0 0 4px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);"></div>
-            </div>
-            
-            <!-- النجمة اليمنى -->
-            <div style="position: absolute; bottom: 2px; right: 10px; font-size: 14px; opacity: 0.8; text-shadow: 0 0 5px #fff; animation: pulseAura 2.5s infinite alternate-reverse;">✨</div>
-        </div>
     </div>
     
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
@@ -605,14 +690,18 @@
     <div id="status-area">
         <div id="match-players-card" style="display: none;">
             <div class="match-players-flex">
-                <div id="card-my-avatar" class="profile-avatar-capsule" style="width: 50px; height: 50px; border: 2px solid #282a32; border-radius: 50%;"></div>
-                <span id="card-my-level" style="display: inline-block; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); color: #34c759; font-size: 10px; font-weight: 800; margin-top: 4px; margin-bottom: 2px;">Lv.1</span>
+                <div class="avatar-wrapper" style="width: 50px; height: 50px; margin-bottom: 10px;">
+                    <div id="card-my-avatar" class="profile-avatar-capsule" style="border: 2px solid #282a32;"></div>
+                    <div class="level-badge-small" id="card-my-level">Lv.1</div>
+                </div>
                 <span id="card-my-name" class="match-players-name">أنت</span>
             </div>
             <span class="match-vs-text">VS</span>
             <div class="match-players-flex">
-                <div id="card-opp-avatar" class="profile-avatar-capsule" style="width: 50px; height: 50px; border: 2px solid #282a32; border-radius: 50%; background-color:#555; display:flex; align-items:center; justify-content:center; font-size:24px;">❓</div>
-                <span id="card-opp-level" style="display: inline-block; background: #555; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 10px; font-weight: 800; margin-top: 4px; margin-bottom: 2px;">Lv.?</span>
+                <div class="avatar-wrapper" style="width: 50px; height: 50px; margin-bottom: 10px;">
+                    <div id="card-opp-avatar" class="profile-avatar-capsule" style="border: 2px solid #282a32;">❓</div>
+                    <div class="level-badge-small" id="card-opp-level" style="background:#555;">Lv.?</div>
+                </div>
                 <span id="card-opp-name" class="match-players-name">الخصم</span>
             </div>
         </div>
@@ -643,8 +732,9 @@
             </div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('lucky-spin-modal')">
-                <span style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; position: relative;" data-icon="luckySpin">
-                    <span class="notification-badge" id="menu-spin-notify-badge" style="display: none; background-color: #30d158; box-shadow: 0 0 8px #30d158; width: 12px; height: 12px; right: -6px; left: auto; top: -6px; position: absolute;"></span>
+                <span style="font-size: 20px; position: relative;">
+                    🎡
+                    <span class="notification-badge" id="menu-spin-notify-badge" style="display: none; background-color: #30d158; box-shadow: 0 0 8px #30d158; width: 12px; height: 12px; right: -4px; left: auto; top: -4px;"></span>
                 </span>
                 <span id="menu-spin-text">عجلة الحظ</span>
             </div>
@@ -703,7 +793,7 @@
                 <div class="wheel-pointer-wrapper" id="lucky-wheel-pointer">
                     <div class="wheel-pointer-shape"></div>
                 </div>
-                <div class="wheel-inner" id="lucky-wheel-inner" style="transform: rotate(22.5deg);">
+                <div class="wheel-inner" id="lucky-wheel-inner">
                     <div class="wheel-text w-1">50 🪙</div>
                     <div class="wheel-text w-2">100 🪙</div>
                     <div class="wheel-text w-3">1 💡</div>
@@ -713,14 +803,14 @@
                     <div class="wheel-text w-7">250 🪙</div>
                     <div class="wheel-text w-8">1000 🎁</div>
 
-                    <div class="wheel-pin" style="transform: rotate(0deg) translateY(-134px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(45deg) translateY(-134px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(90deg) translateY(-134px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(135deg) translateY(-134px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(180deg) translateY(-134px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(225deg) translateY(-134px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(270deg) translateY(-134px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(315deg) translateY(-134px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(0deg) translateY(-143px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(45deg) translateY(-143px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(90deg) translateY(-143px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(135deg) translateY(-143px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(180deg) translateY(-143px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(225deg) translateY(-143px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(270deg) translateY(-143px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(315deg) translateY(-143px);"></div>
                 </div>
                 <div class="wheel-center-pin"></div>
             </div>
@@ -754,7 +844,6 @@
         </div>
     </div>
 
-    <!-- شاشة البروفايل الداخلية -->
     <div id="in-game-profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
@@ -768,7 +857,7 @@
             
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
             
-            <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; margin-bottom: 15px;">الرتبة: 🥉 برونزي</div>
+            <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; margin-bottom: 5px;">الرتبة: 🥉 برونزي</div>
 
             <div style="width: 100%; margin-bottom: 20px;">
                 <div class="xp-bar-bg">
