@@ -275,7 +275,7 @@
         /* ========================================== */
         #profile-badge.profile-badge-container { 
             position: fixed !important; top: 15px !important; z-index: 10001; 
-            width: 200px !important; height: 78px !important; 
+            width: 210px !important; height: 80px !important; 
             background-image: url('بروفايل.webp'); 
             background-size: 100% 100%; background-repeat: no-repeat; background-color: transparent !important;
             border: none !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important;
@@ -288,40 +288,39 @@
 
         /* الصورة الشخصية خلف الدائرة */
         #profile-badge .profile-avatar-capsule { 
-            position: absolute !important; top: 6px !important; left: 6px !important; 
+            position: absolute !important; top: 6px !important; left: 7px !important; 
             width: 66px !important; height: 66px !important; 
             border-radius: 50% !important; border: none !important; z-index: -1 !important; 
         }
 
-        /* قوس الـ XP يمين الكبسولة */
+        /* قوس الـ XP يلتف حول الصورة الشخصية */
         #profile-badge .xp-ring { 
-            position: absolute !important; top: 9px !important; right: 9px !important; left: auto !important; bottom: auto !important;
-            width: 60px !important; height: 60px !important; border-radius: 50% !important; 
-            /* قص الدائرة لتصبح خطاً مقوساً يلتف حول يمين المستطيل */
-            -webkit-mask: radial-gradient(transparent 27px, #000 28px) !important; 
-            mask: radial-gradient(transparent 27px, #000 28px) !important; 
+            position: absolute !important; top: 2px !important; left: 3px !important; right: auto !important; bottom: auto !important;
+            width: 74px !important; height: 74px !important; border-radius: 50% !important; 
+            -webkit-mask: radial-gradient(transparent 33px, #000 34px) !important; 
+            mask: radial-gradient(transparent 33px, #000 34px) !important; 
             transform: rotate(180deg) !important; z-index: -1 !important; 
         }
 
-        /* البيانات (الاسم والرصيد) */
+        /* البيانات (الاسم والرصيد متمركزة في اليمين) */
         #profile-badge .profile-badge-info { 
-            position: absolute !important; top: 18px !important; left: 78px !important; right: 20px !important; 
-            display: flex; flex-direction: column; align-items: flex-end; gap: 4px; 
+            position: absolute !important; top: 18px !important; left: 82px !important; right: 10px !important; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; 
         }
         #profile-badge .profile-badge-name { 
-            color: #ffffff; font-size: 14px; font-weight: 700; letter-spacing: 0.5px;
-            max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            color: #ffffff; font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
+            max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
-        #profile-badge .profile-badge-coins-row { display: flex; align-items: center; gap: 6px; }
-        #profile-stat-tokens-badge { color: #f5a623; font-size: 15px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        #profile-badge .profile-badge-coins-row { display: flex; align-items: center; justify-content: center; gap: 6px; }
+        #profile-stat-tokens-badge { color: #f5a623; font-size: 16px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
-        /* المستوى في الكبسولة السفلية للصورة */
+        /* المستوى متمركز أسفل الصورة الشخصية تماماً */
         #profile-badge .ai-level-badge { 
-            position: absolute; bottom: 6px; left: 88px; width: 55px; height: 18px; 
+            position: absolute; bottom: 3px; left: 16px; width: 48px; height: 18px; 
             display: flex; align-items: center; justify-content: center; z-index: 1; 
         }
-        #profile-badge #badge-level { color: #87ceeb; font-size: 11px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        #profile-badge #badge-level { color: #87ceeb; font-size: 12px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
 
         /* إخفاء القديم في البروفايل العلوي فقط للترتيب */
         #profile-badge .level-badge-small { display: none; }
@@ -566,11 +565,11 @@
         @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 
         /* ========================================== */
-        /* 🌟 نظام البروفايل العلوي (صورة مفرغة PNG) (نسخة الأمان) */
+        /* 🌟 نظام البروفايل العلوي (صورة مفرغة PNG)  */
         /* ========================================== */
         #profile-badge.profile-badge-container { 
             position: fixed !important; top: 15px !important; z-index: 10001; 
-            width: 200px !important; height: 78px !important; 
+            width: 210px !important; height: 80px !important; 
             background-image: url('بروفايل.webp'); 
             background-size: 100% 100%; background-repeat: no-repeat; background-color: transparent !important;
             border: none !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important;
@@ -581,36 +580,43 @@
         html[dir="ltr"] #profile-badge.profile-badge-container { right: 15px !important; left: auto !important; }
         #profile-badge.profile-badge-container:hover { transform: scale(0.96); }
 
-        /* الصورة الشخصية خلف الدائرة */
+        /* الصورة الشخصية متمركزة في الدائرة اليسرى */
         #profile-badge .profile-avatar-capsule { 
-            position: absolute !important; top: 6px !important; left: 6px !important; 
+            position: absolute !important; top: 6px !important; left: 7px !important; 
             width: 66px !important; height: 66px !important; 
             border-radius: 50% !important; border: none !important; z-index: -1 !important; 
         }
 
-        /* قوس الـ XP يمين الكبسولة */
+        /* قوس الـ XP يلتف حول الصورة الشخصية كإطار */
         #profile-badge .xp-ring { 
-            position: absolute !important; top: 9px !important; right: 9px !important; left: auto !important; bottom: auto !important;
-            width: 60px !important; height: 60px !important; border-radius: 50% !important; 
-            -webkit-mask: radial-gradient(transparent 27px, #000 28px) !important; 
-            mask: radial-gradient(transparent 27px, #000 28px) !important; 
+            position: absolute !important; top: 2px !important; left: 3px !important; right: auto !important; bottom: auto !important;
+            width: 74px !important; height: 74px !important; border-radius: 50% !important; 
+            -webkit-mask: radial-gradient(transparent 33px, #000 34px) !important; 
+            mask: radial-gradient(transparent 33px, #000 34px) !important; 
             transform: rotate(180deg) !important; z-index: -1 !important; 
         }
 
-        /* البيانات (الاسم والرصيد) */
+        /* البيانات (الاسم والرصيد) متوسطة في المستطيل الأيمن */
         #profile-badge .profile-badge-info { 
-            position: absolute !important; top: 18px !important; left: 78px !important; right: 20px !important; 
-            display: flex; flex-direction: column; align-items: flex-end; gap: 4px; 
+            position: absolute !important; top: 18px !important; left: 82px !important; right: 10px !important; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; 
         }
-        #profile-badge .profile-badge-name { color: #ffffff; font-size: 14px; font-weight: 700; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        #profile-badge .profile-badge-coins-row { display: flex; align-items: center; gap: 6px; }
-        #profile-stat-tokens-badge { color: #f5a623; font-size: 15px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        #profile-badge .profile-badge-name { 
+            color: #ffffff; font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
+            max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        #profile-badge .profile-badge-coins-row { display: flex; align-items: center; justify-content: center; gap: 6px; }
+        #profile-stat-tokens-badge { color: #f5a623; font-size: 16px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
-        /* المستوى في الكبسولة السفلية للصورة */
-        #profile-badge .ai-level-badge { position: absolute; bottom: 6px; left: 88px; width: 55px; height: 18px; display: flex; align-items: center; justify-content: center; z-index: 1; }
-        #profile-badge #badge-level { color: #87ceeb; font-size: 11px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        /* المستوى متمركز تماماً أسفل الصورة الشخصية (في الفتحة الصغيرة) */
+        #profile-badge .ai-level-badge { 
+            position: absolute; bottom: 3px; left: 16px; width: 48px; height: 18px; 
+            display: flex; align-items: center; justify-content: center; z-index: 1; 
+        }
+        #profile-badge #badge-level { color: #87ceeb; font-size: 12px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
 
-        /* إخفاء القديم في الكبسولة العلوية لتجنب التعارض */
+        /* إخفاء القديم في البروفايل العلوي فقط للترتيب */
         #profile-badge .level-badge-small { display: none; }
         #profile-badge .stat-item { display: none; }
 
