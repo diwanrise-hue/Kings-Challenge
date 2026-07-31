@@ -1197,16 +1197,15 @@ export const ui = {
         let lvlInfo = this.calculateLevelInfo(prof.xp || 0);
 
         const badgeLevel = this.getEl('badge-level');
-        const xpProgressPath = this.getEl('xp-progress-path'); // مسار SVG الخاص بشريط الخبرة
+        const xpProgressPath = this.getEl('xp-progress-path'); 
 
         if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
         
-        // 🌟 تطبيق التحريك الديناميكي لشريط الخبرة في البروفايل العلوي بناءً على النسبة المئوية
         if (xpProgressPath) {
-            const totalLength = 150; // الطول الكامل المحدد في الـ SVG
+            const totalLength = 150; 
             const progress = Math.min(Math.max(lvlInfo.percentage / 100, 0), 1);
             const newOffset = totalLength * (1 - progress);
-            xpProgressPath.style.strokeDashoffset = newOffset;
+            xpProgressPath.setAttribute('stroke-dashoffset', newOffset);
         }
 
         const igpLevel = this.getEl('igp-level');
@@ -1216,7 +1215,11 @@ export const ui = {
         const igpXpText = this.getEl('igp-xp-text');
 
         if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
-        if (igpRing) igpRing.style.background = `conic-gradient(#34c759 ${lvlInfo.percentage}%, rgba(255,255,255,0.1) 0%)`;
+        
+        if (igpRing) {
+            igpRing.style.backgroundImage = `conic-gradient(#34c759 ${lvlInfo.percentage}%, rgba(255,255,255,0.1) ${lvlInfo.percentage}%)`;
+        }
+
         if (igpRank) igpRank.innerHTML = `الرتبة: ${lvlInfo.rankIcon} ${lvlInfo.rank} | ${lvlInfo.title}`;
         if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
         if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
