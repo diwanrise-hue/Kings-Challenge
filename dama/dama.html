@@ -422,7 +422,18 @@
         #level-up-modal { z-index: 20000003 !important; } 
         
         .settings-card { background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(35px) !important; -webkit-backdrop-filter: blur(35px) !important; border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05) !important; text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
-        #store-modal .settings-card, #themes-grid-overlay .settings-card { width: 95%; max-width: 480px; padding-top: 30px; }
+        
+        /* 🌟 التعديل الجذري لتكبير نوافذ المتجر والمظهر بنسبة 80% من الشاشة مع الحفاظ على الشكل 🌟 */
+        #store-modal .settings-card, #themes-grid-overlay .settings-card { 
+            width: 90vw !important; 
+            max-width: 600px !important; 
+            height: 80vh !important; 
+            max-height: 800px !important;
+            padding-top: 35px; 
+            display: flex; 
+            flex-direction: column;
+        }
+        
         .leaderboard-full-screen { width: 95% !important; height: 90vh !important; max-width: 500px !important; border-radius: 32px !important; padding: 35px 20px 20px 20px !important; }
         .settings-card::-webkit-scrollbar { display: none; }
         @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
@@ -515,7 +526,7 @@
         .wheel-container { 
             position: relative; 
             width: 280px; height: 280px; 
-            margin: 0 auto 30px auto; 
+            margin: 20px auto 30px auto; 
         }
         
         .wheel-container::before {
@@ -530,34 +541,34 @@
 
         .wheel-pointer-wrapper { 
             position: absolute; 
-            top: -28px; 
+            top: -20px; 
             left: 50%; 
             transform: translateX(-50%); 
-            z-index: 20; 
-            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8));
+            z-index: 30; 
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
             transform-origin: top center;
             transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             will-change: transform;
         }
         .wheel-pointer-shape {
-            width: 18px; height: 42px;
-            background: linear-gradient(to right, #ffe066 0%, #f8b500 40%, #d4af37 60%, #8b6508 100%);
-            clip-path: polygon(50% 100%, 0 15%, 50% 0, 100% 15%);
+            width: 24px; height: 35px;
+            background: linear-gradient(to bottom, #ffe066 0%, #f8b500 50%, #8b6508 100%);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
         }
 
         .wheel-pin {
             position: absolute; top: 50%; left: 50%;
-            width: 16px; height: 16px;
-            background: radial-gradient(circle at 30% 30%, #ffdf00, #d4af37, #8b6508);
-            border: 1px solid #4a3500; border-radius: 50%;
-            margin-top: -8px; margin-left: -8px; z-index: 15;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.9), inset 0 -2px 3px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.7);
+            width: 14px; height: 14px;
+            background: radial-gradient(circle at 30% 30%, #fff, #ffd700, #b8860b);
+            border: 1px solid #5c4305; border-radius: 50%;
+            margin-top: -7px; margin-left: -7px; z-index: 15;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
         .wheel-inner { 
             box-sizing: border-box; width: 100%; height: 100%; border-radius: 50%; 
-            border: 12px solid #b8860b; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.9); 
+            border: 14px solid #d4af37; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,0,0,0.8); 
             position: relative; overflow: visible; z-index: 10;
             transform: translateZ(0); 
             will-change: transform;
@@ -579,16 +590,16 @@
         
         .wheel-center-pin { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 52px; height: 52px; 
-            background: radial-gradient(circle, #fceabb, #f8b500, #8b6508); 
-            border: 4px solid #5c4305; border-radius: 50%; z-index: 25; 
-            box-shadow: 0 8px 15px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.7); 
+            width: 60px; height: 60px; 
+            background: radial-gradient(circle, #ffe066, #f8b500, #8b6508); 
+            border: 5px solid #4a3500; border-radius: 50%; z-index: 25; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.5); 
             display: flex; align-items: center; justify-content: center; 
         }
         .wheel-center-pin::after {
-            content: ''; width: 30px; height: 30px;
-            background: conic-gradient(#8b6508, #ffd700, #8b6508, #ffd700, #8b6508);
-            border-radius: 50%; box-shadow: inset 0 3px 6px rgba(0,0,0,0.8);
+            content: ''; width: 35px; height: 35px;
+            background: radial-gradient(circle, #d4af37, #8b6508);
+            border-radius: 50%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
         }
 
         /* ========================================== */
@@ -662,8 +673,7 @@
                 <path d="M 72.6,48.7 L 104.5,48.7 A 21.5,21.5 0 0,0 104.5,8.7 L 45,8.7" 
                       fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.8" stroke-linecap="round" />
                 
-                <!-- 2. شريط التقدم الأخضر -->
-                <!-- ⚠️ تم إزالة القيم الثابتة من هنا لتتحكم بها الجافاسكريبت ⚠️ -->
+                <!-- 2. شريط التقدم الأخضر (تم إزالة القيم الثابتة ليتحكم بها الـ JS) -->
                 <path id="xp-progress-path" class="xp-progress-path"
                       d="M 72.6,48.7 L 104.5,48.7 A 21.2,21.2 0 0,0 104.5,8.7 L 45,8.7" 
                       fill="none" stroke="#34c759" stroke-width="1.8" stroke-linecap="round" /> 
@@ -738,7 +748,7 @@
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('lucky-spin-modal')">
                 <span style="position: relative; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
-                    <span data-icon="spinMenu" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
+                    <span data-icon="luckySpin" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
                     <span class="notification-badge" id="menu-spin-notify-badge" style="display: none; background-color: #30d158; box-shadow: 0 0 8px #30d158; width: 12px; height: 12px; right: -4px; left: auto; top: -4px;"></span>
                 </span>
                 <span id="menu-spin-text">عجلة الحظ</span>
@@ -808,14 +818,14 @@
                     <div class="wheel-text w-7">250 🪙</div>
                     <div class="wheel-text w-8">1000 🎁</div>
 
-                    <div class="wheel-pin" style="transform: rotate(0deg) translateY(-143px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(45deg) translateY(-143px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(90deg) translateY(-143px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(135deg) translateY(-143px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(180deg) translateY(-143px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(225deg) translateY(-143px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(270deg) translateY(-143px);"></div>
-                    <div class="wheel-pin" style="transform: rotate(315deg) translateY(-143px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(0deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(45deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(90deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(135deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(180deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(225deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(270deg) translateY(-133px);"></div>
+                    <div class="wheel-pin" style="transform: rotate(315deg) translateY(-133px);"></div>
                 </div>
                 <div class="wheel-center-pin"></div>
             </div>
