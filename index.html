@@ -411,6 +411,7 @@
         </div>
     </div>
 
+    <!-- 💡 تم تعديل نافذة الإشعارات لإغلاق ثغرة XSS باستخدام innerText -->
     <div id="custom-popup-modal" class="modal-overlay" style="z-index: 99999;">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <p id="custom-popup-msg"></p>
@@ -948,7 +949,7 @@
         // 🔴 دالة نافذة التحميل (تمنع الضغط الخاطئ)
         function showLoadingPopup(msg) {
             document.getElementById('custom-popup-modal').style.display = 'flex';
-            document.getElementById('custom-popup-msg').innerText = msg;
+            document.getElementById('custom-popup-msg').innerText = msg; // 💡 استخدام innerText كأمان إضافي
             document.getElementById('custom-popup-input-group').style.display = 'none';
             document.getElementById('custom-popup-ok').style.display = 'none'; 
             document.getElementById('custom-popup-cancel').style.display = 'none';
@@ -1080,7 +1081,7 @@
 
         function showCustomPopup(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
             document.getElementById('custom-popup-modal').style.display = 'flex';
-            document.getElementById('custom-popup-msg').innerHTML = msg; 
+            document.getElementById('custom-popup-msg').innerText = msg; // 💡 تم سد ثغرة XSS الخطيرة هنا
             
             const inputContainer = document.getElementById('custom-popup-input-group');
             const inputEl = document.getElementById('custom-popup-input');
@@ -1099,8 +1100,8 @@
                 cancelBtn.style.display = showCancel ? 'block' : 'none';
             }
             
-            okBtn.innerHTML = translations[currentLang].btn_ok;
-            cancelBtn.innerHTML = translations[currentLang].btn_cancel;
+            okBtn.innerText = translations[currentLang].btn_ok;
+            cancelBtn.innerText = translations[currentLang].btn_cancel;
             customPopupCallback = callback;
         }
 
