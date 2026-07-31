@@ -289,34 +289,19 @@
             height: 43.8px !important;
             border-radius: 50% !important; 
             border: none !important; 
-            z-index: 2 !important; 
+            z-index: 3 !important; 
         }
 
-        /* التعديل الجوهري: تحويل الخط إلى شريط تقدم ديناميكي */
-        #profile-badge .xp-ring { 
-            position: absolute !important; 
-            bottom: 7.6px !important;  
-            left: 82px !important;   
-            width: 42.8px !important;  
-            height: 46px !important; 
-            border-radius: 0 80px 50px 0 !important; 
-            border: none !important; /* إزالة الحدود الثابتة */
-            
-            /* الحشو يحدد سُمك شريط الخبرة الأخضر */
-            padding: 2.5px !important; 
-            box-sizing: border-box !important;
-            
-            /* يتم حقن التدرج اللوني (conic-gradient) عبر الجافاسكريبت، وهنا نضمن تغطيته لمنطقة الحدود */
-            background-clip: border-box !important;
-            
-            /* استخدام تقنية الماسك لتفريغ المنتصف وإظهار الشريط فقط على الحواف */
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: exclude;
-            
-            transform: none !important; 
-            z-index: 2 !important; 
+        /* 🌟 حاوية مسار الخبرة (SVG) 🌟 */
+        .xp-svg-wrapper {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 1; pointer-events: none;
+        }
+
+        /* توهج مسار الخبرة الأخضر */
+        .xp-progress-path {
+            transition: stroke-dashoffset 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            filter: drop-shadow(0 0 2px rgba(52, 199, 89, 0.9)); 
         }
 
         #profile-badge .profile-badge-info { 
@@ -357,9 +342,9 @@
         #profile-badge .ai-level-badge { 
             position: absolute; 
             bottom: 4px;  
-            left: 53px;   
+            left: 53.1px;   
             width: 23.5px; 
-            height: 0px; 
+            height: 1.5px; 
             display: flex; align-items: center; justify-content: center; 
             z-index: 4 !important; 
         }
@@ -527,75 +512,83 @@
         /* ========================================== */
         /* 🎡 عجلة الحظ (Lucky Spin) - CSS            */
         /* ========================================== */
-        .wheel-container { position: relative; width: 280px; height: 280px; margin: 0 auto 30px auto; }
+        .wheel-container { 
+            position: relative; 
+            width: 280px; height: 280px; 
+            margin: 0 auto 30px auto; 
+        }
         
+        .wheel-container::before {
+            content: ''; position: absolute;
+            top: -20px; left: -20px; right: -20px; bottom: -20px;
+            background: radial-gradient(circle, rgba(248,181,0,0.15) 0%, transparent 70%);
+            border-radius: 50%; z-index: 0;
+            animation: pulseAura 2.5s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+        @keyframes pulseAura { 0% { transform: scale(0.9); opacity: 0.6; } 100% { transform: scale(1.1); opacity: 1; } }
+
         .wheel-pointer-wrapper { 
             position: absolute; 
-            top: -22px; 
+            top: -28px; 
             left: 50%; 
             transform: translateX(-50%); 
             z-index: 20; 
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8));
             transform-origin: top center;
             transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            will-change: transform;
         }
         .wheel-pointer-shape {
-            width: 18px;
-            height: 38px;
-            background: linear-gradient(to right, #ffd700 0%, #f8b500 40%, #d4af37 60%, #8b6508 100%);
+            width: 18px; height: 42px;
+            background: linear-gradient(to right, #ffe066 0%, #f8b500 40%, #d4af37 60%, #8b6508 100%);
             clip-path: polygon(50% 100%, 0 15%, 50% 0, 100% 15%);
         }
 
         .wheel-pin {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 14px;
-            height: 14px;
+            position: absolute; top: 50%; left: 50%;
+            width: 16px; height: 16px;
             background: radial-gradient(circle at 30% 30%, #ffdf00, #d4af37, #8b6508);
-            border: 1px solid #4a3500;
-            border-radius: 50%;
-            margin-top: -7px;
-            margin-left: -7px;
-            z-index: 15;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.6), inset 0 -2px 4px rgba(0,0,0,0.4);
+            border: 1px solid #4a3500; border-radius: 50%;
+            margin-top: -8px; margin-left: -8px; z-index: 15;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.9), inset 0 -2px 3px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.7);
         }
 
         .wheel-inner { 
-            width: 100%; height: 100%; border-radius: 50%; 
-            border: 6px solid #b8860b; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 0 15px rgba(0,0,0,0.8); 
-            position: relative; overflow: visible; 
+            box-sizing: border-box; width: 100%; height: 100%; border-radius: 50%; 
+            border: 12px solid #b8860b; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.9); 
+            position: relative; overflow: visible; z-index: 10;
+            transform: translateZ(0); 
+            will-change: transform;
             background: conic-gradient(
-                #1A365D 0deg 45deg,
-                #2E7D32 45deg 90deg,
-                #00838F 90deg 135deg,
-                #4527A0 135deg 180deg,
-                #b71c1c 180deg 225deg,
-                #F9A825 225deg 270deg,
-                #4E342E 270deg 315deg,
-                #E65100 315deg 360deg
+                #1A365D 0deg 45deg, #2E7D32 45deg 90deg, #00838F 90deg 135deg,
+                #4527A0 135deg 180deg, #b71c1c 180deg 225deg, #F9A825 225deg 270deg,
+                #4E342E 270deg 315deg, #E65100 315deg 360deg
             );
         }
         
-        .wheel-text { position: absolute; top: 20px; left: 50%; transform-origin: center 120px; text-align: center; font-size: 15px; font-weight: 800; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); white-space: nowrap; }
-        .w-1 { transform: translateX(-50%) rotate(22.5deg); } .w-2 { transform: translateX(-50%) rotate(67.5deg); } .w-3 { transform: translateX(-50%) rotate(112.5deg); } .w-4 { transform: translateX(-50%) rotate(157.5deg); } .w-5 { transform: translateX(-50%) rotate(202.5deg); } .w-6 { transform: translateX(-50%) rotate(247.5deg); } .w-7 { transform: translateX(-50%) rotate(292.5deg); } .w-8 { transform: translateX(-50%) rotate(337.5deg); color: #ffd700; font-size: 16px; }
+        .wheel-text { 
+            position: absolute; top: 20px; left: 50%; transform-origin: center 108px; 
+            text-align: center; font-size: 16px; font-weight: 800; color: #fff; 
+            text-shadow: 0px 2px 4px rgba(0,0,0,0.9), 0px 0px 8px rgba(0,0,0,0.5); 
+            white-space: nowrap; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+        }
+        
+        .w-1 { transform: translateX(-50%) rotate(22.5deg); } .w-2 { transform: translateX(-50%) rotate(67.5deg); } .w-3 { transform: translateX(-50%) rotate(112.5deg); } .w-4 { transform: translateX(-50%) rotate(157.5deg); } .w-5 { transform: translateX(-50%) rotate(202.5deg); } .w-6 { transform: translateX(-50%) rotate(247.5deg); } .w-7 { transform: translateX(-50%) rotate(292.5deg); } .w-8 { transform: translateX(-50%) rotate(337.5deg); color: #ffd700; font-size: 17px; text-shadow: 0 0 10px #d4af37, 0 2px 4px black; }
         
         .wheel-center-pin { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 48px; height: 48px; 
-            background: radial-gradient(circle, #fceabb, #f8b500, #b8860b); 
-            border: 3px solid #8b6508; 
-            border-radius: 50%; z-index: 25; 
-            box-shadow: 0 6px 12px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.6); 
+            width: 52px; height: 52px; 
+            background: radial-gradient(circle, #fceabb, #f8b500, #8b6508); 
+            border: 4px solid #5c4305; border-radius: 50%; z-index: 25; 
+            box-shadow: 0 8px 15px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.7); 
             display: flex; align-items: center; justify-content: center; 
         }
         .wheel-center-pin::after {
-            content: '';
-            width: 28px; height: 28px;
-            background: conic-gradient(#b8860b, #ffd700, #b8860b, #ffd700, #b8860b);
-            border-radius: 50%;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.6);
+            content: ''; width: 30px; height: 30px;
+            background: conic-gradient(#8b6508, #ffd700, #8b6508, #ffd700, #8b6508);
+            border-radius: 50%; box-shadow: inset 0 3px 6px rgba(0,0,0,0.8);
         }
 
         /* ========================================== */
@@ -662,11 +655,23 @@
     <!-- 🌟 الشاشة العلوية باستخدام إطار الـ PNG المفرغ -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
         
+        <!-- 🌟 شريط الخبرة (SVG) 🌟 -->
+        <div class="xp-svg-wrapper">
+            <svg width="138" height="56.8" viewBox="0 0 122.2 56.8">
+                <!-- 1. المسار الرمادي الخلفي (قاعدة الحفرة المفرغة) -->
+                <path d="M 72.6,48.7 L 104.5,48.7 A 21.5,21.5 0 0,0 104.5,8.7 L 45,8.7" 
+                      fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.8" stroke-linecap="round" />
+                
+                <!-- 2. شريط التقدم الأخضر -->
+                <!-- ⚠️ تم إزالة القيم الثابتة من هنا لتتحكم بها الجافاسكريبت ⚠️ -->
+                <path id="xp-progress-path" class="xp-progress-path"
+                      d="M 72.6,48.7 L 104.5,48.7 A 21.2,21.2 0 0,0 104.5,8.7 L 45,8.7" 
+                      fill="none" stroke="#34c759" stroke-width="1.8" stroke-linecap="round" /> 
+            </svg>
+        </div>
+
         <!-- الصورة الشخصية -->
         <div class="profile-avatar-capsule" id="badge-avatar"></div>
-        
-        <!-- شريط تقدم الخبرة (XP Bar) على اليمين (مدمج باستخدام الـ Mask) -->
-        <div class="xp-ring" id="badge-xp-ring"></div>
 
         <!-- البيانات: الاسم والرصيد -->
         <div class="profile-badge-info">
@@ -732,8 +737,8 @@
             </div>
             
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('lucky-spin-modal')">
-                <span style="font-size: 20px; position: relative;">
-                    🎡
+                <span style="position: relative; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
+                    <span data-icon="spinMenu" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
                     <span class="notification-badge" id="menu-spin-notify-badge" style="display: none; background-color: #30d158; box-shadow: 0 0 8px #30d158; width: 12px; height: 12px; right: -4px; left: auto; top: -4px;"></span>
                 </span>
                 <span id="menu-spin-text">عجلة الحظ</span>
