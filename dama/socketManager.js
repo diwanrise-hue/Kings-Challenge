@@ -82,7 +82,8 @@ export const socketManager = {
             if (pingEl) pingEl.style.display = 'flex';
 
             if (socket && socket.connected) {
-                let latency = (socket.io && socket.io.engine && socket.io.engine.pingInterval) ? Math.floor(Math.random() * 20) + 40 : Math.floor(Math.random() * 30) + 60;
+                // 💡 التعديل هنا: استخدام التسلسل الآمن (Optional Chaining) لمنع الانهيار
+                let latency = (socket?.io?.engine?.pingInterval) ? Math.floor(Math.random() * 20) + 40 : Math.floor(Math.random() * 30) + 60;
                 this._updatePingUI(latency);
             } else {
                 this._updatePingUI(999);
