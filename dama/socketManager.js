@@ -1,4 +1,8 @@
-// socketManager.js
+/**
+ * socketManager.js
+ * النسخة المحسنة: تم إغلاق ثغرة استنزاف المايكروفون والبطارية، وتصحيح مؤقت البينج.
+ */
+
 import { gameState, startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
@@ -15,6 +19,7 @@ export const socketManager = {
     lastConnectionErrorTime: 0,
     toastTimeout: null,
     disconnectTimer: null, 
+    pingIntervalId: null, // 💡 تمت إضافة متحكم البينج لمنع التكرار
 
     _showToast(msg) {
         let toast = document.getElementById('game-toast-notification');
@@ -48,7 +53,6 @@ export const socketManager = {
         }, 4000);
     },
 
-    // 🌟 مؤشر البينج الحقيقي (معدل لمنع اختناق الشبكة والـ Lag)
     _initRealPingIndicator() {
         let pingEl = document.getElementById('real-ping-indicator');
         if (!pingEl) {
@@ -77,7 +81,10 @@ export const socketManager = {
             }
         }
 
-        setInterval(() => {
+        // 💡 إيقاف المؤقت القديم لمنع استهلاك المعالج وتداخل البينج
+        if (this.pingIntervalId) clearInterval(this.pingIntervalId);
+
+        this.pingIntervalId = setInterval(() => {
             if (pingEl) pingEl.style.display = 'flex';
 
             if (socket && socket.connected) {
@@ -221,9 +228,7 @@ export const socketManager = {
     },
 
     init() {
-        // فضح (Export) المدير للنافذة العامة لكي يستخدمه ملف chat.js بسهولة
         window.socketManager = this;
-
         this._initRealPingIndicator();
 
         const eventsToTurnOff = [
@@ -585,7 +590,7 @@ export const socketManager = {
 
         socket.on('error', msg => {
             this._showToast(msg);
-            if (msg && (msg.includes('match') || msg.includes('غرفة') || msg.includes('Room'))) {
+            if (msg && (msg.includes('match') || msg.includes('غرفة') || msg.includes('Room') || msg.includes('غير قانونية'))) {
                 this.handleExitGame();
             }
             ui.setDisplay('online-status-text', 'none');
@@ -699,7 +704,6 @@ export const socketManager = {
             if (data) this._showToast(data.msg);
         });
 
-        // 🌟 إضافة مستمع الترقية لظهور شاشة الاحتفال عند زيادة المستوى
         socket.on('levelUpAlert', (data) => {
             if (data && typeof ui.showLevelUpModal === 'function') {
                 let rewardsHtml = `+${data.tokens} 🪙`;
@@ -711,7 +715,6 @@ export const socketManager = {
         });
     },
 
-    // 💬 دالة إرسال الدردشة والافتارات للخصم
     sendChatData(type, value) {
         if (gameState.isOnlineMode && gameState.onlineRoomID && socket.connected) {
             socket.emit('sendChat', { 
@@ -754,7 +757,12 @@ export const socketManager = {
     },
 
     handleExitGame() {
-        // 💡 استعادة الرصيد الحقيقي للمصابيح عند الخروج من المباراة أو انسحاب الخصم
+        // 💡 إغلاق المايكروفون قسرياً لحماية البطارية والخصوصية عند الخروج من المباراة
+        if (window.voiceChat && typeof window.voiceChat.closeCall === 'function') {
+            window.voiceChat.closeCall();
+            window.voiceChat.updateMicUI(false);
+        }
+
         restoreOfflineHintSystem(); 
 
         if (typeof gameEngine.closeResultsMenu === 'function') {
