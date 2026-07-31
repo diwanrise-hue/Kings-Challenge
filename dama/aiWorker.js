@@ -1,4 +1,4 @@
-// aiWorker.js - النسخة الخفيفة والسريعة (معالجة مشكلة الذاكرة ودعم الاتجاه الثابت)
+// aiWorker.js - النسخة الخفيفة والذكية جداً (معالجة مشكلة الذاكرة، دعم الاتجاه الثابت، التقييم العميق وترتيب الحركات)
 
 /**
  * دالة مساعدة للتحقق من حدود اللوح
@@ -215,37 +215,116 @@ function applyPathToBoard(path, bState) {
 }
 
 /**
- * دالة تقييم الساحة الديناميكية الشاملة ودعم مكافآت تقدم القطع العادية
+ * دالة تقييم الساحة الديناميكية الشاملة (النسخة الذكية والآمنة)
  */
 function evaluateBoard(bState, targetColor) {
     let score = 0;
-    bState.forEach((row, r) => row.forEach(p => {
+    let myPieces = 0, oppPieces = 0;
+    let myDamas = 0, oppDamas = 0;
+
+    bState.forEach((row, r) => row.forEach((p, c) => {
         if (p) {
-            let isTarget = p.startsWith(targetColor), isDama = p.endsWith('-dama');
+            let isTarget = p.startsWith(targetColor);
+            let isDama = p.endsWith('-dama');
             let pureColor = p.split('-')[0];
-            let dir = workerPieceDirection[pureColor] || (pureColor === 'black' ? 1 : -1);
+            let dir = workerPieceDirection[pureColor] !== undefined ? workerPieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1);
             
-            let val = (isDama ? 35 : 10) + (!isDama ? (dir === 1 ? r * 0.2 : (7 - r) * 0.2) : 0);
-            score += isTarget ? val : -val;
+            let pieceValue = isDama ? 40 : 10;
+            
+            // 1. مكافأة السيطرة على المنتصف
+            let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 0.5 : 0;
+            
+            // 2. مكافأة التقدم للأمام للقطع العادية
+            let advanceBonus = !isDama ? (dir === 1 ? r * 0.3 : (7 - r) * 0.3) : 0;
+            
+            // 3. عقوبة البقاء في الحواف (لتقليل القطع المحاصرة)
+            let edgePenalty = (c === 0 || c === 7) ? -0.2 : 0;
+            
+            // 4. مكافأة الحماية (وجود قطعة زميلة في الخلف تدعمها)
+            let defenseBonus = 0;
+            let backRow = r - dir;
+            if (isValidPos(backRow, c) && bState[backRow][c] && bState[backRow][c].startsWith(pureColor)) {
+                defenseBonus = 0.5;
+            }
+
+            let totalValue = pieceValue + advanceBonus + centerBonus + edgePenalty + defenseBonus;
+
+            if (isTarget) {
+                score += totalValue;
+                myPieces++;
+                if (isDama) myDamas++;
+            } else {
+                score -= totalValue;
+                oppPieces++;
+                if (isDama) oppDamas++;
+            }
         }
     }));
+
+    // 5. ذكاء نهايات اللعب: إذا كان البوت متفوقاً بملك والخصم قطعه قليلة، نزيد قيمة الهجوم لمحاصرته
+    if (myDamas > 0 && oppPieces <= 3) score += 5;
+    if (oppDamas > 0 && myPieces <= 3) score -= 5;
+
     return score;
 }
 
 /**
- * خوارزمية البحث والذكاء الفعلي
+ * دالة لترتيب أولويات الحركات (Move Ordering) لتسريع البحث المتقدم
  */
-function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor) {
-    if (depth === 0) return { score: evaluateBoard(bState, targetColor) };
+function scoreMove(path, color, bState) {
+    let score = 0;
+    let lastStep = path[path.length - 1];
+    let pureColor = color.split('-')[0];
+    let dir = workerPieceDirection[pureColor] !== undefined ? workerPieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1);
+    let promoRow = (dir === 1) ? 7 : 0;
+    
+    let piece = bState[path[0].fromR][path[0].fromC];
+    let isDama = piece && piece.endsWith('-dama');
+
+    // أولوية قصوى: الترقية إلى دامة (ملك)
+    if (!isDama && lastStep.toR === promoRow) {
+        score += 100;
+    }
+
+    // أولوية ثانوية: التمركز في وسط الرقعة
+    if (lastStep.toR >= 2 && lastStep.toR <= 5 && lastStep.toC >= 2 && lastStep.toC <= 5) {
+        score += 10;
+    }
+
+    return score;
+}
+
+/**
+ * خوارزمية البحث مع معالجة تأثير الأفق وترتيب الحركات لتسريع التقليم
+ */
+function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, isQuiescence = false) {
     let moves = generateAllTurnMoves(color, bState);
+    
+    // هل الحركة المتاحة هي عملية أكل إجبارية؟
+    let isCapture = moves.length > 0 && moves[0][0] && moves[0][0].midR !== null;
+
+    // معالجة "تأثير الأفق": إذا انتهى العمق لكن هناك فخ أكل، استمر خطوة إضافية لترى النتيجة
+    if (depth <= 0) {
+        if (isCapture && !isQuiescence) {
+            depth = 1;
+            isQuiescence = true; // تمنع الدوران اللانهائي وتحافظ على سرعة البوت
+        } else {
+            return { score: evaluateBoard(bState, targetColor) };
+        }
+    }
+
     if (moves.length === 0) return { score: isMaximizing ? -10000 + (8 - depth) : 10000 - (8 - depth) };
+    
+    // 💡 السحر هنا: ترتيب الحركات لاختبار الأفضل أولاً وتسريع القص (Pruning)
+    moves.sort((a, b) => scoreMove(b, color, bState) - scoreMove(a, color, bState));
+
     let bestMove = moves[0];
     let nextColor = color === 'white' ? 'black' : 'white';
     
     if (isMaximizing) {
         let maxEval = -Infinity;
         for (let m of moves) {
-            let ev = minimax(applyPathToBoard(m, bState), depth - 1, alpha, beta, false, nextColor, targetColor).score;
+            let ev = minimax(applyPathToBoard(m, bState), depth - 1, alpha, beta, false, nextColor, targetColor, isQuiescence).score;
             if (ev > maxEval) { maxEval = ev; bestMove = m; }
             alpha = Math.max(alpha, ev); if (beta <= alpha) break;
         }
@@ -253,7 +332,7 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor) {
     } else {
         let minEval = Infinity;
         for (let m of moves) {
-            let ev = minimax(applyPathToBoard(m, bState), depth - 1, alpha, beta, true, nextColor, targetColor).score;
+            let ev = minimax(applyPathToBoard(m, bState), depth - 1, alpha, beta, true, nextColor, targetColor, isQuiescence).score;
             if (ev < minEval) { minEval = ev; bestMove = m; }
             beta = Math.min(beta, ev); if (beta <= alpha) break;
         }
