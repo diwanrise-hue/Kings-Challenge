@@ -1,4 +1,8 @@
-// gameAI.js
+/**
+ * gameAI.js
+ * النسخة المحسنة: تم معالجة تسريب الذاكرة (Memory Leak) لتسريع خوارزمية البحث ومنع تشنج الهواتف.
+ */
+
 import { gameEngine } from './gameEngine.js';
 
 export const gameAI = {
@@ -78,7 +82,8 @@ export const gameAI = {
 
     // 3. محاكاة سريعة للرقعة
     simulateMove(board, moveObj, isWhiteStr) {
-        let newBoard = JSON.parse(JSON.stringify(board)); // Clone
+        // 💡 تم استبدال الطريقة البطيئة والمستهلكة للذاكرة بنسخ المصفوفة السريع
+        let newBoard = board.map(row => [...row]); 
         let startPiece = newBoard[moveObj[0].fromR][moveObj[0].fromC];
         let lastStep = null;
 
