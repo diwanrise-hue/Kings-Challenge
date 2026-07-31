@@ -1,4 +1,7 @@
-// voice.js
+/**
+ * voice.js
+ * النسخة المحسنة: تم كشف الكائن عالمياً (Global) ليتمكن مدير الاتصال من إغلاق المايكروفون عند الخروج.
+ */
 import { socket } from './socketManager.js';
 import { gameState } from './main.js';
 
@@ -93,7 +96,6 @@ export const voiceChat = {
             }
         } else {
             this.closeCall();
-            isMicActive = false;
             this.updateMicUI(false);
         }
     },
@@ -180,8 +182,14 @@ export const voiceChat = {
             remoteAudio.srcObject = null;
             remoteAudio.remove();
         }
+        
+        // 💡 تصفير الحالة لضمان مزامنة واجهة المستخدم
+        isMicActive = false;
     }
 };
+
+// 💡 تصدير الكائن للنافذة العالمية ليتمكن socketManager من استخدامه
+window.voiceChat = voiceChat;
 
 // تهيئة الملف ليكون جاهزاً فور تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
