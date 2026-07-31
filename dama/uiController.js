@@ -1119,9 +1119,9 @@ export const ui = {
                         xpGained = isMeWin ? 50 : 15; 
                         if (gameState.roomBet && gameState.roomBet > 0) {
                             isBetMatch = true;
-                            displayReward = gameState.roomBet; // 🌟 تعديل: الفائز يحصل على الرهان والخاسر يفقده
+                            displayReward = gameState.roomBet; 
                         } else {
-                            displayReward = isMeWin ? 120 : 10; // 🌟 تعديل: الخاسر في البحث العشوائي يربح 10
+                            displayReward = isMeWin ? 120 : 10; 
                         }
                     } else {
                         xpGained = isMeWin ? 25 : 5; 
@@ -1154,7 +1154,6 @@ export const ui = {
                         } else if (isBossLevel) {
                             rewardText = `👑 مكافأة الزعيم: +${displayReward} 🪙`;
                         } else {
-                            // 🌟 تعديل: عرض المكافأة للفائز والخاسر (ترضية) بشكل إيجابي
                             rewardText = `${(t('tokenReward') || 'المكافأة:')} +${displayReward} 🪙`;
                             alertColor = isMeWin ? "#f5a623" : "#87ceeb"; 
                         }
@@ -1162,7 +1161,6 @@ export const ui = {
                         box.appendChild(this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`, rewardText));
                     }
 
-                    // 🌟 عرض إشعار الخبرة (XP) دائماً
                     box.appendChild(this.makeEl('div', 'xp-reward-alert', "margin-top:8px; color:#34c759; font-weight:800; font-size:15px; text-shadow: 0 0 8px rgba(52, 199, 89, 0.4); animation: modalFadeIn 0.5s ease;", `✨ اكتساب الخبرة: +${xpGained} XP`));
 
                     if (!gameState.isOnlineMode) {
@@ -1199,9 +1197,17 @@ export const ui = {
         let lvlInfo = this.calculateLevelInfo(prof.xp || 0);
 
         const badgeLevel = this.getEl('badge-level');
-        const badgeRing = this.getEl('badge-xp-ring');
+        const xpProgressPath = this.getEl('xp-progress-path'); // مسار SVG الخاص بشريط الخبرة
+
         if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
-        if (badgeRing) badgeRing.style.background = `conic-gradient(#34c759 ${lvlInfo.percentage}%, rgba(255,255,255,0.1) 0%)`;
+        
+        // 🌟 تطبيق التحريك الديناميكي لشريط الخبرة في البروفايل العلوي بناءً على النسبة المئوية
+        if (xpProgressPath) {
+            const totalLength = 150; // الطول الكامل المحدد في الـ SVG
+            const progress = Math.min(Math.max(lvlInfo.percentage / 100, 0), 1);
+            const newOffset = totalLength * (1 - progress);
+            xpProgressPath.style.strokeDashoffset = newOffset;
+        }
 
         const igpLevel = this.getEl('igp-level');
         const igpRing = this.getEl('igp-xp-ring');
