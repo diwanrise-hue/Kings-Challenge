@@ -28,6 +28,19 @@ function getAiWorker() {
 
 window.isMatchRunning = false;
 
+// 🌟 دالة اختيار مستوى الذكاء الاصطناعي من النافذة الجديدة 🌟
+window.setAiLevel = function(level) {
+    document.getElementById('diff-quick-select').value = level;
+    document.getElementById('custom-diff-btn').innerText = 'L' + level;
+    
+    // تحديث الشكل المرئي للأزرار
+    document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+    let activeBtn = document.getElementById('lvl-btn-' + level);
+    if(activeBtn) activeBtn.classList.add('active');
+    
+    if(typeof closeAppModal === 'function') closeAppModal('level-select-modal');
+};
+
 export const ui = {
     sfx: sfx,
     clickHandlers: new Map(), 
@@ -280,8 +293,9 @@ export const ui = {
         if (btnFree) btnFree.style.pointerEvents = 'none';
         if (btnPaid) btnPaid.style.pointerEvents = 'none';
 
+        // 🌟 معادلة دوران العجلة المحدثة لتقف في منتصف الخانة تماماً
         const extraSpins = 5 * 360; 
-        const targetDeg = extraSpins + (360 - (prizeIndex * 45 + 22.5));
+        const targetDeg = extraSpins + (360 - (((prizeIndex + 1) * 45) % 360));
 
         const currentMod = this.currentWheelDeg % 360;
         const targetMod = targetDeg % 360;
@@ -312,7 +326,7 @@ export const ui = {
 
             wheel.style.transform = `rotate(${currentSimulatedAngle}deg)`;
 
-            let currentPin = Math.floor(currentSimulatedAngle / 45);
+            let currentPin = Math.floor((currentSimulatedAngle - 22.5) / 45);
             
             if (currentPin > lastPinPassed) {
                 lastPinPassed = currentPin;
@@ -378,7 +392,8 @@ export const ui = {
         this.setDisplay('lucky-spin-portal-btn', flexState); 
         this.setDisplay('hamburger-menu-btn', flexState);
         
-        this.setDisplay('diff-quick-select', inlineState);
+        // إظهار زر تحديد المستوى المخصص الجديد بدلاً من القائمة المنسدلة
+        this.setDisplay('custom-diff-btn', inlineState);
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
         
@@ -401,7 +416,7 @@ export const ui = {
         
         const displays = {
             'reset-btn': normalState, 
-            'diff-quick-select': normalState, 
+            'custom-diff-btn': normalState, 
             'online-toggle-btn': flexState,
             'store-portal-corner-btn': flexState,
             'lucky-spin-portal-btn': flexState, 
