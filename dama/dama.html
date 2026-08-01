@@ -400,9 +400,8 @@
             padding: 8px 16px; border-radius: 20px; 
             width: 190px !important; height: 55px !important; 
             box-sizing: border-box; transition: opacity 0.4s ease, visibility 0.4s ease;
-            margin: 0 !important; visibility: hidden; opacity: 0;
+            margin: 0 !important; 
         }
-        body.game-active #turn-box-container { visibility: visible; opacity: 1; }
         
         #turn-indicator, #turn-countdown { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; }
         #turn-indicator { color: white; font-size: 15px; font-weight: 600; margin: 0; }
@@ -424,7 +423,6 @@
         
         .settings-card { background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(35px) !important; -webkit-backdrop-filter: blur(35px) !important; border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05) !important; text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
         
-        /* 🌟 التعديل الجذري لتكبير نوافذ المتجر والمظهر بنسبة 80% من الشاشة مع الحفاظ على الشكل 🌟 */
         #store-modal .settings-card, #themes-grid-overlay .settings-card { 
             width: 90vw !important; 
             max-width: 600px !important; 
@@ -449,8 +447,11 @@
         .settings-card h3 { color: #fff; margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 700; }
         .settings-label { display: block; color: #a1a1aa; font-size: 13px; font-weight: 500; margin-bottom: 8px; text-align: start; padding: 0 10px; }
         
-        .settings-card .online-input, .settings-card select { width: 100%; height: 50px; margin-bottom: 15px; padding: 0 20px; border-radius: 50px !important; border: 1px solid rgba(255,255,255,0.1) !important; background: rgba(255, 255, 255, 0.06) !important; color: white; font-weight: 500; font-size: 14px; box-sizing: border-box; text-align: center; appearance: none; }
+        /* 🌟 تنسيق المدخلات والقائمة المنسدلة (تتضمن محاذاة النص للمنتصف) 🌟 */
+        .settings-card .online-input, .settings-card select { width: 100%; height: 50px; margin-bottom: 15px; padding: 0 20px; border-radius: 50px !important; border: 1px solid rgba(255,255,255,0.1) !important; background: rgba(255, 255, 255, 0.06) !important; color: white; font-weight: 500; font-size: 14px; box-sizing: border-box; text-align: center; text-align-last: center; appearance: none; -webkit-appearance: none; -moz-appearance: none; }
         .settings-card .online-input:focus, .settings-card select:focus { border-color: rgba(255,255,255,0.3) !important; background: rgba(255,255,255,0.1) !important; outline: none; }
+        /* ضمان وضوح القائمة المنسدلة في بعض المتصفحات */
+        .settings-card select option { background: #282a32; color: white; }
         
         .settings-card .save-settings-btn, .settings-card .store-buy-btn { width: 100%; height: 50px; padding: 0 20px; background: rgba(255,255,255,0.08) !important; border-radius: 50px !important; color: white !important; font-weight: 600; font-size: 15px; margin-top: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important; display: flex; align-items: center; justify-content: center; }
         .settings-card .save-settings-btn:hover, .settings-card .store-buy-btn:hover { background: rgba(255, 255, 255, 0.15) !important; transform: scale(0.98); }
@@ -1139,6 +1140,7 @@
         </div>
     </div>
 
+    <!-- 🌟 الغرف الخاصة واختيار نسبة الرهان 🌟 -->
     <div id="online-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('online-modal')" style="left:15px; right:auto;">✕</button>
@@ -1146,8 +1148,10 @@
             <div id="online-setup-box">
                 <label class="settings-label" id="room-id-label" for="online-room-input">رقم أو اسم الغرفة:</label>
                 <input type="text" id="online-room-input" class="online-input" placeholder="مثال: 12345">
+                
                 <label class="settings-label" id="room-password-label" for="online-password-input">كلمة السر (اختياري):</label>
                 <input type="password" id="online-password-input" class="online-input" placeholder="اتركها فارغة للعام">
+                
                 <label class="settings-label" id="room-bet-label" for="room-bet-input">مبلغ الرهان لكل لاعب (اختياري):</label>
                 <select id="room-bet-input" class="online-input">
                     <option value="0">بدون رهان (مجاني)</option>
@@ -1157,6 +1161,7 @@
                     <option value="500">500 🪙 (الجائزة الكبرى: 1000)</option>
                     <option value="1000">1000 🪙 (الجائزة الكبرى: 2000)</option>
                 </select>
+                
                 <button id="online-create-btn" class="save-settings-btn" style="background: rgba(255,255,255,0.15) !important;">إنشاء غرفة</button>
                 <button id="online-join-btn" class="save-settings-btn">انضمام لغرفة</button>
             </div>
