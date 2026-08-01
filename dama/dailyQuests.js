@@ -5,6 +5,8 @@
 const dailyPool = [];
 const dailyActions = ['play', 'win', 'spin', 'capture'];
 const dailyIcons = ['🎮', '🏆', '🎡', '⚔️'];
+
+// توليد المهام اليومية بشكل ديناميكي
 for (let i = 1; i <= 40; i++) {
     let typeIdx = i % 4;
     let target = (typeIdx === 2) ? 1 : Math.floor(Math.random() * 3) + 2;
@@ -112,26 +114,32 @@ export const questsManager = {
         
         let toastMsgs = [];
         
-        if (quest.rewards.tokens) {
-            profile.tokens = (profile.tokens || 0) + quest.rewards.tokens;
-            toastMsgs.push(`${quest.rewards.tokens} 🪙`);
-        }
-        if (quest.rewards.hints) {
-            profile.hints = (profile.hints || 0) + quest.rewards.hints;
-            toastMsgs.push(`${quest.rewards.hints} 💡`);
-        }
-        if (quest.rewards.discount) {
-            profile.discountTicket = Math.max(profile.discountTicket || 0, quest.rewards.discount);
-            toastMsgs.push(`خصم ${quest.rewards.discount}% 🎫`);
-        }
+        if (quest.rewards.tokens) toastMsgs.push(`${quest.rewards.tokens} 🪙`);
+        if (quest.rewards.hints) toastMsgs.push(`${quest.rewards.hints} 💡`);
+        if (quest.rewards.discount) toastMsgs.push(`خصم ${quest.rewards.discount}% 🎫`);
 
         if (window.ui && typeof window.ui.showCustomAlert === 'function') {
-            window.ui.showCustomAlert(`🎉 حصلت على: ${toastMsgs.join(' و ')}`);
+            window.ui.showCustomAlert(`🎉 تم اعتماد جائزتك: ${toastMsgs.join(' و ')}`);
         }
 
-        localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-        if (window.applyProfileDataToUI) window.applyProfileDataToUI(profile);
-        if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+        // ✅ إرسال الطلب للسيرفر لإضافة الأموال بشكل حقيقي وآمن (تم إضافته ليتواصل مع damaServer.js)
+        if (window.socket && window.socket.connected) {
+            window.socket.emit('claimQuestReward', {
+                questId: quest.id,
+                tokens: quest.rewards.tokens || 0,
+                hints: quest.rewards.hints || 0,
+                discount: quest.rewards.discount || 0
+            });
+        } else {
+            // إضافة محلية كاحتياط في حال اللعب أوفلاين كلياً
+            if (quest.rewards.tokens) profile.tokens = (profile.tokens || 0) + quest.rewards.tokens;
+            if (quest.rewards.hints) profile.hints = (profile.hints || 0) + quest.rewards.hints;
+            if (quest.rewards.discount) profile.discountTicket = Math.max(profile.discountTicket || 0, quest.rewards.discount);
+            
+            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+            if (window.applyProfileDataToUI) window.applyProfileDataToUI(profile);
+            if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+        }
         
         state.claimed[questId] = true;
         this.saveState(state);
