@@ -1,3 +1,4 @@
+<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -859,14 +860,18 @@
                 </span>
                 <span id="menu-spin-text">عجلة الحظ</span>
             </div>
+            
+            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('daily-quests-modal')">
+                <span data-icon="dailyQuests" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;"></span>
+                <span id="menu-quests-text">المهام اليومية</span>
+            </div>
 
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
                 <span data-icon="bagSide"></span>
                 <span id="menu-bag-text">الحقيبة الممتلكات</span>
             </div>
 
-            <!-- 💡 تعديل زر الراديو في القائمة الجانبية ليفتح النافذة المضمنة مباشرة -->
-            <div class="side-menu-item" onclick="toggleSideMenu(); if(typeof openRadioModal === 'function') openRadioModal();">
+            <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.postMessage({ type: 'OPEN_RADIO_MODAL' }, '*');">
                 <span style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;" data-icon="radioSide"></span> 
                 <span id="menu-radio-text">الراديو</span>
             </div>
@@ -969,6 +974,22 @@
 
             <button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important;">لفة مجانية 🆓</button>
             <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none;">لفة إضافية (200 🪙)</button>
+        </div>
+    </div>
+
+    <!-- 🌟 نافذة المهام اليومية 🌟 -->
+    <div id="daily-quests-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
+            <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')" style="left:15px; right:auto;">✕</button>
+            
+            <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">المهام اليومية 📜</h3>
+            <p class="settings-label" style="text-align:center; margin-bottom: 20px; color: #fff;">أكمل المهام التالية للحصول على جوائز إضافية!</p>
+            
+            <div id="quests-list-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 5px;">
+                <!-- سيتم حقن المهام هنا عبر الجافاسكربت -->
+            </div>
+            
+            <p id="quests-reset-timer" style="color: #a1a1aa; font-size: 12px; margin-top: 20px; font-weight: 600;">تتجدد المهام بعد: --:--:--</p>
         </div>
     </div>
 
@@ -1313,8 +1334,7 @@
         </button>
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none; padding: 0; width: 44px; align-items: center; justify-content: center;">↩️</button>
         
-        <!-- 💡 تعديل زر الراديو السفلي ليعمل بشكل داخلي باستدعاء دالة toggleRadioPlayState من ملف radio.js -->
-        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="if(typeof toggleRadioPlayState === 'function') toggleRadioPlayState();">
+        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="window.parent.postMessage({ type: 'TOGGLE_RADIO' }, '*');">
             <span id="dama-radio-status" class="radio-status-dot"></span>
             <span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
         </button>
@@ -1324,23 +1344,17 @@
         <button id="resign-btn" title="الانسحاب" style="display: none; font-weight: bold;">الانسحاب</button>
     </div>
 
-    <!-- 💡 تضمين سكريبت الراديو داخل نافذة اللعبة ليعمل مستقلاً ويتشارك مع index.html بـ localStorage -->
-    <script src="radio.js"></script>
-
     <script src="icons.js"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
     <script>
-        // 💡 الدالة المسؤولة عن تغيير الرهان في القائمة المخصصة
         function selectBetAmount(value, displayText, element) {
             document.getElementById('room-bet-input').value = value;
             document.getElementById('custom-bet-display').innerText = displayText;
             
-            // تحديث الدوائر لتوضيح الاختيار
             document.querySelectorAll('.bet-option-item').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
             
-            // إغلاق النافذة بعد الاختيار بمهلة بسيطة لجمالية التأثير
             setTimeout(() => closeAppModal('bet-selector-modal'), 150);
         }
 
@@ -1351,7 +1365,7 @@
         window.updateHtmlTexts = function() {
             if (!window.t) return;
             const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.innerText = window.t(key); };
-            setTxt('menu-title-text', 'menu_title'); setTxt('menu-bag-text', 'menu_bag'); setTxt('menu-radio-text', 'menu_radio'); setTxt('menu-room-text', 'menu_room'); setTxt('menu-leaderboard-text', 'menu_leaderboard'); setTxt('menu-settings-text', 'menu_settings'); setTxt('menu-exit-text', 'menu_exit'); setTxt('lb-title-text', 'lb_title'); setTxt('lb-tab-wins', 'lb_wins'); setTxt('lb-tab-tokens', 'lb_tokens'); setTxt('tutorial-mode-label', 'tutorial_mode');
+            setTxt('menu-title-text', 'menu_title'); setTxt('menu-bag-text', 'menu_bag'); setTxt('menu-radio-text', 'menu_radio'); setTxt('menu-room-text', 'menu_room'); setTxt('menu-leaderboard-text', 'menu_leaderboard'); setTxt('menu-settings-text', 'menu_settings'); setTxt('menu-exit-text', 'menu_exit'); setTxt('lb-title-text', 'lb_title'); setTxt('lb-tab-wins', 'lb_wins'); setTxt('lb-tab-tokens', 'lb_tokens'); setTxt('tutorial-mode-label', 'tutorial_mode'); setTxt('menu-quests-text', 'menu_quests');
             if (document.getElementById('matchmaking-modal').style.display === 'flex') setTxt('mm-status-label', 'searching');
             if (document.getElementById('online-modal').style.display === 'flex') setTxt('online-status-text', 'searching');
         };
@@ -1371,8 +1385,6 @@
             }
         }
 
-        // 💡 التعديل الجذري: مراقب ذكي (Debounced Observer) 
-        // لا يستهلك البطارية، ويعيد إظهار إطار الدور وزر البدء بشكل سليم 100%
         let observerTimeout = null;
         const boardObserver = new MutationObserver(() => {
             if (observerTimeout) return;
@@ -1638,7 +1650,7 @@
             for (let id in textElements) { const el = document.getElementById(id); if (el) { el.innerText = textElements[id]; } }
             forceLockedGlobalAvatar();
             if(window.updateInventoryUI) window.updateInventoryUI();
-            window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+            if(window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
         }
 
         window.currentLang = 'ar';
@@ -1757,7 +1769,6 @@
     </script>
     
     <script>
-        // سكريبت لمراقبة نافذة النتائج وإضافة مكافأة الخبرة (XP) بجانب العملات
         document.addEventListener('DOMContentLoaded', () => {
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
@@ -1766,11 +1777,16 @@
                             setTimeout(() => {
                                 const tokenAlert = document.getElementById('token-reward-alert');
                                 if (tokenAlert && !document.getElementById('xp-reward-alert')) {
-                                    // التحقق من حالة الفوز من لون نص العملات
                                     let isMeWin = tokenAlert.style.color === 'rgb(48, 209, 88)' || 
                                                   tokenAlert.style.color === 'rgb(245, 166, 35)' || 
                                                   tokenAlert.innerText.includes('+');
                                     if (tokenAlert.innerText.includes('خسارة') || tokenAlert.innerText.includes('-')) isMeWin = false;
+
+                                    // تحديث المهام اليومية
+                                    if (window.questsManager) {
+                                        window.questsManager.updateProgress('q_play_3');
+                                        if (isMeWin) window.questsManager.updateProgress('q_win_1');
+                                    }
 
                                     let isOnline = document.body.classList.contains('online-mode-active');
                                     let xpGained = isOnline ? (isMeWin ? 50 : 15) : (isMeWin ? 25 : 5);
@@ -1788,9 +1804,19 @@
             });
             observer.observe(document.body, { childList: true, subtree: true });
         });
+
+        // ربط لفة عجلة الحظ بالمهام
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'spin-free-btn' || e.target.id === 'spin-paid-btn') {
+                setTimeout(() => {
+                    if (window.isSpinning && window.questsManager) {
+                        window.questsManager.updateProgress('q_spin_1');
+                    }
+                }, 500);
+            }
+        });
     </script>
 
-    <!-- 💡 كود المساعدة المضاف (تمت إضافته هنا لتخطي الكود القديم وتفعيل الرهان والباسوورد) -->
     <script type="module">
         import { gameState } from './gameState.js';
         import { socketManager } from './socketManager.js';
@@ -1800,9 +1826,8 @@
             ui.startOnlineGame(); 
             clearInterval(gameState.mmInterval); 
             const rID = ui.getVal('online-room-input').trim(); 
-            const rPass = ui.getVal('online-password-input').trim() || null; // 👈 الباسوورد
+            const rPass = ui.getVal('online-password-input').trim() || null; 
             
-            // استخدام window.t لترجمة الخطأ أو استخدام نص افتراضي
             const errText = (typeof window.t === 'function') ? window.t('err_id') : 'الرجاء إدخال رقم الغرفة';
             
             if (action !== 'joinMatchmakingPool' && !rID) return socketManager.showStatusMsg(errText); 
@@ -1811,12 +1836,10 @@
             const betSelect = document.getElementById('room-bet-input');
             if (betSelect) betAmt = parseInt(betSelect.value) || 0;
 
-            // 👈 تمرير الرهان كمتغير رابع كما يتوقعه الخادم الجديد
             socketManager.handleRoomAction(action, rID, rPass, betAmt); 
             socketManager.showStatusMsg(msg); 
         };
 
-        // ربط الأزرار بالدالة الجديدة بمجرد تحميل الصفحة
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const createBtn = document.getElementById('online-create-btn');
@@ -1835,7 +1858,7 @@
                     const joinMsg = (typeof window.t === 'function') ? window.t('joining_room') : 'جاري الانضمام...';
                     newJoinBtn.addEventListener('click', () => window.handleRoomBtn('joinRoom', joinMsg));
                 }
-            }, 1000); // مهلة لضمان تحميل الملفات الأخرى أولاً
+            }, 1000); 
         });
     </script>
 
@@ -1853,5 +1876,153 @@
 
     <script src="chat.js"></script>
     <script type="module" src="voice.js"></script>
+
+    <!-- ========================================== -->
+    <!-- 📜 نظام المهام اليومية (Daily Quests System) -->
+    <!-- ========================================== -->
+    <script>
+        const dailyQuestsConfig = [
+            { id: 'q_play_3', title: 'العب 3 مباريات', target: 3, reward: 50, rewardType: 'tokens', icon: '🎮' },
+            { id: 'q_win_1', title: 'فز في مباراة واحدة', target: 1, reward: 100, rewardType: 'tokens', icon: '🏆' },
+            { id: 'q_spin_1', title: 'قم بلف عجلة الحظ', target: 1, reward: 1, rewardType: 'hints', icon: '🎡' }
+        ];
+
+        window.questsManager = {
+            getState() {
+                const today = new Date().toISOString().split('T')[0];
+                let state = JSON.parse(localStorage.getItem('hub_daily_quests')) || {};
+                
+                if (state.date !== today) {
+                    state = {
+                        date: today,
+                        progress: { q_play_3: 0, q_win_1: 0, q_spin_1: 0 },
+                        claimed: { q_play_3: false, q_win_1: false, q_spin_1: false }
+                    };
+                    localStorage.setItem('hub_daily_quests', JSON.stringify(state));
+                }
+                return state;
+            },
+
+            saveState(state) {
+                localStorage.setItem('hub_daily_quests', JSON.stringify(state));
+                this.renderQuestsUI(); 
+            },
+
+            updateProgress(questId, amount = 1) {
+                let state = this.getState();
+                if (!state.progress[questId]) state.progress[questId] = 0;
+                
+                const quest = dailyQuestsConfig.find(q => q.id === questId);
+                if (quest && state.progress[questId] < quest.target) {
+                    state.progress[questId] = Math.min(state.progress[questId] + amount, quest.target);
+                    this.saveState(state);
+                }
+            },
+
+            claimReward(questId) {
+                let state = this.getState();
+                const quest = dailyQuestsConfig.find(q => q.id === questId);
+                
+                if (!quest || state.claimed[questId] || state.progress[questId] < quest.target) return;
+
+                let profileRaw = localStorage.getItem('hub_user_profile');
+                let profile = profileRaw ? JSON.parse(profileRaw) : null;
+                if (!profile) return;
+                
+                if (quest.rewardType === 'tokens') {
+                    profile.tokens = (profile.tokens || 0) + quest.reward;
+                    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                        window.ui.showCustomAlert(`🎉 حصلت على ${quest.reward} عملة!`);
+                    }
+                } else if (quest.rewardType === 'hints') {
+                    profile.hints = (profile.hints || 0) + quest.reward;
+                    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                        window.ui.showCustomAlert(`💡 حصلت على ${quest.reward} مصباح!`);
+                    }
+                }
+
+                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                if (window.applyProfileDataToUI) window.applyProfileDataToUI(profile);
+                if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                
+                state.claimed[questId] = true;
+                this.saveState(state);
+                
+                if (window.ui && window.ui.playSound && window.ui.sfx) window.ui.playSound(window.ui.sfx.win);
+            },
+
+            renderQuestsUI() {
+                const container = document.getElementById('quests-list-container');
+                if (!container) return;
+                
+                const state = this.getState();
+                container.innerHTML = '';
+
+                dailyQuestsConfig.forEach(quest => {
+                    const currentProgress = state.progress[quest.id] || 0;
+                    const isCompleted = currentProgress >= quest.target;
+                    const isClaimed = state.claimed[quest.id];
+                    
+                    const percentage = (currentProgress / quest.target) * 100;
+                    
+                    let btnHtml = '';
+                    if (isClaimed) {
+                        btnHtml = `<button disabled style="background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 12px; font-weight: bold; cursor: not-allowed;">مكتملة ✔️</button>`;
+                    } else if (isCompleted) {
+                        btnHtml = `<button onclick="questsManager.claimReward('${quest.id}')" style="background: #30d158; color: white; border: none; border-radius: 8px; padding: 6px 12px; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(48, 209, 88, 0.4); animation: startBtnPulse 1.5s infinite;">استلام 🎁</button>`;
+                    } else {
+                        btnHtml = `<div style="color: #a1a1aa; font-weight: bold; font-size: 13px;">${currentProgress} / ${quest.target}</div>`;
+                    }
+
+                    const questCard = `
+                        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; text-align: right;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 20px;">${quest.icon}</span>
+                                    <span style="color: white; font-size: 14px; font-weight: 600;">${quest.title}</span>
+                                </div>
+                                <div style="color: #f5a623; font-weight: bold; font-size: 13px;">+${quest.reward} ${quest.rewardType === 'tokens' ? '🪙' : '💡'}</div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                                <div style="flex: 1; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; position: relative;">
+                                    <div style="width: ${percentage}%; height: 100%; background: ${isCompleted ? '#30d158' : '#f5a623'}; transition: width 0.4s ease;"></div>
+                                </div>
+                                ${btnHtml}
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', questCard);
+                });
+            },
+            
+            startResetTimer() {
+                const timerEl = document.getElementById('quests-reset-timer');
+                if (!timerEl) return;
+                
+                setInterval(() => {
+                    const now = new Date();
+                    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                    const diff = tomorrow - now;
+                    
+                    let h = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+                    let m = String(Math.floor((diff / 1000 / 60) % 60)).padStart(2, '0');
+                    let s = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+                    
+                    timerEl.innerText = `تتجدد المهام بعد: ${h}:${m}:${s}`;
+                }, 1000);
+            },
+            
+            init() {
+                this.getState();
+                this.renderQuestsUI();
+                this.startResetTimer();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.questsManager.init();
+        });
+    </script>
 </body>
 </html>
