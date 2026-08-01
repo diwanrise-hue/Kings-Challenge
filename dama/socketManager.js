@@ -1,9 +1,9 @@
 /**
  * socketManager.js
- * النسخة المحسنة: تم إغلاق ثغرة استنزاف المايكروفون والبطارية، وتصحيح مؤقت البينج، وفك الارتباط الدائري.
+ * النسخة المحسنة والأكثر أماناً: (إصلاح البينج الوهمي، إغلاق ثغرة Client Authority، ومنع الـ Desync عند انقطاع الإنترنت).
  */
 
-import { gameState } from './gameState.js'; // 💡 الاستيراد الجديد من مركز البيانات
+import { gameState } from './gameState.js'; 
 import { startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
@@ -20,7 +20,8 @@ export const socketManager = {
     lastConnectionErrorTime: 0,
     toastTimeout: null,
     disconnectTimer: null, 
-    pingIntervalId: null, // 💡 تمت إضافة متحكم البينج لمنع التكرار
+    pingIntervalId: null, 
+    pingStartTime: null, // 💡 متتبع وقت البينج الحقيقي
 
     _showToast(msg) {
         let toast = document.getElementById('game-toast-notification');
@@ -82,19 +83,35 @@ export const socketManager = {
             }
         }
 
-        // 💡 إيقاف المؤقت القديم لمنع استهلاك المعالج وتداخل البينج
         if (this.pingIntervalId) clearInterval(this.pingIntervalId);
 
+        // 💡 قراءة البينج الحقيقي من محرك Socket.io مباشرة
+        const attachPingListeners = () => {
+            if (socket && socket.io && socket.io.engine) {
+                socket.io.engine.off("ping");
+                socket.io.engine.off("pong");
+                
+                socket.io.engine.on("ping", () => {
+                    this.pingStartTime = Date.now();
+                });
+                
+                socket.io.engine.on("pong", () => {
+                    let latency = Date.now() - (this.pingStartTime || Date.now());
+                    this._updatePingUI(latency);
+                });
+            }
+        };
+        
+        attachPingListeners();
+        socket.on('connect', attachPingListeners);
+
+        // حالة الانقطاع فقط
         this.pingIntervalId = setInterval(() => {
             if (pingEl) pingEl.style.display = 'flex';
-
-            if (socket && socket.connected) {
-                let latency = (socket?.io?.engine?.pingInterval) ? Math.floor(Math.random() * 20) + 40 : Math.floor(Math.random() * 30) + 60;
-                this._updatePingUI(latency);
-            } else {
+            if (!socket || !socket.connected) {
                 this._updatePingUI(999);
             }
-        }, 5000); 
+        }, 2000); 
     },
 
     _updatePingUI(latency) {
@@ -239,7 +256,7 @@ export const socketManager = {
             'rematchOffer', 'rematchAccepted', 'error', 'receiveChallenge',
             'challengeResponse', 'profileUpdated', 'friendAddedNotification',
             'friendAddSuccess', 'friendAddFailed', 'opponentLeftRoom', 'roomClosedByTimeout',
-            'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert'
+            'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
@@ -256,7 +273,10 @@ export const socketManager = {
 
             const profile = this._ensureUserProfile();
             socket.emit('deviceFingerprint', { guestId: profile.id });
+            
             if (gameState.isOnlineMode && gameState.onlineRoomID) {
+                // 💡 إغلاق ثغرة الثقب الأسود: طلب الرقعة الرسمية بعد انقطاع الإنترنت
+                socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
                 this.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
             
@@ -291,6 +311,20 @@ export const socketManager = {
                 this.lastConnectionErrorTime = now;
                 this._handleDisconnection();
             }
+        });
+
+        // 💡 استقبال ومزامنة الرقعة بعد الانقطاع (Desync Fix)
+        socket.on('syncGameState', (data) => {
+            if (!gameState.isOnlineMode || !data) return;
+            
+            if (data.board) gameState.virtualBoard = data.board;
+            if (data.turn) gameState.currentTurn = data.turn;
+            if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
+            
+            ui.renderBoard(true);
+            ui.startTurn();
+            
+            this._showToast(gameState.lang === 'ar' ? "تمت مزامنة الرقعة بنجاح 🔄" : "Board synchronized 🔄");
         });
 
         socket.on('roomCreated', id => {
@@ -376,25 +410,37 @@ export const socketManager = {
                 window.closeAppModal('online-modal');
                 window.closeAppModal('matchmaking-modal');
             }
-            ui.renderBoard();
+            ui.renderBoard(true);
 
             gameState.currentTurn = data.turn || 'white';
             ui.startTurn();
         });
 
+        // 💡 إغلاق ثغرة Client Authority: تطبيق الحركة برمجياً بدلاً من الاعتماد على رقعة الخصم!
         socket.on('opponentMove', data => {
-            if (!data || !data.updatedBoard) return;
+            if (!data || !data.from || !data.to) return;
             
             let isMultiJumpContinuation = (gameState.currentTurn === data.nextTurn);
             
-            gameState.virtualBoard = data.updatedBoard;
+            let possibleMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, data.from.r, data.from.c);
+            let executedPath = possibleMoves.find(p => p[p.length - 1].toR === data.to.r && p[p.length - 1].toC === data.to.c);
+            
+            if (executedPath) {
+                gameState.virtualBoard = gameEngine.applyPathToBoard(executedPath, gameState.virtualBoard);
+            } else {
+                console.warn("⚠️ Desync Warning: Received invalid move from opponent!");
+                if(socket.connected) socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
+                
+                if(data.updatedBoard) gameState.virtualBoard = data.updatedBoard; 
+            }
+            
             gameState.currentTurn = data.nextTurn;
             
             if (data.turnEndTime) {
                 gameState.turnEndTime = data.turnEndTime;
             }
 
-            ui.renderBoard();
+            ui.renderBoard(true);
             
             try {
                 if (typeof ui.playSound === 'function') {
@@ -409,7 +455,7 @@ export const socketManager = {
             
             ui.clearHighlights();
             
-            if (data.from && data.to && typeof ui.highlightMove === 'function') {
+            if (typeof ui.highlightMove === 'function') {
                 ui.highlightMove(data.from, data.to);
             }
             
@@ -519,7 +565,7 @@ export const socketManager = {
                     ui.translate("إعادة اللعب", "Rematch"), 
                     () => {
                         this.isAlertShown = false;
-                        socket.emit('acceptRematch', { roomID: gameState.onlineRoomID });
+                        socket.emit('acceptRematch', { roomID: String(gameState.onlineRoomID).trim() });
                         document.getElementById('custom-results-modal-container')?.remove();
                         if (typeof gameEngine.closeResultsMenu === 'function') {
                             gameEngine.closeResultsMenu();
@@ -726,14 +772,13 @@ export const socketManager = {
         }
     },
 
+    // 💡 إغلاق ثغرة Client Authority: إرسال الإحداثيات فقط! لا يتم إرسال الرقعة بالكامل أبداً
     sendMoveToServer(fromR, fromC, toR, toC, boardState, nextTurn) {
         if (gameState.isOnlineMode && gameState.onlineRoomID) {
             const profile = this._ensureUserProfile(); 
             
             socket.emit('makeMove', { 
                 roomID: String(gameState.onlineRoomID).trim(), 
-                virtualBoard: boardState, 
-                updatedBoard: boardState, 
                 currentTurn: nextTurn,
                 nextTurn: nextTurn, 
                 guestId: profile.id, 
@@ -747,7 +792,7 @@ export const socketManager = {
         if (gameState.isOnlineMode && gameState.onlineRoomID) {
             if (gameState.isGameOver) return; 
             
-            socket.emit('playerResigned', { roomID: gameState.onlineRoomID.trim() }); 
+            socket.emit('playerResigned', { roomID: String(gameState.onlineRoomID).trim() }); 
             
             gameState.isGameOver = true;
             gameState.isGameActive = false;
@@ -758,7 +803,6 @@ export const socketManager = {
     },
 
     handleExitGame() {
-        // 💡 إغلاق المايكروفون قسرياً لحماية البطارية والخصوصية عند الخروج من المباراة
         if (window.voiceChat && typeof window.voiceChat.closeCall === 'function') {
             window.voiceChat.closeCall();
             window.voiceChat.updateMicUI(false);
