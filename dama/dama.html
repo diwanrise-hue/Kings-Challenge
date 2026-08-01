@@ -1,4 +1,4 @@
-<!--dama.html-->
+<!--d.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -218,7 +218,7 @@
         }
 
         /* ========================================== */
-        /* 🌟 نظام المستوى والرتب (القديم للأمان)      */
+        /* 🌟 نظام المستوى والرتب                     */
         /* ========================================== */
         .avatar-wrapper { 
             position: relative; 
@@ -776,14 +776,8 @@
         <!-- 🌟 شريط الخبرة (SVG) 🌟 -->
         <div class="xp-svg-wrapper">
             <svg width="138" height="56.8" viewBox="0 0 122.2 56.8">
-                <!-- 1. المسار الرمادي الخلفي (قاعدة الحفرة المفرغة) -->
-                <path d="M 72.6,48.7 L 104.5,48.7 A 21.5,21.5 0 0,0 104.5,8.7 L 45,8.7" 
-                      fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.8" stroke-linecap="round" />
-                
-                <!-- 2. شريط التقدم الأخضر (تم إزالة القيم الثابتة ليتحكم بها الـ JS) -->
-                <path id="xp-progress-path" class="xp-progress-path"
-                      d="M 72.6,48.7 L 104.5,48.7 A 21.2,21.2 0 0,0 104.5,8.7 L 45,8.7" 
-                      fill="none" stroke="#34c759" stroke-width="1.8" stroke-linecap="round" /> 
+                <path d="M 72.6,48.7 L 104.5,48.7 A 21.5,21.5 0 0,0 104.5,8.7 L 45,8.7" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.8" stroke-linecap="round" />
+                <path id="xp-progress-path" class="xp-progress-path" d="M 72.6,48.7 L 104.5,48.7 A 21.2,21.2 0 0,0 104.5,8.7 L 45,8.7" fill="none" stroke="#34c759" stroke-width="1.8" stroke-linecap="round" /> 
             </svg>
         </div>
 
@@ -1217,7 +1211,7 @@
         </div>
     </div>
 
-    <!-- 💡 نافذة اختيار الرهان المخصصة (Bottom Sheet) مطابقة للصورة 1000143802.jpg -->
+    <!-- 💡 نافذة اختيار الرهان المخصصة (Bottom Sheet) -->
     <div id="bet-selector-modal" class="modal-overlay" style="z-index: 99999999; align-items: flex-end; padding: 0;" onclick="if(event.target === this) closeAppModal('bet-selector-modal')">
         <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
             <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
@@ -1344,17 +1338,17 @@
         <button id="resign-btn" title="الانسحاب" style="display: none; font-weight: bold;">الانسحاب</button>
     </div>
 
+    <!-- Scripts الأساسية -->
     <script src="icons.js"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
+    <!-- Script دوال الواجهة الأساسية (تم الحفاظ عليه لضرورته) -->
     <script>
         function selectBetAmount(value, displayText, element) {
             document.getElementById('room-bet-input').value = value;
             document.getElementById('custom-bet-display').innerText = displayText;
-            
             document.querySelectorAll('.bet-option-item').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
-            
             setTimeout(() => closeAppModal('bet-selector-modal'), 150);
         }
 
@@ -1377,7 +1371,6 @@
 
         function closeAppModal(id) {
             if (id === 'lucky-spin-modal' && window.isSpinning) return; 
-
             const modal = document.getElementById(id);
             if (modal && modal.style.display === 'flex') {
                 if (window.modalStack[window.modalStack.length - 1] === id) history.back(); 
@@ -1390,11 +1383,8 @@
             if (observerTimeout) return;
             observerTimeout = setTimeout(() => {
                 const boardEl = document.getElementById('board');
-                if (boardEl && boardEl.querySelector('.piece')) {
-                    document.body.classList.add('game-active');
-                } else {
-                    document.body.classList.remove('game-active');
-                }
+                if (boardEl && boardEl.querySelector('.piece')) document.body.classList.add('game-active');
+                else document.body.classList.remove('game-active');
                 observerTimeout = null;
             }, 250); 
         });
@@ -1420,19 +1410,12 @@
         function createLbItemHTML(rank, name, score, type, avatarStr, playerRankInfo) {
             let prefix = type === 'wins' ? '' : '🪙 ';
             let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : '';
-            
             const div = document.createElement('div');
             div.className = 'lb-item';
-            
-            let rankIconHTML = '';
-            if (playerRankInfo && playerRankInfo.icon) {
-                rankIconHTML = `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>`;
-            }
-
+            let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>` : '';
             const nameEl = document.createElement('div');
             nameEl.className = 'lb-name';
             nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
-            
             div.innerHTML = `
                 <div class="lb-rank">#${rank}</div>
                 <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden;"></div>
@@ -1442,13 +1425,10 @@
                 </div>
             `;
             div.querySelector('.lb-name-container').replaceWith(nameEl);
-            
             const avatarContainer = div.querySelector('.lb-avatar');
-            
             if (avatarStr && avatarStr !== 'null' && avatarStr !== 'undefined') {
                 let imgSrc = avatarStr;
-                const isFullUrl = imgSrc.startsWith('http') || imgSrc.startsWith('data:image');
-                if (!isFullUrl) {
+                if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:image')) {
                     let cleanName = imgSrc.replace(/\.\.\//g, '').replace('Photo/', '');
                     imgSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
                 }
@@ -1457,9 +1437,7 @@
                 img.onerror = function() { avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>'; };
                 img.src = imgSrc;
                 avatarContainer.appendChild(img);
-            } else {
-                avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>';
-            }
+            } else { avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>'; }
             return div;
         }
 
@@ -1468,21 +1446,15 @@
             const tokensList = document.getElementById('leaderboard-list-tokens');
             winsList.innerHTML = ''; tokensList.innerHTML = '';
             const unknownText = window.t ? window.t('lb_unknown') : 'لاعب مجهول';
-            
             for(let i = 0; i < 20; i++) {
                 let wPlayer = winsData && winsData[i] ? winsData[i].name : `${unknownText} ${i+1}`;
                 let wScore = winsData && winsData[i] ? winsData[i].score : (100 - (i * 2));
-                let wAvatar = winsData && winsData[i] ? winsData[i].avatar : null; 
-                let wRankInfo = winsData && winsData[i] ? winsData[i].rankInfo : null; 
-                winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins', wAvatar, wRankInfo));
+                winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins', winsData && winsData[i] ? winsData[i].avatar : null, winsData && winsData[i] ? winsData[i].rankInfo : null));
             }
-
             for(let i = 0; i < 20; i++) {
                 let tPlayer = tokensData && tokensData[i] ? tokensData[i].name : `${unknownText} ${i+1}`;
                 let tScore = tokensData && tokensData[i] ? tokensData[i].score : (10000 - (i * 300));
-                let tAvatar = tokensData && tokensData[i] ? tokensData[i].avatar : null; 
-                let tRankInfo = tokensData && tokensData[i] ? tokensData[i].rankInfo : null;
-                tokensList.appendChild(createLbItemHTML(i+1, tPlayer, tScore, 'tokens', tAvatar, tRankInfo));
+                tokensList.appendChild(createLbItemHTML(i+1, tPlayer, tScore, 'tokens', tokensData && tokensData[i] ? tokensData[i].avatar : null, tokensData && tokensData[i] ? tokensData[i].rankInfo : null));
             }
         }
 
@@ -1490,17 +1462,10 @@
             if (window.socket) {
                 window.socket.off('leaderboardData');
                 window.socket.on('leaderboardData', (data) => {
-                    let formattedWins = [];
-                    let formattedTokens = [];
+                    let formattedWins = [], formattedTokens = [];
                     if(Array.isArray(data)) {
-                        for(let i=0; i<data.length; i+=2) {
-                            formattedWins.push({ name: data[i], score: data[i+1] });
-                            formattedTokens.push({ name: data[i], score: data[i+1] * 125 }); 
-                        }
-                    } else {
-                        formattedWins = data.wins || null;
-                        formattedTokens = data.tokens || null;
-                    }
+                        for(let i=0; i<data.length; i+=2) { formattedWins.push({ name: data[i], score: data[i+1] }); formattedTokens.push({ name: data[i], score: data[i+1] * 125 }); }
+                    } else { formattedWins = data.wins || null; formattedTokens = data.tokens || null; }
                     populateLeaderboards(formattedWins, formattedTokens);
                 });
             }
@@ -1508,42 +1473,32 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             window.showLeaderboard = function() {
-                openAppModal('leaderboard-modal');
-                populateLeaderboards(null, null);
+                openAppModal('leaderboard-modal'); populateLeaderboards(null, null);
                 if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
             };
             setupSocketListeners();
-            let socketCheckInterval = setInterval(() => {
-                if (window.socket) { setupSocketListeners(); clearInterval(socketCheckInterval); }
-            }, 300);
+            let socketCheckInterval = setInterval(() => { if (window.socket) { setupSocketListeners(); clearInterval(socketCheckInterval); } }, 300);
         });
 
-        function getUserId() {
-            try { let profile = JSON.parse(localStorage.getItem('hub_user_profile')); return profile ? profile.id : guestId; } catch(e) { return guestId; }
-        }
+        function getUserId() { try { let profile = JSON.parse(localStorage.getItem('hub_user_profile')); return profile ? profile.id : guestId; } catch(e) { return guestId; } }
 
         function fallbackCopyText(text, callback) {
             const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px";
             document.body.appendChild(textArea); textArea.focus(); textArea.select();
-            try { document.execCommand('copy'); if (callback) callback(); } catch (err) { console.error('فشل في نسخ المعرف: ', err); }
+            try { document.execCommand('copy'); if (callback) callback(); } catch (err) {}
             document.body.removeChild(textArea);
         }
 
         window.copyMyId = function() {
             const idText = document.getElementById('igp-id-display').innerText;
             if (idText && idText !== '...') {
-                const showToast = () => {
-                    const toast = document.getElementById('toast-notification');
-                    if (toast) { toast.innerText = '📋 تم نسخ الـ ID بنجاح'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-                };
-                if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(idText).then(showToast).catch(() => { fallbackCopyText(idText, showToast); });
-                } else { fallbackCopyText(idText, showToast); }
+                const showToast = () => { const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '📋 تم نسخ الـ ID بنجاح'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); } };
+                if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(idText).then(showToast).catch(() => { fallbackCopyText(idText, showToast); }); } else { fallbackCopyText(idText, showToast); }
             }
         };
 
         window.showEquipNotification = function(itemType) {
-            const toast = document.getElementById('toast-notification');
-            if (!toast) return;
+            const toast = document.getElementById('toast-notification'); if (!toast) return;
             let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
             if (itemType === 'bg') msg = window.t ? window.t('toast_bg') : "تم تغيير الساحة بنجاح";
             else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
@@ -1554,45 +1509,28 @@
 
         window.triggerCustomAlertNotification = function(msg) {
             if (typeof showCustomAlert === 'function') { showCustomAlert(msg); } else {
-                const alertModal = document.getElementById('custom-alert-modal');
-                const alertMsg = document.getElementById('custom-alert-message');
-                const alertOk = document.getElementById('custom-alert-ok');
-                const alertCancel = document.getElementById('custom-alert-cancel');
-                if (alertModal && alertMsg && alertOk) {
-                    document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر';
-                    alertMsg.innerText = msg; if(alertCancel) alertCancel.style.display = 'none';
-                    openAppModal('custom-alert-modal'); alertOk.onclick = () => closeAppModal('custom-alert-modal');
-                } else { alert(msg); }
+                const alertModal = document.getElementById('custom-alert-modal'); const alertMsg = document.getElementById('custom-alert-message'); const alertOk = document.getElementById('custom-alert-ok'); const alertCancel = document.getElementById('custom-alert-cancel');
+                if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.innerText = msg; if(alertCancel) alertCancel.style.display = 'none'; openAppModal('custom-alert-modal'); alertOk.onclick = () => closeAppModal('custom-alert-modal'); } else { alert(msg); }
             }
         }
 
         function switchStoreTabCategory(category) {
             const tabs = ['bg', 'frames', 'pieces', 'offers'];
-            tabs.forEach(tab => {
-                const btn = document.getElementById('store-btn-tab-' + tab); const sec = document.getElementById('store-section-' + tab);
-                if(btn) btn.classList.remove('active'); if(sec) sec.style.display = 'none';
-            });
+            tabs.forEach(tab => { const btn = document.getElementById('store-btn-tab-' + tab); const sec = document.getElementById('store-section-' + tab); if(btn) btn.classList.remove('active'); if(sec) sec.style.display = 'none'; });
             const activeBtn = document.getElementById('store-btn-tab-' + category); const activeSec = document.getElementById('store-section-' + category);
             if(activeBtn) activeBtn.classList.add('active'); if(activeSec) activeSec.style.display = 'grid';
         }
 
         function switchThemeGridTabCategory(category) {
             const tabs = ['bg', 'frames', 'pieces'];
-            tabs.forEach(tab => {
-                const btn = document.getElementById('theme-btn-tab-' + tab); const sec = document.getElementById('theme-grid-section-' + tab);
-                if(btn) btn.classList.remove('active'); if(sec) sec.style.display = 'none';
-            });
+            tabs.forEach(tab => { const btn = document.getElementById('theme-btn-tab-' + tab); const sec = document.getElementById('theme-grid-section-' + tab); if(btn) btn.classList.remove('active'); if(sec) sec.style.display = 'none'; });
             const activeBtn = document.getElementById('theme-btn-tab-' + category); const activeSec = document.getElementById('theme-grid-section-' + category);
             if(activeBtn) activeBtn.classList.add('active'); if(activeSec) activeSec.style.display = 'grid';
         }
 
         window.triggerGridThemeChange = function(index, lightHex, darkHex) {
-            document.documentElement.style.setProperty('--light-cell', lightHex);
-            document.documentElement.style.setProperty('--dark-cell', darkHex);
-            if (index !== -1) {
-                const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item');
-                items.forEach((item, idx) => { if (idx === index) item.classList.add('active'); else item.classList.remove('active'); });
-            }
+            document.documentElement.style.setProperty('--light-cell', lightHex); document.documentElement.style.setProperty('--dark-cell', darkHex);
+            if (index !== -1) { const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item'); items.forEach((item, idx) => { if (idx === index) item.classList.add('active'); else item.classList.remove('active'); }); }
             let p = localStorage.getItem('hub_user_profile');
             if (p && index !== -1) { let prof = JSON.parse(p); prof.equippedBg = null; localStorage.setItem('hub_user_profile', JSON.stringify(prof)); if(window.updateInventoryUI) window.updateInventoryUI(); }
         }
@@ -1600,159 +1538,74 @@
         function forceLockedGlobalAvatar() {
             let globalProfile = localStorage.getItem('hub_user_profile');
             let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
-            if (globalProfile) {
-                try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); } } catch(e) {}
-            }
-            if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) {
-                let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
-                avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
-            }
+            if (globalProfile) { try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); } } catch(e) {} }
+            if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) { let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', ''); avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
             const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
             targetAvatars.forEach(id => {
                 const el = document.getElementById(id); if (!el) return;
-                if (isImage) {
-                    const existingImg = el.querySelector('img');
-                    if (!existingImg || existingImg.getAttribute('src') !== avatarSrc) {
-                        el.style.backgroundImage = 'none'; el.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
-                    }
-                } else { if (el.textContent !== avatarSrc) { el.innerHTML = ''; el.textContent = avatarSrc; } }
+                if (isImage) { const existingImg = el.querySelector('img'); if (!existingImg || existingImg.getAttribute('src') !== avatarSrc) { el.style.backgroundImage = 'none'; el.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`; } } else { if (el.textContent !== avatarSrc) { el.innerHTML = ''; el.textContent = avatarSrc; } }
             });
         }
 
-        const avatarGuardObserver = new MutationObserver((mutations) => {
-            let shouldProtect = false;
-            for (let mutation of mutations) {
-                if (mutation.type === 'childList') {
-                    const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG');
-                    if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; }
-                }
-            }
-            if (shouldProtect) { avatarGuardObserver.disconnect(); forceLockedGlobalAvatar(); startAvatarGuard(); }
-        });
-
-        function startAvatarGuard() {
-            const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
-            targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } });
-        }
+        const avatarGuardObserver = new MutationObserver((mutations) => { let shouldProtect = false; for (let mutation of mutations) { if (mutation.type === 'childList') { const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG'); if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; } } } if (shouldProtect) { avatarGuardObserver.disconnect(); forceLockedGlobalAvatar(); startAvatarGuard(); } });
+        function startAvatarGuard() { const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar']; targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } }); }
 
         window.applyProfileDataToUI = function(profile) {
             const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
             const currentId = profile.id || getUserId();
-            
-            const textElements = {
-                'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name,
-                'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 
-                'igp-name': profile.name, 'igp-id-display': currentId,
-                'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0),
-                'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0
-            };
-
+            const textElements = { 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 'igp-id-display': currentId, 'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 };
             for (let id in textElements) { const el = document.getElementById(id); if (el) { el.innerText = textElements[id]; } }
-            forceLockedGlobalAvatar();
-            if(window.updateInventoryUI) window.updateInventoryUI();
-            if(window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+            forceLockedGlobalAvatar(); if(window.updateInventoryUI) window.updateInventoryUI(); if(window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
         }
 
         window.currentLang = 'ar';
-
         const originalAudioPlay = HTMLAudioElement.prototype.play;
-        HTMLAudioElement.prototype.play = function() {
-            const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7';
-            this.volume = parseFloat(savedVol); return originalAudioPlay.call(this);
-        };
+        HTMLAudioElement.prototype.play = function() { const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7'; this.volume = parseFloat(savedVol); return originalAudioPlay.call(this); };
 
         document.addEventListener('DOMContentLoaded', () => {
             let savedAppLang = localStorage.getItem('appLang') || localStorage.getItem('lang') || 'ar';
             document.documentElement.lang = savedAppLang; document.documentElement.dir = savedAppLang === 'ar' ? 'rtl' : 'ltr'; window.currentLang = savedAppLang;
-
             window.addEventListener('message', (event) => {
                 if (!event.data) return;
-                if (event.data.type === 'LANGUAGE_CHANGED') {
-                    const newLang = event.data.lang; document.documentElement.lang = newLang; document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr'; window.currentLang = newLang;
-                    if (typeof window.updateUITranslations === 'function') window.updateUITranslations();
-                    if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts();
-                    if (document.getElementById('leaderboard-modal').style.display === 'flex') { if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard'); }
-                }
+                if (event.data.type === 'LANGUAGE_CHANGED') { const newLang = event.data.lang; document.documentElement.lang = newLang; document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr'; window.currentLang = newLang; if (typeof window.updateUITranslations === 'function') window.updateUITranslations(); if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts(); if (document.getElementById('leaderboard-modal').style.display === 'flex') { if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard'); } }
                 if (event.data.type === 'PROFILE_UPDATED' && event.data.profile) window.applyProfileDataToUI(event.data.profile);
             });
-
             let globalProfile = localStorage.getItem('hub_user_profile');
             if (globalProfile) window.applyProfileDataToUI(JSON.parse(globalProfile));
             forceLockedGlobalAvatar(); startAvatarGuard();
-
             window.addEventListener('storage', (e) => { if (e.key === 'hub_user_profile') forceLockedGlobalAvatar(); });
-
             const sfxSlider = document.getElementById('sfx-volume');
-            if(sfxSlider) {
-                const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7'; sfxSlider.value = savedVol;
-                sfxSlider.addEventListener('input', (e) => { const vol = parseFloat(e.target.value); localStorage.setItem('sfx_volume', vol); localStorage.setItem('dama_sfx_volume', vol); });
-            }
-
+            if(sfxSlider) { const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7'; sfxSlider.value = savedVol; sfxSlider.addEventListener('input', (e) => { const vol = parseFloat(e.target.value); localStorage.setItem('sfx_volume', vol); localStorage.setItem('dama_sfx_volume', vol); }); }
             const btnSaveSettings = document.getElementById('save-settings-btn');
             if(btnSaveSettings) btnSaveSettings.onclick = () => closeAppModal('settings-overlay');
             syncRadioStatusDot();
         });
 
-        function uiStateChangeTracker() {
-            const matchCard = document.getElementById('match-players-card'); const isOnline = (matchCard && matchCard.style.display !== 'none');
-            if (isOnline) document.body.classList.add('online-mode-active'); else document.body.classList.remove('online-mode-active');
-        }
-        
+        function uiStateChangeTracker() { const matchCard = document.getElementById('match-players-card'); const isOnline = (matchCard && matchCard.style.display !== 'none'); if (isOnline) document.body.classList.add('online-mode-active'); else document.body.classList.remove('online-mode-active'); }
         window.addEventListener('popstate', uiStateChangeTracker); document.addEventListener('click', () => setTimeout(uiStateChangeTracker, 50));
         window.addEventListener('load', () => { history.replaceState({ screen: 'dama-game' }, ''); });
 
         window.addEventListener('popstate', function(event) {
-            if (window.isSpinning) {
-                history.pushState({ modalOpen: 'lucky-spin-modal' }, '');
-                return;
-            }
-
+            if (window.isSpinning) { history.pushState({ modalOpen: 'lucky-spin-modal' }, ''); return; }
             if (window.modalStack.length > 0) { const topModalId = window.modalStack.pop(); const topModal = document.getElementById(topModalId); if (topModal) topModal.style.display = 'none'; return; }
             if (window.isMatchRunning) { const resignBtn = document.getElementById('resign-btn'); if (resignBtn) resignBtn.click(); history.pushState({ screen: 'dama-game' }, ''); return; }
-            if (window.ui && window.ui.showCustomAlert) {
-                window.ui.showCustomAlert( window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟", window.t ? window.t('confirm_exit_title') : "تأكيد الخروج", () => { window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); }, true, window.t ? window.t('cancel_btn') : "إلغاء", window.t ? window.t('ok_btn') : "تأكيد" );
-            }
+            if (window.ui && window.ui.showCustomAlert) { window.ui.showCustomAlert( window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟", window.t ? window.t('confirm_exit_title') : "تأكيد الخروج", () => { window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); }, true, window.t ? window.t('cancel_btn') : "إلغاء", window.t ? window.t('ok_btn') : "تأكيد" ); }
             history.pushState({ screen: 'dama-game' }, '');
         });
 
         window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
-            const nameEl = document.getElementById('modal-item-name'); const costEl = document.getElementById('modal-item-cost');
-            const previewEl = document.getElementById('modal-item-preview'); const buyBtn = document.getElementById('confirm-buy-btn');
-            nameEl.innerText = itemName; costEl.innerText = '🪙 ' + cost;
-            const itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null;
-            previewEl.innerHTML = ''; previewEl.style.background = 'rgba(255,255,255,0.05)'; previewEl.style.backgroundImage = 'none';
-
+            const nameEl = document.getElementById('modal-item-name'); const costEl = document.getElementById('modal-item-cost'); const previewEl = document.getElementById('modal-item-preview'); const buyBtn = document.getElementById('confirm-buy-btn');
+            nameEl.innerText = itemName; costEl.innerText = '🪙 ' + cost; const itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null; previewEl.innerHTML = ''; previewEl.style.background = 'rgba(255,255,255,0.05)'; previewEl.style.backgroundImage = 'none';
             if(itemData) {
-                previewEl.style.border = itemData.isLegendary ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.1)';
-                previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
-                if (itemData.isImage) { let imgUrl = itemData.imagePath || itemData.imagePathWhite || ''; previewEl.style.backgroundImage = `url('${imgUrl}')`; previewEl.style.backgroundSize = 'cover'; previewEl.style.backgroundPosition = 'center';
-                } else if(itemType === 'pc') { previewEl.innerHTML = itemData.icon || '💎';
-                } else if(itemType === 'score') { previewEl.innerHTML = `<div style="width: 80%; height: 35px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2);"><div style="flex: 1; background: ${itemData.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div><div style="flex: 1; background: ${itemData.scoreBg1};"></div></div>`;
-                } else if(itemType === 'bg' || itemType === 'fr') {
-                    if (itemData.cssLight && itemData.cssDark) { previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`;
-                    } else if (itemData.cssBoard) { previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`;
-                    } else { previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`; }
-                }
+                previewEl.style.border = itemData.isLegendary ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.1)'; previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
+                if (itemData.isImage) { let imgUrl = itemData.imagePath || itemData.imagePathWhite || ''; previewEl.style.backgroundImage = `url('${imgUrl}')`; previewEl.style.backgroundSize = 'cover'; previewEl.style.backgroundPosition = 'center'; } else if(itemType === 'pc') { previewEl.innerHTML = itemData.icon || '💎'; } else if(itemType === 'score') { previewEl.innerHTML = `<div style="width: 80%; height: 35px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2);"><div style="flex: 1; background: ${itemData.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div><div style="flex: 1; background: ${itemData.scoreBg1};"></div></div>`; } else if(itemType === 'bg' || itemType === 'fr') { if (itemData.cssLight && itemData.cssDark) { previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`; } else if (itemData.cssBoard) { previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`; } else { previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`; } }
             } else { previewEl.innerHTML = '🎁'; previewEl.className = 'purchase-preview-box'; }
-
-            buyBtn.onclick = () => {
-                closeAppModal('purchase-modal'); 
-                setTimeout(() => {
-                    if (window.socket && typeof getUserId === 'function' && window.socket.connected) { window.socket.emit('requestPurchase', { userId: getUserId(), itemId: itemId });
-                    } else { const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً."; if (typeof triggerCustomAlertNotification === 'function') triggerCustomAlertNotification(msg); else alert(msg); }
-                }, 120);
-            };
+            buyBtn.onclick = () => { closeAppModal('purchase-modal'); setTimeout(() => { if (window.socket && typeof getUserId === 'function' && window.socket.connected) { window.socket.emit('requestPurchase', { userId: getUserId(), itemId: itemId }); } else { const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً."; if (typeof triggerCustomAlertNotification === 'function') triggerCustomAlertNotification(msg); else alert(msg); } }, 120); };
             openAppModal('purchase-modal');
         };
 
-        function syncRadioStatusDot() {
-            const statusDot = document.getElementById('dama-radio-status');
-            if (statusDot) { const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; if (isPlaying) statusDot.classList.add('active'); else statusDot.classList.remove('active'); }
-        }
-
-        window.addEventListener('storage', (e) => { if (e.key === 'hub_music_enabled') syncRadioStatusDot(); });
-        setInterval(syncRadioStatusDot, 1000);
-
+        function syncRadioStatusDot() { const statusDot = document.getElementById('dama-radio-status'); if (statusDot) { const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; if (isPlaying) statusDot.classList.add('active'); else statusDot.classList.remove('active'); } }
+        window.addEventListener('storage', (e) => { if (e.key === 'hub_music_enabled') syncRadioStatusDot(); }); setInterval(syncRadioStatusDot, 1000);
     </script>
     
     <script>
@@ -1782,10 +1635,9 @@
                                                   tokenAlert.innerText.includes('+');
                                     if (tokenAlert.innerText.includes('خسارة') || tokenAlert.innerText.includes('-')) isMeWin = false;
 
-                                    // تحديث المهام اليومية
                                     if (window.questsManager) {
-                                        window.questsManager.updateProgress('q_play_3');
-                                        if (isMeWin) window.questsManager.updateProgress('q_win_1');
+                                        window.questsManager.updateProgress('play');
+                                        if (isMeWin) window.questsManager.updateProgress('win');
                                     }
 
                                     let isOnline = document.body.classList.contains('online-mode-active');
@@ -1805,69 +1657,24 @@
             observer.observe(document.body, { childList: true, subtree: true });
         });
 
-        // ربط لفة عجلة الحظ بالمهام
         document.addEventListener('click', (e) => {
             if (e.target.id === 'spin-free-btn' || e.target.id === 'spin-paid-btn') {
                 setTimeout(() => {
                     if (window.isSpinning && window.questsManager) {
-                        window.questsManager.updateProgress('q_spin_1');
+                        window.questsManager.updateProgress('spin');
                     }
                 }, 500);
             }
         });
     </script>
 
-    <script type="module">
-        import { gameState } from './gameState.js';
-        import { socketManager } from './socketManager.js';
-        import { ui } from './uiController.js';
-        
-        window.handleRoomBtn = (action, msg) => { 
-            ui.startOnlineGame(); 
-            clearInterval(gameState.mmInterval); 
-            const rID = ui.getVal('online-room-input').trim(); 
-            const rPass = ui.getVal('online-password-input').trim() || null; 
-            
-            const errText = (typeof window.t === 'function') ? window.t('err_id') : 'الرجاء إدخال رقم الغرفة';
-            
-            if (action !== 'joinMatchmakingPool' && !rID) return socketManager.showStatusMsg(errText); 
-            
-            let betAmt = 0;
-            const betSelect = document.getElementById('room-bet-input');
-            if (betSelect) betAmt = parseInt(betSelect.value) || 0;
-
-            socketManager.handleRoomAction(action, rID, rPass, betAmt); 
-            socketManager.showStatusMsg(msg); 
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const createBtn = document.getElementById('online-create-btn');
-                const joinBtn = document.getElementById('online-join-btn');
-                
-                if(createBtn) {
-                    const newCreateBtn = createBtn.cloneNode(true);
-                    createBtn.parentNode.replaceChild(newCreateBtn, createBtn);
-                    const createMsg = (typeof window.t === 'function') ? window.t('creating_room') : 'جاري الإنشاء...';
-                    newCreateBtn.addEventListener('click', () => window.handleRoomBtn('createRoom', createMsg));
-                }
-                
-                if(joinBtn) {
-                    const newJoinBtn = joinBtn.cloneNode(true);
-                    joinBtn.parentNode.replaceChild(newJoinBtn, joinBtn);
-                    const joinMsg = (typeof window.t === 'function') ? window.t('joining_room') : 'جاري الانضمام...';
-                    newJoinBtn.addEventListener('click', () => window.handleRoomBtn('joinRoom', joinMsg));
-                }
-            }, 1000); 
-        });
-    </script>
-
+    <!-- Modules الأساسية للعبة -->
+    <script type="module" src="main.js"></script>
+    <script type="module" src="dailyQuests.js"></script>
     <script type="module">
         import { storeManager } from './store.js?v=999';
         document.addEventListener('DOMContentLoaded', () => { storeManager.init(); });
     </script>
-
-    <script type="module" src="main.js"></script>
 
     <script>
         function requestFullScreen() { const element = document.documentElement; if (element.requestFullscreen) { element.requestFullscreen().catch(err => console.warn("Fullscreen Error:", err)); } else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); } else if (element.msRequestFullscreen) { element.msRequestFullscreen(); } }
@@ -1876,153 +1683,5 @@
 
     <script src="chat.js"></script>
     <script type="module" src="voice.js"></script>
-
-    <!-- ========================================== -->
-    <!-- 📜 نظام المهام اليومية (Daily Quests System) -->
-    <!-- ========================================== -->
-    <script>
-        const dailyQuestsConfig = [
-            { id: 'q_play_3', title: 'العب 3 مباريات', target: 3, reward: 50, rewardType: 'tokens', icon: '🎮' },
-            { id: 'q_win_1', title: 'فز في مباراة واحدة', target: 1, reward: 100, rewardType: 'tokens', icon: '🏆' },
-            { id: 'q_spin_1', title: 'قم بلف عجلة الحظ', target: 1, reward: 1, rewardType: 'hints', icon: '🎡' }
-        ];
-
-        window.questsManager = {
-            getState() {
-                const today = new Date().toISOString().split('T')[0];
-                let state = JSON.parse(localStorage.getItem('hub_daily_quests')) || {};
-                
-                if (state.date !== today) {
-                    state = {
-                        date: today,
-                        progress: { q_play_3: 0, q_win_1: 0, q_spin_1: 0 },
-                        claimed: { q_play_3: false, q_win_1: false, q_spin_1: false }
-                    };
-                    localStorage.setItem('hub_daily_quests', JSON.stringify(state));
-                }
-                return state;
-            },
-
-            saveState(state) {
-                localStorage.setItem('hub_daily_quests', JSON.stringify(state));
-                this.renderQuestsUI(); 
-            },
-
-            updateProgress(questId, amount = 1) {
-                let state = this.getState();
-                if (!state.progress[questId]) state.progress[questId] = 0;
-                
-                const quest = dailyQuestsConfig.find(q => q.id === questId);
-                if (quest && state.progress[questId] < quest.target) {
-                    state.progress[questId] = Math.min(state.progress[questId] + amount, quest.target);
-                    this.saveState(state);
-                }
-            },
-
-            claimReward(questId) {
-                let state = this.getState();
-                const quest = dailyQuestsConfig.find(q => q.id === questId);
-                
-                if (!quest || state.claimed[questId] || state.progress[questId] < quest.target) return;
-
-                let profileRaw = localStorage.getItem('hub_user_profile');
-                let profile = profileRaw ? JSON.parse(profileRaw) : null;
-                if (!profile) return;
-                
-                if (quest.rewardType === 'tokens') {
-                    profile.tokens = (profile.tokens || 0) + quest.reward;
-                    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
-                        window.ui.showCustomAlert(`🎉 حصلت على ${quest.reward} عملة!`);
-                    }
-                } else if (quest.rewardType === 'hints') {
-                    profile.hints = (profile.hints || 0) + quest.reward;
-                    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
-                        window.ui.showCustomAlert(`💡 حصلت على ${quest.reward} مصباح!`);
-                    }
-                }
-
-                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                if (window.applyProfileDataToUI) window.applyProfileDataToUI(profile);
-                if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-                
-                state.claimed[questId] = true;
-                this.saveState(state);
-                
-                if (window.ui && window.ui.playSound && window.ui.sfx) window.ui.playSound(window.ui.sfx.win);
-            },
-
-            renderQuestsUI() {
-                const container = document.getElementById('quests-list-container');
-                if (!container) return;
-                
-                const state = this.getState();
-                container.innerHTML = '';
-
-                dailyQuestsConfig.forEach(quest => {
-                    const currentProgress = state.progress[quest.id] || 0;
-                    const isCompleted = currentProgress >= quest.target;
-                    const isClaimed = state.claimed[quest.id];
-                    
-                    const percentage = (currentProgress / quest.target) * 100;
-                    
-                    let btnHtml = '';
-                    if (isClaimed) {
-                        btnHtml = `<button disabled style="background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 12px; font-weight: bold; cursor: not-allowed;">مكتملة ✔️</button>`;
-                    } else if (isCompleted) {
-                        btnHtml = `<button onclick="questsManager.claimReward('${quest.id}')" style="background: #30d158; color: white; border: none; border-radius: 8px; padding: 6px 12px; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(48, 209, 88, 0.4); animation: startBtnPulse 1.5s infinite;">استلام 🎁</button>`;
-                    } else {
-                        btnHtml = `<div style="color: #a1a1aa; font-weight: bold; font-size: 13px;">${currentProgress} / ${quest.target}</div>`;
-                    }
-
-                    const questCard = `
-                        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; text-align: right;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 20px;">${quest.icon}</span>
-                                    <span style="color: white; font-size: 14px; font-weight: 600;">${quest.title}</span>
-                                </div>
-                                <div style="color: #f5a623; font-weight: bold; font-size: 13px;">+${quest.reward} ${quest.rewardType === 'tokens' ? '🪙' : '💡'}</div>
-                            </div>
-                            
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                                <div style="flex: 1; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; position: relative;">
-                                    <div style="width: ${percentage}%; height: 100%; background: ${isCompleted ? '#30d158' : '#f5a623'}; transition: width 0.4s ease;"></div>
-                                </div>
-                                ${btnHtml}
-                            </div>
-                        </div>
-                    `;
-                    container.insertAdjacentHTML('beforeend', questCard);
-                });
-            },
-            
-            startResetTimer() {
-                const timerEl = document.getElementById('quests-reset-timer');
-                if (!timerEl) return;
-                
-                setInterval(() => {
-                    const now = new Date();
-                    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-                    const diff = tomorrow - now;
-                    
-                    let h = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
-                    let m = String(Math.floor((diff / 1000 / 60) % 60)).padStart(2, '0');
-                    let s = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
-                    
-                    timerEl.innerText = `تتجدد المهام بعد: ${h}:${m}:${s}`;
-                }, 1000);
-            },
-            
-            init() {
-                this.getState();
-                this.renderQuestsUI();
-                this.startResetTimer();
-            }
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            window.questsManager.init();
-        });
-    </script>
 </body>
 </html>
