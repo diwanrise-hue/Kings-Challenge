@@ -37,6 +37,8 @@ export const gameState = {
     blockGameOverModal: true,
     originalHints: null, 
     roomBet: 0, 
+    movesWithoutProgress: 0, // 👈 (جديد) عداد حركات التعادل للخمول
+    boardHistoryStr: [], // 👈 (جديد) مصفوفة تعقب المماطلة وتكرار الحركات
     virtualBoard: Array(8).fill(null).map(() => Array(8).fill(null)),
     
     userProfile: (() => {
