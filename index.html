@@ -375,7 +375,6 @@
     </div>
 
     <div id="game-interface">
-        <!-- 💡 تم إضافة إذن المايكروفون (microphone) لحل مشكلة عدم عمل الـ WebRTC في الـ iframe أو تطبيقات الـ APK -->
         <iframe id="game-frame" src="" allowfullscreen allow="fullscreen; microphone" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
     </div>
 
@@ -881,8 +880,8 @@
                 exitGame();
             } else if (event.data.type === 'TOGGLE_RADIO') {
                 if (typeof toggleRadioPlayState === 'function') toggleRadioPlayState();
-            } else if (event.data.type === 'OPEN_MODAL') {
-                // ...
+            } else if (event.data.type === 'OPEN_RADIO_MODAL') {
+                if (typeof openRadioModal === 'function') openRadioModal();
             }
         });
 
@@ -1359,7 +1358,6 @@
             }
         });
 
-        // 💡 حل مشكلة الازدواجية: إغلاق الاتصال الرئيسي عند بدء اللعبة
         function startGame() {
             if (socket && socket.connected) {
                 socket.disconnect(); 
@@ -1377,7 +1375,6 @@
             };
         }
         
-        // 💡 إعادة الاتصال بالسيرفر للواجهة الرئيسية عند إغلاق اللعبة
         function exitGame() {
             document.getElementById('game-interface').style.display = 'none';
             if(localStorage.getItem('hub_user_profile')) document.getElementById('game-selector').style.display = 'flex';
@@ -1403,7 +1400,7 @@
                     if(localStorage.getItem('hub_user_profile')) document.getElementById('game-selector').style.display = 'flex';
                     setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
                     syncHubProfile();
-                    if (socket && !socket.connected) socket.connect(); // إعادة الاتصال
+                    if (socket && !socket.connected) socket.connect(); 
                 }
             }
         });
@@ -1449,6 +1446,19 @@
         }
 
         function triggerLogout() { handleAccountExit(false); }
+
+        window.addEventListener('message', (event) => {
+            if (!event.data) return;
+            if (event.data.type === 'SYNC_PROFILE') {
+                syncHubProfile();
+            } else if (event.data.type === 'EXIT_GAME') {
+                exitGame();
+            } else if (event.data.type === 'TOGGLE_RADIO') {
+                if (typeof toggleRadioPlayState === 'function') toggleRadioPlayState();
+            } else if (event.data.type === 'OPEN_RADIO_MODAL') {
+                if (typeof openRadioModal === 'function') openRadioModal();
+            }
+        });
 
         window.syncHubProfile = syncHubProfile;
         window.exitGame = exitGame; 
