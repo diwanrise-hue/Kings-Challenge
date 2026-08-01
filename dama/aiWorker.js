@@ -2,6 +2,7 @@
  * aiWorker.js - النسخة الخارقة المحسنة (Unleashed Smart AI)
  * تم فك قيود الوقت للمستويات العليا لتدمير تأثير الأفق (Horizon Effect)
  * وتم تزويده بوعي تكتيكي (دفاع، هجوم، السيطرة على الوسط، وبناء الجدران).
+ * خالي من الثغرات (استنساخ القطع وتقييم الخصم المعكوس).
  */
 
 const isValidPos = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
@@ -168,9 +169,11 @@ function applyPathToBoard(path, bState) {
 
     const startStep = path[0];
     const piece = newBoard[startStep.fromR][startStep.fromC];
-    newBoard[startStep.fromR][startStep.fromC] = null;
 
+    // تم الإصلاح: مسح موقع الانطلاق داخل اللوب لمنع استنساخ القطع في القفزات المتعددة
     for (const step of path) {
+        newBoard[step.fromR][step.fromC] = null; 
+        
         if (step.midR !== null && step.midC !== null) {
             newBoard[step.midR][step.midC] = null;
         }
@@ -188,7 +191,7 @@ function applyPathToBoard(path, bState) {
     return newBoard;
 }
 
-// 💡 دالة التقييم الاستراتيجي: تجعل البوت يدافع ويبني تكتيكات بدلاً من العشوائية
+// 💡 دالة التقييم الاستراتيجي: تم إصلاح ثغرة احتساب النقاط
 function evaluateBoard(bState, targetColor) {
     let score = 0;
     let myPieces = 0, oppPieces = 0;
@@ -207,25 +210,36 @@ function evaluateBoard(bState, targetColor) {
             
             let pieceValue = isDama ? 500 : 100;
             
-            // 🛡️ مكافأة ضخمة للحفاظ على الصف الخلفي (تمنع الخصم من الترقية بسهولة)
-            let defenseBonus = (!isDama && r === (isTarget ? myBackRow : oppBackRow)) ? 30 : 0;
+            // 🛡️ تم الإصلاح: مكافأة فقط للبوت إذا حافظ على صفه الخلفي
+            let defenseBonus = 0;
+            if (!isDama && r === myBackRow && isTarget) {
+                defenseBonus = 30;
+            }
             
             // ⚔️ السيطرة على منتصف الرقعة (الوسط يعطي مرونة أكبر للحركات)
             let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 10 : 0;
             
-            // 🏃‍♂️ مكافأة التقدم نحو الترقية للأحجار العادية
+            // 🏃‍♂️ تم الإصلاح: مكافأة التقدم نحو الترقية للأحجار العادية
             let advanceBonus = 0;
             if (!isDama) {
-                let stepsForward = isTarget ? Math.abs(r - myBackRow) : Math.abs(r - oppBackRow);
-                advanceBonus = stepsForward * 5; 
+                if (isTarget) {
+                    advanceBonus = Math.abs(r - myBackRow) * 5; 
+                } else {
+                    advanceBonus = Math.abs(r - oppBackRow) * 5; 
+                }
             }
 
-            // 🧱 مكافأة الكتلة المتماسكة (حماية ظهر القطع لمنع الضربات المزدوجة)
+            // 🧱 تم الإصلاح: مكافأة الكتلة المتماسكة مع التأكد من عدم تجاوز الحدود
             let protectionBonus = 0;
             if (!isDama) {
                 let behindR = isTarget ? r - myDir : r + myDir;
-                if (isValidPos(behindR, c) && bState[behindR][c] && bState[behindR][c].startsWith(isTarget ? targetPure : oppPure)) {
-                    protectionBonus = 15;
+                if (isValidPos(behindR, c) && bState[behindR][c]) {
+                    let pieceBehind = bState[behindR][c];
+                    if (isTarget && pieceBehind.startsWith(targetPure)) {
+                        protectionBonus = 15;
+                    } else if (!isTarget && pieceBehind.startsWith(oppPure)) {
+                        protectionBonus = 15;
+                    }
                 }
             }
 
@@ -338,17 +352,15 @@ self.onmessage = function(e) {
 
     let startTime = Date.now();
     
-    // ⏳ إطلاق العنان للوقت: البوت سيأخذ وقته الكامل في المستويات الصعبة ليقوم بحسابات مميتة
-    let maxTime = 3000; // الافتراضي 3 ثواني للمستويات السهلة والمتوسطة
-    if (maxDepth === 7) maxTime = 6000;       // 6 ثواني لمستوى الخبير/الماستر
-    else if (maxDepth >= 8) maxTime = 12000;  // 12 ثانية كاملة للمستويات المستحيلة والجراند ماستر
+    // ⏳ إطلاق العنان للوقت
+    let maxTime = 3000; 
+    if (maxDepth === 7) maxTime = 6000;       
+    else if (maxDepth >= 8) maxTime = 12000;  
 
     let bestResult = null;
-
-    // حماية إضافية من الأرقام الكبيرة جداً التي قد تأتي من الواجهة
     let safeMaxDepth = Math.min(maxDepth, 10); 
 
-    // التعميق التدريجي (Iterative Deepening) لضمان الحصول على نتيجة دائماً
+    // التعميق التدريجي (Iterative Deepening)
     for (let d = 1; d <= safeMaxDepth; d++) {
         let result = minimax(board, d, -Infinity, Infinity, true, aiColor, aiColor, startTime, maxTime);
         
