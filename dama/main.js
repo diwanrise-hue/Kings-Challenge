@@ -5,8 +5,6 @@ import { socket, socketManager } from './socketManager.js';
 import { gameEngine } from './gameEngine.js'; 
 import { t } from './i18n.js';
 
-window.socket = socket; 
-
 // ==========================================
 // 💡 دوال نظام إدارة المصابيح الذكي في الأونلاين
 // ==========================================
@@ -106,6 +104,9 @@ export function loadGameState() {
     return false;
 }
 
+// =========================================================================
+// 🚀 بدء التشغيل وربط السوكيت (هنا تم حل مشكلة الاستيراد الدائري)
+// =========================================================================
 window.addEventListener('load', () => {
     ui.initProfileSystem();
     socketManager.init();
@@ -136,6 +137,48 @@ window.addEventListener('load', () => {
             socket.emit('syncProfile', JSON.parse(profileStr));
         }
     }, 1000);
+
+    // ✅ تم نقل مستمعات السيرفر إلى هنا لتجنب خطأ (socket undefined)
+    socket.on('luckySpinResult', (data) => {
+        const freeBtn = document.getElementById('spin-free-btn');
+        if (freeBtn) freeBtn.innerText = "لفة مجانية 🆓";
+        const paidBtn = document.getElementById('spin-paid-btn');
+        if (paidBtn) paidBtn.innerText = "لفة إضافية (200 🪙)";
+
+        if (data.success) {
+            ui.animateLuckySpin(data.prizeIndex, () => {
+                ui.showCustomAlert(data.message, "🎉 مبروك!");
+                
+                if (data.nextFreeSpinTime) {
+                    gameState.userProfile.nextFreeSpin = data.nextFreeSpinTime;
+                    try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
+                    updateSpinTimerDisplay(data.nextFreeSpinTime);
+                }
+            });
+        } else {
+            ui.showCustomAlert(data.message, "عذراً");
+        }
+    });
+
+    socket.on('profileUpdated', (profile) => {
+        if (!profile) return;
+        
+        gameState.userProfile = { ...gameState.userProfile, ...profile };
+        try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
+        
+        if (typeof window.applyProfileDataToUI === 'function') {
+            window.applyProfileDataToUI(gameState.userProfile);
+        }
+        ui.updateProfileUI();
+
+        if (profile.nextFreeSpin) {
+            updateSpinTimerDisplay(profile.nextFreeSpin);
+        }
+    });
+
+    socket.on('gameStart', (data) => {
+        gameState.roomBet = data.roomBet || 0;
+    });
 });
 
 window.challengeFriend = function(friendId) {
@@ -150,6 +193,9 @@ window.challengeFriend = function(friendId) {
     }
 };
 
+// =========================================================================
+// 🖱️ أزرار الواجهة العامة
+// =========================================================================
 ui.onClick('diff-quick-select', saveGameState);
 
 ui.onClick('start-white-btn', () => { gameState.playerColor = 'white'; localStorage.removeItem('dama_saved_game'); ui.initBoard(); ui.setDisplay('new-game-modal', 'none'); });
@@ -255,43 +301,6 @@ ui.onClick('spin-paid-btn', () => {
         }, true, "إلغاء", "نعم، لف العجلة!");
     } else {
         ui.showCustomAlert(t('server_disconnected') || "يرجى الاتصال بالإنترنت أولاً للعب عجلة الحظ!");
-    }
-});
-
-socket.on('luckySpinResult', (data) => {
-    const freeBtn = document.getElementById('spin-free-btn');
-    if (freeBtn) freeBtn.innerText = "لفة مجانية 🆓";
-    const paidBtn = document.getElementById('spin-paid-btn');
-    if (paidBtn) paidBtn.innerText = "لفة إضافية (200 🪙)";
-
-    if (data.success) {
-        ui.animateLuckySpin(data.prizeIndex, () => {
-            ui.showCustomAlert(data.message, "🎉 مبروك!");
-            
-            if (data.nextFreeSpinTime) {
-                gameState.userProfile.nextFreeSpin = data.nextFreeSpinTime;
-                try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
-                updateSpinTimerDisplay(data.nextFreeSpinTime);
-            }
-        });
-    } else {
-        ui.showCustomAlert(data.message, "عذراً");
-    }
-});
-
-socket.on('profileUpdated', (profile) => {
-    if (!profile) return;
-    
-    gameState.userProfile = { ...gameState.userProfile, ...profile };
-    try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
-    
-    if (typeof window.applyProfileDataToUI === 'function') {
-        window.applyProfileDataToUI(gameState.userProfile);
-    }
-    ui.updateProfileUI();
-
-    if (profile.nextFreeSpin) {
-        updateSpinTimerDisplay(profile.nextFreeSpin);
     }
 });
 
@@ -403,16 +412,13 @@ const handleRoomBtn = (action, msg) => {
     const betSelect = document.getElementById('room-bet-input');
     if (betSelect) betAmt = parseInt(betSelect.value) || 0;
 
-    socketManager.handleRoomAction(action, rID, betAmt); 
+    socketManager.handleRoomAction(action, rID, null, betAmt); 
     socketManager.showStatusMsg(msg); 
 };
 
 ui.onClick('online-create-btn', () => handleRoomBtn('createRoom', t('creating_room')));
 ui.onClick('online-join-btn', () => handleRoomBtn('joinRoom', t('connecting')));
 
-socket.on('gameStart', (data) => {
-    gameState.roomBet = data.roomBet || 0;
-});
 
 // =========================================================================
 // 🚨 محرك واجهة الرقعة (إصلاح ثغرات State-Driven و Multi-Jump و Anti-Troll)
