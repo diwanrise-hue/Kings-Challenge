@@ -413,7 +413,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 13. أيقونة الرادار لفقدان الاتصال 🌟 (الجديدة)
+    // 13. أيقونة الرادار لفقدان الاتصال 🌟
     disconnectIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
         <defs>
             <radialGradient id="radarBgGrad" cx="50%" cy="50%" r="50%">
@@ -461,22 +461,86 @@ const SVGIcons = {
                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
         </defs>
-        <!-- التوهج الخلفي والإطار -->
         <circle cx="12" cy="12" r="11" fill="rgba(248, 181, 0, 0.2)" filter="url(#spin-glow)" />
         <circle cx="12" cy="12" r="10" fill="#1e1e24" stroke="url(#spin-gold)" stroke-width="1.8" />
-        
-        <!-- القطع الملونة -->
         <path d="M12 12 L12 2 A10 10 0 0 1 22 12 Z" fill="#FF453A" /> 
         <path d="M12 12 L22 12 A10 10 0 0 1 12 22 Z" fill="#0A84FF" /> 
         <path d="M12 12 L12 22 A10 10 0 0 1 2 12 Z" fill="#FFD60A" /> 
         <path d="M12 12 L2 12 A10 10 0 0 1 12 2 Z" fill="#30D158" /> 
-        
-        <!-- الزر المركزي -->
         <circle cx="12" cy="12" r="3" fill="url(#spin-gold)" stroke="#8B6508" stroke-width="0.8" />
         <circle cx="12" cy="12" r="1.5" fill="#FFF" opacity="0.4" />
-        
-        <!-- مؤشر السهم العلوي -->
         <path d="M12 0 L14.5 4.5 L9.5 4.5 Z" fill="url(#spin-gold)" filter="url(#spin-glow)" stroke="#8B6508" stroke-width="0.5" />
+    </svg>`,
+
+    // 15. أيقونة المهام اليومية (مخطوطة ملكية) 📜✨
+    dailyQuests: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
+        <defs>
+            <linearGradient id="scrollPaper" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fffbeb"/>
+                <stop offset="50%" stop-color="#fef3c7"/>
+                <stop offset="100%" stop-color="#fde68a"/>
+            </linearGradient>
+            <linearGradient id="scrollGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fef08a"/>
+                <stop offset="50%" stop-color="#f59e0b"/>
+                <stop offset="100%" stop-color="#b45309"/>
+            </linearGradient>
+            <linearGradient id="scrollWood" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#78350f"/>
+                <stop offset="50%" stop-color="#451a03"/>
+                <stop offset="100%" stop-color="#78350f"/>
+            </linearGradient>
+            <radialGradient id="sealRed" cx="30%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#f87171"/>
+                <stop offset="50%" stop-color="#dc2626"/>
+                <stop offset="100%" stop-color="#7f1d1d"/>
+            </radialGradient>
+            <filter id="scrollShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/>
+            </filter>
+            <filter id="sealGlow" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#dc2626" flood-opacity="0.6"/>
+            </filter>
+            <style>
+                @keyframes scrollFloat { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-3px) rotate(1deg); } }
+                @keyframes starPulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.3); opacity: 1; filter: drop-shadow(0 0 3px #fef08a); } }
+                .anim-scroll { animation: scrollFloat 3.5s ease-in-out infinite; transform-origin: 50px 50px; }
+                .anim-star1 { animation: starPulse 2s ease-in-out infinite; transform-origin: 30px 40px; }
+                .anim-star2 { animation: starPulse 2.5s ease-in-out infinite 0.5s; transform-origin: 30px 55px; }
+            </style>
+        </defs>
+        <g class="anim-scroll" filter="url(#scrollShadow)">
+            <rect x="15" y="12" width="70" height="8" rx="4" fill="url(#scrollWood)" stroke="url(#scrollGold)" stroke-width="1.5"/>
+            <circle cx="15" cy="16" r="6" fill="url(#scrollGold)"/>
+            <circle cx="85" cy="16" r="6" fill="url(#scrollGold)"/>
+            
+            <rect x="15" y="80" width="70" height="8" rx="4" fill="url(#scrollWood)" stroke="url(#scrollGold)" stroke-width="1.5"/>
+            <circle cx="15" cy="84" r="6" fill="url(#scrollGold)"/>
+            <circle cx="85" cy="84" r="6" fill="url(#scrollGold)"/>
+            
+            <path d="M 22 18 L 78 18 L 76 82 L 24 82 Z" fill="url(#scrollPaper)" stroke="url(#scrollGold)" stroke-width="2" stroke-linejoin="round"/>
+            
+            <g transform="translate(26, 35)">
+                <path class="anim-star1" d="M 0 5 L 3 8 L 9 0" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="14" y1="4" x2="42" y2="4" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g transform="translate(26, 52)">
+                <path class="anim-star2" d="M 0 5 L 3 8 L 9 0" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="14" y1="4" x2="35" y2="4" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g transform="translate(26, 69)">
+                <circle cx="4" cy="4" r="3" fill="#cbd5e1"/>
+                <line x1="14" y1="4" x2="45" y2="4" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            
+            <g transform="translate(68, 68)" filter="url(#sealGlow)">
+                <circle cx="10" cy="10" r="10" fill="url(#sealRed)" stroke="#7f1d1d" stroke-width="1"/>
+                <circle cx="10" cy="10" r="7" fill="none" stroke="#fca5a5" stroke-width="0.5" opacity="0.6"/>
+                <polygon points="10,4 11.5,8 16,8 12.5,10.5 14,15 10,12.5 6,15 7.5,10.5 4,8 8.5,8" fill="#fef08a"/>
+            </g>
+            
+            <rect x="35" y="22" width="30" height="5" rx="2.5" fill="#d97706" opacity="0.8"/>
+        </g>
     </svg>`
 };
 
