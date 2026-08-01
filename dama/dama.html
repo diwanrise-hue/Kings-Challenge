@@ -1,3 +1,4 @@
+<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -402,6 +403,7 @@
             margin: 0 !important; visibility: hidden; opacity: 0;
         }
         body.game-active #turn-box-container { visibility: visible; opacity: 1; }
+        
         #turn-indicator, #turn-countdown { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; }
         #turn-indicator { color: white; font-size: 15px; font-weight: 600; margin: 0; }
         #turn-countdown { color: #e0e0e0; font-weight: 600; font-size: 12px; height: 15px; }
@@ -704,6 +706,36 @@
             transform: scale(0.95);
         }
     </style>
+    <script>
+        const originalGetItem = localStorage.getItem;
+        localStorage.getItem = function(key) {
+            let value = originalGetItem.call(this, key);
+            if (key === 'hub_user_profile' && value) {
+                try {
+                    let profile = JSON.parse(value);
+                    if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
+                        profile.avatar = '../' + profile.avatar;
+                        return JSON.stringify(profile);
+                    }
+                } catch(e) {}
+            }
+            return value;
+        };
+
+        const originalSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, value) {
+            if (key === 'hub_user_profile' && value) {
+                try {
+                    let profile = JSON.parse(value);
+                    if (profile && profile.avatar && profile.avatar.startsWith('../')) {
+                        profile.avatar = profile.avatar.replace('../', '');
+                        value = JSON.stringify(profile);
+                    }
+                } catch(e) {}
+            }
+            originalSetItem.call(this, key, value);
+        };
+    </script>
 </head>
 <body data-piece-style="pc_original">
     
@@ -886,7 +918,7 @@
                     <div class="wheel-text w-1">50 🪙</div>
                     <div class="wheel-text w-2">100 🪙</div>
                     <div class="wheel-text w-3">1 💡</div>
-                    <div class="wheel-text w-4">400 🪙</div>
+                    <div class="wheel-text w-4">3 💡</div>
                     <div class="wheel-text w-5">25% 🎫</div>
                     <div class="wheel-text w-6">50% 🎫</div>
                     <div class="wheel-text w-7">250 🪙</div>
@@ -1186,6 +1218,7 @@
     <div class="control-panel" id="bottom-control-panel">
         <button id="reset-btn" title="Reset">بدء</button>
         
+        <!-- 💡 الزر الجديد المستبدل للقائمة الكئيبة -->
         <input type="hidden" id="diff-quick-select" value="3">
         <button id="custom-diff-btn" title="تغيير مستوى الصعوبة" onclick="openAppModal('level-select-modal')" style="width: 60px; font-weight: 800; color: #f5a623 !important; font-size: 16px;">L3</button>
 
@@ -1195,6 +1228,7 @@
         </button>
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none; padding: 0; width: 44px; align-items: center; justify-content: center;">↩️</button>
         
+        <!-- 💡 التعديل: استخدام postMessage بدلاً من الاستدعاء المباشر -->
         <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="window.parent.postMessage({ type: 'TOGGLE_RADIO' }, '*');">
             <span id="dama-radio-status" class="radio-status-dot"></span>
             <span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
@@ -1209,30 +1243,6 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
     <script>
-        // دالتان آمنتان للتعامل مع التخزين المحلي دون المساس بالـ Prototype الخاص بـ localStorage
-        window.safeGetProfile = function() {
-            let val = localStorage.getItem('hub_user_profile');
-            if (val) {
-                try {
-                    let profile = JSON.parse(val);
-                    if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
-                        profile.avatar = '../' + profile.avatar;
-                    }
-                    return profile;
-                } catch(e) { return null; }
-            }
-            return null;
-        };
-
-        window.safeSetProfile = function(profileObj) {
-            if (profileObj && profileObj.avatar && profileObj.avatar.startsWith('../')) {
-                profileObj.avatar = profileObj.avatar.replace('../', '');
-            }
-            localStorage.setItem('hub_user_profile', JSON.stringify(profileObj));
-        };
-    </script>
-
-    <script>
         let guestId = localStorage.getItem('guestId');
         if (!guestId) { guestId = 'guest_' + Date.now() + Math.random(); localStorage.setItem('guestId', guestId); }
         window.modalStack = [];
@@ -1245,12 +1255,12 @@
             if (document.getElementById('online-modal').style.display === 'flex') setTxt('online-status-text', 'searching');
         };
 
-        window.openAppModal = function(id) {
+        function openAppModal(id) {
             const modal = document.getElementById(id);
             if (modal) { modal.style.display = 'flex'; window.modalStack.push(id); history.pushState({ modalOpen: id }, ''); }
-        };
+        }
 
-        window.closeAppModal = function(id) {
+        function closeAppModal(id) {
             if (id === 'lucky-spin-modal' && window.isSpinning) return; 
 
             const modal = document.getElementById(id);
@@ -1258,25 +1268,43 @@
                 if (window.modalStack[window.modalStack.length - 1] === id) history.back(); 
                 else { modal.style.display = 'none'; window.modalStack = window.modalStack.filter(m => m !== id); }
             }
-        };
+        }
+
+        // 💡 التعديل الجذري: مراقب ذكي (Debounced Observer) 
+        // لا يستهلك البطارية، ويعيد إظهار إطار الدور وزر البدء بشكل سليم 100%
+        let observerTimeout = null;
+        const boardObserver = new MutationObserver(() => {
+            if (observerTimeout) return;
+            observerTimeout = setTimeout(() => {
+                const boardEl = document.getElementById('board');
+                if (boardEl && boardEl.querySelector('.piece')) {
+                    document.body.classList.add('game-active');
+                } else {
+                    document.body.classList.remove('game-active');
+                }
+                observerTimeout = null;
+            }, 250); 
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
+            const boardEl = document.getElementById('board');
+            if (boardEl) boardObserver.observe(boardEl, { childList: true, subtree: true });
             setTimeout(() => { if (window.updateHtmlTexts) window.updateHtmlTexts(); }, 300);
         });
 
-        window.toggleSideMenu = function() {
+        function toggleSideMenu() {
             const overlay = document.getElementById('side-menu-overlay');
             if (overlay.classList.contains('open')) overlay.classList.remove('open');
             else overlay.classList.add('open');
-        };
+        }
 
-        window.switchLbTab = function(tab) {
+        function switchLbTab(tab) {
             document.getElementById('lb-tab-wins').classList.remove('active'); document.getElementById('lb-tab-tokens').classList.remove('active');
             document.getElementById('leaderboard-list-wins').style.display = 'none'; document.getElementById('leaderboard-list-tokens').style.display = 'none';
             document.getElementById('lb-tab-' + tab).classList.add('active'); document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
-        };
+        }
 
-        window.createLbItemHTML = function(rank, name, score, type, avatarStr, playerRankInfo) {
+        function createLbItemHTML(rank, name, score, type, avatarStr, playerRankInfo) {
             let prefix = type === 'wins' ? '' : '🪙 ';
             let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : '';
             
@@ -1320,9 +1348,9 @@
                 avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>';
             }
             return div;
-        };
+        }
 
-        window.populateLeaderboards = function(winsData, tokensData) {
+        function populateLeaderboards(winsData, tokensData) {
             const winsList = document.getElementById('leaderboard-list-wins');
             const tokensList = document.getElementById('leaderboard-list-tokens');
             winsList.innerHTML = ''; tokensList.innerHTML = '';
@@ -1333,7 +1361,7 @@
                 let wScore = winsData && winsData[i] ? winsData[i].score : (100 - (i * 2));
                 let wAvatar = winsData && winsData[i] ? winsData[i].avatar : null; 
                 let wRankInfo = winsData && winsData[i] ? winsData[i].rankInfo : null; 
-                winsList.appendChild(window.createLbItemHTML(i+1, wPlayer, wScore, 'wins', wAvatar, wRankInfo));
+                winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins', wAvatar, wRankInfo));
             }
 
             for(let i = 0; i < 20; i++) {
@@ -1341,11 +1369,11 @@
                 let tScore = tokensData && tokensData[i] ? tokensData[i].score : (10000 - (i * 300));
                 let tAvatar = tokensData && tokensData[i] ? tokensData[i].avatar : null; 
                 let tRankInfo = tokensData && tokensData[i] ? tokensData[i].rankInfo : null;
-                tokensList.appendChild(window.createLbItemHTML(i+1, tPlayer, tScore, 'tokens', tAvatar, tRankInfo));
+                tokensList.appendChild(createLbItemHTML(i+1, tPlayer, tScore, 'tokens', tAvatar, tRankInfo));
             }
-        };
+        }
 
-        window.setupSocketListeners = function() {
+        function setupSocketListeners() {
             if (window.socket) {
                 window.socket.off('leaderboardData');
                 window.socket.on('leaderboardData', (data) => {
@@ -1360,33 +1388,33 @@
                         formattedWins = data.wins || null;
                         formattedTokens = data.tokens || null;
                     }
-                    window.populateLeaderboards(formattedWins, formattedTokens);
+                    populateLeaderboards(formattedWins, formattedTokens);
                 });
             }
-        };
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             window.showLeaderboard = function() {
-                window.openAppModal('leaderboard-modal');
-                window.populateLeaderboards(null, null);
+                openAppModal('leaderboard-modal');
+                populateLeaderboards(null, null);
                 if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
             };
-            window.setupSocketListeners();
+            setupSocketListeners();
             let socketCheckInterval = setInterval(() => {
-                if (window.socket) { window.setupSocketListeners(); clearInterval(socketCheckInterval); }
+                if (window.socket) { setupSocketListeners(); clearInterval(socketCheckInterval); }
             }, 300);
         });
 
-        window.getUserId = function() {
-            try { let profile = window.safeGetProfile(); return profile ? profile.id : guestId; } catch(e) { return guestId; }
-        };
+        function getUserId() {
+            try { let profile = JSON.parse(localStorage.getItem('hub_user_profile')); return profile ? profile.id : guestId; } catch(e) { return guestId; }
+        }
 
-        window.fallbackCopyText = function(text, callback) {
+        function fallbackCopyText(text, callback) {
             const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px";
             document.body.appendChild(textArea); textArea.focus(); textArea.select();
             try { document.execCommand('copy'); if (callback) callback(); } catch (err) { console.error('فشل في نسخ المعرف: ', err); }
             document.body.removeChild(textArea);
-        };
+        }
 
         window.copyMyId = function() {
             const idText = document.getElementById('igp-id-display').innerText;
@@ -1395,8 +1423,8 @@
                     const toast = document.getElementById('toast-notification');
                     if (toast) { toast.innerText = '📋 تم نسخ الـ ID بنجاح'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
                 };
-                if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(idText).then(showToast).catch(() => { window.fallbackCopyText(idText, showToast); });
-                } else { window.fallbackCopyText(idText, showToast); }
+                if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(idText).then(showToast).catch(() => { fallbackCopyText(idText, showToast); });
+                } else { fallbackCopyText(idText, showToast); }
             }
         };
 
@@ -1420,12 +1448,12 @@
                 if (alertModal && alertMsg && alertOk) {
                     document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر';
                     alertMsg.innerText = msg; if(alertCancel) alertCancel.style.display = 'none';
-                    window.openAppModal('custom-alert-modal'); alertOk.onclick = () => window.closeAppModal('custom-alert-modal');
+                    openAppModal('custom-alert-modal'); alertOk.onclick = () => closeAppModal('custom-alert-modal');
                 } else { alert(msg); }
             }
-        };
+        }
 
-        window.switchStoreTabCategory = function(category) {
+        function switchStoreTabCategory(category) {
             const tabs = ['bg', 'frames', 'pieces', 'offers'];
             tabs.forEach(tab => {
                 const btn = document.getElementById('store-btn-tab-' + tab); const sec = document.getElementById('store-section-' + tab);
@@ -1433,9 +1461,9 @@
             });
             const activeBtn = document.getElementById('store-btn-tab-' + category); const activeSec = document.getElementById('store-section-' + category);
             if(activeBtn) activeBtn.classList.add('active'); if(activeSec) activeSec.style.display = 'grid';
-        };
+        }
 
-        window.switchThemeGridTabCategory = function(category) {
+        function switchThemeGridTabCategory(category) {
             const tabs = ['bg', 'frames', 'pieces'];
             tabs.forEach(tab => {
                 const btn = document.getElementById('theme-btn-tab-' + tab); const sec = document.getElementById('theme-grid-section-' + tab);
@@ -1443,7 +1471,7 @@
             });
             const activeBtn = document.getElementById('theme-btn-tab-' + category); const activeSec = document.getElementById('theme-grid-section-' + category);
             if(activeBtn) activeBtn.classList.add('active'); if(activeSec) activeSec.style.display = 'grid';
-        };
+        }
 
         window.triggerGridThemeChange = function(index, lightHex, darkHex) {
             document.documentElement.style.setProperty('--light-cell', lightHex);
@@ -1452,22 +1480,16 @@
                 const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item');
                 items.forEach((item, idx) => { if (idx === index) item.classList.add('active'); else item.classList.remove('active'); });
             }
-            let prof = window.safeGetProfile();
-            if (prof && index !== -1) { 
-                prof.equippedBg = null; 
-                window.safeSetProfile(prof); 
-                if(window.updateInventoryUI) window.updateInventoryUI(); 
-            }
-        };
+            let p = localStorage.getItem('hub_user_profile');
+            if (p && index !== -1) { let prof = JSON.parse(p); prof.equippedBg = null; localStorage.setItem('hub_user_profile', JSON.stringify(prof)); if(window.updateInventoryUI) window.updateInventoryUI(); }
+        }
 
-        window.forceLockedGlobalAvatar = function() {
-            let parsedHub = window.safeGetProfile();
+        function forceLockedGlobalAvatar() {
+            let globalProfile = localStorage.getItem('hub_user_profile');
             let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
-            if (parsedHub && parsedHub.avatar) { 
-                avatarSrc = parsedHub.avatar; 
-                isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); 
+            if (globalProfile) {
+                try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); } } catch(e) {}
             }
-            
             if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) {
                 let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
                 avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
@@ -1482,7 +1504,7 @@
                     }
                 } else { if (el.textContent !== avatarSrc) { el.innerHTML = ''; el.textContent = avatarSrc; } }
             });
-        };
+        }
 
         const avatarGuardObserver = new MutationObserver((mutations) => {
             let shouldProtect = false;
@@ -1492,17 +1514,17 @@
                     if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; }
                 }
             }
-            if (shouldProtect) { avatarGuardObserver.disconnect(); window.forceLockedGlobalAvatar(); window.startAvatarGuard(); }
+            if (shouldProtect) { avatarGuardObserver.disconnect(); forceLockedGlobalAvatar(); startAvatarGuard(); }
         });
 
-        window.startAvatarGuard = function() {
+        function startAvatarGuard() {
             const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
             targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } });
-        };
+        }
 
         window.applyProfileDataToUI = function(profile) {
             const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
-            const currentId = profile.id || window.getUserId();
+            const currentId = profile.id || getUserId();
             
             const textElements = {
                 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name,
@@ -1513,10 +1535,10 @@
             };
 
             for (let id in textElements) { const el = document.getElementById(id); if (el) { el.innerText = textElements[id]; } }
-            window.forceLockedGlobalAvatar();
+            forceLockedGlobalAvatar();
             if(window.updateInventoryUI) window.updateInventoryUI();
             window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-        };
+        }
 
         window.currentLang = 'ar';
 
@@ -1541,11 +1563,11 @@
                 if (event.data.type === 'PROFILE_UPDATED' && event.data.profile) window.applyProfileDataToUI(event.data.profile);
             });
 
-            let globalProfile = window.safeGetProfile();
-            if (globalProfile) window.applyProfileDataToUI(globalProfile);
-            window.forceLockedGlobalAvatar(); window.startAvatarGuard();
+            let globalProfile = localStorage.getItem('hub_user_profile');
+            if (globalProfile) window.applyProfileDataToUI(JSON.parse(globalProfile));
+            forceLockedGlobalAvatar(); startAvatarGuard();
 
-            window.addEventListener('storage', (e) => { if (e.key === 'hub_user_profile') window.forceLockedGlobalAvatar(); });
+            window.addEventListener('storage', (e) => { if (e.key === 'hub_user_profile') forceLockedGlobalAvatar(); });
 
             const sfxSlider = document.getElementById('sfx-volume');
             if(sfxSlider) {
@@ -1554,16 +1576,16 @@
             }
 
             const btnSaveSettings = document.getElementById('save-settings-btn');
-            if(btnSaveSettings) btnSaveSettings.onclick = () => window.closeAppModal('settings-overlay');
-            window.syncRadioStatusDot();
+            if(btnSaveSettings) btnSaveSettings.onclick = () => closeAppModal('settings-overlay');
+            syncRadioStatusDot();
         });
 
-        window.uiStateChangeTracker = function() {
+        function uiStateChangeTracker() {
             const matchCard = document.getElementById('match-players-card'); const isOnline = (matchCard && matchCard.style.display !== 'none');
             if (isOnline) document.body.classList.add('online-mode-active'); else document.body.classList.remove('online-mode-active');
-        };
+        }
         
-        window.addEventListener('popstate', window.uiStateChangeTracker); document.addEventListener('click', () => setTimeout(window.uiStateChangeTracker, 50));
+        window.addEventListener('popstate', uiStateChangeTracker); document.addEventListener('click', () => setTimeout(uiStateChangeTracker, 50));
         window.addEventListener('load', () => { history.replaceState({ screen: 'dama-game' }, ''); });
 
         window.addEventListener('popstate', function(event) {
@@ -1601,36 +1623,36 @@
             } else { previewEl.innerHTML = '🎁'; previewEl.className = 'purchase-preview-box'; }
 
             buyBtn.onclick = () => {
-                window.closeAppModal('purchase-modal'); 
+                closeAppModal('purchase-modal'); 
                 setTimeout(() => {
-                    if (window.socket && typeof window.getUserId === 'function' && window.socket.connected) { window.socket.emit('requestPurchase', { userId: window.getUserId(), itemId: itemId });
-                    } else { const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً."; if (typeof window.triggerCustomAlertNotification === 'function') window.triggerCustomAlertNotification(msg); else alert(msg); }
+                    if (window.socket && typeof getUserId === 'function' && window.socket.connected) { window.socket.emit('requestPurchase', { userId: getUserId(), itemId: itemId });
+                    } else { const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً."; if (typeof triggerCustomAlertNotification === 'function') triggerCustomAlertNotification(msg); else alert(msg); }
                 }, 120);
             };
-            window.openAppModal('purchase-modal');
+            openAppModal('purchase-modal');
         };
 
-        window.syncRadioStatusDot = function() {
+        function syncRadioStatusDot() {
             const statusDot = document.getElementById('dama-radio-status');
             if (statusDot) { const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; if (isPlaying) statusDot.classList.add('active'); else statusDot.classList.remove('active'); }
-        };
+        }
 
-        window.addEventListener('storage', (e) => { if (e.key === 'hub_music_enabled') window.syncRadioStatusDot(); });
-        setInterval(window.syncRadioStatusDot, 1000);
+        window.addEventListener('storage', (e) => { if (e.key === 'hub_music_enabled') syncRadioStatusDot(); });
+        setInterval(syncRadioStatusDot, 1000);
 
     </script>
     
     <script>
-        window.syncGlobalBackground = function() {
+        function syncGlobalBackground() {
             const bg = localStorage.getItem('custom_app_bg'); 
             if (bg) {
                 let bgUrl = bg;
                 if (!bg.startsWith('http') && !bg.startsWith('data:') && !bg.startsWith('../')) { bgUrl = '../' + bg; }
                 document.body.style.backgroundImage = `url('${bgUrl}')`; document.body.style.backgroundSize = 'cover'; document.body.style.backgroundPosition = 'center'; document.body.style.backgroundAttachment = 'fixed'; document.body.style.backgroundColor = 'transparent';
             } else { document.body.style.backgroundColor = '#2c3e50'; document.body.style.backgroundImage = 'none'; }
-        };
-        document.addEventListener('DOMContentLoaded', window.syncGlobalBackground);
-        window.addEventListener('storage', (e) => { if (e.key === 'custom_app_bg') window.syncGlobalBackground(); });
+        }
+        document.addEventListener('DOMContentLoaded', syncGlobalBackground);
+        window.addEventListener('storage', (e) => { if (e.key === 'custom_app_bg') syncGlobalBackground(); });
     </script>
     
     <script>
@@ -1675,8 +1697,8 @@
     <script type="module" src="main.js"></script>
 
     <script>
-        window.requestFullScreen = function() { const element = document.documentElement; if (element.requestFullscreen) { element.requestFullscreen().catch(err => console.warn("Fullscreen Error:", err)); } else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); } else if (element.msRequestFullscreen) { element.msRequestFullscreen(); } };
-        ['click', 'touchstart'].forEach(eventType => { document.body.addEventListener(eventType, window.requestFullScreen, { once: true }); });
+        function requestFullScreen() { const element = document.documentElement; if (element.requestFullscreen) { element.requestFullscreen().catch(err => console.warn("Fullscreen Error:", err)); } else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); } else if (element.msRequestFullscreen) { element.msRequestFullscreen(); } }
+        ['click', 'touchstart'].forEach(eventType => { document.body.addEventListener(eventType, requestFullScreen, { once: true }); });
     </script>
 
     <script src="chat.js"></script>
