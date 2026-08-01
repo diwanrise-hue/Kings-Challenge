@@ -1,5 +1,9 @@
-// gameEngine.js
-import { gameState } from './main.js';
+/**
+ * gameEngine.js
+ * النسخة المحسنة: تم فك الارتباط الدائري والاعتماد على مركز البيانات.
+ */
+
+import { gameState } from './gameState.js'; // 💡 الاستيراد الجديد من مركز البيانات
 import { ui } from './uiController.js'; 
 
 let workerCachedDirections = null;
