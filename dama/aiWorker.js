@@ -1,6 +1,7 @@
 /**
- * aiWorker.js - النسخة الخارقة المحسنة (Smart Survival AI)
- * تم حل مشكلة "الغباء في المستويات العليا" وتأثير الأفق.
+ * aiWorker.js - النسخة الخارقة المحسنة (Unleashed Smart AI)
+ * تم فك قيود الوقت للمستويات العليا لتدمير تأثير الأفق (Horizon Effect)
+ * وتم تزويده بوعي تكتيكي (دفاع، هجوم، السيطرة على الوسط، وبناء الجدران).
  */
 
 const isValidPos = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
@@ -187,7 +188,7 @@ function applyPathToBoard(path, bState) {
     return newBoard;
 }
 
-// 💡 تم تحديث دالة التقييم لتصبح عبقرية وتلعب بتكتيك بدلاً من العشوائية
+// 💡 دالة التقييم الاستراتيجي: تجعل البوت يدافع ويبني تكتيكات بدلاً من العشوائية
 function evaluateBoard(bState, targetColor) {
     let score = 0;
     let myPieces = 0, oppPieces = 0;
@@ -206,10 +207,10 @@ function evaluateBoard(bState, targetColor) {
             
             let pieceValue = isDama ? 500 : 100;
             
-            // 🛡️ مكافأة ضخمة للحفاظ على الصف الخلفي (تمنع الخصم من الترقية)
+            // 🛡️ مكافأة ضخمة للحفاظ على الصف الخلفي (تمنع الخصم من الترقية بسهولة)
             let defenseBonus = (!isDama && r === (isTarget ? myBackRow : oppBackRow)) ? 30 : 0;
             
-            // ⚔️ السيطرة على منتصف الرقعة
+            // ⚔️ السيطرة على منتصف الرقعة (الوسط يعطي مرونة أكبر للحركات)
             let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 10 : 0;
             
             // 🏃‍♂️ مكافأة التقدم نحو الترقية للأحجار العادية
@@ -219,7 +220,7 @@ function evaluateBoard(bState, targetColor) {
                 advanceBonus = stepsForward * 5; 
             }
 
-            // 🧱 مكافأة الكتلة المتماسكة (حماية ظهر القطع)
+            // 🧱 مكافأة الكتلة المتماسكة (حماية ظهر القطع لمنع الضربات المزدوجة)
             let protectionBonus = 0;
             if (!isDama) {
                 let behindR = isTarget ? r - myDir : r + myDir;
@@ -242,13 +243,14 @@ function evaluateBoard(bState, targetColor) {
         }
     }));
 
-    // مكافأة استراتيجية: إذا كان لديك دامة والخصم ضعيف، طارده
+    // مكافأة استراتيجية: إذا كان لديك دامة والخصم ضعيف، قم بمطاردته
     if (myDamas > 0 && oppPieces <= 3) score += 200;
     if (oppDamas > 0 && myPieces <= 3) score -= 200;
 
     return score;
 }
 
+// تسريع البحث بإعطاء الأولوية للضربات القاضية والترقيات
 function scoreMove(path, color, bState) {
     let score = 0;
     let lastStep = path[path.length - 1];
@@ -260,16 +262,17 @@ function scoreMove(path, color, bState) {
     let isDama = piece && piece.endsWith('-dama');
 
     let captures = path.filter(step => step.midR !== null).length;
-    score += captures * 10000; // الأكل دائماً إجباري وأولوية قصوى
+    score += captures * 10000; // الأكل إجباري وذو أولوية قصوى
 
     if (!isDama && lastStep.toR === promoRow) {
-        score += 1000; // الترقية أولوية ثانية
+        score += 1000; // الترقية أولوية ثانية مباشرة
     }
 
     return score;
 }
 
 function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, startTime, maxTime, isQuiescence = false) {
+    // 🛡️ التوقف المباشر إذا نفد الوقت المخصص
     if (Date.now() - startTime > maxTime) {
         return { score: evaluateBoard(bState, targetColor), timeOut: true };
     }
@@ -278,15 +281,16 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, s
     let isCapture = moves.length > 0 && moves[0][0] && moves[0][0].midR !== null;
 
     if (depth <= 0) {
+        // 💡 تمديد البحث بخطوة إضافية إذا كانت الرقعة في حالة قتالية (Quiescence Search)
         if (isCapture && !isQuiescence) {
-            depth = 1; // 💡 الاستمرار في الحساب قليلاً إذا كانت هناك مجزرة (أكل متسلسل)
+            depth = 1; 
             isQuiescence = true; 
         } else {
             return { score: evaluateBoard(bState, targetColor) };
         }
     }
 
-    // 💡 غريزة البقاء: إضافة Depth للمجموع يجعل البوت يؤخر الخسارة ويستعجل الفوز
+    // غريزة البقاء: محاولة إطالة المباراة لأطول عدد ممكن من الحركات حتى عند الخسارة
     if (moves.length === 0) return { score: isMaximizing ? -99999 + depth : 99999 - depth };
     
     moves.sort((a, b) => scoreMove(b, color, bState) - scoreMove(a, color, bState));
@@ -333,22 +337,28 @@ self.onmessage = function(e) {
     if (!board || !aiColor) return;
 
     let startTime = Date.now();
-    let maxTime = 3000; // ⏳ ضمان عدم الانهيار إطلاقاً
+    
+    // ⏳ إطلاق العنان للوقت: البوت سيأخذ وقته الكامل في المستويات الصعبة ليقوم بحسابات مميتة
+    let maxTime = 3000; // الافتراضي 3 ثواني للمستويات السهلة والمتوسطة
+    if (maxDepth === 7) maxTime = 6000;       // 6 ثواني لمستوى الخبير/الماستر
+    else if (maxDepth >= 8) maxTime = 12000;  // 12 ثانية كاملة للمستويات المستحيلة والجراند ماستر
+
     let bestResult = null;
 
-    let safeMaxDepth = Math.min(maxDepth, 8); // 🛡️ مهما طلب الهاتف، لن نحسب أكثر من 8 لمنع الشلل المؤقت
+    // حماية إضافية من الأرقام الكبيرة جداً التي قد تأتي من الواجهة
+    let safeMaxDepth = Math.min(maxDepth, 10); 
 
+    // التعميق التدريجي (Iterative Deepening) لضمان الحصول على نتيجة دائماً
     for (let d = 1; d <= safeMaxDepth; d++) {
         let result = minimax(board, d, -Infinity, Infinity, true, aiColor, aiColor, startTime, maxTime);
         
-        // إذا انتهى الوقت أثناء هذا العمق، يتم تجاهله والاعتماد على أفضل نتيجة من العمق السابق
         if (result.timeOut && bestResult !== null) {
             break; 
         }
         
         bestResult = result;
         
-        if (bestResult.score > 90000) break; // فوز ساحق، اضرب فوراً
+        if (bestResult.score > 90000) break; // توقف مبكر إذا تم العثور على ضربة قاضية مضمونة
     }
 
     if (!bestResult || !bestResult.move) {
