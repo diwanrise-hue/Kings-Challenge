@@ -375,7 +375,8 @@
     </div>
 
     <div id="game-interface">
-        <iframe id="game-frame" src="" allowfullscreen allow="fullscreen" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
+        <!-- 💡 تم إضافة إذن المايكروفون (microphone) لحل مشكلة عدم عمل الـ WebRTC في الـ iframe أو تطبيقات الـ APK -->
+        <iframe id="game-frame" src="" allowfullscreen allow="fullscreen; microphone" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
     </div>
 
     <div id="lang-select-modal" class="modal-overlay" style="z-index: 100005;">
@@ -810,9 +811,10 @@
         function updateTranslations() {
             const t = translations[currentLang];
 
+            // 💡 سد ثغرة XSS باستخدام textContent بدلاً من innerHTML للترجمات
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (t[key]) el.innerHTML = t[key];
+                if (t[key]) el.textContent = t[key];
             });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
@@ -871,7 +873,6 @@
 
         const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
 
-        // 💡 نظام المراسلة الآمن (postMessage) من الـ Iframe لمنع الـ Cross-Origin Frame Error
         window.addEventListener('message', (event) => {
             if (!event.data) return;
             if (event.data.type === 'SYNC_PROFILE') {
@@ -881,10 +882,7 @@
             } else if (event.data.type === 'TOGGLE_RADIO') {
                 if (typeof toggleRadioPlayState === 'function') toggleRadioPlayState();
             } else if (event.data.type === 'OPEN_MODAL') {
-                // في حال أردنا نقل النوافذ المنبثقة لاحقاً لتُفتح هنا
-                if (typeof window[event.data.modalId] !== 'undefined') {
-                    // ... 
-                }
+                // ...
             }
         });
 
