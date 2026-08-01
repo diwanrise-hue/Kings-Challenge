@@ -1,6 +1,6 @@
 /**
- * aiWorker.js - النسخة الخارقة (Unstoppable AI)
- * تم تفعيل نظام التعميق التدريجي (Iterative Deepening) ومؤقت الحماية لمنع الانهيار واللعب العشوائي.
+ * aiWorker.js - النسخة الخارقة المحسنة (Smart Survival AI)
+ * تم حل مشكلة "الغباء في المستويات العليا" وتأثير الأفق.
  */
 
 const isValidPos = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
@@ -187,30 +187,48 @@ function applyPathToBoard(path, bState) {
     return newBoard;
 }
 
+// 💡 تم تحديث دالة التقييم لتصبح عبقرية وتلعب بتكتيك بدلاً من العشوائية
 function evaluateBoard(bState, targetColor) {
     let score = 0;
     let myPieces = 0, oppPieces = 0;
     let myDamas = 0, oppDamas = 0;
+    let targetPure = targetColor.split('-')[0];
+    let oppPure = targetPure === 'white' ? 'black' : 'white';
+
+    let myDir = workerPieceDirection[targetPure] !== undefined ? workerPieceDirection[targetPure] : (targetPure === 'black' ? 1 : -1);
+    let myBackRow = myDir === 1 ? 0 : 7;
+    let oppBackRow = myDir === 1 ? 7 : 0;
 
     bState.forEach((row, r) => row.forEach((p, c) => {
         if (p) {
-            let isTarget = p.startsWith(targetColor);
+            let isTarget = p.startsWith(targetPure);
             let isDama = p.endsWith('-dama');
-            let pureColor = p.split('-')[0];
-            let dir = workerPieceDirection[pureColor] !== undefined ? workerPieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1);
             
-            let pieceValue = isDama ? 40 : 10;
-            let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 0.5 : 0;
-            let advanceBonus = !isDama ? (dir === 1 ? r * 0.3 : (7 - r) * 0.3) : 0;
-            let edgePenalty = (c === 0 || c === 7) ? -0.2 : 0;
+            let pieceValue = isDama ? 500 : 100;
             
-            let defenseBonus = 0;
-            let backRow = r - dir;
-            if (isValidPos(backRow, c) && bState[backRow][c] && bState[backRow][c].startsWith(pureColor)) {
-                defenseBonus = 0.5;
+            // 🛡️ مكافأة ضخمة للحفاظ على الصف الخلفي (تمنع الخصم من الترقية)
+            let defenseBonus = (!isDama && r === (isTarget ? myBackRow : oppBackRow)) ? 30 : 0;
+            
+            // ⚔️ السيطرة على منتصف الرقعة
+            let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 10 : 0;
+            
+            // 🏃‍♂️ مكافأة التقدم نحو الترقية للأحجار العادية
+            let advanceBonus = 0;
+            if (!isDama) {
+                let stepsForward = isTarget ? Math.abs(r - myBackRow) : Math.abs(r - oppBackRow);
+                advanceBonus = stepsForward * 5; 
             }
 
-            let totalValue = pieceValue + advanceBonus + centerBonus + edgePenalty + defenseBonus;
+            // 🧱 مكافأة الكتلة المتماسكة (حماية ظهر القطع)
+            let protectionBonus = 0;
+            if (!isDama) {
+                let behindR = isTarget ? r - myDir : r + myDir;
+                if (isValidPos(behindR, c) && bState[behindR][c] && bState[behindR][c].startsWith(isTarget ? targetPure : oppPure)) {
+                    protectionBonus = 15;
+                }
+            }
+
+            let totalValue = pieceValue + advanceBonus + centerBonus + defenseBonus + protectionBonus;
 
             if (isTarget) {
                 score += totalValue;
@@ -224,8 +242,9 @@ function evaluateBoard(bState, targetColor) {
         }
     }));
 
-    if (myDamas > 0 && oppPieces <= 3) score += 5;
-    if (oppDamas > 0 && myPieces <= 3) score -= 5;
+    // مكافأة استراتيجية: إذا كان لديك دامة والخصم ضعيف، طارده
+    if (myDamas > 0 && oppPieces <= 3) score += 200;
+    if (oppDamas > 0 && myPieces <= 3) score -= 200;
 
     return score;
 }
@@ -240,26 +259,17 @@ function scoreMove(path, color, bState) {
     let piece = bState[path[0].fromR][path[0].fromC];
     let isDama = piece && piece.endsWith('-dama');
 
-    // 💡 الأولوية الأولى والأهم: حركات الأكل! هذا يسرع التفكير بنسبة هائلة
     let captures = path.filter(step => step.midR !== null).length;
-    score += captures * 1000;
+    score += captures * 10000; // الأكل دائماً إجباري وأولوية قصوى
 
-    // أولوية الترقية إلى ملك
     if (!isDama && lastStep.toR === promoRow) {
-        score += 500;
-    }
-
-    // التمركز
-    if (lastStep.toR >= 2 && lastStep.toR <= 5 && lastStep.toC >= 2 && lastStep.toC <= 5) {
-        score += 10;
+        score += 1000; // الترقية أولوية ثانية
     }
 
     return score;
 }
 
-// 💡 النسخة المطورة من خوارزمية Minimax مع مؤقت حماية لمنع الانهيار
 function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, startTime, maxTime, isQuiescence = false) {
-    // 🛡️ درع الحماية: التوقف فوراً إذا طال التفكير لإنقاذ الهاتف من الانهيار
     if (Date.now() - startTime > maxTime) {
         return { score: evaluateBoard(bState, targetColor), timeOut: true };
     }
@@ -269,16 +279,16 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, s
 
     if (depth <= 0) {
         if (isCapture && !isQuiescence) {
-            depth = 1;
+            depth = 1; // 💡 الاستمرار في الحساب قليلاً إذا كانت هناك مجزرة (أكل متسلسل)
             isQuiescence = true; 
         } else {
             return { score: evaluateBoard(bState, targetColor) };
         }
     }
 
-    if (moves.length === 0) return { score: isMaximizing ? -10000 + (20 - depth) : 10000 - (20 - depth) };
+    // 💡 غريزة البقاء: إضافة Depth للمجموع يجعل البوت يؤخر الخسارة ويستعجل الفوز
+    if (moves.length === 0) return { score: isMaximizing ? -99999 + depth : 99999 - depth };
     
-    // 💡 ترتيب الحركات لاختبار الضربات القاضية أولاً (يسرع الحسابات بـ 90%)
     moves.sort((a, b) => scoreMove(b, color, bState) - scoreMove(a, color, bState));
 
     let bestMove = moves[0];
@@ -288,7 +298,7 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, s
         let maxEval = -Infinity;
         for (let m of moves) {
             let result = minimax(applyPathToBoard(m, bState), depth - 1, alpha, beta, false, nextColor, targetColor, startTime, maxTime, isQuiescence);
-            if (result.timeOut) return { score: maxEval, move: bestMove, timeOut: true }; // التوقف الآمن
+            if (result.timeOut) return { score: maxEval === -Infinity ? evaluateBoard(bState, targetColor) : maxEval, move: bestMove, timeOut: true };
 
             if (result.score > maxEval) { maxEval = result.score; bestMove = m; }
             alpha = Math.max(alpha, result.score); 
@@ -299,7 +309,7 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, s
         let minEval = Infinity;
         for (let m of moves) {
             let result = minimax(applyPathToBoard(m, bState), depth - 1, alpha, beta, true, nextColor, targetColor, startTime, maxTime, isQuiescence);
-            if (result.timeOut) return { score: minEval, move: bestMove, timeOut: true }; // التوقف الآمن
+            if (result.timeOut) return { score: minEval === Infinity ? evaluateBoard(bState, targetColor) : minEval, move: bestMove, timeOut: true };
 
             if (result.score < minEval) { minEval = result.score; bestMove = m; }
             beta = Math.min(beta, result.score); 
@@ -311,7 +321,7 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, s
 
 self.onmessage = function(e) {
     const board = e.data.board || e.data.bState;
-    const maxDepth = e.data.depth || 8;
+    const maxDepth = e.data.depth || 6;
     const aiColor = e.data.aiColor || e.data.color;
 
     if (e.data.pieceDirection) {
@@ -323,22 +333,24 @@ self.onmessage = function(e) {
     if (!board || !aiColor) return;
 
     let startTime = Date.now();
-    let maxTime = 3000; // ⏳ البوت سيفكر لمدة 3 ثواني كحد أقصى مهما كان مستواه ليمنع الانهيار
+    let maxTime = 3000; // ⏳ ضمان عدم الانهيار إطلاقاً
     let bestResult = null;
 
-    // 💡 السحر هنا: نبدأ البحث من العمق 1 ونزيد تدريجياً. إذا انهار الوقت، نأخذ نتيجة العمق السابق!
-    for (let d = 1; d <= maxDepth; d++) {
+    let safeMaxDepth = Math.min(maxDepth, 8); // 🛡️ مهما طلب الهاتف، لن نحسب أكثر من 8 لمنع الشلل المؤقت
+
+    for (let d = 1; d <= safeMaxDepth; d++) {
         let result = minimax(board, d, -Infinity, Infinity, true, aiColor, aiColor, startTime, maxTime);
-        if (result.timeOut) {
-            // توقف بسبب الوقت، اعتمد على أذكى حركة تم التوصل لها حتى الآن
+        
+        // إذا انتهى الوقت أثناء هذا العمق، يتم تجاهله والاعتماد على أفضل نتيجة من العمق السابق
+        if (result.timeOut && bestResult !== null) {
             break; 
         }
+        
         bestResult = result;
         
-        if (bestResult.score > 9000) break; // وجد ضربة فوز قاضية، لا داعي لإكمال التفكير
+        if (bestResult.score > 90000) break; // فوز ساحق، اضرب فوراً
     }
 
-    // إذا فشل في العثور على أي حركة (شبه مستحيل)، يلعب أول حركة قانونية
     if (!bestResult || !bestResult.move) {
         let fallbackMoves = generateAllTurnMoves(aiColor, board);
         bestResult = { move: fallbackMoves[0], score: 0 };
