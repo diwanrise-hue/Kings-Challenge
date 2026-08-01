@@ -389,7 +389,6 @@ if (cancelMmBtn) {
         }
     });
 }
-// =========================================================================
 
 ui.onClick('room-portal-btn', () => { ui.setDisplay('online-modal', 'flex'); ui.setDisplay('online-status-text', 'none'); ui.setDisplay('online-setup-box', 'block'); });
 ui.onClick('online-close-btn', () => ui.setDisplay('online-modal', 'none'));
@@ -416,7 +415,7 @@ socket.on('gameStart', (data) => {
 });
 
 // =========================================================================
-// 🚨 محرك واجهة الرقعة (إصلاح ثغرات State-Driven و Multi-Jump)
+// 🚨 محرك واجهة الرقعة (إصلاح ثغرات State-Driven و Multi-Jump و Anti-Troll)
 // =========================================================================
 
 ui.onClick('board', e => {
@@ -485,7 +484,7 @@ ui.onClick('board', e => {
                 let tempBoard = gameState.virtualBoard.map(row => [...row]);
                 let movingPieceStr = tempBoard[fromRow][fromCol];
 
-                // ✅ 1. State-Driven Mutation First (تعديل المصفوفة أولاً لتفادي الـ DOM-Lag)
+                // ✅ 1. State-Driven Mutation First (تعديل المصفوفة أولاً)
                 tempBoard[midRow][midCol] = null; 
                 tempBoard[toRow][toCol] = movingPieceStr; 
                 tempBoard[fromRow][fromCol] = null;
@@ -510,20 +509,24 @@ ui.onClick('board', e => {
                             if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
                         }
                         
+                        // 💡 تحديث ذاكرة المماطلة والتعادل للحفاظ على التزامن مع السيرفر
+                        gameState.movesWithoutProgress = 0;
+                        gameState.boardHistoryStr = [];
+
                         ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
                         
                         gameState.selectedPiece = null; 
                         ui.clearHighlights();
                         gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                         
-                        // ✅ 2. رسم الواجهة بالكامل من المصفوفة الجديدة المحدثة
+                        // ✅ 2. رسم الواجهة بالكامل من المصفوفة المحدثة
                         ui.renderBoard(true);
 
-                        // ✅ 3. إرسال الحركة دفعة واحدة كإحداثيات فقط (بدون إرسال الرقعة للأمان)
+                        // ✅ 3. إرسال الحركة دفعة واحدة (بدون إرسال الرقعة للأمان)
                         socketManager.sendMoveToServer(
                             gameState.moveSequenceStartR, gameState.moveSequenceStartC, 
                             toRow, toCol, 
-                            null, // منع إرسال الرقعة كاملة (Fixing Client Authority)
+                            null, 
                             gameState.currentTurn
                         ); 
                         
@@ -540,7 +543,7 @@ ui.onClick('board', e => {
                         // ✅ رسم الواجهة لتعكس مكان القطعة المؤقت
                         ui.renderBoard(true);
 
-                        // إعادة تحديد القطعة بعد إعادة رسمها
+                        // إعادة تحديد القطعة بعد رسمها
                         const boardEl = document.getElementById('board');
                         const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
                         if (newCell && newCell.children.length > 0) {
@@ -576,9 +579,21 @@ ui.onClick('board', e => {
                 gameState.virtualBoard[toRow][toCol] = movingPieceStr;
                 
                 let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
+                let isPromotion = false;
+                
                 if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
                     gameState.virtualBoard[toRow][toCol] += '-dama'; 
+                    isPromotion = true;
                     if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                }
+                
+                // 💡 تحديث ذاكرة المماطلة والتعادل للحفاظ على التزامن مع السيرفر
+                if (isPromotion) {
+                    gameState.movesWithoutProgress = 0;
+                    gameState.boardHistoryStr = [];
+                } else {
+                    gameState.movesWithoutProgress++;
+                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
                 }
                 
                 if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
@@ -596,7 +611,7 @@ ui.onClick('board', e => {
                 socketManager.sendMoveToServer(
                     fromRow, fromCol, 
                     toRow, toCol, 
-                    null, // أمان العميل
+                    null, 
                     gameState.currentTurn
                 ); 
                 
