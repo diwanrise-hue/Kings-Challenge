@@ -1,5 +1,5 @@
 // main.js
-import { gameState } from './gameState.js'; // 💡 الاستيراد الجديد من مركز البيانات
+import { gameState } from './gameState.js'; 
 import { ui } from './uiController.js';
 import { socket, socketManager } from './socketManager.js'; 
 import { gameEngine } from './gameEngine.js'; 
@@ -294,7 +294,6 @@ socket.on('profileUpdated', (profile) => {
         updateSpinTimerDisplay(profile.nextFreeSpin);
     }
 });
-// =========================================================================
 
 // =========================================================================
 // 💡 زر الأونلاين ونافذة البحث
@@ -416,29 +415,58 @@ socket.on('gameStart', (data) => {
     gameState.roomBet = data.roomBet || 0;
 });
 
+// =========================================================================
+// 🚨 محرك واجهة الرقعة (إصلاح ثغرات State-Driven و Multi-Jump)
+// =========================================================================
+
 ui.onClick('board', e => {
     if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
+    
     const target = e.target;
+    const cell = target.classList.contains('cell') ? target : target.parentElement;
 
+    // 1. منطق تحديد القطعة (Piece Selection)
     if (target.classList.contains('piece') && !gameState.isMultiJumping) {
         if (gameState.isOnlineMode && !target.classList.contains(gameState.myOnlineColor)) return;
         if ((gameState.currentTurn === 'white' && !target.classList.contains('white')) || (gameState.currentTurn === 'black' && target.classList.contains('white'))) return;
-        const r = parseInt(target.parentElement.dataset.row), c = parseInt(target.parentElement.dataset.col);
+        
+        const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
         if (gameState.requiredJumps > 0 && gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
         
         if (gameState.selectedPiece) gameState.selectedPiece.classList.remove('selected');
-        gameState.selectedPiece = target; gameState.selectedPiece.classList.add('selected');
-        if (gameState.currentTurn !== gameState.playerColor && !gameState.isOnlineMode) { gameState.opponentStartRow = r; gameState.opponentStartCol = c; }
-        ui.showValidMovesHighlights(r, c); return;
+        gameState.selectedPiece = target; 
+        gameState.selectedPiece.classList.add('selected');
+        
+        if (gameState.currentTurn !== gameState.playerColor && !gameState.isOnlineMode) { 
+            gameState.opponentStartRow = r; 
+            gameState.opponentStartCol = c; 
+        }
+        ui.showValidMovesHighlights(r, c); 
+        return;
     }
 
-    if (gameState.selectedPiece && target.classList.contains('cell') && target.children.length === 0) {
-        const fromRow = parseInt(gameState.selectedPiece.parentElement.dataset.row), fromCol = parseInt(gameState.selectedPiece.parentElement.dataset.col);
-        const toRow = parseInt(target.dataset.row), toCol = parseInt(target.dataset.col);
-        const rDiff = toRow - fromRow, cDiff = toCol - fromCol, isDama = gameState.selectedPiece.classList.contains('dama');
+    // 2. منطق تنفيذ الحركة (Move Execution)
+    if (gameState.selectedPiece && cell.classList.contains('cell') && cell.children.length === 0) {
+        const fromRow = parseInt(gameState.selectedPiece.parentElement.dataset.row);
+        const fromCol = parseInt(gameState.selectedPiece.parentElement.dataset.col);
+        const toRow = parseInt(cell.dataset.row);
+        const toCol = parseInt(cell.dataset.col);
 
+        const rDiff = toRow - fromRow;
+        const cDiff = toCol - fromCol;
+        const isDama = gameState.selectedPiece.classList.contains('dama');
+        const pieceColor = gameState.selectedPiece.classList.contains('white') ? 'white' : 'black';
+
+        // تتبع نقطة الانطلاق الأولى للقفزات المتعددة لإرسالها مرة واحدة
+        if (gameState.moveSequenceStartR === undefined || gameState.moveSequenceStartR === null) {
+            gameState.moveSequenceStartR = fromRow;
+            gameState.moveSequenceStartC = fromCol;
+        }
+
+        // --- حالة القفز والأكل ---
         if (gameState.requiredJumps > 0) {
             let isValidJump = false, midRow = -1, midCol = -1, currDr = Math.sign(rDiff), currDc = Math.sign(cDiff);
+            
             if (isDama) {
                 if (!(gameState.isMultiJumping && currDr === -gameState.lastJumpDir.dr && currDc === -gameState.lastJumpDir.dc)) {
                     let jt = gameEngine.getDamaJumpTarget(fromRow, fromCol, toRow, toCol, gameState.currentTurn);
@@ -446,35 +474,81 @@ ui.onClick('board', e => {
                 }
             } else if ((Math.abs(rDiff) === 2 && cDiff === 0) || (rDiff === 0 && Math.abs(cDiff) === 2)) {
                 if (rDiff === gameState.pieceDirection[gameState.currentTurn] * 2 || rDiff === 0) {
-                    midRow = fromRow + rDiff / 2; midCol = fromCol + cDiff / 2;
-                    let mc = ui.getEl('board').querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`);
-                    if (mc && mc.children.length > 0 && !mc.children[0].classList.contains(gameState.currentTurn)) isValidJump = true;
+                    midRow = fromRow + rDiff / 2; 
+                    midCol = fromCol + cDiff / 2;
+                    let midPiece = gameState.virtualBoard[midRow][midCol];
+                    if (midPiece && !midPiece.startsWith(gameState.currentTurn)) isValidJump = true;
                 }
             }
+
             if (isValidJump) {
                 let tempBoard = gameState.virtualBoard.map(row => [...row]);
-                tempBoard[midRow][midCol] = null; tempBoard[toRow][toCol] = tempBoard[fromRow][fromCol]; tempBoard[fromRow][fromCol] = null;
+                let movingPieceStr = tempBoard[fromRow][fromCol];
+
+                // ✅ 1. State-Driven Mutation First (تعديل المصفوفة أولاً لتفادي الـ DOM-Lag)
+                tempBoard[midRow][midCol] = null; 
+                tempBoard[toRow][toCol] = movingPieceStr; 
+                tempBoard[fromRow][fromCol] = null;
+
                 if (1 + gameEngine.findMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
+                    
                     if (typeof ui.playSound === 'function') {
                         ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied);
                     }
-                    ui.getEl('board').querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`)?.replaceChildren();
-                    target.appendChild(gameState.selectedPiece); 
-                    if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move);
                     
-                    gameState.virtualBoard = tempBoard; gameState.jumpsCount++; gameState.lastJumpDir = { dr: currDr, dc: currDc };
-                    if (gameState.jumpsCount === gameState.requiredJumps) {
-                        let promoRow = gameState.pieceDirection[gameState.selectedPiece.classList.contains('white') ? 'white' : 'black'] === 1 ? 7 : 0;
-                        if (toRow === promoRow && !gameState.selectedPiece.classList.contains('dama')) { gameState.selectedPiece.classList.add('dama'); if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); }
+                    gameState.virtualBoard = tempBoard; 
+                    gameState.jumpsCount++; 
+                    gameState.lastJumpDir = { dr: currDr, dc: currDc };
+
+                    let isFinalJump = (gameState.jumpsCount === gameState.requiredJumps);
+
+                    if (isFinalJump) {
+                        // ترقية القطعة
+                        let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
+                        if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
+                            gameState.virtualBoard[toRow][toCol] += '-dama'; 
+                            if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                        }
                         
-                        ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
+                        ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
                         
-                        gameState.selectedPiece.classList.remove('selected'); gameState.selectedPiece = null; ui.clearHighlights();
+                        gameState.selectedPiece = null; 
+                        ui.clearHighlights();
                         gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
-                        ui.updateVirtualBoardState(); socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, gameState.virtualBoard, gameState.currentTurn); saveGameState(); ui.startTurn();
+                        
+                        // ✅ 2. رسم الواجهة بالكامل من المصفوفة الجديدة المحدثة
+                        ui.renderBoard(true);
+
+                        // ✅ 3. إرسال الحركة دفعة واحدة كإحداثيات فقط (بدون إرسال الرقعة للأمان)
+                        socketManager.sendMoveToServer(
+                            gameState.moveSequenceStartR, gameState.moveSequenceStartC, 
+                            toRow, toCol, 
+                            null, // منع إرسال الرقعة كاملة (Fixing Client Authority)
+                            gameState.currentTurn
+                        ); 
+                        
+                        saveGameState(); 
+                        ui.startTurn();
+
+                        // تصفير تتبع المسار
+                        gameState.moveSequenceStartR = null;
+                        gameState.moveSequenceStartC = null;
                     } else { 
-                        gameState.isMultiJumping = true; document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced')); 
-                        ui.updateVirtualBoardState(); 
+                        // أثناء القفز المتعدد
+                        gameState.isMultiJumping = true; 
+                        
+                        // ✅ رسم الواجهة لتعكس مكان القطعة المؤقت
+                        ui.renderBoard(true);
+
+                        // إعادة تحديد القطعة بعد إعادة رسمها
+                        const boardEl = document.getElementById('board');
+                        const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
+                        if (newCell && newCell.children.length > 0) {
+                            gameState.selectedPiece = newCell.children[0];
+                            gameState.selectedPiece.classList.add('selected');
+                        }
+
+                        // ⛔ لا يتم إرسال الحركة للسيرفر هنا (Fixing Multi-Jump Desync)
 
                         if (!gameState.isOnlineMode) {
                             if (!gameState.boardHistory) gameState.boardHistory = [];
@@ -484,23 +558,53 @@ ui.onClick('board', e => {
                             });
                         }
 
-                        socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, gameState.virtualBoard, gameState.currentTurn);
                         ui.showValidMovesHighlights(toRow, toCol); 
                     }
-                } else ui.showCustomAlert(t('must_capture'));
+                } else {
+                    ui.showCustomAlert(t('must_capture'));
+                }
             }
-        } else {
+        } 
+        // --- حالة الحركة العادية (بدون أكل) ---
+        else {
             if ((isDama && gameEngine.isValidDamaMove(fromRow, fromCol, toRow, toCol)) || (!isDama && ((Math.abs(rDiff) === 1 && cDiff === 0 && (rDiff === gameState.pieceDirection[gameState.currentTurn])) || (rDiff === 0 && Math.abs(cDiff) === 1)))) {
-                target.appendChild(gameState.selectedPiece); 
-                let promoRow = gameState.pieceDirection[gameState.selectedPiece.classList.contains('white') ? 'white' : 'black'] === 1 ? 7 : 0;
-                if (toRow === promoRow && !gameState.selectedPiece.classList.contains('dama')) { gameState.selectedPiece.classList.add('dama'); if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); }
-                if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); ui.updateVirtualBoardState();
+                
+                let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
+
+                // ✅ 1. State-Driven Mutation First
+                gameState.virtualBoard[fromRow][fromCol] = null;
+                gameState.virtualBoard[toRow][toCol] = movingPieceStr;
+                
+                let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
+                if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
+                    gameState.virtualBoard[toRow][toCol] += '-dama'; 
+                    if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                }
+                
+                if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
                 
                 ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
                 
-                gameState.selectedPiece.classList.remove('selected'); gameState.selectedPiece = null; ui.clearHighlights();
+                gameState.selectedPiece = null; 
+                ui.clearHighlights();
                 gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
-                socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, gameState.virtualBoard, gameState.currentTurn); saveGameState(); ui.startTurn();
+                
+                // ✅ 2. رسم الواجهة
+                ui.renderBoard(true);
+
+                // ✅ 3. إرسال الإحداثيات فقط
+                socketManager.sendMoveToServer(
+                    fromRow, fromCol, 
+                    toRow, toCol, 
+                    null, // أمان العميل
+                    gameState.currentTurn
+                ); 
+                
+                saveGameState(); 
+                ui.startTurn();
+
+                gameState.moveSequenceStartR = null;
+                gameState.moveSequenceStartC = null;
             }
         }
     }
