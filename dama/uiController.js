@@ -1,5 +1,5 @@
 // uiController.js
-import { gameState } from './gameState.js'; // 💡 استيراد من مركز البيانات الجديد
+import { gameState } from './gameState.js'; 
 import { saveGameState, restoreOfflineHintSystem } from './main.js';
 import { gameEngine } from './gameEngine.js';
 import { gameAI } from './gameAI.js';
@@ -29,12 +29,10 @@ function getAiWorker() {
 
 window.isMatchRunning = false;
 
-// 🌟 دالة اختيار مستوى الذكاء الاصطناعي من النافذة الجديدة 🌟
 window.setAiLevel = function(level) {
     document.getElementById('diff-quick-select').value = level;
     document.getElementById('custom-diff-btn').innerText = 'L' + level;
     
-    // تحديث الشكل المرئي للأزرار
     document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
     let activeBtn = document.getElementById('lvl-btn-' + level);
     if(activeBtn) activeBtn.classList.add('active');
@@ -210,7 +208,6 @@ export const ui = {
         
         const msgContainer = this.getEl('custom-alert-message');
         if (msgContainer) {
-            // 💡 سد ثغرة XSS باستخدام إنشاء العنصر برمجياً وتطبيق textContent
             msgContainer.innerHTML = '';
             const safeDiv = document.createElement('div');
             safeDiv.style.cssText = "line-height: 1.6; font-size: 14px;";
@@ -299,7 +296,6 @@ export const ui = {
         if (btnFree) btnFree.style.pointerEvents = 'none';
         if (btnPaid) btnPaid.style.pointerEvents = 'none';
 
-        // 🌟 معادلة دوران العجلة المحدثة لتقف في منتصف الخانة تماماً
         const extraSpins = 5 * 360; 
         const targetDeg = extraSpins + (360 - (((prizeIndex + 1) * 45) % 360));
 
@@ -398,7 +394,6 @@ export const ui = {
         this.setDisplay('lucky-spin-portal-btn', flexState); 
         this.setDisplay('hamburger-menu-btn', flexState);
         
-        // إظهار زر تحديد المستوى المخصص الجديد بدلاً من القائمة المنسدلة
         this.setDisplay('custom-diff-btn', inlineState);
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
@@ -630,6 +625,8 @@ export const ui = {
         gameState.selectedPiece = null;
         gameState.lastJumpDir = { dr: null, dc: null };
         gameState.boardHistory = []; 
+        gameState.boardHistoryStr = [];
+        gameState.movesWithoutProgress = 0;
 
         this.toggleOfflineInMatchUI(false);
         this.toggleOnlineUILayout(false); 
@@ -658,6 +655,8 @@ export const ui = {
         
         gameState.botMoveCount = 0;
         gameState.boardHistory = []; 
+        gameState.boardHistoryStr = [];
+        gameState.movesWithoutProgress = 0;
 
         const tutorialCheck = document.getElementById('tutorial-mode-checkbox');
         if (!gameState.isOnlineMode && tutorialCheck) {
@@ -754,7 +753,6 @@ export const ui = {
 
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
             
-            // 💡 شرط محمي لمنع تداخل الصوت المستمر
             if (gameState.turnTimeLeft <= 10 && gameState.turnTimeLeft > 0 && !hasPlayedTick) {
                 hasPlayedTick = true;
                 let playPromise = sfx.clock.play();
@@ -788,6 +786,32 @@ export const ui = {
 
         this.updateVirtualBoardState();
 
+        // 💡 فحص المماطلة وتكرار الرقعة (Anti-Trolling Rule)
+        let repCount = gameEngine.checkRepetitionAndStalling();
+        if (repCount === 3 && gameState.currentTurn === gameState.playerColor && !gameState.isBotOpponent) {
+            this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة");
+        } else if (repCount >= 4) {
+            if (gameState.blockGameOverModal) return;
+            let winnerColor = gameState.currentTurn === 'white' ? 'black' : 'white';
+            if (tInd) {
+                tInd.textContent = "خسارة بسبب المماطلة 🚫";
+                tInd.style.color = "#e74c3c";
+            }
+            gameEngine.endGame(winnerColor);
+            return;
+        }
+
+        // 💡 فحص التعادل التلقائي أو الخمول الإجباري (40 حركة بدون تقدم أو 1 ضد 1 مسدودة)
+        if (gameState.movesWithoutProgress >= 40 || gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn)) {
+            if (gameState.blockGameOverModal) return;
+            if (tInd) {
+                tInd.textContent = "تم إعلان التعادل 🤝";
+                tInd.style.color = "#f1c40f";
+            }
+            gameEngine.endGame('draw');
+            return;
+        }
+
         if (!gameState.isOnlineMode) {
             if (!gameState.boardHistory) gameState.boardHistory = [];
             let currentBoardStr = JSON.stringify(gameState.virtualBoard);
@@ -802,7 +826,6 @@ export const ui = {
         
         gameState.lastJumpDir = { dr: null, dc: null };
         document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
-        
         document.querySelectorAll('.piece.multi-choice').forEach(p => p.classList.remove('multi-choice'));
         
         let wMoves = gameEngine.generateAllTurnMoves('white', gameState.virtualBoard).length;
@@ -930,6 +953,10 @@ export const ui = {
                     self.playSound(gameState.virtualBoard[step.midR][step.midC]?.includes('dama') ? sfx.kingDied : sfx.piecesDied);
                     let midCell = board.querySelector(`[data-row="${step.midR}"][data-col="${step.midC}"]`);
                     if (midCell) midCell.innerHTML = '';
+                    
+                    // تنظيف الذاكرة عند الأكل (دعم البوت)
+                    gameState.movesWithoutProgress = 0;
+                    gameState.boardHistoryStr = [];
                 }
                 
                 if (tCell && fCell?.children.length > 0) {
@@ -943,14 +970,28 @@ export const ui = {
                 if (stepIdx >= chosenMove.length) {
                     let last = chosenMove[chosenMove.length - 1];
                     let finalCell = board.querySelector(`[data-row="${last.toR}"][data-col="${last.toC}"]`);
+                    let isPromotion = false;
+                    
                     if (finalCell?.children.length > 0) {
                         const isWhitePiece = finalCell.children[0].classList.contains('white');
                         let realPromoRow = gameState.pieceDirection[isWhitePiece ? 'white' : 'black'] === 1 ? 7 : 0;
                         if (last.toR === realPromoRow && !finalCell.children[0].classList.contains('dama')) {
                             finalCell.children[0].classList.add('dama');
                             self.playSound(sfx.kingCreated);
+                            isPromotion = true;
                         }
                     }
+                    
+                    // إدارة الذاكرة للبوت
+                    if (isPromotion) {
+                        gameState.movesWithoutProgress = 0;
+                        gameState.boardHistoryStr = [];
+                    } else if (chosenMove.some(s => s.midR === null)) { 
+                        // حركة عادية بدون أكل
+                        gameState.movesWithoutProgress++;
+                        gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                    }
+
                     self.highlightMove({ r: startRow, c: startCol }, { r: last.toR, c: last.toC });
                     gameState.currentTurn = gameState.playerColor;
                     saveGameState();
@@ -1024,12 +1065,16 @@ export const ui = {
         
         box.appendChild(this.makeEl('h3', null, "margin:0 0 15px 0;color:#87ceeb;font-size:26px;font-weight:700;text-align:center;", t('go_title')));
         
-        const trophy = this.makeEl('div', null, "font-size:50px;margin:10px 0 20px 0;text-shadow:0 0 15px rgba(255,215,0,0.4);", "🏆");
+        // 💡 تعديل الأيقونة في حالة التعادل
+        const isDraw = winnerColor === 'draw';
+        const iconStr = isDraw ? "🤝" : "🏆";
+        const trophy = this.makeEl('div', null, "font-size:50px;margin:10px 0 20px 0;text-shadow:0 0 15px rgba(255,215,0,0.4);", iconStr);
         box.appendChild(trophy);
         
         const isMeWin = winnerColor === (gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor);
         
-        const createPlayerBox = (name, avatar, isCustom, isWin) => {
+        // 💡 تعديل بناء بطاقة اللاعب لتدعم التعادل
+        const createPlayerBox = (name, avatar, isCustom, isWin, isDrawMatch) => {
             const pBox = this.makeEl('div', null, "display:flex;flex-direction:column;align-items:center;width:45%;");
             
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);box-shadow:0 10px 25px rgba(0,0,0,0.2);");
@@ -1040,10 +1085,18 @@ export const ui = {
             
             const nameSpan = this.makeEl('span', null, "margin-top:8px;font-size:13px;font-weight:600;color:#ffffff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;", name);
             
-            const statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)';
-            const statusColor = isWin ? '#30d158' : '#ff453a';
-            const statusBorder = isWin ? 'rgba(48,209,88,0.3)' : 'rgba(255,69,58,0.3)';
-            const statusText = isWin ? t('winner') : t('loser');
+            let statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)';
+            let statusColor = isWin ? '#30d158' : '#ff453a';
+            let statusBorder = isWin ? 'rgba(48,209,88,0.3)' : 'rgba(255,69,58,0.3)';
+            let statusText = isWin ? t('winner') : t('loser');
+
+            if (isDrawMatch) {
+                statusBg = 'rgba(241, 196, 15, 0.15)';
+                statusColor = '#f1c40f';
+                statusBorder = 'rgba(241, 196, 15, 0.3)';
+                statusText = 'تعادل';
+            }
+
             const statusSpan = this.makeEl('span', null, `font-size:12px;margin-top:8px;padding:4px 12px;border-radius:50px;font-weight:600;background:${statusBg};color:${statusColor};border:1px solid ${statusBorder};display:inline-block;`, statusText);
             
             pBox.append(avContainer, nameSpan, statusSpan);
@@ -1061,8 +1114,8 @@ export const ui = {
 
         if (gameState.userProfile) {
             flex.append(
-                createPlayerBox(gameState.userProfile.name, gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, isMeWin), 
-                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin)
+                createPlayerBox(gameState.userProfile.name, gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, isMeWin, isDraw), 
+                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin, isDraw)
             );
         }
         box.appendChild(flex);
@@ -1139,18 +1192,34 @@ export const ui = {
                     let isBossLevel = false;
                     let isBetMatch = false;
                     let lvl = parseInt(this.getVal('diff-quick-select', '3')) || 3;
+                    
+                    // 💡 فحص نوع الغرفة وتوزيع الجوائز 
+                    let isMatchmaking = gameState.isOnlineMode && gameState.onlineRoomID && gameState.onlineRoomID.startsWith('MM-');
 
                     if (gameState.isOnlineMode) {
-                        xpGained = isMeWin ? 50 : 15; 
-                        if (gameState.roomBet && gameState.roomBet > 0) {
-                            isBetMatch = true;
-                            displayReward = gameState.roomBet; 
+                        if (gameState.roomBet && gameState.roomBet > 0) isBetMatch = true;
+
+                        if (isMatchmaking) {
+                            if (isDraw) {
+                                xpGained = 15;
+                                displayReward = isBetMatch ? 0 : 25;
+                            } else {
+                                xpGained = isMeWin ? 50 : 15; 
+                                displayReward = isBetMatch ? gameState.roomBet : (isMeWin ? 120 : 10);
+                            }
                         } else {
-                            displayReward = isMeWin ? 120 : 10; 
+                            // الغرف الخاصة (لا توجد خبرة)
+                            xpGained = 0;
+                            if (isDraw) {
+                                displayReward = 0; 
+                            } else {
+                                displayReward = isBetMatch ? gameState.roomBet : 0;
+                            }
                         }
                     } else {
-                        xpGained = isMeWin ? 25 : 5; 
+                        // اللعب ضد البوت
                         if (isMeWin) {
+                            xpGained = 25;
                             if (lvl <= 2) displayReward = 10;
                             else if (lvl <= 4) displayReward = 15;
                             else if (lvl <= 6) displayReward = 50;
@@ -1160,36 +1229,46 @@ export const ui = {
                                 isBossLevel = true;
                             }
                         } else {
-                            displayReward = 10;
+                            xpGained = 0;
+                            displayReward = 0;
                         }
                     }
 
-                    if (displayReward !== 0) {
+                    // 💡 إظهار نافذة المال واسترداد الرهان
+                    if (displayReward !== 0 || isDraw || (isBetMatch && !isDraw && !isMeWin)) {
                         let rewardText = "";
                         let alertColor = "#f5a623";
 
                         if (isBetMatch) {
-                            if (isMeWin) {
+                            if (isDraw) {
+                                rewardText = `🤝 تم استرداد الرهان بأمان`;
+                                alertColor = "#f1c40f"; 
+                            } else if (isMeWin) {
                                 rewardText = `💰 جائزة الرهان: +${displayReward} 🪙`;
                                 alertColor = "#30d158"; 
                             } else {
-                                rewardText = `💸 خسارة الرهان: -${displayReward} 🪙`;
+                                rewardText = `💸 خسارة الرهان: -${gameState.roomBet} 🪙`;
                                 alertColor = "#ff453a"; 
                             }
                         } else if (isBossLevel) {
                             rewardText = `👑 مكافأة الزعيم: +${displayReward} 🪙`;
-                        } else {
+                        } else if (displayReward > 0) {
                             rewardText = `${(t('tokenReward') || 'المكافأة:')} +${displayReward} 🪙`;
                             alertColor = isMeWin ? "#f5a623" : "#87ceeb"; 
                         }
                         
-                        box.appendChild(this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`, rewardText));
+                        if (rewardText !== "") {
+                            box.appendChild(this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`, rewardText));
+                        }
                     }
 
-                    box.appendChild(this.makeEl('div', 'xp-reward-alert', "margin-top:8px; color:#34c759; font-weight:800; font-size:15px; text-shadow: 0 0 8px rgba(52, 199, 89, 0.4); animation: modalFadeIn 0.5s ease;", `✨ اكتساب الخبرة: +${xpGained} XP`));
+                    // 💡 إظهار نافذة الخبرة
+                    if (xpGained > 0) {
+                        box.appendChild(this.makeEl('div', 'xp-reward-alert', "margin-top:8px; color:#34c759; font-weight:800; font-size:15px; text-shadow: 0 0 8px rgba(52, 199, 89, 0.4); animation: modalFadeIn 0.5s ease;", `✨ اكتساب الخبرة: +${xpGained} XP`));
+                    }
 
-                    if (!gameState.isOnlineMode) {
-                        socket.emit('claimBotReward', { isWin: isMeWin, level: lvl });
+                    if (!gameState.isOnlineMode && isMeWin) {
+                        socket.emit('claimBotReward', { isWin: true, level: lvl });
                     }
                 }
             } else {
@@ -1425,10 +1504,12 @@ ui.onClick('undo-btn', () => {
     }
 
     gameState.boardHistory.pop();
+    if (gameState.boardHistoryStr && gameState.boardHistoryStr.length > 0) gameState.boardHistoryStr.pop();
 
     while (gameState.boardHistory.length > 1 && 
            gameState.boardHistory[gameState.boardHistory.length - 1].turn !== gameState.playerColor) {
         gameState.boardHistory.pop();
+        if (gameState.boardHistoryStr && gameState.boardHistoryStr.length > 0) gameState.boardHistoryStr.pop();
     }
 
     let prevState = gameState.boardHistory[gameState.boardHistory.length - 1];
@@ -1557,6 +1638,187 @@ ui.onClick('hint-btn', () => {
             let bestMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 6 ? 6 : hintDepth, -Infinity, Infinity, true, myColor).move || eleganceMoves[0];
             showGlow(bestMove);
         }, 50);
+    }
+});
+
+// 💡 محرك الرقعة والتنظيف الذكي للذاكرة
+ui.onClick('board', e => {
+    if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
+    
+    const target = e.target;
+    const cell = target.classList.contains('cell') ? target : target.parentElement;
+
+    if (target.classList.contains('piece') && !gameState.isMultiJumping) {
+        if (gameState.isOnlineMode && !target.classList.contains(gameState.myOnlineColor)) return;
+        if ((gameState.currentTurn === 'white' && !target.classList.contains('white')) || (gameState.currentTurn === 'black' && target.classList.contains('white'))) return;
+        
+        const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
+        if (gameState.requiredJumps > 0 && gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
+        
+        if (gameState.selectedPiece) gameState.selectedPiece.classList.remove('selected');
+        gameState.selectedPiece = target; 
+        gameState.selectedPiece.classList.add('selected');
+        
+        if (gameState.currentTurn !== gameState.playerColor && !gameState.isOnlineMode) { 
+            gameState.opponentStartRow = r; 
+            gameState.opponentStartCol = c; 
+        }
+        ui.showValidMovesHighlights(r, c); 
+        return;
+    }
+
+    if (gameState.selectedPiece && cell.classList.contains('cell') && cell.children.length === 0) {
+        const fromRow = parseInt(gameState.selectedPiece.parentElement.dataset.row);
+        const fromCol = parseInt(gameState.selectedPiece.parentElement.dataset.col);
+        const toRow = parseInt(cell.dataset.row);
+        const toCol = parseInt(cell.dataset.col);
+
+        const rDiff = toRow - fromRow;
+        const cDiff = toCol - fromCol;
+        const isDama = gameState.selectedPiece.classList.contains('dama');
+        const pieceColor = gameState.selectedPiece.classList.contains('white') ? 'white' : 'black';
+
+        if (gameState.moveSequenceStartR === undefined || gameState.moveSequenceStartR === null) {
+            gameState.moveSequenceStartR = fromRow;
+            gameState.moveSequenceStartC = fromCol;
+        }
+
+        if (gameState.requiredJumps > 0) {
+            let isValidJump = false, midRow = -1, midCol = -1, currDr = Math.sign(rDiff), currDc = Math.sign(cDiff);
+            
+            if (isDama) {
+                if (!(gameState.isMultiJumping && currDr === -gameState.lastJumpDir.dr && currDc === -gameState.lastJumpDir.dc)) {
+                    let jt = gameEngine.getDamaJumpTarget(fromRow, fromCol, toRow, toCol, gameState.currentTurn);
+                    if (jt) { isValidJump = true; midRow = jt.row; midCol = jt.col; }
+                }
+            } else if ((Math.abs(rDiff) === 2 && cDiff === 0) || (rDiff === 0 && Math.abs(cDiff) === 2)) {
+                if (rDiff === gameState.pieceDirection[gameState.currentTurn] * 2 || rDiff === 0) {
+                    midRow = fromRow + rDiff / 2; 
+                    midCol = fromCol + cDiff / 2;
+                    let midPiece = gameState.virtualBoard[midRow][midCol];
+                    if (midPiece && !midPiece.startsWith(gameState.currentTurn)) isValidJump = true;
+                }
+            }
+
+            if (isValidJump) {
+                let tempBoard = gameState.virtualBoard.map(row => [...row]);
+                let movingPieceStr = tempBoard[fromRow][fromCol];
+
+                tempBoard[midRow][midCol] = null; 
+                tempBoard[toRow][toCol] = movingPieceStr; 
+                tempBoard[fromRow][fromCol] = null;
+
+                if (1 + gameEngine.findMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
+                    
+                    if (typeof ui.playSound === 'function') {
+                        ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied);
+                    }
+                    
+                    gameState.virtualBoard = tempBoard; 
+                    gameState.jumpsCount++; 
+                    gameState.lastJumpDir = { dr: currDr, dc: currDc };
+
+                    let isFinalJump = (gameState.jumpsCount === gameState.requiredJumps);
+
+                    if (isFinalJump) {
+                        let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
+                        if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
+                            gameState.virtualBoard[toRow][toCol] += '-dama'; 
+                            if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                        }
+                        
+                        // 💡 تصفير العداد وتنظيف الذاكرة بسبب إتمام حركة الأكل
+                        gameState.movesWithoutProgress = 0;
+                        gameState.boardHistoryStr = [];
+                        
+                        ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
+                        
+                        gameState.selectedPiece = null; 
+                        ui.clearHighlights();
+                        gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+                        
+                        ui.renderBoard(true);
+
+                        socketManager.sendMoveToServer(
+                            gameState.moveSequenceStartR, gameState.moveSequenceStartC, 
+                            toRow, toCol, null, gameState.currentTurn
+                        ); 
+                        
+                        saveGameState(); 
+                        ui.startTurn();
+
+                        gameState.moveSequenceStartR = null;
+                        gameState.moveSequenceStartC = null;
+                    } else { 
+                        gameState.isMultiJumping = true; 
+                        ui.renderBoard(true);
+
+                        const boardEl = document.getElementById('board');
+                        const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
+                        if (newCell && newCell.children.length > 0) {
+                            gameState.selectedPiece = newCell.children[0];
+                            gameState.selectedPiece.classList.add('selected');
+                        }
+
+                        if (!gameState.isOnlineMode) {
+                            if (!gameState.boardHistory) gameState.boardHistory = [];
+                            gameState.boardHistory.push({
+                                board: JSON.parse(JSON.stringify(gameState.virtualBoard)),
+                                turn: gameState.currentTurn
+                            });
+                        }
+
+                        ui.showValidMovesHighlights(toRow, toCol); 
+                    }
+                } else {
+                    ui.showCustomAlert(t('must_capture'));
+                }
+            }
+        } 
+        else {
+            if ((isDama && gameEngine.isValidDamaMove(fromRow, fromCol, toRow, toCol)) || (!isDama && ((Math.abs(rDiff) === 1 && cDiff === 0 && (rDiff === gameState.pieceDirection[gameState.currentTurn])) || (rDiff === 0 && Math.abs(cDiff) === 1)))) {
+                
+                let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
+
+                gameState.virtualBoard[fromRow][fromCol] = null;
+                gameState.virtualBoard[toRow][toCol] = movingPieceStr;
+                
+                let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
+                let isPromotion = false;
+                if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
+                    gameState.virtualBoard[toRow][toCol] += '-dama'; 
+                    isPromotion = true;
+                    if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                }
+                
+                // 💡 تصفير الذاكرة في حال الترقية، أو زيادتها في الحركة العادية
+                if (isPromotion) {
+                    gameState.movesWithoutProgress = 0;
+                    gameState.boardHistoryStr = [];
+                } else {
+                    gameState.movesWithoutProgress++;
+                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                }
+                
+                if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
+                
+                ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
+                
+                gameState.selectedPiece = null; 
+                ui.clearHighlights();
+                gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+                
+                ui.renderBoard(true);
+
+                socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, null, gameState.currentTurn); 
+                
+                saveGameState(); 
+                ui.startTurn();
+
+                gameState.moveSequenceStartR = null;
+                gameState.moveSequenceStartC = null;
+            }
+        }
     }
 });
 
