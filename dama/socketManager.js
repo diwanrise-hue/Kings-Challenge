@@ -1,6 +1,7 @@
 /**
  * socketManager.js
- * النسخة المحسنة والأكثر أماناً: (إصلاح البينج الوهمي، إغلاق ثغرة Client Authority، ومنع الـ Desync عند انقطاع الإنترنت).
+ * النسخة المحسنة والأكثر أماناً: (إصلاح البينج الوهمي، إغلاق ثغرة Client Authority).
+ * - (تحديث مهم): تم دمج نظام المماطلة والتعادل التلقائي مع حركات الخصم القادمة من السيرفر.
  */
 
 import { gameState } from './gameState.js'; 
@@ -21,7 +22,7 @@ export const socketManager = {
     toastTimeout: null,
     disconnectTimer: null, 
     pingIntervalId: null, 
-    pingStartTime: null, // 💡 متتبع وقت البينج الحقيقي
+    pingStartTime: null, 
 
     _showToast(msg) {
         let toast = document.getElementById('game-toast-notification');
@@ -85,20 +86,18 @@ export const socketManager = {
 
         if (this.pingIntervalId) clearInterval(this.pingIntervalId);
 
-        // 💡 1. إرسال طلب البينج للسيرفر كل 3 ثواني
         this.pingIntervalId = setInterval(() => {
             if (pingEl) pingEl.style.display = 'flex';
             if (socket && socket.connected) {
-                socket.emit('clientPing', Date.now()); // نرسل الوقت الحالي
+                socket.emit('clientPing', Date.now()); 
             } else {
                 this._updatePingUI(999);
             }
         }, 3000); 
 
-        // 💡 2. استقبال الرد من السيرفر وحساب الفارق الزمني
-        socket.off('serverPong'); // لتجنب التكرار
+        socket.off('serverPong'); 
         socket.on('serverPong', (clientTime) => {
-            let latency = Date.now() - clientTime; // الوقت الحالي ناقص وقت الإرسال
+            let latency = Date.now() - clientTime; 
             this._updatePingUI(latency);
         });
     },
@@ -264,7 +263,6 @@ export const socketManager = {
             socket.emit('deviceFingerprint', { guestId: profile.id });
             
             if (gameState.isOnlineMode && gameState.onlineRoomID) {
-                // 💡 إغلاق ثغرة الثقب الأسود: طلب الرقعة الرسمية بعد انقطاع الإنترنت
                 socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
                 this.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
@@ -302,13 +300,16 @@ export const socketManager = {
             }
         });
 
-        // 💡 استقبال ومزامنة الرقعة بعد الانقطاع (Desync Fix)
         socket.on('syncGameState', (data) => {
             if (!gameState.isOnlineMode || !data) return;
             
             if (data.board) gameState.virtualBoard = data.board;
             if (data.turn) gameState.currentTurn = data.turn;
             if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
+            
+            // 💡 تصفير ذاكرة التعادل عند إعادة المزامنة لتجنب تعادل وهمي من الحركات السابقة
+            gameState.movesWithoutProgress = 0;
+            gameState.boardHistoryStr = [];
             
             ui.renderBoard(true);
             ui.startTurn();
@@ -356,6 +357,10 @@ export const socketManager = {
             gameState.statsUpdated = false; 
             gameState.isUpdatingStats = false; 
             gameState.selectedPiece = null; 
+
+            // 💡 تصفير ذاكرة التعادل عند بداية كل مباراة جديدة كلياً
+            gameState.movesWithoutProgress = 0;
+            gameState.boardHistoryStr = [];
 
             if (data.roomID) {
                 gameState.onlineRoomID = data.roomID;
@@ -405,7 +410,6 @@ export const socketManager = {
             ui.startTurn();
         });
 
-        // 💡 إغلاق ثغرة Client Authority: تطبيق الحركة برمجياً بدلاً من الاعتماد على رقعة الخصم!
         socket.on('opponentMove', data => {
             if (!data || !data.from || !data.to) return;
             
@@ -415,11 +419,31 @@ export const socketManager = {
             let executedPath = possibleMoves.find(p => p[p.length - 1].toR === data.to.r && p[p.length - 1].toC === data.to.c);
             
             if (executedPath) {
+                let movingPieceStr = gameState.virtualBoard[executedPath[0].fromR][executedPath[0].fromC];
+                let isCapture = executedPath.some(s => s.midR !== null);
+                
                 gameState.virtualBoard = gameEngine.applyPathToBoard(executedPath, gameState.virtualBoard);
+                
+                let lastStep = executedPath[executedPath.length - 1];
+                let finalPieceStr = gameState.virtualBoard[lastStep.toR][lastStep.toC];
+                let isPromotion = false;
+                
+                if (movingPieceStr && !movingPieceStr.includes('dama') && finalPieceStr && finalPieceStr.includes('dama')) {
+                    isPromotion = true;
+                }
+
+                // 💡 تحديث ذاكرة المماطلة والتعادل بناءً على حركة الخصم
+                if (isCapture || isPromotion) {
+                    gameState.movesWithoutProgress = 0;
+                    gameState.boardHistoryStr = [];
+                } else {
+                    gameState.movesWithoutProgress++;
+                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                }
+
             } else {
                 console.warn("⚠️ Desync Warning: Received invalid move from opponent!");
                 if(socket.connected) socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
-                
                 if(data.updatedBoard) gameState.virtualBoard = data.updatedBoard; 
             }
             
@@ -480,7 +504,9 @@ export const socketManager = {
             const winnerColor = (data && data.winner) ? data.winner : gameState.myOnlineColor;
             gameEngine.endGame(winnerColor);
             
-            if (winnerColor === gameState.myOnlineColor) {
+            if (winnerColor === 'draw') {
+                this._showToast(gameState.lang === 'ar' ? "انتهى الوقت بالتعادل 🤝" : "Time out! Draw 🤝");
+            } else if (winnerColor === gameState.myOnlineColor) {
                 this._showToast(gameState.lang === 'ar' ? "انتهى وقت الخصم! لقد فزت 🏆" : "Opponent timeout! You Win 🏆");
             } else {
                 this._showToast(gameState.lang === 'ar' ? "انتهى وقتك! حظاً موفقاً ⏳" : "Time out! Better luck next time ⏳");
@@ -761,7 +787,6 @@ export const socketManager = {
         }
     },
 
-    // 💡 إغلاق ثغرة Client Authority: إرسال الإحداثيات فقط! لا يتم إرسال الرقعة بالكامل أبداً
     sendMoveToServer(fromR, fromC, toR, toC, boardState, nextTurn) {
         if (gameState.isOnlineMode && gameState.onlineRoomID) {
             const profile = this._ensureUserProfile(); 
