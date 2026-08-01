@@ -1,9 +1,10 @@
 /**
  * socketManager.js
- * النسخة المحسنة: تم إغلاق ثغرة استنزاف المايكروفون والبطارية، وتصحيح مؤقت البينج.
+ * النسخة المحسنة: تم إغلاق ثغرة استنزاف المايكروفون والبطارية، وتصحيح مؤقت البينج، وفك الارتباط الدائري.
  */
 
-import { gameState, startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
+import { gameState } from './gameState.js'; // 💡 الاستيراد الجديد من مركز البيانات
+import { startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
 
