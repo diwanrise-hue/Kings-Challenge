@@ -786,7 +786,6 @@ export const ui = {
 
         this.updateVirtualBoardState();
 
-        // 💡 فحص المماطلة وتكرار الرقعة (Anti-Trolling Rule)
         let repCount = gameEngine.checkRepetitionAndStalling();
         if (repCount === 3 && gameState.currentTurn === gameState.playerColor && !gameState.isBotOpponent) {
             this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة");
@@ -801,7 +800,6 @@ export const ui = {
             return;
         }
 
-        // 💡 فحص التعادل التلقائي أو الخمول الإجباري (40 حركة بدون تقدم أو 1 ضد 1 مسدودة)
         if (gameState.movesWithoutProgress >= 40 || gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn)) {
             if (gameState.blockGameOverModal) return;
             if (tInd) {
@@ -954,7 +952,6 @@ export const ui = {
                     let midCell = board.querySelector(`[data-row="${step.midR}"][data-col="${step.midC}"]`);
                     if (midCell) midCell.innerHTML = '';
                     
-                    // تنظيف الذاكرة عند الأكل (دعم البوت)
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
                 }
@@ -982,12 +979,10 @@ export const ui = {
                         }
                     }
                     
-                    // إدارة الذاكرة للبوت
                     if (isPromotion) {
                         gameState.movesWithoutProgress = 0;
                         gameState.boardHistoryStr = [];
                     } else if (chosenMove.some(s => s.midR === null)) { 
-                        // حركة عادية بدون أكل
                         gameState.movesWithoutProgress++;
                         gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
                     }
@@ -1065,7 +1060,6 @@ export const ui = {
         
         box.appendChild(this.makeEl('h3', null, "margin:0 0 15px 0;color:#87ceeb;font-size:26px;font-weight:700;text-align:center;", t('go_title')));
         
-        // 💡 تعديل الأيقونة في حالة التعادل
         const isDraw = winnerColor === 'draw';
         const iconStr = isDraw ? "🤝" : "🏆";
         const trophy = this.makeEl('div', null, "font-size:50px;margin:10px 0 20px 0;text-shadow:0 0 15px rgba(255,215,0,0.4);", iconStr);
@@ -1073,7 +1067,6 @@ export const ui = {
         
         const isMeWin = winnerColor === (gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor);
         
-        // 💡 تعديل بناء بطاقة اللاعب لتدعم التعادل
         const createPlayerBox = (name, avatar, isCustom, isWin, isDrawMatch) => {
             const pBox = this.makeEl('div', null, "display:flex;flex-direction:column;align-items:center;width:45%;");
             
@@ -1193,7 +1186,6 @@ export const ui = {
                     let isBetMatch = false;
                     let lvl = parseInt(this.getVal('diff-quick-select', '3')) || 3;
                     
-                    // 💡 فحص نوع الغرفة وتوزيع الجوائز 
                     let isMatchmaking = gameState.isOnlineMode && gameState.onlineRoomID && gameState.onlineRoomID.startsWith('MM-');
 
                     if (gameState.isOnlineMode) {
@@ -1208,7 +1200,6 @@ export const ui = {
                                 displayReward = isBetMatch ? gameState.roomBet : (isMeWin ? 120 : 10);
                             }
                         } else {
-                            // الغرف الخاصة (لا توجد خبرة)
                             xpGained = 0;
                             if (isDraw) {
                                 displayReward = 0; 
@@ -1217,7 +1208,6 @@ export const ui = {
                             }
                         }
                     } else {
-                        // اللعب ضد البوت
                         if (isMeWin) {
                             xpGained = 25;
                             if (lvl <= 2) displayReward = 10;
@@ -1234,7 +1224,6 @@ export const ui = {
                         }
                     }
 
-                    // 💡 إظهار نافذة المال واسترداد الرهان
                     if (displayReward !== 0 || isDraw || (isBetMatch && !isDraw && !isMeWin)) {
                         let rewardText = "";
                         let alertColor = "#f5a623";
@@ -1262,7 +1251,6 @@ export const ui = {
                         }
                     }
 
-                    // 💡 إظهار نافذة الخبرة
                     if (xpGained > 0) {
                         box.appendChild(this.makeEl('div', 'xp-reward-alert', "margin-top:8px; color:#34c759; font-weight:800; font-size:15px; text-shadow: 0 0 8px rgba(52, 199, 89, 0.4); animation: modalFadeIn 0.5s ease;", `✨ اكتساب الخبرة: +${xpGained} XP`));
                     }
@@ -1641,7 +1629,6 @@ ui.onClick('hint-btn', () => {
     }
 });
 
-// 💡 محرك الرقعة والتنظيف الذكي للذاكرة
 ui.onClick('board', e => {
     if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
     
@@ -1718,6 +1705,11 @@ ui.onClick('board', e => {
                     gameState.jumpsCount++; 
                     gameState.lastJumpDir = { dr: currDr, dc: currDc };
 
+                    // 💡 إصلاح المهمة اليومية (أسر الأحجار)
+                    if (window.questsManager) {
+                        window.questsManager.updateProgress('capture', 1);
+                    }
+
                     let isFinalJump = (gameState.jumpsCount === gameState.requiredJumps);
 
                     if (isFinalJump) {
@@ -1727,7 +1719,6 @@ ui.onClick('board', e => {
                             if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
                         }
                         
-                        // 💡 تصفير العداد وتنظيف الذاكرة بسبب إتمام حركة الأكل
                         gameState.movesWithoutProgress = 0;
                         gameState.boardHistoryStr = [];
                         
@@ -1791,7 +1782,6 @@ ui.onClick('board', e => {
                     if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
                 }
                 
-                // 💡 تصفير الذاكرة في حال الترقية، أو زيادتها في الحركة العادية
                 if (isPromotion) {
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
