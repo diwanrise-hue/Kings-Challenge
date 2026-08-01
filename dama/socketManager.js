@@ -1,7 +1,8 @@
 /**
  * socketManager.js
  * النسخة المحسنة والأكثر أماناً: (إصلاح البينج الوهمي، إغلاق ثغرة Client Authority).
- * - (تحديث مهم): تم دمج نظام المماطلة والتعادل التلقائي مع حركات الخصم القادمة من السيرفر.
+ * - (تحديث 1): تم دمج نظام المماطلة والتعادل التلقائي مع حركات الخصم القادمة من السيرفر.
+ * - (تحديث 2): تم إصلاح ثغرة نقل (مبلغ الرهان) للسيرفر بشكل صحيح ومستقر.
  */
 
 import { gameState } from './gameState.js'; 
@@ -432,7 +433,7 @@ export const socketManager = {
                     isPromotion = true;
                 }
 
-                // 💡 تحديث ذاكرة المماطلة والتعادل بناءً على حركة الخصم
+                // 💡 تحديث ذاكرة المماطلة والتعادل بناءً على حركة الخصم للحفاظ على التزامن 100%
                 if (isCapture || isPromotion) {
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
@@ -919,7 +920,8 @@ export const socketManager = {
         }
     },
 
-    handleRoomAction(action, roomIdInput, roomPassword = null) {
+    // 💡 (تحديث 2): إضافة betAmount ليتم نقل مبلغ الرهان بشكل سليم للسيرفر
+    handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0) {
         let targetAction = action;
 
         if (action === 'startMatchmaking' || action === 'joinMatchmaking' || action === 'joinMatchmakingPool') {
@@ -938,7 +940,8 @@ export const socketManager = {
             userName: profile.name, 
             avatar: profile.avatar, 
             password: roomPassword, 
-            guestId: profile.id 
+            guestId: profile.id,
+            betAmount: betAmount // 👈 هنا تم إصلاح الخلل
         };
 
         if (roomIdInput && targetAction !== 'joinMatchmakingPool') {
