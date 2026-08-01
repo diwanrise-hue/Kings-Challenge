@@ -705,9 +705,6 @@
             transform: scale(0.95);
         }
     </style>
-</head>
-<body data-piece-style="pc_original">
-    
     <script>
         const originalGetItem = localStorage.getItem;
         localStorage.getItem = function(key) {
@@ -738,6 +735,8 @@
             originalSetItem.call(this, key, value);
         };
     </script>
+</head>
+<body data-piece-style="pc_original">
     
     <input type="hidden" id="game-mode" value="ai">
 
@@ -1242,37 +1241,6 @@
 
     <script src="icons.js"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
-    
-    <script>
-        const originalGetItem = localStorage.getItem;
-        localStorage.getItem = function(key) {
-            let value = originalGetItem.call(this, key);
-            if (key === 'hub_user_profile' && value) {
-                try {
-                    let profile = JSON.parse(value);
-                    if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
-                        profile.avatar = '../' + profile.avatar;
-                        return JSON.stringify(profile);
-                    }
-                } catch(e) {}
-            }
-            return value;
-        };
-
-        const originalSetItem = localStorage.setItem;
-        localStorage.setItem = function(key, value) {
-            if (key === 'hub_user_profile' && value) {
-                try {
-                    let profile = JSON.parse(value);
-                    if (profile && profile.avatar && profile.avatar.startsWith('../')) {
-                        profile.avatar = profile.avatar.replace('../', '');
-                        value = JSON.stringify(profile);
-                    }
-                } catch(e) {}
-            }
-            originalSetItem.call(this, key, value);
-        };
-    </script>
     
     <script>
         let guestId = localStorage.getItem('guestId');
