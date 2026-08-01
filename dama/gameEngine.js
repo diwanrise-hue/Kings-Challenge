@@ -2,6 +2,7 @@
  * gameEngine.js
  * النسخة المحسنة والخالية من الثغرات: تم إصلاح معمارية الدامة للـ Worker، 
  * وتسريع الفحص (Performance Boost)، وضبط استنتاج اتجاه القطع في النهايات (Endgame).
+ * - (جديد) دعم كشف المماطلة والتعادل التلقائي.
  */
 
 import { gameState } from './gameState.js'; 
@@ -11,28 +12,23 @@ let workerCachedDirections = null;
 
 export const gameEngine = {
     
-    // 💡 دالة إضافية لتلقين المحرك بالاتجاه بشكل صريح (مفيدة جداً للـ Web Worker)
     setWorkerDirections(directions) {
         workerCachedDirections = directions;
     },
 
-    // 💡 الاكتشاف الديناميكي: تم التخلي عن شرط عدد القطع واستخدام "متوسط المواقع" لتفادي ثغرة النهايات!
     getPieceDirection(color, bState) {
         const baseColor = color.split('-')[0];
         
-        // 1. إذا كنا في الملف الرئيسي والاتجاهات محفوظة ومضمونة
         if (typeof window !== 'undefined' && window.gameState && window.gameState.pieceDirection) {
             if (window.gameState.pieceDirection[baseColor]) {
                 return window.gameState.pieceDirection[baseColor];
             }
         }
 
-        // 2. قراءة الاتجاه من الذاكرة المؤقتة للعامل (في حال تم تمريره من الـ Worker)
         if (workerCachedDirections && workerCachedDirections[baseColor]) {
             return workerCachedDirections[baseColor];
         }
 
-        // 3. إذا كنا داخل الـ Web Worker ولم يتم تمرير الاتجاه: نكتشف الاتجاه من مواقع القطع وليس عددها!
         if (bState) {
             let wSumRow = 0, wCount = 0;
             let bSumRow = 0, bCount = 0;
@@ -51,7 +47,6 @@ export const gameEngine = {
                 let wAvg = wSumRow / wCount;
                 let bAvg = bSumRow / bCount;
                 
-                // اللون الذي متوسط صفوفه أقل (أقرب للأعلى) يتحرك للأسفل (1) والعكس صحيح
                 let wDir = wAvg < bAvg ? 1 : -1;
                 let bDir = bAvg < wAvg ? 1 : -1;
 
@@ -60,7 +55,6 @@ export const gameEngine = {
             }
         }
 
-        // 4. خطة بديلة أخيرة
         return baseColor === 'black' ? 1 : -1;
     },
 
@@ -76,7 +70,6 @@ export const gameEngine = {
         let directions = isDama ? [[0,1], [0,-1], [1,0], [-1,0]] : [[dirY, 0], [0,1], [0,-1]];
 
         for (let [dr, dc] of directions) {
-            // منع الملك من الدوران للخلف 180 درجة في نفس القفزة
             if (isDama && parentDr !== null && parentDc !== null && dr === -parentDr && dc === -parentDc) continue;
             
             if (isDama) {
@@ -98,10 +91,9 @@ export const gameEngine = {
                             step++; 
                             continue; 
                         }
-                        else break; // قطعة صديقة تمنع التقدم
+                        else break; 
                     } else {
                         if (piece === null) {
-                            // تطبيق Backtracking: تعديل الرقعة الحالية مؤقتاً
                             let capturedPiece = bState[enemyR][enemyC];
                             let movingPiece = bState[r][c];
 
@@ -118,21 +110,19 @@ export const gameEngine = {
                                 paths.push([stepObj]);
                             }
 
-                            // استرجاع الحالة الأصلية (Backtracking)
                             bState[r][c] = movingPiece;
                             bState[nextR][nextC] = null;
                             bState[enemyR][enemyC] = capturedPiece;
 
                             step++; 
                             continue; 
-                        } else break; // قطعة أخرى توقف الانزلاق خلف المأكول
+                        } else break; 
                     }
                 }
             } else {
                 let midR = r + dr, midC = c + dc, toR = r + 2 * dr, toC = c + 2 * dc;
                 if (toR >= 0 && toR < 8 && toC >= 0 && toC < 8) {
                     if (bState[midR][midC] && !bState[midR][midC].startsWith(baseColor) && bState[toR][toC] === null) {
-                        // تطبيق Backtracking للقطع العادية
                         let capturedPiece = bState[midR][midC];
                         let movingPiece = bState[r][c];
 
@@ -149,7 +139,6 @@ export const gameEngine = {
                             paths.push([stepObj]);
                         }
 
-                        // استرجاع الحالة الأصلية (Backtracking)
                         bState[r][c] = movingPiece;
                         bState[toR][toC] = null;
                         bState[midR][midC] = capturedPiece;
@@ -199,7 +188,6 @@ export const gameEngine = {
             }
         }));
         
-        // إجبار اللاعب على اختيار المسار الذي يأكل أكبر عدد من القطع (مثل 3 قطع بدلاً من 1)
         if (maxJumps > 0) return allCapturePaths.filter(p => p.length === maxJumps);
         if (activeR !== null && activeC !== null) return [];
 
@@ -241,7 +229,6 @@ export const gameEngine = {
         return Math.max(0, ...paths.map(p => p.length));
     },
 
-    // 💡 تم دمج bState لحل مشكلة عملها داخل الـ Web Worker
     isValidDamaMove(fromR, fromC, toR, toC, bState = null) {
         let board = bState || (typeof window !== 'undefined' && window.gameState ? window.gameState.virtualBoard : null);
         if (!board) return false;
@@ -255,7 +242,6 @@ export const gameEngine = {
         return true;
     },
 
-    // 💡 تم دمج bState لحل مشكلة عملها داخل الـ Web Worker
     getDamaJumpTarget(fromR, fromC, toR, toC, color, bState = null) {
         let board = bState || (typeof window !== 'undefined' && window.gameState ? window.gameState.virtualBoard : null);
         if (!board) return null;
@@ -275,7 +261,6 @@ export const gameEngine = {
         return enemy;
     },
 
-    // 💡 دالة صاروخية لمنع إرهاق المعالج (Performance Killer Fix)
     hasAnyMove(color, bState) {
         const baseColor = color.split('-')[0];
         
@@ -283,20 +268,57 @@ export const gameEngine = {
             for (let c = 0; c < 8; c++) {
                 let p = bState[r][c];
                 if (p && p.startsWith(baseColor)) {
-                    // البحث عن قفزة أولاً (لأنها إجبارية)
                     let captures = this.getPieceCapturePaths(r, c, baseColor, bState);
                     if (captures.length > 0) return true; 
                     
-                    // إذا لم نجد أكل، نبحث عن خطوة عادية
                     let moves = this.getPieceSimpleMoves(r, c, baseColor, bState);
                     if (moves.length > 0) return true; 
                 }
             }
         }
-        return false; // لا توجد أي حركة ممكنة إطلاقاً
+        return false; 
     },
 
-    // 💡 التعديل: الاعتماد على الدالة السريعة الجديدة (hasAnyMove) لتقليل زمن الاستجابة
+    // 💡 1. دالة فحص التعادل التلقائي (1 ضد 1 بدون أكل متاح)
+    checkIdleDraw(bState, currentTurn) {
+        let wCount = 0, bCount = 0;
+        
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                if (bState[r][c]) {
+                    if (bState[r][c].startsWith('white')) wCount++;
+                    else if (bState[r][c].startsWith('black')) bCount++;
+                }
+            }
+        }
+
+        if (wCount === 1 && bCount === 1) {
+            let captures = [];
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (bState[r][c] && bState[r][c].startsWith(currentTurn)) {
+                        captures.push(...this.getPieceCapturePaths(r, c, currentTurn, bState));
+                    }
+                }
+            }
+            if (captures.length === 0) return true;
+        }
+
+        return false;
+    },
+
+    // 💡 2. دالة كشف المماطلة وتكرار الرقعة (Anti-Trolling)
+    checkRepetitionAndStalling() {
+        if (!gameState.boardHistoryStr) return 0;
+        const currentStr = JSON.stringify(gameState.virtualBoard);
+        let count = 1; 
+        
+        for (let str of gameState.boardHistoryStr) {
+            if (str === currentStr) count++;
+        }
+        return count; 
+    },
+
     checkGameOver(bState, isSimulation = false) {
         if (!this.hasAnyMove('white', bState)) {
             if (!isSimulation) this.endGame('black');
@@ -316,6 +338,7 @@ export const gameEngine = {
         this.endGame(winnerColor);
     },
 
+    // 💡 3. تحديث دالة إنهاء اللعبة لتدعم حالة التعادل 'draw'
     endGame(winnerColor) {
         if (gameState.isUpdatingStats || gameState.statsUpdated) return;
         gameState.isUpdatingStats = true; 
@@ -323,7 +346,9 @@ export const gameEngine = {
         gameState.isGameOver = true;
         gameState.isGameActive = false;
         
-        this.updateUserStats(winnerColor);
+        if (winnerColor !== 'draw') {
+            this.updateUserStats(winnerColor);
+        }
         
         gameState.statsUpdated = true;
         gameState.isUpdatingStats = false; 
@@ -335,7 +360,10 @@ export const gameEngine = {
         }
 
         if (gameState.isOnlineMode && gameState.onlineRoomID && window.socket) {
-            window.socket.emit('matchEnded', { roomID: String(gameState.onlineRoomID).trim() });
+            window.socket.emit('matchEnded', { 
+                roomID: String(gameState.onlineRoomID).trim(),
+                winner: winnerColor 
+            });
         }
     },
 
