@@ -3,7 +3,7 @@
  * النسخة المحسنة: تم كشف الكائن عالمياً (Global) ليتمكن مدير الاتصال من إغلاق المايكروفون عند الخروج.
  */
 import { socket } from './socketManager.js';
-import { gameState } from './main.js';
+import { gameState } from './gameState.js'; // تم تصحيح مسار الاستيراد هنا
 
 let localStream = null;
 let peerConnection = null;
