@@ -1790,55 +1790,6 @@
         });
     </script>
 
-    <!-- 💡 كود المساعدة المضاف (تمت إضافته هنا لتخطي الكود القديم وتفعيل الرهان والباسوورد) -->
-    <script type="module">
-        import { gameState } from './gameState.js';
-        import { socketManager } from './socketManager.js';
-        import { ui } from './uiController.js';
-        
-        window.handleRoomBtn = (action, msg) => { 
-            ui.startOnlineGame(); 
-            clearInterval(gameState.mmInterval); 
-            const rID = ui.getVal('online-room-input').trim(); 
-            const rPass = ui.getVal('online-password-input').trim() || null; // 👈 الباسوورد
-            
-            // استخدام window.t لترجمة الخطأ أو استخدام نص افتراضي
-            const errText = (typeof window.t === 'function') ? window.t('err_id') : 'الرجاء إدخال رقم الغرفة';
-            
-            if (action !== 'joinMatchmakingPool' && !rID) return socketManager.showStatusMsg(errText); 
-            
-            let betAmt = 0;
-            const betSelect = document.getElementById('room-bet-input');
-            if (betSelect) betAmt = parseInt(betSelect.value) || 0;
-
-            // 👈 تمرير الرهان كمتغير رابع كما يتوقعه الخادم الجديد
-            socketManager.handleRoomAction(action, rID, rPass, betAmt); 
-            socketManager.showStatusMsg(msg); 
-        };
-
-        // ربط الأزرار بالدالة الجديدة بمجرد تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const createBtn = document.getElementById('online-create-btn');
-                const joinBtn = document.getElementById('online-join-btn');
-                
-                if(createBtn) {
-                    const newCreateBtn = createBtn.cloneNode(true);
-                    createBtn.parentNode.replaceChild(newCreateBtn, createBtn);
-                    const createMsg = (typeof window.t === 'function') ? window.t('creating_room') : 'جاري الإنشاء...';
-                    newCreateBtn.addEventListener('click', () => window.handleRoomBtn('createRoom', createMsg));
-                }
-                
-                if(joinBtn) {
-                    const newJoinBtn = joinBtn.cloneNode(true);
-                    joinBtn.parentNode.replaceChild(newJoinBtn, joinBtn);
-                    const joinMsg = (typeof window.t === 'function') ? window.t('joining_room') : 'جاري الانضمام...';
-                    newJoinBtn.addEventListener('click', () => window.handleRoomBtn('joinRoom', joinMsg));
-                }
-            }, 1000); // مهلة لضمان تحميل الملفات الأخرى أولاً
-        });
-    </script>
-
     <script type="module">
         import { storeManager } from './store.js?v=999';
         document.addEventListener('DOMContentLoaded', () => { storeManager.init(); });
