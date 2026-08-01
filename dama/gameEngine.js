@@ -1,15 +1,22 @@
 /**
  * gameEngine.js
- * النسخة المحسنة: تم فك الارتباط الدائري والاعتماد على مركز البيانات.
+ * النسخة المحسنة والخالية من الثغرات: تم إصلاح معمارية الدامة للـ Worker، 
+ * وتسريع الفحص (Performance Boost)، وضبط استنتاج اتجاه القطع في النهايات (Endgame).
  */
 
-import { gameState } from './gameState.js'; // 💡 الاستيراد الجديد من مركز البيانات
+import { gameState } from './gameState.js'; 
 import { ui } from './uiController.js'; 
 
 let workerCachedDirections = null;
 
 export const gameEngine = {
-    // دالة الاكتشاف الديناميكي: تعثر على اتجاه الأحجار الصحيح حتى داخل الـ Web Worker المنعزل!
+    
+    // 💡 دالة إضافية لتلقين المحرك بالاتجاه بشكل صريح (مفيدة جداً للـ Web Worker)
+    setWorkerDirections(directions) {
+        workerCachedDirections = directions;
+    },
+
+    // 💡 الاكتشاف الديناميكي: تم التخلي عن شرط عدد القطع واستخدام "متوسط المواقع" لتفادي ثغرة النهايات!
     getPieceDirection(color, bState) {
         const baseColor = color.split('-')[0];
         
@@ -20,35 +27,37 @@ export const gameEngine = {
             }
         }
 
-        // 2. إذا كنا داخل الـ Web Worker: نكتشف الاتجاه بقراءة الرقعة مباشرة
+        // 2. قراءة الاتجاه من الذاكرة المؤقتة للعامل (في حال تم تمريره من الـ Worker)
+        if (workerCachedDirections && workerCachedDirections[baseColor]) {
+            return workerCachedDirections[baseColor];
+        }
+
+        // 3. إذا كنا داخل الـ Web Worker ولم يتم تمرير الاتجاه: نكتشف الاتجاه من مواقع القطع وليس عددها!
         if (bState) {
-            let wTop = 0, wBot = 0, bTop = 0, bBot = 0;
+            let wSumRow = 0, wCount = 0;
+            let bSumRow = 0, bCount = 0;
+            
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
                     let p = bState[r][c];
                     if (p) {
-                        if (p.startsWith('white')) { r < 4 ? wTop++ : wBot++; }
-                        else if (p.startsWith('black')) { r < 4 ? bTop++ : bBot++; }
+                        if (p.startsWith('white')) { wSumRow += r; wCount++; }
+                        else if (p.startsWith('black')) { bSumRow += r; bCount++; }
                     }
                 }
             }
             
-            // في بداية اللعبة (الأحجار كثيرة)، نقوم بتحديد وحفظ الاتجاه الصحيح للونين
-            if (wTop + wBot > 10 || bTop + bBot > 10) {
-                let wDir = -1, bDir = 1; // الافتراضي
+            if (wCount > 0 && bCount > 0) {
+                let wAvg = wSumRow / wCount;
+                let bAvg = bSumRow / bCount;
                 
-                if (wTop > wBot) { wDir = 1; bDir = -1; }
-                else if (wBot > wTop) { wDir = -1; bDir = 1; }
-                else if (bTop > bBot) { bDir = 1; wDir = -1; }
-                else if (bBot > bTop) { bDir = -1; wDir = 1; }
+                // اللون الذي متوسط صفوفه أقل (أقرب للأعلى) يتحرك للأسفل (1) والعكس صحيح
+                let wDir = wAvg < bAvg ? 1 : -1;
+                let bDir = bAvg < wAvg ? 1 : -1;
 
                 workerCachedDirections = { white: wDir, black: bDir };
+                return workerCachedDirections[baseColor];
             }
-        }
-
-        // 3. قراءة الاتجاه من الذاكرة المؤقتة للعامل
-        if (workerCachedDirections && workerCachedDirections[baseColor]) {
-            return workerCachedDirections[baseColor];
         }
 
         // 4. خطة بديلة أخيرة
@@ -56,7 +65,6 @@ export const gameEngine = {
     },
 
     computeOnlineFlip(color) {
-        // 💡 التعديل هنا: إصلاح مشكلة انعكاس الرقعة عند انقطاع الإنترنت (الاعتماد على اللون بشكل ثابت)
         return color === 'black'; 
     },
 
@@ -64,7 +72,7 @@ export const gameEngine = {
         const baseColor = color.split('-')[0];
         let isDama = bState[r][c] && bState[r][c].endsWith('-dama');
         let paths = [];
-        let dirY = this.getPieceDirection(baseColor, bState); // استدعاء ذكي
+        let dirY = this.getPieceDirection(baseColor, bState); 
         let directions = isDama ? [[0,1], [0,-1], [1,0], [-1,0]] : [[dirY, 0], [0,1], [0,-1]];
 
         for (let [dr, dc] of directions) {
@@ -93,7 +101,7 @@ export const gameEngine = {
                         else break; // قطعة صديقة تمنع التقدم
                     } else {
                         if (piece === null) {
-                            // 💡 تطبيق Backtracking: تعديل الرقعة الحالية مؤقتاً لتجنب استهلاك الذاكرة
+                            // تطبيق Backtracking: تعديل الرقعة الحالية مؤقتاً
                             let capturedPiece = bState[enemyR][enemyC];
                             let movingPiece = bState[r][c];
 
@@ -102,8 +110,6 @@ export const gameEngine = {
                             bState[r][c] = null;
 
                             let stepObj = { fromR: r, fromC: c, toR: nextR, toC: nextC, midR: enemyR, midC: enemyC };
-                            
-                            // تمرير الرقعة الحالية مباشرة
                             let subPaths = this.getPieceCapturePaths(nextR, nextC, color, bState, dr, dc);
                             
                             if (subPaths.length > 0) {
@@ -112,7 +118,7 @@ export const gameEngine = {
                                 paths.push([stepObj]);
                             }
 
-                            // 🔄 استرجاع الحالة الأصلية (Backtracking)
+                            // استرجاع الحالة الأصلية (Backtracking)
                             bState[r][c] = movingPiece;
                             bState[nextR][nextC] = null;
                             bState[enemyR][enemyC] = capturedPiece;
@@ -126,7 +132,7 @@ export const gameEngine = {
                 let midR = r + dr, midC = c + dc, toR = r + 2 * dr, toC = c + 2 * dc;
                 if (toR >= 0 && toR < 8 && toC >= 0 && toC < 8) {
                     if (bState[midR][midC] && !bState[midR][midC].startsWith(baseColor) && bState[toR][toC] === null) {
-                        // 💡 تطبيق Backtracking للقطع العادية
+                        // تطبيق Backtracking للقطع العادية
                         let capturedPiece = bState[midR][midC];
                         let movingPiece = bState[r][c];
 
@@ -135,8 +141,6 @@ export const gameEngine = {
                         bState[r][c] = null;
 
                         let stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
-                        
-                        // تمرير الرقعة الحالية مباشرة
                         let subPaths = this.getPieceCapturePaths(toR, toC, color, bState, dr, dc);
                         
                         if (subPaths.length > 0) {
@@ -145,7 +149,7 @@ export const gameEngine = {
                             paths.push([stepObj]);
                         }
 
-                        // 🔄 استرجاع الحالة الأصلية (Backtracking)
+                        // استرجاع الحالة الأصلية (Backtracking)
                         bState[r][c] = movingPiece;
                         bState[toR][toC] = null;
                         bState[midR][midC] = capturedPiece;
@@ -160,7 +164,7 @@ export const gameEngine = {
         const baseColor = color.split('-')[0];
         let isDama = bState[r][c] && bState[r][c].endsWith('-dama');
         let moves = [];
-        let dirY = this.getPieceDirection(baseColor, bState); // استدعاء ذكي
+        let dirY = this.getPieceDirection(baseColor, bState); 
         let directions = isDama ? [[0,1], [0,-1], [1,0], [-1,0]] : [[dirY, 0], [0,1], [0,-1]];
 
         for (let [dr, dc] of directions) {
@@ -237,24 +241,32 @@ export const gameEngine = {
         return Math.max(0, ...paths.map(p => p.length));
     },
 
-    isValidDamaMove(fromR, fromC, toR, toC) {
+    // 💡 تم دمج bState لحل مشكلة عملها داخل الـ Web Worker
+    isValidDamaMove(fromR, fromC, toR, toC, bState = null) {
+        let board = bState || (typeof window !== 'undefined' && window.gameState ? window.gameState.virtualBoard : null);
+        if (!board) return false;
+        
         if (fromR !== toR && fromC !== toC) return false;
         let dr = fromR === toR ? 0 : (toR > fromR ? 1 : -1), dc = fromC === toC ? 0 : (toC > fromC ? 1 : -1);
         let steps = Math.max(Math.abs(toR - fromR), Math.abs(toC - fromC));
         for (let i = 1; i <= steps; i++) {
-            if (gameState.virtualBoard[fromR + dr * i][fromC + dc * i] !== null) return false;
+            if (board[fromR + dr * i][fromC + dc * i] !== null) return false;
         }
         return true;
     },
 
-    getDamaJumpTarget(fromR, fromC, toR, toC, color) {
+    // 💡 تم دمج bState لحل مشكلة عملها داخل الـ Web Worker
+    getDamaJumpTarget(fromR, fromC, toR, toC, color, bState = null) {
+        let board = bState || (typeof window !== 'undefined' && window.gameState ? window.gameState.virtualBoard : null);
+        if (!board) return null;
+        
         if (fromR !== toR && fromC !== toC) return null;
         const baseColor = color.split('-')[0];
         let dr = fromR === toR ? 0 : (toR > fromR ? 1 : -1), dc = fromC === toC ? 0 : (toC > fromC ? 1 : -1);
         let enemy = null;
         let steps = Math.max(Math.abs(toR - fromR), Math.abs(toC - fromC));
         for (let i = 1; i < steps; i++) {
-            let p = gameState.virtualBoard[fromR + dr * i][fromC + dc * i];
+            let p = board[fromR + dr * i][fromC + dc * i];
             if (p !== null) { 
                 if (enemy !== null || p.startsWith(baseColor)) return null; 
                 enemy = { row: fromR + dr * i, col: fromC + dc * i }; 
@@ -263,18 +275,39 @@ export const gameEngine = {
         return enemy;
     },
 
-    checkGameOver(bState, isSimulation = false) {
-        let whiteMoves = this.generateAllTurnMoves('white', bState).length;
-        let blackMoves = this.generateAllTurnMoves('black', bState).length;
+    // 💡 دالة صاروخية لمنع إرهاق المعالج (Performance Killer Fix)
+    hasAnyMove(color, bState) {
+        const baseColor = color.split('-')[0];
+        
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                let p = bState[r][c];
+                if (p && p.startsWith(baseColor)) {
+                    // البحث عن قفزة أولاً (لأنها إجبارية)
+                    let captures = this.getPieceCapturePaths(r, c, baseColor, bState);
+                    if (captures.length > 0) return true; 
+                    
+                    // إذا لم نجد أكل، نبحث عن خطوة عادية
+                    let moves = this.getPieceSimpleMoves(r, c, baseColor, bState);
+                    if (moves.length > 0) return true; 
+                }
+            }
+        }
+        return false; // لا توجد أي حركة ممكنة إطلاقاً
+    },
 
-        if (whiteMoves === 0) {
+    // 💡 التعديل: الاعتماد على الدالة السريعة الجديدة (hasAnyMove) لتقليل زمن الاستجابة
+    checkGameOver(bState, isSimulation = false) {
+        if (!this.hasAnyMove('white', bState)) {
             if (!isSimulation) this.endGame('black');
             return 'black';
         }
-        if (blackMoves === 0) {
+        
+        if (!this.hasAnyMove('black', bState)) {
             if (!isSimulation) this.endGame('white');
             return 'white';
         }
+        
         return null;
     },
 
@@ -302,7 +335,7 @@ export const gameEngine = {
         }
 
         if (gameState.isOnlineMode && gameState.onlineRoomID && window.socket) {
-            window.socket.emit('matchEnded', { roomID: gameState.onlineRoomID });
+            window.socket.emit('matchEnded', { roomID: String(gameState.onlineRoomID).trim() });
         }
     },
 
