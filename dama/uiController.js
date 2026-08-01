@@ -894,7 +894,7 @@ export const ui = {
     triggerComputerMove() {
         let level = parseInt(this.getVal('diff-quick-select', '3')) || 3; 
         let aiColor = gameState.playerColor === 'white' ? 'black' : 'white';
-        let depth = [1, 2, 3, 4, 5, 6, 8, 12, 20][Math.max(0, Math.min(level - 1, 8))];
+        let depth = [1, 2, 3, 4, 5, 6, 6, 7, 8][Math.max(0, Math.min(level - 1, 8))];
         let randomChance = [0.6, 0.3, 0.1, 0, 0, 0, 0, 0, 0][Math.max(0, Math.min(level - 1, 8))];
         
         let moves = gameEngine.generateAllTurnMoves(aiColor, gameState.virtualBoard);
