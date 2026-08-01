@@ -1,5 +1,6 @@
 // uiController.js
-import { gameState, saveGameState, restoreOfflineHintSystem } from './main.js';
+import { gameState } from './gameState.js'; // 💡 استيراد من مركز البيانات الجديد
+import { saveGameState, restoreOfflineHintSystem } from './main.js';
 import { gameEngine } from './gameEngine.js';
 import { gameAI } from './gameAI.js';
 import { socket, socketManager } from './socketManager.js';
@@ -209,7 +210,12 @@ export const ui = {
         
         const msgContainer = this.getEl('custom-alert-message');
         if (msgContainer) {
-            msgContainer.innerHTML = `<div style="line-height: 1.6; font-size: 14px;">${message}</div>`;
+            // 💡 سد ثغرة XSS باستخدام إنشاء العنصر برمجياً وتطبيق textContent
+            msgContainer.innerHTML = '';
+            const safeDiv = document.createElement('div');
+            safeDiv.style.cssText = "line-height: 1.6; font-size: 14px;";
+            safeDiv.textContent = message; 
+            msgContainer.appendChild(safeDiv);
         }
         
         this.setTxt('custom-alert-title', title);
@@ -737,6 +743,8 @@ export const ui = {
         clearInterval(gameState.turnTimerInterval);
         gameState.turnTimerInterval = null;
         
+        let hasPlayedTick = false; 
+        
         const updateTimerDisplay = () => {
             if (gameState.turnEndTime) {
                 gameState.turnTimeLeft = Math.max(0, Math.ceil((gameState.turnEndTime - Date.now()) / 1000));
@@ -746,7 +754,9 @@ export const ui = {
 
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
             
-            if (gameState.turnTimeLeft === 10) {
+            // 💡 شرط محمي لمنع تداخل الصوت المستمر
+            if (gameState.turnTimeLeft <= 10 && gameState.turnTimeLeft > 0 && !hasPlayedTick) {
+                hasPlayedTick = true;
                 let playPromise = sfx.clock.play();
                 if (playPromise !== undefined) playPromise.catch(() => {});
             }
