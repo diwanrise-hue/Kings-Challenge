@@ -85,33 +85,22 @@ export const socketManager = {
 
         if (this.pingIntervalId) clearInterval(this.pingIntervalId);
 
-        // 💡 قراءة البينج الحقيقي من محرك Socket.io مباشرة
-        const attachPingListeners = () => {
-            if (socket && socket.io && socket.io.engine) {
-                socket.io.engine.off("ping");
-                socket.io.engine.off("pong");
-                
-                socket.io.engine.on("ping", () => {
-                    this.pingStartTime = Date.now();
-                });
-                
-                socket.io.engine.on("pong", () => {
-                    let latency = Date.now() - (this.pingStartTime || Date.now());
-                    this._updatePingUI(latency);
-                });
-            }
-        };
-        
-        attachPingListeners();
-        socket.on('connect', attachPingListeners);
-
-        // حالة الانقطاع فقط
+        // 💡 1. إرسال طلب البينج للسيرفر كل 3 ثواني
         this.pingIntervalId = setInterval(() => {
             if (pingEl) pingEl.style.display = 'flex';
-            if (!socket || !socket.connected) {
+            if (socket && socket.connected) {
+                socket.emit('clientPing', Date.now()); // نرسل الوقت الحالي
+            } else {
                 this._updatePingUI(999);
             }
-        }, 2000); 
+        }, 3000); 
+
+        // 💡 2. استقبال الرد من السيرفر وحساب الفارق الزمني
+        socket.off('serverPong'); // لتجنب التكرار
+        socket.on('serverPong', (clientTime) => {
+            let latency = Date.now() - clientTime; // الوقت الحالي ناقص وقت الإرسال
+            this._updatePingUI(latency);
+        });
     },
 
     _updatePingUI(latency) {
