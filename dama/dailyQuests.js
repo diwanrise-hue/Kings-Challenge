@@ -10,7 +10,7 @@ const dailyIcons = ['🎮', '🏆', '🎡', '⚔️'];
 for (let i = 1; i <= 40; i++) {
     let typeIdx = i % 4;
     let target = (typeIdx === 2) ? 1 : Math.floor(Math.random() * 3) + 2;
-    if (typeIdx === 3) target = Math.floor(Math.random() * 10) + 10;
+    if (typeIdx === 3) target = Math.floor(Math.random() * 10) + 10; // مهام أسر الأحجار تتطلب عدداً أكبر
     
     let titles = ['العب', 'فز في', 'قم بلف عجلة الحظ', 'أسر'];
     let title = `${titles[typeIdx]} ${target} ${typeIdx === 0 || typeIdx === 1 ? 'مباريات' : (typeIdx === 2 ? 'مرة' : 'أحجار')}`;
@@ -122,7 +122,6 @@ export const questsManager = {
             window.ui.showCustomAlert(`🎉 تم اعتماد جائزتك: ${toastMsgs.join(' و ')}`);
         }
 
-        // ✅ إرسال الطلب للسيرفر لإضافة الأموال بشكل حقيقي وآمن (تم إضافته ليتواصل مع damaServer.js)
         if (window.socket && window.socket.connected) {
             window.socket.emit('claimQuestReward', {
                 questId: quest.id,
@@ -139,6 +138,11 @@ export const questsManager = {
             localStorage.setItem('hub_user_profile', JSON.stringify(profile));
             if (window.applyProfileDataToUI) window.applyProfileDataToUI(profile);
             if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+            
+            // 💡 إصلاح تحديث الواجهة أوفلاين
+            if (window.ui && typeof window.ui.updateProfileUI === 'function') {
+                window.ui.updateProfileUI();
+            }
         }
         
         state.claimed[questId] = true;
