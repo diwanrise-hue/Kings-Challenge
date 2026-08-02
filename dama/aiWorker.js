@@ -1,9 +1,28 @@
 /**
  * aiWorker.js - النسخة الخارقة المستقلة (Standalone Unleashed AI)
- * - تم دمج منطق تخطي التفكير في الحركات الإجبارية الفردية.
- * - توزيع الوقت الذكي حسب مستويات الصعوبة بدقة.
- * - محرك ألعاب مستقل خالي من التدرج أو التسريب للذاكرة.
+ * + تم إضافة نظام مراقبة الأخطاء والأداء المتقدم (Advanced Error Tracking)
  */
+
+// -------------------------------------------------------------
+// 🛡️ نظام صيد الأخطاء العام (Global Error Handler)
+// -------------------------------------------------------------
+self.onerror = function(message, source, lineno, colno, error) {
+    console.error(`🤖 [AI Worker - خطأ نظام حرج]
+    - الرسالة: ${message}
+    - الملف: ${source}
+    - السطر: ${lineno}:${colno}
+    - التفاصيل:`, error);
+
+    // إرسال إشعار للملف الرئيسي لإنقاذ اللعبة
+    self.postMessage({ error: true, type: 'CRITICAL_SYSTEM_ERROR', details: message });
+    return true; 
+};
+
+self.addEventListener('unhandledrejection', function(event) {
+    console.error(`🤖 [AI Worker - خطأ غير متوقع]`, event.reason);
+    self.postMessage({ error: true, type: 'UNHANDLED_REJECTION', details: event.reason });
+});
+// -------------------------------------------------------------
 
 const isValidPos = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
 
@@ -199,44 +218,79 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, s
 }
 
 self.onmessage = function(e) {
-    const board = e.data.board;
-    const maxDepth = e.data.depth || 6;
-    const level = e.data.level || 3; 
-    const aiColor = e.data.aiColor;
-    
-    workerPieceDirection = e.data.pieceDirection || { white: -1, black: 1 };
-    if (!board || !aiColor) return;
+    try {
+        const board = e.data.board;
+        const maxDepth = e.data.depth || 6;
+        const level = e.data.level || 3; 
+        const aiColor = e.data.aiColor;
+        
+        workerPieceDirection = e.data.pieceDirection || { white: -1, black: 1 };
+        
+        if (!board || !aiColor) {
+            throw new Error("بيانات الرقعة (Board) أو لون البوت (aiColor) مفقودة.");
+        }
 
-    let moves = generateAllTurnMoves(aiColor, board);
+        let moves = generateAllTurnMoves(aiColor, board);
 
-    // 💡 التجاوز التلقائي (Forced Move Bypass): إذا كان هناك مسار واحد فقط لا غير، العب فوراً!
-    if (moves.length === 1) {
-        self.postMessage({ move: moves[0], score: 0 });
-        return;
+        // 💡 التجاوز التلقائي: إذا كان هناك مسار واحد فقط لا غير، العب فوراً!
+        if (moves.length === 1) {
+            self.postMessage({ move: moves[0], score: 0 });
+            return;
+        }
+        
+        if (moves.length === 0) {
+            console.warn(`🤖 [AI Worker] تحذير: لا توجد حركات متاحة للون ${aiColor}.`);
+            self.postMessage({ move: null, score: -999999 });
+            return;
+        }
+
+        let startTime = Date.now();
+        
+        // ⏳ تحديد أقصى مهلة تفكير حسب المستوى المطلوب
+        let maxTime = 2000; // مستويات 1، 2، 3 (ثانيتان)
+        if (level === 4) maxTime = 3000;
+        else if (level === 5) maxTime = 5000;
+        else if (level === 6) maxTime = 7000;
+        else if (level >= 7) maxTime = 10000;
+
+        let bestResult = null;
+        let safeMaxDepth = Math.min(maxDepth, 10); 
+
+        for (let d = 1; d <= safeMaxDepth; d++) {
+            let result = minimax(board, d, -Infinity, Infinity, true, aiColor, aiColor, startTime, maxTime);
+            
+            // تحقق مما إذا كانت خوارزمية التفكير أرجعت نتيجة غير صحيحة
+            if (!result || typeof result.score === 'undefined') {
+                throw new Error(`خطأ في تقييم العمق ${d}: دالة minimax أرجعت قيمة غير صالحة.`);
+            }
+
+            if (result.timeOut && bestResult !== null) { 
+                console.log(`🤖 [AI Worker] انتهى الوقت عند العمق ${d - 1}. الوقت المستغرق: ${Date.now() - startTime}ms`);
+                break; 
+            }
+            bestResult = result;
+            if (bestResult.score > 90000) break; 
+        }
+
+        if (!bestResult || !bestResult.move) {
+            console.warn(`🤖 [AI Worker] تحذير: لم يتم العثور على أفضل حركة، سيتم اللعب بالحركة الأولى المتاحة.`);
+            bestResult = { move: moves[0], score: 0 };
+        }
+
+        self.postMessage(bestResult); 
+
+    } catch (error) {
+        // 🛑 اصطياد أي خطأ في الكود (Logic Bug) وإرساله للمطور في الـ Console
+        console.error(`🤖 [AI Worker - خطأ برمجي (Logic Bug)]
+        - الرسالة: ${error.message}
+        - التتبع (Stack): \n${error.stack}
+        - البيانات المستلمة:`, e.data);
+
+        // إرسال إشعار فشل للملف الرئيسي (uiController) ليتمكن من لعب البديل (Fallback)
+        self.postMessage({ 
+            error: true, 
+            type: 'LOGIC_ERROR', 
+            details: error.message 
+        });
     }
-
-    let startTime = Date.now();
-    
-    // ⏳ تحديد أقصى مهلة تفكير حسب المستوى المطلوب
-    let maxTime = 2000; // مستويات 1، 2، 3 (ثانيتان)
-    if (level === 4) maxTime = 3000;
-    else if (level === 5) maxTime = 5000;
-    else if (level === 6) maxTime = 7000;
-    else if (level >= 7) maxTime = 10000; // مستويات 7، 8، 9 (10 ثوانٍ كحد أقصى)
-
-    let bestResult = null;
-    let safeMaxDepth = Math.min(maxDepth, 10); 
-
-    for (let d = 1; d <= safeMaxDepth; d++) {
-        let result = minimax(board, d, -Infinity, Infinity, true, aiColor, aiColor, startTime, maxTime);
-        if (result.timeOut && bestResult !== null) { break; }
-        bestResult = result;
-        if (bestResult.score > 90000) break; 
-    }
-
-    if (!bestResult || !bestResult.move) {
-        bestResult = { move: moves[0], score: 0 };
-    }
-
-    self.postMessage(bestResult); 
 };
