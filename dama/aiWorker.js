@@ -228,18 +228,16 @@ function evaluateBoard(bState, targetColor) {
     if (oppDamas > 0 && myPieces <= 3) score -= 200;
 
     // 🧠 ذكاء الـ Endgame (حشر الخصم)
-    // إذا كان البوت متفوقاً ويملك دامات، نقوم بتقليل المسافة بين داماته ودامات الخصم لحشره
     if (myDamas > oppDamas && oppPieces <= 3 && oppDamaPositions.length > 0) {
         let totalDistance = 0;
         for (let myD of myDamaPositions) {
             let minDist = 999;
             for (let oppD of oppDamaPositions) {
-                let dist = Math.abs(myD.r - oppD.r) + Math.abs(myD.c - oppD.c); // Manhattan Distance
+                let dist = Math.abs(myD.r - oppD.r) + Math.abs(myD.c - oppD.c); 
                 if (dist < minDist) minDist = dist;
             }
             totalDistance += minDist;
         }
-        // كلما قلت المسافة زاد التقييم لدفعه للاقتراب
         score += (20 - totalDistance) * 5; 
     }
 
@@ -302,7 +300,7 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, s
         }
     }
     
-    if (moves.length === 0) return { score: isMaximizing ? -99999 + depth : 99999 - depth };
+    if (moves.length === 0) return { score: isMaximizing ? -9999 + depth : 9999 - depth };
     
     // 💡 ترتيب النقلات المتقدم المستفاد من الذاكرة
     let ttMove = transpositionTable.has(hash) ? transpositionTable.get(hash).move : null;
@@ -386,14 +384,15 @@ self.onmessage = function(e) {
 
         let startTime = Date.now();
         
-        let maxTime = 1500; 
-        if (level === 4) maxTime = 2500;
-        else if (level === 5) maxTime = 4000;
+        // 🔥 الأوقات السريعة والمحدثة
+        let maxTime = 500; 
+        if (level === 4) maxTime = 1000;
+        else if (level === 5) maxTime = 1500;
         else if (level === 6) maxTime = 6000;
         else if (level >= 7) maxTime = 8000;
 
         let bestResult = null;
-        let safeMaxDepth = Math.min(maxDepth, 12); // رفعنا العمق الأقصى بسبب التسريع
+        let safeMaxDepth = Math.min(maxDepth, 12); 
 
         // Iterative Deepening
         for (let d = 1; d <= safeMaxDepth; d++) {
