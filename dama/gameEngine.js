@@ -1,9 +1,9 @@
 /**
  * gameEngine.js
- * النسخة المحسنة والخفيفة: 
- * تم تسريع دوال البحث وتجنب الاعتماديات الدائرية والاستدعاءات العامة.
+ * 🚀 النسخة الصاروخية (Ultra-Optimized): 
+ * تم استبدال جميع دوال النصوص البطيئة بمعالجة مباشرة للحروف
+ * مما يرفع أداء المحرك واللعبة أضعافاً مضاعفة ويمنع التقطيع.
  */
-
 import { gameState } from './gameState.js'; 
 import { ui } from './uiController.js'; 
 
@@ -25,8 +25,9 @@ export const gameEngine = {
                 for (let c = 0; c < 8; c++) {
                     let p = bState[r][c];
                     if (p) {
-                        if (p.startsWith('white')) { wSumRow += r; wCount++; }
-                        else if (p.startsWith('black')) { bSumRow += r; bCount++; }
+                        // 🔥 تسريع: استخدام الحرف الأول
+                        if (p[0] === 'w') { wSumRow += r; wCount++; }
+                        else if (p[0] === 'b') { bSumRow += r; bCount++; }
                     }
                 }
             }
@@ -43,10 +44,11 @@ export const gameEngine = {
     computeOnlineFlip(color) { return color === 'black'; },
 
     getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = null) {
-        const baseColor = color.split('-')[0];
-        let isDama = bState[r][c] && bState[r][c].endsWith('-dama');
+        const colorChar = color[0]; // 'w' أو 'b'
+        // 🔥 تسريع: التحقق من الدامة عن طريق طول النص
+        let isDama = bState[r][c] && bState[r][c].length > 5; 
         let paths = [];
-        let dirY = this.getPieceDirection(baseColor, bState); 
+        let dirY = this.getPieceDirection(colorChar === 'b' ? 'black' : 'white', bState); 
         let directions = isDama ? [[0,1], [0,-1], [1,0], [-1,0]] : [[dirY, 0], [0,1], [0,-1]];
 
         for (let [dr, dc] of directions) {
@@ -61,7 +63,8 @@ export const gameEngine = {
                     let piece = bState[nextR][nextC];
                     if (!foundEnemy) {
                         if (piece === null) { step++; continue; }
-                        else if (!piece.startsWith(baseColor)) { foundEnemy = piece; enemyR = nextR; enemyC = nextC; step++; continue; }
+                        // 🔥 تسريع: فحص اللون بالحرف الأول
+                        else if (piece[0] !== colorChar) { foundEnemy = piece; enemyR = nextR; enemyC = nextC; step++; continue; }
                         else break; 
                     } else {
                         if (piece === null) {
@@ -82,7 +85,9 @@ export const gameEngine = {
             } else {
                 let midR = r + dr, midC = c + dc, toR = r + 2 * dr, toC = c + 2 * dc;
                 if (toR >= 0 && toR < 8 && toC >= 0 && toC < 8) {
-                    if (bState[midR][midC] && !bState[midR][midC].startsWith(baseColor) && bState[toR][toC] === null) {
+                    let midPiece = bState[midR][midC];
+                    // 🔥 تسريع: فحص اللون بالحرف الأول
+                    if (midPiece && midPiece[0] !== colorChar && bState[toR][toC] === null) {
                         let capturedPiece = bState[midR][midC]; let movingPiece = bState[r][c];
                         bState[midR][midC] = null; bState[toR][toC] = movingPiece; bState[r][c] = null;
 
@@ -101,10 +106,10 @@ export const gameEngine = {
     },
 
     getPieceSimpleMoves(r, c, color, bState) {
-        const baseColor = color.split('-')[0];
-        let isDama = bState[r][c] && bState[r][c].endsWith('-dama');
+        const colorChar = color[0];
+        let isDama = bState[r][c] && bState[r][c].length > 5;
         let moves = [];
-        let dirY = this.getPieceDirection(baseColor, bState); 
+        let dirY = this.getPieceDirection(colorChar === 'b' ? 'black' : 'white', bState); 
         let directions = isDama ? [[0,1], [0,-1], [1,0], [-1,0]] : [[dirY, 0], [0,1], [0,-1]];
 
         for (let [dr, dc] of directions) {
@@ -126,12 +131,15 @@ export const gameEngine = {
     },
 
     generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = null, activeDc = null) {
-        let allCapturePaths = [], maxJumps = 0; const baseColor = color.split('-')[0];
+        let allCapturePaths = [], maxJumps = 0; 
+        const colorChar = color[0]; 
+
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 let piece = bState[r][c];
-                if (piece && piece.startsWith(baseColor) && (activeR === null || (r === activeR && c === activeC))) {
-                    let paths = this.getPieceCapturePaths(r, c, baseColor, bState, (r === activeR ? activeDr : null), (c === activeC ? activeDc : null));
+                // 🔥 تسريع
+                if (piece && piece[0] === colorChar && (activeR === null || (r === activeR && c === activeC))) {
+                    let paths = this.getPieceCapturePaths(r, c, color, bState, (r === activeR ? activeDr : null), (c === activeC ? activeDc : null));
                     for (let p of paths) {
                         if (p.length > maxJumps) maxJumps = p.length; 
                         allCapturePaths.push(p);
@@ -147,8 +155,8 @@ export const gameEngine = {
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 let piece = bState[r][c];
-                if (piece && piece.startsWith(baseColor)) { 
-                    allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, baseColor, bState)); 
+                if (piece && piece[0] === colorChar) { 
+                    allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, color, bState)); 
                 }
             }
         }
@@ -167,15 +175,16 @@ export const gameEngine = {
         });
         
         let last = path[path.length - 1]; let fPiece = nextBoard[last.toR][last.toC];
-        if (fPiece && !fPiece.includes('dama')) {
-            let dirY = this.getPieceDirection(fPiece, nextBoard); let promoRow = (dirY === 1) ? 7 : 0;
+        // 🔥 تسريع: بديل fPiece.includes('dama')
+        if (fPiece && fPiece.length <= 5) { 
+            let dirY = this.getPieceDirection(fPiece.split('-')[0], nextBoard); let promoRow = (dirY === 1) ? 7 : 0;
             if (last.toR === promoRow) { nextBoard[last.toR][last.toC] += '-dama'; }
         }
         return nextBoard;
     },
 
     findMaxJumps(r, c, color, vBoard, initDr = null, initDc = null) {
-        const paths = this.getPieceCapturePaths(r, c, color.split('-')[0], vBoard, initDr, initDc);
+        const paths = this.getPieceCapturePaths(r, c, color, vBoard, initDr, initDc);
         if (paths.length === 0) return 0;
         let max = 0;
         for (let p of paths) { if (p.length > max) max = p.length; }
@@ -198,14 +207,14 @@ export const gameEngine = {
         if (!board) return null;
         
         if (fromR !== toR && fromC !== toC) return null;
-        const baseColor = color.split('-')[0];
+        const colorChar = color[0];
         let dr = fromR === toR ? 0 : (toR > fromR ? 1 : -1), dc = fromC === toC ? 0 : (toC > fromC ? 1 : -1);
         let enemy = null; let steps = Math.max(Math.abs(toR - fromR), Math.abs(toC - fromC));
         
         for (let i = 1; i < steps; i++) {
             let p = board[fromR + dr * i][fromC + dc * i];
             if (p !== null) { 
-                if (enemy !== null || p.startsWith(baseColor)) return null; 
+                if (enemy !== null || p[0] === colorChar) return null; 
                 enemy = { row: fromR + dr * i, col: fromC + dc * i }; 
             }
         }
@@ -213,13 +222,13 @@ export const gameEngine = {
     },
 
     hasAnyMove(color, bState) {
-        const baseColor = color.split('-')[0];
+        const colorChar = color[0];
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 let p = bState[r][c];
-                if (p && p.startsWith(baseColor)) {
-                    if (this.getPieceCapturePaths(r, c, baseColor, bState).length > 0) return true; 
-                    if (this.getPieceSimpleMoves(r, c, baseColor, bState).length > 0) return true; 
+                if (p && p[0] === colorChar) {
+                    if (this.getPieceCapturePaths(r, c, color, bState).length > 0) return true; 
+                    if (this.getPieceSimpleMoves(r, c, color, bState).length > 0) return true; 
                 }
             }
         }
