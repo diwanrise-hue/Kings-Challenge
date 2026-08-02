@@ -21,8 +21,7 @@ export const questsManager = {
     init() {
         this.loadProgress();
         this.checkResets();
-        this.renderQuests('daily');
-        this.renderQuests('weekly');
+        this.renderQuests();
         
         setInterval(() => this.updateTimerDisplay(), 1000);
         window.questsManager = this;
@@ -62,7 +61,7 @@ export const questsManager = {
         this.progress[period] = {};
         this.lastReset[period] = Date.now();
         this.saveProgress();
-        this.renderQuests(period);
+        if (this.currentTab === period) this.renderQuests();
     },
 
     updateProgress(type, amount = 1) {
@@ -85,12 +84,12 @@ export const questsManager = {
 
         if (updated) {
             this.saveProgress();
-            this.renderQuests('daily');
-            this.renderQuests('weekly');
+            this.renderQuests();
         }
     },
 
-    claimReward(period, questId) {
+    claimReward(questId) {
+        let period = this.currentTab;
         let q = this[period + 'Quests'].find(x => x.id === questId);
         if (!q) return;
 
@@ -104,19 +103,21 @@ export const questsManager = {
                 let profile = gameState.userProfile || JSON.parse(localStorage.getItem('hub_user_profile'));
                 profile.tokens = (profile.tokens || 0) + q.rewardTokens;
                 localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                ui.updateProfileUI();
+                if (ui && typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
             }
             
-            if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.win);
-            this.renderQuests(period);
+            if (ui && typeof ui.playSound === 'function') ui.playSound(ui.sfx.win);
+            this.renderQuests();
         }
     },
 
-    renderQuests(period) {
-        let container = document.getElementById(`quests-list-container-${period}`);
+    renderQuests() {
+        // ✅ استخدام الحاوية الوحيدة الموجودة في كود HTML الخاص بك
+        let container = document.getElementById('quests-list-container');
         if (!container) return;
         container.innerHTML = '';
 
+        let period = this.currentTab;
         let quests = this[period + 'Quests'];
         
         quests.forEach(q => {
@@ -156,7 +157,7 @@ export const questsManager = {
                 let btn = document.createElement('button');
                 btn.innerText = "استلام";
                 btn.style.cssText = "background: #34c759; color: white; border: none; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;";
-                btn.onclick = () => this.claimReward(period, q.id);
+                btn.onclick = () => this.claimReward(q.id);
                 footer.innerHTML = '';
                 footer.appendChild(btn);
             } else if (prog.claimed) {
