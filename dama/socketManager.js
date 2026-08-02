@@ -1,6 +1,6 @@
 /**
  * socketManager.js
- * النسخة المحمية: (إصلاح الاتصال الوهمي "Zombie State" عند الخروج المتكرر من اللعبة)
+ * النسخة المحمية: (إصلاح قاهر للرادار والبينج المعلق)
  */
 
 import { gameState } from './gameState.js'; 
@@ -26,7 +26,6 @@ export const socketManager = {
     toastTimeout: null,
     disconnectTimer: null, 
     pingIntervalId: null, 
-    pingStartTime: null,
     lastPingValue: null, 
 
     _showToast(msg) {
@@ -91,20 +90,23 @@ export const socketManager = {
 
         if (this.pingIntervalId) clearInterval(this.pingIntervalId);
 
+        // ✅ نظام الفحص المزدوج للإنترنت والبينج
         this.pingIntervalId = setInterval(() => {
-            if (pingEl && pingEl.style.display === 'none') pingEl.style.display = 'flex';
-            if (socket && socket.connected) {
+            if (navigator.onLine && socket && socket.connected) {
                 socket.volatile.emit('clientPing', Date.now()); 
+                this._hideDisconnectUI();
             } else {
-                socketManager._updatePingUI(999);
+                this._updatePingUI(999);
+                this._showDisconnectUI();
             }
-        }, 5000); 
+        }, 3000); 
 
         socket.off('serverPong'); 
         socket.on('serverPong', (clientTime) => {
+            this._hideDisconnectUI();
             let latency = Date.now() - clientTime; 
             if (latency > 999) latency = 999;
-            socketManager._updatePingUI(latency);
+            this._updatePingUI(latency);
         });
     },
 
@@ -121,7 +123,7 @@ export const socketManager = {
         
         let color = '#66bb6a'; 
         if (latency > 150) color = '#ffb74d'; 
-        if (latency > 300) color = '#ef5350'; 
+        if (latency >= 999) color = '#ef5350'; // أحمر قاطع عند الانقطاع
 
         pingEl.style.color = color;
         pingDot.style.background = color;
@@ -129,18 +131,18 @@ export const socketManager = {
     },
 
     _showDisconnectUI() {
-        if (!gameState.isOnlineMode) return;
-
         let miniRadar = document.getElementById('mini-disconnect-radar');
-        
         if (!miniRadar) {
             miniRadar = document.createElement('div');
             miniRadar.id = 'mini-disconnect-radar';
             document.body.appendChild(miniRadar);
         }
 
+        // ✅ إجبار الرادار على الظهور بخصائص CSS ثابتة من داخل الكود
+        miniRadar.style.cssText = "display: flex !important; position: absolute; bottom: 20px; left: calc(50% + 118px); transform: translateX(-50%); z-index: 999999; width: 32px; height: 32px; background: rgba(15, 18, 25, 0.9); border-radius: 50%; padding: 4px; border: 1px solid rgba(255, 69, 58, 0.6); box-shadow: 0 0 12px rgba(255, 69, 58, 0.5);";
+
         if (miniRadar.innerHTML.trim() === '') {
-            miniRadar.innerHTML = window.SVGIcons?.disconnectIcon || `
+            miniRadar.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
                     <defs>
                         <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#2a241e" /><stop offset="100%" stop-color="#14110e" /></radialGradient>
@@ -156,27 +158,11 @@ export const socketManager = {
                 </svg>
             `;
         }
-
-        miniRadar.style.display = 'flex';
-        this._updatePingUI(999);
     },
 
     _hideDisconnectUI() {
         const miniRadar = document.getElementById('mini-disconnect-radar');
-        if (miniRadar) miniRadar.style.display = 'none';
-        
-        if (this.disconnectTimer) {
-            clearTimeout(this.disconnectTimer);
-            this.disconnectTimer = null;
-        }
-    },
-    
-    _handleDisconnection() {
-        if (!this.disconnectTimer) {
-            this.disconnectTimer = setTimeout(() => {
-                socketManager._showDisconnectUI();
-            }, 5000); 
-        }
+        if (miniRadar) miniRadar.style.display = 'none !important';
     },
 
     _ensureUserProfile() {
@@ -240,27 +226,21 @@ export const socketManager = {
         window.socketManager = this;
         this._initRealPingIndicator();
 
-        // ✅ التعديل الجذري لحل مشكلة الاتصال الوهمي (Zombie State)
+        // ✅ الإجبار الصارم لإعادة الاتصال عند عودة الإنترنت
         window.addEventListener('online', () => {
-            if (!socket.connected) {
-                socketManager._showToast(gameState.lang === 'ar' ? "عاد الاتصال بالإنترنت، جاري الربط..." : "Internet restored, connecting...");
-                socket.disconnect(); // قتل الاتصال الوهمي
-                setTimeout(() => socket.connect(), 200); // بدء اتصال نظيف
-            }
+            this._hideDisconnectUI();
+            socketManager._showToast(gameState.lang === 'ar' ? "عاد الاتصال بالإنترنت، جاري الربط..." : "Internet restored, connecting...");
+            socket.disconnect(); 
+            setTimeout(() => {
+                socket.connect();
+                socket.volatile.emit('clientPing', Date.now()); // كسر البينج
+            }, 500); 
         });
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                if (!navigator.onLine || !socket.connected) {
-                    socketManager._updatePingUI(999);
-                }
-                if (navigator.onLine && !socket.connected) {
-                    socket.disconnect(); // قتل الاتصال المعلق بالخلفية
-                    setTimeout(() => socket.connect(), 200); // إجبار التحديث
-                }
-            }
+        window.addEventListener('offline', () => {
+            this._updatePingUI(999);
+            this._showDisconnectUI();
         });
-        // =================================================
 
         const eventsToTurnOff = [
             'connect', 'disconnect', 'roomCreated', 'roomJoined', 'waitingForOpponent',
@@ -281,14 +261,15 @@ export const socketManager = {
 
         socket.on('connect', () => {
             console.log('Connected to server successfully');
-            socketManager._hideDisconnectUI();
+            this._hideDisconnectUI();
+            socket.volatile.emit('clientPing', Date.now()); 
 
-            const profile = socketManager._ensureUserProfile();
+            const profile = this._ensureUserProfile();
             socket.emit('deviceFingerprint', { guestId: profile.id });
             
             if (gameState.isOnlineMode && gameState.onlineRoomID) {
                 socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
-                socketManager.handleRoomAction('joinRoom', gameState.onlineRoomID);
+                this.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
             
             if (typeof ui.setDisplay === 'function') ui.setDisplay('custom-alert-modal', 'none');
@@ -296,7 +277,8 @@ export const socketManager = {
 
         socket.on('disconnect', (reason) => {
             console.warn('Disconnected:', reason);
-            socketManager._handleDisconnection();
+            this._updatePingUI(999);
+            this._showDisconnectUI();
         });
 
         socket.on('connect_error', (err) => {
@@ -307,12 +289,8 @@ export const socketManager = {
                 clearInterval(gameState.mmInterval);
                 gameState.mmInterval = null;
             }
-            
-            const now = Date.now();
-            if (now - socketManager.lastConnectionErrorTime > 10000) {
-                socketManager.lastConnectionErrorTime = now;
-                socketManager._handleDisconnection();
-            }
+            this._updatePingUI(999);
+            this._showDisconnectUI();
         });
 
         socket.on('syncGameState', (data) => {
@@ -328,25 +306,25 @@ export const socketManager = {
             ui.renderBoard(true);
             ui.startTurn();
             
-            socketManager._showToast(gameState.lang === 'ar' ? "تمت مزامنة الرقعة بنجاح 🔄" : "Board synchronized 🔄");
+            this._showToast(gameState.lang === 'ar' ? "تمت مزامنة الرقعة بنجاح 🔄" : "Board synchronized 🔄");
         });
 
         socket.on('roomCreated', id => {
             gameState.isBotOpponent = false;
             gameState.playerColor = gameState.myOnlineColor = 'white';
             if(id) gameState.onlineRoomID = id;
-            socketManager.showStatusMsg(gameState.lang === 'ar' ? "تم الإنشاء! بانتظار الخصم" : "Created! Waiting...");
+            this.showStatusMsg(gameState.lang === 'ar' ? "تم الإنشاء! بانتظار الخصم" : "Created! Waiting...");
             ui.setDisplay('online-setup-box', 'none');
         });
 
         socket.on('roomJoined', () => {
             gameState.isBotOpponent = false;
             gameState.playerColor = gameState.myOnlineColor = 'black';
-            socketManager.showStatusMsg(gameState.lang === 'ar' ? "تم الانضمام!" : "Joined!");
+            this.showStatusMsg(gameState.lang === 'ar' ? "تم الانضمام!" : "Joined!");
             ui.setDisplay('online-setup-box', 'none');
         });
 
-        socket.on('waitingForOpponent', msg => socketManager.showStatusMsg(msg));
+        socket.on('waitingForOpponent', msg => this.showStatusMsg(msg));
 
         socket.on('gameStart', data => {
             if (!data) return;
@@ -355,7 +333,7 @@ export const socketManager = {
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
             else ui.setDisplay('custom-alert-modal', 'none');
             
-            socketManager.isAlertShown = false; 
+            this.isAlertShown = false; 
 
             if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
             clearInterval(gameState.mmInterval);
@@ -400,7 +378,7 @@ export const socketManager = {
             }
             
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
-            socketManager._ensureUserProfile();
+            this._ensureUserProfile();
 
             ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
             if (typeof window.closeAppModal === 'function') {
@@ -482,7 +460,7 @@ export const socketManager = {
             gameState.isGameActive = false;
             gameEngine.endGame(gameState.myOnlineColor);
             
-            socketManager._showToast(gameState.lang === 'ar' ? "انسحب الخصم! لقد فزت 🏆" : "Opponent Resigned! You Win 🏆");
+            this._showToast(gameState.lang === 'ar' ? "انسحب الخصم! لقد فزت 🏆" : "Opponent Resigned! You Win 🏆");
         });
 
         socket.on('turnTimeout', data => {
@@ -496,11 +474,11 @@ export const socketManager = {
             gameEngine.endGame(winnerColor);
             
             if (winnerColor === 'draw') {
-                socketManager._showToast(gameState.lang === 'ar' ? "انتهى الوقت بالتعادل 🤝" : "Time out! Draw 🤝");
+                this._showToast(gameState.lang === 'ar' ? "انتهى الوقت بالتعادل 🤝" : "Time out! Draw 🤝");
             } else if (winnerColor === gameState.myOnlineColor) {
-                socketManager._showToast(gameState.lang === 'ar' ? "انتهى وقت الخصم! لقد فزت 🏆" : "Opponent timeout! You Win 🏆");
+                this._showToast(gameState.lang === 'ar' ? "انتهى وقت الخصم! لقد فزت 🏆" : "Opponent timeout! You Win 🏆");
             } else {
-                socketManager._showToast(gameState.lang === 'ar' ? "انتهى وقتك! حظاً موفقاً ⏳" : "Time out! Better luck next time ⏳");
+                this._showToast(gameState.lang === 'ar' ? "انتهى وقتك! حظاً موفقاً ⏳" : "Time out! Better luck next time ⏳");
             }
         });
 
@@ -517,7 +495,7 @@ export const socketManager = {
 
         socket.on('opponentDisconnected', data => {
             if (!gameState.isOnlineMode) return;
-            socketManager._showToast((data && data.message) || (gameState.lang === 'ar' ? "انقطع اتصال الخصم" : "Opponent disconnected"));
+            this._showToast((data && data.message) || (gameState.lang === 'ar' ? "انقطع اتصال الخصم" : "Opponent disconnected"));
             
             if (!gameState.isGameOver) {
                 gameState.isGameOver = true;
@@ -530,7 +508,7 @@ export const socketManager = {
 
         socket.on('opponentReconnected', data => {
             if (!gameState.isOnlineMode || !data) return;
-            socketManager._showToast(gameState.lang === 'ar' ? `عاد ${data.name || 'الخصم'} للاتصال!` : `${data.name || 'Opponent'} reconnected!`);
+            this._showToast(gameState.lang === 'ar' ? `عاد ${data.name || 'الخصم'} للاتصال!` : `${data.name || 'Opponent'} reconnected!`);
             if (data.avatar) {
                 gameState.currentOpponentAvatar = data.avatar;
                 ui.applyAvatar('card-opp-avatar', data.avatar, data.avatar.startsWith('data:image') || data.avatar.endsWith('.png') || data.avatar.endsWith('.jpg'));
@@ -539,30 +517,30 @@ export const socketManager = {
 
         socket.on('playerDisconnected', () => {
             if (!gameState.isOnlineMode) { socket.disconnect(); return; }
-            socketManager._showToast(gameState.lang === 'ar' ? "غادر الخصم الغرفة" : "Opponent left the room");
-            socketManager.handleExitGame();
+            this._showToast(gameState.lang === 'ar' ? "غادر الخصم الغرفة" : "Opponent left the room");
+            this.handleExitGame();
         });
 
         socket.on('opponentLeftRoom', data => {
             if (!gameState.isOnlineMode) return;
-            socketManager._showToast((data && data.message) || (gameState.lang === 'ar' ? "غادر الخصم المباراة." : "Opponent left the room."));
-            socketManager.handleExitGame(); 
+            this._showToast((data && data.message) || (gameState.lang === 'ar' ? "غادر الخصم المباراة." : "Opponent left the room."));
+            this.handleExitGame(); 
         });
 
         socket.on('rematchOffer', () => {
-            if (socketManager.isAlertShown) return; 
+            if (this.isAlertShown) return; 
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
             else ui.setDisplay('custom-alert-modal', 'none');
             
-            socketManager.isAlertShown = true;
+            this.isAlertShown = true;
 
             if (typeof ui.showCustomAlert === 'function') {
                 ui.showCustomAlert(
                     ui.translate("الخصم يطلب إعادة اللعب!", "Opponent wants a rematch!"), 
                     ui.translate("إعادة اللعب", "Rematch"), 
                     () => {
-                        socketManager.isAlertShown = false;
+                        this.isAlertShown = false;
                         socket.emit('acceptRematch', { roomID: String(gameState.onlineRoomID).trim() });
                         document.getElementById('custom-results-modal-container')?.remove();
                         if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
@@ -597,7 +575,7 @@ export const socketManager = {
         });
 
         socket.on('rematchAccepted', () => {
-            socketManager.isAlertShown = false;
+            this.isAlertShown = false;
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
             else ui.setDisplay('custom-alert-modal', 'none');
             
@@ -610,7 +588,7 @@ export const socketManager = {
 
         socket.on('roomClosedByTimeout', (data) => {
             if (!gameState.isOnlineMode) return;
-            socketManager.isAlertShown = false;
+            this.isAlertShown = false;
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
             else ui.setDisplay('custom-alert-modal', 'none');
@@ -618,28 +596,28 @@ export const socketManager = {
             document.getElementById('custom-results-modal-container')?.remove();
 
             const reasonMsg = data && data.reason ? data.reason : (gameState.lang === 'ar' ? "انتهى وقت الاستجابة لإعادة اللعب." : "Rematch timeout expired.");
-            socketManager._showToast(reasonMsg);
+            this._showToast(reasonMsg);
             
-            socketManager.handleExitGame(); 
+            this.handleExitGame(); 
         });
 
         socket.on('error', msg => {
-            socketManager._showToast(msg);
+            this._showToast(msg);
             if (msg && (msg.includes('match') || msg.includes('غرفة') || msg.includes('Room') || msg.includes('غير قانونية'))) {
-                socketManager.handleExitGame();
+                this.handleExitGame();
             }
             ui.setDisplay('online-status-text', 'none');
             ui.setDisplay('online-setup-box', 'block');
         });
 
         socket.on('receiveChallenge', data => {
-            if (!data || socketManager.isAlertShown) return;
-            socketManager.isAlertShown = true;
+            if (!data || this.isAlertShown) return;
+            this.isAlertShown = true;
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
             else ui.setDisplay('custom-alert-modal', 'none');
 
-            const profile = socketManager._ensureUserProfile();
+            const profile = this._ensureUserProfile();
             const challengerName = data.challengerName || (gameState.lang === 'ar' ? 'صديق' : 'Friend');
             const msg = gameState.lang === 'ar' 
                 ? `تحدي من (${challengerName})! هل تقبل؟` 
@@ -648,7 +626,7 @@ export const socketManager = {
             if (typeof ui.showCustomAlert === 'function') {
                 ui.showCustomAlert(msg, gameState.lang === 'ar' ? 'تحدي جديد ⚔️' : 'Challenge ⚔️', 
                     () => { 
-                        socketManager.isAlertShown = false;
+                        this.isAlertShown = false;
                         socket.emit('challengeResponse', { 
                             challengerId: data.challengerId, 
                             accept: true, 
@@ -657,10 +635,10 @@ export const socketManager = {
                             roomID: data.roomID
                         });
                         
-                        socketManager._showToast(gameState.lang === 'ar' ? "جاري الدخول للمباراة..." : "Entering match...");
+                        this._showToast(gameState.lang === 'ar' ? "جاري الدخول للمباراة..." : "Entering match...");
                         
                         if (data.roomID) {
-                            socketManager.handleRoomAction('joinRoom', data.roomID); 
+                            this.handleRoomAction('joinRoom', data.roomID); 
                             if (typeof window.closeAppModal === 'function') window.closeAppModal('in-game-profile-modal');
                         }
                     }, 
@@ -691,17 +669,17 @@ export const socketManager = {
         });
 
         socket.on('challengeResponse', data => {
-            socketManager.isAlertShown = false;
+            this.isAlertShown = false;
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
             else ui.setDisplay('custom-alert-modal', 'none');
 
             if (data && data.accept) {
-                socketManager._showToast(gameState.lang === 'ar' ? "تم القبول! جاري التجهيز..." : "Accepted! Preparing...");
+                this._showToast(gameState.lang === 'ar' ? "تم القبول! جاري التجهيز..." : "Accepted! Preparing...");
                 if (typeof window.closeAppModal === 'function') window.closeAppModal('in-game-profile-modal');
             } else {
                 const responderName = (data && data.responderName) || (gameState.lang === 'ar' ? 'الصديق' : 'Friend');
-                socketManager._showToast(gameState.lang === 'ar' ? `رفض ${responderName} التحدي.` : `${responderName} declined.`);
-                socketManager.handleExitGame(); 
+                this._showToast(gameState.lang === 'ar' ? `رفض ${responderName} التحدي.` : `${responderName} declined.`);
+                this.handleExitGame(); 
             }
         });
 
@@ -713,15 +691,15 @@ export const socketManager = {
         });
 
         socket.on('friendAddedNotification', (data) => {
-            if (data) socketManager._showToast(gameState.lang === 'ar' ? `قام اللاعب (${data.newFriendId}) بإضافتك!` : `Player (${data.newFriendId}) added you!`);
+            if (data) this._showToast(gameState.lang === 'ar' ? `قام اللاعب (${data.newFriendId}) بإضافتك!` : `Player (${data.newFriendId}) added you!`);
         });
 
         socket.on('friendAddSuccess', (data) => {
-            if (data) socketManager._showToast(data.msg);
+            if (data) this._showToast(data.msg);
         });
 
         socket.on('friendAddFailed', (data) => {
-            if (data) socketManager._showToast(data.msg);
+            if (data) this._showToast(data.msg);
         });
 
         socket.on('levelUpAlert', (data) => {
