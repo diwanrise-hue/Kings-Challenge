@@ -388,13 +388,15 @@ export const ui = {
         }
     },
 
+    // 🔥 تسريع: تم استبدال querySelector بالوصول المباشر للأبناء
     updateVirtualBoardState() {
         const board = this.getEl('board');
         if (!board) return;
         
+        let cellIndex = 0;
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
-                const cell = board.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                const cell = board.children[cellIndex++];
                 if (cell?.children.length > 0) {
                     const child = cell.children[0];
                     const side = child.classList.contains('white') ? 'white' : 'black';
@@ -458,6 +460,7 @@ export const ui = {
         renderScoreDots(myRow, isWhite ? whiteCount : blackCount, gameState.playerColor);
     },
 
+    // 🔥 تسريع: تم استبدال querySelector البطيء بنظام Indexing سريع جداً
     renderBoard(forceRebuild = false) {
         const board = this.getEl('board');
         if (!board) return;
@@ -492,13 +495,17 @@ export const ui = {
             }
         }
         
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const cell = board.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+        let cellIndex = 0;
+        for (let dr = 0; dr < 8; dr++) {
+            for (let dc = 0; dc < 8; dc++) {
+                const r = flip ? 7 - dr : dr;
+                const c = flip ? 7 - dc : dc;
+                
+                const cell = board.children[cellIndex++];
                 if (!cell) continue;
                 
                 const boardVal = gameState.virtualBoard[r][c];
-                let currentPiece = cell.querySelector('.piece:not(.mini)');
+                let currentPiece = cell.firstElementChild; 
                 
                 if (boardVal) {
                     const isWhite = boardVal.includes('white');
