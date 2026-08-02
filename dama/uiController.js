@@ -757,7 +757,6 @@ export const ui = {
         
         const isBoardEmpty = gameState.virtualBoard.every(row => row.every(cell => cell === null));
         
-        // ✅ 1. الإصلاح: حساب الحركات المتوفرة للاعب الحالي فقط بدلاً من الاثنين لمنع هدر الموارد
         let currentAvailableMoves = 1; 
         if (!isBoardEmpty) {
             currentAvailableMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard).length;
@@ -774,7 +773,6 @@ export const ui = {
             return;
         }
         
-        // ✅ 2. الإصلاح: تخزين بيانات القفزات لعدم تكرار استدعاء findMaxJumps المعقدة
         let maxJ = 0;
         let piecesJumps = []; 
         
@@ -805,7 +803,6 @@ export const ui = {
             tInd.style.color = "#e74c3c";
             
             let fList = [];
-            // استخدام المصفوفة المخزنة بدلاً من إعادة الحساب
             piecesJumps.forEach(piece => {
                 if (piece.jumps === gameState.requiredJumps) {
                     let cell = this.getEl('board').querySelector(`[data-row="${piece.r}"][data-col="${piece.c}"]`);
@@ -1751,7 +1748,6 @@ ui.onClick('board', e => {
                         gameState.selectedPiece = null; ui.clearHighlights();
                         gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                         
-                        // ✅ تم التعديل لمنع بناء الرقعة من الصفر وتخفيف الحمل على المعالج
                         ui.renderBoard();
 
                         if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
@@ -1764,13 +1760,12 @@ ui.onClick('board', e => {
                         saveGameState(); ui.startTurn();
                         gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
                     } else { 
-                        gameState.isMultiJumping = true; 
-                        // ✅ تم التعديل
-                        ui.renderBoard();
+                        gameState.isMultiJumping = true; ui.renderBoard();
                         const boardEl = document.getElementById('board');
                         const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
                         if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
 
+                        // ✅ الكود النظيف بعد حذف التسريب
                         if (!gameState.isOnlineMode) {
                             if (!gameState.boardHistory) gameState.boardHistory = [];
                             gameState.boardHistory.push({ 
@@ -1813,7 +1808,6 @@ ui.onClick('board', e => {
                 gameState.selectedPiece = null; ui.clearHighlights();
                 gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                 
-                // ✅ تم التعديل هنا أيضاً
                 ui.renderBoard();
 
                 if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
@@ -1841,5 +1835,30 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         let defaultProfile = { id: '#00000', name: t('badge_you'), avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
         if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(defaultProfile); }
+    }
+});
+
+// ✅ 🛡️ [إصلاح التعليق بملف uiController.js]: مؤقت أمان لفك تعليق زر عجلة الحظ
+document.addEventListener('click', (e) => {
+    if (e.target.id === 'spin-free-btn' || e.target.id === 'spin-paid-btn') {
+        const btn = e.target;
+        const isFree = btn.id === 'spin-free-btn';
+        
+        // مؤقت أمان: فك تعليق الزر إذا لم يرد السيرفر أو انقطع النت (بعد 5 ثوانٍ)
+        setTimeout(() => {
+            if (!window.isSpinning) {
+                // إرجاع الزر إلى حالته الطبيعية بناءً على لغة النظام
+                btn.innerText = isFree ? (window.t ? window.t('spin_free_btn') || "لفة مجانية 🆓" : "لفة مجانية 🆓") : (window.t ? window.t('spin_paid_btn') || "لفة إضافية (200 🪙)" : "لفة إضافية (200 🪙)");
+                btn.disabled = false;
+                btn.style.pointerEvents = 'auto';
+                btn.style.opacity = '1';
+            }
+        }, 5000);
+
+        setTimeout(() => {
+            if (window.isSpinning && window.questsManager) {
+                window.questsManager.updateProgress('spin');
+            }
+        }, 500);
     }
 });
