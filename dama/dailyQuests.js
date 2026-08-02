@@ -16,12 +16,13 @@ export const questsManager = {
     ],
     progress: { daily: {}, weekly: {} },
     lastReset: { daily: 0, weekly: 0 },
-    currentTab: 'daily', // لتتبع التبويب المفتوح حالياً
+    currentTab: 'daily',
 
     init() {
         this.loadProgress();
         this.checkResets();
-        this.renderQuests(); 
+        this.renderQuests('daily');
+        this.renderQuests('weekly');
         
         setInterval(() => this.updateTimerDisplay(), 1000);
         window.questsManager = this;
@@ -61,7 +62,7 @@ export const questsManager = {
         this.progress[period] = {};
         this.lastReset[period] = Date.now();
         this.saveProgress();
-        if (this.currentTab === period) this.renderQuests();
+        this.renderQuests(period);
     },
 
     updateProgress(type, amount = 1) {
@@ -84,12 +85,12 @@ export const questsManager = {
 
         if (updated) {
             this.saveProgress();
-            this.renderQuests();
+            this.renderQuests('daily');
+            this.renderQuests('weekly');
         }
     },
 
-    claimReward(questId) {
-        let period = this.currentTab;
+    claimReward(period, questId) {
         let q = this[period + 'Quests'].find(x => x.id === questId);
         if (!q) return;
 
@@ -107,17 +108,15 @@ export const questsManager = {
             }
             
             if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.win);
-            this.renderQuests();
+            this.renderQuests(period);
         }
     },
 
-    renderQuests() {
-        // نستخدم نفس الصندوق الذي أضفته أنت في HTML
-        let container = document.getElementById('quests-list-container');
+    renderQuests(period) {
+        let container = document.getElementById(`quests-list-container-${period}`);
         if (!container) return;
         container.innerHTML = '';
 
-        let period = this.currentTab;
         let quests = this[period + 'Quests'];
         
         quests.forEach(q => {
@@ -157,7 +156,7 @@ export const questsManager = {
                 let btn = document.createElement('button');
                 btn.innerText = "استلام";
                 btn.style.cssText = "background: #34c759; color: white; border: none; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;";
-                btn.onclick = () => this.claimReward(q.id);
+                btn.onclick = () => this.claimReward(period, q.id);
                 footer.innerHTML = '';
                 footer.appendChild(btn);
             } else if (prog.claimed) {
@@ -171,8 +170,6 @@ export const questsManager = {
             el.appendChild(footer);
             container.appendChild(el);
         });
-        
-        this.updateTimerDisplay();
     },
 
     updateTimerDisplay() {
