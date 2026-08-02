@@ -408,8 +408,6 @@
         .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
         @keyframes thinkPulse { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
-        #mini-disconnect-radar { display: none; position: absolute; top: 50%; right: -46px; transform: translateY(-50%) translateY(-22px); border-radius: 12px; width: 38px; height: 38px; z-index: 99999; background: rgba(15, 18, 25, 0.85); padding: 4px; border: 1px solid rgba(255, 69, 58, 0.4); box-shadow: 0 0 12px rgba(255, 69, 58, 0.3); }
-
         /* النوافذ الكبيرة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
         #custom-alert-modal { z-index: 99999999 !important; }
@@ -417,6 +415,7 @@
         #lucky-spin-modal { z-index: 20000002 !important; }
         #level-up-modal { z-index: 20000003 !important; } 
         
+        /* ✅ تم الإصلاح: الزر الآن ثابت داخل النافذة */
         .settings-card { position: relative !important; background: rgba(35, 38, 45, 0.95) !important; border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05) !important; text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
         
         #store-modal .settings-card, #themes-grid-overlay .settings-card { 
@@ -432,7 +431,8 @@
         .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .scrollable-content::-webkit-scrollbar-thumb { background: rgba(135, 206, 235, 0.5); border-radius: 10px; }
 
-        .modal-close-btn { position: absolute; top: 15px; left: 15px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: rgba(255,255,255,0.7); font-size: 16px; cursor: pointer; transition: all 0.3s ease; z-index: 10; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; }
+        /* ✅ زر الإغلاق الدائري الأنيق */
+        .modal-close-btn { position: absolute; top: 15px; left: 15px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: rgba(255,255,255,0.7); font-size: 16px; cursor: pointer; transition: all 0.3s ease; z-index: 10; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; padding: 0; }
         .modal-close-btn:hover { background: rgba(255,69,58,0.15) !important; border-color: rgba(255,69,58,0.4) !important; color: #ff453a; transform: scale(1.1); }
         
         .settings-card h3 { color: #fff; margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 700; }
@@ -449,7 +449,7 @@
         .audio-controls input[type="range"] { width: 100%; margin-bottom: 5px; accent-color: #ffffff; }
         
         .custom-nav-tabs { display: flex; gap: 4px; margin-bottom: 10px; background: rgba(255, 255, 255, 0.06); padding: 4px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; }
-        .custom-tab-button { flex: 1; min-width: 60px; height: 36px; border-radius: 50px; background: transparent; color: #a1a1aa; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .custom-tab-button { flex: 1; min-width: 60px; height: 36px; border-radius: 50px; background: transparent; color: #a1a1aa; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; outline: none; }
         .custom-tab-button.active { background: rgba(255,255,255,0.1); color: white; }
 
         .lb-list-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
@@ -671,15 +671,6 @@
             }
             originalSetItem.call(this, key, value);
         };
-
-        // حل مشكلة الشاشة البيضاء عند العودة للعبة من الخلفية
-        document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'visible') {
-                document.body.style.display = 'none';
-                void document.body.offsetHeight; 
-                document.body.style.display = 'flex';
-            }
-        });
     </script>
 </head>
 <body data-piece-style="pc_original">
@@ -729,7 +720,8 @@
         </div>
 
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-            <div id="mini-disconnect-radar"></div>
+            <!-- ✅ تم ضبط موقع الرادار ليظهر دائماً فوق البينج -->
+            <div id="mini-disconnect-radar" style="display: none; position: fixed; bottom: 25px; left: calc(50% + 118px); transform: translateX(-50%); border-radius: 50%; width: 34px; height: 34px; z-index: 999999; background: rgba(15, 18, 25, 0.85); padding: 4px; border: 1px solid rgba(255, 69, 58, 0.4); box-shadow: 0 0 12px rgba(255, 69, 58, 0.3);"></div>
             <div id="turn-box-container">
                 <h3 id="turn-indicator">Your Turn</h3>
                 <div id="turn-countdown"></div>
@@ -800,6 +792,25 @@
         </div>
     </div>
 
+    <!-- ✅ نافذة المهام المطورة بالتبويبات -->
+    <div id="daily-quests-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
+            <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')">✕</button>
+            <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">سجل المهام 📜</h3>
+            <p class="settings-label" style="text-align:center; margin-bottom: 15px; color: #fff;">أكمل المهام للحصول على جوائز إضافية!</p>
+            
+            <div class="custom-nav-tabs" style="margin-bottom: 15px;">
+                <button id="quest-tab-daily" class="custom-tab-button active" onclick="switchQuestTab('daily')">يومية</button>
+                <button id="quest-tab-weekly" class="custom-tab-button" onclick="switchQuestTab('weekly')">أسبوعية</button>
+            </div>
+
+            <div id="quests-list-container-daily" style="display: flex; flex-direction: column; gap: 12px; max-height: 50vh; overflow-y: auto; padding-right: 5px;"></div>
+            <div id="quests-list-container-weekly" style="display: none; flex-direction: column; gap: 12px; max-height: 50vh; overflow-y: auto; padding-right: 5px;"></div>
+            
+            <p id="quests-reset-timer" style="color: #a1a1aa; font-size: 12px; margin-top: 20px; font-weight: 600;">تتجدد المهام بعد: --:--:--</p>
+        </div>
+    </div>
+
     <div id="toast-notification">✨ تم التغيير بنجاح</div>
 
     <button id="online-toggle-btn" title="البحث العشوائي" style="position: fixed; bottom: 75px; left: 15px; z-index: 9998; height: 46px; width: 102px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
@@ -852,23 +863,6 @@
             <div id="spin-timer" style="color: #a1a1aa; font-size: 14px; margin-bottom: 15px; font-weight: 600;">اللفة المجانية جاهزة!</div>
             <button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important;">لفة مجانية 🆓</button>
             <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none;">لفة إضافية (200 🪙)</button>
-        </div>
-    </div>
-
-    <!-- ✅ التعديل الثاني: إضافة التبويبات إلى نافذة المهام -->
-    <div id="daily-quests-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
-            <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')" style="left:15px; right:auto;">✕</button>
-            <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">سجل المهام 📜</h3>
-            <p class="settings-label" style="text-align:center; margin-bottom: 15px; color: #fff;">أكمل المهام للحصول على جوائز إضافية!</p>
-            
-            <div class="custom-nav-tabs" style="margin-bottom: 15px;">
-                <button id="quest-tab-daily" class="custom-tab-button active" onclick="switchQuestTab('daily')">يومية</button>
-                <button id="quest-tab-weekly" class="custom-tab-button" onclick="switchQuestTab('weekly')">أسبوعية</button>
-            </div>
-
-            <div id="quests-list-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 50vh; overflow-y: auto; padding-right: 5px;"></div>
-            <p id="quests-reset-timer" style="color: #a1a1aa; font-size: 12px; margin-top: 20px; font-weight: 600;">تتجدد المهام بعد: --:--:--</p>
         </div>
     </div>
 
@@ -1114,18 +1108,6 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
     <script>
-        // ✅ التعديل الثاني: إضافة الدالة المسؤولة عن تبديل النوافذ
-        function switchQuestTab(tab) {
-            document.getElementById('quest-tab-daily').classList.remove('active');
-            document.getElementById('quest-tab-weekly').classList.remove('active');
-            document.getElementById('quest-tab-' + tab).classList.add('active');
-
-            if (window.questsManager) {
-                window.questsManager.currentTab = tab;
-                window.questsManager.renderQuests();
-            }
-        }
-        
         function selectBetAmount(value, displayText, element) {
             document.getElementById('room-bet-input').value = value;
             document.getElementById('custom-bet-display').innerText = displayText;
@@ -1412,5 +1394,52 @@
 
     <script src="chat.js"></script>
     <script type="module" src="voice.js"></script>
+
+    <script>
+        // 1. الحل النهائي للشاشة البيضاء (إجبار المتصفح على إعادة رسم الأبعاد)
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize')); 
+                    document.body.style.transform = 'scale(1)';
+                    document.body.style.opacity = '0.99';
+                    window.requestAnimationFrame(() => {
+                        document.body.style.opacity = '1';
+                    });
+                }, 50);
+            }
+        });
+
+        // 2. التبديل السليم بين حاويات المهام
+        function switchQuestTab(tab) {
+            document.getElementById('quest-tab-daily').classList.remove('active');
+            document.getElementById('quest-tab-weekly').classList.remove('active');
+            
+            document.getElementById('quests-list-container-daily').style.display = 'none';
+            document.getElementById('quests-list-container-weekly').style.display = 'none';
+
+            document.getElementById('quest-tab-' + tab).classList.add('active');
+            document.getElementById('quests-list-container-' + tab).style.display = 'flex';
+
+            if (window.questsManager) {
+                window.questsManager.currentTab = tab;
+                window.questsManager.updateTimerDisplay();
+            }
+        }
+
+        // 3. صائد النصوص: سيقوم بتغيير جملة "السيرفر غير متصل" أينما كانت في اللعبة
+        setInterval(() => {
+            if (window.ui && window.ui.showCustomAlert && !window.ui._alertPatched) {
+                const originalShowAlert = window.ui.showCustomAlert;
+                window.ui.showCustomAlert = function(msg, title, onConfirm, showCancel, customCancelText, customOkText) {
+                    if (msg && msg.includes("السيرفر غير متصل، يرجى الانتظار قليلاً...")) {
+                        msg = "جاري الاتصال، يرجى انتظار قليلاً....";
+                    }
+                    originalShowAlert.call(window.ui, msg, title, onConfirm, showCancel, customCancelText, customOkText);
+                };
+                window.ui._alertPatched = true;
+            }
+        }, 500);
+    </script>
 </body>
 </html>
