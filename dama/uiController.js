@@ -18,16 +18,18 @@ export const sfx = {
     spinTick: new Audio('spin_tick.mp3') 
 };
 
+// 💡 1. تم حل مشكلة توقف البوت والـ postMessage نهائياً
 let aiWorkerInstance = null;
 function getAiWorker() {
-    if (window.Worker) {
-        if (!aiWorkerInstance) { 
-            aiWorkerInstance = new Worker('./aiWorker.js', { type: 'module' }).onerror = (e) => {
-                aiWorkerInstance = new Worker('aiWorker.js'); 
-            };
-            if(!aiWorkerInstance) aiWorkerInstance = new Worker('aiWorker.js');
+    try {
+        if (window.Worker) {
+            if (!aiWorkerInstance || typeof aiWorkerInstance.postMessage !== 'function') { 
+                aiWorkerInstance = new Worker('aiWorker.js');
+            }
+            return aiWorkerInstance;
         }
-        return aiWorkerInstance;
+    } catch (error) {
+        console.error("⚠️ فشل تحميل الـ Worker:", error);
     }
     return null;
 }
@@ -66,11 +68,20 @@ export const ui = {
         this.clickHandlers.set(id, fn);
     },
     
+    // 💡 2. تم حل مشكلة اختفاء وتأخير الصوت عبر استنساخ المسار الصوتي (Cloning)
     playSound(audio) {
         if (!audio) return;
-        audio.currentTime = 0;
-        let playPromise = audio.play();
-        if (playPromise !== undefined) { playPromise.catch(err => {}); }
+        try {
+            const clone = audio.cloneNode();
+            clone.volume = audio.volume; 
+            const playPromise = clone.play();
+            
+            if (playPromise !== undefined) { 
+                playPromise.catch(err => { console.warn("الصوت قيد الانتظار:", err); }); 
+            }
+            
+            clone.onended = () => { clone.remove(); };
+        } catch(e) {}
     },
     
     getVal(id, defaultValue = "") {
@@ -251,12 +262,7 @@ export const ui = {
             if (currentPin > lastPinPassed) {
                 lastPinPassed = currentPin;
 
-                if (tickAudio) {
-                    let clonedTick = tickAudio.cloneNode();
-                    clonedTick.volume = tickAudio.volume || parseFloat(localStorage.getItem('sfx_volume') || '0.7');
-                    clonedTick.play().catch(() => {});
-                    clonedTick.onended = () => clonedTick.remove();
-                }
+                this.playSound(tickAudio);
 
                 if (pointer) {
                     pointer.style.transform = 'translateX(-50%) rotate(-30deg)';
@@ -675,8 +681,7 @@ export const ui = {
             
             if (gameState.turnTimeLeft <= 10 && gameState.turnTimeLeft > 0 && !hasPlayedTick) {
                 hasPlayedTick = true;
-                let playPromise = sfx.clock.play();
-                if (playPromise !== undefined) playPromise.catch(() => {});
+                this.playSound(sfx.clock);
             }
             
             if (gameState.turnTimeLeft <= 0) {
@@ -739,7 +744,6 @@ export const ui = {
                     board: gameState.virtualBoard.map(row => [...row]), 
                     turn: gameState.currentTurn
                 });
-                // 💡 تقييد الذاكرة العشوائية لتجنب التراكم (الحفاظ على آخر 6 حركات)
                 if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
             }
         }
@@ -1322,7 +1326,9 @@ export const ui = {
                     parsed.friends = [...new Set(parsed.friends.map(f => f.toUpperCase()))];
                 }
                 gameState.userProfile = { ...gameState.userProfile, ...parsed }; 
-            } catch(e) {}
+            } catch(e) {
+                console.error("Error parsing saved profile setup:", e);
+            }
         }
         this.updateProfileUI(); 
     },
@@ -1442,7 +1448,7 @@ ui.onClick('undo-btn', () => {
     let prevState = gameState.boardHistory[gameState.boardHistory.length - 1];
 
     if (prevState) {
-        gameState.virtualBoard = prevState.board.map(row => [...row]);
+        gameState.virtualBoard = prevState.board.map(row => [...row]); 
         gameState.currentTurn = prevState.turn;
         
         ui.clearHighlights();
@@ -1650,9 +1656,6 @@ if (!document.getElementById('forced-overlay-style')) {
     document.head.appendChild(forcedStyle);
 }
 
-// =========================================================================
-// تفاعلات اللاعب مع الرقعة (Board Clicks) - تم إضافة تقييد الذاكرة العشوائية
-// =========================================================================
 ui.onClick('board', e => {
     if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
     
@@ -1762,7 +1765,6 @@ ui.onClick('board', e => {
                                 moves: gameState.movesWithoutProgress,
                                 histStr: [...gameState.boardHistoryStr]
                             });
-                            // 💡 تقييد الذاكرة العشوائية لتجنب التراكم (الحفاظ على آخر 6 حركات)
                             if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
                         }
                         ui.showValidMovesHighlights(toRow, toCol); 
