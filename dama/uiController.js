@@ -859,10 +859,12 @@ export const ui = {
         const gameId = gameState.gameId || Date.now();
         gameState.gameId = gameId; 
 
-        let fallbackWaitTime = 1200; 
-        if (level === 4) fallbackWaitTime = 1600;
-        else if (level === 5) fallbackWaitTime = 2000;
-        else if (level >= 6) fallbackWaitTime = 2500;
+        // 🔥 تم تحديث أوقات الـ Fallback لتتطابق مع Worker
+        let fallbackWaitTime = 1500; 
+        if (level === 4) fallbackWaitTime = 2500;
+        else if (level === 5) fallbackWaitTime = 4000;
+        else if (level === 6) fallbackWaitTime = 6000;
+        else if (level >= 7) fallbackWaitTime = 8000;
 
         const processMove = (chosenMove) => {
             if (!Array.isArray(chosenMove)) {
@@ -1553,9 +1555,10 @@ ui.onClick('hint-btn', () => {
         ui.playSound(ui.sfx.move);
     };
 
-    let fallbackWaitTime = 1200;
-    if (currentLevel >= 5) fallbackWaitTime = 1800;
-    if (currentLevel >= 7) fallbackWaitTime = 2500;
+    // 🔥 تم تحديث أوقات الـ Fallback لتتطابق مع Worker
+    let fallbackWaitTime = 1500;
+    if (currentLevel >= 5) fallbackWaitTime = 4000;
+    if (currentLevel >= 7) fallbackWaitTime = 8000;
 
     const worker = getAiWorker();
     if (worker) {
