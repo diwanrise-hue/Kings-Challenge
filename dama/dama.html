@@ -680,7 +680,6 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <!-- 🌟 الشاشة العلوية -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
         <div class="xp-svg-wrapper">
             <svg width="138" height="56.8" viewBox="0 0 122.2 56.8">
@@ -741,7 +740,6 @@
         <div id="board"></div> 
     </div>
 
-    <!-- القائمة الجانبية -->
     <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
         <div class="side-menu-panel">
             <div class="side-menu-header">
@@ -806,7 +804,6 @@
 
     <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" style="position: fixed; bottom: 75px; right: 15px; z-index: 9998; width: 46px; height: 46px; padding: 0; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;" title="المتجر الملكي" data-icon="storePortal"></button>
 
-    <!-- 🌟 نافذة اختيار المستوى -->
     <div id="level-select-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 340px; padding: 30px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('level-select-modal')" style="left:15px; right:auto;">✕</button>
@@ -831,7 +828,6 @@
         </div>
     </div>
 
-    <!-- 🎡 عجلة الحظ -->
     <div id="lucky-spin-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 360px;">
             <button class="modal-close-btn" onclick="closeAppModal('lucky-spin-modal')" style="left:15px; right:auto;">✕</button>
@@ -853,7 +849,6 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة المهام اليومية -->
     <div id="daily-quests-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')" style="left:15px; right:auto;">✕</button>
@@ -864,7 +859,6 @@
         </div>
     </div>
 
-    <!-- باقي النوافذ (ترقية، متجر، الخ) -->
     <div id="level-up-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; overflow: hidden; position: relative;">
             <div class="level-up-rays"></div> <button class="modal-close-btn" onclick="closeAppModal('level-up-modal')" style="left:15px; right:auto;">✕</button>
@@ -1010,7 +1004,6 @@
         </div>
     </div>
 
-    <!-- 💡 نافذة إنشاء الغرفة المحدثة مع القائمة المخصصة -->
     <div id="online-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('online-modal')" style="left:15px; right:auto;">✕</button>
@@ -1033,7 +1026,6 @@
         </div>
     </div>
 
-    <!-- 💡 نافذة اختيار الرهان المخصصة (Bottom Sheet) -->
     <div id="bet-selector-modal" class="modal-overlay" style="z-index: 99999999; align-items: flex-end; padding: 0;" onclick="if(event.target === this) closeAppModal('bet-selector-modal')">
         <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
             <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
@@ -1105,11 +1097,9 @@
         <button id="resign-btn" title="الانسحاب" style="display: none; font-weight: bold;">الانسحاب</button>
     </div>
 
-    <!-- Scripts الأساسية -->
     <script src="icons.js"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
-    <!-- Script دوال الواجهة الأساسية (تم الحفاظ عليه لضرورته) -->
     <script>
         function selectBetAmount(value, displayText, element) {
             document.getElementById('room-bet-input').value = value;
@@ -1423,17 +1413,11 @@
         });
     </script>
 
-    <!-- Modules الأساسية للعبة -->
     <script type="module" src="main.js"></script>
     <script type="module" src="dailyQuests.js"></script>
     <script type="module">
         import { storeManager } from './store.js?v=999';
         document.addEventListener('DOMContentLoaded', () => { storeManager.init(); });
-    </script>
-
-    <script>
-        function requestFullScreen() { const element = document.documentElement; if (element.requestFullscreen) { element.requestFullscreen().catch(err => console.warn("Fullscreen Error:", err)); } else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); } else if (element.msRequestFullscreen) { element.msRequestFullscreen(); } }
-        ['click', 'touchstart'].forEach(eventType => { document.body.addEventListener(eventType, requestFullScreen, { once: true }); });
     </script>
 
     <script src="chat.js"></script>
