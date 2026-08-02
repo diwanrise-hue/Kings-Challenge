@@ -1,8 +1,6 @@
 /**
  * socketManager.js
- * النسخة المحسنة والأكثر أماناً: (إصلاح البينج الوهمي، إغلاق ثغرة Client Authority).
- * - (تحديث 1): تم دمج نظام المماطلة والتعادل التلقائي مع حركات الخصم القادمة من السيرفر.
- * - (تحديث 2): تم إصلاح ثغرة نقل (مبلغ الرهان) للسيرفر بشكل صحيح ومستقر.
+ * النسخة المحسنة والأكثر أماناً: (إيقاف الـ Polling البطيء، تخفيف تحديثات الـ Ping)
  */
 
 import { gameState } from './gameState.js'; 
@@ -10,8 +8,10 @@ import { startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
 
+// 💡 1. إجبار استخدام websocket لحل مشكلة التأخير (Lag)
 export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { 
-    transports: ['websocket', 'polling'] 
+    transports: ['websocket'],
+    upgrade: false
 });
 window.socket = socket; 
 
@@ -23,7 +23,8 @@ export const socketManager = {
     toastTimeout: null,
     disconnectTimer: null, 
     pingIntervalId: null, 
-    pingStartTime: null, 
+    pingStartTime: null,
+    lastPingValue: null, // تتبع قيمة الـ Ping لمنع تحديث DOM عشوائياً
 
     _showToast(msg) {
         let toast = document.getElementById('game-toast-notification');
@@ -87,14 +88,15 @@ export const socketManager = {
 
         if (this.pingIntervalId) clearInterval(this.pingIntervalId);
 
+        // 💡 2. تحديث الـ Ping كل 5 ثوانٍ بدلاً من 3 لتقليل الضغط
         this.pingIntervalId = setInterval(() => {
-            if (pingEl) pingEl.style.display = 'flex';
+            if (pingEl && pingEl.style.display === 'none') pingEl.style.display = 'flex';
             if (socket && socket.connected) {
                 socket.emit('clientPing', Date.now()); 
             } else {
                 this._updatePingUI(999);
             }
-        }, 3000); 
+        }, 5000); 
 
         socket.off('serverPong'); 
         socket.on('serverPong', (clientTime) => {
@@ -104,6 +106,10 @@ export const socketManager = {
     },
 
     _updatePingUI(latency) {
+        // تحديث الواجهة فقط إذا تغير الرقم بنسبة ملحوظة (أكثر من 15ms) لتخفيف ضغط (DOM)
+        if (this.lastPingValue !== null && Math.abs(this.lastPingValue - latency) < 15 && latency !== 999) return;
+        this.lastPingValue = latency;
+
         const pingEl = document.getElementById('real-ping-indicator');
         const pingText = document.getElementById('ping-text');
         const pingDot = document.getElementById('ping-dot');
@@ -220,9 +226,7 @@ export const socketManager = {
             };
             try {
                 localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
-            } catch (e) {
-                console.error("⚠️ فشل حفظ ملف الضيف التلقائي:", e);
-            }
+            } catch (e) {}
         }
         return gameState.userProfile;
     },
@@ -257,7 +261,6 @@ export const socketManager = {
 
         socket.on('connect', () => {
             console.log('Connected to server successfully');
-            
             this._hideDisconnectUI();
 
             const profile = this._ensureUserProfile();
@@ -268,11 +271,7 @@ export const socketManager = {
                 this.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
             
-            if (typeof ui.setDisplay === 'function') {
-                ui.setDisplay('custom-alert-modal', 'none');
-            } else if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('custom-alert-modal');
-            }
+            if (typeof ui.setDisplay === 'function') ui.setDisplay('custom-alert-modal', 'none');
         });
 
         socket.on('disconnect', (reason) => {
@@ -281,15 +280,10 @@ export const socketManager = {
         });
 
         socket.on('connect_error', (err) => {
-            console.warn("⚠️ تنبيه المطور: الإنترنت مقطوع أو ضعيف جداً بالجهاز حالياً!", err);
-            
             const mmModal = document.getElementById('matchmaking-modal');
             if (mmModal && (mmModal.style.display === 'block' || mmModal.style.display === 'flex')) {
-                if (typeof window.closeAppModal === 'function') {
-                    window.closeAppModal('matchmaking-modal');
-                } else {
-                    mmModal.style.display = 'none';
-                }
+                if (typeof window.closeAppModal === 'function') window.closeAppModal('matchmaking-modal');
+                else mmModal.style.display = 'none';
                 clearInterval(gameState.mmInterval);
                 gameState.mmInterval = null;
             }
@@ -308,7 +302,6 @@ export const socketManager = {
             if (data.turn) gameState.currentTurn = data.turn;
             if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
             
-            // 💡 تصفير ذاكرة التعادل عند إعادة المزامنة لتجنب تعادل وهمي من الحركات السابقة
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
             
@@ -339,16 +332,12 @@ export const socketManager = {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
             
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('custom-alert-modal');
-            } else {
-                ui.setDisplay('custom-alert-modal', 'none');
-            }
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
+            else ui.setDisplay('custom-alert-modal', 'none');
+            
             this.isAlertShown = false; 
 
-            if (typeof gameEngine.closeResultsMenu === 'function') {
-                gameEngine.closeResultsMenu();
-            }
+            if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
             clearInterval(gameState.mmInterval);
             gameState.mmInterval = null; 
 
@@ -358,28 +347,21 @@ export const socketManager = {
             gameState.statsUpdated = false; 
             gameState.isUpdatingStats = false; 
             gameState.selectedPiece = null; 
-
-            // 💡 تصفير ذاكرة التعادل عند بداية كل مباراة جديدة كلياً
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
 
-            if (data.roomID) {
-                gameState.onlineRoomID = data.roomID;
-            }
+            if (data.roomID) gameState.onlineRoomID = data.roomID;
 
             gameState.currentOpponentName = (data.opponent?.name || data.opponentName || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
             gameState.currentOpponentAvatar = (data.opponent?.avatar || data.opponentAvatar || "1000132081.png");
             
             gameState.isOnlineMode = true;
-            
             startOnlineHintSystem(); 
 
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
 
-            if (data.turnEndTime) {
-                gameState.turnEndTime = data.turnEndTime;
-            }
+            if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
 
             if (gameState.virtualBoard && Array.isArray(gameState.virtualBoard)) {
                 let wc = [0,0], bc = [0,0];
@@ -433,7 +415,6 @@ export const socketManager = {
                     isPromotion = true;
                 }
 
-                // 💡 تحديث ذاكرة المماطلة والتعادل بناءً على حركة الخصم للحفاظ على التزامن 100%
                 if (isCapture || isPromotion) {
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
@@ -443,24 +424,19 @@ export const socketManager = {
                 }
 
             } else {
-                console.warn("⚠️ Desync Warning: Received invalid move from opponent!");
                 if(socket.connected) socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
                 if(data.updatedBoard) gameState.virtualBoard = data.updatedBoard; 
             }
             
             gameState.currentTurn = data.nextTurn;
-            
-            if (data.turnEndTime) {
-                gameState.turnEndTime = data.turnEndTime;
-            }
+            if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
 
-            ui.renderBoard(true);
+            // 💡 تحديث واجهة الرقعة بأمان وبدون رسم عنيف
+            ui.renderBoard();
             
             try {
-                if (typeof ui.playSound === 'function') {
-                    ui.playSound(ui.sfx.move || fallbackMoveAudio);
-                }
-            } catch (err) { console.warn(err); }
+                if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move || fallbackMoveAudio);
+            } catch (err) {}
             
             if(gameState.selectedPiece) {
                 gameState.selectedPiece.classList.remove('selected');
@@ -468,17 +444,12 @@ export const socketManager = {
             }
             
             ui.clearHighlights();
-            
-            if (typeof ui.highlightMove === 'function') {
-                ui.highlightMove(data.from, data.to);
-            }
+            if (typeof ui.highlightMove === 'function') ui.highlightMove(data.from, data.to);
             
             if (isMultiJumpContinuation && data.to) {
                 const boardEl = document.getElementById('board');
                 const activeCell = boardEl?.querySelector(`[data-row="${data.to.r}"][data-col="${data.to.c}"]`);
-                if (activeCell && activeCell.children.length > 0) {
-                    activeCell.children[0].classList.add('forced'); 
-                }
+                if (activeCell && activeCell.children.length > 0) activeCell.children[0].classList.add('forced'); 
             }
             
             ui.startTurn();
@@ -520,11 +491,8 @@ export const socketManager = {
                 gameState.turnTimeLeft = seconds;
                 gameState.turnEndTime = Date.now() + (seconds * 1000);
                 
-                if (typeof ui.startTurnTimer === 'function') {
-                    ui.startTurnTimer();
-                } else {
-                    ui.setTxt('turn-countdown', ui.translate(`⏳ المتبقي للدور: ${seconds} ثانية`, `⏳ Turn Time Left: ${seconds}s`));
-                }
+                if (typeof ui.startTurnTimer === 'function') ui.startTurnTimer();
+                else ui.setTxt('turn-countdown', ui.translate(`⏳ المتبقي للدور: ${seconds} ثانية`, `⏳ Turn Time Left: ${seconds}s`));
             }
         });
 
@@ -551,10 +519,7 @@ export const socketManager = {
         });
 
         socket.on('playerDisconnected', () => {
-            if (!gameState.isOnlineMode) {
-                socket.disconnect();
-                return;
-            }
+            if (!gameState.isOnlineMode) { socket.disconnect(); return; }
             this._showToast(gameState.lang === 'ar' ? "غادر الخصم الغرفة" : "Opponent left the room");
             this.handleExitGame();
         });
@@ -568,11 +533,9 @@ export const socketManager = {
         socket.on('rematchOffer', () => {
             if (this.isAlertShown) return; 
             
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('custom-alert-modal');
-            } else {
-                ui.setDisplay('custom-alert-modal', 'none');
-            }
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
+            else ui.setDisplay('custom-alert-modal', 'none');
+            
             this.isAlertShown = true;
 
             if (typeof ui.showCustomAlert === 'function') {
@@ -583,9 +546,8 @@ export const socketManager = {
                         this.isAlertShown = false;
                         socket.emit('acceptRematch', { roomID: String(gameState.onlineRoomID).trim() });
                         document.getElementById('custom-results-modal-container')?.remove();
-                        if (typeof gameEngine.closeResultsMenu === 'function') {
-                            gameEngine.closeResultsMenu();
-                        }
+                        if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
+                        
                         const ind = document.getElementById('turn-indicator');
                         if(ind) ind.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
                     }, 
@@ -603,11 +565,8 @@ export const socketManager = {
                             buttons[1].onclick = (e) => {
                                 e.preventDefault();
                                 this.isAlertShown = false;
-                                if (typeof window.closeAppModal === 'function') {
-                                    window.closeAppModal('custom-alert-modal'); 
-                                } else {
-                                    ui.setDisplay('custom-alert-modal', 'none');
-                                }
+                                if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
+                                else ui.setDisplay('custom-alert-modal', 'none');
                                 this.handleExitGame(); 
                             };
                         }
@@ -620,16 +579,12 @@ export const socketManager = {
 
         socket.on('rematchAccepted', () => {
             this.isAlertShown = false;
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('custom-alert-modal'); 
-            } else {
-                ui.setDisplay('custom-alert-modal', 'none');
-            }
-
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
+            else ui.setDisplay('custom-alert-modal', 'none');
+            
             document.getElementById('custom-results-modal-container')?.remove();
-            if (typeof gameEngine.closeResultsMenu === 'function') {
-                gameEngine.closeResultsMenu();
-            }
+            if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
+            
             const ind = document.getElementById('turn-indicator');
             if(ind) ind.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
         });
@@ -638,11 +593,9 @@ export const socketManager = {
             if (!gameState.isOnlineMode) return;
             this.isAlertShown = false;
             
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('custom-alert-modal'); 
-            } else {
-                ui.setDisplay('custom-alert-modal', 'none');
-            }
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
+            else ui.setDisplay('custom-alert-modal', 'none');
+            
             document.getElementById('custom-results-modal-container')?.remove();
 
             const reasonMsg = data && data.reason ? data.reason : (gameState.lang === 'ar' ? "انتهى وقت الاستجابة لإعادة اللعب." : "Rematch timeout expired.");
@@ -664,11 +617,8 @@ export const socketManager = {
             if (!data || this.isAlertShown) return;
             this.isAlertShown = true;
             
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('custom-alert-modal');
-            } else {
-                ui.setDisplay('custom-alert-modal', 'none');
-            }
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
+            else ui.setDisplay('custom-alert-modal', 'none');
 
             const profile = this._ensureUserProfile();
             const challengerName = data.challengerName || (gameState.lang === 'ar' ? 'صديق' : 'Friend');
@@ -692,9 +642,7 @@ export const socketManager = {
                         
                         if (data.roomID) {
                             this.handleRoomAction('joinRoom', data.roomID); 
-                            if (typeof window.closeAppModal === 'function') {
-                                window.closeAppModal('in-game-profile-modal');
-                            }
+                            if (typeof window.closeAppModal === 'function') window.closeAppModal('in-game-profile-modal');
                         }
                     }, 
                     true 
@@ -711,11 +659,8 @@ export const socketManager = {
                             buttons[1].onclick = (e) => {
                                 e.preventDefault();
                                 this.isAlertShown = false;
-                                if (typeof window.closeAppModal === 'function') {
-                                    window.closeAppModal('custom-alert-modal'); 
-                                } else {
-                                    ui.setDisplay('custom-alert-modal', 'none');
-                                }
+                                if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
+                                else ui.setDisplay('custom-alert-modal', 'none');
                                 this.handleExitGame(); 
                             };
                         }
@@ -728,17 +673,12 @@ export const socketManager = {
 
         socket.on('challengeResponse', data => {
             this.isAlertShown = false;
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('custom-alert-modal'); 
-            } else {
-                ui.setDisplay('custom-alert-modal', 'none');
-            }
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
+            else ui.setDisplay('custom-alert-modal', 'none');
 
             if (data && data.accept) {
                 this._showToast(gameState.lang === 'ar' ? "تم القبول! جاري التجهيز..." : "Accepted! Preparing...");
-                if (typeof window.closeAppModal === 'function') {
-                    window.closeAppModal('in-game-profile-modal');
-                }
+                if (typeof window.closeAppModal === 'function') window.closeAppModal('in-game-profile-modal');
             } else {
                 const responderName = (data && data.responderName) || (gameState.lang === 'ar' ? 'الصديق' : 'Friend');
                 this._showToast(gameState.lang === 'ar' ? `رفض ${responderName} التحدي.` : `${responderName} declined.`);
@@ -754,9 +694,7 @@ export const socketManager = {
         });
 
         socket.on('friendAddedNotification', (data) => {
-            if (data) {
-                this._showToast(gameState.lang === 'ar' ? `قام اللاعب (${data.newFriendId}) بإضافتك!` : `Player (${data.newFriendId}) added you!`);
-            }
+            if (data) this._showToast(gameState.lang === 'ar' ? `قام اللاعب (${data.newFriendId}) بإضافتك!` : `Player (${data.newFriendId}) added you!`);
         });
 
         socket.on('friendAddSuccess', (data) => {
@@ -770,9 +708,7 @@ export const socketManager = {
         socket.on('levelUpAlert', (data) => {
             if (data && typeof ui.showLevelUpModal === 'function') {
                 let rewardsHtml = `+${data.tokens} 🪙`;
-                if (data.hints > 0) {
-                    rewardsHtml += `<br>+${data.hints} 💡`;
-                }
+                if (data.hints > 0) rewardsHtml += `<br>+${data.hints} 💡`;
                 ui.showLevelUpModal(data.newLevel, data.title, rewardsHtml);
             }
         });
@@ -780,18 +716,13 @@ export const socketManager = {
 
     sendChatData(type, value) {
         if (gameState.isOnlineMode && gameState.onlineRoomID && socket.connected) {
-            socket.emit('sendChat', { 
-                roomID: String(gameState.onlineRoomID).trim(), 
-                type: type, 
-                value: value 
-            });
+            socket.emit('sendChat', { roomID: String(gameState.onlineRoomID).trim(), type: type, value: value });
         }
     },
 
     sendMoveToServer(fromR, fromC, toR, toC, boardState, nextTurn) {
         if (gameState.isOnlineMode && gameState.onlineRoomID) {
             const profile = this._ensureUserProfile(); 
-            
             socket.emit('makeMove', { 
                 roomID: String(gameState.onlineRoomID).trim(), 
                 currentTurn: nextTurn,
@@ -806,12 +737,9 @@ export const socketManager = {
     sendSurrender() {
         if (gameState.isOnlineMode && gameState.onlineRoomID) {
             if (gameState.isGameOver) return; 
-            
             socket.emit('playerResigned', { roomID: String(gameState.onlineRoomID).trim() }); 
-            
             gameState.isGameOver = true;
             gameState.isGameActive = false;
-
             gameEngine.handleSurrender(gameState.myOnlineColor);
             if(gameState.turnTimerInterval) clearInterval(gameState.turnTimerInterval);
         }
@@ -825,17 +753,12 @@ export const socketManager = {
 
         restoreOfflineHintSystem(); 
 
-        if (typeof gameEngine.closeResultsMenu === 'function') {
-            gameEngine.closeResultsMenu();
-        }
+        if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
         document.getElementById('custom-results-modal-container')?.remove();
         
         this.isAlertShown = false; 
-        if (typeof window.closeAppModal === 'function') {
-            window.closeAppModal('custom-alert-modal');
-        } else {
-            ui.setDisplay('custom-alert-modal', 'none');
-        }
+        if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
+        else ui.setDisplay('custom-alert-modal', 'none');
         
         if (gameState.onlineRoomID && socket.connected) {
             socket.emit('leaveRoom', { roomID: String(gameState.onlineRoomID).trim() });
@@ -860,9 +783,7 @@ export const socketManager = {
         
         this._hideDisconnectUI();
 
-        if (window.bridge && typeof window.bridge.unlockRoom === 'function') {
-            window.bridge.unlockRoom();
-        }
+        if (window.bridge && typeof window.bridge.unlockRoom === 'function') window.bridge.unlockRoom();
         
         ui.toggleOnlineUILayout(false);
         if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
@@ -877,8 +798,7 @@ export const socketManager = {
                 ui.showCustomAlert(
                     gameState.lang === 'ar' ? "تم إرسال طلبك! بانتظار رد الخصم..." : "Rematch request sent! Waiting...",
                     gameState.lang === 'ar' ? "في الانتظار" : "Waiting",
-                    null, 
-                    true  
+                    null, true  
                 );
                 
                 const updateRematchRequestUI = () => {
@@ -892,24 +812,9 @@ export const socketManager = {
                             buttons[1].onclick = (e) => {
                                 e.preventDefault();
                                 this.isAlertShown = false;
-                                if (typeof window.closeAppModal === 'function') {
-                                    window.closeAppModal('custom-alert-modal'); 
-                                } else {
-                                    ui.setDisplay('custom-alert-modal', 'none');
-                                }
+                                if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
+                                else ui.setDisplay('custom-alert-modal', 'none');
                                 this.handleExitGame(); 
-                            };
-                        } else if (buttons && buttons.length === 1) {
-                            buttons[0].textContent = gameState.lang === 'ar' ? "خروج" : "Exit";
-                            buttons[0].onclick = (e) => {
-                                e.preventDefault();
-                                this.isAlertShown = false;
-                                if (typeof window.closeAppModal === 'function') {
-                                    window.closeAppModal('custom-alert-modal');
-                                } else {
-                                    ui.setDisplay('custom-alert-modal', 'none');
-                                }
-                                this.handleExitGame();
                             };
                         }
                     }
@@ -991,8 +896,7 @@ export const socketManager = {
             ui.showCustomAlert(
                 gameState.lang === 'ar' ? "بانتظار رد الصديق..." : "Waiting for reply...",
                 gameState.lang === 'ar' ? "إرسال تحدي" : "Challenging",
-                null,
-                true 
+                null, true 
             );
 
             const updateSendChallengeUI = () => {
@@ -1006,11 +910,8 @@ export const socketManager = {
                         buttons[1].onclick = (e) => {
                             e.preventDefault();
                             this.isAlertShown = false;
-                            if (typeof window.closeAppModal === 'function') {
-                                window.closeAppModal('custom-alert-modal'); 
-                            } else {
-                                ui.setDisplay('custom-alert-modal', 'none');
-                            }
+                            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
+                            else ui.setDisplay('custom-alert-modal', 'none');
                             this.handleExitGame(); 
                         };
                     }
@@ -1024,12 +925,7 @@ export const socketManager = {
     sendAddFriend(friendId) {
         if (!friendId) return;
         const profile = this._ensureUserProfile();
-        
-        const friendPayload = {
-            requesterId: profile.id,
-            targetId: friendId
-        };
-
+        const friendPayload = { requesterId: profile.id, targetId: friendId };
         this._safeEmit('addFriend', friendPayload);
     }
 };
