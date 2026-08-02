@@ -8,24 +8,6 @@ import { t } from './i18n.js';
 import { hintSystem } from './hintSystem.js';
 
 window.t = t; 
-// مراقبة الأخطاء العامة وإرسالها مباشرة إلى كونسول متصفح Kiwi
-window.addEventListener('error', function (event) {
-    console.error(
-        `%c[UI Error]%c ${event.message} \n📍 File: ${event.filename} (Line: ${event.lineno}, Col:${event.colno})`,
-        'background: #dc2626; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
-        'color: #f87171; font-weight: bold;'
-    );
-});
-
-
-// مراقبة أخطاء الـ Async/Promises (التي غالباً ما تسبب توقتاً صامتاً دون رسالة خطأ واضحة)
-window.addEventListener('unhandledrejection', function (event) {
-    console.error(
-        `%c[UI Promise Rejection]%c`,
-        'background: #d97706; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
-        event.reason
-    );
-});
 
 export const sfx = {
     move: new Audio('move.mp3'),
@@ -43,11 +25,23 @@ function getAiWorker() {
         if (window.Worker) {
             if (!aiWorkerInstance || typeof aiWorkerInstance.postMessage !== 'function') { 
                 aiWorkerInstance = new Worker('aiWorker.js');
+                
+                // إضافة مستمع الأخطاء لسماع أي انهيار مفاجئ للـ Worker وتسجيله في أدوات المطور
+                aiWorkerInstance.onerror = function(error) {
+                    console.error("🚨 [uiController] خطأ فادح: aiWorker.js تعطل أو تم حظره!", {
+                        message: error.message,
+                        filename: error.filename,
+                        lineno: error.lineno,
+                        colno: error.colno
+                    });
+                    window.damaWorkerBroken = true;
+                };
             }
             return aiWorkerInstance;
         }
     } catch (error) {
-        console.error("⚠️ فشل تحميل الـ Worker:", error);
+        console.error("⚠️ [uiController] فشل إنشاء aiWorker.js. قد يكون هناك حظر بسبب سياسات المتصفح (CORS) أو مسار الملف خاطئ:", error);
+        window.damaWorkerBroken = true;
     }
     return null;
 }
@@ -966,6 +960,8 @@ export const ui = {
             
             if (worker && !workerIsBroken) {
                 let fallbackSafetyTimer = setTimeout(() => {
+                    // رسالة تحذير مخصصة للـ Developer Tools في حال لم يرسل Worker أي استجابة وتأخر في التفكير
+                    console.warn("⚠️ [uiController] aiWorker.js لم يرد ضمن الوقت المحدد (تجاوز Timeout)! تم تفعيل الحماية الاحتياطية لتجنب تجميد اللعبة.");
                     window.damaWorkerBroken = true; 
                     worker.onmessage = null;
                     worker.onerror = null;
@@ -976,6 +972,10 @@ export const ui = {
                 }, fallbackWaitTime + 500);
 
                 worker.onmessage = function(e) {
+                    // تسجيل أي رسالة خطأ تُرسل من داخل aiWorker.js صراحةً
+                    if (e.data && e.data.error) {
+                        console.error("🚨 [uiController] aiWorker.js أرسل رسالة خطأ داخلية أثناء حساب الحركة:", e.data.error);
+                    }
                     clearTimeout(fallbackSafetyTimer); 
                     worker.onmessage = null; 
                     worker.onerror = null;
@@ -984,6 +984,8 @@ export const ui = {
                 };
                 
                 worker.onerror = function(err) {
+                    // الإمساك بالأخطاء المباشرة وإظهارها في الـ Console
+                    console.error("🚨 [uiController] aiWorker.js واجه خطأ فادحاً أثناء تشغيل الخوارزمية (تعطل/انهيار):", err.message || err);
                     window.damaWorkerBroken = true; 
                     clearTimeout(fallbackSafetyTimer);
                     worker.onmessage = null;
