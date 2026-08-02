@@ -1,6 +1,6 @@
 /**
  * socketManager.js
- * النسخة المحمية: (تم حل مشكلة مسار this، إصلاح البينج العالي، ودعم إعادة الاتصال التلقائي الذكي)
+ * النسخة المحمية: (إصلاح الاتصال الوهمي "Zombie State" عند الخروج المتكرر من اللعبة)
  */
 
 import { gameState } from './gameState.js'; 
@@ -8,14 +8,13 @@ import { startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
 
-// ✅ التعديل الأول: تحسين إعدادات الاتصال لدعم العودة التلقائية والتبديل المرن
 export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { 
-    transports: ['websocket', 'polling'], // السماح بالانتقال المرن في حال ضعف الشبكة
-    reconnection: true,                   // تفعيل إعادة الاتصال التلقائي
-    reconnectionAttempts: Infinity,       // المحاولة إلى ما لا نهاية
-    reconnectionDelay: 1000,              // المحاولة كل ثانية
-    reconnectionDelayMax: 5000,           // أقصى مدة للانتظار هي 5 ثوانٍ
-    timeout: 20000                        // مهلة الاتصال
+    transports: ['websocket', 'polling'], 
+    reconnection: true,                   
+    reconnectionAttempts: Infinity,       
+    reconnectionDelay: 1000,              
+    reconnectionDelayMax: 5000,           
+    timeout: 20000                        
 });
 window.socket = socket; 
 
@@ -104,10 +103,7 @@ export const socketManager = {
         socket.off('serverPong'); 
         socket.on('serverPong', (clientTime) => {
             let latency = Date.now() - clientTime; 
-            
-            // ✅ تم إزالة سطر التجاهل ليظهر التأخير كـ 999ms ولون أحمر بدلاً من التجميد
             if (latency > 999) latency = 999;
-            
             socketManager._updatePingUI(latency);
         });
     },
@@ -244,20 +240,27 @@ export const socketManager = {
         window.socketManager = this;
         this._initRealPingIndicator();
 
-        // ✅ التعديل الثاني: إجبار المتصفح على إعادة الاتصال التلقائي عند عودة الإنترنت أو الخروج من وضع الخمول
+        // ✅ التعديل الجذري لحل مشكلة الاتصال الوهمي (Zombie State)
         window.addEventListener('online', () => {
             if (!socket.connected) {
                 socketManager._showToast(gameState.lang === 'ar' ? "عاد الاتصال بالإنترنت، جاري الربط..." : "Internet restored, connecting...");
-                socket.connect();
+                socket.disconnect(); // قتل الاتصال الوهمي
+                setTimeout(() => socket.connect(), 200); // بدء اتصال نظيف
             }
         });
 
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible' && navigator.onLine && !socket.connected) {
-                socket.connect();
+            if (document.visibilityState === 'visible') {
+                if (!navigator.onLine || !socket.connected) {
+                    socketManager._updatePingUI(999);
+                }
+                if (navigator.onLine && !socket.connected) {
+                    socket.disconnect(); // قتل الاتصال المعلق بالخلفية
+                    setTimeout(() => socket.connect(), 200); // إجبار التحديث
+                }
             }
         });
-        // ==========================================
+        // =================================================
 
         const eventsToTurnOff = [
             'connect', 'disconnect', 'roomCreated', 'roomJoined', 'waitingForOpponent',
@@ -288,7 +291,6 @@ export const socketManager = {
                 socketManager.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
             
-            // ✅ بمجرد الاتصال، ستختفي رسالة "السيرفر غير متصل" المعلقة تلقائياً
             if (typeof ui.setDisplay === 'function') ui.setDisplay('custom-alert-modal', 'none');
         });
 
