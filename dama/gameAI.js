@@ -1,13 +1,15 @@
 /**
  * gameAI.js
- * النسخة المحسنة والخالية من الثغرات: 
- * تم توحيد ذكاء التقييم مع الـ Worker، ومعالجة تسريب الذاكرة نهائياً عبر Backtracking.
+ * النسخة المحسنة للبديل الطارئ (Fallback AI): 
+ * تم توحيد ذكاء التقييم تماماً مع aiWorker.js
+ * تم تسريع الأداء ليعمل على (Main Thread) دون تجميد واجهة المتصفح.
  */
 
 import { gameEngine } from './gameEngine.js';
 
 export const gameAI = {
-    // [إصلاح الثغرة 2]: توحيد دالة التقييم لتتطابق تماماً مع aiWorker.js
+    nodesEvaluated: 0, // عداد لتقليل استهلاك المعالج أثناء فحص الوقت
+
     evaluateBoard(board, aiColor, pieceDirection) {
         let score = 0; let myPieces = 0, oppPieces = 0; let myDamas = 0, oppDamas = 0;
         let targetPure = aiColor.split('-')[0]; let oppPure = targetPure === 'white' ? 'black' : 'white';
@@ -51,24 +53,31 @@ export const gameAI = {
         return score;
     },
 
-    orderMoves(moves, aiDir) {
-        let promoRow = aiDir === 1 ? 7 : 0;
-        return moves.sort((a, b) => {
-            let scoreA = 0; let scoreB = 0;
-            let capturesA = a.filter(step => step.midR !== null).length;
-            let capturesB = b.filter(step => step.midR !== null).length;
-            scoreA += capturesA * 1000; scoreB += capturesB * 1000;
+    scoreMove(path, aiColor, pieceDirection) {
+        let score = 0; 
+        let pureColor = aiColor.split('-')[0];
+        let dir = pieceDirection ? (pieceDirection[pureColor] !== undefined ? pieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1)) : (pureColor === 'black' ? 1 : -1);
+        
+        let captures = path.filter(step => step.midR !== null).length;
+        score += captures * 1000;
+        
+        let lastStep = path[path.length - 1];
+        let startStep = path[0];
+        // تمرير القطعة بشكل آمن (التعامل مع القطع المحذوفة أثناء التقييم العودي)
+        let isPromotion = (lastStep.toR === ((dir === 1) ? 7 : 0));
+        if (isPromotion) score += 500; 
 
-            if (a[a.length - 1].toR === promoRow) scoreA += 500;
-            if (b[b.length - 1].toR === promoRow) scoreB += 500;
-            return scoreB - scoreA; 
-        });
+        return score;
     },
 
-    // 💡 تطبيق Backtracking لمنع النسخ المكلف للذاكرة
+    orderMoves(moves, aiColor, pieceDirection) {
+        return moves.sort((a, b) => this.scoreMove(b, aiColor, pieceDirection) - this.scoreMove(a, aiColor, pieceDirection));
+    },
+
     doMove(board, path, pieceDirection) {
         let startStep = path[0];
         let piece = board[startStep.fromR][startStep.fromC];
+        let pureColor = piece.split('-')[0];
         let undoData = { path: path, captures: [], wasPromoted: false, startPiece: piece };
 
         board[startStep.fromR][startStep.fromC] = null;
@@ -81,12 +90,10 @@ export const gameAI = {
         }
 
         let lastStep = path[path.length - 1];
-        let isWhite = piece.includes('white');
-        let pureColor = isWhite ? 'white' : 'black';
-        let dir = pieceDirection ? pieceDirection[pureColor] : (isWhite ? -1 : 1);
+        let dir = pieceDirection ? pieceDirection[pureColor] : (pureColor === 'white' ? -1 : 1);
         let promoRow = dir === 1 ? 7 : 0;
-
         let finalPiece = piece;
+
         if (lastStep.toR === promoRow && !piece.includes('dama')) {
             finalPiece = pureColor + '-dama';
             undoData.wasPromoted = true;
@@ -108,20 +115,22 @@ export const gameAI = {
         }
     },
 
-    coreMinimax(board, depth, alpha = -Infinity, beta = Infinity, maximizingPlayer = true, aiColor, pieceDirection = null, startTime = Date.now(), maxTime = 4000) {
-        if (Date.now() - startTime > maxTime) {
+    coreMinimax(board, depth, alpha, beta, maximizingPlayer, aiColor, pieceDirection, startTime, maxTime, isQuiescence = false) {
+        this.nodesEvaluated++;
+        if (this.nodesEvaluated % 500 === 0 && Date.now() - startTime > maxTime) {
             return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
         }
 
-        if (depth === 0) { return { score: this.evaluateBoard(board, aiColor, pieceDirection) }; }
+        if (depth <= 0) { 
+            return { score: this.evaluateBoard(board, aiColor, pieceDirection) }; 
+        }
 
         let currentColor = maximizingPlayer ? aiColor : (aiColor === 'white' ? 'black' : 'white');
         let moves = gameEngine.generateAllTurnMoves(currentColor, board);
 
         if (moves.length === 0) { return { score: maximizingPlayer ? -999999 : 999999 }; }
 
-        let aiDir = pieceDirection ? pieceDirection[currentColor] : (currentColor === 'white' ? -1 : 1);
-        moves = this.orderMoves(moves, aiDir);
+        moves = this.orderMoves(moves, currentColor, pieceDirection);
         let bestMove = moves[0];
 
         if (maximizingPlayer) {
@@ -153,20 +162,23 @@ export const gameAI = {
     
     getBestMove(board, maxAllowedDepth, aiColor, pieceDirection, overrideMaxTime = null) {
         let startTime = Date.now();
-        let maxTime = overrideMaxTime || 4000; 
+        // وقت التفكير هنا أقصر بكثير لمنع تجميد الشاشة الأساسية (1000 - 1500 ملي ثانية كحد أقصى)
+        let maxTime = overrideMaxTime || 1200; 
+        this.nodesEvaluated = 0;
         
         let fallbackMoves = gameEngine.generateAllTurnMoves(aiColor, board);
-        let bestResult = { move: fallbackMoves[0], score: 0 }; 
-        if (fallbackMoves.length === 0) return bestResult;
+        if (fallbackMoves.length === 0) return { move: null, score: 0 };
+        if (fallbackMoves.length === 1) return { move: fallbackMoves[0], score: 0 };
 
-        for (let d = 1; d <= maxAllowedDepth; d++) {
+        let bestResult = { move: fallbackMoves[0], score: 0 }; 
+        // أقصى عمق للـ Main Thread هو 4 لضمان عدم تعليق المتصفح أبداً
+        let safeMaxDepth = Math.min(maxAllowedDepth, 4);
+
+        for (let d = 1; d <= safeMaxDepth; d++) {
             let result = this.coreMinimax(board, d, -Infinity, Infinity, true, aiColor, pieceDirection, startTime, maxTime);
-            if (result.timeOut) {
-                console.log(`[AI Engine] Timeout reached. Best depth calculated: ${d - 1}`);
-                break;
-            }
+            if (result.timeOut) break;
             bestResult = result;
-            if (bestResult.score > 900000) break;
+            if (bestResult.score > 90000) break;
         }
         
         return bestResult;
