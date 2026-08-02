@@ -1,6 +1,6 @@
 /**
  * socketManager.js
- * النسخة المحمية والمطلقة: (محرك اتصال صلب يدعم التبديل بين الشبكات وينهي الاتصال الوهمي نهائياً)
+ * النسخة المحمية: (إصلاح قاهر للرادار والبينج المعلق)
  */
 
 import { gameState } from './gameState.js'; 
@@ -8,15 +8,13 @@ import { startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
 
-// ✅ الحل الجذري للشبكات: البدء بـ polling دائماً لضمان اختراق الشبكة ثم الترقية لـ websocket
 export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { 
-    transports: ['polling', 'websocket'], 
+    transports: ['websocket', 'polling'], 
     reconnection: true,                   
     reconnectionAttempts: Infinity,       
     reconnectionDelay: 1000,              
     reconnectionDelayMax: 5000,           
-    timeout: 20000,
-    autoConnect: true
+    timeout: 20000                        
 });
 window.socket = socket; 
 
@@ -92,17 +90,11 @@ export const socketManager = {
 
         if (this.pingIntervalId) clearInterval(this.pingIntervalId);
 
-        // ✅ نظام الفحص المزدوج + كلب الحراسة (Watchdog) لإجبار الاتصال
+        // ✅ نظام الفحص المزدوج للإنترنت والبينج
         this.pingIntervalId = setInterval(() => {
-            if (navigator.onLine) {
-                if (socket && socket.connected) {
-                    socket.volatile.emit('clientPing', Date.now()); 
-                } else {
-                    // الهاتف متصل بالنت لكن السوكيت ميت! إجبار الاتصال فوراً
-                    this._updatePingUI(999);
-                    this._showDisconnectUI();
-                    socket.connect(); 
-                }
+            if (navigator.onLine && socket && socket.connected) {
+                socket.volatile.emit('clientPing', Date.now()); 
+                this._hideDisconnectUI();
             } else {
                 this._updatePingUI(999);
                 this._showDisconnectUI();
@@ -131,7 +123,7 @@ export const socketManager = {
         
         let color = '#66bb6a'; 
         if (latency > 150) color = '#ffb74d'; 
-        if (latency >= 999) color = '#ef5350'; 
+        if (latency >= 999) color = '#ef5350'; // أحمر قاطع عند الانقطاع
 
         pingEl.style.color = color;
         pingDot.style.background = color;
@@ -146,6 +138,7 @@ export const socketManager = {
             document.body.appendChild(miniRadar);
         }
 
+        // ✅ إجبار الرادار على الظهور بخصائص CSS ثابتة من داخل الكود
         miniRadar.style.cssText = "display: flex !important; position: absolute; bottom: 20px; left: calc(50% + 118px); transform: translateX(-50%); z-index: 999999; width: 32px; height: 32px; background: rgba(15, 18, 25, 0.9); border-radius: 50%; padding: 4px; border: 1px solid rgba(255, 69, 58, 0.6); box-shadow: 0 0 12px rgba(255, 69, 58, 0.5);";
 
         if (miniRadar.innerHTML.trim() === '') {
@@ -229,39 +222,24 @@ export const socketManager = {
         socket.emit(event, data);
     },
 
-    // ✅ دالة خاصة لإجبار إعادة الاتصال الصارم
-    _forceReconnect() {
-        if (socket.connected) return;
-        socketManager._showToast(gameState.lang === 'ar' ? "جاري محاولة الاتصال بالسيرفر..." : "Reconnecting to server...");
-        socket.disconnect(); // إغلاق أي اتصال معلق
-        setTimeout(() => {
-            socket.io.opts.transports = ['polling', 'websocket']; // تصفير الانتقال
-            socket.connect();
-        }, 500);
-    },
-
     init() {
         window.socketManager = this;
         this._initRealPingIndicator();
 
-        // 💡 تفاعل حقيقي مع حالة الشبكة
+        // ✅ الإجبار الصارم لإعادة الاتصال عند عودة الإنترنت
         window.addEventListener('online', () => {
-            setTimeout(() => this._forceReconnect(), 1000); // ننتظر ثانية ليستقر الإنترنت ثم نتصل
+            this._hideDisconnectUI();
+            socketManager._showToast(gameState.lang === 'ar' ? "عاد الاتصال بالإنترنت، جاري الربط..." : "Internet restored, connecting...");
+            socket.disconnect(); 
+            setTimeout(() => {
+                socket.connect();
+                socket.volatile.emit('clientPing', Date.now()); // كسر البينج
+            }, 500); 
         });
 
         window.addEventListener('offline', () => {
             this._updatePingUI(999);
             this._showDisconnectUI();
-        });
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                if (navigator.onLine && !socket.connected) {
-                    this._forceReconnect();
-                } else if (navigator.onLine && socket.connected) {
-                    socket.volatile.emit('clientPing', Date.now()); // كسر البينج
-                }
-            }
         });
 
         const eventsToTurnOff = [
@@ -284,7 +262,6 @@ export const socketManager = {
         socket.on('connect', () => {
             console.log('Connected to server successfully');
             this._hideDisconnectUI();
-            this._updatePingUI(45); // ✅ إعطاء بينج مبدئي جيد لإزالة اللون الأحمر فوراً
             socket.volatile.emit('clientPing', Date.now()); 
 
             const profile = this._ensureUserProfile();
@@ -295,13 +272,7 @@ export const socketManager = {
                 this.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
             
-            // ✅ إخفاء رسالة "جاري الاتصال" فوراً
-            if (typeof ui.setDisplay === 'function') {
-                ui.setDisplay('custom-alert-modal', 'none');
-            } else {
-                const alertModal = document.getElementById('custom-alert-modal');
-                if (alertModal) alertModal.style.display = 'none';
-            }
+            if (typeof ui.setDisplay === 'function') ui.setDisplay('custom-alert-modal', 'none');
         });
 
         socket.on('disconnect', (reason) => {
