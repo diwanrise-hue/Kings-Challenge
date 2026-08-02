@@ -158,7 +158,6 @@ export const ui = {
 
     calculateLevelInfo(xpStr) {
         let currentXp = parseInt(xpStr) || 0;
-        
         let level = Math.floor(Math.sqrt(currentXp / 50)) + 1;
         if (level > 200) level = 200; 
         
@@ -828,6 +827,7 @@ export const ui = {
         }
     },
 
+    // 🛡️ التحديث الجوهري لنظام التفكير (Safety Fallback) لمنع تجمد اللعبة نهائياً وتمرير المتغيرات المطلوبة
     triggerComputerMove() {
         let level = parseInt(this.getVal('diff-quick-select', '3')) || 3; 
         let aiColor = gameState.playerColor === 'white' ? 'black' : 'white';
@@ -840,6 +840,13 @@ export const ui = {
         const self = this;
         const gameId = gameState.gameId || Date.now();
         gameState.gameId = gameId; 
+
+        // ⏱️ حساب وقت الإنقاذ الطارئ بناءً على المستوى
+        let fallbackWaitTime = 3500; 
+        if (level === 4) fallbackWaitTime = 5000;
+        else if (level === 5) fallbackWaitTime = 7000;
+        else if (level === 6) fallbackWaitTime = 9000;
+        else if (level >= 7) fallbackWaitTime = 12000;
 
         const processMove = (chosenMove) => {
             if (!Array.isArray(chosenMove)) {
@@ -922,28 +929,47 @@ export const ui = {
         } else {
             const worker = getAiWorker();
             if (worker) {
+                // 🛑 مؤقت الإنقاذ: إذا فشل تحميل البوت أو تعطل، يتم تشغيل هذا الكود فوراً
+                let fallbackSafetyTimer = setTimeout(() => {
+                    console.warn("⚠️ تم تفعيل نظام الإنقاذ! البوت المستقل تأخر أو محظور بسبب الجوال. تشغيل الذكاء الداخلي.");
+                    worker.onmessage = null;
+                    worker.onerror = null;
+                    
+                    let safeDepth = depth > 5 ? 5 : depth; // تقليل العمق لتجنب التشنج
+                    // ✅ تم التعديل لتمرير pieceDirection و startTime و maxTime لـ gameAI.minimax
+                    let syncMove = gameAI.minimax(gameState.virtualBoard, safeDepth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
+                    processMove(syncMove);
+                }, fallbackWaitTime);
+
                 worker.onmessage = function(e) {
+                    clearTimeout(fallbackSafetyTimer); // إيقاف مؤقت الإنقاذ لأن البوت استجاب بنجاح
                     worker.onmessage = null; 
                     worker.onerror = null;
                     let chosenMove = e.data.move || moves[0];
                     processMove(chosenMove);
                 };
+                
                 worker.onerror = function(err) {
+                    clearTimeout(fallbackSafetyTimer);
                     worker.onmessage = null;
                     worker.onerror = null;
-                    let chosenMove = moves[0];
-                    processMove(chosenMove);
+                    console.warn("حدث خطأ داخل الـ Worker، جاري استخدام البديل.");
+                    let safeDepth = depth > 5 ? 5 : depth;
+                    // ✅ تم التعديل هنا أيضاً
+                    let syncMove = gameAI.minimax(gameState.virtualBoard, safeDepth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
+                    processMove(syncMove);
                 };
                 
                 worker.postMessage({
                     board: gameState.virtualBoard,
                     depth: depth,
-                    level: level, // ✅ التعديل هنا: تمرير مستوى الصعوبة للتحكم بالوقت
+                    level: level, 
                     aiColor: aiColor,
                     pieceDirection: gameState.pieceDirection 
                 });
             } else {
-                let chosenMove = gameAI.minimax(gameState.virtualBoard, depth, -Infinity, Infinity, true, aiColor).move || moves[0];
+                // ✅ إذا لم يكن Worker مدعوماً في المتصفح أساساً
+                let chosenMove = gameAI.minimax(gameState.virtualBoard, depth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
                 processMove(chosenMove);
             }
         }
@@ -1439,6 +1465,7 @@ ui.onClick('undo-btn', () => {
     }
 });
 
+// 🛡️ زر التلميح مع نظام الإنقاذ الطارئ
 ui.onClick('hint-btn', () => {
     if (gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) return;
     if (!gameState.isOnlineMode && gameState.currentTurn !== gameState.playerColor) return;
@@ -1517,31 +1544,50 @@ ui.onClick('hint-btn', () => {
         ui.playSound(ui.sfx.move);
     };
 
+    let fallbackWaitTime = 4000;
+    if (currentLevel >= 5) fallbackWaitTime = 7000;
+    if (currentLevel >= 7) fallbackWaitTime = 12000;
+
     const worker = getAiWorker();
     if (worker) {
+        // 🛑 مؤقت الإنقاذ
+        let fallbackSafetyTimer = setTimeout(() => {
+            console.warn("⚠️ تأخر التلميح! استخدام الذكاء الداخلي كبديل طارئ.");
+            worker.onmessage = null;
+            worker.onerror = null;
+            // ✅ تم التعديل لتمرير pieceDirection و startTime و maxTime لـ gameAI.minimax
+            let syncMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 5 ? 5 : hintDepth, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
+            showGlow(syncMove || eleganceMoves[0]);
+        }, fallbackWaitTime);
+
         worker.onmessage = (e) => {
+            clearTimeout(fallbackSafetyTimer);
             worker.onmessage = null; 
             worker.onerror = null;
             let bestMove = e.data.move;
             showGlow(bestMove || eleganceMoves[0]);
         };
+        
         worker.onerror = () => {
+            clearTimeout(fallbackSafetyTimer);
             worker.onmessage = null;
             worker.onerror = null;
-            let syncMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 6 ? 6 : hintDepth, -Infinity, Infinity, true, myColor).move;
+            // ✅ تم التعديل لتمرير pieceDirection و startTime و maxTime لـ gameAI.minimax
+            let syncMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 5 ? 5 : hintDepth, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
             showGlow(syncMove || eleganceMoves[0]);
         }
         
         worker.postMessage({ 
             board: gameState.virtualBoard, 
             depth: hintDepth, 
-            level: currentLevel, // ✅ التعديل هنا: تمرير مستوى الصعوبة للتحكم بالوقت
+            level: currentLevel, 
             aiColor: myColor,
             pieceDirection: gameState.pieceDirection 
         });
     } else {
         setTimeout(() => {
-            let bestMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 6 ? 6 : hintDepth, -Infinity, Infinity, true, myColor).move || eleganceMoves[0];
+            // ✅ تم التعديل لتمرير pieceDirection و startTime و maxTime لـ gameAI.minimax
+            let bestMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 5 ? 5 : hintDepth, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || eleganceMoves[0];
             showGlow(bestMove);
         }, 50);
     }
