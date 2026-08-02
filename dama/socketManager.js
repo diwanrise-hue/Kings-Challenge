@@ -1,6 +1,6 @@
 /**
  * socketManager.js
- * النسخة المحمية: (تم حل مشكلة مسار this داخل الـ Callbacks)
+ * النسخة المحمية: (تم حل مشكلة مسار this داخل الـ Callbacks وإصلاح وهم البينج العالي)
  */
 
 import { gameState } from './gameState.js'; 
@@ -90,7 +90,8 @@ export const socketManager = {
         this.pingIntervalId = setInterval(() => {
             if (pingEl && pingEl.style.display === 'none') pingEl.style.display = 'flex';
             if (socket && socket.connected) {
-                socket.emit('clientPing', Date.now()); 
+                // 💡 إضافة volatile تمنع تخزين الرسالة إذا كان الاتصال معلقاً أو المتصفح في خمول
+                socket.volatile.emit('clientPing', Date.now()); 
             } else {
                 socketManager._updatePingUI(999);
             }
@@ -99,6 +100,14 @@ export const socketManager = {
         socket.off('serverPong'); 
         socket.on('serverPong', (clientTime) => {
             let latency = Date.now() - clientTime; 
+            
+            // 💡 إذا تأخرت الرسالة أكثر من 3 ثوانٍ (بسبب تشنج معالج الهاتف)، نتجاهلها تماماً 
+            // لأنها لا تعبر عن سرعة الإنترنت الحقيقية
+            if (latency > 3000) return; 
+
+            // 💡 أقصى رقم يظهر للاعب هو 999ms لتجنب تشوه الواجهة
+            if (latency > 999) latency = 999;
+            
             socketManager._updatePingUI(latency);
         });
     },
