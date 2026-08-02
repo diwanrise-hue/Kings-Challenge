@@ -1,6 +1,7 @@
 /**
  * gameEngine.js
- * النسخة المحسنة: تم إزالة التعادل الخاطئ للبيادق، وتنظيم استدعاءات إنهاء اللعبة.
+ * النسخة المحسنة والخفيفة: 
+ * تم تسريع دوال البحث وتجنب الاعتماديات الدائرية والاستدعاءات العامة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -13,8 +14,8 @@ export const gameEngine = {
 
     getPieceDirection(color, bState) {
         const baseColor = color.split('-')[0];
-        if (typeof window !== 'undefined' && window.gameState && window.gameState.pieceDirection) {
-            if (window.gameState.pieceDirection[baseColor]) { return window.gameState.pieceDirection[baseColor]; }
+        if (gameState && gameState.pieceDirection && gameState.pieceDirection[baseColor]) {
+            return gameState.pieceDirection[baseColor];
         }
         if (workerCachedDirections && workerCachedDirections[baseColor]) { return workerCachedDirections[baseColor]; }
 
@@ -126,21 +127,31 @@ export const gameEngine = {
 
     generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = null, activeDc = null) {
         let allCapturePaths = [], maxJumps = 0; const baseColor = color.split('-')[0];
-        bState.forEach((row, r) => row.forEach((piece, c) => {
-            if (piece && piece.startsWith(baseColor) && (activeR === null || (r === activeR && c === activeC))) {
-                this.getPieceCapturePaths(r, c, baseColor, bState, (r === activeR ? activeDr : null), (c === activeC ? activeDc : null)).forEach(p => {
-                    if (p.length > maxJumps) maxJumps = p.length; allCapturePaths.push(p);
-                });
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                let piece = bState[r][c];
+                if (piece && piece.startsWith(baseColor) && (activeR === null || (r === activeR && c === activeC))) {
+                    let paths = this.getPieceCapturePaths(r, c, baseColor, bState, (r === activeR ? activeDr : null), (c === activeC ? activeDc : null));
+                    for (let p of paths) {
+                        if (p.length > maxJumps) maxJumps = p.length; 
+                        allCapturePaths.push(p);
+                    }
+                }
             }
-        }));
+        }
         
         if (maxJumps > 0) return allCapturePaths.filter(p => p.length === maxJumps);
         if (activeR !== null && activeC !== null) return [];
 
         let allSimpleMoves = [];
-        bState.forEach((row, r) => row.forEach((piece, c) => {
-            if (piece && piece.startsWith(baseColor)) { allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, baseColor, bState)); }
-        }));
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                let piece = bState[r][c];
+                if (piece && piece.startsWith(baseColor)) { 
+                    allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, baseColor, bState)); 
+                }
+            }
+        }
         return allSimpleMoves;
     },
 
@@ -165,11 +176,14 @@ export const gameEngine = {
 
     findMaxJumps(r, c, color, vBoard, initDr = null, initDc = null) {
         const paths = this.getPieceCapturePaths(r, c, color.split('-')[0], vBoard, initDr, initDc);
-        return Math.max(0, ...paths.map(p => p.length));
+        if (paths.length === 0) return 0;
+        let max = 0;
+        for (let p of paths) { if (p.length > max) max = p.length; }
+        return max;
     },
 
     isValidDamaMove(fromR, fromC, toR, toC, bState = null) {
-        let board = bState || (typeof window !== 'undefined' && window.gameState ? window.gameState.virtualBoard : null);
+        let board = bState || gameState.virtualBoard;
         if (!board) return false;
         
         if (fromR !== toR && fromC !== toC) return false;
@@ -180,7 +194,7 @@ export const gameEngine = {
     },
 
     getDamaJumpTarget(fromR, fromC, toR, toC, color, bState = null) {
-        let board = bState || (typeof window !== 'undefined' && window.gameState ? window.gameState.virtualBoard : null);
+        let board = bState || gameState.virtualBoard;
         if (!board) return null;
         
         if (fromR !== toR && fromC !== toC) return null;
@@ -213,13 +227,11 @@ export const gameEngine = {
     },
 
     checkIdleDraw(bState, currentTurn) {
-        // تم إلغاء هذه الدالة لأن التعادل الخاطئ كان ينهي اللعبة للبيادق قبل الترقية
-        // سيتم الاعتماد كلياً على قانون الـ 40 حركة بدون تقدم في main.js
         return false;
     },
 
     checkRepetitionAndStalling() {
-        if (!gameState.boardHistoryStr) return 0;
+        if (!gameState.boardHistoryStr || gameState.boardHistoryStr.length < 4) return 0;
         const currentStr = JSON.stringify(gameState.virtualBoard);
         let count = 1; 
         for (let str of gameState.boardHistoryStr) { if (str === currentStr) count++; }
