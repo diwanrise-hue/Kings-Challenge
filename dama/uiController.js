@@ -8,15 +8,15 @@ import { t } from './i18n.js';
 import { hintSystem } from './hintSystem.js';
 
 window.t = t; 
-
 // مراقبة الأخطاء العامة وإرسالها مباشرة إلى كونسول متصفح Kiwi
 window.addEventListener('error', function (event) {
     console.error(
-        `%c[UI Error]%c ${event.message} \n📍 File: ${event.filename} (Line: ${event.lineno}, Col: ${event.colno})`,
+        `%c[UI Error]%c ${event.message} \n📍 File: ${event.filename} (Line: ${event.lineno}, Col:${event.colno})`,
         'background: #dc2626; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;',
         'color: #f87171; font-weight: bold;'
     );
 });
+
 
 // مراقبة أخطاء الـ Async/Promises (التي غالباً ما تسبب توقتاً صامتاً دون رسالة خطأ واضحة)
 window.addEventListener('unhandledrejection', function (event) {
