@@ -1,6 +1,6 @@
 /**
  * socketManager.js
- * النسخة المحمية: (تم حل مشكلة مسار this داخل الـ Callbacks وإصلاح وهم البينج العالي)
+ * النسخة المحمية: (تم حل مشكلة مسار this، إصلاح البينج العالي، ودعم إعادة الاتصال التلقائي الذكي)
  */
 
 import { gameState } from './gameState.js'; 
@@ -8,9 +8,14 @@ import { startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
 
+// ✅ التعديل الأول: تحسين إعدادات الاتصال لدعم العودة التلقائية والتبديل المرن
 export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { 
-    transports: ['websocket'],
-    upgrade: false
+    transports: ['websocket', 'polling'], // السماح بالانتقال المرن في حال ضعف الشبكة
+    reconnection: true,                   // تفعيل إعادة الاتصال التلقائي
+    reconnectionAttempts: Infinity,       // المحاولة إلى ما لا نهاية
+    reconnectionDelay: 1000,              // المحاولة كل ثانية
+    reconnectionDelayMax: 5000,           // أقصى مدة للانتظار هي 5 ثوانٍ
+    timeout: 20000                        // مهلة الاتصال
 });
 window.socket = socket; 
 
@@ -90,7 +95,6 @@ export const socketManager = {
         this.pingIntervalId = setInterval(() => {
             if (pingEl && pingEl.style.display === 'none') pingEl.style.display = 'flex';
             if (socket && socket.connected) {
-                // 💡 إضافة volatile تمنع تخزين الرسالة إذا كان الاتصال معلقاً أو المتصفح في خمول
                 socket.volatile.emit('clientPing', Date.now()); 
             } else {
                 socketManager._updatePingUI(999);
@@ -101,9 +105,7 @@ export const socketManager = {
         socket.on('serverPong', (clientTime) => {
             let latency = Date.now() - clientTime; 
             
-            // ✅ تم إزالة شرط الـ 3 ثواني ليظهر البينج الأحمر عند ضعف الإنترنت الشديد
-            
-            // 💡 أقصى رقم يظهر للاعب هو 999ms لتجنب تشوه الواجهة
+            // ✅ تم إزالة سطر التجاهل ليظهر التأخير كـ 999ms ولون أحمر بدلاً من التجميد
             if (latency > 999) latency = 999;
             
             socketManager._updatePingUI(latency);
@@ -242,6 +244,21 @@ export const socketManager = {
         window.socketManager = this;
         this._initRealPingIndicator();
 
+        // ✅ التعديل الثاني: إجبار المتصفح على إعادة الاتصال التلقائي عند عودة الإنترنت أو الخروج من وضع الخمول
+        window.addEventListener('online', () => {
+            if (!socket.connected) {
+                socketManager._showToast(gameState.lang === 'ar' ? "عاد الاتصال بالإنترنت، جاري الربط..." : "Internet restored, connecting...");
+                socket.connect();
+            }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && navigator.onLine && !socket.connected) {
+                socket.connect();
+            }
+        });
+        // ==========================================
+
         const eventsToTurnOff = [
             'connect', 'disconnect', 'roomCreated', 'roomJoined', 'waitingForOpponent',
             'gameStart', 'opponentMove', 'opponentResigned', 'turnTimeout',
@@ -271,10 +288,10 @@ export const socketManager = {
                 socketManager.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
             
+            // ✅ بمجرد الاتصال، ستختفي رسالة "السيرفر غير متصل" المعلقة تلقائياً
             if (typeof ui.setDisplay === 'function') ui.setDisplay('custom-alert-modal', 'none');
         });
 
-        // 💡 تم استخدام socketManager صراحة بدلاً من this
         socket.on('disconnect', (reason) => {
             console.warn('Disconnected:', reason);
             socketManager._handleDisconnection();
