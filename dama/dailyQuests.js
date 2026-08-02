@@ -33,9 +33,16 @@ export const questsManager = {
         if (saved) {
             try {
                 let parsed = JSON.parse(saved);
-                this.progress = parsed.progress || { daily: {}, weekly: {} };
+                this.progress = parsed.progress || {};
+                // التأكد من وجود كائنات daily و weekly لمنع حدوث undefined
+                if (!this.progress.daily) this.progress.daily = {};
+                if (!this.progress.weekly) this.progress.weekly = {};
+                
                 this.lastReset = parsed.lastReset || { daily: Date.now(), weekly: Date.now() };
-            } catch(e){}
+            } catch(e) {
+                this.resetAll('daily');
+                this.resetAll('weekly');
+            }
         } else {
             this.resetAll('daily');
             this.resetAll('weekly');
@@ -59,6 +66,7 @@ export const questsManager = {
     },
 
     resetAll(period) {
+        if (!this.progress) this.progress = { daily: {}, weekly: {} };
         this.progress[period] = {};
         this.lastReset[period] = Date.now();
         this.saveProgress();
@@ -70,13 +78,17 @@ export const questsManager = {
         let updated = false;
 
         ['daily', 'weekly'].forEach(period => {
+            if (!this.progress[period]) this.progress[period] = {};
             let quests = this[period + 'Quests'];
             quests.forEach(q => {
                 if (q.type === type) {
-                    if (!this.progress[period][q.id]) this.progress[period][q.id] = { current: 0, claimed: false };
-                    if (this.progress[period][q.id].current < q.target && !this.progress[period][q.id].claimed) {
-                        this.progress[period][q.id].current += amount;
-                        if (this.progress[period][q.id].current > q.target) this.progress[period][q.id].current = q.target;
+                    if (!this.progress[period][q.id]) {
+                        this.progress[period][q.id] = { current: 0, claimed: false };
+                    }
+                    let prog = this.progress[period][q.id];
+                    if (prog.current < q.target && !prog.claimed) {
+                        prog.current += amount;
+                        if (prog.current > q.target) prog.current = q.target;
                         updated = true;
                     }
                 }
@@ -94,17 +106,20 @@ export const questsManager = {
         let q = this[period + 'Quests'].find(x => x.id === questId);
         if (!q) return;
 
-        if (this.progress[period][questId] && this.progress[period][questId].current >= q.target && !this.progress[period][questId].claimed) {
-            this.progress[period][questId].claimed = true;
+        if (!this.progress[period]) this.progress[period] = {};
+        let prog = this.progress[period][questId];
+
+        if (prog && prog.current >= q.target && !prog.claimed) {
+            prog.claimed = true;
             this.saveProgress();
             
             if (gameState.isOnlineMode && socket && socket.connected) {
                 socket.emit('claimQuestReward', { questId: questId, tokens: q.rewardTokens });
             } else {
-                let profile = gameState.userProfile || JSON.parse(localStorage.getItem('hub_user_profile'));
+                let profile = gameState.userProfile || JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
                 profile.tokens = (profile.tokens || 0) + q.rewardTokens;
                 localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                ui.updateProfileUI();
+                if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
             }
             
             if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.win);
@@ -116,6 +131,11 @@ export const questsManager = {
         let container = document.getElementById(`quests-list-container-${period}`);
         if (!container) return;
         container.innerHTML = '';
+
+        // حماية إضافية ضد الـ undefined
+        if (!this.progress[period]) {
+            this.progress[period] = {};
+        }
 
         let quests = this[period + 'Quests'];
         
@@ -156,7 +176,7 @@ export const questsManager = {
                 let btn = document.createElement('button');
                 btn.innerText = "استلام";
                 btn.style.cssText = "background: #34c759; color: white; border: none; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;";
-                btn.onclick = () => this.claimReward(period, q.id);
+                btn.onclick = () => this.claimRevenue ? null : this.claimReward(period, q.id); // تم تصحيحها لـ claimReward
                 footer.innerHTML = '';
                 footer.appendChild(btn);
             } else if (prog.claimed) {
@@ -180,7 +200,7 @@ export const questsManager = {
         let now = Date.now();
         let limitMs = period === 'daily' ? (24 * 60 * 60 * 1000) : (7 * 24 * 60 * 60 * 1000);
         
-        let timeLeft = limitMs - (now - this.lastReset[period]);
+        let timeLeft = limitMs - (now - (this.lastReset[period] || now));
         if (timeLeft < 0) {
             this.checkResets();
             return;
