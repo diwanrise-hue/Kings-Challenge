@@ -16,13 +16,12 @@ export const questsManager = {
     ],
     progress: { daily: {}, weekly: {} },
     lastReset: { daily: 0, weekly: 0 },
-    currentActiveTab: 'daily',
+    currentTab: 'daily', // لتتبع التبويب المفتوح حالياً
 
     init() {
         this.loadProgress();
         this.checkResets();
-        this.renderQuests('daily');
-        this.renderQuests('weekly');
+        this.renderQuests(); 
         
         setInterval(() => this.updateTimerDisplay(), 1000);
         window.questsManager = this;
@@ -62,7 +61,7 @@ export const questsManager = {
         this.progress[period] = {};
         this.lastReset[period] = Date.now();
         this.saveProgress();
-        this.renderQuests(period);
+        if (this.currentTab === period) this.renderQuests();
     },
 
     updateProgress(type, amount = 1) {
@@ -85,12 +84,12 @@ export const questsManager = {
 
         if (updated) {
             this.saveProgress();
-            this.renderQuests('daily');
-            this.renderQuests('weekly');
+            this.renderQuests();
         }
     },
 
-    claimReward(period, questId) {
+    claimReward(questId) {
+        let period = this.currentTab;
         let q = this[period + 'Quests'].find(x => x.id === questId);
         if (!q) return;
 
@@ -107,17 +106,20 @@ export const questsManager = {
                 ui.updateProfileUI();
             }
             
-            ui.playSound(ui.sfx.win);
-            this.renderQuests(period);
+            if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.win);
+            this.renderQuests();
         }
     },
 
-    renderQuests(period) {
-        let container = document.getElementById(`quests-list-container-${period}`);
+    renderQuests() {
+        // نستخدم نفس الصندوق الذي أضفته أنت في HTML
+        let container = document.getElementById('quests-list-container');
         if (!container) return;
         container.innerHTML = '';
 
+        let period = this.currentTab;
         let quests = this[period + 'Quests'];
+        
         quests.forEach(q => {
             let prog = this.progress[period][q.id] || { current: 0, claimed: false };
             let isCompleted = prog.current >= q.target;
@@ -155,7 +157,7 @@ export const questsManager = {
                 let btn = document.createElement('button');
                 btn.innerText = "استلام";
                 btn.style.cssText = "background: #34c759; color: white; border: none; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;";
-                btn.onclick = () => this.claimReward(period, q.id);
+                btn.onclick = () => this.claimReward(q.id);
                 footer.innerHTML = '';
                 footer.appendChild(btn);
             } else if (prog.claimed) {
@@ -169,13 +171,15 @@ export const questsManager = {
             el.appendChild(footer);
             container.appendChild(el);
         });
+        
+        this.updateTimerDisplay();
     },
 
     updateTimerDisplay() {
         let timerEl = document.getElementById('quests-reset-timer');
         if (!timerEl) return;
 
-        let period = this.currentActiveTab || 'daily';
+        let period = this.currentTab || 'daily';
         let now = Date.now();
         let limitMs = period === 'daily' ? (24 * 60 * 60 * 1000) : (7 * 24 * 60 * 60 * 1000);
         
