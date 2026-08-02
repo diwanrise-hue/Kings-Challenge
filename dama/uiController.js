@@ -18,7 +18,7 @@ export const sfx = {
     spinTick: new Audio('spin_tick.mp3') 
 };
 
-// 💡 1. تم حل مشكلة توقف البوت والـ postMessage نهائياً
+// 💡 1. تحميل الـ Worker بشكل آمن
 let aiWorkerInstance = null;
 function getAiWorker() {
     try {
@@ -756,7 +756,6 @@ export const ui = {
         
         const isBoardEmpty = gameState.virtualBoard.every(row => row.every(cell => cell === null));
         
-        // حساب الحركات المتوفرة للون الذي عليه الدور فقط لتقليل الحمل على المعالج
         let currentAvailableMoves = 1; 
         if (!isBoardEmpty) {
             currentAvailableMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard).length;
@@ -773,7 +772,6 @@ export const ui = {
             return;
         }
         
-        // تخزين بيانات القفزات لعدم تكرار استدعاء الدالة المعقدة
         let maxJ = 0;
         let piecesJumps = []; 
         
@@ -842,7 +840,8 @@ export const ui = {
         if (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID) {
             tInd.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
             clearTimeout(gameState.aiTimeout);
-            gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 800);
+            // ✅ تم تقليل التأخير هنا لسرعة استجابة البوت
+            gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 150);
         }
     },
 
@@ -859,7 +858,7 @@ export const ui = {
         const gameId = gameState.gameId || Date.now();
         gameState.gameId = gameId; 
 
-        // 🔥 تم تحديث أوقات الـ Fallback لتتطابق مع Worker
+        // 🔥 توقيتات الأمان (Fallback Timer) مطابقة لملف aiWorker.js
         let fallbackWaitTime = 1500; 
         if (level === 4) fallbackWaitTime = 2500;
         else if (level === 5) fallbackWaitTime = 4000;
@@ -945,9 +944,14 @@ export const ui = {
             let chosenMove = moves[Math.floor(Math.random() * moves.length)];
             processMove(chosenMove);
         } else {
+            // ✅ نظام كشف وتخطي الـ Worker المحظور محلياً
+            let workerIsBroken = window.damaWorkerBroken || false;
             const worker = getAiWorker();
-            if (worker) {
+            
+            if (worker && !workerIsBroken) {
                 let fallbackSafetyTimer = setTimeout(() => {
+                    // إذا تأخر الرد، فهذا يعني غالباً أن متصفح Kiwi حظر الـ Worker!
+                    window.damaWorkerBroken = true; 
                     worker.onmessage = null;
                     worker.onerror = null;
                     
@@ -965,6 +969,7 @@ export const ui = {
                 };
                 
                 worker.onerror = function(err) {
+                    window.damaWorkerBroken = true; // تم حظر الـ Worker صراحةً
                     clearTimeout(fallbackSafetyTimer);
                     worker.onmessage = null;
                     worker.onerror = null;
@@ -981,7 +986,9 @@ export const ui = {
                     pieceDirection: gameState.pieceDirection 
                 });
             } else {
-                let chosenMove = gameAI.minimax(gameState.virtualBoard, depth > 4 ? 4 : depth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
+                // ✅ اللعب فوراً في حال كشف النظام أن הـ Worker معطل (متصفحات الجوال والملفات المحلية)
+                let safeDepth = depth > 4 ? 4 : depth;
+                let chosenMove = gameAI.minimax(gameState.virtualBoard, safeDepth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
                 processMove(chosenMove);
             }
         }
