@@ -101,10 +101,8 @@ export const socketManager = {
         socket.on('serverPong', (clientTime) => {
             let latency = Date.now() - clientTime; 
             
-            // 💡 إذا تأخرت الرسالة أكثر من 3 ثوانٍ (بسبب تشنج معالج الهاتف)، نتجاهلها تماماً 
-            // لأنها لا تعبر عن سرعة الإنترنت الحقيقية
-            if (latency > 3000) return; 
-
+            // ✅ تم إزالة شرط الـ 3 ثواني ليظهر البينج الأحمر عند ضعف الإنترنت الشديد
+            
             // 💡 أقصى رقم يظهر للاعب هو 999ms لتجنب تشوه الواجهة
             if (latency > 999) latency = 999;
             
