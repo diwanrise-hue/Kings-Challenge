@@ -68,7 +68,6 @@ export const ui = {
         this.clickHandlers.set(id, fn);
     },
     
-    // ✅ تم الإصلاح: إيقاف استنساخ الصوت لمنع تراكم الملفات الصوتية في الخلفية
     playSound(audio) {
         if (!audio) return;
         try {
@@ -757,6 +756,7 @@ export const ui = {
         
         const isBoardEmpty = gameState.virtualBoard.every(row => row.every(cell => cell === null));
         
+        // حساب الحركات المتوفرة للون الذي عليه الدور فقط لتقليل الحمل على المعالج
         let currentAvailableMoves = 1; 
         if (!isBoardEmpty) {
             currentAvailableMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard).length;
@@ -773,6 +773,7 @@ export const ui = {
             return;
         }
         
+        // تخزين بيانات القفزات لعدم تكرار استدعاء الدالة المعقدة
         let maxJ = 0;
         let piecesJumps = []; 
         
@@ -1663,7 +1664,6 @@ if (!document.getElementById('forced-overlay-style')) {
     document.head.appendChild(forcedStyle);
 }
 
-// ✅ تم الإصلاح: مسح (histStr) من الـ boardHistory لتخفيف الحمل ومنع التشنج
 ui.onClick('board', e => {
     if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
     
@@ -1765,7 +1765,6 @@ ui.onClick('board', e => {
                         const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
                         if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
 
-                        // ✅ الكود النظيف بعد حذف التسريب
                         if (!gameState.isOnlineMode) {
                             if (!gameState.boardHistory) gameState.boardHistory = [];
                             gameState.boardHistory.push({ 
@@ -1838,16 +1837,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ✅ 🛡️ [إصلاح التعليق بملف uiController.js]: مؤقت أمان لفك تعليق زر عجلة الحظ
 document.addEventListener('click', (e) => {
     if (e.target.id === 'spin-free-btn' || e.target.id === 'spin-paid-btn') {
         const btn = e.target;
         const isFree = btn.id === 'spin-free-btn';
         
-        // مؤقت أمان: فك تعليق الزر إذا لم يرد السيرفر أو انقطع النت (بعد 5 ثوانٍ)
         setTimeout(() => {
             if (!window.isSpinning) {
-                // إرجاع الزر إلى حالته الطبيعية بناءً على لغة النظام
                 btn.innerText = isFree ? (window.t ? window.t('spin_free_btn') || "لفة مجانية 🆓" : "لفة مجانية 🆓") : (window.t ? window.t('spin_paid_btn') || "لفة إضافية (200 🪙)" : "لفة إضافية (200 🪙)");
                 btn.disabled = false;
                 btn.style.pointerEvents = 'auto';
