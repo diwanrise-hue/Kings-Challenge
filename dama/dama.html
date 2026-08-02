@@ -112,7 +112,6 @@
         .piece.dama::before { fill: none; }
         .piece.dama::after { font-size: 80%; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; transition: text-shadow 0.3s, color 0.3s; }
         
-        /* 🔥 تم تحسين الأداء هنا: will-change */
         .piece.forced { will-change: transform, box-shadow; border: 2px solid #e74c3c !important; box-shadow: 0 0 18px #e74c3c, inset 0 0 8px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
         .piece.dama.forced { will-change: transform, box-shadow; border: 4px double #e74c3c !important; box-shadow: 0 0 25px #e74c3c, inset 0 0 12px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
         @keyframes forcedPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
@@ -123,7 +122,6 @@
         .control-panel { 
             position: fixed; bottom: 0; left: 0; width: 100%; 
             background: rgba(40, 42, 50, 0.7) !important; 
-            /* 🔥 تم تقليل الـ blur هنا لتخفيف الضغط */
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
             padding: 12px 15px; padding-bottom: calc(12px + env(safe-area-inset-bottom));
@@ -358,14 +356,12 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        /* إخفاء القديم في البروفايل العلوي فقط للترتيب */
         #profile-badge .level-badge-small { display: none; }
         #profile-badge .stat-item { display: none; }
 
         /* الأزرار العلوية */
         #hamburger-menu-btn, #bag-quick-btn {
             position: fixed !important; top: 15px !important; z-index: 10001;
-            /* 🔥 تم تقليل الـ blur هنا لتخفيف الضغط */
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             width: 44px; height: 44px; border-radius: 14px !important; color: white; 
             display: flex; align-items: center; justify-content: center; 
@@ -381,7 +377,6 @@
         /* القائمة الجانبية */
         .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .side-menu-overlay.open { opacity: 1; visibility: visible; }
-        /* 🔥 تم تقليل الـ blur هنا لتخفيف الضغط */
         .side-menu-panel { position: fixed; top: 0; width: 280px; height: 100%; background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(15px); box-shadow: 0 0 30px rgba(0,0,0,0.5); z-index: 10000000; display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; }
         html[dir="rtl"] .side-menu-panel { right: -280px; left: auto; border-left: 1px solid rgba(255, 255, 255, 0.1); border-right: none; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
         html[dir="rtl"] .side-menu-overlay.open .side-menu-panel { right: 0; }
@@ -398,7 +393,6 @@
         #turn-box-container {
             display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
             background: rgba(45, 48, 55, 0.65) !important;
-            /* 🔥 تم تقليل الـ blur هنا لتخفيف الضغط */
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); 
             border: 1px solid rgba(135,206,235,0.4); box-shadow: 0 0 4px rgba(135,206,235,0.3); 
             padding: 8px 16px; border-radius: 20px; 
@@ -426,8 +420,8 @@
         #lucky-spin-modal { z-index: 20000002 !important; }
         #level-up-modal { z-index: 20000003 !important; } 
         
-        /* 🔥 تم تقليل الـ blur هنا لتخفيف الضغط */
-        .settings-card { background: rgba(45, 48, 55, 0.65) !important; backdrop-filter: blur(15px) !important; -webkit-backdrop-filter: blur(15px) !important; border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05) !important; text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+        /* ✅ تم الإصلاح: إزالة backdrop-filter التي تسبب اللاج والبطء الشديد */
+        .settings-card { background: rgba(35, 38, 45, 0.95) !important; border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05) !important; text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
         
         #store-modal .settings-card, #themes-grid-overlay .settings-card { 
             width: 90vw !important; max-width: 600px !important; height: 80vh !important; max-height: 800px !important; padding-top: 35px; display: flex; flex-direction: column;
@@ -506,7 +500,6 @@
         #toast-notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: rgba(46, 204, 113, 0.95); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 14px; z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.3); backdrop-filter: blur(10px); pointer-events: none; white-space: nowrap; }
         #toast-notification.show { opacity: 1; visibility: visible; bottom: 120px; }
 
-        /* 🔥 تم تقليل الـ blur هنا لتخفيف الضغط */
         #game-over-modal > div { background: rgba(30, 32, 40, 0.75) !important; backdrop-filter: blur(15px) saturate(180%) !important; border-radius: 36px !important; padding: 35px 25px !important; }
         #game-over-modal div[style*="border"], #game-over-modal div[style*="#f1c40f"] { border: none !important; }
         #game-over-modal h3 { color: #ffffff !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; }
@@ -1128,21 +1121,24 @@
             if (document.getElementById('online-modal').style.display === 'flex') setTxt('online-status-text', 'searching');
         };
 
+        // ✅ تم الإصلاح: النوافذ تفتح وتغلق بدون استخدام History API لكي لا يخرج المتصفح من اللعبة
         function openAppModal(id) {
             const modal = document.getElementById(id);
-            if (modal) { modal.style.display = 'flex'; window.modalStack.push(id); history.pushState({ modalOpen: id }, ''); }
+            if (modal) { 
+                modal.style.display = 'flex'; 
+                if (!window.modalStack.includes(id)) window.modalStack.push(id);
+            }
         }
 
         function closeAppModal(id) {
             if (id === 'lucky-spin-modal' && window.isSpinning) return; 
             const modal = document.getElementById(id);
-            if (modal && modal.style.display === 'flex') {
-                if (window.modalStack[window.modalStack.length - 1] === id) history.back(); 
-                else { modal.style.display = 'none'; window.modalStack = window.modalStack.filter(m => m !== id); }
+            if (modal) {
+                modal.style.display = 'none'; 
+                window.modalStack = window.modalStack.filter(m => m !== id);
             }
         }
 
-        // تم حذف MutationObserver القديم الذي كان يسبب اللاك
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { if (window.updateHtmlTexts) window.updateHtmlTexts(); }, 300);
         });
@@ -1338,11 +1334,10 @@
         window.addEventListener('load', () => { history.replaceState({ screen: 'dama-game' }, ''); });
 
         window.addEventListener('popstate', function(event) {
-            if (window.isSpinning) { history.pushState({ modalOpen: 'lucky-spin-modal' }, ''); return; }
+            if (window.isSpinning) { return; }
             if (window.modalStack.length > 0) { const topModalId = window.modalStack.pop(); const topModal = document.getElementById(topModalId); if (topModal) topModal.style.display = 'none'; return; }
-            if (window.isMatchRunning) { const resignBtn = document.getElementById('resign-btn'); if (resignBtn) resignBtn.click(); history.pushState({ screen: 'dama-game' }, ''); return; }
+            if (window.isMatchRunning) { const resignBtn = document.getElementById('resign-btn'); if (resignBtn) resignBtn.click(); return; }
             if (window.ui && window.ui.showCustomAlert) { window.ui.showCustomAlert( window.t ? window.t('confirm_exit_msg') : "هل أنت متأكد من رغبتك بإلغاء المباراة والعودة؟", window.t ? window.t('confirm_exit_title') : "تأكيد الخروج", () => { window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); }, true, window.t ? window.t('cancel_btn') : "إلغاء", window.t ? window.t('ok_btn') : "تأكيد" ); }
-            history.pushState({ screen: 'dama-game' }, '');
         });
 
         window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
@@ -1357,7 +1352,6 @@
         };
 
         function syncRadioStatusDot() { const statusDot = document.getElementById('dama-radio-status'); if (statusDot) { const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; if (isPlaying) statusDot.classList.add('active'); else statusDot.classList.remove('active'); } }
-        /* 🔥 تم حذف setInterval الذي كان يسبب ثقل المعالج */
     </script>
     
     <script>
