@@ -4,7 +4,7 @@ import { saveGameState, restoreOfflineHintSystem } from './main.js';
 import { gameEngine } from './gameEngine.js';
 import { gameAI } from './gameAI.js';
 import { socket, socketManager } from './socketManager.js';
-import { translations, t } from './i18n.js';
+import { t } from './i18n.js';
 
 window.t = t; 
 
@@ -119,88 +119,6 @@ export const ui = {
         } else {
             el.textContent = avatarStr || "❓";
         }
-    },
-
-    updateTexts() {
-        const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
-        document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
-        
-        const setHtml = (id, key) => { 
-            const e = this.getEl(id); 
-            if (e) e.innerText = t(key) || key; 
-        };
-        const setPlaceholder = (id, txt) => { const e = this.getEl(id); if (e) e.placeholder = txt || ""; };
-        
-        const idToKeyMap = {
-            'main-title': 'app_title', 'set-title': 'set_title', 
-            'save-settings-btn': 'save_settings_btn', 'lang-label': 'langLabel', 
-            'new-game-title': 'new_game_title', 'choose-color-label': 'new_game_color', 
-            'cancel-new-game-btn': 'btn_cancel', 'sfx-lbl': 'sfx_lbl', 
-            'online-create-btn': 'online_create', 'online-join-btn': 'online_join', 
-            'mm-cancel-btn': 'mm_cancel', 'close-modal-btn': 'btn_close', 
-            'add-friend-label': 'addFriendLabel', 'matchmaking-title': 'mm_title', 'create-room-title': 'online_title', 
-            'room-id-label': 'online_id', 'room-password-label': 'online_pass', 'add-friend-btn': 'addFriend', 
-            'igp-title': 'igp_title', 'igp-lbl-games': 'igp_games', 'igp-lbl-wins': 'igp_wins', 'igp-lbl-losses': 'igp_losses',
-            'store-title': 'store_title', 'store-desc': 'store_desc',
-            'store-btn-tab-bg': 'tab_bg', 'store-btn-tab-frames': 'tab_frames', 'store-btn-tab-pieces': 'tab_pieces', 'store-btn-tab-offers': 'tab_offers',
-            'themes-grid-title': 'theme_title', 
-            'theme-btn-tab-bg': 'theme_bg', 'theme-btn-tab-frames': 'theme_frames', 'theme-btn-tab-pieces': 'theme_pieces',
-            'custom-alert-title': 'alert_title', 'custom-alert-ok': 'alert_ok',
-            'game-over-title': 'go_title', 'rematch-btn': 'go_rematch',
-            'igp-lbl-friends': 'igp_friends', 'igp-friends-list': 'igp_no_friends',
-            'lbl-add-friend-title': 'addFriendLabel', 'theme-bg-0': 'theme_bg_0', 'theme-pc-0': 'theme_pc_0',
-            'card-my-name': 'badge_you', 'badge-username-display-game': 'badge_you',
-            
-            'menu-title-text': 'menu_title',
-            'menu-bag-text': 'menu_bag',
-            'menu-radio-text': 'menu_radio',
-            'menu-room-text': 'menu_room',
-            'menu-leaderboard-text': 'menu_leaderboard',
-            'menu-settings-text': 'menu_settings',
-            'menu-exit-text': 'menu_exit',
-            'lb-title-text': 'lb_title',
-            'lb-tab-wins': 'lb_wins',
-            'lb-tab-tokens': 'lb_tokens',
-            'tutorial-mode-label': 'tutorial_mode',
-            'online-status-text': 'searching',
-            'mm-status-label': 'searching'
-        };
-        
-        Object.keys(idToKeyMap).forEach(id => setHtml(id, idToKeyMap[id]));
-        
-        setHtml('exit-game-btn', 'exit');
-        setHtml('store-return-btn', 'btn_cancel');
-        setHtml('theme-close-btn', 'btn_cancel');
-        setHtml('online-close-btn', 'btn_cancel');
-        setHtml('custom-alert-cancel', 'btn_cancel');
-        setHtml('reset-btn', 'start');
-
-        const resignBtn = this.getEl('resign-btn');
-        if (resignBtn) {
-            resignBtn.title = t('resign');
-            resignBtn.innerText = t('resign');
-        }
-
-        const placeholders = {
-            'online-room-input': t('ph_room'),
-            'online-password-input': t('ph_pass'),
-            'friend-id-input': t('add_friend_placeholder')
-        };
-        Object.keys(placeholders).forEach(id => setPlaceholder(id, placeholders[id]));
-        
-        if (window.updateInventoryUI) window.updateInventoryUI();
-            
-        const onlineBtnText = document.querySelector('#online-toggle-btn span:last-child');
-        if (onlineBtnText) onlineBtnText.innerText = t('online_btn');
-
-        const turnInd = this.getEl('turn-indicator');
-        if(turnInd) {
-            if(turnInd.innerText.includes('Your') || turnInd.innerText.includes('دورك') || turnInd.innerText.includes('نۆبەی تۆیە')) turnInd.innerText = t('turn_yours');
-            else if(turnInd.innerText.includes('Opponent') || turnInd.innerText.includes('خصم') || turnInd.innerText.includes('نۆبەی بەرامبەرە')) turnInd.innerText = t('turn_opps');
-        }
-
-        this.updateProfileUI();
-        this.startTurn();
     },
 
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null) {
@@ -630,6 +548,7 @@ export const ui = {
 
         this.toggleOfflineInMatchUI(false);
         this.toggleOnlineUILayout(false); 
+        document.body.classList.remove('game-active'); // ✅ إضافة إخفاء صندوق الدور
         
         if (typeof restoreOfflineHintSystem === 'function') {
             restoreOfflineHintSystem();
@@ -667,6 +586,7 @@ export const ui = {
 
         gameState.isGameActive = true;
         window.isMatchRunning = true;
+        document.body.classList.add('game-active'); // ✅ إضافة إظهار صندوق الدور
         
         if (!gameState.isOnlineMode) {
             this.toggleOfflineInMatchUI(true);
@@ -1629,192 +1549,8 @@ ui.onClick('hint-btn', () => {
     }
 });
 
-ui.onClick('board', e => {
-    if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
-    
-    const target = e.target;
-    const cell = target.classList.contains('cell') ? target : target.parentElement;
-
-    if (target.classList.contains('piece') && !gameState.isMultiJumping) {
-        if (gameState.isOnlineMode && !target.classList.contains(gameState.myOnlineColor)) return;
-        if ((gameState.currentTurn === 'white' && !target.classList.contains('white')) || (gameState.currentTurn === 'black' && target.classList.contains('white'))) return;
-        
-        const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
-        if (gameState.requiredJumps > 0 && gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
-        
-        if (gameState.selectedPiece) gameState.selectedPiece.classList.remove('selected');
-        gameState.selectedPiece = target; 
-        gameState.selectedPiece.classList.add('selected');
-        
-        if (gameState.currentTurn !== gameState.playerColor && !gameState.isOnlineMode) { 
-            gameState.opponentStartRow = r; 
-            gameState.opponentStartCol = c; 
-        }
-        ui.showValidMovesHighlights(r, c); 
-        return;
-    }
-
-    if (gameState.selectedPiece && cell.classList.contains('cell') && cell.children.length === 0) {
-        const fromRow = parseInt(gameState.selectedPiece.parentElement.dataset.row);
-        const fromCol = parseInt(gameState.selectedPiece.parentElement.dataset.col);
-        const toRow = parseInt(cell.dataset.row);
-        const toCol = parseInt(cell.dataset.col);
-
-        const rDiff = toRow - fromRow;
-        const cDiff = toCol - fromCol;
-        const isDama = gameState.selectedPiece.classList.contains('dama');
-        const pieceColor = gameState.selectedPiece.classList.contains('white') ? 'white' : 'black';
-
-        if (gameState.moveSequenceStartR === undefined || gameState.moveSequenceStartR === null) {
-            gameState.moveSequenceStartR = fromRow;
-            gameState.moveSequenceStartC = fromCol;
-        }
-
-        if (gameState.requiredJumps > 0) {
-            let isValidJump = false, midRow = -1, midCol = -1, currDr = Math.sign(rDiff), currDc = Math.sign(cDiff);
-            
-            if (isDama) {
-                if (!(gameState.isMultiJumping && currDr === -gameState.lastJumpDir.dr && currDc === -gameState.lastJumpDir.dc)) {
-                    let jt = gameEngine.getDamaJumpTarget(fromRow, fromCol, toRow, toCol, gameState.currentTurn);
-                    if (jt) { isValidJump = true; midRow = jt.row; midCol = jt.col; }
-                }
-            } else if ((Math.abs(rDiff) === 2 && cDiff === 0) || (rDiff === 0 && Math.abs(cDiff) === 2)) {
-                if (rDiff === gameState.pieceDirection[gameState.currentTurn] * 2 || rDiff === 0) {
-                    midRow = fromRow + rDiff / 2; 
-                    midCol = fromCol + cDiff / 2;
-                    let midPiece = gameState.virtualBoard[midRow][midCol];
-                    if (midPiece && !midPiece.startsWith(gameState.currentTurn)) isValidJump = true;
-                }
-            }
-
-            if (isValidJump) {
-                let tempBoard = gameState.virtualBoard.map(row => [...row]);
-                let movingPieceStr = tempBoard[fromRow][fromCol];
-
-                tempBoard[midRow][midCol] = null; 
-                tempBoard[toRow][toCol] = movingPieceStr; 
-                tempBoard[fromRow][fromCol] = null;
-
-                if (1 + gameEngine.findMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
-                    
-                    if (typeof ui.playSound === 'function') {
-                        ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied);
-                    }
-                    
-                    gameState.virtualBoard = tempBoard; 
-                    gameState.jumpsCount++; 
-                    gameState.lastJumpDir = { dr: currDr, dc: currDc };
-
-                    // 💡 إصلاح المهمة اليومية (أسر الأحجار)
-                    if (window.questsManager) {
-                        window.questsManager.updateProgress('capture', 1);
-                    }
-
-                    let isFinalJump = (gameState.jumpsCount === gameState.requiredJumps);
-
-                    if (isFinalJump) {
-                        let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
-                        if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
-                            gameState.virtualBoard[toRow][toCol] += '-dama'; 
-                            if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
-                        }
-                        
-                        gameState.movesWithoutProgress = 0;
-                        gameState.boardHistoryStr = [];
-                        
-                        ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
-                        
-                        gameState.selectedPiece = null; 
-                        ui.clearHighlights();
-                        gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
-                        
-                        ui.renderBoard(true);
-
-                        socketManager.sendMoveToServer(
-                            gameState.moveSequenceStartR, gameState.moveSequenceStartC, 
-                            toRow, toCol, null, gameState.currentTurn
-                        ); 
-                        
-                        saveGameState(); 
-                        ui.startTurn();
-
-                        gameState.moveSequenceStartR = null;
-                        gameState.moveSequenceStartC = null;
-                    } else { 
-                        gameState.isMultiJumping = true; 
-                        ui.renderBoard(true);
-
-                        const boardEl = document.getElementById('board');
-                        const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
-                        if (newCell && newCell.children.length > 0) {
-                            gameState.selectedPiece = newCell.children[0];
-                            gameState.selectedPiece.classList.add('selected');
-                        }
-
-                        if (!gameState.isOnlineMode) {
-                            if (!gameState.boardHistory) gameState.boardHistory = [];
-                            gameState.boardHistory.push({
-                                board: JSON.parse(JSON.stringify(gameState.virtualBoard)),
-                                turn: gameState.currentTurn
-                            });
-                        }
-
-                        ui.showValidMovesHighlights(toRow, toCol); 
-                    }
-                } else {
-                    ui.showCustomAlert(t('must_capture'));
-                }
-            }
-        } 
-        else {
-            if ((isDama && gameEngine.isValidDamaMove(fromRow, fromCol, toRow, toCol)) || (!isDama && ((Math.abs(rDiff) === 1 && cDiff === 0 && (rDiff === gameState.pieceDirection[gameState.currentTurn])) || (rDiff === 0 && Math.abs(cDiff) === 1)))) {
-                
-                let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
-
-                gameState.virtualBoard[fromRow][fromCol] = null;
-                gameState.virtualBoard[toRow][toCol] = movingPieceStr;
-                
-                let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
-                let isPromotion = false;
-                if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
-                    gameState.virtualBoard[toRow][toCol] += '-dama'; 
-                    isPromotion = true;
-                    if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
-                }
-                
-                if (isPromotion) {
-                    gameState.movesWithoutProgress = 0;
-                    gameState.boardHistoryStr = [];
-                } else {
-                    gameState.movesWithoutProgress++;
-                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
-                }
-                
-                if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
-                
-                ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
-                
-                gameState.selectedPiece = null; 
-                ui.clearHighlights();
-                gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
-                
-                ui.renderBoard(true);
-
-                socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, null, gameState.currentTurn); 
-                
-                saveGameState(); 
-                ui.startTurn();
-
-                gameState.moveSequenceStartR = null;
-                gameState.moveSequenceStartC = null;
-            }
-        }
-    }
-});
-
 window.ui = ui;
 window.updateUITranslations = () => { 
-    ui.updateTexts(); 
     if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts(); 
 };
 
@@ -1878,4 +1614,4 @@ if (!document.getElementById('forced-overlay-style')) {
         }
     `;
     document.head.appendChild(forcedStyle);
-                }
+}
