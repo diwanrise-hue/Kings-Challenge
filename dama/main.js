@@ -6,7 +6,63 @@ import { gameEngine } from './gameEngine.js';
 import { t } from './i18n.js';
 
 // ==========================================
-// 💡 1. نظام الحفظ غير المتزامن المحسن (IndexedDB مع مهلة أمان)
+// 💡 الإصلاحات الذكية (الشاشة البيضاء، الرادار، البينج)
+// ==========================================
+
+// 1. القضاء نهائياً على الشاشة البيضاء عند العودة للعبة
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        setTimeout(() => {
+            document.body.style.display = 'none';
+            void document.body.offsetHeight; // إجبار المتصفح على إعادة رسم الواجهة
+            document.body.style.display = 'flex';
+        }, 50);
+    }
+});
+
+// 2. إصلاح موقع الرادار ليظهر دائماً فوق البينج (حقن CSS مباشر)
+const radarStyle = document.createElement('style');
+radarStyle.innerHTML = `
+    #mini-disconnect-radar {
+        position: absolute !important;
+        bottom: 18px !important; 
+        left: calc(50% + 118px) !important;
+        transform: translateX(-50%) !important;
+        top: auto !important;
+        right: auto !important;
+        border-radius: 50% !important;
+        width: 32px !important;
+        height: 32px !important;
+        z-index: 999999 !important;
+        background: rgba(15, 18, 25, 0.9) !important;
+        padding: 4px !important;
+        border: 1px solid rgba(255, 69, 58, 0.5) !important;
+        box-shadow: 0 0 12px rgba(255, 69, 58, 0.4) !important;
+    }
+`;
+document.head.appendChild(radarStyle);
+
+// 3. كسر تعليق البينج (999) وإخفاء الرادار فور عودة الإنترنت
+socket.on('connect', () => {
+    setTimeout(() => {
+        const pingText = document.getElementById('ping-text');
+        const pingEl = document.getElementById('real-ping-indicator');
+        
+        if (pingText && pingText.innerText.includes('999')) {
+            pingText.innerText = '... ms';
+            if (pingEl) pingEl.style.color = '#66bb6a';
+        }
+        
+        if (window.socketManager && typeof window.socketManager._hideDisconnectUI === 'function') {
+            window.socketManager._hideDisconnectUI();
+        }
+        
+        socket.volatile.emit('clientPing', Date.now());
+    }, 300);
+});
+
+// ==========================================
+// نظام الحفظ (IndexedDB)
 // ==========================================
 const DB_NAME = 'DamaGameDB';
 const STORE_NAME = 'GameStateStore';
@@ -95,7 +151,6 @@ export function saveGameState() {
 
 export async function loadGameState() {
     try {
-        // 💡 مهلة أمان (Timeout) بحد أقصى ثانية واحدة لمنع تجميد الشاشة البيضاء مطلقاً
         const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 1000));
         const dbPromise = loadFromDB('dama_saved_game');
         
@@ -173,17 +228,13 @@ export function updateSpinTimerDisplay(nextFreeTime) {
     if (nextFreeTime && nextFreeTime > Date.now()) { spinTimerInterval = setInterval(tick, 1000); }
 }
 
-// 💡 2. تحسين بدء التشغيل لمنع الشاشة البيضاء نهائياً (Rendering First)
 window.addEventListener('load', async () => {
-    // رسم الواجهة والرقعة الفارغة فوراً قبل أي عملية انتظار لكي تظهر الشاشة فوراً
     ui.initProfileSystem();
     ui.drawEmptyBoard();
     if (window.updateHtmlTexts) window.updateHtmlTexts(); 
 
-    // الاتصال بالخارج في الخلفية بهدوء
     socketManager.init();
     
-    // محاولة جلب الحفظ القديم دون تعليق الواجهة
     const isLoaded = await loadGameState();
     
     if (isLoaded) {
