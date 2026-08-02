@@ -1,45 +1,53 @@
 /**
  * gameAI.js
- * النسخة المحسنة: تم معالجة تسريب الذاكرة وتوحيد دالة التقييم مع الـ Worker
+ * النسخة المحسنة والخالية من الثغرات: 
+ * تم توحيد ذكاء التقييم مع الـ Worker، ومعالجة تسريب الذاكرة نهائياً عبر Backtracking.
  */
 
 import { gameEngine } from './gameEngine.js';
 
 export const gameAI = {
-    evaluateBoard(board, targetColor, pieceDirection) {
+    // [إصلاح الثغرة 2]: توحيد دالة التقييم لتتطابق تماماً مع aiWorker.js
+    evaluateBoard(board, aiColor, pieceDirection) {
         let score = 0; let myPieces = 0, oppPieces = 0; let myDamas = 0, oppDamas = 0;
-        let targetPure = targetColor.split('-')[0]; let oppPure = targetPure === 'white' ? 'black' : 'white';
-        let myDir = pieceDirection ? pieceDirection[targetPure] : (targetPure === 'black' ? 1 : -1);
+        let targetPure = aiColor.split('-')[0]; let oppPure = targetPure === 'white' ? 'black' : 'white';
+        let myDir = pieceDirection ? (pieceDirection[targetPure] !== undefined ? pieceDirection[targetPure] : (targetPure === 'black' ? 1 : -1)) : (targetPure === 'black' ? 1 : -1);
         let myBackRow = myDir === 1 ? 0 : 7; let oppBackRow = myDir === 1 ? 7 : 0;
 
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
-                let p = board[r][c];
-                if (p) {
-                    let isTarget = p.startsWith(targetPure); let isDama = p.endsWith('-dama');
-                    let pieceValue = isDama ? 500 : 100;
-                    let defenseBonus = (!isDama && r === myBackRow && isTarget) ? 30 : 0;
-                    let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 10 : 0;
-                    let advanceBonus = 0;
-                    if (!isDama) { advanceBonus = isTarget ? Math.abs(r - myBackRow) * 5 : Math.abs(r - oppBackRow) * 5; }
-                    
-                    let protectionBonus = 0;
-                    if (!isDama) {
-                        let pieceDir = isTarget ? myDir : -myDir; 
-                        let behindR = r - pieceDir;
-                        if (behindR >= 0 && behindR < 8 && board[behindR][c]) {
-                            let pieceBehind = board[behindR][c];
-                            if ((isTarget && pieceBehind.startsWith(targetPure)) || (!isTarget && pieceBehind.startsWith(oppPure))) { protectionBonus = 15; }
-                        }
+                let piece = board[r][c];
+                if (!piece) continue;
+
+                let isTarget = piece.startsWith(targetPure); 
+                let isDama = piece.includes('dama');
+                
+                let pieceValue = isDama ? 500 : 100;
+                let defenseBonus = (!isDama && r === myBackRow && isTarget) ? 30 : 0;
+                let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 10 : 0;
+                let advanceBonus = 0;
+                
+                if (!isDama) { advanceBonus = isTarget ? Math.abs(r - myBackRow) * 5 : Math.abs(r - oppBackRow) * 5; }
+
+                let protectionBonus = 0;
+                if (!isDama) {
+                    let pieceDir = isTarget ? myDir : -myDir;
+                    let behindR = r - pieceDir;
+                    if (behindR >= 0 && behindR < 8 && c >= 0 && c < 8 && board[behindR][c]) {
+                        let pieceBehind = board[behindR][c];
+                        if ((isTarget && pieceBehind.startsWith(targetPure)) || (!isTarget && pieceBehind.startsWith(oppPure))) { protectionBonus = 15; }
                     }
-                    let totalValue = pieceValue + advanceBonus + centerBonus + defenseBonus + protectionBonus;
-                    if (isTarget) { score += totalValue; myPieces++; if (isDama) myDamas++; } 
-                    else { score -= totalValue; oppPieces++; if (isDama) oppDamas++; }
                 }
+
+                let totalValue = pieceValue + advanceBonus + centerBonus + defenseBonus + protectionBonus;
+                if (isTarget) { score += totalValue; myPieces++; if (isDama) myDamas++; } 
+                else { score -= totalValue; oppPieces++; if (isDama) oppDamas++; }
             }
         }
+        
         if (myDamas > 0 && oppPieces <= 3) score += 200;
         if (oppDamas > 0 && myPieces <= 3) score -= 200;
+        
         return score;
     },
 
@@ -57,6 +65,7 @@ export const gameAI = {
         });
     },
 
+    // 💡 تطبيق Backtracking لمنع النسخ المكلف للذاكرة
     doMove(board, path, pieceDirection) {
         let startStep = path[0];
         let piece = board[startStep.fromR][startStep.fromC];
@@ -74,7 +83,7 @@ export const gameAI = {
         let lastStep = path[path.length - 1];
         let isWhite = piece.includes('white');
         let pureColor = isWhite ? 'white' : 'black';
-        let dir = pieceDirection ? pieceDirection[pureColor] : (isWhite ? 1 : -1);
+        let dir = pieceDirection ? pieceDirection[pureColor] : (isWhite ? -1 : 1);
         let promoRow = dir === 1 ? 7 : 0;
 
         let finalPiece = piece;
@@ -111,14 +120,14 @@ export const gameAI = {
 
         if (moves.length === 0) { return { score: maximizingPlayer ? -999999 : 999999 }; }
 
-        let aiDir = pieceDirection ? pieceDirection[currentColor] : (currentColor === 'white' ? 1 : -1);
+        let aiDir = pieceDirection ? pieceDirection[currentColor] : (currentColor === 'white' ? -1 : 1);
         moves = this.orderMoves(moves, aiDir);
         let bestMove = moves[0];
 
         if (maximizingPlayer) {
             let maxEval = -Infinity;
             for (let move of moves) {
-                let undoData = this.doMove(board, move, pieceDirection);
+                let undoData = this.doMove(board, move, pieceDirection); 
                 let evaluation = this.coreMinimax(board, depth - 1, alpha, beta, false, aiColor, pieceDirection, startTime, maxTime);
                 this.undoMove(board, undoData); 
                 
@@ -152,10 +161,14 @@ export const gameAI = {
 
         for (let d = 1; d <= maxAllowedDepth; d++) {
             let result = this.coreMinimax(board, d, -Infinity, Infinity, true, aiColor, pieceDirection, startTime, maxTime);
-            if (result.timeOut) { break; }
+            if (result.timeOut) {
+                console.log(`[AI Engine] Timeout reached. Best depth calculated: ${d - 1}`);
+                break;
+            }
             bestResult = result;
             if (bestResult.score > 900000) break;
         }
+        
         return bestResult;
     }
 };
