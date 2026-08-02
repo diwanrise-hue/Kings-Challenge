@@ -5,7 +5,7 @@
  * مما يرفع أداء المحرك واللعبة أضعافاً مضاعفة ويمنع التقطيع.
  */
 import { gameState } from './gameState.js'; 
-import { ui } from './uiController.js'; 
+// 💡 تم حذف استيراد uiController.js من هنا لمنع انهيار البوت
 
 let workerCachedDirections = null;
 
@@ -265,15 +265,20 @@ export const gameEngine = {
         if (winnerColor !== 'draw') { this.updateUserStats(winnerColor); }
         gameState.statsUpdated = true; gameState.isUpdatingStats = false; 
 
+        // 💡 قراءة واجهة المستخدم بأمان إذا كنا في المتصفح فقط
+        const ui = typeof window !== 'undefined' ? window.ui : null;
+
         if (ui && typeof ui.showOnlineResultsModal === 'function') { ui.showOnlineResultsModal(winnerColor); } 
         else if (ui && typeof ui.showResultsModal === 'function') { ui.showResultsModal(winnerColor); }
 
-        if (gameState.isOnlineMode && gameState.onlineRoomID && window.socket) {
+        if (gameState.isOnlineMode && gameState.onlineRoomID && typeof window !== 'undefined' && window.socket) {
             window.socket.emit('matchEnded', { roomID: String(gameState.onlineRoomID).trim(), winner: winnerColor });
         }
     },
 
     updateUserStats(winnerColor) {
+        // 💡 قراءة واجهة المستخدم بأمان
+        const ui = typeof window !== 'undefined' ? window.ui : null;
         if (ui && typeof ui.updateUserStats === 'function') {
             const myColor = gameState.myOnlineColor || gameState.playerColor;
             ui.updateUserStats(winnerColor === myColor);
@@ -281,11 +286,15 @@ export const gameEngine = {
     },
 
     closeResultsMenu() {
+        // 💡 قراءة واجهة المستخدم بأمان
+        const ui = typeof window !== 'undefined' ? window.ui : null;
         if (ui && typeof ui.hideOnlineResultsModal === 'function') { ui.hideOnlineResultsModal(); } 
         else if (ui && typeof ui.closeModal === 'function') { ui.closeModal(); }
     },
 
     resetGame() {
+        // 💡 قراءة واجهة المستخدم بأمان
+        const ui = typeof window !== 'undefined' ? window.ui : null;
         if (ui && typeof ui.initBoard === 'function') { ui.initBoard(); }
         gameState.currentTurn = 'white'; gameState.isGameOver = false; gameState.isGameActive = true; 
         gameState.statsUpdated = false; gameState.isUpdatingStats = false; gameState.selectedPiece = null;
@@ -297,4 +306,7 @@ export const gameEngine = {
     }
 };
 
-window.gameEngine = gameEngine;
+// 💡 تعريف المحرك في النافذة فقط إذا كنا داخل المتصفح
+if (typeof window !== 'undefined') {
+    window.gameEngine = gameEngine;
+}
