@@ -286,3 +286,179 @@ const handleRoomBtn = (action, msg) => {
 };
 ui.onClick('online-create-btn', () => handleRoomBtn('createRoom', t('creating_room')));
 ui.onClick('online-join-btn', () => handleRoomBtn('joinRoom', t('connecting')));
+
+// =========================================================================
+// محرك الرقعة للعب (تم الإبقاء عليه هنا وحذفه من ملف uiController)
+// =========================================================================
+ui.onClick('board', e => {
+    if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
+    
+    const target = e.target;
+    const cell = target.classList.contains('cell') ? target : target.parentElement;
+
+    if (target.classList.contains('piece') && !gameState.isMultiJumping) {
+        if (gameState.isOnlineMode && !target.classList.contains(gameState.myOnlineColor)) return;
+        if ((gameState.currentTurn === 'white' && !target.classList.contains('white')) || (gameState.currentTurn === 'black' && target.classList.contains('white'))) return;
+        
+        const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
+        if (gameState.requiredJumps > 0 && gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
+        
+        gameState.moveSequenceStartR = null;
+        gameState.moveSequenceStartC = null;
+        gameState.movePath = []; 
+        
+        if (gameState.selectedPiece) gameState.selectedPiece.classList.remove('selected');
+        gameState.selectedPiece = target; 
+        gameState.selectedPiece.classList.add('selected');
+        
+        if (gameState.currentTurn !== gameState.playerColor && !gameState.isOnlineMode) { gameState.opponentStartRow = r; gameState.opponentStartCol = c; }
+        ui.showValidMovesHighlights(r, c); 
+        return;
+    }
+
+    if (gameState.selectedPiece && cell.classList.contains('cell') && cell.children.length === 0) {
+        const fromRow = parseInt(gameState.selectedPiece.parentElement.dataset.row);
+        const fromCol = parseInt(gameState.selectedPiece.parentElement.dataset.col);
+        const toRow = parseInt(cell.dataset.row);
+        const toCol = parseInt(cell.dataset.col);
+        const rDiff = toRow - fromRow; const cDiff = toCol - fromCol;
+        const isDama = gameState.selectedPiece.classList.contains('dama');
+        const pieceColor = gameState.selectedPiece.classList.contains('white') ? 'white' : 'black';
+
+        if (gameState.moveSequenceStartR === undefined || gameState.moveSequenceStartR === null) {
+            gameState.moveSequenceStartR = fromRow;
+            gameState.moveSequenceStartC = fromCol;
+            gameState.movePath = [{r: fromRow, c: fromCol}];
+        }
+
+        if (gameState.requiredJumps > 0) {
+            let isValidJump = false, midRow = -1, midCol = -1, currDr = Math.sign(rDiff), currDc = Math.sign(cDiff);
+            
+            if (isDama) {
+                if (!(gameState.isMultiJumping && currDr === -gameState.lastJumpDir.dr && currDc === -gameState.lastJumpDir.dc)) {
+                    let jt = gameEngine.getDamaJumpTarget(fromRow, fromCol, toRow, toCol, gameState.currentTurn);
+                    if (jt) { isValidJump = true; midRow = jt.row; midCol = jt.col; }
+                }
+            } else if ((Math.abs(rDiff) === 2 && cDiff === 0) || (rDiff === 0 && Math.abs(cDiff) === 2)) {
+                if (rDiff === gameState.pieceDirection[gameState.currentTurn] * 2 || rDiff === 0) {
+                    midRow = fromRow + rDiff / 2; midCol = fromCol + cDiff / 2;
+                    let midPiece = gameState.virtualBoard[midRow][midCol];
+                    if (midPiece && !midPiece.startsWith(gameState.currentTurn)) isValidJump = true;
+                }
+            }
+
+            if (isValidJump) {
+                let tempBoard = gameState.virtualBoard.map(row => [...row]);
+                let movingPieceStr = tempBoard[fromRow][fromCol];
+
+                tempBoard[midRow][midCol] = null; tempBoard[toRow][toCol] = movingPieceStr; tempBoard[fromRow][fromCol] = null;
+                gameState.movePath.push({r: toRow, c: toCol}); 
+
+                if (1 + gameEngine.findMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
+                    if (typeof ui.playSound === 'function') { ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied); }
+                    
+                    gameState.virtualBoard = tempBoard; gameState.jumpsCount++; gameState.lastJumpDir = { dr: currDr, dc: currDc };
+                    if (window.questsManager) { window.questsManager.updateProgress('capture', 1); }
+
+                    let isFinalJump = (gameState.jumpsCount === gameState.requiredJumps);
+
+                    if (isFinalJump) {
+                        let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
+                        if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
+                            gameState.virtualBoard[toRow][toCol] += '-dama'; 
+                            if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                        }
+                        
+                        gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = [];
+                        ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
+                        gameState.selectedPiece = null; ui.clearHighlights();
+                        gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+                        
+                        ui.renderBoard(true);
+
+                        if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                            socketManager.sendMoveToServer(
+                                gameState.moveSequenceStartR, gameState.moveSequenceStartC, 
+                                toRow, toCol, gameState.movePath, gameState.currentTurn
+                            );
+                        }
+                        
+                        saveGameState(); ui.startTurn();
+                        gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
+                    } else { 
+                        gameState.isMultiJumping = true; ui.renderBoard(true);
+                        const boardEl = document.getElementById('board');
+                        const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
+                        if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
+
+                        if (!gameState.isOnlineMode) {
+                            if (!gameState.boardHistory) gameState.boardHistory = [];
+                            gameState.boardHistory.push({ 
+                                board: JSON.parse(JSON.stringify(gameState.virtualBoard)), 
+                                turn: gameState.currentTurn,
+                                moves: gameState.movesWithoutProgress,
+                                histStr: [...gameState.boardHistoryStr]
+                            });
+                        }
+                        ui.showValidMovesHighlights(toRow, toCol); 
+                    }
+                } else { ui.showCustomAlert(t('must_capture')); }
+            }
+        } 
+        else {
+            if ((isDama && gameEngine.isValidDamaMove(fromRow, fromCol, toRow, toCol)) || (!isDama && ((Math.abs(rDiff) === 1 && cDiff === 0 && (rDiff === gameState.pieceDirection[gameState.currentTurn])) || (rDiff === 0 && Math.abs(cDiff) === 1)))) {
+                
+                let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
+                gameState.virtualBoard[fromRow][fromCol] = null; gameState.virtualBoard[toRow][toCol] = movingPieceStr;
+                gameState.movePath.push({r: toRow, c: toCol}); 
+                
+                let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
+                let isPromotion = false;
+                
+                if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
+                    gameState.virtualBoard[toRow][toCol] += '-dama'; isPromotion = true;
+                    if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                }
+                
+                if (isPromotion || !movingPieceStr.includes('dama')) {
+                    gameState.movesWithoutProgress = 0;
+                    gameState.boardHistoryStr = [];
+                } else {
+                    gameState.movesWithoutProgress++;
+                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                }
+                
+                if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
+                ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
+                gameState.selectedPiece = null; ui.clearHighlights();
+                gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+                
+                ui.renderBoard(true);
+
+                if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                    socketManager.sendMoveToServer(
+                        fromRow, fromCol, 
+                        toRow, toCol, gameState.movePath, gameState.currentTurn
+                    ); 
+                }
+                
+                saveGameState(); ui.startTurn();
+                gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
+            }
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    let globalProfile = localStorage.getItem('hub_user_profile'); let initialAvatar = '1000132081.png';
+    if (globalProfile) { const parsed = JSON.parse(globalProfile); if (parsed.avatar) initialAvatar = parsed.avatar; }
+
+    const storedUser = localStorage.getItem('hub_user_profile');
+    if (storedUser) {
+        let userObj = JSON.parse(storedUser); userObj.avatar = initialAvatar;
+        if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(userObj); }
+    } else {
+        let defaultProfile = { id: '#00000', name: t('badge_you'), avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
+        if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(defaultProfile); }
+    }
+});
