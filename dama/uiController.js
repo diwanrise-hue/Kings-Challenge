@@ -45,10 +45,6 @@ export const ui = {
     clickHandlers: new Map(), 
     currentWheelDeg: 0, 
 
-    translate(arTxt, enTxt) {
-        return t(arTxt) || arTxt;
-    },
-
     getEl: id => document.getElementById(id),
     
     setTxt(id, txt) {
@@ -548,7 +544,7 @@ export const ui = {
 
         this.toggleOfflineInMatchUI(false);
         this.toggleOnlineUILayout(false); 
-        document.body.classList.remove('game-active'); // ✅ إضافة إخفاء صندوق الدور
+        document.body.classList.remove('game-active');
         
         if (typeof restoreOfflineHintSystem === 'function') {
             restoreOfflineHintSystem();
@@ -586,7 +582,7 @@ export const ui = {
 
         gameState.isGameActive = true;
         window.isMatchRunning = true;
-        document.body.classList.add('game-active'); // ✅ إضافة إظهار صندوق الدور
+        document.body.classList.add('game-active');
         
         if (!gameState.isOnlineMode) {
             this.toggleOfflineInMatchUI(true);
@@ -942,6 +938,7 @@ export const ui = {
                 worker.postMessage({
                     board: gameState.virtualBoard,
                     depth: depth,
+                    level: level, // ✅ التعديل هنا: تمرير مستوى الصعوبة للتحكم بالوقت
                     aiColor: aiColor,
                     pieceDirection: gameState.pieceDirection 
                 });
@@ -1538,6 +1535,7 @@ ui.onClick('hint-btn', () => {
         worker.postMessage({ 
             board: gameState.virtualBoard, 
             depth: hintDepth, 
+            level: currentLevel, // ✅ التعديل هنا: تمرير مستوى الصعوبة للتحكم بالوقت
             aiColor: myColor,
             pieceDirection: gameState.pieceDirection 
         });
