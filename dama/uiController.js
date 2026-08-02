@@ -68,19 +68,17 @@ export const ui = {
         this.clickHandlers.set(id, fn);
     },
     
-    // 💡 2. تم حل مشكلة اختفاء وتأخير الصوت عبر استنساخ المسار الصوتي (Cloning)
+    // ✅ تم الإصلاح: إيقاف استنساخ الصوت لمنع تراكم الملفات الصوتية في الخلفية
     playSound(audio) {
         if (!audio) return;
         try {
-            const clone = audio.cloneNode();
-            clone.volume = audio.volume; 
-            const playPromise = clone.play();
+            audio.pause(); 
+            audio.currentTime = 0; 
+            const playPromise = audio.play();
             
             if (playPromise !== undefined) { 
-                playPromise.catch(err => { console.warn("الصوت قيد الانتظار:", err); }); 
+                playPromise.catch(() => { /* تم تجاهل الأخطاء الصامتة */ }); 
             }
-            
-            clone.onended = () => { clone.remove(); };
         } catch(e) {}
     },
     
@@ -388,7 +386,6 @@ export const ui = {
         }
     },
 
-    // 🔥 تسريع: تم استبدال querySelector بالوصول المباشر للأبناء
     updateVirtualBoardState() {
         const board = this.getEl('board');
         if (!board) return;
@@ -460,7 +457,6 @@ export const ui = {
         renderScoreDots(myRow, isWhite ? whiteCount : blackCount, gameState.playerColor);
     },
 
-    // 🔥 تسريع: تم استبدال querySelector البطيء بنظام Indexing سريع جداً
     renderBoard(forceRebuild = false) {
         const board = this.getEl('board');
         if (!board) return;
@@ -1663,6 +1659,7 @@ if (!document.getElementById('forced-overlay-style')) {
     document.head.appendChild(forcedStyle);
 }
 
+// ✅ تم الإصلاح: مسح (histStr) من الـ boardHistory لتخفيف الحمل ومنع التشنج
 ui.onClick('board', e => {
     if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
     
@@ -1764,13 +1761,13 @@ ui.onClick('board', e => {
                         const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
                         if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
 
+                        // ✅ الكود النظيف بعد حذف التسريب
                         if (!gameState.isOnlineMode) {
                             if (!gameState.boardHistory) gameState.boardHistory = [];
                             gameState.boardHistory.push({ 
                                 board: gameState.virtualBoard.map(row => [...row]), 
                                 turn: gameState.currentTurn,
-                                moves: gameState.movesWithoutProgress,
-                                histStr: [...gameState.boardHistoryStr]
+                                moves: gameState.movesWithoutProgress
                             });
                             if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
                         }
