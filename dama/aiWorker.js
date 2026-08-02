@@ -1,6 +1,7 @@
 /**
  * aiWorker.js - النسخة الخارقة المستقلة (Standalone Unleashed AI)
- * 🚀 تم تسريع الأداء لـ 10 أضعاف بإزالة دوال النصوص البطيئة والفلترة.
+ * - تم دمج جدول النقلات (Transposition Table) لتسريع الأداء بشكل هائل.
+ * - تم دمج ذكاء نهايات اللعب (Endgame Squeezing) لمحاصرة الخصم.
  */
 
 // -------------------------------------------------------------
@@ -16,16 +17,34 @@ self.addEventListener('unhandledrejection', function(event) {
 });
 // -------------------------------------------------------------
 
+// -------------------------------------------------------------
+// 🧠 إعدادات Transposition Table (جدول النقلات)
+// -------------------------------------------------------------
+const transpositionTable = new Map();
+const FLAG_EXACT = 0;
+const FLAG_LOWERBOUND = 1;
+const FLAG_UPPERBOUND = 2;
+
+// دالة التشفير (توليد مفتاح فريد للرقعة لسرعة البحث)
+function getBoardHash(bState, isMaximizing) {
+    let hash = isMaximizing ? '1' : '0';
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            let p = bState[r][c];
+            hash += p ? (p[0] + (p.length > 5 ? 'D' : '')) : '.';
+        }
+    }
+    return hash;
+}
+
+// -------------------------------------------------------------
 const isValidPos = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
 
 let workerPieceDirection = { white: -1, black: 1 };
 let nodesEvaluated = 0; 
 
 function getPieceCapturePaths(r, c, colorChar, bState, parentDr = null, parentDc = null) {
-    // 🔥 تسريع: استخدام طول النص بدلاً من endsWith
     const isDama = bState[r][c] && bState[r][c].length > 5;
-    
-    // 🔥 تسريع: استخدام الحرف الأول w أو b بدلاً من split
     let dirRow = workerPieceDirection[colorChar === 'b' ? 'black' : 'white'];
     let currentDirections = isDama ? [[0, 1], [0, -1], [1, 0], [-1, 0]] : [[dirRow, 0], [0, 1], [0, -1]];
     let paths = [];
@@ -43,7 +62,6 @@ function getPieceCapturePaths(r, c, colorChar, bState, parentDr = null, parentDc
                 const piece = bState[nextR][nextC];
                 if (!foundEnemy) {
                     if (piece === null) { step++; continue; }
-                    // 🔥 تسريع: فحص الحرف الأول فقط للون
                     else if (piece[0] !== colorChar) { foundEnemy = piece; enemyPos = { r: nextR, c: nextC }; step++; continue; }
                     else break; 
                 } else {
@@ -62,7 +80,6 @@ function getPieceCapturePaths(r, c, colorChar, bState, parentDr = null, parentDc
             const midR = r + dr, midC = c + dc; const toR = r + 2 * dr, toC = c + 2 * dc;
             if (isValidPos(toR, toC)) {
                 const midPiece = bState[midR][midC]; const toPiece = bState[toR][toC];
-                // 🔥 تسريع: فحص الحرف الأول
                 if (midPiece && midPiece[0] !== colorChar && toPiece === null) {
                     let capturedPiece = bState[midR][midC]; let movingPiece = bState[r][c];
                     bState[midR][midC] = null; bState[toR][toC] = movingPiece; bState[r][c] = null;
@@ -100,7 +117,7 @@ function getPieceSimpleMoves(r, c, colorChar, bState) {
 
 function generateAllTurnMoves(color, bState) {
     let allCapturePaths = []; let maxJumps = 0; 
-    const colorChar = color[0]; // 'w' or 'b'
+    const colorChar = color[0]; 
     
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -169,12 +186,14 @@ function evaluateBoard(bState, targetColor) {
     let myDir = workerPieceDirection[targetChar === 'b' ? 'black' : 'white'];
     let myBackRow = myDir === 1 ? 0 : 7; let oppBackRow = myDir === 1 ? 7 : 0;
 
+    let myDamaPositions = [];
+    let oppDamaPositions = [];
+
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             let p = bState[r][c];
             if (!p) continue;
 
-            // 🔥 تسريع هائل:
             let isTarget = p[0] === targetChar; 
             let isDama = p.length > 5; 
             
@@ -195,22 +214,42 @@ function evaluateBoard(bState, targetColor) {
             }
             
             let totalValue = pieceValue + advanceBonus + centerBonus + defenseBonus + protectionBonus;
-            if (isTarget) { score += totalValue; myPieces++; if (isDama) myDamas++; } 
-            else { score -= totalValue; oppPieces++; if (isDama) oppDamas++; }
+            if (isTarget) { 
+                score += totalValue; myPieces++; 
+                if (isDama) { myDamas++; myDamaPositions.push({r, c}); } 
+            } else { 
+                score -= totalValue; oppPieces++; 
+                if (isDama) { oppDamas++; oppDamaPositions.push({r, c}); } 
+            }
         }
     }
     
     if (myDamas > 0 && oppPieces <= 3) score += 200;
     if (oppDamas > 0 && myPieces <= 3) score -= 200;
+
+    // 🧠 ذكاء الـ Endgame (حشر الخصم)
+    // إذا كان البوت متفوقاً ويملك دامات، نقوم بتقليل المسافة بين داماته ودامات الخصم لحشره
+    if (myDamas > oppDamas && oppPieces <= 3 && oppDamaPositions.length > 0) {
+        let totalDistance = 0;
+        for (let myD of myDamaPositions) {
+            let minDist = 999;
+            for (let oppD of oppDamaPositions) {
+                let dist = Math.abs(myD.r - oppD.r) + Math.abs(myD.c - oppD.c); // Manhattan Distance
+                if (dist < minDist) minDist = dist;
+            }
+            totalDistance += minDist;
+        }
+        // كلما قلت المسافة زاد التقييم لدفعه للاقتراب
+        score += (20 - totalDistance) * 5; 
+    }
+
     return score;
 }
 
-// 💡 2. إزالة filter نهائياً لتسريع الترتيب
 function scoreMove(path, colorChar, bState) {
     let score = 0; 
     let dir = workerPieceDirection[colorChar === 'b' ? 'black' : 'white'];
     
-    // إذا كانت الخطوة الأولى تحتوي على midR، إذن هذا مسار أكل، وعدد الأكلات = طول المسار
     if (path[0].midR !== null) {
         score += path.length * 1000;
     }
@@ -219,7 +258,6 @@ function scoreMove(path, colorChar, bState) {
     let startStep = path[0];
     let piece = bState[startStep.fromR][startStep.fromC];
     
-    // الترقية
     if (piece && piece.length <= 5 && lastStep.toR === ((dir === 1) ? 7 : 0)) { 
         score += 500; 
     }
@@ -228,8 +266,29 @@ function scoreMove(path, colorChar, bState) {
 
 function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, startTime, maxTime, isQuiescence = false) {
     nodesEvaluated++;
+    
     if (nodesEvaluated % 500 === 0 && Date.now() - startTime > maxTime) { 
         return { score: evaluateBoard(bState, targetColor), timeOut: true }; 
+    }
+
+    // 🔍 1. البحث في جدول النقلات
+    const hash = getBoardHash(bState, isMaximizing);
+    const originalAlpha = alpha;
+
+    if (transpositionTable.has(hash)) {
+        const ttEntry = transpositionTable.get(hash);
+        if (ttEntry.depth >= depth) {
+            if (ttEntry.flag === FLAG_EXACT) {
+                return { score: ttEntry.score, move: ttEntry.move };
+            } else if (ttEntry.flag === FLAG_LOWERBOUND) {
+                alpha = Math.max(alpha, ttEntry.score);
+            } else if (ttEntry.flag === FLAG_UPPERBOUND) {
+                beta = Math.min(beta, ttEntry.score);
+            }
+            if (alpha >= beta) {
+                return { score: ttEntry.score, move: ttEntry.move };
+            }
+        }
     }
 
     let moves = generateAllTurnMoves(color, bState);
@@ -245,14 +304,23 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, s
     
     if (moves.length === 0) return { score: isMaximizing ? -99999 + depth : 99999 - depth };
     
-    // 💡 ترتيب أسرع عن طريق تخزين التقييم مؤقتاً
+    // 💡 ترتيب النقلات المتقدم المستفاد من الذاكرة
+    let ttMove = transpositionTable.has(hash) ? transpositionTable.get(hash).move : null;
     let colorChar = color[0];
-    for (let i = 0; i < moves.length; i++) { moves[i]._score = scoreMove(moves[i], colorChar, bState); }
+    
+    for (let i = 0; i < moves.length; i++) { 
+        moves[i]._score = scoreMove(moves[i], colorChar, bState); 
+        if (ttMove && JSON.stringify(moves[i]) === JSON.stringify(ttMove)) {
+            moves[i]._score += 10000;
+        }
+    }
     moves.sort((a, b) => b._score - a._score);
     
     let bestMove = moves[0]; 
     let nextColor = color === 'white' ? 'black' : 'white';
-    
+    let finalScore;
+    let isTimeOut = false;
+
     if (isMaximizing) {
         let maxEval = -Infinity;
         for (let m of moves) {
@@ -260,11 +328,11 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, s
             let result = minimax(bState, depth - 1, alpha, beta, false, nextColor, targetColor, startTime, maxTime, isQuiescence);
             undoMove(bState, undoData); 
 
-            if (result.timeOut) return { score: maxEval === -Infinity ? evaluateBoard(bState, targetColor) : maxEval, move: bestMove, timeOut: true };
+            if (result.timeOut) { isTimeOut = true; maxEval = maxEval === -Infinity ? evaluateBoard(bState, targetColor) : maxEval; break; }
             if (result.score > maxEval) { maxEval = result.score; bestMove = m; }
             alpha = Math.max(alpha, result.score); if (beta <= alpha) break;
         }
-        return { score: maxEval, move: bestMove };
+        finalScore = maxEval;
     } else {
         let minEval = Infinity;
         for (let m of moves) {
@@ -272,12 +340,28 @@ function minimax(bState, depth, alpha, beta, isMaximizing, color, targetColor, s
             let result = minimax(bState, depth - 1, alpha, beta, true, nextColor, targetColor, startTime, maxTime, isQuiescence);
             undoMove(bState, undoData); 
             
-            if (result.timeOut) return { score: minEval === Infinity ? evaluateBoard(bState, targetColor) : minEval, move: bestMove, timeOut: true };
+            if (result.timeOut) { isTimeOut = true; minEval = minEval === Infinity ? evaluateBoard(bState, targetColor) : minEval; break; }
             if (result.score < minEval) { minEval = result.score; bestMove = m; }
             beta = Math.min(beta, result.score); if (beta <= alpha) break;
         }
-        return { score: minEval, move: bestMove };
+        finalScore = minEval;
     }
+
+    let returnObj = { score: finalScore, move: bestMove };
+    if (isTimeOut) returnObj.timeOut = true;
+
+    // 💾 2. حفظ النتيجة في الذاكرة
+    if (!isTimeOut) {
+        let flag = FLAG_EXACT;
+        if (finalScore <= originalAlpha) flag = FLAG_UPPERBOUND;
+        else if (finalScore >= beta) flag = FLAG_LOWERBOUND;
+        
+        // حماية ذاكرة الهاتف
+        if (transpositionTable.size > 200000) transpositionTable.clear();
+        transpositionTable.set(hash, { score: finalScore, depth: depth, flag: flag, move: bestMove });
+    }
+
+    return returnObj;
 }
 
 self.onmessage = function(e) {
@@ -289,6 +373,9 @@ self.onmessage = function(e) {
         
         workerPieceDirection = e.data.pieceDirection || { white: -1, black: 1 };
         nodesEvaluated = 0; 
+        
+        // مسح الذاكرة جزئياً مع كل دور جديد لعدم إرهاق الهاتف
+        transpositionTable.clear();
         
         if (!board || !aiColor) { throw new Error("بيانات الرقعة أو لون البوت مفقودة."); }
 
@@ -306,8 +393,9 @@ self.onmessage = function(e) {
         else if (level >= 7) maxTime = 8000;
 
         let bestResult = null;
-        let safeMaxDepth = Math.min(maxDepth, 9); 
+        let safeMaxDepth = Math.min(maxDepth, 12); // رفعنا العمق الأقصى بسبب التسريع
 
+        // Iterative Deepening
         for (let d = 1; d <= safeMaxDepth; d++) {
             let result = minimax(board, d, -Infinity, Infinity, true, aiColor, aiColor, startTime, maxTime);
             if (result.timeOut && bestResult !== null) { break; }
