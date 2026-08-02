@@ -6,7 +6,7 @@ import { gameEngine } from './gameEngine.js';
 import { t } from './i18n.js';
 
 // ==========================================
-// 💡 1. نظام الحفظ غير المتزامن (IndexedDB)
+// 💡 1. نظام الحفظ غير المتزامن المحسن (IndexedDB مع مهلة أمان)
 // ==========================================
 const DB_NAME = 'DamaGameDB';
 const STORE_NAME = 'GameStateStore';
@@ -29,7 +29,7 @@ async function saveToDB(key, data) {
             tx.oncomplete = () => resolve();
             tx.onerror = () => reject(tx.error);
         });
-    } catch(e) { console.warn("DB Save Error:", e); }
+    } catch(e) {}
 }
 
 async function loadFromDB(key) {
@@ -44,9 +44,6 @@ async function loadFromDB(key) {
     } catch(e) { return null; }
 }
 
-// ==========================================
-// 💡 2. نظام تشفير الرقعة (Serialization)
-// ==========================================
 function serializeBoard(board) {
     if (!board) return "";
     return board.map(row => row.map(cell => {
@@ -65,16 +62,11 @@ function deserializeBoard(str) {
     return str.split('-').map(row => row.split('').map(char => dict[char]));
 }
 
-// ==========================================
-// 💡 3. تأخير الحفظ الذكي (Debouncing)
-// ==========================================
 let saveTimeout = null;
 export function saveGameState() {
     if (gameState.isOnlineMode) return;
-    
     if (saveTimeout) clearTimeout(saveTimeout);
     
-    // الانتظار 800 ملي ثانية قبل الحفظ لتجنب الإرهاق أثناء القفز المتعدد
     saveTimeout = setTimeout(async () => {
         try {
             let optimizedHistory = (gameState.boardHistory || []).map(h => ({
@@ -97,14 +89,18 @@ export function saveGameState() {
             };
             
             await saveToDB('dama_saved_game', stateToSave);
-        } catch(e) { console.warn("Save failed", e); }
+        } catch(e) {}
     }, 800);
 }
 
-// استرجاع اللعبة أصبح يعمل بشكل غير متزامن (Async)
 export async function loadGameState() {
     try {
-        const state = await loadFromDB('dama_saved_game');
+        // 💡 مهلة أمان (Timeout) بحد أقصى ثانية واحدة لمنع تجميد الشاشة البيضاء مطلقاً
+        const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 1000));
+        const dbPromise = loadFromDB('dama_saved_game');
+        
+        const state = await Promise.race([dbPromise, timeoutPromise]);
+        
         if (state) {
             gameState.virtualBoard = deserializeBoard(state.boardStr); 
             gameState.currentTurn = state.currentTurn; 
@@ -121,7 +117,7 @@ export async function loadGameState() {
 
             const gm = document.getElementById('game-mode'); if(gm) gm.value = state.gameMode;
             const diff = document.getElementById('diff-quick-select'); if(diff) diff.value = state.difficulty;
-            const lSel = document.getElementById('lang-select-modal'); if(lSel) lSel.value = state.lang;
+            const lSel = document.getElementById('lang-select-modal'); if(lSel) lSel.value = gameState.lang;
             
             if (window.updateHtmlTexts) window.updateHtmlTexts(); 
             ui.renderBoard(); 
@@ -177,21 +173,25 @@ export function updateSpinTimerDisplay(nextFreeTime) {
     if (nextFreeTime && nextFreeTime > Date.now()) { spinTimerInterval = setInterval(tick, 1000); }
 }
 
-// 💡 تحويل حدث التحميل إلى Async ليتوافق مع قاعدة البيانات
+// 💡 2. تحسين بدء التشغيل لمنع الشاشة البيضاء نهائياً (Rendering First)
 window.addEventListener('load', async () => {
-    ui.initProfileSystem(); socketManager.init();
+    // رسم الواجهة والرقعة الفارغة فوراً قبل أي عملية انتظار لكي تظهر الشاشة فوراً
+    ui.initProfileSystem();
+    ui.drawEmptyBoard();
+    if (window.updateHtmlTexts) window.updateHtmlTexts(); 
+
+    // الاتصال بالخارج في الخلفية بهدوء
+    socketManager.init();
     
+    // محاولة جلب الحفظ القديم دون تعليق الواجهة
     const isLoaded = await loadGameState();
     
-    if (!isLoaded) { 
-        ui.drawEmptyBoard(); 
-    } else {
+    if (isLoaded) {
         if (gameState.virtualBoard.some(r => r.some(c => c !== null))) { 
             window.isMatchRunning = true; 
             ui.toggleOfflineInMatchUI(true); 
         }
         ui.renderBoard(); 
-        if (window.updateHtmlTexts) window.updateHtmlTexts(); 
         ui.startTurn();
     }
     
