@@ -21,7 +21,13 @@ export const sfx = {
 let aiWorkerInstance = null;
 function getAiWorker() {
     if (window.Worker) {
-        if (!aiWorkerInstance) { aiWorkerInstance = new Worker('aiWorker.js'); }
+        if (!aiWorkerInstance) { 
+            // تأمين مسار الـ Worker للعمل على مختلف الاستضافات
+            aiWorkerInstance = new Worker('./aiWorker.js', { type: 'module' }).onerror = (e) => {
+                aiWorkerInstance = new Worker('aiWorker.js'); 
+            };
+            if(!aiWorkerInstance) aiWorkerInstance = new Worker('aiWorker.js');
+        }
         return aiWorkerInstance;
     }
     return null;
@@ -528,6 +534,7 @@ export const ui = {
             gameState.aiTimeout = null;
         }
 
+        // استخدام تقنية توليد المصفوفة السريعة
         gameState.virtualBoard = Array(8).fill(null).map(() => Array(8).fill(null));
         gameState.isGameActive = false;
         window.isMatchRunning = false;
@@ -607,7 +614,7 @@ export const ui = {
         this.renderBoard(true);
         
         gameState.boardHistory.push({
-            board: JSON.parse(JSON.stringify(gameState.virtualBoard)),
+            board: gameState.virtualBoard.map(row => [...row]), // نسخ سريع
             turn: gameState.currentTurn
         });
         
@@ -731,7 +738,7 @@ export const ui = {
             let lastSavedStr = gameState.boardHistory.length > 0 ? JSON.stringify(gameState.boardHistory[gameState.boardHistory.length - 1].board) : "";
             if (currentBoardStr !== lastSavedStr) {
                 gameState.boardHistory.push({
-                    board: JSON.parse(currentBoardStr),
+                    board: gameState.virtualBoard.map(row => [...row]), // سريع الاستنساخ
                     turn: gameState.currentTurn
                 });
             }
@@ -827,7 +834,7 @@ export const ui = {
         }
     },
 
-    // 🛡️ التحديث الجوهري لنظام التفكير (Safety Fallback) لمنع تجمد اللعبة نهائياً وتمرير المتغيرات المطلوبة
+    // 🛡️ التحديث الجوهري لنظام التفكير (Anti-Freeze Safety Fallback) 
     triggerComputerMove() {
         let level = parseInt(this.getVal('diff-quick-select', '3')) || 3; 
         let aiColor = gameState.playerColor === 'white' ? 'black' : 'white';
@@ -841,12 +848,11 @@ export const ui = {
         const gameId = gameState.gameId || Date.now();
         gameState.gameId = gameId; 
 
-        // ⏱️ حساب وقت الإنقاذ الطارئ بناءً على المستوى
-        let fallbackWaitTime = 3500; 
-        if (level === 4) fallbackWaitTime = 5000;
-        else if (level === 5) fallbackWaitTime = 7000;
-        else if (level === 6) fallbackWaitTime = 9000;
-        else if (level >= 7) fallbackWaitTime = 12000;
+        // ⏱️ تقليص وقت البديل الطارئ بشكل كبير لمنع تعليق المتصفح نهائياً (Anti-Freeze)
+        let fallbackWaitTime = 1200; 
+        if (level === 4) fallbackWaitTime = 1600;
+        else if (level === 5) fallbackWaitTime = 2000;
+        else if (level >= 6) fallbackWaitTime = 2500;
 
         const processMove = (chosenMove) => {
             if (!Array.isArray(chosenMove)) {
@@ -917,7 +923,7 @@ export const ui = {
                     return;
                 }
                 
-                let delay = (gameState.isOnlineMode || step.midR !== null) ? 500 : (gameState.botMoveCount < 7 ? 800 : Math.floor(Math.random() * 1000) + 500);
+                let delay = (gameState.isOnlineMode || step.midR !== null) ? 400 : (gameState.botMoveCount < 7 ? 600 : Math.floor(Math.random() * 500) + 400);
                 setTimeout(executeStep, delay);
             }
             executeStep();
@@ -929,20 +935,19 @@ export const ui = {
         } else {
             const worker = getAiWorker();
             if (worker) {
-                // 🛑 مؤقت الإنقاذ: إذا فشل تحميل البوت أو تعطل، يتم تشغيل هذا الكود فوراً
+                // 🛑 مؤقت الإنقاذ
                 let fallbackSafetyTimer = setTimeout(() => {
-                    console.warn("⚠️ تم تفعيل نظام الإنقاذ! البوت المستقل تأخر أو محظور بسبب الجوال. تشغيل الذكاء الداخلي.");
+                    console.warn("⚠️ تم تفعيل نظام الإنقاذ الطارئ! البوت المستقل تأخر. تشغيل الذكاء الداخلي.");
                     worker.onmessage = null;
                     worker.onerror = null;
                     
-                    let safeDepth = depth > 5 ? 5 : depth; // تقليل العمق لتجنب التشنج
-                    // ✅ تم التعديل لتمرير pieceDirection و startTime و maxTime لـ gameAI.minimax
+                    let safeDepth = depth > 4 ? 4 : depth; // تقليل العمق للحد الأدنى لحماية المتصفح
                     let syncMove = gameAI.minimax(gameState.virtualBoard, safeDepth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
                     processMove(syncMove);
-                }, fallbackWaitTime);
+                }, fallbackWaitTime + 500); // إعطاء البوت مهلة قصيرة إضافية قبل الإنقاذ
 
                 worker.onmessage = function(e) {
-                    clearTimeout(fallbackSafetyTimer); // إيقاف مؤقت الإنقاذ لأن البوت استجاب بنجاح
+                    clearTimeout(fallbackSafetyTimer); 
                     worker.onmessage = null; 
                     worker.onerror = null;
                     let chosenMove = e.data.move || moves[0];
@@ -953,9 +958,7 @@ export const ui = {
                     clearTimeout(fallbackSafetyTimer);
                     worker.onmessage = null;
                     worker.onerror = null;
-                    console.warn("حدث خطأ داخل الـ Worker، جاري استخدام البديل.");
-                    let safeDepth = depth > 5 ? 5 : depth;
-                    // ✅ تم التعديل هنا أيضاً
+                    let safeDepth = depth > 4 ? 4 : depth;
                     let syncMove = gameAI.minimax(gameState.virtualBoard, safeDepth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
                     processMove(syncMove);
                 };
@@ -968,8 +971,7 @@ export const ui = {
                     pieceDirection: gameState.pieceDirection 
                 });
             } else {
-                // ✅ إذا لم يكن Worker مدعوماً في المتصفح أساساً
-                let chosenMove = gameAI.minimax(gameState.virtualBoard, depth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
+                let chosenMove = gameAI.minimax(gameState.virtualBoard, depth > 4 ? 4 : depth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
                 processMove(chosenMove);
             }
         }
@@ -1446,7 +1448,7 @@ ui.onClick('undo-btn', () => {
     let prevState = gameState.boardHistory[gameState.boardHistory.length - 1];
 
     if (prevState) {
-        gameState.virtualBoard = JSON.parse(JSON.stringify(prevState.board));
+        gameState.virtualBoard = prevState.board.map(row => [...row]); // نسخ سريع عند التراجع
         gameState.currentTurn = prevState.turn;
         
         ui.clearHighlights();
@@ -1465,7 +1467,7 @@ ui.onClick('undo-btn', () => {
     }
 });
 
-// 🛡️ زر التلميح مع نظام الإنقاذ الطارئ
+// 🛡️ زر التلميح مع نظام الإنقاذ الطارئ (Anti-Freeze)
 ui.onClick('hint-btn', () => {
     if (gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) return;
     if (!gameState.isOnlineMode && gameState.currentTurn !== gameState.playerColor) return;
@@ -1496,7 +1498,7 @@ ui.onClick('hint-btn', () => {
     let botDepthArray = [1, 1, 2, 2, 3, 4, 5, 6, 7]; 
     let botDepth = botDepthArray[Math.max(0, Math.min(currentLevel - 1, 8))];
 
-    let hintDepth = Math.max(5, botDepth + 1);
+    let hintDepth = Math.max(4, botDepth + 1);
     if (hintDepth > 8) hintDepth = 8;
 
     if (hintDepth >= 7) {
@@ -1544,21 +1546,20 @@ ui.onClick('hint-btn', () => {
         ui.playSound(ui.sfx.move);
     };
 
-    let fallbackWaitTime = 4000;
-    if (currentLevel >= 5) fallbackWaitTime = 7000;
-    if (currentLevel >= 7) fallbackWaitTime = 12000;
+    // تقليص مهلة انتظار التلميح لعدم تعليق الشاشة
+    let fallbackWaitTime = 1200;
+    if (currentLevel >= 5) fallbackWaitTime = 1800;
+    if (currentLevel >= 7) fallbackWaitTime = 2500;
 
     const worker = getAiWorker();
     if (worker) {
-        // 🛑 مؤقت الإنقاذ
         let fallbackSafetyTimer = setTimeout(() => {
             console.warn("⚠️ تأخر التلميح! استخدام الذكاء الداخلي كبديل طارئ.");
             worker.onmessage = null;
             worker.onerror = null;
-            // ✅ تم التعديل لتمرير pieceDirection و startTime و maxTime لـ gameAI.minimax
-            let syncMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 5 ? 5 : hintDepth, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
+            let syncMove = gameAI.minimax(gameState.virtualBoard, 4, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
             showGlow(syncMove || eleganceMoves[0]);
-        }, fallbackWaitTime);
+        }, fallbackWaitTime + 500);
 
         worker.onmessage = (e) => {
             clearTimeout(fallbackSafetyTimer);
@@ -1572,8 +1573,7 @@ ui.onClick('hint-btn', () => {
             clearTimeout(fallbackSafetyTimer);
             worker.onmessage = null;
             worker.onerror = null;
-            // ✅ تم التعديل لتمرير pieceDirection و startTime و maxTime لـ gameAI.minimax
-            let syncMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 5 ? 5 : hintDepth, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
+            let syncMove = gameAI.minimax(gameState.virtualBoard, 4, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
             showGlow(syncMove || eleganceMoves[0]);
         }
         
@@ -1586,8 +1586,7 @@ ui.onClick('hint-btn', () => {
         });
     } else {
         setTimeout(() => {
-            // ✅ تم التعديل لتمرير pieceDirection و startTime و maxTime لـ gameAI.minimax
-            let bestMove = gameAI.minimax(gameState.virtualBoard, hintDepth > 5 ? 5 : hintDepth, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || eleganceMoves[0];
+            let bestMove = gameAI.minimax(gameState.virtualBoard, 4, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || eleganceMoves[0];
             showGlow(bestMove);
         }, 50);
     }
