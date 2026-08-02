@@ -5,6 +5,7 @@ import { gameEngine } from './gameEngine.js';
 import { gameAI } from './gameAI.js';
 import { socket, socketManager } from './socketManager.js';
 import { t } from './i18n.js';
+import { hintSystem } from './hintSystem.js';
 
 window.t = t; 
 
@@ -18,7 +19,6 @@ export const sfx = {
     spinTick: new Audio('spin_tick.mp3') 
 };
 
-// 💡 1. تحميل الـ Worker بشكل آمن
 let aiWorkerInstance = null;
 function getAiWorker() {
     try {
@@ -840,7 +840,6 @@ export const ui = {
         if (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID) {
             tInd.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
             clearTimeout(gameState.aiTimeout);
-            // ✅ تم تقليل التأخير هنا لسرعة استجابة البوت
             gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 150);
         }
     },
@@ -858,10 +857,10 @@ export const ui = {
         const gameId = gameState.gameId || Date.now();
         gameState.gameId = gameId; 
 
-        // 🔥 توقيتات الأمان (Fallback Timer) مطابقة لملف aiWorker.js
-        let fallbackWaitTime = 1500; 
-        if (level === 4) fallbackWaitTime = 2500;
-        else if (level === 5) fallbackWaitTime = 4000;
+        // 🔥 توقيتات الأمان (Fallback Timer) السريعة
+        let fallbackWaitTime = 500; 
+        if (level === 4) fallbackWaitTime = 1000;
+        else if (level === 5) fallbackWaitTime = 1500;
         else if (level === 6) fallbackWaitTime = 6000;
         else if (level >= 7) fallbackWaitTime = 8000;
 
@@ -944,13 +943,11 @@ export const ui = {
             let chosenMove = moves[Math.floor(Math.random() * moves.length)];
             processMove(chosenMove);
         } else {
-            // ✅ نظام كشف وتخطي الـ Worker المحظور محلياً
             let workerIsBroken = window.damaWorkerBroken || false;
             const worker = getAiWorker();
             
             if (worker && !workerIsBroken) {
                 let fallbackSafetyTimer = setTimeout(() => {
-                    // إذا تأخر الرد، فهذا يعني غالباً أن متصفح Kiwi حظر الـ Worker!
                     window.damaWorkerBroken = true; 
                     worker.onmessage = null;
                     worker.onerror = null;
@@ -969,7 +966,7 @@ export const ui = {
                 };
                 
                 worker.onerror = function(err) {
-                    window.damaWorkerBroken = true; // تم حظر الـ Worker صراحةً
+                    window.damaWorkerBroken = true; 
                     clearTimeout(fallbackSafetyTimer);
                     worker.onmessage = null;
                     worker.onerror = null;
@@ -986,7 +983,6 @@ export const ui = {
                     pieceDirection: gameState.pieceDirection 
                 });
             } else {
-                // ✅ اللعب فوراً في حال كشف النظام أن הـ Worker معطل (متصفحات الجوال والملفات المحلية)
                 let safeDepth = depth > 4 ? 4 : depth;
                 let chosenMove = gameAI.minimax(gameState.virtualBoard, safeDepth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
                 processMove(chosenMove);
@@ -1484,127 +1480,9 @@ ui.onClick('undo-btn', () => {
     }
 });
 
+// 👈 استدعاء نظام التلميحات المستقل من هنا
 ui.onClick('hint-btn', () => {
-    if (gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) return;
-    if (!gameState.isOnlineMode && gameState.currentTurn !== gameState.playerColor) return;
-
-    let profile = gameState.userProfile;
-    if (!profile) return;
-    
-    if (!gameState.isTutorialMode) {
-        if (profile.hints === undefined) profile.hints = 5;
-
-        if (profile.hints <= 0) {
-            ui.showCustomAlert(t('no_hints'));
-            return;
-        }
-    }
-
-    let myColor = gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor;
-    let eleganceMoves = gameEngine.generateAllTurnMoves(myColor, gameState.virtualBoard);
-    if (eleganceMoves.length === 0) return;
-
-    const hintBtn = document.getElementById('hint-btn');
-    if (hintBtn) {
-        hintBtn.style.pointerEvents = 'none';
-        hintBtn.style.opacity = '0.5';
-    }
-    
-    let currentLevel = parseInt(document.getElementById('diff-quick-select')?.value || '3');
-    let botDepthArray = [1, 1, 2, 2, 3, 4, 5, 6, 7]; 
-    let botDepth = botDepthArray[Math.max(0, Math.min(currentLevel - 1, 8))];
-
-    let hintDepth = Math.max(4, botDepth + 1);
-    if (hintDepth > 8) hintDepth = 8;
-
-    if (hintDepth >= 7) {
-        ui.setTxt('turn-countdown', t('hint_hard'));
-    } else {
-        ui.setTxt('turn-countdown', t('hint_easy'));
-    }
-
-    const showGlow = (moveObj) => {
-        if (hintBtn) {
-            hintBtn.style.pointerEvents = 'auto';
-            hintBtn.style.opacity = '1';
-        }
-        ui.setTxt('turn-countdown', ''); 
-
-        if (!moveObj || moveObj.length === 0) return;
-        
-        if (!gameState.isTutorialMode) {
-            profile.hints--;
-            const counterEl = document.getElementById('hint-counter');
-            if (counterEl) counterEl.textContent = profile.hints;
-            
-            if (!gameState.isOnlineMode) {
-                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                if (window.parent) {
-                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-                }
-            }
-
-            if (socket && socket.connected) {
-                socket.emit('useHint'); 
-            }
-        }
-
-        let from = { r: moveObj[0].fromR, c: moveObj[0].fromC };
-        let to = { r: moveObj[moveObj.length - 1].toR, c: moveObj[moveObj.length - 1].toC };
-        
-        let board = ui.getEl('board');
-        if (!board) return;
-        let fCell = board.querySelector(`[data-row="${from.r}"][data-col="${from.c}"]`);
-        let tCell = board.querySelector(`[data-row="${to.r}"][data-col="${to.c}"]`);
-        
-        if (fCell) { fCell.style.boxShadow = "inset 0 0 35px #FFD700"; setTimeout(() => fCell.style.boxShadow="", 3500); }
-        if (tCell) { tCell.style.boxShadow = "inset 0 0 35px #FFD700"; setTimeout(() => tCell.style.boxShadow="", 3500); }
-        ui.playSound(ui.sfx.move);
-    };
-
-    // 🔥 تم تحديث أوقات الـ Fallback لتتطابق مع Worker
-    let fallbackWaitTime = 1500;
-    if (currentLevel >= 5) fallbackWaitTime = 4000;
-    if (currentLevel >= 7) fallbackWaitTime = 8000;
-
-    const worker = getAiWorker();
-    if (worker) {
-        let fallbackSafetyTimer = setTimeout(() => {
-            worker.onmessage = null;
-            worker.onerror = null;
-            let syncMove = gameAI.minimax(gameState.virtualBoard, 4, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
-            showGlow(syncMove || eleganceMoves[0]);
-        }, fallbackWaitTime + 500);
-
-        worker.onmessage = (e) => {
-            clearTimeout(fallbackSafetyTimer);
-            worker.onmessage = null; 
-            worker.onerror = null;
-            let bestMove = e.data.move;
-            showGlow(bestMove || eleganceMoves[0]);
-        };
-        
-        worker.onerror = () => {
-            clearTimeout(fallbackSafetyTimer);
-            worker.onmessage = null;
-            worker.onerror = null;
-            let syncMove = gameAI.minimax(gameState.virtualBoard, 4, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
-            showGlow(syncMove || eleganceMoves[0]);
-        }
-        
-        worker.postMessage({ 
-            board: gameState.virtualBoard, 
-            depth: hintDepth, 
-            level: currentLevel, 
-            aiColor: myColor,
-            pieceDirection: gameState.pieceDirection 
-        });
-    } else {
-        setTimeout(() => {
-            let bestMove = gameAI.minimax(gameState.virtualBoard, 4, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || eleganceMoves[0];
-            showGlow(bestMove);
-        }, 50);
-    }
+    hintSystem.requestHint();
 });
 
 window.ui = ui;
