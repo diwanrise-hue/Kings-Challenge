@@ -54,12 +54,16 @@ export function updateSpinTimerDisplay(nextFreeTime) {
 export function saveGameState() {
     if (gameState.isOnlineMode) return;
     try {
+        // حماية الذاكرة: حفظ آخر 15 حركة فقط في الـ LocalStorage بدلاً من المصفوفة كاملة
+        let optimizedHistory = gameState.boardHistory ? gameState.boardHistory.slice(-15) : [];
+        let optimizedHistoryStr = gameState.boardHistoryStr ? gameState.boardHistoryStr.slice(-15) : [];
+        
         localStorage.setItem('dama_saved_game', JSON.stringify({
             virtualBoard: gameState.virtualBoard, currentTurn: gameState.currentTurn, gameMode: document.getElementById('game-mode')?.value || 'ai',
             difficulty: document.getElementById('diff-quick-select')?.value || '3', playerColor: gameState.playerColor, lang: gameState.lang,
             gameOver: gameState.blockGameOverModal ? undefined : false, pieceDirection: gameState.pieceDirection,
-            boardHistory: gameState.boardHistory || [],
-            boardHistoryStr: gameState.boardHistoryStr || [],
+            boardHistory: optimizedHistory,
+            boardHistoryStr: optimizedHistoryStr,
             movesWithoutProgress: gameState.movesWithoutProgress || 0
         }));
     } catch(e) { console.warn("Storage full", e); }
@@ -288,7 +292,7 @@ ui.onClick('online-create-btn', () => handleRoomBtn('createRoom', t('creating_ro
 ui.onClick('online-join-btn', () => handleRoomBtn('joinRoom', t('connecting')));
 
 // =========================================================================
-// محرك الرقعة للعب (تم الإبقاء عليه هنا وحذفه من ملف uiController)
+// تفاعلات اللاعب مع الرقعة (Board Clicks) - تم تسريع الاستنساخ
 // =========================================================================
 ui.onClick('board', e => {
     if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
@@ -348,7 +352,7 @@ ui.onClick('board', e => {
             }
 
             if (isValidJump) {
-                let tempBoard = gameState.virtualBoard.map(row => [...row]);
+                let tempBoard = gameState.virtualBoard.map(row => [...row]); // نسخ سريع
                 let movingPieceStr = tempBoard[fromRow][fromCol];
 
                 tempBoard[midRow][midCol] = null; tempBoard[toRow][toCol] = movingPieceStr; tempBoard[fromRow][fromCol] = null;
@@ -394,7 +398,7 @@ ui.onClick('board', e => {
                         if (!gameState.isOnlineMode) {
                             if (!gameState.boardHistory) gameState.boardHistory = [];
                             gameState.boardHistory.push({ 
-                                board: JSON.parse(JSON.stringify(gameState.virtualBoard)), 
+                                board: gameState.virtualBoard.map(row => [...row]), 
                                 turn: gameState.currentTurn,
                                 moves: gameState.movesWithoutProgress,
                                 histStr: [...gameState.boardHistoryStr]
