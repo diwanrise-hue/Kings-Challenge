@@ -264,8 +264,7 @@
         }
 
         /* ========================================== */
-        /* 🌟 نظام البروفايل العلوي (صورة مفرغة PNG)  */
-        /* 🌟 تحويل الخط الأخضر لشريط تقدم خبرة (XP) */
+        /* 🌟 نظام البروفايل العلوي                     */
         /* ========================================== */
         #profile-badge.profile-badge-container { 
             position: fixed !important; top: 15px !important; z-index: 10001; 
@@ -291,13 +290,11 @@
             z-index: 3 !important; 
         }
 
-        /* 🌟 حاوية مسار الخبرة (SVG) 🌟 */
         .xp-svg-wrapper {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             z-index: 1; pointer-events: none;
         }
 
-        /* توهج مسار الخبرة الأخضر */
         .xp-progress-path {
             transition: stroke-dashoffset 0.6s cubic-bezier(0.25, 1, 0.5, 1);
             filter: drop-shadow(0 0 2px rgba(52, 199, 89, 0.9)); 
@@ -420,7 +417,6 @@
         #lucky-spin-modal { z-index: 20000002 !important; }
         #level-up-modal { z-index: 20000003 !important; } 
         
-        /* ✅ تم الإصلاح: إضافة position: relative !important لمنع قفز الزر */
         .settings-card { position: relative !important; background: rgba(35, 38, 45, 0.95) !important; border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05) !important; text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
         
         #store-modal .settings-card, #themes-grid-overlay .settings-card { 
@@ -436,7 +432,6 @@
         .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .scrollable-content::-webkit-scrollbar-thumb { background: rgba(135, 206, 235, 0.5); border-radius: 10px; }
 
-        /* ✅ تم الإصلاح: جعل زر الخروج دائرياً وأنيقاً يتوسطه رمز × */
         .modal-close-btn { position: absolute; top: 15px; left: 15px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: rgba(255,255,255,0.7); font-size: 16px; cursor: pointer; transition: all 0.3s ease; z-index: 10; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; }
         .modal-close-btn:hover { background: rgba(255,69,58,0.15) !important; border-color: rgba(255,69,58,0.4) !important; color: #ff453a; transform: scale(1.1); }
         
@@ -676,6 +671,15 @@
             }
             originalSetItem.call(this, key, value);
         };
+
+        // حل مشكلة الشاشة البيضاء عند العودة للعبة من الخلفية
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                document.body.style.display = 'none';
+                void document.body.offsetHeight; 
+                document.body.style.display = 'flex';
+            }
+        });
     </script>
 </head>
 <body data-piece-style="pc_original">
@@ -851,12 +855,19 @@
         </div>
     </div>
 
+    <!-- ✅ التعديل الثاني: إضافة التبويبات إلى نافذة المهام -->
     <div id="daily-quests-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')" style="left:15px; right:auto;">✕</button>
-            <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">المهام اليومية 📜</h3>
-            <p class="settings-label" style="text-align:center; margin-bottom: 20px; color: #fff;">أكمل المهام التالية للحصول على جوائز إضافية!</p>
-            <div id="quests-list-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 5px;"></div>
+            <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">سجل المهام 📜</h3>
+            <p class="settings-label" style="text-align:center; margin-bottom: 15px; color: #fff;">أكمل المهام للحصول على جوائز إضافية!</p>
+            
+            <div class="custom-nav-tabs" style="margin-bottom: 15px;">
+                <button id="quest-tab-daily" class="custom-tab-button active" onclick="switchQuestTab('daily')">يومية</button>
+                <button id="quest-tab-weekly" class="custom-tab-button" onclick="switchQuestTab('weekly')">أسبوعية</button>
+            </div>
+
+            <div id="quests-list-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 50vh; overflow-y: auto; padding-right: 5px;"></div>
             <p id="quests-reset-timer" style="color: #a1a1aa; font-size: 12px; margin-top: 20px; font-weight: 600;">تتجدد المهام بعد: --:--:--</p>
         </div>
     </div>
@@ -1103,6 +1114,18 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
     <script>
+        // ✅ التعديل الثاني: إضافة الدالة المسؤولة عن تبديل النوافذ
+        function switchQuestTab(tab) {
+            document.getElementById('quest-tab-daily').classList.remove('active');
+            document.getElementById('quest-tab-weekly').classList.remove('active');
+            document.getElementById('quest-tab-' + tab).classList.add('active');
+
+            if (window.questsManager) {
+                window.questsManager.currentTab = tab;
+                window.questsManager.renderQuests();
+            }
+        }
+        
         function selectBetAmount(value, displayText, element) {
             document.getElementById('room-bet-input').value = value;
             document.getElementById('custom-bet-display').innerText = displayText;
@@ -1123,7 +1146,6 @@
             if (document.getElementById('online-modal').style.display === 'flex') setTxt('online-status-text', 'searching');
         };
 
-        // ✅ تم الإصلاح: النوافذ تفتح وتغلق بدون استخدام History API لكي لا يخرج المتصفح من اللعبة
         function openAppModal(id) {
             const modal = document.getElementById(id);
             if (modal) { 
@@ -1392,4 +1414,3 @@
     <script type="module" src="voice.js"></script>
 </body>
 </html>
-
