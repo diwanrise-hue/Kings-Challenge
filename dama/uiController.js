@@ -755,12 +755,15 @@ export const ui = {
         document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
         document.querySelectorAll('.piece.multi-choice').forEach(p => p.classList.remove('multi-choice'));
         
-        let wMoves = gameEngine.generateAllTurnMoves('white', gameState.virtualBoard).length;
-        let bMoves = gameEngine.generateAllTurnMoves('black', gameState.virtualBoard).length;
-        
         const isBoardEmpty = gameState.virtualBoard.every(row => row.every(cell => cell === null));
         
-        if (!isBoardEmpty && ((gameState.currentTurn === 'white' && wMoves === 0) || (gameState.currentTurn === 'black' && bMoves === 0))) {
+        // ✅ 1. الإصلاح: حساب الحركات المتوفرة للاعب الحالي فقط بدلاً من الاثنين لمنع هدر الموارد
+        let currentAvailableMoves = 1; 
+        if (!isBoardEmpty) {
+            currentAvailableMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard).length;
+        }
+        
+        if (!isBoardEmpty && currentAvailableMoves === 0) {
             if (gameState.blockGameOverModal) return; 
             
             let winnerColor = gameState.currentTurn === 'white' ? 'black' : 'white';
@@ -771,18 +774,23 @@ export const ui = {
             return;
         }
         
+        // ✅ 2. الإصلاح: تخزين بيانات القفزات لعدم تكرار استدعاء findMaxJumps المعقدة
         let maxJ = 0;
-
+        let piecesJumps = []; 
+        
         if (gameState.isMultiJumping && gameState.selectedPiece) {
             let cell = gameState.selectedPiece.parentElement;
             let r = parseInt(cell.dataset.row);
             let c = parseInt(cell.dataset.col);
             maxJ = gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard);
+            piecesJumps.push({ r, c, jumps: maxJ });
         } else {
             gameState.virtualBoard.forEach((row, r) => {
                 row.forEach((p, c) => {
                     if (p?.startsWith(gameState.currentTurn)) {
-                        maxJ = Math.max(maxJ, gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard));
+                        let jumps = gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard);
+                        maxJ = Math.max(maxJ, jumps);
+                        if (jumps > 0) piecesJumps.push({ r, c, jumps }); 
                     }
                 });
             });
@@ -797,16 +805,15 @@ export const ui = {
             tInd.style.color = "#e74c3c";
             
             let fList = [];
-            gameState.virtualBoard.forEach((row, r) => {
-                row.forEach((p, c) => {
-                    if (p?.startsWith(gameState.currentTurn) && gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) === gameState.requiredJumps) {
-                        let cell = this.getEl('board').querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                        if (cell?.children.length > 0) {
-                            cell.children[0].classList.add('forced');
-                            fList.push({ el: cell.children[0], r, c });
-                        }
+            // استخدام المصفوفة المخزنة بدلاً من إعادة الحساب
+            piecesJumps.forEach(piece => {
+                if (piece.jumps === gameState.requiredJumps) {
+                    let cell = this.getEl('board').querySelector(`[data-row="${piece.r}"][data-col="${piece.c}"]`);
+                    if (cell?.children.length > 0) {
+                        cell.children[0].classList.add('forced');
+                        fList.push({ el: cell.children[0], r: piece.r, c: piece.c });
                     }
-                });
+                }
             });
 
             if (fList.length > 1) {
@@ -1744,7 +1751,8 @@ ui.onClick('board', e => {
                         gameState.selectedPiece = null; ui.clearHighlights();
                         gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                         
-                        ui.renderBoard(true);
+                        // ✅ تم التعديل لمنع بناء الرقعة من الصفر وتخفيف الحمل على المعالج
+                        ui.renderBoard();
 
                         if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
                             socketManager.sendMoveToServer(
@@ -1756,12 +1764,13 @@ ui.onClick('board', e => {
                         saveGameState(); ui.startTurn();
                         gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
                     } else { 
-                        gameState.isMultiJumping = true; ui.renderBoard(true);
+                        gameState.isMultiJumping = true; 
+                        // ✅ تم التعديل
+                        ui.renderBoard();
                         const boardEl = document.getElementById('board');
                         const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
                         if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
 
-                        // ✅ الكود النظيف بعد حذف التسريب
                         if (!gameState.isOnlineMode) {
                             if (!gameState.boardHistory) gameState.boardHistory = [];
                             gameState.boardHistory.push({ 
@@ -1804,7 +1813,8 @@ ui.onClick('board', e => {
                 gameState.selectedPiece = null; ui.clearHighlights();
                 gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                 
-                ui.renderBoard(true);
+                // ✅ تم التعديل هنا أيضاً
+                ui.renderBoard();
 
                 if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
                     socketManager.sendMoveToServer(
