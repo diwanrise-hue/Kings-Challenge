@@ -58,7 +58,10 @@ export function saveGameState() {
             virtualBoard: gameState.virtualBoard, currentTurn: gameState.currentTurn, gameMode: document.getElementById('game-mode')?.value || 'ai',
             difficulty: document.getElementById('diff-quick-select')?.value || '3', playerColor: gameState.playerColor, lang: gameState.lang,
             gameOver: gameState.blockGameOverModal ? undefined : false, pieceDirection: gameState.pieceDirection,
-            boardHistory: gameState.boardHistory, boardHistoryStr: gameState.boardHistoryStr, movesWithoutProgress: gameState.movesWithoutProgress
+            // [إصلاح الثغرة 2]: حفظ السجل والعدادات لمنع ضياعها عند تحديث المتصفح
+            boardHistory: gameState.boardHistory || [],
+            boardHistoryStr: gameState.boardHistoryStr || [],
+            movesWithoutProgress: gameState.movesWithoutProgress || 0
         }));
     } catch(e) { console.warn("Storage full", e); }
 }
@@ -68,10 +71,12 @@ export function loadGameState() {
     if (saved) {
         const state = JSON.parse(saved);
         gameState.virtualBoard = state.virtualBoard; gameState.currentTurn = state.currentTurn; gameState.playerColor = state.playerColor; gameState.pieceDirection = state.pieceDirection || gameState.pieceDirection;
+        
+        // [إصلاح الثغرة 2]: استرجاع السجل والعدادات بدقة
         gameState.boardHistory = state.boardHistory || [];
         gameState.boardHistoryStr = state.boardHistoryStr || [];
         gameState.movesWithoutProgress = state.movesWithoutProgress || 0;
-        
+
         const gm = document.getElementById('game-mode'); if(gm) gm.value = state.gameMode;
         const diff = document.getElementById('diff-quick-select'); if(diff) diff.value = state.difficulty;
         const lSel = document.getElementById('lang-select-modal'); if(lSel) lSel.value = gameState.lang;
@@ -269,7 +274,9 @@ const handleRoomBtn = (action, msg) => {
 ui.onClick('online-create-btn', () => handleRoomBtn('createRoom', t('creating_room')));
 ui.onClick('online-join-btn', () => handleRoomBtn('joinRoom', t('connecting')));
 
-
+// =========================================================================
+// محرك الرقعة وحل ثغرات الأونلاين والتزامن
+// =========================================================================
 ui.onClick('board', e => {
     if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
     
@@ -332,7 +339,7 @@ ui.onClick('board', e => {
                 let movingPieceStr = tempBoard[fromRow][fromCol];
 
                 tempBoard[midRow][midCol] = null; tempBoard[toRow][toCol] = movingPieceStr; tempBoard[fromRow][fromCol] = null;
-                gameState.movePath.push({r: toRow, c: toCol});
+                gameState.movePath.push({r: toRow, c: toCol}); 
 
                 if (1 + gameEngine.findMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
                     if (typeof ui.playSound === 'function') { ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied); }
@@ -369,9 +376,15 @@ ui.onClick('board', e => {
                         const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
                         if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
 
+                        // إضافة عدادات التراجع للمسار المتعدد حتى لو لم يكتمل 
                         if (!gameState.isOnlineMode) {
                             if (!gameState.boardHistory) gameState.boardHistory = [];
-                            gameState.boardHistory.push({ board: JSON.parse(JSON.stringify(gameState.virtualBoard)), turn: gameState.currentTurn, moves: gameState.movesWithoutProgress, histStr: [...gameState.boardHistoryStr] });
+                            gameState.boardHistory.push({ 
+                                board: JSON.parse(JSON.stringify(gameState.virtualBoard)), 
+                                turn: gameState.currentTurn,
+                                moves: gameState.movesWithoutProgress,
+                                histStr: [...gameState.boardHistoryStr]
+                            });
                         }
                         ui.showValidMovesHighlights(toRow, toCol); 
                     }
