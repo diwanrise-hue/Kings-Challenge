@@ -1,5 +1,3 @@
-/**
- * gameAI.js
 import { gameEngine } from './gameEngine.js';
 
 // 🚀 هذا هو الـ Worker مكتوب كنص، ثم سيتم تحويله إلى Data URI آمن جداً
