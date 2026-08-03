@@ -127,13 +127,11 @@ const ai = {
         let targetPure = aiColor.split('-')[0];
         let oppPure = targetPure === 'white' ? 'black' : 'white';
         
-        // تحديد اتجاه اللعب
         let myDir = pieceDirection ? (pieceDirection[targetPure] !== undefined ? pieceDirection[targetPure] : (targetPure === 'black' ? 1 : -1)) : (targetPure === 'black' ? 1 : -1);
         
         let myBackRow = myDir === 1 ? 0 : 7;
         let oppBackRow = myDir === 1 ? 7 : 0;
 
-        // مصفوفات لتتبع مواقع القطع لاستخدامها في تكتيكات المطاردة النهائية
         let myDamaPositions = [];
         let oppPositions = [];
         let myPositions = [];
@@ -146,41 +144,30 @@ const ai = {
                 let isTarget = piece.startsWith(targetPure);
                 let isDama = piece.length > 5;
                 
-                // 1. القيمة الأساسية
                 let pieceValue = isDama ? 500 : 100;
-                
-                // 2. مكافأة الصف الخلفي (جدار الدفاع الأساسي)
                 let defenseBonus = (!isDama && r === myBackRow) ? 20 : 0;
-                
-                // 3. السيطرة على المنتصف مقابل أمان الحواف
                 let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 10 : 0;
                 let edgeBonus = (c === 0 || c === 7) ? 5 : 0; 
                 
-                // 4. مكافأة التقدم نحو الترقية (تصاعدي، وليس خطي)
                 let advanceBonus = 0;
                 if (!isDama) {
                     let stepsToPromotion = isTarget ? Math.abs(r - myBackRow) : Math.abs(r - oppBackRow);
-                    // الأوزان: 0, 1, 2, 3, 4, 5, 6 خطوات نحو الترقية
                     const advanceWeights = [0, 2, 5, 12, 25, 45, 75, 0]; 
                     advanceBonus = advanceWeights[stepsToPromotion] || 0;
                 }
 
-                // 5. الترابط الدفاعي (هل القطعة مدعومة من الخلف أو الجوانب؟)
                 let supportBonus = 0;
                 if (!isDama) {
                     let backR = r - myDir; 
                     let friendPrefix = isTarget ? targetPure : oppPure;
                     
-                    // مدعومة من الخلف (صعب أكلها من الأمام)
                     if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(friendPrefix)) {
                         supportBonus += 15; 
                     }
-                    // مدعومة جانبياً
                     if (c > 0 && board[r][c-1] && board[r][c-1].startsWith(friendPrefix)) supportBonus += 5;
                     if (c < 7 && board[r][c+1] && board[r][c+1].startsWith(friendPrefix)) supportBonus += 5;
                 }
 
-                // حساب القيمة الإجمالية للقطعة
                 let totalValue = pieceValue + advanceBonus + centerBonus + edgeBonus + defenseBonus + supportBonus;
 
                 if (isTarget) {
@@ -197,20 +184,17 @@ const ai = {
             }
         }
 
-        // 6. تكتيك المطاردة لإنهاء اللعبة (Endgame Chasing)
         if (myDamas > 0 && oppPieces <= 3 && oppPieces > 0) {
-            score += 300; // مكافأة التفوق المطلق
+            score += 300; 
             let distancePenalty = 0;
-            // حساب المسافة لمحاصرة ما تبقى من قطع الخصم
             for (let dama of myDamaPositions) {
                 for (let opp of oppPositions) {
                     distancePenalty += Math.abs(dama.r - opp.r) + Math.abs(dama.c - opp.c);
                 }
             }
-            score -= (distancePenalty * 3); // إجبار البوت على تقليل المسافة
+            score -= (distancePenalty * 3); 
         }
         
-        // 7. تكتيك الهروب إذا كان الخصم هو المتفوق
         if (oppDamas > 0 && myPieces <= 3 && myPieces > 0) {
             score -= 300;
             let distanceReward = 0;
@@ -219,10 +203,9 @@ const ai = {
                     distanceReward += Math.abs(oppDama.r - me.r) + Math.abs(oppDama.c - me.c);
                 }
             }
-            score += (distanceReward * 2); // مكافأة البوت إذا ابتعد وحافظ على مسافة آمنة
+            score += (distanceReward * 2); 
         }
 
-        // 8. حسم الفوز أو الخسارة مباشرة
         if (oppPieces === 0) score += 90000;
         if (myPieces === 0) score -= 90000;
 
@@ -298,6 +281,7 @@ const ai = {
 };
 
 self.onmessage = function (e) {
+    console.log("1. الـ Worker استلم البيانات بنجاح وبدأ العمل..."); 
     try {
         const { board, level, aiColor, pieceDirection } = e.data;
         const currentLevel = AI_LEVELS[level] || AI_LEVELS[3];
@@ -307,9 +291,14 @@ self.onmessage = function (e) {
         if (Math.random() < currentLevel.randomChance) {
             return self.postMessage({ move: moves[Math.floor(Math.random() * moves.length)] });
         }
+        
+        console.log("2. بدء خوارزمية Minimax..."); 
         let bestResult = ai.minimax(board, currentLevel.depth, aiColor, pieceDirection, currentLevel.maxTime);
+        console.log("3. انتهت خوارزمية Minimax بنجاح!"); 
+        
         self.postMessage({ move: bestResult.move || moves[0] });
     } catch (error) { 
+        console.error("🚨 خطأ داخلي في الـ Worker:", error); 
         self.postMessage({ error: true, details: error.message || error.toString() }); 
     }
 };
@@ -317,15 +306,14 @@ self.onmessage = function (e) {
 
 export const gameAI = {
     workerInstance: null,
-    workerFallbackTimer: null,
     nodesEvaluated: 0,
 
     getWorkerInstance() {
         if (!this.workerInstance) {
             try {
                 // 🚀 السحر يبدأ هنا: نستخدم Data URI بدلاً من Blob أو الملف الخارجي
-                // هذا يمنع أي حظر من متصفحات الهواتف لأن الملف يصبح كأنه صورة مضمنة
                 const dataUri = 'data:application/javascript;charset=utf-8,' + encodeURIComponent(inlineWorkerCode);
+                console.log("رابط الـ Worker المتولد: ", dataUri); 
                 this.workerInstance = new Worker(dataUri);
             } catch (error) {
                 console.warn("⚠️ فشل إنشاء الـ Worker بالـ Data URI، سيتم استخدام البديل...", error);
@@ -343,13 +331,11 @@ export const gameAI = {
         let targetPure = aiColor.split('-')[0];
         let oppPure = targetPure === 'white' ? 'black' : 'white';
         
-        // تحديد اتجاه اللعب
         let myDir = pieceDirection ? (pieceDirection[targetPure] !== undefined ? pieceDirection[targetPure] : (targetPure === 'black' ? 1 : -1)) : (targetPure === 'black' ? 1 : -1);
         
         let myBackRow = myDir === 1 ? 0 : 7;
         let oppBackRow = myDir === 1 ? 7 : 0;
 
-        // مصفوفات لتتبع مواقع القطع لاستخدامها في تكتيكات المطاردة النهائية
         let myDamaPositions = [];
         let oppPositions = [];
         let myPositions = [];
@@ -362,41 +348,30 @@ export const gameAI = {
                 let isTarget = piece.startsWith(targetPure);
                 let isDama = piece.length > 5;
                 
-                // 1. القيمة الأساسية
                 let pieceValue = isDama ? 500 : 100;
-                
-                // 2. مكافأة الصف الخلفي (جدار الدفاع الأساسي)
                 let defenseBonus = (!isDama && r === myBackRow) ? 20 : 0;
-                
-                // 3. السيطرة على المنتصف مقابل أمان الحواف
                 let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 10 : 0;
                 let edgeBonus = (c === 0 || c === 7) ? 5 : 0; 
                 
-                // 4. مكافأة التقدم نحو الترقية (تصاعدي، وليس خطي)
                 let advanceBonus = 0;
                 if (!isDama) {
                     let stepsToPromotion = isTarget ? Math.abs(r - myBackRow) : Math.abs(r - oppBackRow);
-                    // الأوزان: 0, 1, 2, 3, 4, 5, 6 خطوات نحو الترقية
                     const advanceWeights = [0, 2, 5, 12, 25, 45, 75, 0]; 
                     advanceBonus = advanceWeights[stepsToPromotion] || 0;
                 }
 
-                // 5. الترابط الدفاعي (هل القطعة مدعومة من الخلف أو الجوانب؟)
                 let supportBonus = 0;
                 if (!isDama) {
                     let backR = r - myDir; 
                     let friendPrefix = isTarget ? targetPure : oppPure;
                     
-                    // مدعومة من الخلف (صعب أكلها من الأمام)
                     if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(friendPrefix)) {
                         supportBonus += 15; 
                     }
-                    // مدعومة جانبياً
                     if (c > 0 && board[r][c-1] && board[r][c-1].startsWith(friendPrefix)) supportBonus += 5;
                     if (c < 7 && board[r][c+1] && board[r][c+1].startsWith(friendPrefix)) supportBonus += 5;
                 }
 
-                // حساب القيمة الإجمالية للقطعة
                 let totalValue = pieceValue + advanceBonus + centerBonus + edgeBonus + defenseBonus + supportBonus;
 
                 if (isTarget) {
@@ -413,20 +388,17 @@ export const gameAI = {
             }
         }
 
-        // 6. تكتيك المطاردة لإنهاء اللعبة (Endgame Chasing)
         if (myDamas > 0 && oppPieces <= 3 && oppPieces > 0) {
-            score += 300; // مكافأة التفوق المطلق
+            score += 300; 
             let distancePenalty = 0;
-            // حساب المسافة لمحاصرة ما تبقى من قطع الخصم
             for (let dama of myDamaPositions) {
                 for (let opp of oppPositions) {
                     distancePenalty += Math.abs(dama.r - opp.r) + Math.abs(dama.c - opp.c);
                 }
             }
-            score -= (distancePenalty * 3); // إجبار البوت على تقليل المسافة
+            score -= (distancePenalty * 3); 
         }
         
-        // 7. تكتيك الهروب إذا كان الخصم هو المتفوق
         if (oppDamas > 0 && myPieces <= 3 && myPieces > 0) {
             score -= 300;
             let distanceReward = 0;
@@ -435,10 +407,9 @@ export const gameAI = {
                     distanceReward += Math.abs(oppDama.r - me.r) + Math.abs(oppDama.c - me.c);
                 }
             }
-            score += (distanceReward * 2); // مكافأة البوت إذا ابتعد وحافظ على مسافة آمنة
+            score += (distanceReward * 2); 
         }
 
-        // 8. حسم الفوز أو الخسارة مباشرة
         if (oppPieces === 0) score += 90000;
         if (myPieces === 0) score -= 90000;
 
@@ -559,21 +530,7 @@ export const gameAI = {
                         return runFallback();
                     }
 
-                    clearTimeout(this.workerFallbackTimer);
-                    
-                    // إعطاء فرصة أخيرة (4 ثوانٍ)، ولكن بسبب تقنية Data URI الجديدة،
-                    // هذا المؤقت غالباً لن يتم استدعاؤه أبداً، لأن الـ Worker موجود بالفعل كـ "نص" داخل المتصفح.
-                    this.workerFallbackTimer = setTimeout(() => {
-                        console.warn("⏱️ تأخر الـ Worker جداً (أكثر من 4 ثوانٍ)، سيتم الانتقال للبديل الآمن للذاكرة...");
-                        if (this.workerInstance) {
-                            this.workerInstance.terminate();
-                            this.workerInstance = null;
-                        }
-                        runFallback();
-                    }, 4000); 
-
                     worker.onmessage = (e) => {
-                        clearTimeout(this.workerFallbackTimer);
                         if (e.data && e.data.error) {
                             console.error("❌ خطأ تنفيذي داخل الـ Worker:", e.data.details);
                             runFallback();
@@ -584,7 +541,6 @@ export const gameAI = {
 
                     worker.onerror = (err) => {
                         console.error("❌ خطأ في الـ Worker:", err.message || err);
-                        clearTimeout(this.workerFallbackTimer);
                         if (this.workerInstance) {
                             this.workerInstance.terminate();
                             this.workerInstance = null;
