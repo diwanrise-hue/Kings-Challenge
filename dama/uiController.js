@@ -19,8 +19,6 @@ export const sfx = {
     spinTick: new Audio('spin_tick.mp3') 
 };
 
-// 💡 تم حذف أكواد الـ Worker القديمة من هنا لأن gameAI.js أصبح هو المدير
-
 window.isMatchRunning = false;
 
 window.setAiLevel = function(level) {
@@ -831,7 +829,6 @@ export const ui = {
         }
     },
 
-    // 💡 دالة الذكاء الاصطناعي الجديدة باستخدام (Facade Pattern)
     async triggerComputerMove() {
         let levelStr = this.getVal('diff-quick-select', '3');
         let level = parseInt(levelStr) || 3; 
@@ -847,9 +844,15 @@ export const ui = {
         const gameId = gameState.gameId || Date.now();
         gameState.gameId = gameId; 
 
-        // 💡 استدعاء المدير ليقوم بجلب أفضل حركة (سواء من الـ Worker أو البديل)
+        // 🚀 بدء إنقاذ الذاكرة وتخفيف الضغط الرسومي عن الهاتف
+        if (window.optimizeMemoryForAI) window.optimizeMemoryForAI(true);
+
+        // انتظار استجابة الذكاء الاصطناعي
         let chosenMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, level, aiColor, gameState.pieceDirection);
         
+        // 🚀 البوت أنهى التفكير، نعيد الذاكرة الرسومية لحالتها الطبيعية
+        if (window.optimizeMemoryForAI) window.optimizeMemoryForAI(false);
+
         if (!chosenMove) chosenMove = moves[0]; // حماية أخيرة
         if (!Array.isArray(chosenMove)) chosenMove = [chosenMove];
 
@@ -1022,7 +1025,6 @@ export const ui = {
             }
         });
         
-        // 💡 استخدام t('exit') للزر بناءً على تصحيح المستخدم
         const eBtn = this.makeEl('button', 'modal-btn-exit', "flex:1;background:rgba(255,69,58,0.15);color:#ff453a;border:1px solid rgba(255,69,58,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(255,69,58,0.3);", t('exit'));
         eBtn.id = 'modal-btn-exit';
         eBtn.onmouseenter = () => eBtn.style.transform = 'scale(0.96)';
