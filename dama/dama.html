@@ -20,6 +20,9 @@
         }
         
         body { 
+            min-height: 100dvh;
+            box-sizing: border-box;
+            justify-content: center;
             padding-bottom: 120px !important; padding-top: 85px !important; 
             background-color: #2c3e50; 
             background-image: none;
@@ -30,7 +33,7 @@
         }
 
         #status-area {
-            width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 45px; margin-bottom: 10px;
+            width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 45px; margin-bottom: 20px;
         }
         
         /* ========================================== */
@@ -1012,7 +1015,6 @@
         </div>
     </div>
 
-    <!-- التعديل 4 و 6: تعديل z-index لطبقة الجوائز لتكون فوق سجل الشرف وتحديث النصوص -->
     <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 10000000 !important;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="closeAppModal('top3-rewards-modal')" style="left:15px; right:auto;">✕</button>
