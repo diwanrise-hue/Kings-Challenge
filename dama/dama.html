@@ -715,11 +715,11 @@
         </div>
     </div>
     
-    <!-- التعديل 1: زر المهام اليومية الجديد (تم نقله لليسار وتغيير مكانه) -->
-    <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 15px; left: 65px; z-index: 10001; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; padding: 6px 12px; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px); height: 44px; cursor: pointer;">
-        <span data-icon="dailyQuests" style="width: 20px; height: 20px; transform: scale(1);"></span>
-        <span style="font-size: 13px; font-weight: bold;">المهام</span>
+        <!-- زر المهام اليومية (أيقونة فقط أسفل البروفايل) -->
+    <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 85px; left: 25px; z-index: 10001; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px); cursor: pointer;">
+        <span data-icon="dailyQuests" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; transform: scale(1.1);"></span>
     </button>
+
 
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
     <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none;" data-icon="bagQuick"></button>
