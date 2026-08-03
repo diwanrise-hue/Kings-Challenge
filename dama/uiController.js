@@ -1,7 +1,6 @@
 /**
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات 
- * تم إصلاح مشكلة بقاء اللون الأخضر لزر "بدء" عند العودة للعبة أو الأونلاين.
  */
 
 import { gameState } from './gameState.js'; 
@@ -120,7 +119,7 @@ export const ui = {
         }
     },
 
-    showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null) {
+    showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null, onCancel = null) {
         title = title || t('alert_title');
         
         const msgContainer = this.getEl('custom-alert-message');
@@ -156,6 +155,9 @@ export const ui = {
 
         this.clickHandlers.set('custom-alert-cancel', () => {
             if (modalEl) modalEl.style.display = 'none';
+            if (onCancel) {
+                try { onCancel(); } catch(err) { console.error("Error executing cancel action:", err); }
+            }
         });
     },
 
@@ -289,15 +291,59 @@ export const ui = {
         setTimeout(() => {
             if(oppContainer) oppContainer.style.animation = "";
             if(cancelBtn) cancelBtn.style.display = 'block';
-            if(onComplete) onComplete();
+            
+            let profile = gameState.userProfile || {};
+            
+            if (profile.syncThemeOptOut === undefined && !window.hasPromptedThemeSync) {
+                window.hasPromptedThemeSync = true; 
+                
+                this.showCustomAlert(
+                    "هل ترغب في استخدام ساحة اللاعب الأعلى مستوى في المباريات القادمة؟\n(يمكنك تغيير ذلك من الإعدادات لاحقاً)",
+                    "مزامنة الساحة 🎨",
+                    () => {
+                        profile.syncThemeOptOut = false;
+                        this.saveAndSyncProfile(profile);
+                        
+                        const optCb = document.getElementById('sync-theme-optout');
+                        if(optCb) optCb.checked = false;
+                        
+                        if(onComplete) onComplete();
+                    },
+                    true,
+                    "لا، ساحتي فقط",
+                    "نعم، أوافق",
+                    () => {
+                        profile.syncThemeOptOut = true;
+                        this.saveAndSyncProfile(profile);
+                        
+                        const optCb = document.getElementById('sync-theme-optout');
+                        if(optCb) optCb.checked = true;
+                        
+                        if (window.applyTheme && gameState.userProfile) {
+                            window.applyTheme(gameState.userProfile);
+                        }
+                        if(onComplete) onComplete();
+                    }
+                );
+            } else {
+                if(onComplete) onComplete();
+            }
         }, 3000);
+    },
+
+    saveAndSyncProfile(profile) {
+        try {
+            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+            if (typeof socket !== 'undefined' && socket && socket.connected) {
+                socket.emit('syncProfile', profile); 
+            }
+        } catch(e) { console.error("Error syncing profile:", e); }
     },
 
     toggleOfflineInMatchUI(active) {
         if (gameState.isOnlineMode) return;
         window.isMatchRunning = active;
         
-        // 👉 التعديل هنا: السيطرة على كلاس إخفاء الزر الأخضر
         if (active) {
             document.body.classList.add('game-active');
         } else {
@@ -334,11 +380,13 @@ export const ui = {
         
         window.isMatchRunning = active;
         
-        // 👉 التعديل هنا: السيطرة على كلاس إخفاء الزر الأخضر في الأونلاين
         if (active) {
             document.body.classList.add('game-active');
+            document.body.classList.add('online-mode-active'); 
         } else {
             document.body.classList.remove('game-active');
+            document.body.classList.remove('online-mode-active');
+            window.hasPromptedThemeSync = false; 
         }
 
         const displays = {
@@ -1189,7 +1237,7 @@ export const ui = {
         if (!gameState.userProfile) return;
         
         if (gameState.userProfile) {
-            if (typeof window.applyTheme === 'function') {
+            if (typeof window.applyTheme === 'function' && !window.isMatchRunning) {
                 window.applyTheme(gameState.userProfile); 
             }
         }
