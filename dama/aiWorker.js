@@ -231,5 +231,8 @@ self.onmessage = function (e) {
         }
         let bestResult = ai.minimax(board, currentLevel.depth, aiColor, pieceDirection, currentLevel.maxTime);
         self.postMessage({ move: bestResult.move || moves[0] });
-    } catch (error) { self.postMessage({ error: true }); }
+    } catch (error) { 
+        // تمرير التفاصيل الدقيقة للخطأ إلى الواجهة
+        self.postMessage({ error: true, details: error.message || error.toString() }); 
+    }
 };
