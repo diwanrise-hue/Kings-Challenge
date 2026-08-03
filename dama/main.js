@@ -6,42 +6,6 @@ import { gameEngine } from './gameEngine.js';
 import { t } from './i18n.js';
 
 // ==========================================
-// 🚀 نظام إنقاذ الذاكرة (Performance Optimizer)
-// ==========================================
-window.optimizeMemoryForAI = function(isThinking) {
-    if (isThinking) {
-        // إيقاف التأثيرات الثقيلة مؤقتاً لتفريغ الذاكرة (VRAM) والسماح للبوت بالتفكير
-        document.body.classList.add('ai-thinking-mode');
-    } else {
-        // إعادة التأثيرات الجمالية بعد انتهاء البوت
-        document.body.classList.remove('ai-thinking-mode');
-    }
-};
-
-// حقن ستايل الأداء العالي في الـ HTML
-const perfStyle = document.createElement('style');
-perfStyle.innerHTML = `
-    /* عندما يفكر البوت، نلغي التأثيرات التي تملأ ذاكرة الهاتف */
-    body.ai-thinking-mode * {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        box-shadow: none !important;
-        filter: none !important;
-    }
-    
-    body.ai-thinking-mode .cell.highlight::before {
-        box-shadow: none !important;
-        animation: none !important;
-    }
-
-    body.ai-thinking-mode .piece {
-        box-shadow: none !important;
-        transition: none !important;
-    }
-`;
-document.head.appendChild(perfStyle);
-
-// ==========================================
 // 💡 الإصلاحات الذكية (الشاشة البيضاء، الرادار، البينج)
 // ==========================================
 
