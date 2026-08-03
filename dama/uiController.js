@@ -24,7 +24,9 @@ function getAiWorker() {
     try {
         if (window.Worker) {
             if (!aiWorkerInstance || typeof aiWorkerInstance.postMessage !== 'function') { 
-                aiWorkerInstance = new Worker('aiWorker.js');
+                // ✅ هذه الخدعة تجبر المتصفح على تحميل الملف الجديد دائماً وتتجاهل الذاكرة المخبأة
+aiWorkerInstance = new Worker('aiWorker.js?v=' + Date.now());
+
                 
                 // إضافة مستمع الأخطاء لسماع أي انهيار مفاجئ للـ Worker وتسجيله في أدوات المطور
                 aiWorkerInstance.onerror = function(error) {
