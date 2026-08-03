@@ -299,6 +299,13 @@ window.addEventListener('load', async () => {
         if (!profile) return;
         gameState.userProfile = { ...gameState.userProfile, ...profile };
         try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
+        
+        // 👉 تحديث حالة زر المزامنة في الإعدادات بناءً على بيانات السيرفر (إن وُجد)
+        if (gameState.userProfile.syncThemeOptOut !== undefined) {
+            const optCb = document.getElementById('sync-theme-optout');
+            if (optCb) optCb.checked = gameState.userProfile.syncThemeOptOut;
+        }
+
         if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(gameState.userProfile); }
         ui.updateProfileUI();
         if (profile.nextFreeSpin) { updateSpinTimerDisplay(profile.nextFreeSpin); }
