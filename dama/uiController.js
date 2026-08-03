@@ -1,4 +1,9 @@
-// uiController.js
+/**
+ * uiController.js
+ * إدارة الواجهة الرسومية والمؤثرات 
+ * متوافق مع التعديل 7 (إزالة الحلقة الدائرية للخبرة) والتعديل 10.
+ */
+
 import { gameState } from './gameState.js'; 
 import { saveGameState, restoreOfflineHintSystem } from './main.js';
 import { gameEngine } from './gameEngine.js';
@@ -61,7 +66,7 @@ export const ui = {
             const playPromise = audio.play();
             
             if (playPromise !== undefined) { 
-                playPromise.catch(() => { /* تم تجاهل الأخطاء الصامتة */ }); 
+                playPromise.catch(() => { }); 
             }
         } catch(e) {}
     },
@@ -837,39 +842,30 @@ export const ui = {
         let moves = gameEngine.generateAllTurnMoves(aiColor, gameState.virtualBoard);
         if (moves.length === 0) return;
 
-        // إظهار نقاط التفكير أولاً
         const tInd = this.getEl('turn-indicator');
         if (tInd) tInd.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
 
         const gameId = gameState.gameId || Date.now();
         gameState.gameId = gameId; 
 
-        // 🚀 بدء إنقاذ الذاكرة وتخفيف الضغط الرسومي عن الهاتف
         if (window.optimizeMemoryForAI) window.optimizeMemoryForAI(true);
 
-        // ⏱️ 1. تسجيل وقت بدء التفكير
         let startThinkingTime = Date.now();
 
-        // انتظار استجابة الذكاء الاصطناعي (أصبحت تتم في أجزاء من الألف من الثانية)
         let chosenMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, level, aiColor, gameState.pieceDirection);
         
-        // 🧠 2. إضافة الطابع البشري (Human Touch)
-        // نحسب كم استغرق البوت من وقت فعلي، ونجبره على الانتظار ليقارب وقت اللاعب البشري
         let timeSpent = Date.now() - startThinkingTime;
-        let humanDelay = Math.floor(Math.random() * 1500) + 1000; // وقت عشوائي بين ثانية (1000ms) وثانيتين ونصف (2500ms)
+        let humanDelay = Math.floor(Math.random() * 1500) + 1000; 
         
-        // إذا كان البوت سريعاً جداً (أسرع من الوقت البشري)، نجعله يتوقف مؤقتاً ليتظاهر بالتفكير
         if (timeSpent < humanDelay) {
             await new Promise(resolve => setTimeout(resolve, humanDelay - timeSpent));
         }
 
-        // 🚀 البوت أنهى التفكير البشري، نعيد الذاكرة الرسومية لحالتها الطبيعية
         if (window.optimizeMemoryForAI) window.optimizeMemoryForAI(false);
 
-        if (!chosenMove) chosenMove = moves[0]; // حماية أخيرة
+        if (!chosenMove) chosenMove = moves[0]; 
         if (!Array.isArray(chosenMove)) chosenMove = [chosenMove];
 
-        // --- كود تحريك القطع ---
         const self = this;
         let stepIdx = 0;
         let startRow = chosenMove[0].fromR;
@@ -1204,16 +1200,13 @@ export const ui = {
         }
 
         const igpLevel = this.getEl('igp-level');
-        const igpRing = this.getEl('igp-xp-ring');
         const igpRank = this.getEl('igp-rank-title');
         const igpXpFill = this.getEl('igp-xp-fill');
         const igpXpText = this.getEl('igp-xp-text');
 
         if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
         
-        if (igpRing) {
-            igpRing.style.background = `conic-gradient(#34c759 ${lvlInfo.percentage}%, rgba(255,255,255,0.1) ${lvlInfo.percentage}%)`;
-        }
+        // 🌟 التعديل 7: إزالة كود حلقة الـ XP الدائرية من هنا لمنع خطأ undefined
 
         if (igpRank) igpRank.innerHTML = `الرتبة: ${lvlInfo.rankIcon} ${lvlInfo.rank} | ${lvlInfo.title}`;
         if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
@@ -1664,27 +1657,5 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         let defaultProfile = { id: '#00000', name: t('badge_you'), avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
         if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(defaultProfile); }
-    }
-});
-
-document.addEventListener('click', (e) => {
-    if (e.target.id === 'spin-free-btn' || e.target.id === 'spin-paid-btn') {
-        const btn = e.target;
-        const isFree = btn.id === 'spin-free-btn';
-        
-        setTimeout(() => {
-            if (!window.isSpinning) {
-                btn.innerText = isFree ? (window.t ? window.t('spin_free_btn') || "لفة مجانية 🆓" : "لفة مجانية 🆓") : (window.t ? window.t('spin_paid_btn') || "لفة إضافية (200 🪙)" : "لفة إضافية (200 🪙)");
-                btn.disabled = false;
-                btn.style.pointerEvents = 'auto';
-                btn.style.opacity = '1';
-            }
-        }, 5000);
-
-        setTimeout(() => {
-            if (window.isSpinning && window.questsManager) {
-                window.questsManager.updateProgress('spin');
-            }
-        }, 500);
     }
 });
