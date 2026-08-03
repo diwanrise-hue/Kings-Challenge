@@ -19,7 +19,32 @@ export const sfx = {
     spinTick: new Audio('spin_tick.mp3') 
 };
 
-// 💡 تم حذف أكواد الـ Worker القديمة من هنا لأن gameAI.js أصبح هو المدير
+let aiWorkerInstance = null;
+function getAiWorker() {
+    try {
+        if (window.Worker) {
+            if (!aiWorkerInstance || typeof aiWorkerInstance.postMessage !== 'function') { 
+                aiWorkerInstance = new Worker('aiWorker.js');
+                
+                // إضافة مستمع الأخطاء لسماع أي انهيار مفاجئ للـ Worker وتسجيله في أدوات المطور
+                aiWorkerInstance.onerror = function(error) {
+                    console.error("🚨 [uiController] خطأ فادح: aiWorker.js تعطل أو تم حظره!", {
+                        message: error.message,
+                        filename: error.filename,
+                        lineno: error.lineno,
+                        colno: error.colno
+                    });
+                    window.damaWorkerBroken = true;
+                };
+            }
+            return aiWorkerInstance;
+        }
+    } catch (error) {
+        console.error("⚠️ [uiController] فشل إنشاء aiWorker.js. قد يكون هناك حظر بسبب سياسات المتصفح (CORS) أو مسار الملف خاطئ:", error);
+        window.damaWorkerBroken = true;
+    }
+    return null;
+}
 
 window.isMatchRunning = false;
 
@@ -831,90 +856,158 @@ export const ui = {
         }
     },
 
-    // 💡 دالة الذكاء الاصطناعي الجديدة باستخدام (Facade Pattern)
-    async triggerComputerMove() {
-        let levelStr = this.getVal('diff-quick-select', '3');
-        let level = parseInt(levelStr) || 3; 
+    triggerComputerMove() {
+        let level = parseInt(this.getVal('diff-quick-select', '3')) || 3; 
         let aiColor = gameState.playerColor === 'white' ? 'black' : 'white';
+        let depth = [1, 2, 3, 4, 5, 6, 6, 7, 8][Math.max(0, Math.min(level - 1, 8))];
+        let randomChance = [0.6, 0.3, 0.1, 0, 0, 0, 0, 0, 0][Math.max(0, Math.min(level - 1, 8))];
         
         let moves = gameEngine.generateAllTurnMoves(aiColor, gameState.virtualBoard);
         if (moves.length === 0) return;
 
-        // إظهار نقاط التفكير أولاً
-        const tInd = this.getEl('turn-indicator');
-        if (tInd) tInd.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
-
+        const self = this;
         const gameId = gameState.gameId || Date.now();
         gameState.gameId = gameId; 
 
-        // 💡 استدعاء المدير ليقوم بجلب أفضل حركة (سواء من الـ Worker أو البديل)
-        let chosenMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, level, aiColor, gameState.pieceDirection);
-        
-        if (!chosenMove) chosenMove = moves[0]; // حماية أخيرة
-        if (!Array.isArray(chosenMove)) chosenMove = [chosenMove];
+        // 🔥 توقيتات الأمان (Fallback Timer) السريعة
+        let fallbackWaitTime = 500; 
+        if (level === 4) fallbackWaitTime = 1000;
+        else if (level === 5) fallbackWaitTime = 1500;
+        else if (level === 6) fallbackWaitTime = 6000;
+        else if (level >= 7) fallbackWaitTime = 8000;
 
-        // --- كود تحريك القطع ---
-        const self = this;
-        let stepIdx = 0;
-        let startRow = chosenMove[0].fromR;
-        let startCol = chosenMove[0].fromC;
-
-        function executeStep() {
-            if (gameState.gameId !== gameId) return; 
-            if (gameState.currentTurn !== aiColor || gameState.isOnlineMode) return;
-
-            let step = chosenMove[stepIdx];
-            if (!step) return;
-
-            let board = self.getEl('board');
-            if (!board) return;
-            
-            let fCell = board.querySelector(`[data-row="${step.fromR}"][data-col="${step.fromC}"]`);
-            let tCell = board.querySelector(`[data-row="${step.toR}"][data-col="${step.toC}"]`);
-            
-            if (step.midR !== null && step.midC !== null && step.midR !== undefined) {
-                self.playSound(gameState.virtualBoard[step.midR][step.midC]?.includes('dama') ? sfx.kingDied : sfx.piecesDied);
-                let midCell = board.querySelector(`[data-row="${step.midR}"][data-col="${step.midC}"]`);
-                if (midCell) midCell.innerHTML = '';
-                gameState.movesWithoutProgress = 0;
-                gameState.boardHistoryStr = [];
+        const processMove = (chosenMove) => {
+            if (!Array.isArray(chosenMove)) {
+                chosenMove = [chosenMove];
             }
-            
-            if (tCell && fCell?.children.length > 0) tCell.appendChild(fCell.children[0]);
-            
-            self.playSound(sfx.move);
-            stepIdx++;
-            gameState.botMoveCount++;
-            
-            if (stepIdx >= chosenMove.length) {
-                let last = chosenMove[chosenMove.length - 1];
-                let finalCell = board.querySelector(`[data-row="${last.toR}"][data-col="${last.toC}"]`);
-                let isPromotion = false;
+
+            let stepIdx = 0;
+            let startRow = chosenMove[0].fromR;
+            let startCol = chosenMove[0].fromC;
+
+            function executeStep() {
+                if (gameState.gameId !== gameId) return; 
+                if (gameState.currentTurn !== aiColor || gameState.isOnlineMode) return;
+
+                let step = chosenMove[stepIdx];
+                if (!step) return;
+
+                let board = self.getEl('board');
+                if (!board) return;
                 
-                if (finalCell?.children.length > 0) {
-                    const isWhitePiece = finalCell.children[0].classList.contains('white');
-                    let realPromoRow = gameState.pieceDirection[isWhitePiece ? 'white' : 'black'] === 1 ? 7 : 0;
-                    if (last.toR === realPromoRow && !finalCell.children[0].classList.contains('dama')) {
-                        finalCell.children[0].classList.add('dama');
-                        self.playSound(sfx.kingCreated);
-                        isPromotion = true;
-                    }
+                let fCell = board.querySelector(`[data-row="${step.fromR}"][data-col="${step.fromC}"]`);
+                let tCell = board.querySelector(`[data-row="${step.toR}"][data-col="${step.toC}"]`);
+                
+                if (step.midR !== null && step.midC !== null && step.midR !== undefined) {
+                    self.playSound(gameState.virtualBoard[step.midR][step.midC]?.includes('dama') ? sfx.kingDied : sfx.piecesDied);
+                    let midCell = board.querySelector(`[data-row="${step.midR}"][data-col="${step.midC}"]`);
+                    if (midCell) midCell.innerHTML = '';
+                    
+                    gameState.movesWithoutProgress = 0;
+                    gameState.boardHistoryStr = [];
                 }
                 
-                if (isPromotion) { gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = []; } 
-                else if (chosenMove.some(s => s.midR === null)) { gameState.movesWithoutProgress++; gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard)); }
+                if (tCell && fCell?.children.length > 0) {
+                    tCell.appendChild(fCell.children[0]);
+                }
+                
+                self.playSound(sfx.move);
+                stepIdx++;
+                gameState.botMoveCount++;
+                
+                if (stepIdx >= chosenMove.length) {
+                    let last = chosenMove[chosenMove.length - 1];
+                    let finalCell = board.querySelector(`[data-row="${last.toR}"][data-col="${last.toC}"]`);
+                    let isPromotion = false;
+                    
+                    if (finalCell?.children.length > 0) {
+                        const isWhitePiece = finalCell.children[0].classList.contains('white');
+                        let realPromoRow = gameState.pieceDirection[isWhitePiece ? 'white' : 'black'] === 1 ? 7 : 0;
+                        if (last.toR === realPromoRow && !finalCell.children[0].classList.contains('dama')) {
+                            finalCell.children[0].classList.add('dama');
+                            self.playSound(sfx.kingCreated);
+                            isPromotion = true;
+                        }
+                    }
+                    
+                    if (isPromotion) {
+                        gameState.movesWithoutProgress = 0;
+                        gameState.boardHistoryStr = [];
+                    } else if (chosenMove.some(s => s.midR === null)) { 
+                        gameState.movesWithoutProgress++;
+                        gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                    }
 
-                self.highlightMove({ r: startRow, c: startCol }, { r: last.toR, c: last.toC });
-                gameState.currentTurn = gameState.playerColor;
-                saveGameState();
-                self.startTurn();
-                return;
+                    self.highlightMove({ r: startRow, c: startCol }, { r: last.toR, c: last.toC });
+                    gameState.currentTurn = gameState.playerColor;
+                    saveGameState();
+                    self.startTurn();
+                    return;
+                }
+                
+                let delay = (gameState.isOnlineMode || step.midR !== null) ? 400 : (gameState.botMoveCount < 7 ? 600 : Math.floor(Math.random() * 500) + 400);
+                setTimeout(executeStep, delay);
             }
+            executeStep();
+        };
+
+        if (Math.random() < randomChance) {
+            let chosenMove = moves[Math.floor(Math.random() * moves.length)];
+            processMove(chosenMove);
+        } else {
+            let workerIsBroken = window.damaWorkerBroken || false;
+            const worker = getAiWorker();
             
-            let delay = (gameState.isOnlineMode || step.midR !== null) ? 400 : (gameState.botMoveCount < 7 ? 600 : Math.floor(Math.random() * 500) + 400);
-            setTimeout(executeStep, delay);
+            if (worker && !workerIsBroken) {
+                let fallbackSafetyTimer = setTimeout(() => {
+                    // رسالة تحذير مخصصة للـ Developer Tools في حال لم يرسل Worker أي استجابة وتأخر في التفكير
+                    console.warn("⚠️ [uiController] aiWorker.js لم يرد ضمن الوقت المحدد (تجاوز Timeout)! تم تفعيل الحماية الاحتياطية لتجنب تجميد اللعبة.");
+                    window.damaWorkerBroken = true; 
+                    worker.onmessage = null;
+                    worker.onerror = null;
+                    
+                    let safeDepth = depth > 4 ? 4 : depth; 
+                    let syncMove = gameAI.minimax(gameState.virtualBoard, safeDepth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
+                    processMove(syncMove);
+                }, fallbackWaitTime + 500);
+
+                worker.onmessage = function(e) {
+                    // تسجيل أي رسالة خطأ تُرسل من داخل aiWorker.js صراحةً
+                    if (e.data && e.data.error) {
+                        console.error("🚨 [uiController] aiWorker.js أرسل رسالة خطأ داخلية أثناء حساب الحركة:", e.data.error);
+                    }
+                    clearTimeout(fallbackSafetyTimer); 
+                    worker.onmessage = null; 
+                    worker.onerror = null;
+                    let chosenMove = e.data.move || moves[0];
+                    processMove(chosenMove);
+                };
+                
+                worker.onerror = function(err) {
+                    // الإمساك بالأخطاء المباشرة وإظهارها في الـ Console
+                    console.error("🚨 [uiController] aiWorker.js واجه خطأ فادحاً أثناء تشغيل الخوارزمية (تعطل/انهيار):", err.message || err);
+                    window.damaWorkerBroken = true; 
+                    clearTimeout(fallbackSafetyTimer);
+                    worker.onmessage = null;
+                    worker.onerror = null;
+                    let safeDepth = depth > 4 ? 4 : depth;
+                    let syncMove = gameAI.minimax(gameState.virtualBoard, safeDepth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
+                    processMove(syncMove);
+                };
+                
+                worker.postMessage({
+                    board: gameState.virtualBoard,
+                    depth: depth,
+                    level: level, 
+                    aiColor: aiColor,
+                    pieceDirection: gameState.pieceDirection 
+                });
+            } else {
+                let safeDepth = depth > 4 ? 4 : depth;
+                let chosenMove = gameAI.minimax(gameState.virtualBoard, safeDepth, undefined, undefined, true, aiColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || moves[0];
+                processMove(chosenMove);
+            }
         }
-        executeStep();
     },
 
     showOnlineResultsModal(winnerColor) {
@@ -1022,7 +1115,6 @@ export const ui = {
             }
         });
         
-        // 💡 استخدام t('exit') للزر بناءً على تصحيح المستخدم
         const eBtn = this.makeEl('button', 'modal-btn-exit', "flex:1;background:rgba(255,69,58,0.15);color:#ff453a;border:1px solid rgba(255,69,58,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(255,69,58,0.3);", t('exit'));
         eBtn.id = 'modal-btn-exit';
         eBtn.onmouseenter = () => eBtn.style.transform = 'scale(0.96)';
@@ -1408,6 +1500,7 @@ ui.onClick('undo-btn', () => {
     }
 });
 
+// 👈 استدعاء نظام التلميحات المستقل من هنا
 ui.onClick('hint-btn', () => {
     hintSystem.requestHint();
 });
