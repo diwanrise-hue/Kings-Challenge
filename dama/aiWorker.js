@@ -1,15 +1,14 @@
-// aiWorker.js - العقل المدبر المعزول تماماً
-
+// aiWorker.js - ملف الذكاء الاصطناعي المنفصل لتخطي حماية المتصفحات
 const AI_LEVELS = {
-    1: { depth: 1, randomChance: 0.60, maxTime: 200,   name: "مبتدئ جداً" },
-    2: { depth: 2, randomChance: 0.30, maxTime: 400,   name: "مبتدئ" },
-    3: { depth: 3, randomChance: 0.10, maxTime: 550,   name: "سهل" },
-    4: { depth: 4, randomChance: 0.00, maxTime: 1000,  name: "متوسط" },
-    5: { depth: 5, randomChance: 0.00, maxTime: 1400,  name: "صعب" },
-    6: { depth: 6, randomChance: 0.00, maxTime: 4500,  name: "محترف" },
-    7: { depth: 6, randomChance: 0.00, maxTime: 3500,  name: "أستاذ (تلميحات)" },
-    8: { depth: 7, randomChance: 0.00, maxTime: 6500,  name: "جراند ماستر" },
-    9: { depth: 8, randomChance: 0.00, maxTime: 7500,  name: "الزعيم" }
+    1: { depth: 1, randomChance: 0.60, maxTime: 100,  name: "مبتدئ جداً" },
+    2: { depth: 2, randomChance: 0.30, maxTime: 200,  name: "مبتدئ" },
+    3: { depth: 3, randomChance: 0.10, maxTime: 350,  name: "سهل" },
+    4: { depth: 3, randomChance: 0.00, maxTime: 500,  name: "متوسط" },
+    5: { depth: 4, randomChance: 0.00, maxTime: 800,  name: "صعب" },
+    6: { depth: 4, randomChance: 0.00, maxTime: 1000, name: "محترف" },
+    7: { depth: 5, randomChance: 0.00, maxTime: 1200, name: "أستاذ" },
+    8: { depth: 5, randomChance: 0.00, maxTime: 1500, name: "جراند ماستر" },
+    9: { depth: 5, randomChance: 0.00, maxTime: 2000, name: "الزعيم" }
 };
 
 const engine = {
@@ -119,9 +118,9 @@ const ai = {
     nodesEvaluated: 0,
     evaluateBoard(board, aiColor, pieceDirection) {
         let score = 0; let myPieces = 0, oppPieces = 0; let myDamas = 0, oppDamas = 0;
-        let targetPure = aiColor.split('-')[0]; let oppPure = targetPure === 'white' ? 'black' : 'white';
+        let targetPure = aiColor.split('-')[0];
         let myDir = pieceDirection ? (pieceDirection[targetPure] !== undefined ? pieceDirection[targetPure] : (targetPure === 'black' ? 1 : -1)) : (targetPure === 'black' ? 1 : -1);
-        let myBackRow = myDir === 1 ? 0 : 7; let oppBackRow = myDir === 1 ? 7 : 0;
+        let myBackRow = myDir === 1 ? 0 : 7;
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 let piece = board[r][c];
@@ -130,17 +129,8 @@ const ai = {
                 let pieceValue = isDama ? 500 : 100;
                 let defenseBonus = (!isDama && r === myBackRow && isTarget) ? 30 : 0;
                 let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 10 : 0;
-                let advanceBonus = 0;
-                if (!isDama) { advanceBonus = isTarget ? Math.abs(r - myBackRow) * 5 : Math.abs(r - oppBackRow) * 5; }
-                let protectionBonus = 0;
-                if (!isDama) {
-                    let pieceDir = isTarget ? myDir : -myDir; let behindR = r - pieceDir;
-                    if (behindR >= 0 && behindR < 8 && c >= 0 && c < 8 && board[behindR][c]) {
-                        let pieceBehind = board[behindR][c];
-                        if ((isTarget && pieceBehind.startsWith(targetPure)) || (!isTarget && pieceBehind.startsWith(oppPure))) { protectionBonus = 15; }
-                    }
-                }
-                let totalValue = pieceValue + advanceBonus + centerBonus + defenseBonus + protectionBonus;
+                let advanceBonus = !isDama ? (isTarget ? Math.abs(r - myBackRow) * 5 : Math.abs(r - (myDir === 1 ? 7 : 0)) * 5) : 0;
+                let totalValue = pieceValue + advanceBonus + centerBonus + defenseBonus;
                 if (isTarget) { score += totalValue; myPieces++; if (isDama) myDamas++; } else { score -= totalValue; oppPieces++; if (isDama) oppDamas++; }
             }
         }
@@ -149,11 +139,9 @@ const ai = {
         return score;
     },
     scoreMove(path, aiColor, pieceDirection) {
-        let score = 0; let pureColor = aiColor.split('-')[0];
+        let pureColor = aiColor.split('-')[0];
         let dir = pieceDirection ? (pieceDirection[pureColor] !== undefined ? pieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1)) : (pureColor === 'black' ? 1 : -1);
-        score += path.filter(step => step.midR !== null).length * 1000;
-        let lastStep = path[path.length - 1]; if (lastStep.toR === ((dir === 1) ? 7 : 0)) score += 500;
-        return score;
+        return (path.filter(step => step.midR !== null).length * 1000) + (path[path.length - 1].toR === (dir === 1 ? 7 : 0) ? 500 : 0);
     },
     orderMoves(moves, aiColor, pieceDirection) { return moves.sort((a, b) => this.scoreMove(b, aiColor, pieceDirection) - this.scoreMove(a, aiColor, pieceDirection)); },
     doMove(board, path, pieceDirection) {
@@ -172,7 +160,7 @@ const ai = {
     },
     coreMinimax(board, depth, alpha, beta, maximizingPlayer, aiColor, pieceDirection, startTime, maxTime) {
         this.nodesEvaluated++;
-        if (this.nodesEvaluated % 500 === 0 && Date.now() - startTime > maxTime) return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
+        if (this.nodesEvaluated % 10 === 0 && Date.now() - startTime > maxTime) return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
         if (depth <= 0) return { score: this.evaluateBoard(board, aiColor, pieceDirection) };
         let currentColor = maximizingPlayer ? aiColor : (aiColor === 'white' ? 'black' : 'white');
         let moves = engine.generateAllTurnMoves(currentColor, board);
@@ -209,7 +197,7 @@ const ai = {
         if (moves.length === 0) return { move: null };
         if (moves.length === 1) return { move: moves[0] };
         let bestResult = { move: moves[0] };
-        for (let d = 1; d <= Math.min(maxAllowedDepth, 8); d++) {
+        for (let d = 1; d <= maxAllowedDepth; d++) {
             let result = this.coreMinimax(board, d, -Infinity, Infinity, true, aiColor, pieceDirection, startTime, maxTime);
             if (result.timeOut) break;
             bestResult = result;
@@ -232,7 +220,6 @@ self.onmessage = function (e) {
         let bestResult = ai.minimax(board, currentLevel.depth, aiColor, pieceDirection, currentLevel.maxTime);
         self.postMessage({ move: bestResult.move || moves[0] });
     } catch (error) { 
-        // تمرير التفاصيل الدقيقة للخطأ إلى الواجهة
         self.postMessage({ error: true, details: error.message || error.toString() }); 
     }
 };
