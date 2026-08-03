@@ -120,7 +120,8 @@
         /* الشريط السفلي و الأزرار المربعة            */
         /* ========================================== */
         .control-panel { 
-            position: fixed; bottom: 0 !important; left: 0; width: 100%; 
+            position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
+            width: 100%; 
             background: rgba(40, 42, 50, 0.7) !important; 
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -204,7 +205,7 @@
         .radio-status-dot {
             position: absolute; top: -2px; right: -2px; width: 12px; height: 12px;
             border-radius: 50%; border: 2px solid #282a32; background-color: transparent;
-            box-shadow: none; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 10;
+            box-shadow: none; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 100;
         }
         .radio-status-dot.active {
             opacity: 1; visibility: visible; background-color: #30d158; border-color: #282a32;
@@ -372,7 +373,7 @@
         #bag-quick-btn { font-size: 20px; }
 
         /* القائمة الجانبية */
-        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .side-menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .side-menu-overlay.open { opacity: 1; visibility: visible; }
         .side-menu-panel { position: fixed; top: 0; width: 280px; height: 100%; background: rgba(30, 32, 40, 0.95); backdrop-filter: blur(15px); box-shadow: 0 0 30px rgba(0,0,0,0.5); z-index: 10000000; display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; }
         html[dir="rtl"] .side-menu-panel { right: -280px; left: auto; border-left: 1px solid rgba(255, 255, 255, 0.1); border-right: none; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
@@ -408,8 +409,12 @@
         .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
         @keyframes thinkPulse { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
-        /* النوافذ الكبيرة */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        /* النوافذ الكبيرة (تم تعديلها لمنع القفز وتغطية الشاشة بالكامل) */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        
+        /* فئة جديدة للشاشة الكاملة الحقيقية */
+        .fullscreen-modal-container { padding: 0 !important; }
+        
         #custom-alert-modal { z-index: 99999999 !important; }
         #purchase-modal { z-index: 20000001 !important; }
         #lucky-spin-modal { z-index: 20000002 !important; }
@@ -421,8 +426,8 @@
             width: 90vw !important; max-width: 600px !important; height: 80vh !important; max-height: 800px !important; padding-top: 35px; display: flex; flex-direction: column;
         }
         
-        .leaderboard-full-screen { width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; padding: 60px 20px 20px 20px !important; background-image: url('سجل.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; }
-        .room-full-screen { width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; padding: 60px 20px 20px 20px !important; background-image: url('روم.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; }
+        .leaderboard-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; padding: 60px 20px 20px 20px !important; background-image: url('سجل.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; }
+        .room-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; padding: 60px 20px 20px 20px !important; background-image: url('روم.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; }
 
         .settings-card::-webkit-scrollbar { display: none; }
         @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
@@ -710,8 +715,8 @@
         </div>
     </div>
     
-    <!-- زر المهام اليومية الجديد (يختفي وقت الأونلاين عبر CSS) -->
-    <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 80px; right: 15px; z-index: 10000; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; padding: 6px 12px; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px);">
+    <!-- التعديل 1: زر المهام اليومية الجديد (تم نقله لليسار وتغيير مكانه) -->
+    <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 15px; left: 65px; z-index: 10001; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; padding: 6px 12px; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px); height: 44px; cursor: pointer;">
         <span data-icon="dailyQuests" style="width: 20px; height: 20px; transform: scale(1);"></span>
         <span style="font-size: 13px; font-weight: bold;">المهام</span>
     </button>
@@ -919,7 +924,6 @@
         </div>
     </div>
 
-    <!-- نافذة إذن المايكروفون (التعديل الثامن) -->
     <div id="mic-request-modal" class="modal-overlay" style="z-index: 10000000;">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 style="color: #87ceeb; margin-bottom: 10px;">طلب محادثة صوتية 🎤</h3>
@@ -936,7 +940,6 @@
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             <h3 id="igp-title" style="margin-bottom: 15px;">الملف الشخصي</h3>
             <div class="avatar-wrapper" style="width: 80px; height: 80px; margin-bottom: 20px;">
-                <!-- التعديل السابع: تمت إزالة حلقة الخبرة حول الصورة -->
                 <div class="profile-avatar-capsule" id="igp-avatar" style="border-width: 3px;"></div>
                 <div class="level-badge-small" id="igp-level" style="font-size: 12px; padding: 3px 10px; bottom: -12px;">Lv.1</div>
             </div>
@@ -995,8 +998,7 @@
         </div>
     </div>
 
-    <!-- التعديل الخامس: لوحة الشرف شاشة كاملة مع زر الجوائز -->
-    <div id="leaderboard-modal" class="modal-overlay" style="z-index: 9999999;">
+    <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 9999999;">
         <div class="settings-card leaderboard-full-screen" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
             <button id="lb-rewards-btn" style="position: absolute; top: 20px; left: 70px; background: rgba(255,215,0,0.15); border: 1px solid #ffd700; border-radius: 12px; padding: 6px 12px; color: #ffd700; font-weight: bold; z-index: 100000; cursor: pointer;" onclick="openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
@@ -1010,15 +1012,15 @@
         </div>
     </div>
 
-    <!-- نافذة استعراض الجوائز -->
-    <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 1000001;">
+    <!-- التعديل 4 و 6: تعديل z-index لطبقة الجوائز لتكون فوق سجل الشرف وتحديث النصوص -->
+    <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 10000000 !important;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="closeAppModal('top3-rewards-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color:#ffd700;">جوائز لوحة الشرف 🎁</h3>
-            <ul style="color: white; text-align: right; line-height: 2.2; font-size: 15px; padding: 0 10px; list-style: none;">
-                <li>🥇 <span style="color:#ffd700; font-weight:bold;">المركز الأول:</span> 50,000 🪙 + إطار ذهبي</li>
-                <li>🥈 <span style="color:#c0c0c0; font-weight:bold;">المركز الثاني:</span> 25,000 🪙 + إطار فضي</li>
-                <li>🥉 <span style="color:#cd7f32; font-weight:bold;">المركز الثالث:</span> 10,000 🪙 + إطار برونزي</li>
+            <ul style="color: white; text-align: right; line-height: 2.2; font-size: 14px; padding: 0 10px; list-style: none;">
+                <li>🥇 <span style="color:#ffd700; font-weight:bold;">المركز الأول:</span> 35,000 🪙 + خصم 25% + 15 💡</li>
+                <li>🥈 <span style="color:#c0c0c0; font-weight:bold;">المركز الثاني:</span> 20,000 🪙 + خصم 10% + 10 💡</li>
+                <li>🥉 <span style="color:#cd7f32; font-weight:bold;">المركز الثالث:</span> 15,000 🪙 + خصم 5% + 10 💡</li>
             </ul>
             <p style="color: #a1a1aa; font-size: 12px; margin-top: 15px;">يتم توزيع الجوائز تلقائياً نهاية كل موسم.</p>
         </div>
@@ -1078,8 +1080,7 @@
         </div>
     </div>
 
-    <!-- التعديل التاسع: ردهة الرومات شاشة كاملة وعرض الرومات النشطة -->
-    <div id="online-modal" class="modal-overlay" style="z-index: 1000000;">
+    <div id="online-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 1000000;">
         <div class="settings-card room-full-screen" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('online-modal')" style="left: 20px; right: auto; top: 20px; background: rgba(0,0,0,0.5) !important;">✕</button>
             <h3 style="font-size: 26px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">الغرف الخاصة 🚪</h3>
@@ -1090,14 +1091,12 @@
 
             <button onclick="openAppModal('create-room-modal')" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; height: 55px; font-size: 18px; font-weight: bold; border: none !important; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important;">+ إنشاء غرفة جديدة</button>
             
-            <!-- حقول مخفية للربط مع الأكواد القديمة -->
             <input type="hidden" id="online-room-input">
             <input type="hidden" id="online-password-input">
             <button id="online-join-btn" style="display: none;"></button>
         </div>
     </div>
 
-    <!-- نافذة مخصصة لإنشاء الغرفة -->
     <div id="create-room-modal" class="modal-overlay" style="z-index: 1000001;">
          <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="closeAppModal('create-room-modal')" style="left:15px; right:auto;">✕</button>
@@ -1151,7 +1150,6 @@
             <h3 id="set-title">الإعدادات</h3>
             <div class="audio-controls"><label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label><input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7"></div>
             
-            <!-- التعديل العاشر: تفعيل/تعطيل استخدام ساحة اللاعب الأعلى مستوى -->
             <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; background: rgba(255,255,255,0.04); padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                 <label for="sync-theme-optout" style="color: #e0e0e0; font-size: 13px; font-weight: 500; text-align: right; line-height: 1.4;">عدم استخدام شكل الساحة للاعب الأعلى مستوى (أونلاين)</label>
                 <input type="checkbox" id="sync-theme-optout" style="width: 18px; height: 18px; accent-color: #f5a623; margin-right: 10px;">
@@ -1185,7 +1183,8 @@
         </button>
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none; padding: 0; width: 44px; align-items: center; justify-content: center;">↩️</button>
         
-        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="document.getElementById('dama-radio-status').classList.toggle('active'); window.parent.postMessage({ type: 'TOGGLE_RADIO' }, '*');">
+        <!-- التعديل 2: إصلاح زر الراديو وتفعيل كود الجافاسكربت مباشرة بداخله -->
+        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="let dot = document.getElementById('dama-radio-status'); dot.classList.toggle('active'); localStorage.setItem('hub_music_enabled', dot.classList.contains('active')); window.parent.postMessage({ type: 'TOGGLE_RADIO' }, '*');">
             <span id="dama-radio-status" class="radio-status-dot"></span><span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
         </button>
         
