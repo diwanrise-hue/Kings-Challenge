@@ -1,7 +1,7 @@
 /**
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات 
- * متوافق مع التعديلات الجديدة (إزالة حلقة الخبرة والشاشات الكاملة).
+ * تم إصلاح مشكلة بقاء اللون الأخضر لزر "بدء" عند العودة للعبة أو الأونلاين.
  */
 
 import { gameState } from './gameState.js'; 
@@ -297,6 +297,13 @@ export const ui = {
         if (gameState.isOnlineMode) return;
         window.isMatchRunning = active;
         
+        // 👉 التعديل هنا: السيطرة على كلاس إخفاء الزر الأخضر
+        if (active) {
+            document.body.classList.add('game-active');
+        } else {
+            document.body.classList.remove('game-active');
+        }
+
         const flexState = active ? 'none' : 'flex';
         const inlineState = active ? 'none' : 'inline-block';
         
@@ -304,7 +311,7 @@ export const ui = {
         this.setDisplay('store-portal-corner-btn', flexState);
         this.setDisplay('lucky-spin-portal-btn', flexState); 
         this.setDisplay('hamburger-menu-btn', flexState);
-        this.setDisplay('floating-quests-btn', flexState); // إخفاء زر المهام
+        this.setDisplay('floating-quests-btn', flexState);
         
         this.setDisplay('custom-diff-btn', inlineState);
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
@@ -327,6 +334,13 @@ export const ui = {
         
         window.isMatchRunning = active;
         
+        // 👉 التعديل هنا: السيطرة على كلاس إخفاء الزر الأخضر في الأونلاين
+        if (active) {
+            document.body.classList.add('game-active');
+        } else {
+            document.body.classList.remove('game-active');
+        }
+
         const displays = {
             'reset-btn': normalState, 
             'custom-diff-btn': normalState, 
@@ -334,7 +348,7 @@ export const ui = {
             'store-portal-corner-btn': flexState,
             'lucky-spin-portal-btn': flexState, 
             'hamburger-menu-btn': flexState,
-            'floating-quests-btn': flexState, // إخفاء زر المهام
+            'floating-quests-btn': flexState,
             'bag-quick-btn': 'none',
             'resign-btn': onlineState, 
             'undo-btn': 'none', 
