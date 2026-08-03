@@ -120,11 +120,11 @@
         /* الشريط السفلي و الأزرار المربعة            */
         /* ========================================== */
         .control-panel { 
-            position: fixed; bottom: 0; left: 0; width: 100%; 
+            position: fixed; bottom: 0 !important; left: 0; width: 100%; 
             background: rgba(40, 42, 50, 0.7) !important; 
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-            padding: 12px 15px; padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            padding: 12px 15px;
             box-sizing: border-box; display: flex; justify-content: center; 
             align-items: center; gap: 12px; border-radius: 24px 24px 0 0; 
             z-index: 9999; box-shadow: 0 -10px 30px rgba(0,0,0,0.15) !important; 
@@ -421,7 +421,9 @@
             width: 90vw !important; max-width: 600px !important; height: 80vh !important; max-height: 800px !important; padding-top: 35px; display: flex; flex-direction: column;
         }
         
-        .leaderboard-full-screen { width: 95% !important; height: 90vh !important; max-width: 500px !important; border-radius: 32px !important; padding: 35px 20px 20px 20px !important; }
+        .leaderboard-full-screen { width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; padding: 60px 20px 20px 20px !important; background-image: url('سجل.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; }
+        .room-full-screen { width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; padding: 60px 20px 20px 20px !important; background-image: url('روم.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; }
+
         .settings-card::-webkit-scrollbar { display: none; }
         @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
         
@@ -500,7 +502,7 @@
         #game-over-modal h3 { color: #ffffff !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; }
         
         body.online-mode-active { padding-top: 15px !important; }
-        body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+        body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn { display: none !important; visibility: hidden !important; pointer-events: none !important; }
         body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
         body.online-mode-active #match-players-card { width: 95vw !important; max-width: 500px !important; flex-direction: row !important; justify-content: space-between !important; padding: 10px 30px !important; margin-bottom: 15px !important; }
         body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #a1a1aa !important; }
@@ -610,7 +612,6 @@
         /* الحفاظ على عمل التنسيقات للشاشات الداخلية  */
         /* ========================================== */
         #in-game-profile-modal .profile-avatar-capsule { position: relative !important; top: auto !important; left: auto !important; z-index: 1 !important; border: 2px solid #282a32 !important; width: 100% !important; height: 100% !important; }
-        #in-game-profile-modal .xp-ring { position: absolute !important; width: auto !important; height: auto !important; top: -4px !important; bottom: -4px !important; left: -4px !important; right: -4px !important; -webkit-mask: none !important; mask: none !important; transform: none !important; z-index: 0 !important; border-radius: 50% !important; }
         #in-game-profile-modal .level-badge-small { display: block; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: #ff453a; color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; z-index: 10; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .avatar-wrapper { position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
         .rank-icon-small { font-size: 14px; margin-left: 4px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); }
@@ -667,7 +668,6 @@
                     }
                 } catch(e) {}
                 
-                // ✅ إرسال رسالة المزامنة للأب فقط عند حفظ بيانات جديدة بنجاح
                 if(window.parent && window.parent !== window) {
                     window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
                 }
@@ -710,8 +710,35 @@
         </div>
     </div>
     
+    <!-- زر المهام اليومية الجديد (يختفي وقت الأونلاين عبر CSS) -->
+    <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 80px; right: 15px; z-index: 10000; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; padding: 6px 12px; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px);">
+        <span data-icon="dailyQuests" style="width: 20px; height: 20px; transform: scale(1);"></span>
+        <span style="font-size: 13px; font-weight: bold;">المهام</span>
+    </button>
+
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
     <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none;" data-icon="bagQuick"></button>
+
+    <!-- إشعار استلام التحدي الجانبي -->
+    <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(15,18,25,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 1000000; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: bold; font-size: 14px; color: #34c759;">تحدي جديد ⚔️</span>
+        </div>
+        <div id="challenge-toast-msg" style="font-size: 13px; color: #e0e0e0; line-height: 1.5;">صديقك يتحداك في جولة جديدة!</div>
+        <button id="challenge-toast-open-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px; color: white; cursor: pointer; font-size: 12px; font-weight: bold;">عرض التحدي</button>
+    </div>
+
+    <!-- نافذة قرار قبول التحدي -->
+    <div id="challenge-action-modal" class="modal-overlay" style="z-index: 1000001;">
+        <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <h3 style="color: #34c759; margin-bottom: 15px;">تحدي من صديق!</h3>
+            <p id="challenge-action-msg" style="font-size: 15px; color: white; margin-bottom: 25px; line-height: 1.6;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button id="challenge-accept-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: linear-gradient(135deg, #34c759, #28a745) !important;">موافق</button>
+                <button id="challenge-reject-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255,69,58,0.1) !important; color: rgba(255,69,58,0.7) !important; border: 1px solid rgba(255,69,58,0.2) !important;">رفض</button>
+            </div>
+        </div>
+    </div>
 
     <div id="status-area">
         <div id="match-players-card" style="display: none;">
@@ -892,12 +919,24 @@
         </div>
     </div>
 
+    <!-- نافذة إذن المايكروفون (التعديل الثامن) -->
+    <div id="mic-request-modal" class="modal-overlay" style="z-index: 10000000;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <h3 style="color: #87ceeb; margin-bottom: 10px;">طلب محادثة صوتية 🎤</h3>
+            <p style="color: #e0e0e0; font-size: 14px; margin-bottom: 20px; line-height: 1.6;">الخصم يطلب تفعيل المايكروفون، هل توافق على بدء المحادثة؟</p>
+            <div style="display: flex; gap: 10px;">
+                <button id="mic-accept-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(48,209,88,0.2) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.4) !important;">قبول</button>
+                <button id="mic-reject-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255,69,58,0.15) !important; color: #ff453a !important;">رفض</button>
+            </div>
+        </div>
+    </div>
+
     <div id="in-game-profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             <h3 id="igp-title" style="margin-bottom: 15px;">الملف الشخصي</h3>
             <div class="avatar-wrapper" style="width: 80px; height: 80px; margin-bottom: 20px;">
-                <div class="xp-ring" id="igp-xp-ring"></div>
+                <!-- التعديل السابع: تمت إزالة حلقة الخبرة حول الصورة -->
                 <div class="profile-avatar-capsule" id="igp-avatar" style="border-width: 3px;"></div>
                 <div class="level-badge-small" id="igp-level" style="font-size: 12px; padding: 3px 10px; bottom: -12px;">Lv.1</div>
             </div>
@@ -952,19 +991,36 @@
                 <div id="store-section-bg" class="store-items-grid"></div><div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
                 <div id="store-section-pieces" class="store-items-grid" style="display: none;"></div><div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
             </div>
-            <button id="store-return-btn" onclick="closeAppModal('store-modal')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">إلغاء</button>
+            <button id="store-return-btn" onclick="closeAppModal('store-modal')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">خروج</button>
         </div>
     </div>
 
+    <!-- التعديل الخامس: لوحة الشرف شاشة كاملة مع زر الجوائز -->
     <div id="leaderboard-modal" class="modal-overlay" style="z-index: 9999999;">
         <div class="settings-card leaderboard-full-screen" dir="auto">
-            <button class="modal-close-btn" onclick="closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000;">✕</button>
-            <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px;">🏆 <span id="lb-title-text">لوحة الشرف</span></h3>
+            <button class="modal-close-btn" onclick="closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
+            <button id="lb-rewards-btn" style="position: absolute; top: 20px; left: 70px; background: rgba(255,215,0,0.15); border: 1px solid #ffd700; border-radius: 12px; padding: 6px 12px; color: #ffd700; font-weight: bold; z-index: 100000; cursor: pointer;" onclick="openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
+            
+            <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">🏆 <span id="lb-title-text">لوحة الشرف</span></h3>
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="lb-tab-wins" class="custom-tab-button active" onclick="switchLbTab('wins')">الأكثر فوزاً</button>
                 <button id="lb-tab-tokens" class="custom-tab-button" onclick="switchLbTab('tokens')">الأغنى (المال)</button>
             </div>
             <div class="scrollable-content lb-list-container" id="leaderboard-list-wins"></div><div class="scrollable-content lb-list-container" id="leaderboard-list-tokens" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- نافذة استعراض الجوائز -->
+    <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 1000001;">
+        <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <button class="modal-close-btn" onclick="closeAppModal('top3-rewards-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color:#ffd700;">جوائز لوحة الشرف 🎁</h3>
+            <ul style="color: white; text-align: right; line-height: 2.2; font-size: 15px; padding: 0 10px; list-style: none;">
+                <li>🥇 <span style="color:#ffd700; font-weight:bold;">المركز الأول:</span> 50,000 🪙 + إطار ذهبي</li>
+                <li>🥈 <span style="color:#c0c0c0; font-weight:bold;">المركز الثاني:</span> 25,000 🪙 + إطار فضي</li>
+                <li>🥉 <span style="color:#cd7f32; font-weight:bold;">المركز الثالث:</span> 10,000 🪙 + إطار برونزي</li>
+            </ul>
+            <p style="color: #a1a1aa; font-size: 12px; margin-top: 15px;">يتم توزيع الجوائز تلقائياً نهاية كل موسم.</p>
         </div>
     </div>
 
@@ -979,7 +1035,7 @@
             <div class="scrollable-content">
                 <div class="themes-grid-container" id="theme-grid-section-bg"></div><div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div><div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
             </div>
-            <button id="theme-close-btn" onclick="closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">إلغاء</button>
+            <button id="theme-close-btn" onclick="closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">خروج</button>
         </div>
     </div>
 
@@ -1022,26 +1078,41 @@
         </div>
     </div>
 
-    <div id="online-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto">
-            <button class="modal-close-btn" onclick="closeAppModal('online-modal')" style="left:15px; right:auto;">✕</button>
-            <h3 id="create-room-title">الغرف الخاصة</h3>
-            <div id="online-setup-box">
-                <label class="settings-label" id="room-id-label" for="online-room-input">رقم أو اسم الغرفة:</label>
-                <input type="text" id="online-room-input" class="online-input" placeholder="مثال: 12345">
-                <label class="settings-label" id="room-password-label" for="online-password-input">كلمة السر (اختياري):</label>
-                <input type="password" id="online-password-input" class="online-input" placeholder="اتركها فارغة للعام">
-                <label class="settings-label" id="room-bet-label">مبلغ الرهان لكل لاعب (اختياري):</label>
-                <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="openAppModal('bet-selector-modal')">
-                    <span id="custom-bet-display">بدون رهان (مجاني)</span><span style="font-size: 14px; color: rgba(255,255,255,0.4);">▼</span>
-                </div>
-                <input type="hidden" id="room-bet-input" value="0">
-                <button id="online-create-btn" class="save-settings-btn" style="background: rgba(255,255,255,0.15) !important;">إنشاء غرفة</button>
-                <button id="online-join-btn" class="save-settings-btn">انضمام لغرفة</button>
+    <!-- التعديل التاسع: ردهة الرومات شاشة كاملة وعرض الرومات النشطة -->
+    <div id="online-modal" class="modal-overlay" style="z-index: 1000000;">
+        <div class="settings-card room-full-screen" dir="auto">
+            <button class="modal-close-btn" onclick="closeAppModal('online-modal')" style="left: 20px; right: auto; top: 20px; background: rgba(0,0,0,0.5) !important;">✕</button>
+            <h3 style="font-size: 26px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">الغرف الخاصة 🚪</h3>
+            
+            <div style="flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin-bottom: 20px; overflow-y: auto; padding: 10px;" id="active-rooms-list">
+                <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>
             </div>
-            <p id="online-status-text" style="color: #f1c40f; font-weight: 500; font-size: 13px; margin-top: 15px; display: none;"></p>
-            <button id="online-close-btn" onclick="closeAppModal('online-modal')" class="save-settings-btn" style="background: transparent !important; margin-top: 15px;">إلغاء</button>
+
+            <button onclick="openAppModal('create-room-modal')" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; height: 55px; font-size: 18px; font-weight: bold; border: none !important; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important;">+ إنشاء غرفة جديدة</button>
+            
+            <!-- حقول مخفية للربط مع الأكواد القديمة -->
+            <input type="hidden" id="online-room-input">
+            <input type="hidden" id="online-password-input">
+            <button id="online-join-btn" style="display: none;"></button>
         </div>
+    </div>
+
+    <!-- نافذة مخصصة لإنشاء الغرفة -->
+    <div id="create-room-modal" class="modal-overlay" style="z-index: 1000001;">
+         <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <button class="modal-close-btn" onclick="closeAppModal('create-room-modal')" style="left:15px; right:auto;">✕</button>
+            <h3>إنشاء غرفة</h3>
+            <label class="settings-label">مبلغ الرهان لكل لاعب:</label>
+            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="openAppModal('bet-selector-modal')">
+                <span id="custom-bet-display">بدون رهان (مجاني)</span><span style="font-size: 14px; color: rgba(255,255,255,0.4);">▼</span>
+            </div>
+            <input type="hidden" id="room-bet-input" value="0">
+            
+            <label class="settings-label" style="margin-top: 15px;">كلمة السر للغرفة (اختياري):</label>
+            <input type="password" id="create-room-password-input" class="online-input" placeholder="اتركها فارغة لتكون عامة">
+            
+            <button id="online-create-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.2) !important; color: #30d158 !important; margin-top: 20px;">تأكيد وإنشاء</button>
+         </div>
     </div>
 
     <div id="bet-selector-modal" class="modal-overlay" style="z-index: 99999999; align-items: flex-end; padding: 0;" onclick="if(event.target === this) closeAppModal('bet-selector-modal')">
@@ -1079,6 +1150,13 @@
             <button class="modal-close-btn" onclick="closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
             <h3 id="set-title">الإعدادات</h3>
             <div class="audio-controls"><label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label><input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7"></div>
+            
+            <!-- التعديل العاشر: تفعيل/تعطيل استخدام ساحة اللاعب الأعلى مستوى -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; background: rgba(255,255,255,0.04); padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <label for="sync-theme-optout" style="color: #e0e0e0; font-size: 13px; font-weight: 500; text-align: right; line-height: 1.4;">عدم استخدام شكل الساحة للاعب الأعلى مستوى (أونلاين)</label>
+                <input type="checkbox" id="sync-theme-optout" style="width: 18px; height: 18px; accent-color: #f5a623; margin-right: 10px;">
+            </div>
+
             <button id="save-settings-btn" class="save-settings-btn" style="margin-top: 25px;">حفظ</button>
         </div>
     </div>
@@ -1107,7 +1185,7 @@
         </button>
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none; padding: 0; width: 44px; align-items: center; justify-content: center;">↩️</button>
         
-        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="window.parent.postMessage({ type: 'TOGGLE_RADIO' }, '*');">
+        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="document.getElementById('dama-radio-status').classList.toggle('active'); window.parent.postMessage({ type: 'TOGGLE_RADIO' }, '*');">
             <span id="dama-radio-status" class="radio-status-dot"></span><span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
         </button>
         
@@ -1136,7 +1214,6 @@
             const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.innerText = window.t(key); };
             setTxt('menu-title-text', 'menu_title'); setTxt('menu-bag-text', 'menu_bag'); setTxt('menu-radio-text', 'menu_radio'); setTxt('menu-room-text', 'menu_room'); setTxt('menu-leaderboard-text', 'menu_leaderboard'); setTxt('menu-settings-text', 'menu_settings'); setTxt('menu-exit-text', 'menu_exit'); setTxt('lb-title-text', 'lb_title'); setTxt('lb-tab-wins', 'lb_wins'); setTxt('lb-tab-tokens', 'lb_tokens'); setTxt('tutorial-mode-label', 'tutorial_mode'); setTxt('menu-quests-text', 'menu_quests');
             if (document.getElementById('matchmaking-modal').style.display === 'flex') setTxt('mm-status-label', 'searching');
-            if (document.getElementById('online-modal').style.display === 'flex') setTxt('online-status-text', 'searching');
         };
 
         function openAppModal(id) {
@@ -1158,6 +1235,13 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { if (window.updateHtmlTexts) window.updateHtmlTexts(); }, 300);
+            const optoutCheck = document.getElementById('sync-theme-optout');
+            if (optoutCheck) {
+                optoutCheck.checked = localStorage.getItem('dama_sync_optout') === 'true';
+                optoutCheck.addEventListener('change', (e) => {
+                    localStorage.setItem('dama_sync_optout', e.target.checked);
+                });
+            }
         });
 
         function toggleSideMenu() {
@@ -1327,7 +1411,6 @@
             
             forceLockedGlobalAvatar(); 
             if(window.updateInventoryUI) window.updateInventoryUI(); 
-            // ✅ تم إزالة إرسال الرسالة من هنا لمنع حلقة التكرار اللانهائية!
         }
 
         window.currentLang = 'ar';
@@ -1414,7 +1497,6 @@
     <script type="module" src="voice.js"></script>
 
     <script>
-        // 1. الحل النهائي للشاشة البيضاء (إجبار المتصفح على إعادة رسم الأبعاد)
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
                 setTimeout(() => {
@@ -1428,7 +1510,6 @@
             }
         });
 
-        // 2. التبديل السليم بين حاويات المهام
         function switchQuestTab(tab) {
             document.getElementById('quest-tab-daily').classList.remove('active');
             document.getElementById('quest-tab-weekly').classList.remove('active');
@@ -1445,7 +1526,6 @@
             }
         }
 
-        // 3. صائد النصوص: سيقوم بتغيير جملة "السيرفر غير متصل" أينما كانت في اللعبة
         setInterval(() => {
             if (window.ui && window.ui.showCustomAlert && !window.ui._alertPatched) {
                 const originalShowAlert = window.ui.showCustomAlert;
