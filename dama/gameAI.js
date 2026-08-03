@@ -76,23 +76,21 @@ export const gameAI = {
         let moves = gameEngine.generateAllTurnMoves(aiColor, board);
         if (moves.length === 0) return { move: null }; if (moves.length === 1) return { move: moves[0] };
         let bestResult = { move: moves[0] };
-        for (let d = 1; d <= Math.min(maxAllowedDepth, 4); d++) { // عمق 4 كحد أقصى لحماية واجهة المتصفح
+        for (let d = 1; d <= Math.min(maxAllowedDepth, 4); d++) {
             let result = this.coreMinimax(board, d, -Infinity, Infinity, true, aiColor, pieceDirection, startTime, maxTime);
             if (result.timeOut) break; bestResult = result;
         }
         return bestResult;
     },
 
-    // --- مدير الذكاء الاصطناعي (يستدعى عند الحاجة) ---
+    // --- مدير الذكاء الاصطناعي (مُعدل لاستجابة الهواتف وتتبع الأخطاء) ---
     async getBestMoveAsync(board, level, aiColor, pieceDirection) {
         return new Promise((resolve) => {
-            // أوقات الطوارئ: نمنح المتصفح وقتاً كافياً (Buffer) للرد
             const fallbackTimes = [600, 800, 1000, 1500, 2000, 5500, 4500, 7500, 8500];
             const fallbackMaxTime = fallbackTimes[level - 1] || 1000;
 
             const runFallback = () => {
                 console.log("⚠️ Worker Failed or Blocked. Using Fallback AI.");
-                // استخدام وقت مخفض في البديل لكي لا تتجمد الواجهة
                 let fallbackResult = this.minimaxFallback(board, level, aiColor, pieceDirection, Math.min(fallbackMaxTime, 1200));
                 resolve(fallbackResult.move || null);
             };
@@ -100,25 +98,31 @@ export const gameAI = {
             try {
                 if (window.Worker) {
                     if (!this.workerInstance) {
-                        this.workerInstance = new Worker('aiWorker.js?v=' + Date.now());
+                        this.workerInstance = new Worker('aiWorker.js?v=1.0');
                     }
 
-                    // Watchdog: إذا لم يرد الـ Worker بعد انتهاء وقته بـ 300ms، قم بقتله وشغل البديل
+                    // زيادة المهلة إلى 2000ms لملائمة معالجات الهواتف المحمولة
                     this.workerFallbackTimer = setTimeout(() => {
-                        this.workerInstance.terminate(); 
+                        console.warn("⏱️ انتهت المهلة الزمنية للـ Worker، جاري تحويل للبديل...");
+                        if (this.workerInstance) this.workerInstance.terminate(); 
                         this.workerInstance = null; 
                         runFallback();
-                    }, fallbackMaxTime + 300);
+                    }, fallbackMaxTime + 2000);
 
                     this.workerInstance.onmessage = (e) => {
                         clearTimeout(this.workerFallbackTimer);
-                        if (e.data && e.data.error) runFallback();
-                        else resolve(e.data.move);
+                        if (e.data && e.data.error) {
+                            console.error("❌ خطأ تنفيذي داخل الـ Worker:", e.data.details);
+                            runFallback();
+                        } else {
+                            resolve(e.data.move);
+                        }
                     };
 
-                    this.workerInstance.onerror = () => {
+                    this.workerInstance.onerror = (err) => {
+                        console.error("❌ خطأ في تحميل أو تشغيل الـ Worker:", err.message || err);
                         clearTimeout(this.workerFallbackTimer);
-                        this.workerInstance.terminate();
+                        if (this.workerInstance) this.workerInstance.terminate();
                         this.workerInstance = null;
                         runFallback();
                     };
@@ -126,9 +130,10 @@ export const gameAI = {
                     this.workerInstance.postMessage({ board, level, aiColor, pieceDirection });
 
                 } else {
-                    runFallback(); // المتصفح لا يدعم Workers
+                    runFallback();
                 }
             } catch (e) {
+                console.error("❌ استثناء أثناء إنشاء الـ Worker:", e);
                 runFallback();
             }
         });
