@@ -1,17 +1,27 @@
-// aiWorker.js - النسخة المستقلة بالكامل (Monolithic Worker)
-// تعمل بسرعة 0ms ولا تعتمد على أي استيراد (Imports) لتجنب التأخير.
-
+// 🧠 تم تعديل الأوقات لترك مساحة أمان (Buffer) 400ms لمعالجات الهواتف
 const AI_LEVELS = {
-    1: { depth: 1, randomChance: 0.60, maxTime: 400,   name: "مبتدئ جداً (عشوائي)" },
-    2: { depth: 2, randomChance: 0.30, maxTime: 600,   name: "مبتدئ" },
-    3: { depth: 3, randomChance: 0.10, maxTime: 850,   name: "سهل" },
-    4: { depth: 4, randomChance: 0.00, maxTime: 1200,  name: "متوسط" },
-    5: { depth: 5, randomChance: 0.00, maxTime: 1700,  name: "صعب" },
-    6: { depth: 6, randomChance: 0.00, maxTime: 5500,  name: "محترف" },
-    7: { depth: 6, randomChance: 0.00, maxTime: 3800,  name: "أستاذ (تلميحات)" },
-    8: { depth: 7, randomChance: 0.00, maxTime: 7500,  name: "جراند ماستر" },
-    9: { depth: 8, randomChance: 0.00, maxTime: 8000,  name: "الزعيم" }
+    // الطوارئ في uiController هي 1000ms
+    1: { depth: 1, randomChance: 0.60, maxTime: 200,   name: "مبتدئ جداً (عشوائي)" },
+    2: { depth: 2, randomChance: 0.30, maxTime: 400,   name: "مبتدئ" },
+    3: { depth: 3, randomChance: 0.10, maxTime: 550,   name: "سهل" }, // قللناه ليتنفس الهاتف
+    
+    // الطوارئ في uiController هي 1500ms
+    4: { depth: 4, randomChance: 0.00, maxTime: 1000,  name: "متوسط" },
+    
+    // الطوارئ في uiController هي 2000ms
+    5: { depth: 5, randomChance: 0.00, maxTime: 1400,  name: "صعب" },
+    
+    // الطوارئ في uiController هي 6500ms
+    6: { depth: 6, randomChance: 0.00, maxTime: 5000,  name: "محترف" },
+    
+    // الطوارئ في hintSystem هي 4500ms
+    7: { depth: 6, randomChance: 0.00, maxTime: 3500,  name: "أستاذ (تلميحات)" },
+    
+    // الطوارئ في uiController هي 8500ms
+    8: { depth: 7, randomChance: 0.00, maxTime: 7000,  name: "جراند ماستر" },
+    9: { depth: 8, randomChance: 0.00, maxTime: 7500,  name: "الزعيم" }
 };
+
 
 // ==========================================
 // 1. محرك اللعبة المصغر (Engine Logic)
