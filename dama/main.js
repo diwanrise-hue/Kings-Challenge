@@ -13,14 +13,40 @@ import { t } from './i18n.js';
 // 💡 الإصلاحات الذكية (الشاشة البيضاء، الرادار، البينج)
 // ==========================================
 
-// 1. القضاء نهائياً على الشاشة البيضاء عند العودة للعبة
-document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
+// 1. القضاء نهائياً على الشاشة البيضاء عند العودة للعبة وحذف اللعبة بعد 5 دقائق من الخروج
+document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'hidden') {
+        // عند خروج اللاعب أو وضع التطبيق في الخلفية، نحفظ وقت الخروج
+        localStorage.setItem('dama_last_exit_time', Date.now().toString());
+    } else if (document.visibilityState === 'visible') {
+        // 1. معالجة مشكلة الشاشة البيضاء
         setTimeout(() => {
             document.body.style.display = 'none';
             void document.body.offsetHeight; 
             document.body.style.display = 'flex';
         }, 50);
+
+        // 2. التحقق من مرور 5 دقائق (300,000 مللي ثانية)
+        const lastExit = localStorage.getItem('dama_last_exit_time');
+        if (lastExit) {
+            const timePassed = Date.now() - parseInt(lastExit);
+            if (timePassed > 5 * 60 * 1000) { 
+                // إذا مر أكثر من 5 دقائق، نحذف اللعبة المحفوظة
+                await deleteFromDB('dama_saved_game');
+                localStorage.removeItem('dama_last_exit_time');
+                
+                // إذا كان اللاعب داخل اللعبة (أوفلاين) عند عودته، نفرغ الرقعة ونعطيه تنبيهاً
+                if (window.isMatchRunning && !gameState.isOnlineMode) {
+                    if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard();
+                    if (typeof ui.showCustomAlert === 'function') {
+                        ui.showCustomAlert("تم إنهاء المباراة السابقة وحذفها لأنك غادرت اللعبة لأكثر من 5 دقائق.", "تنبيه النظام");
+                    }
+                }
+            } else {
+                // إذا لم تمر 5 دقائق، نزيل العداد فقط لنسمح له بإكمال اللعب
+                localStorage.removeItem('dama_last_exit_time');
+            }
+        }
     }
 });
 
@@ -80,6 +106,18 @@ async function loadFromDB(key) {
             req.onerror = () => reject(req.error);
         });
     } catch(e) { return null; }
+}
+
+async function deleteFromDB(key) {
+    try {
+        const db = await initDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            tx.objectStore(STORE_NAME).delete(key);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+    } catch(e) {}
 }
 
 function serializeBoard(board) {
@@ -211,6 +249,16 @@ export function updateSpinTimerDisplay(nextFreeTime) {
 }
 
 window.addEventListener('load', async () => {
+    // --- التحقق من الخروج لأكثر من 5 دقائق (حالة إغلاق التطبيق بالكامل) ---
+    const lastExit = localStorage.getItem('dama_last_exit_time');
+    if (lastExit) {
+        if (Date.now() - parseInt(lastExit) > 5 * 60 * 1000) {
+            await deleteFromDB('dama_saved_game');
+        }
+        localStorage.removeItem('dama_last_exit_time');
+    }
+    // ----------------------------------------------------------------------
+
     ui.initProfileSystem();
     ui.drawEmptyBoard();
     if (window.updateHtmlTexts) window.updateHtmlTexts(); 
