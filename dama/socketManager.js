@@ -1,6 +1,6 @@
 /**
  * socketManager.js
- * النسخة المتطورة: تدعم نظام التحديات المتقدم، استئذان المايك، 
+ * النسخة المتطورة والكاملة: تدعم نظام التحديات المتقدم، استئذان المايك، 
  * ردهة الغرف النشطة (Lobby)، ومزامنة الساحة للاعب الأعلى XP.
  */
 
@@ -257,7 +257,7 @@ export const socketManager = {
             }
         });
 
-        // 🌟 التعديل 9: استقبال قائمة الرومات النشطة للوبي
+        // جلب قائمة الرومات النشطة (Lobby)
         socket.on('activeRoomsList', (rooms) => {
             const listContainer = document.getElementById('active-rooms-list');
             if (!listContainer) return;
@@ -381,7 +381,7 @@ export const socketManager = {
 
         socket.on('waitingForOpponent', msg => this._showToast(msg));
 
-        // 🌟 التعديل 10: مزامنة ساحة اللاعب الأعلى مستوى
+        // مزامنة ساحة اللاعب الأعلى مستوى
         socket.on('gameStart', data => {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
@@ -437,13 +437,13 @@ export const socketManager = {
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
             const myProfile = this._ensureUserProfile();
             
-            // 🌟 منطق مزامنة الساحة حسب الأعلى XP
+            // منطق مزامنة الساحة حسب الأعلى XP
             const optout = localStorage.getItem('dama_sync_optout') === 'true';
             const myXp = myProfile.xp || 0;
             const oppXp = gameState.currentOpponentXp;
 
             if (!optout && oppXp > myXp) {
-                this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً! (يمكن الإلغاء من الإعدادات)`);
+                this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً!`);
                 const oppBgId = data.opponent?.equippedBg || 'bg_wood';
                 const oppPcId = data.opponent?.equippedPc || 'pc_original';
                 
@@ -693,7 +693,7 @@ export const socketManager = {
             }
         });
 
-        // 🌟 التعديل 6: استقبال التحدي كإشعار جانبي منزلق
+        // استقبال التحدي كإشعار جانبي منزلق
         socket.on('receiveChallenge', data => {
             if (!data) return;
             const profile = this._ensureUserProfile();
@@ -761,7 +761,7 @@ export const socketManager = {
             }
         });
 
-        // 🌟 التعديل 8: الاستماع لطلب تفعيل المايك من الخصم
+        // الاستماع لطلب تفعيل المايك من الخصم
         socket.on('mic-request', (data) => {
             if (!gameState.isOnlineMode) return;
             const modal = document.getElementById('mic-request-modal');
@@ -989,7 +989,7 @@ export const socketManager = {
         if (el) el.style.cssText = "color:#f1c40f;display:block;";
     },
 
-    // 🌟 التعديل 6: دعم إرسال التحدي بمبلغ الرهان
+    // دعم إرسال التحدي بمبلغ الرهان
     sendChallenge(friendId, betAmount = 0) {
         if (!friendId || this.isAlertShown) return;
 
