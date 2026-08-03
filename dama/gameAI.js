@@ -1,18 +1,17 @@
-// gameAI.js - مدير الذكاء الاصطناعي المطور (حماية الاتصال + معالجة غير حاصرة للهواتف)
+// gameAI.js - مدير الذكاء الاصطناعي السريع والمحسّن للهواتف
 import { gameEngine } from './gameEngine.js';
 
-// كود aiWorker مدمج مباشرة كـ String لتلافي طلبات الشبكة
 const inlineWorkerCode = `
 const AI_LEVELS = {
-    1: { depth: 1, randomChance: 0.60, maxTime: 150,   name: "مبتدئ جداً" },
-    2: { depth: 2, randomChance: 0.30, maxTime: 300,   name: "مبتدئ" },
-    3: { depth: 3, randomChance: 0.10, maxTime: 450,   name: "سهل" },
-    4: { depth: 4, randomChance: 0.00, maxTime: 700,   name: "متوسط" },
-    5: { depth: 5, randomChance: 0.00, maxTime: 1000,  name: "صعب" },
-    6: { depth: 6, randomChance: 0.00, maxTime: 1500,  name: "محترف" },
-    7: { depth: 6, randomChance: 0.00, maxTime: 1500,  name: "أستاذ (تلميحات)" },
-    8: { depth: 7, randomChance: 0.00, maxTime: 2000,  name: "جراند ماستر" },
-    9: { depth: 7, randomChance: 0.00, maxTime: 2500,  name: "الزعيم" }
+    1: { depth: 1, randomChance: 0.60, maxTime: 100,  name: "مبتدئ جداً" },
+    2: { depth: 2, randomChance: 0.30, maxTime: 200,  name: "مبتدئ" },
+    3: { depth: 3, randomChance: 0.10, maxTime: 350,  name: "سهل" },
+    4: { depth: 3, randomChance: 0.00, maxTime: 500,  name: "متوسط" },
+    5: { depth: 4, randomChance: 0.00, maxTime: 800,  name: "صعب" },
+    6: { depth: 4, randomChance: 0.00, maxTime: 1000, name: "محترف" },
+    7: { depth: 5, randomChance: 0.00, maxTime: 1200, name: "أستاذ" },
+    8: { depth: 5, randomChance: 0.00, maxTime: 1500, name: "جراند ماستر" },
+    9: { depth: 5, randomChance: 0.00, maxTime: 2000, name: "الزعيم" }
 };
 
 const engine = {
@@ -164,7 +163,7 @@ const ai = {
     },
     coreMinimax(board, depth, alpha, beta, maximizingPlayer, aiColor, pieceDirection, startTime, maxTime) {
         this.nodesEvaluated++;
-        if (this.nodesEvaluated % 50 === 0 && Date.now() - startTime > maxTime) return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
+        if (this.nodesEvaluated % 10 === 0 && Date.now() - startTime > maxTime) return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
         if (depth <= 0) return { score: this.evaluateBoard(board, aiColor, pieceDirection) };
         let currentColor = maximizingPlayer ? aiColor : (aiColor === 'white' ? 'black' : 'white');
         let moves = engine.generateAllTurnMoves(currentColor, board);
@@ -201,7 +200,7 @@ const ai = {
         if (moves.length === 0) return { move: null };
         if (moves.length === 1) return { move: moves[0] };
         let bestResult = { move: moves[0] };
-        for (let d = 1; d <= Math.min(maxAllowedDepth, 7); d++) {
+        for (let d = 1; d <= maxAllowedDepth; d++) {
             let result = this.coreMinimax(board, d, -Infinity, Infinity, true, aiColor, pieceDirection, startTime, maxTime);
             if (result.timeOut) break;
             bestResult = result;
@@ -296,16 +295,12 @@ export const gameAI = {
         }
     },
 
-    // --- خوارزمية بديلة غير حاصرة (Non-Blocking Async Minimax) لمنع تجمد الهاتف والاتصال ---
     async coreMinimaxAsync(board, depth, alpha, beta, maximizingPlayer, aiColor, pieceDirection, startTime, maxTime) {
         this.nodesEvaluated++;
-        
-        // السماح للمتصفح بالتنفس وتنفيذ أحداث الشبكة والـ Socket كل 100 عقدة
-        if (this.nodesEvaluated % 100 === 0) {
+        if (this.nodesEvaluated % 20 === 0) {
             if (Date.now() - startTime > maxTime) return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
             await new Promise(resolve => setTimeout(resolve, 0));
         }
-        
         if (depth <= 0) return { score: this.evaluateBoard(board, aiColor, pieceDirection) };
 
         let currentColor = maximizingPlayer ? aiColor : (aiColor === 'white' ? 'black' : 'white');
@@ -358,14 +353,12 @@ export const gameAI = {
         return bestResult;
     },
 
-    // --- طلب الحركة الرئيسية مع مهل منخفضة ومستجيبة للهواتف المحمولة ---
     async getBestMoveAsync(board, level, aiColor, pieceDirection) {
         return new Promise(async (resolve) => {
-            const fallbackTimes = [300, 500, 800, 1000, 1400, 1800, 1800, 2200, 2500];
+            const fallbackTimes = [200, 300, 500, 700, 1000, 1200, 1400, 1600, 2100];
             const fallbackMaxTime = fallbackTimes[level - 1] || 1000;
 
             const runFallback = async () => {
-                console.log("⚠️ استخدام الذكاء الاصطناعي البديل السريع (Async Fallback AI)...");
                 let fallbackResult = await this.minimaxFallbackAsync(board, level, aiColor, pieceDirection, Math.min(fallbackMaxTime, 1200));
                 resolve(fallbackResult.move || null);
             };
@@ -375,15 +368,15 @@ export const gameAI = {
                     const worker = this.getWorkerInstance();
 
                     clearTimeout(this.workerFallbackTimer);
-                    // مهلة قصيرة لحماية تجربة المستخدم على الهاتف من التأخير
+                    // مهلة انتظار مرنة 8 ثوانٍ لإعطاء الـ Worker وقته الكامل للرد
                     this.workerFallbackTimer = setTimeout(() => {
-                        console.warn("⏱️ انتهت المهلة الزمنية للـ Worker، جاري تحويل للبديل السريع...");
+                        console.warn("⏱️ تحويل للبديل لبطء استجابة الجهاز...");
                         if (this.workerInstance) {
                             this.workerInstance.terminate();
                             this.workerInstance = null;
                         }
                         runFallback();
-                    }, fallbackMaxTime + 1500);
+                    }, 8000);
 
                     worker.onmessage = (e) => {
                         clearTimeout(this.workerFallbackTimer);
@@ -396,7 +389,7 @@ export const gameAI = {
                     };
 
                     worker.onerror = (err) => {
-                        console.error("❌ خطأ في تشغيل الـ Worker:", err.message || err);
+                        console.error("❌ خطأ في الـ Worker:", err.message || err);
                         clearTimeout(this.workerFallbackTimer);
                         if (this.workerInstance) {
                             this.workerInstance.terminate();
@@ -410,7 +403,7 @@ export const gameAI = {
                     await runFallback();
                 }
             } catch (e) {
-                console.error("❌ استثناء غير متوقع:", e);
+                console.error("❌ استثناء:", e);
                 await runFallback();
             }
         });
