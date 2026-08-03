@@ -8,8 +8,7 @@ export const gameAI = {
     getWorkerInstance() {
         if (!this.workerInstance) {
             try {
-                // استدعاء الملف الحقيقي الذي رفعته أنت على GitHub
-                // إضافة ?v=Date.now() تمنع المتصفح من تخزين نسخة قديمة وتجبره على التحديث
+                // استدعاء ملف الـ Worker مع تفادي الـ Cache
                 this.workerInstance = new Worker('aiWorker.js?v=' + Date.now());
             } catch (error) {
                 console.warn("⚠️ فشل إنشاء الـ Worker، سيتم استخدام البديل...", error);
@@ -72,12 +71,15 @@ export const gameAI = {
         }
     },
 
-    async coreMinimaxAsync(board, depth, alpha, beta, maximizingPlayer, aiColor, pieceDirection, startTime, maxTime) {
+    // 💡 تم تحويل الدالة إلى Synchronous (بدون وعود أو تأخير) لإنقاذ الذاكرة!
+    coreMinimaxSync(board, depth, alpha, beta, maximizingPlayer, aiColor, pieceDirection, startTime, maxTime) {
         this.nodesEvaluated++;
-        if (this.nodesEvaluated % 20 === 0) {
-            if (Date.now() - startTime > maxTime) return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
-            await new Promise(resolve => setTimeout(resolve, 0));
+        
+        // التحقق من الوقت كل 1000 خطوة لتخفيف الضغط على المعالج بدلاً من كل 20
+        if (this.nodesEvaluated % 1000 === 0 && Date.now() - startTime > maxTime) {
+            return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
         }
+
         if (depth <= 0) return { score: this.evaluateBoard(board, aiColor, pieceDirection) };
 
         let currentColor = maximizingPlayer ? aiColor : (aiColor === 'white' ? 'black' : 'white');
@@ -91,7 +93,7 @@ export const gameAI = {
             let maxEval = -Infinity;
             for (let move of moves) {
                 let undoData = this.doMove(board, move, pieceDirection);
-                let evaluation = await this.coreMinimaxAsync(board, depth - 1, alpha, beta, false, aiColor, pieceDirection, startTime, maxTime);
+                let evaluation = this.coreMinimaxSync(board, depth - 1, alpha, beta, false, aiColor, pieceDirection, startTime, maxTime);
                 this.undoMove(board, undoData);
                 if (evaluation.timeOut) return { move: bestMove, score: maxEval === -Infinity ? this.evaluateBoard(board, aiColor, pieceDirection) : maxEval, timeOut: true };
                 if (evaluation.score > maxEval) { maxEval = evaluation.score; bestMove = move; }
@@ -103,7 +105,7 @@ export const gameAI = {
             let minEval = Infinity;
             for (let move of moves) {
                 let undoData = this.doMove(board, move, pieceDirection);
-                let evaluation = await this.coreMinimaxAsync(board, depth - 1, alpha, beta, true, aiColor, pieceDirection, startTime, maxTime);
+                let evaluation = this.coreMinimaxSync(board, depth - 1, alpha, beta, true, aiColor, pieceDirection, startTime, maxTime);
                 this.undoMove(board, undoData);
                 if (evaluation.timeOut) return { move: bestMove, score: minEval === Infinity ? this.evaluateBoard(board, aiColor, pieceDirection) : minEval, timeOut: true };
                 if (evaluation.score < minEval) { minEval = evaluation.score; bestMove = move; }
@@ -114,7 +116,7 @@ export const gameAI = {
         }
     },
 
-    async minimaxFallbackAsync(board, maxAllowedDepth, aiColor, pieceDirection, maxTime) {
+    minimaxFallbackSync(board, maxAllowedDepth, aiColor, pieceDirection, maxTime) {
         let startTime = Date.now();
         this.nodesEvaluated = 0;
         let moves = gameEngine.generateAllTurnMoves(aiColor, board);
@@ -122,8 +124,11 @@ export const gameAI = {
         if (moves.length === 1) return { move: moves[0] };
 
         let bestResult = { move: moves[0] };
-        for (let d = 1; d <= Math.min(maxAllowedDepth, 4); d++) {
-            let result = await this.coreMinimaxAsync(board, d, -Infinity, Infinity, true, aiColor, pieceDirection, startTime, maxTime);
+        // في البديل (الهواتف الضعيفة)، نحدد العمق الأقصى بـ 4 فقط لتفادي تجميد الهاتف تماماً
+        let safeDepth = Math.min(maxAllowedDepth, 4);
+        
+        for (let d = 1; d <= safeDepth; d++) {
+            let result = this.coreMinimaxSync(board, d, -Infinity, Infinity, true, aiColor, pieceDirection, startTime, maxTime);
             if (result.timeOut) break;
             bestResult = result;
         }
@@ -131,13 +136,16 @@ export const gameAI = {
     },
 
     async getBestMoveAsync(board, level, aiColor, pieceDirection) {
-        return new Promise(async (resolve) => {
+        return new Promise((resolve) => {
             const fallbackTimes = [200, 300, 500, 700, 1000, 1200, 1400, 1600, 2100];
             const fallbackMaxTime = fallbackTimes[level - 1] || 1000;
 
-            const runFallback = async () => {
-                let fallbackResult = await this.minimaxFallbackAsync(board, level, aiColor, pieceDirection, Math.min(fallbackMaxTime, 1200));
-                resolve(fallbackResult.move || null);
+            const runFallback = () => {
+                // إعطاء المتصفح فرصة 10 ملي ثانية لتحديث الواجهة قبل بدء الحسابات الثقيلة
+                setTimeout(() => {
+                    let fallbackResult = this.minimaxFallbackSync(board, level, aiColor, pieceDirection, Math.min(fallbackMaxTime, 1200));
+                    resolve(fallbackResult.move || null);
+                }, 10);
             };
 
             try {
@@ -150,20 +158,18 @@ export const gameAI = {
 
                     clearTimeout(this.workerFallbackTimer);
                     
-                    // 💡 هنا الإصلاح الجذري: المهلة أصبحت 5000 ملي ثانية (5 ثوانٍ).
-                    // هذا سيعطي البوت وقتاً كافياً للتحميل من GitHub وللتفكير حتى في أصعب المستويات
-                    // دون أن نقوم بقتله بالخطأ.
+                    // المهلة 4 ثوانٍ لضمان تحميل الملف
                     this.workerFallbackTimer = setTimeout(() => {
-                        console.warn("⏱️ تأخر الـ Worker جداً (أكثر من 5 ثوانٍ)، سيتم الانتقال للبديل...");
+                        console.warn("⏱️ تأخر الـ Worker جداً (أكثر من 4 ثوانٍ)، سيتم الانتقال للبديل الآمن للذاكرة...");
                         if (this.workerInstance) {
                             this.workerInstance.terminate();
                             this.workerInstance = null;
                         }
                         runFallback();
-                    }, 5000); 
+                    }, 4000); 
 
                     worker.onmessage = (e) => {
-                        clearTimeout(this.workerFallbackTimer); // نجح البوت، فنلغي مؤقت القتل فوراً!
+                        clearTimeout(this.workerFallbackTimer);
                         if (e.data && e.data.error) {
                             console.error("❌ خطأ تنفيذي داخل الـ Worker:", e.data.details);
                             runFallback();
@@ -182,14 +188,13 @@ export const gameAI = {
                         runFallback();
                     };
 
-                    // إرسال البيانات للـ Worker ليبدأ التفكير
                     worker.postMessage({ board, level, aiColor, pieceDirection });
                 } else {
-                    await runFallback();
+                    runFallback();
                 }
             } catch (e) {
                 console.error("❌ استثناء غير متوقع:", e);
-                await runFallback();
+                runFallback();
             }
         });
     }
