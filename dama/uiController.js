@@ -1,7 +1,7 @@
 /**
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات 
- * متوافق مع التعديل 7 (إزالة الحلقة الدائرية للخبرة) والتعديل 10.
+ * متوافق مع التعديلات الجديدة (إزالة حلقة الخبرة والشاشات الكاملة).
  */
 
 import { gameState } from './gameState.js'; 
@@ -304,6 +304,7 @@ export const ui = {
         this.setDisplay('store-portal-corner-btn', flexState);
         this.setDisplay('lucky-spin-portal-btn', flexState); 
         this.setDisplay('hamburger-menu-btn', flexState);
+        this.setDisplay('floating-quests-btn', flexState); // إخفاء زر المهام
         
         this.setDisplay('custom-diff-btn', inlineState);
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
@@ -333,6 +334,7 @@ export const ui = {
             'store-portal-corner-btn': flexState,
             'lucky-spin-portal-btn': flexState, 
             'hamburger-menu-btn': flexState,
+            'floating-quests-btn': flexState, // إخفاء زر المهام
             'bag-quick-btn': 'none',
             'resign-btn': onlineState, 
             'undo-btn': 'none', 
@@ -1206,8 +1208,6 @@ export const ui = {
 
         if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
         
-        // 🌟 التعديل 7: إزالة كود حلقة الـ XP الدائرية من هنا لمنع خطأ undefined
-
         if (igpRank) igpRank.innerHTML = `الرتبة: ${lvlInfo.rankIcon} ${lvlInfo.rank} | ${lvlInfo.title}`;
         if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
         if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
@@ -1275,9 +1275,7 @@ export const ui = {
                     parsed.friends = [...new Set(parsed.friends.map(f => f.toUpperCase()))];
                 }
                 gameState.userProfile = { ...gameState.userProfile, ...parsed }; 
-            } catch(e) {
-                console.error("Error parsing saved profile setup:", e);
-            }
+            } catch(e) {}
         }
         this.updateProfileUI(); 
     },
