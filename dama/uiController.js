@@ -847,10 +847,23 @@ export const ui = {
         // 🚀 بدء إنقاذ الذاكرة وتخفيف الضغط الرسومي عن الهاتف
         if (window.optimizeMemoryForAI) window.optimizeMemoryForAI(true);
 
-        // انتظار استجابة الذكاء الاصطناعي
+        // ⏱️ 1. تسجيل وقت بدء التفكير
+        let startThinkingTime = Date.now();
+
+        // انتظار استجابة الذكاء الاصطناعي (أصبحت تتم في أجزاء من الألف من الثانية)
         let chosenMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, level, aiColor, gameState.pieceDirection);
         
-        // 🚀 البوت أنهى التفكير، نعيد الذاكرة الرسومية لحالتها الطبيعية
+        // 🧠 2. إضافة الطابع البشري (Human Touch)
+        // نحسب كم استغرق البوت من وقت فعلي، ونجبره على الانتظار ليقارب وقت اللاعب البشري
+        let timeSpent = Date.now() - startThinkingTime;
+        let humanDelay = Math.floor(Math.random() * 1500) + 1000; // وقت عشوائي بين ثانية (1000ms) وثانيتين ونصف (2500ms)
+        
+        // إذا كان البوت سريعاً جداً (أسرع من الوقت البشري)، نجعله يتوقف مؤقتاً ليتظاهر بالتفكير
+        if (timeSpent < humanDelay) {
+            await new Promise(resolve => setTimeout(resolve, humanDelay - timeSpent));
+        }
+
+        // 🚀 البوت أنهى التفكير البشري، نعيد الذاكرة الرسومية لحالتها الطبيعية
         if (window.optimizeMemoryForAI) window.optimizeMemoryForAI(false);
 
         if (!chosenMove) chosenMove = moves[0]; // حماية أخيرة
