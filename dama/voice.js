@@ -1,15 +1,14 @@
 /**
  * voice.js
- * النسخة المحسنة: تم كشف الكائن عالمياً (Global) ليتمكن مدير الاتصال من إغلاق المايكروفون عند الخروج.
+ * النسخة المتوافقة مع نظام الاستئذان قبل تفعيل الصوت
  */
-import { socket } from './socketManager.js';
-import { gameState } from './gameState.js'; // تم تصحيح مسار الاستيراد هنا
+import { socket, socketManager } from './socketManager.js';
+import { gameState } from './gameState.js'; 
 
 let localStream = null;
 let peerConnection = null;
 let isMicActive = false;
 
-// خوادم STUN مجانية من جوجل لربط اللاعبين وتجاوز الجدار الناري (Firewall)
 const servers = {
     iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
@@ -17,7 +16,6 @@ const servers = {
     ]
 };
 
-// أيقونات SVG مطابقة للصورة التي طلبتها
 const micOffIcon = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <line x1="1" y1="1" x2="23" y2="23"></line>
@@ -38,14 +36,12 @@ export const voiceChat = {
         const micBtn = document.getElementById('mic-toggle-btn');
         if (!micBtn) return;
 
-        // ضبط الشكل الافتراضي (مغلق)
         this.updateMicUI(false);
 
         micBtn.addEventListener('click', () => {
             this.toggleMic();
         });
 
-        // الاستماع لإشارات WebRTC من السيرفر
         socket.on('voice-offer', async (data) => {
             await this.handleOffer(data.offer);
         });
@@ -58,7 +54,7 @@ export const voiceChat = {
             if (peerConnection && data.candidate) {
                 try {
                     await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                } catch (e) { console.error('خطأ في إضافة بيانات الاتصال:', e); }
+                } catch (e) {}
             }
         });
     },
@@ -69,13 +65,13 @@ export const voiceChat = {
 
         if (isActive) {
             micBtn.innerHTML = micOnIcon;
-            micBtn.style.background = 'rgba(46, 204, 113, 0.8) !important'; // أخضر
+            micBtn.style.background = 'rgba(46, 204, 113, 0.8) !important'; 
             micBtn.style.borderColor = '#2ecc71';
             micBtn.style.boxShadow = '0 0 10px rgba(46, 204, 113, 0.5)';
             micBtn.title = "إيقاف المايك";
         } else {
             micBtn.innerHTML = micOffIcon;
-            micBtn.style.background = 'rgba(45, 48, 55, 0.65) !important'; // داكن
+            micBtn.style.background = 'rgba(45, 48, 55, 0.65) !important'; 
             micBtn.style.borderColor = 'rgba(135, 206, 235, 0.4)';
             micBtn.style.boxShadow = '0 0 3px rgba(135, 206, 235, 0.3)';
             micBtn.title = "تشغيل المايك";
@@ -84,19 +80,24 @@ export const voiceChat = {
 
     async toggleMic() {
         if (!isMicActive) {
-            try {
-                // طلب صلاحية المايك من اللاعب
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                isMicActive = true;
-                this.updateMicUI(true);
-                this.startCall();
-            } catch (err) {
-                alert("تعذر الوصول إلى الميكروفون. يرجى السماح للمتصفح باستخدام المايك.");
-                console.error("Mic error:", err);
+            if (gameState.onlineRoomID) {
+                socketManager._showToast(gameState.lang === 'ar' ? "جاري انتظار موافقة الخصم ⏳..." : "Waiting for opponent's permission...");
+                socket.emit('mic-request', { roomID: String(gameState.onlineRoomID).trim(), senderId: gameState.userProfile.id });
             }
         } else {
             this.closeCall();
             this.updateMicUI(false);
+        }
+    },
+
+    async forceStartCall() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            isMicActive = true;
+            this.updateMicUI(true);
+            this.startCall();
+        } catch (err) {
+            alert(gameState.lang === 'ar' ? "تعذر الوصول إلى الميكروفون." : "Microphone access denied.");
         }
     },
 
@@ -105,22 +106,18 @@ export const voiceChat = {
         
         peerConnection = new RTCPeerConnection(servers);
 
-        // إضافة الصوت الخاص بك للاتصال
         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
-        // استقبال صوت الخصم
         peerConnection.ontrack = (event) => {
             this.playRemoteAudio(event.streams[0]);
         };
 
-        // إرسال مسار الاتصال للخصم
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
                 socket.emit('voice-candidate', { roomID: gameState.onlineRoomID, candidate: event.candidate });
             }
         };
 
-        // إنشاء عرض الاتصال (Offer)
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
         socket.emit('voice-offer', { roomID: gameState.onlineRoomID, offer: offer });
@@ -129,7 +126,6 @@ export const voiceChat = {
     async handleOffer(offer) {
         peerConnection = new RTCPeerConnection(servers);
 
-        // إذا كان المايك لديك مفتوحاً، أرسل صوتك أيضاً
         if (localStream) {
             localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
         }
@@ -144,7 +140,6 @@ export const voiceChat = {
             }
         };
 
-        // قبول العرض وإنشاء الرد (Answer)
         await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
@@ -183,15 +178,12 @@ export const voiceChat = {
             remoteAudio.remove();
         }
         
-        // 💡 تصفير الحالة لضمان مزامنة واجهة المستخدم
         isMicActive = false;
     }
 };
 
-// 💡 تصدير الكائن للنافذة العالمية ليتمكن socketManager من استخدامه
 window.voiceChat = voiceChat;
 
-// تهيئة الملف ليكون جاهزاً فور تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
     voiceChat.init();
 });
