@@ -1,4 +1,8 @@
-// main.js
+/**
+ * main.js
+ * العقل المدبر المحلي للعبة: يحتوي على أنظمة الحفظ، وإدارة الأزرار، 
+ * وربط نافذة التحدي بنظام الرهانات الجديد.
+ */
 import { gameState } from './gameState.js'; 
 import { ui } from './uiController.js';
 import { socket, socketManager } from './socketManager.js'; 
@@ -14,35 +18,13 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         setTimeout(() => {
             document.body.style.display = 'none';
-            void document.body.offsetHeight; // إجبار المتصفح على إعادة رسم الواجهة
+            void document.body.offsetHeight; 
             document.body.style.display = 'flex';
         }, 50);
     }
 });
 
-// 2. إصلاح موقع الرادار ليظهر دائماً فوق البينج (حقن CSS مباشر)
-const radarStyle = document.createElement('style');
-radarStyle.innerHTML = `
-    #mini-disconnect-radar {
-        position: absolute !important;
-        bottom: 18px !important; 
-        left: calc(50% + 118px) !important;
-        transform: translateX(-50%) !important;
-        top: auto !important;
-        right: auto !important;
-        border-radius: 50% !important;
-        width: 32px !important;
-        height: 32px !important;
-        z-index: 999999 !important;
-        background: rgba(15, 18, 25, 0.9) !important;
-        padding: 4px !important;
-        border: 1px solid rgba(255, 69, 58, 0.5) !important;
-        box-shadow: 0 0 12px rgba(255, 69, 58, 0.4) !important;
-    }
-`;
-document.head.appendChild(radarStyle);
-
-// 3. كسر تعليق البينج (999) وإخفاء الرادار فور عودة الإنترنت
+// 2. كسر تعليق البينج (999) وإخفاء الرادار فور عودة الإنترنت
 socket.on('connect', () => {
     setTimeout(() => {
         const pingText = document.getElementById('ping-text');
@@ -275,13 +257,40 @@ window.addEventListener('load', async () => {
     });
 
     socket.on('gameStart', (data) => { gameState.roomBet = data.roomBet || 0; });
+
+    // ربط زر إنشاء الغرفة من اللوبي ليعيد تعيين المودال للحالة العادية
+    const lobbyCreateBtn = document.querySelector('#online-modal .save-settings-btn');
+    if (lobbyCreateBtn) {
+        lobbyCreateBtn.onclick = () => {
+            window.pendingChallengeId = null;
+            document.getElementById('create-room-password-input').style.display = 'block';
+            document.getElementById('create-room-password-input').previousElementSibling.style.display = 'block';
+            document.getElementById('online-create-btn').innerText = "تأكيد وإنشاء";
+            if (typeof openAppModal === 'function') openAppModal('create-room-modal');
+        };
+    }
 });
+
+// 🌟 التعديل 6: نظام التحدي الجديد مع نافذة الرهان
+window.pendingChallengeId = null;
 
 window.challengeFriend = function(friendId) {
     if (!gameState.userProfile) return;
+    if (!socket || !socket.connected) return ui.showCustomAlert(t('sys_offline') || "يجب الاتصال بالإنترنت أولاً");
+
     ui.setDisplay('in-game-profile-modal', 'none');
-    if (socketManager && typeof socketManager.sendChallenge === 'function') { socketManager.sendChallenge(friendId); } 
-    else { ui.showCustomAlert(t('sys_offline')); }
+
+    // حفظ معرف الصديق مؤقتاً
+    window.pendingChallengeId = friendId;
+    
+    // إخفاء حقل كلمة السر لأن التحدي خاص بالصديق
+    document.getElementById('create-room-password-input').style.display = 'none';
+    document.getElementById('create-room-password-input').previousElementSibling.style.display = 'none';
+    
+    const createBtn = document.getElementById('online-create-btn');
+    createBtn.innerText = "إرسال التحدي ⚔️";
+    
+    if (typeof openAppModal === 'function') openAppModal('create-room-modal');
 };
 
 ui.onClick('diff-quick-select', saveGameState);
@@ -419,15 +428,25 @@ if (cancelMmBtn) {
     });
 }
 
-ui.onClick('room-portal-btn', () => { ui.setDisplay('online-modal', 'flex'); ui.setDisplay('online-status-text', 'none'); ui.setDisplay('online-setup-box', 'block'); });
+ui.onClick('room-portal-btn', () => { ui.setDisplay('online-modal', 'flex'); });
 ui.onClick('online-close-btn', () => ui.setDisplay('online-modal', 'none'));
 
-const handleRoomBtn = (action, msg) => { 
-    ui.startOnlineGame(); clearInterval(gameState.mmInterval); 
-    const rID = ui.getVal('online-room-input').trim(); 
-    if (!rID) return socketManager.showStatusMsg(t('err_id')); 
-    let betAmt = 0; const betSelect = document.getElementById('room-bet-input'); if (betSelect) betAmt = parseInt(betSelect.value) || 0;
-    socketManager.handleRoomAction(action, rID, null, betAmt); socketManager.showStatusMsg(msg); 
-};
-ui.onClick('online-create-btn', () => handleRoomBtn('createRoom', t('creating_room')));
-ui.onClick('online-join-btn', () => handleRoomBtn('joinRoom', t('connecting')));
+// 🌟 التعديل 9: تعديل منطق زر إنشاء الغرفة لدعم الردهة والتحديات معاً
+ui.onClick('online-create-btn', () => { 
+    let betAmt = parseInt(document.getElementById('room-bet-input').value) || 0;
+
+    if (window.pendingChallengeId) {
+        // إرسال التحدي بالرهان المطلوب
+        socketManager.sendChallenge(window.pendingChallengeId, betAmt);
+        if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
+        window.pendingChallengeId = null; 
+    } else {
+        // إنشاء غرفة جديدة للوبي
+        let pwd = document.getElementById('create-room-password-input').value;
+        let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
+        
+        socketManager.handleRoomAction('createRoom', rID, pwd, betAmt); 
+        socketManager.showStatusMsg("جاري إنشاء الغرفة..."); 
+        if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
+    }
+});
