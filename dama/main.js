@@ -1,7 +1,7 @@
 /**
  * main.js
  * العقل المدبر المحلي للعبة: يحتوي على أنظمة الحفظ، وإدارة الأزرار، 
- * وربط نافذة التحدي بنظام الرهانات الجديد.
+ * وربط نافذة التحدي بنظام الرهانات، وعجلة الحظ والمهام.
  */
 import { gameState } from './gameState.js'; 
 import { ui } from './uiController.js';
@@ -271,7 +271,7 @@ window.addEventListener('load', async () => {
     }
 });
 
-// 🌟 التعديل 6: نظام التحدي الجديد مع نافذة الرهان
+// متغير لحفظ الـ ID الخاص بالصديق عند إرسال التحدي
 window.pendingChallengeId = null;
 
 window.challengeFriend = function(friendId) {
@@ -283,7 +283,7 @@ window.challengeFriend = function(friendId) {
     // حفظ معرف الصديق مؤقتاً
     window.pendingChallengeId = friendId;
     
-    // إخفاء حقل كلمة السر لأن التحدي خاص بالصديق
+    // إخفاء حقل كلمة السر لأن التحدي خاص بالصديق عبر زر التحدي
     document.getElementById('create-room-password-input').style.display = 'none';
     document.getElementById('create-room-password-input').previousElementSibling.style.display = 'none';
     
@@ -431,7 +431,7 @@ if (cancelMmBtn) {
 ui.onClick('room-portal-btn', () => { ui.setDisplay('online-modal', 'flex'); });
 ui.onClick('online-close-btn', () => ui.setDisplay('online-modal', 'none'));
 
-// 🌟 التعديل 9: تعديل منطق زر إنشاء الغرفة لدعم الردهة والتحديات معاً
+// إنشاء غرفة أو إرسال تحدي من نفس النافذة
 ui.onClick('online-create-btn', () => { 
     let betAmt = parseInt(document.getElementById('room-bet-input').value) || 0;
 
