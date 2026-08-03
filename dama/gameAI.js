@@ -15,26 +15,12 @@ const AI_LEVELS = {
 };
 
 const engine = {
-    getPieceDirection(color, bState) {
-        let baseColor = color.split('-')[0];
-        let wSumRow = 0, wCount = 0; let bSumRow = 0, bCount = 0;
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                let p = bState[r][c];
-                if (p) { if (p[0] === 'w') { wSumRow += r; wCount++; } else if (p[0] === 'b') { bSumRow += r; bCount++; } }
-            }
-        }
-        if (wCount > 0 && bCount > 0) {
-            let wDir = (wSumRow / wCount) < (bSumRow / bCount) ? 1 : -1;
-            let bDir = (bSumRow / bCount) < (wSumRow / wCount) ? 1 : -1;
-            return baseColor === 'white' ? wDir : bDir;
-        }
-        return baseColor === 'black' ? 1 : -1;
-    },
-    getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = null) {
+    getPieceCapturePaths(r, c, color, bState, pieceDirection, parentDr = null, parentDc = null) {
         const colorChar = color[0]; let isDama = bState[r][c] && bState[r][c].length > 5; let paths = [];
-        let dirY = this.getPieceDirection(colorChar === 'b' ? 'black' : 'white', bState);
+        let pureColor = colorChar === 'b' ? 'black' : 'white';
+        let dirY = pieceDirection ? (pieceDirection[pureColor] !== undefined ? pieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1)) : (pureColor === 'black' ? 1 : -1);
         let directions = isDama ? [[0,1], [0,-1], [1,0], [-1,0]] : [[dirY, 0], [0,1], [0,-1]];
+        
         for (let [dr, dc] of directions) {
             if (isDama && parentDr !== null && parentDc !== null && dr === -parentDr && dc === -parentDc) continue;
             if (isDama) {
@@ -52,7 +38,7 @@ const engine = {
                             let capturedPiece = bState[enemyR][enemyC]; let movingPiece = bState[r][c];
                             bState[enemyR][enemyC] = null; bState[nextR][nextC] = movingPiece; bState[r][c] = null;
                             let stepObj = { fromR: r, fromC: c, toR: nextR, toC: nextC, midR: enemyR, midC: enemyC };
-                            let subPaths = this.getPieceCapturePaths(nextR, nextC, color, bState, dr, dc);
+                            let subPaths = this.getPieceCapturePaths(nextR, nextC, color, bState, pieceDirection, dr, dc);
                             if (subPaths.length > 0) { subPaths.forEach(sp => paths.push([stepObj, ...sp])); } else { paths.push([stepObj]); }
                             bState[r][c] = movingPiece; bState[nextR][nextC] = null; bState[enemyR][enemyC] = capturedPiece;
                             step++; continue;
@@ -67,7 +53,7 @@ const engine = {
                         let capturedPiece = bState[midR][midC]; let movingPiece = bState[r][c];
                         bState[midR][midC] = null; bState[toR][toC] = movingPiece; bState[r][c] = null;
                         let stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
-                        let subPaths = this.getPieceCapturePaths(toR, toC, color, bState, dr, dc);
+                        let subPaths = this.getPieceCapturePaths(toR, toC, color, bState, pieceDirection, dr, dc);
                         if (subPaths.length > 0) { subPaths.forEach(sp => paths.push([stepObj, ...sp])); } else { paths.push([stepObj]); }
                         bState[r][c] = movingPiece; bState[toR][toC] = null; bState[midR][midC] = capturedPiece;
                     }
@@ -76,10 +62,12 @@ const engine = {
         }
         return paths;
     },
-    getPieceSimpleMoves(r, c, color, bState) {
+    getPieceSimpleMoves(r, c, color, bState, pieceDirection) {
         const colorChar = color[0]; let isDama = bState[r][c] && bState[r][c].length > 5; let moves = [];
-        let dirY = this.getPieceDirection(colorChar === 'b' ? 'black' : 'white', bState);
+        let pureColor = colorChar === 'b' ? 'black' : 'white';
+        let dirY = pieceDirection ? (pieceDirection[pureColor] !== undefined ? pieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1)) : (pureColor === 'black' ? 1 : -1);
         let directions = isDama ? [[0,1], [0,-1], [1,0], [-1,0]] : [[dirY, 0], [0,1], [0,-1]];
+        
         for (let [dr, dc] of directions) {
             if (isDama) {
                 let step = 1;
@@ -94,13 +82,13 @@ const engine = {
         }
         return moves;
     },
-    generateAllTurnMoves(color, bState) {
+    generateAllTurnMoves(color, bState, pieceDirection) {
         let allCapturePaths = [], maxJumps = 0; const colorChar = color[0];
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 let piece = bState[r][c];
                 if (piece && piece[0] === colorChar) {
-                    let paths = this.getPieceCapturePaths(r, c, color, bState);
+                    let paths = this.getPieceCapturePaths(r, c, color, bState, pieceDirection);
                     for (let p of paths) { if (p.length > maxJumps) maxJumps = p.length; allCapturePaths.push(p); }
                 }
             }
@@ -110,7 +98,7 @@ const engine = {
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 let piece = bState[r][c];
-                if (piece && piece[0] === colorChar) { allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, color, bState)); }
+                if (piece && piece[0] === colorChar) { allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, color, bState, pieceDirection)); }
             }
         }
         return allSimpleMoves;
@@ -127,13 +115,11 @@ const ai = {
         let targetPure = aiColor.split('-')[0];
         let oppPure = targetPure === 'white' ? 'black' : 'white';
         
-        // تحديد اتجاه اللعب
         let myDir = pieceDirection ? (pieceDirection[targetPure] !== undefined ? pieceDirection[targetPure] : (targetPure === 'black' ? 1 : -1)) : (targetPure === 'black' ? 1 : -1);
         
         let myBackRow = myDir === 1 ? 0 : 7;
         let oppBackRow = myDir === 1 ? 7 : 0;
 
-        // مصفوفات لتتبع مواقع القطع لاستخدامها في تكتيكات المطاردة النهائية
         let myDamaPositions = [];
         let oppPositions = [];
         let myPositions = [];
@@ -146,41 +132,30 @@ const ai = {
                 let isTarget = piece.startsWith(targetPure);
                 let isDama = piece.length > 5;
                 
-                // 1. القيمة الأساسية
                 let pieceValue = isDama ? 500 : 100;
-                
-                // 2. مكافأة الصف الخلفي (جدار الدفاع الأساسي)
                 let defenseBonus = (!isDama && r === myBackRow) ? 20 : 0;
-                
-                // 3. السيطرة على المنتصف مقابل أمان الحواف
                 let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 10 : 0;
                 let edgeBonus = (c === 0 || c === 7) ? 5 : 0; 
                 
-                // 4. مكافأة التقدم نحو الترقية (تصاعدي، وليس خطي)
                 let advanceBonus = 0;
                 if (!isDama) {
                     let stepsToPromotion = isTarget ? Math.abs(r - myBackRow) : Math.abs(r - oppBackRow);
-                    // الأوزان: 0, 1, 2, 3, 4, 5, 6 خطوات نحو الترقية
                     const advanceWeights = [0, 2, 5, 12, 25, 45, 75, 0]; 
                     advanceBonus = advanceWeights[stepsToPromotion] || 0;
                 }
 
-                // 5. الترابط الدفاعي (هل القطعة مدعومة من الخلف أو الجوانب؟)
                 let supportBonus = 0;
                 if (!isDama) {
                     let backR = r - myDir; 
                     let friendPrefix = isTarget ? targetPure : oppPure;
                     
-                    // مدعومة من الخلف (صعب أكلها من الأمام)
                     if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(friendPrefix)) {
                         supportBonus += 15; 
                     }
-                    // مدعومة جانبياً
                     if (c > 0 && board[r][c-1] && board[r][c-1].startsWith(friendPrefix)) supportBonus += 5;
                     if (c < 7 && board[r][c+1] && board[r][c+1].startsWith(friendPrefix)) supportBonus += 5;
                 }
 
-                // حساب القيمة الإجمالية للقطعة
                 let totalValue = pieceValue + advanceBonus + centerBonus + edgeBonus + defenseBonus + supportBonus;
 
                 if (isTarget) {
@@ -197,20 +172,17 @@ const ai = {
             }
         }
 
-        // 6. تكتيك المطاردة لإنهاء اللعبة (Endgame Chasing)
         if (myDamas > 0 && oppPieces <= 3 && oppPieces > 0) {
-            score += 300; // مكافأة التفوق المطلق
+            score += 300; 
             let distancePenalty = 0;
-            // حساب المسافة لمحاصرة ما تبقى من قطع الخصم
             for (let dama of myDamaPositions) {
                 for (let opp of oppPositions) {
                     distancePenalty += Math.abs(dama.r - opp.r) + Math.abs(dama.c - opp.c);
                 }
             }
-            score -= (distancePenalty * 3); // إجبار البوت على تقليل المسافة
+            score -= (distancePenalty * 3); 
         }
         
-        // 7. تكتيك الهروب إذا كان الخصم هو المتفوق
         if (oppDamas > 0 && myPieces <= 3 && myPieces > 0) {
             score -= 300;
             let distanceReward = 0;
@@ -219,10 +191,9 @@ const ai = {
                     distanceReward += Math.abs(oppDama.r - me.r) + Math.abs(oppDama.c - me.c);
                 }
             }
-            score += (distanceReward * 2); // مكافأة البوت إذا ابتعد وحافظ على مسافة آمنة
+            score += (distanceReward * 2); 
         }
 
-        // 8. حسم الفوز أو الخسارة مباشرة
         if (oppPieces === 0) score += 90000;
         if (myPieces === 0) score -= 90000;
 
@@ -250,10 +221,10 @@ const ai = {
     },
     coreMinimax(board, depth, alpha, beta, maximizingPlayer, aiColor, pieceDirection, startTime, maxTime) {
         this.nodesEvaluated++;
-        if (this.nodesEvaluated % 10 === 0 && Date.now() - startTime > maxTime) return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
+        if (this.nodesEvaluated % 50 === 0 && Date.now() - startTime > maxTime) return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
         if (depth <= 0) return { score: this.evaluateBoard(board, aiColor, pieceDirection) };
         let currentColor = maximizingPlayer ? aiColor : (aiColor === 'white' ? 'black' : 'white');
-        let moves = engine.generateAllTurnMoves(currentColor, board);
+        let moves = engine.generateAllTurnMoves(currentColor, board, pieceDirection);
         if (moves.length === 0) return { score: maximizingPlayer ? -999999 : 999999 };
         moves = this.orderMoves(moves, currentColor, pieceDirection);
         let bestMove = moves[0];
@@ -283,7 +254,7 @@ const ai = {
     },
     minimax(board, maxAllowedDepth, aiColor, pieceDirection, maxTime) {
         let startTime = Date.now(); this.nodesEvaluated = 0;
-        let moves = engine.generateAllTurnMoves(aiColor, board);
+        let moves = engine.generateAllTurnMoves(aiColor, board, pieceDirection);
         if (moves.length === 0) return { move: null };
         if (moves.length === 1) return { move: moves[0] };
         let bestResult = { move: moves[0] };
@@ -302,7 +273,7 @@ self.onmessage = function (e) {
     try {
         const { board, level, aiColor, pieceDirection } = e.data;
         const currentLevel = AI_LEVELS[level] || AI_LEVELS[3];
-        let moves = engine.generateAllTurnMoves(aiColor, board);
+        let moves = engine.generateAllTurnMoves(aiColor, board, pieceDirection);
         if (!moves || moves.length === 0) return self.postMessage({ move: null });
 
         if (Math.random() < currentLevel.randomChance) {
@@ -348,13 +319,11 @@ export const gameAI = {
         let targetPure = aiColor.split('-')[0];
         let oppPure = targetPure === 'white' ? 'black' : 'white';
         
-        // تحديد اتجاه اللعب
         let myDir = pieceDirection ? (pieceDirection[targetPure] !== undefined ? pieceDirection[targetPure] : (targetPure === 'black' ? 1 : -1)) : (targetPure === 'black' ? 1 : -1);
         
         let myBackRow = myDir === 1 ? 0 : 7;
         let oppBackRow = myDir === 1 ? 7 : 0;
 
-        // مصفوفات لتتبع مواقع القطع لاستخدامها في تكتيكات المطاردة النهائية
         let myDamaPositions = [];
         let oppPositions = [];
         let myPositions = [];
@@ -367,41 +336,30 @@ export const gameAI = {
                 let isTarget = piece.startsWith(targetPure);
                 let isDama = piece.length > 5;
                 
-                // 1. القيمة الأساسية
                 let pieceValue = isDama ? 500 : 100;
-                
-                // 2. مكافأة الصف الخلفي (جدار الدفاع الأساسي)
                 let defenseBonus = (!isDama && r === myBackRow) ? 20 : 0;
-                
-                // 3. السيطرة على المنتصف مقابل أمان الحواف
                 let centerBonus = (r >= 2 && r <= 5 && c >= 2 && c <= 5) ? 10 : 0;
                 let edgeBonus = (c === 0 || c === 7) ? 5 : 0; 
                 
-                // 4. مكافأة التقدم نحو الترقية (تصاعدي، وليس خطي)
                 let advanceBonus = 0;
                 if (!isDama) {
                     let stepsToPromotion = isTarget ? Math.abs(r - myBackRow) : Math.abs(r - oppBackRow);
-                    // الأوزان: 0, 1, 2, 3, 4, 5, 6 خطوات نحو الترقية
                     const advanceWeights = [0, 2, 5, 12, 25, 45, 75, 0]; 
                     advanceBonus = advanceWeights[stepsToPromotion] || 0;
                 }
 
-                // 5. الترابط الدفاعي (هل القطعة مدعومة من الخلف أو الجوانب؟)
                 let supportBonus = 0;
                 if (!isDama) {
                     let backR = r - myDir; 
                     let friendPrefix = isTarget ? targetPure : oppPure;
                     
-                    // مدعومة من الخلف (صعب أكلها من الأمام)
                     if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(friendPrefix)) {
                         supportBonus += 15; 
                     }
-                    // مدعومة جانبياً
                     if (c > 0 && board[r][c-1] && board[r][c-1].startsWith(friendPrefix)) supportBonus += 5;
                     if (c < 7 && board[r][c+1] && board[r][c+1].startsWith(friendPrefix)) supportBonus += 5;
                 }
 
-                // حساب القيمة الإجمالية للقطعة
                 let totalValue = pieceValue + advanceBonus + centerBonus + edgeBonus + defenseBonus + supportBonus;
 
                 if (isTarget) {
@@ -418,20 +376,17 @@ export const gameAI = {
             }
         }
 
-        // 6. تكتيك المطاردة لإنهاء اللعبة (Endgame Chasing)
         if (myDamas > 0 && oppPieces <= 3 && oppPieces > 0) {
-            score += 300; // مكافأة التفوق المطلق
+            score += 300; 
             let distancePenalty = 0;
-            // حساب المسافة لمحاصرة ما تبقى من قطع الخصم
             for (let dama of myDamaPositions) {
                 for (let opp of oppPositions) {
                     distancePenalty += Math.abs(dama.r - opp.r) + Math.abs(dama.c - opp.c);
                 }
             }
-            score -= (distancePenalty * 3); // إجبار البوت على تقليل المسافة
+            score -= (distancePenalty * 3); 
         }
         
-        // 7. تكتيك الهروب إذا كان الخصم هو المتفوق
         if (oppDamas > 0 && myPieces <= 3 && myPieces > 0) {
             score -= 300;
             let distanceReward = 0;
@@ -440,10 +395,9 @@ export const gameAI = {
                     distanceReward += Math.abs(oppDama.r - me.r) + Math.abs(oppDama.c - me.c);
                 }
             }
-            score += (distanceReward * 2); // مكافأة البوت إذا ابتعد وحافظ على مسافة آمنة
+            score += (distanceReward * 2); 
         }
 
-        // 8. حسم الفوز أو الخسارة مباشرة
         if (oppPieces === 0) score += 90000;
         if (myPieces === 0) score -= 90000;
 
@@ -486,14 +440,14 @@ export const gameAI = {
     coreMinimaxSync(board, depth, alpha, beta, maximizingPlayer, aiColor, pieceDirection, startTime, maxTime) {
         this.nodesEvaluated++;
         
-        if (this.nodesEvaluated % 1000 === 0 && Date.now() - startTime > maxTime) {
+        if (this.nodesEvaluated % 50 === 0 && Date.now() - startTime > maxTime) {
             return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
         }
 
         if (depth <= 0) return { score: this.evaluateBoard(board, aiColor, pieceDirection) };
 
         let currentColor = maximizingPlayer ? aiColor : (aiColor === 'white' ? 'black' : 'white');
-        let moves = gameEngine.generateAllTurnMoves(currentColor, board);
+        let moves = gameEngine.generateAllTurnMoves(currentColor, board, pieceDirection);
         if (moves.length === 0) return { score: maximizingPlayer ? -999999 : 999999 };
 
         moves = this.orderMoves(moves, currentColor, pieceDirection);
@@ -529,7 +483,7 @@ export const gameAI = {
     minimaxFallbackSync(board, maxAllowedDepth, aiColor, pieceDirection, maxTime) {
         let startTime = Date.now();
         this.nodesEvaluated = 0;
-        let moves = gameEngine.generateAllTurnMoves(aiColor, board);
+        let moves = gameEngine.generateAllTurnMoves(aiColor, board, pieceDirection);
         if (moves.length === 0) return { move: null };
         if (moves.length === 1) return { move: moves[0] };
 
@@ -564,9 +518,8 @@ export const gameAI = {
                         return runFallback();
                     }
 
-                    // تم إزالة مؤقت الإيقاف (4 ثواني) تماماً لتجنب قتل الـ Worker
-                    // وللسماح للبوت بالوصول للتحليل المنطقي الكامل دون إجهاض المهمة.
-
+                    // لا يوجد مؤقت إيقاف هنا. البوت يأخذ وقته كاملاً للوصول للقرار.
+                    
                     worker.onmessage = (e) => {
                         if (e.data && e.data.error) {
                             console.error("❌ خطأ تنفيذي داخل الـ Worker:", e.data.details);
@@ -578,7 +531,6 @@ export const gameAI = {
 
                     worker.onerror = (err) => {
                         console.error("❌ خطأ في الـ Worker:", err.message || err);
-                        
                         if (this.workerInstance) {
                             this.workerInstance.terminate();
                             this.workerInstance = null;
