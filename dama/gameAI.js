@@ -14,13 +14,11 @@ const AI_LEVELS = {
     9: { depth: 5, randomChance: 0.00, maxTime: 2000, name: "الزعيم" }
 };
 
+// ⚡ المحرك الداخلي للبوت (تم نزع عنق الزجاجة منه ليكون فائق السرعة)
 const engine = {
-    getPieceCapturePaths(r, c, color, bState, pieceDirection, parentDr = null, parentDc = null) {
+    getPieceCapturePaths(r, c, color, bState, dirY, parentDr = null, parentDc = null) {
         const colorChar = color[0]; let isDama = bState[r][c] && bState[r][c].length > 5; let paths = [];
-        let pureColor = colorChar === 'b' ? 'black' : 'white';
-        let dirY = pieceDirection ? (pieceDirection[pureColor] !== undefined ? pieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1)) : (pureColor === 'black' ? 1 : -1);
         let directions = isDama ? [[0,1], [0,-1], [1,0], [-1,0]] : [[dirY, 0], [0,1], [0,-1]];
-        
         for (let [dr, dc] of directions) {
             if (isDama && parentDr !== null && parentDc !== null && dr === -parentDr && dc === -parentDc) continue;
             if (isDama) {
@@ -38,7 +36,7 @@ const engine = {
                             let capturedPiece = bState[enemyR][enemyC]; let movingPiece = bState[r][c];
                             bState[enemyR][enemyC] = null; bState[nextR][nextC] = movingPiece; bState[r][c] = null;
                             let stepObj = { fromR: r, fromC: c, toR: nextR, toC: nextC, midR: enemyR, midC: enemyC };
-                            let subPaths = this.getPieceCapturePaths(nextR, nextC, color, bState, pieceDirection, dr, dc);
+                            let subPaths = this.getPieceCapturePaths(nextR, nextC, color, bState, dirY, dr, dc);
                             if (subPaths.length > 0) { subPaths.forEach(sp => paths.push([stepObj, ...sp])); } else { paths.push([stepObj]); }
                             bState[r][c] = movingPiece; bState[nextR][nextC] = null; bState[enemyR][enemyC] = capturedPiece;
                             step++; continue;
@@ -53,7 +51,7 @@ const engine = {
                         let capturedPiece = bState[midR][midC]; let movingPiece = bState[r][c];
                         bState[midR][midC] = null; bState[toR][toC] = movingPiece; bState[r][c] = null;
                         let stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
-                        let subPaths = this.getPieceCapturePaths(toR, toC, color, bState, pieceDirection, dr, dc);
+                        let subPaths = this.getPieceCapturePaths(toR, toC, color, bState, dirY, dr, dc);
                         if (subPaths.length > 0) { subPaths.forEach(sp => paths.push([stepObj, ...sp])); } else { paths.push([stepObj]); }
                         bState[r][c] = movingPiece; bState[toR][toC] = null; bState[midR][midC] = capturedPiece;
                     }
@@ -62,12 +60,9 @@ const engine = {
         }
         return paths;
     },
-    getPieceSimpleMoves(r, c, color, bState, pieceDirection) {
+    getPieceSimpleMoves(r, c, color, bState, dirY) {
         const colorChar = color[0]; let isDama = bState[r][c] && bState[r][c].length > 5; let moves = [];
-        let pureColor = colorChar === 'b' ? 'black' : 'white';
-        let dirY = pieceDirection ? (pieceDirection[pureColor] !== undefined ? pieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1)) : (pureColor === 'black' ? 1 : -1);
         let directions = isDama ? [[0,1], [0,-1], [1,0], [-1,0]] : [[dirY, 0], [0,1], [0,-1]];
-        
         for (let [dr, dc] of directions) {
             if (isDama) {
                 let step = 1;
@@ -84,11 +79,14 @@ const engine = {
     },
     generateAllTurnMoves(color, bState, pieceDirection) {
         let allCapturePaths = [], maxJumps = 0; const colorChar = color[0];
+        let pureColor = colorChar === 'b' ? 'black' : 'white';
+        let dirY = pieceDirection ? (pieceDirection[pureColor] !== undefined ? pieceDirection[pureColor] : (pureColor === 'black' ? 1 : -1)) : (pureColor === 'black' ? 1 : -1);
+
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 let piece = bState[r][c];
                 if (piece && piece[0] === colorChar) {
-                    let paths = this.getPieceCapturePaths(r, c, color, bState, pieceDirection);
+                    let paths = this.getPieceCapturePaths(r, c, color, bState, dirY);
                     for (let p of paths) { if (p.length > maxJumps) maxJumps = p.length; allCapturePaths.push(p); }
                 }
             }
@@ -98,7 +96,7 @@ const engine = {
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 let piece = bState[r][c];
-                if (piece && piece[0] === colorChar) { allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, color, bState, pieceDirection)); }
+                if (piece && piece[0] === colorChar) { allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, color, bState, dirY)); }
             }
         }
         return allSimpleMoves;
@@ -116,7 +114,6 @@ const ai = {
         let oppPure = targetPure === 'white' ? 'black' : 'white';
         
         let myDir = pieceDirection ? (pieceDirection[targetPure] !== undefined ? pieceDirection[targetPure] : (targetPure === 'black' ? 1 : -1)) : (targetPure === 'black' ? 1 : -1);
-        
         let myBackRow = myDir === 1 ? 0 : 7;
         let oppBackRow = myDir === 1 ? 7 : 0;
 
@@ -148,10 +145,7 @@ const ai = {
                 if (!isDama) {
                     let backR = r - myDir; 
                     let friendPrefix = isTarget ? targetPure : oppPure;
-                    
-                    if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(friendPrefix)) {
-                        supportBonus += 15; 
-                    }
+                    if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(friendPrefix)) { supportBonus += 15; }
                     if (c > 0 && board[r][c-1] && board[r][c-1].startsWith(friendPrefix)) supportBonus += 5;
                     if (c < 7 && board[r][c+1] && board[r][c+1].startsWith(friendPrefix)) supportBonus += 5;
                 }
@@ -176,9 +170,7 @@ const ai = {
             score += 300; 
             let distancePenalty = 0;
             for (let dama of myDamaPositions) {
-                for (let opp of oppPositions) {
-                    distancePenalty += Math.abs(dama.r - opp.r) + Math.abs(dama.c - opp.c);
-                }
+                for (let opp of oppPositions) { distancePenalty += Math.abs(dama.r - opp.r) + Math.abs(dama.c - opp.c); }
             }
             score -= (distancePenalty * 3); 
         }
@@ -187,9 +179,7 @@ const ai = {
             score -= 300;
             let distanceReward = 0;
             for (let oppDama of oppPositions) { 
-                for (let me of myPositions) {
-                    distanceReward += Math.abs(oppDama.r - me.r) + Math.abs(oppDama.c - me.c);
-                }
+                for (let me of myPositions) { distanceReward += Math.abs(oppDama.r - me.r) + Math.abs(oppDama.c - me.c); }
             }
             score += (distanceReward * 2); 
         }
@@ -224,10 +214,13 @@ const ai = {
         if (this.nodesEvaluated % 50 === 0 && Date.now() - startTime > maxTime) return { score: this.evaluateBoard(board, aiColor, pieceDirection), timeOut: true };
         if (depth <= 0) return { score: this.evaluateBoard(board, aiColor, pieceDirection) };
         let currentColor = maximizingPlayer ? aiColor : (aiColor === 'white' ? 'black' : 'white');
+        
         let moves = engine.generateAllTurnMoves(currentColor, board, pieceDirection);
         if (moves.length === 0) return { score: maximizingPlayer ? -999999 : 999999 };
+        
         moves = this.orderMoves(moves, currentColor, pieceDirection);
         let bestMove = moves[0];
+        
         if (maximizingPlayer) {
             let maxEval = -Infinity;
             for (let move of moves) {
@@ -294,14 +287,12 @@ self.onmessage = function (e) {
 
 export const gameAI = {
     workerInstance: null,
-    nodesEvaluated: 0,
 
     getWorkerInstance() {
         if (!this.workerInstance) {
             try {
-                // 🚀 السحر يبدأ هنا: نستخدم Data URI بدلاً من Blob أو الملف الخارجي
                 const dataUri = 'data:application/javascript;charset=utf-8,' + encodeURIComponent(inlineWorkerCode);
-                console.log("رابط الـ Worker المتولد: ", dataUri); 
+                console.log("رابط الـ Worker المتولد جاهز للعمل."); 
                 this.workerInstance = new Worker(dataUri);
             } catch (error) {
                 console.warn("⚠️ فشل إنشاء الـ Worker بالـ Data URI، سيتم استخدام البديل...", error);
@@ -320,7 +311,6 @@ export const gameAI = {
         let oppPure = targetPure === 'white' ? 'black' : 'white';
         
         let myDir = pieceDirection ? (pieceDirection[targetPure] !== undefined ? pieceDirection[targetPure] : (targetPure === 'black' ? 1 : -1)) : (targetPure === 'black' ? 1 : -1);
-        
         let myBackRow = myDir === 1 ? 0 : 7;
         let oppBackRow = myDir === 1 ? 7 : 0;
 
@@ -352,10 +342,7 @@ export const gameAI = {
                 if (!isDama) {
                     let backR = r - myDir; 
                     let friendPrefix = isTarget ? targetPure : oppPure;
-                    
-                    if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(friendPrefix)) {
-                        supportBonus += 15; 
-                    }
+                    if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(friendPrefix)) { supportBonus += 15; }
                     if (c > 0 && board[r][c-1] && board[r][c-1].startsWith(friendPrefix)) supportBonus += 5;
                     if (c < 7 && board[r][c+1] && board[r][c+1].startsWith(friendPrefix)) supportBonus += 5;
                 }
@@ -447,7 +434,7 @@ export const gameAI = {
         if (depth <= 0) return { score: this.evaluateBoard(board, aiColor, pieceDirection) };
 
         let currentColor = maximizingPlayer ? aiColor : (aiColor === 'white' ? 'black' : 'white');
-        let moves = gameEngine.generateAllTurnMoves(currentColor, board, pieceDirection);
+        let moves = gameEngine.generateAllTurnMoves(currentColor, board);
         if (moves.length === 0) return { score: maximizingPlayer ? -999999 : 999999 };
 
         moves = this.orderMoves(moves, currentColor, pieceDirection);
@@ -483,7 +470,7 @@ export const gameAI = {
     minimaxFallbackSync(board, maxAllowedDepth, aiColor, pieceDirection, maxTime) {
         let startTime = Date.now();
         this.nodesEvaluated = 0;
-        let moves = gameEngine.generateAllTurnMoves(aiColor, board, pieceDirection);
+        let moves = gameEngine.generateAllTurnMoves(aiColor, board);
         if (moves.length === 0) return { move: null };
         if (moves.length === 1) return { move: moves[0] };
 
@@ -518,8 +505,6 @@ export const gameAI = {
                         return runFallback();
                     }
 
-                    // لا يوجد مؤقت إيقاف هنا. البوت يأخذ وقته كاملاً للوصول للقرار.
-                    
                     worker.onmessage = (e) => {
                         if (e.data && e.data.error) {
                             console.error("❌ خطأ تنفيذي داخل الـ Worker:", e.data.details);
