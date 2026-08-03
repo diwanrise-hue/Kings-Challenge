@@ -415,7 +415,6 @@
         #lucky-spin-modal { z-index: 20000002 !important; }
         #level-up-modal { z-index: 20000003 !important; } 
         
-        /* ✅ تم الإصلاح: الزر الآن ثابت داخل النافذة */
         .settings-card { position: relative !important; background: rgba(35, 38, 45, 0.95) !important; border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05) !important; text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
         
         #store-modal .settings-card, #themes-grid-overlay .settings-card { 
@@ -431,7 +430,6 @@
         .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .scrollable-content::-webkit-scrollbar-thumb { background: rgba(135, 206, 235, 0.5); border-radius: 10px; }
 
-        /* ✅ زر الإغلاق الدائري الأنيق */
         .modal-close-btn { position: absolute; top: 15px; left: 15px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: rgba(255,255,255,0.7); font-size: 16px; cursor: pointer; transition: all 0.3s ease; z-index: 10; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; padding: 0; }
         .modal-close-btn:hover { background: rgba(255,69,58,0.15) !important; border-color: rgba(255,69,58,0.4) !important; color: #ff453a; transform: scale(1.1); }
         
@@ -668,8 +666,23 @@
                         value = JSON.stringify(profile);
                     }
                 } catch(e) {}
+                
+                // ✅ إرسال رسالة المزامنة للأب فقط عند حفظ بيانات جديدة بنجاح
+                if(window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                }
             }
             originalSetItem.call(this, key, value);
+        };
+
+        const originalRemoveItem = localStorage.removeItem;
+        localStorage.removeItem = function(key) {
+            if (key === 'hub_user_profile') {
+                if(window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                }
+            }
+            originalRemoveItem.call(this, key);
         };
     </script>
 </head>
@@ -720,7 +733,6 @@
         </div>
 
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-            <!-- ✅ تم ضبط موقع الرادار ليظهر دائماً فوق البينج -->
             <div id="mini-disconnect-radar" style="display: none; position: fixed; bottom: 25px; left: calc(50% + 118px); transform: translateX(-50%); border-radius: 50%; width: 34px; height: 34px; z-index: 999999; background: rgba(15, 18, 25, 0.85); padding: 4px; border: 1px solid rgba(255, 69, 58, 0.4); box-shadow: 0 0 12px rgba(255, 69, 58, 0.3);"></div>
             <div id="turn-box-container">
                 <h3 id="turn-indicator">Your Turn</h3>
@@ -792,7 +804,6 @@
         </div>
     </div>
 
-    <!-- ✅ نافذة المهام المطورة بالتبويبات -->
     <div id="daily-quests-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')">✕</button>
@@ -1308,8 +1319,15 @@
             const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
             const currentId = profile.id || getUserId();
             const textElements = { 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 'igp-id-display': currentId, 'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 };
-            for (let id in textElements) { const el = document.getElementById(id); if (el) { el.innerText = textElements[id]; } }
-            forceLockedGlobalAvatar(); if(window.updateInventoryUI) window.updateInventoryUI(); if(window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+            
+            for (let id in textElements) { 
+                const el = document.getElementById(id); 
+                if (el) { el.innerText = textElements[id]; } 
+            }
+            
+            forceLockedGlobalAvatar(); 
+            if(window.updateInventoryUI) window.updateInventoryUI(); 
+            // ✅ تم إزالة إرسال الرسالة من هنا لمنع حلقة التكرار اللانهائية!
         }
 
         window.currentLang = 'ar';
