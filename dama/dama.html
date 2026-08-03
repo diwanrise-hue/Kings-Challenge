@@ -1185,8 +1185,8 @@
         </button>
         <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none; padding: 0; width: 44px; align-items: center; justify-content: center;">↩️</button>
         
-        <!-- التعديل 2: إصلاح زر الراديو وتفعيل كود الجافاسكربت مباشرة بداخله -->
-        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="let dot = document.getElementById('dama-radio-status'); dot.classList.toggle('active'); localStorage.setItem('hub_music_enabled', dot.classList.contains('active')); window.parent.postMessage({ type: 'TOGGLE_RADIO' }, '*');">
+        <!-- تم تعديل زر الراديو ليعتمد على الدالة المستقلة لتجنب مشاكل التشغيل المستمر -->
+        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="window.toggleRadioMusic()">
             <span id="dama-radio-status" class="radio-status-dot"></span><span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
         </button>
         
@@ -1459,7 +1459,38 @@
             openAppModal('purchase-modal');
         };
 
-        function syncRadioStatusDot() { const statusDot = document.getElementById('dama-radio-status'); if (statusDot) { const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; if (isPlaying) statusDot.classList.add('active'); else statusDot.classList.remove('active'); } }
+        // دالة التحكم في تشغيل وإيقاف الراديو
+        window.toggleRadioMusic = function() {
+            const dot = document.getElementById('dama-radio-status');
+            if (!dot) return;
+            
+            // تبديل حالة الزر الأخضر (مفعل/غير مفعل)
+            const isActive = dot.classList.toggle('active');
+            
+            // حفظ الحالة في الذاكرة
+            localStorage.setItem('hub_music_enabled', isActive);
+            
+            // إرسال جميع أوامر التشغيل والإيقاف المحتملة لضمان استجابة السيرفر/النافذة الأب
+            window.parent.postMessage({ type: 'TOGGLE_RADIO', state: isActive }, '*');
+            
+            if (isActive) {
+                window.parent.postMessage({ type: 'PLAY_RADIO' }, '*');
+                window.parent.postMessage({ type: 'PLAY_MUSIC' }, '*');
+            } else {
+                window.parent.postMessage({ type: 'PAUSE_RADIO' }, '*');
+                window.parent.postMessage({ type: 'STOP_RADIO' }, '*');
+                window.parent.postMessage({ type: 'STOP_MUSIC' }, '*');
+            }
+        };
+
+        function syncRadioStatusDot() { 
+            const statusDot = document.getElementById('dama-radio-status'); 
+            if (statusDot) { 
+                const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; 
+                if (isPlaying) statusDot.classList.add('active'); 
+                else statusDot.classList.remove('active'); 
+            } 
+        }
     </script>
     
     <script>
