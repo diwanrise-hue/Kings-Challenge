@@ -1,6 +1,7 @@
 /**
  * socketManager.js
- * النسخة المحمية والمطلقة: (محرك اتصال صلب يدعم التبديل بين الشبكات وينهي الاتصال الوهمي نهائياً)
+ * النسخة المتطورة: تدعم نظام التحديات المتقدم، استئذان المايك، 
+ * ردهة الغرف النشطة (Lobby)، ومزامنة الساحة للاعب الأعلى XP.
  */
 
 import { gameState } from './gameState.js'; 
@@ -8,10 +9,9 @@ import { startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
 
-// ✅ إجبار استخدام WebSocket مباشرة لتجنب مشكلة (transport close) مع سيرفرات Hugging Face
 export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { 
-    transports: ['websocket'], // 👈 تغيير هام: إزالة 'polling'
-    upgrade: false,            // 👈 تغيير هام: منع محاولة الترقية التي تسبب الانقطاع
+    transports: ['websocket'], 
+    upgrade: false,            
     reconnection: true,                   
     reconnectionAttempts: Infinity,       
     reconnectionDelay: 1000,              
@@ -37,9 +37,9 @@ export const socketManager = {
             toast = document.createElement('div');
             toast.id = 'game-toast-notification';
             toast.style.cssText = `
-                position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+                position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
                 background: rgba(25, 25, 30, 0.95); color: #fff; padding: 12px 24px;
-                border-radius: 8px; z-index: 10000000; font-family: sans-serif; font-size: 14px;
+                border-radius: 50px; z-index: 10000000; font-family: sans-serif; font-size: 14px;
                 text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
                 transition: opacity 0.3s ease, transform 0.3s ease; opacity: 0;
                 pointer-events: none; border: 1px solid rgba(255,255,255,0.1);
@@ -93,13 +93,11 @@ export const socketManager = {
 
         if (this.pingIntervalId) clearInterval(this.pingIntervalId);
 
-        // ✅ نظام الفحص المزدوج + كلب الحراسة (Watchdog) لإجبار الاتصال
         this.pingIntervalId = setInterval(() => {
             if (navigator.onLine) {
                 if (socket && socket.connected) {
                     socket.volatile.emit('clientPing', Date.now()); 
                 } else {
-                    // الهاتف متصل بالنت لكن السوكيت ميت! إجبار الاتصال فوراً
                     this._updatePingUI(999);
                     this._showDisconnectUI();
                     socket.connect(); 
@@ -141,31 +139,7 @@ export const socketManager = {
 
     _showDisconnectUI() {
         let miniRadar = document.getElementById('mini-disconnect-radar');
-        if (!miniRadar) {
-            miniRadar = document.createElement('div');
-            miniRadar.id = 'mini-disconnect-radar';
-            document.body.appendChild(miniRadar);
-        }
-
-        miniRadar.style.cssText = "display: flex !important; position: absolute; bottom: 20px; left: calc(50% + 118px); transform: translateX(-50%); z-index: 999999; width: 32px; height: 32px; background: rgba(15, 18, 25, 0.9); border-radius: 50%; padding: 4px; border: 1px solid rgba(255, 69, 58, 0.6); box-shadow: 0 0 12px rgba(255, 69, 58, 0.5);";
-
-        if (miniRadar.innerHTML.trim() === '') {
-            miniRadar.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
-                    <defs>
-                        <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#2a241e" /><stop offset="100%" stop-color="#14110e" /></radialGradient>
-                        <linearGradient id="goldGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#bf8530" /><stop offset="50%" stop-color="#fce288" /><stop offset="100%" stop-color="#8c5a1c" /></linearGradient>
-                    </defs>
-                    <rect x="5" y="5" width="110" height="110" rx="28" fill="url(#bgGrad)" stroke="#3d301f" stroke-width="2"/>
-                    <g stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round" fill="none" transform="translate(0, 5)">
-                        <circle cx="60" cy="85" r="6" fill="url(#goldGrad)" stroke="none" style="animation: radarPing 1.5s infinite;"/>
-                        <path d="M 42 68 A 25 25 0 0 1 78 68" style="animation: radarPing 1.5s infinite 0.2s;"/>
-                        <path d="M 26 51 A 45 45 0 0 1 94 51" style="animation: radarPing 1.5s infinite 0.4s;"/>
-                        <path d="M 10 34 A 65 65 0 0 1 110 34" style="animation: radarPing 1.5s infinite 0.6s;"/>
-                    </g>
-                </svg>
-            `;
-        }
+        if (miniRadar) miniRadar.style.display = 'flex !important';
     },
 
     _hideDisconnectUI() {
@@ -186,6 +160,7 @@ export const socketManager = {
                             avatar: String(parsed.avatar || '1000132081.png').trim(),
                             isCustomAvatar: !!parsed.isCustomAvatar,
                             tokens: typeof parsed.tokens === 'number' ? parsed.tokens : 0,
+                            xp: typeof parsed.xp === 'number' ? parsed.xp : 0,
                             gamesPlayed: Number(parsed.gamesPlayed) || 0,
                             wins: Number(parsed.wins) || 0,
                             losses: Number(parsed.losses) || 0,
@@ -208,6 +183,7 @@ export const socketManager = {
                 avatar: '1000132081.png',
                 isCustomAvatar: false,
                 tokens: 0,
+                xp: 0,
                 gamesPlayed: 0,
                 wins: 0,
                 losses: 0,
@@ -230,13 +206,12 @@ export const socketManager = {
         socket.emit(event, data);
     },
 
-    // ✅ دالة خاصة لإجبار إعادة الاتصال الصارم
     _forceReconnect() {
         if (socket.connected) return;
         socketManager._showToast(gameState.lang === 'ar' ? "جاري محاولة الاتصال بالسيرفر..." : "Reconnecting to server...");
-        socket.disconnect(); // إغلاق أي اتصال معلق
+        socket.disconnect(); 
         setTimeout(() => {
-            socket.io.opts.transports = ['websocket']; // تصفير الانتقال إلى websocket فقط
+            socket.io.opts.transports = ['websocket']; 
             socket.connect();
         }, 500);
     },
@@ -245,9 +220,8 @@ export const socketManager = {
         window.socketManager = this;
         this._initRealPingIndicator();
 
-        // 💡 تفاعل حقيقي مع حالة الشبكة
         window.addEventListener('online', () => {
-            setTimeout(() => this._forceReconnect(), 1000); // ننتظر ثانية ليستقر الإنترنت ثم نتصل
+            setTimeout(() => this._forceReconnect(), 1000); 
         });
 
         window.addEventListener('offline', () => {
@@ -260,7 +234,7 @@ export const socketManager = {
                 if (navigator.onLine && !socket.connected) {
                     this._forceReconnect();
                 } else if (navigator.onLine && socket.connected) {
-                    socket.volatile.emit('clientPing', Date.now()); // كسر البينج
+                    socket.volatile.emit('clientPing', Date.now()); 
                 }
             }
         });
@@ -272,7 +246,8 @@ export const socketManager = {
             'rematchOffer', 'rematchAccepted', 'error', 'receiveChallenge',
             'challengeResponse', 'profileUpdated', 'friendAddedNotification',
             'friendAddSuccess', 'friendAddFailed', 'opponentLeftRoom', 'roomClosedByTimeout',
-            'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState'
+            'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState',
+            'activeRoomsList', 'mic-request', 'mic-response'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
@@ -282,31 +257,78 @@ export const socketManager = {
             }
         });
 
+        // 🌟 التعديل 9: استقبال قائمة الرومات النشطة للوبي
+        socket.on('activeRoomsList', (rooms) => {
+            const listContainer = document.getElementById('active-rooms-list');
+            if (!listContainer) return;
+            
+            if (!rooms || rooms.length === 0) {
+                listContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>';
+                return;
+            }
+            
+            listContainer.innerHTML = '';
+            rooms.forEach(r => {
+                const isPrivate = r.hasPassword ? '🔒 محمية' : '🔓 عامة';
+                const betText = r.betAmount > 0 ? `💰 ${r.betAmount} 🪙` : `🆓 مجاني`;
+                const roomEl = document.createElement('div');
+                
+                let avatarSrc = r.hostAvatar || "1000132081.png";
+                if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
+                    let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+                    avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
+                }
+
+                roomEl.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.3s;";
+                roomEl.onmouseenter = () => roomEl.style.background = 'rgba(255,255,255,0.1)';
+                roomEl.onmouseleave = () => roomEl.style.background = 'rgba(255,255,255,0.05)';
+                
+                roomEl.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid #3498db; background-color: rgba(255,255,255,0.05);">
+                            <img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width:100%;height:100%;object-fit:cover; display:flex; align-items:center; justify-content:center;">
+                        </div>
+                        <div>
+                            <div style="color: white; font-weight: bold; font-size: 14px;">${r.hostName}</div>
+                            <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
+                        </div>
+                    </div>
+                    <button style="background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.4); border-radius: 8px; padding: 6px 14px; font-weight: bold; font-size: 12px; pointer-events: none;">دخول</button>
+                `;
+                roomEl.onclick = () => {
+                    if (r.hasPassword) {
+                        const pwd = prompt("هذه الغرفة محمية بكلمة سر. الرجاء إدخالها:");
+                        if (pwd !== null) socketManager.handleRoomAction('joinRoom', r.id, pwd, r.betAmount);
+                    } else {
+                        socketManager.handleRoomAction('joinRoom', r.id, null, r.betAmount);
+                    }
+                };
+                listContainer.appendChild(roomEl);
+            });
+        });
+
         socket.on('connect', () => {
-            console.log('Connected to server successfully');
             this._hideDisconnectUI();
-            this._updatePingUI(45); // ✅ إعطاء بينج مبدئي جيد لإزالة اللون الأحمر فوراً
+            this._updatePingUI(45); 
             socket.volatile.emit('clientPing', Date.now()); 
 
             const profile = this._ensureUserProfile();
             socket.emit('deviceFingerprint', { guestId: profile.id });
             
+            // طلب جلب الرومات المفتوحة للوبي
+            socket.emit('requestActiveRooms');
+
             if (gameState.isOnlineMode && gameState.onlineRoomID) {
                 socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
                 this.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
             
-            // ✅ إخفاء رسالة "جاري الاتصال" فوراً
             if (typeof ui.setDisplay === 'function') {
                 ui.setDisplay('custom-alert-modal', 'none');
-            } else {
-                const alertModal = document.getElementById('custom-alert-modal');
-                if (alertModal) alertModal.style.display = 'none';
             }
         });
 
         socket.on('disconnect', (reason) => {
-            console.warn('Disconnected:', reason);
             this._updatePingUI(999);
             this._showDisconnectUI();
         });
@@ -343,19 +365,23 @@ export const socketManager = {
             gameState.isBotOpponent = false;
             gameState.playerColor = gameState.myOnlineColor = 'white';
             if(id) gameState.onlineRoomID = id;
-            this.showStatusMsg(gameState.lang === 'ar' ? "تم الإنشاء! بانتظار الخصم" : "Created! Waiting...");
-            ui.setDisplay('online-setup-box', 'none');
+            this._showToast(gameState.lang === 'ar' ? "تم الإنشاء! بانتظار الخصم" : "Created! Waiting...");
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
         });
 
         socket.on('roomJoined', () => {
             gameState.isBotOpponent = false;
             gameState.playerColor = gameState.myOnlineColor = 'black';
-            this.showStatusMsg(gameState.lang === 'ar' ? "تم الانضمام!" : "Joined!");
-            ui.setDisplay('online-setup-box', 'none');
+            this._showToast(gameState.lang === 'ar' ? "تم الانضمام!" : "Joined!");
+            if (typeof window.closeAppModal === 'function') {
+                window.closeAppModal('online-modal');
+                window.closeAppModal('create-room-modal');
+            }
         });
 
-        socket.on('waitingForOpponent', msg => this.showStatusMsg(msg));
+        socket.on('waitingForOpponent', msg => this._showToast(msg));
 
+        // 🌟 التعديل 10: مزامنة ساحة اللاعب الأعلى مستوى
         socket.on('gameStart', data => {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
@@ -382,6 +408,7 @@ export const socketManager = {
 
             gameState.currentOpponentName = (data.opponent?.name || data.opponentName || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
             gameState.currentOpponentAvatar = (data.opponent?.avatar || data.opponentAvatar || "1000132081.png");
+            gameState.currentOpponentXp = data.opponent?.xp || 0;
             
             gameState.isOnlineMode = true;
             startOnlineHintSystem(); 
@@ -408,11 +435,39 @@ export const socketManager = {
             }
             
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
-            this._ensureUserProfile();
+            const myProfile = this._ensureUserProfile();
+            
+            // 🌟 منطق مزامنة الساحة حسب الأعلى XP
+            const optout = localStorage.getItem('dama_sync_optout') === 'true';
+            const myXp = myProfile.xp || 0;
+            const oppXp = gameState.currentOpponentXp;
+
+            if (!optout && oppXp > myXp) {
+                this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً! (يمكن الإلغاء من الإعدادات)`);
+                const oppBgId = data.opponent?.equippedBg || 'bg_wood';
+                const oppPcId = data.opponent?.equippedPc || 'pc_original';
+                
+                if (window.STORE_ITEMS) {
+                    const bgItem = window.STORE_ITEMS[oppBgId];
+                    if (bgItem) {
+                        if (bgItem.light && bgItem.dark) {
+                            document.documentElement.style.setProperty('--light-cell', bgItem.light);
+                            document.documentElement.style.setProperty('--dark-cell', bgItem.dark);
+                        }
+                    }
+                    document.body.setAttribute('data-piece-style', oppPcId);
+                }
+            } else if (!optout && myXp > oppXp) {
+                this._showToast("✨ تم تطبيق ساحتك على الخصم لأنك الأعلى تصنيفاً!");
+                if (typeof window.applyTheme === 'function') window.applyTheme(myProfile);
+            } else {
+                if (typeof window.applyTheme === 'function') window.applyTheme(myProfile);
+            }
 
             ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('online-modal');
+                window.closeAppModal('create-room-modal');
                 window.closeAppModal('matchmaking-modal');
             }
             ui.renderBoard(true);
@@ -636,80 +691,101 @@ export const socketManager = {
             if (msg && (msg.includes('match') || msg.includes('غرفة') || msg.includes('Room') || msg.includes('غير قانونية'))) {
                 this.handleExitGame();
             }
-            ui.setDisplay('online-status-text', 'none');
-            ui.setDisplay('online-setup-box', 'block');
         });
 
+        // 🌟 التعديل 6: استقبال التحدي كإشعار جانبي منزلق
         socket.on('receiveChallenge', data => {
-            if (!data || this.isAlertShown) return;
-            this.isAlertShown = true;
-            
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
-            else ui.setDisplay('custom-alert-modal', 'none');
-
+            if (!data) return;
             const profile = this._ensureUserProfile();
             const challengerName = data.challengerName || (gameState.lang === 'ar' ? 'صديق' : 'Friend');
-            const msg = gameState.lang === 'ar' 
-                ? `تحدي من (${challengerName})! هل تقبل؟` 
-                : `Challenge from (${challengerName})! Accept?`;
+            const betText = data.betAmount > 0 ? `برهان قدره <b>${data.betAmount} 🪙</b>` : `في مباراة ودية`;
             
-            if (typeof ui.showCustomAlert === 'function') {
-                ui.showCustomAlert(msg, gameState.lang === 'ar' ? 'تحدي جديد ⚔️' : 'Challenge ⚔️', 
-                    () => { 
-                        this.isAlertShown = false;
-                        socket.emit('challengeResponse', { 
-                            challengerId: data.challengerId, 
-                            accept: true, 
-                            responderId: profile.id,
-                            responderName: profile.name,
-                            roomID: data.roomID
-                        });
+            const toast = document.getElementById('challenge-toast');
+            const toastMsg = document.getElementById('challenge-toast-msg');
+            const openBtn = document.getElementById('challenge-toast-open-btn');
+            
+            if (toast && toastMsg && openBtn) {
+                toastMsg.innerHTML = `اللاعب <b>${challengerName}</b> يتحداك ${betText}.`;
+                toast.style.right = '15px'; 
+                
+                const hideTimeout = setTimeout(() => { toast.style.right = '-320px'; }, 15000);
+                
+                openBtn.onclick = () => {
+                    clearTimeout(hideTimeout);
+                    toast.style.right = '-320px';
+                    
+                    const actionModal = document.getElementById('challenge-action-modal');
+                    const actionMsg = document.getElementById('challenge-action-msg');
+                    const acceptBtn = document.getElementById('challenge-accept-btn');
+                    const rejectBtn = document.getElementById('challenge-reject-btn');
+                    
+                    if (actionModal && actionMsg) {
+                        actionMsg.innerHTML = `هل تقبل تحدي <b>${challengerName}</b> ${betText}؟`;
+                        actionModal.style.display = 'flex';
                         
-                        this._showToast(gameState.lang === 'ar' ? "جاري الدخول للمباراة..." : "Entering match...");
+                        acceptBtn.onclick = () => {
+                            actionModal.style.display = 'none';
+                            socket.emit('challengeResponse', { 
+                                challengerId: data.challengerId, 
+                                accept: true, 
+                                responderId: profile.id,
+                                responderName: profile.name,
+                                roomID: data.roomID
+                            });
+                            socketManager._showToast(gameState.lang === 'ar' ? "جاري الدخول للمباراة..." : "Entering match...");
+                            if (data.roomID) {
+                                socketManager.handleRoomAction('joinRoom', data.roomID); 
+                            }
+                        };
                         
-                        if (data.roomID) {
-                            this.handleRoomAction('joinRoom', data.roomID); 
-                            if (typeof window.closeAppModal === 'function') window.closeAppModal('in-game-profile-modal');
-                        }
-                    }, 
-                    true 
-                );
-
-                const updateChallengeUI = () => {
-                    const alertContainer = document.getElementById('custom-alert-modal');
-                    if (alertContainer) {
-                        alertContainer.style.setProperty('z-index', '99999999', 'important');
-                        const buttons = alertContainer.querySelectorAll('button');
-                        if (buttons && buttons.length >= 2) {
-                            buttons[0].style.display = 'none'; 
-                            buttons[1].textContent = gameState.lang === 'ar' ? "إلغاء" : "Cancel";
-                            buttons[1].onclick = (e) => {
-                                e.preventDefault();
-                                socketManager.isAlertShown = false;
-                                if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
-                                else ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(); 
-                            };
-                        }
+                        rejectBtn.onclick = () => {
+                            actionModal.style.display = 'none';
+                            socket.emit('challengeResponse', { 
+                                challengerId: data.challengerId, 
+                                accept: false, 
+                                responderName: profile.name
+                            });
+                        };
                     }
                 };
-                updateChallengeUI();
-                setTimeout(updateChallengeUI, 50);
             }
         });
 
         socket.on('challengeResponse', data => {
-            this.isAlertShown = false;
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
-            else ui.setDisplay('custom-alert-modal', 'none');
-
             if (data && data.accept) {
                 this._showToast(gameState.lang === 'ar' ? "تم القبول! جاري التجهيز..." : "Accepted! Preparing...");
-                if (typeof window.closeAppModal === 'function') window.closeAppModal('in-game-profile-modal');
             } else {
                 const responderName = (data && data.responderName) || (gameState.lang === 'ar' ? 'الصديق' : 'Friend');
                 this._showToast(gameState.lang === 'ar' ? `رفض ${responderName} التحدي.` : `${responderName} declined.`);
                 this.handleExitGame(); 
+            }
+        });
+
+        // 🌟 التعديل 8: الاستماع لطلب تفعيل المايك من الخصم
+        socket.on('mic-request', (data) => {
+            if (!gameState.isOnlineMode) return;
+            const modal = document.getElementById('mic-request-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.getElementById('mic-accept-btn').onclick = () => {
+                    modal.style.display = 'none';
+                    socket.emit('mic-response', { roomID: gameState.onlineRoomID, accept: true, senderId: data.senderId });
+                    if (window.voiceChat) window.voiceChat.forceStartCall();
+                };
+                document.getElementById('mic-reject-btn').onclick = () => {
+                    modal.style.display = 'none';
+                    socket.emit('mic-response', { roomID: gameState.onlineRoomID, accept: false, senderId: data.senderId });
+                };
+            }
+        });
+
+        socket.on('mic-response', (data) => {
+            if (data.accept) {
+                this._showToast("تم قبول طلب الصوت 🎤");
+                if (window.voiceChat) window.voiceChat.forceStartCall();
+            } else {
+                this._showToast("رفض الخصم طلب المحادثة الصوتية 🔕");
+                if (window.voiceChat) window.voiceChat.updateMicUI(false);
             }
         });
 
@@ -784,8 +860,13 @@ export const socketManager = {
         document.getElementById('custom-results-modal-container')?.remove();
         
         this.isAlertShown = false; 
-        if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
-        else ui.setDisplay('custom-alert-modal', 'none');
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('custom-alert-modal');
+            window.closeAppModal('challenge-action-modal');
+        } else {
+            ui.setDisplay('custom-alert-modal', 'none');
+            ui.setDisplay('challenge-action-modal', 'none');
+        }
         
         if (gameState.onlineRoomID && socket.connected) {
             socket.emit('leaveRoom', { roomID: String(gameState.onlineRoomID).trim() });
@@ -800,12 +881,18 @@ export const socketManager = {
             gameState.turnTimerInterval = null;
         }
         
+        // استعادة شكل الساحة الافتراضي إذا تم تغييره بسبب الأونلاين
+        if (gameState.isOnlineMode && typeof window.applyTheme === 'function' && gameState.userProfile) {
+            window.applyTheme(gameState.userProfile);
+        }
+        
         gameState.isOnlineMode = false;
         gameState.isGameActive = false;
         gameState.isGameOver = false;
         gameState.onlineRoomID = null;
         gameState.currentOpponentName = null;
         gameState.currentOpponentAvatar = null;
+        gameState.currentOpponentXp = 0;
         if (typeof gameState.inMatch !== 'undefined') gameState.inMatch = false;
         
         this._hideDisconnectUI();
@@ -902,9 +989,9 @@ export const socketManager = {
         if (el) el.style.cssText = "color:#f1c40f;display:block;";
     },
 
-    sendChallenge(friendId) {
+    // 🌟 التعديل 6: دعم إرسال التحدي بمبلغ الرهان
+    sendChallenge(friendId, betAmount = 0) {
         if (!friendId || this.isAlertShown) return;
-        this.isAlertShown = true;
 
         const challengeRoomID = "CHAL-" + Math.random().toString(36).substring(2, 8).toUpperCase();
         const profile = this._ensureUserProfile();
@@ -913,40 +1000,14 @@ export const socketManager = {
             targetId: friendId,
             challengerId: profile.id,
             challengerName: profile.name,
-            roomID: challengeRoomID
+            roomID: challengeRoomID,
+            betAmount: betAmount
         };
 
         this._safeEmit('sendChallenge', challengePayload);
-        this.handleRoomAction('createRoom', challengeRoomID);
+        this.handleRoomAction('createRoom', challengeRoomID, null, betAmount);
         
-        if (typeof ui.showCustomAlert === 'function') {
-            ui.showCustomAlert(
-                gameState.lang === 'ar' ? "بانتظار رد الصديق..." : "Waiting for reply...",
-                gameState.lang === 'ar' ? "إرسال تحدي" : "Challenging",
-                null, true 
-            );
-
-            const updateSendChallengeUI = () => {
-                const alertContainer = document.getElementById('custom-alert-modal');
-                if (alertContainer) {
-                    alertContainer.style.setProperty('z-index', '99999999', 'important');
-                    const buttons = alertContainer.querySelectorAll('button');
-                    if (buttons && buttons.length >= 2) {
-                        buttons[0].style.display = 'none'; 
-                        buttons[1].textContent = gameState.lang === 'ar' ? "إلغاء" : "Cancel";
-                        buttons[1].onclick = (e) => {
-                            e.preventDefault();
-                            socketManager.isAlertShown = false;
-                            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
-                            else ui.setDisplay('custom-alert-modal', 'none');
-                            socketManager.handleExitGame(); 
-                        };
-                    }
-                }
-            };
-            updateSendChallengeUI();
-            setTimeout(updateSendChallengeUI, 50);
-        }
+        this._showToast("تم إرسال طلب التحدي! بانتظار رد الصديق...");
     },
 
     sendAddFriend(friendId) {
