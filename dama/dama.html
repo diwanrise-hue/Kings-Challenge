@@ -273,7 +273,7 @@
         #profile-badge.profile-badge-container { 
             position: fixed !important; top: 15px !important; z-index: 10001; 
             width: 132px !important; height: 56.8px !important; 
-            background-image: url('بروفايل.webp'); 
+            background-image: url('profile.webp'); /* ✅ تم تعديل الاسم إلى الإنجليزية */
             background-size: 100% 100%; background-repeat: no-repeat; background-color: transparent !important;
             border: none !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important;
             cursor: pointer; transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1); 
@@ -430,8 +430,8 @@
             width: 90vw !important; max-width: 600px !important; height: 80vh !important; max-height: 800px !important; padding-top: 35px; display: flex; flex-direction: column;
         }
         
-        .leaderboard-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; padding: 60px 20px 20px 20px !important; background-image: url('سجل.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; }
-        .room-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; padding: 60px 20px 20px 20px !important; background-image: url('روم.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; }
+        .leaderboard-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; padding: 60px 20px 20px 20px !important; background-image: url('leaderboard.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; } /* ✅ تم التعديل */
+        .room-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; padding: 60px 20px 20px 20px !important; background-image: url('room.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; } /* ✅ تم التعديل */
 
         .settings-card::-webkit-scrollbar { display: none; }
         @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
@@ -718,7 +718,7 @@
         </div>
     </div>
     
-        <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 85px; left: 25px; z-index: 10001; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px); cursor: pointer;">
+    <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 85px; left: 25px; z-index: 10001; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px); cursor: pointer;">
         <span data-icon="dailyQuests" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; transform: scale(1.1);"></span>
     </button>
 
@@ -1402,6 +1402,18 @@
             else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
             else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
             toast.innerText = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
+
+            // 💡 التحديث الفوري للساحة والألوان دون الحاجة لإعادة التشغيل
+            setTimeout(() => {
+                try {
+                    let profStr = localStorage.getItem('hub_user_profile');
+                    if (profStr) {
+                        let prof = JSON.parse(profStr);
+                        if (typeof window.applyTheme === 'function') window.applyTheme(prof);
+                        if (window.ui && typeof window.ui.renderBoard === 'function') window.ui.renderBoard(true);
+                    }
+                } catch(e) {}
+            }, 50);
         };
 
         window.triggerCustomAlertNotification = function(msg) {
@@ -1459,6 +1471,11 @@
             
             forceLockedGlobalAvatar(); 
             if(window.updateInventoryUI) window.updateInventoryUI(); 
+
+            // 💡 تحديث الثيم إذا تم جلبه من السيرفر أو تغييره
+            if (typeof window.applyTheme === 'function') {
+                 window.applyTheme(profile);
+            }
         }
 
         window.currentLang = 'ar';
