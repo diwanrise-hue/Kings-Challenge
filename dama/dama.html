@@ -1169,6 +1169,36 @@
             </div>
         </div>
     </div>
+
+    <!-- نافذة إدخال كلمة السر للزوار -->
+    <div id="custom-password-modal" class="modal-overlay" style="z-index: 1000005;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <button class="modal-close-btn" onclick="closeAppModal('custom-password-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #f1c40f; margin-bottom: 10px;">غرفة محمية 🔒</h3>
+            <p style="color: #e0e0e0; font-size: 14px; margin-bottom: 20px; text-align: center;">الرجاء إدخال كلمة السر الخاصة بهذه الغرفة:</p>
+            
+            <input type="password" id="custom-room-pwd-input" class="online-input" placeholder="كلمة السر..." style="text-align: center; font-size: 18px; letter-spacing: 2px;">
+            <input type="hidden" id="custom-target-room-id">
+            
+            <button id="custom-join-confirm-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; margin-top: 15px; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important;">دخول الغرفة</button>
+        </div>
+    </div>
+
+    <!-- نافذة الإعدادات الخاصة بمنشئ الغرفة -->
+    <div id="creator-room-settings-modal" class="modal-overlay" style="z-index: 1000005;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <button class="modal-close-btn" onclick="closeAppModal('creator-room-settings-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #87ceeb; margin-bottom: 10px;">إدارة غرفتي ⚙️</h3>
+            <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 20px; text-align: center;">أنت منشئ هذه الغرفة، ماذا تريد أن تفعل؟</p>
+            
+            <input type="hidden" id="creator-target-room-id">
+            
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button id="creator-cancel-room-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; border-color: rgba(255, 69, 58, 0.4) !important; margin: 0;">إغلاق وحذف الغرفة 🗑️</button>
+                <button onclick="closeAppModal('creator-room-settings-modal')" class="save-settings-btn" style="background: transparent !important; margin: 0;">خروج</button>
+            </div>
+        </div>
+    </div>
     
     <div class="control-panel" id="bottom-control-panel">
         <button id="reset-btn" title="Reset">بدء</button>
@@ -1233,7 +1263,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { if (window.updateHtmlTexts) window.updateHtmlTexts(); }, 300);
             
-            // 👉 ربط زر الإعدادات بالبروفايل والسيرفر
             const optoutCheck = document.getElementById('sync-theme-optout');
             if (optoutCheck) {
                 let savedProfile = {};
@@ -1261,7 +1290,7 @@
                 });
             }
             
-            syncRadioStatusDot(); // التأكد من ضبط حالة النقطة عند بدء اللعبة
+            syncRadioStatusDot();
         });
 
         function toggleSideMenu() {
@@ -1437,9 +1466,6 @@
         const originalAudioPlay = HTMLAudioElement.prototype.play;
         HTMLAudioElement.prototype.play = function() { const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7'; this.volume = parseFloat(savedVol); return originalAudioPlay.call(this); };
 
-        // ==========================================
-        // 📻 النظام الذكي لتشغيل وإيقاف الراديو
-        // ==========================================
         window.toggleRadioMusic = function() {
             const dot = document.getElementById('dama-radio-status');
             let isActive = false;
@@ -1448,7 +1474,6 @@
                 isActive = dot.classList.toggle('active');
             }
             
-            // إرسال أوامر التشغيل أو الإيقاف الصارمة للنافذة الأب
             if (isActive) {
                 window.parent.postMessage({ type: 'PLAY_RADIO' }, '*');
             } else {
@@ -1465,7 +1490,6 @@
             } 
         }
 
-        // مراقبة الذاكرة لتحديث النقطة الخضراء إذا تم تشغيل الراديو من النافذة الأب
         window.addEventListener('storage', (e) => {
             if (e.key === 'hub_music_enabled') {
                 syncRadioStatusDot();
@@ -1491,7 +1515,6 @@
         });
 
         function uiStateChangeTracker() { const matchCard = document.getElementById('match-players-card'); const isOnline = (matchCard && matchCard.style.display !== 'none'); if (isOnline) document.body.classList.add('online-mode-active'); else document.body.classList.remove('online-mode-active'); }
-        // تم إيقاف المراقبة المتكررة لمنع التداخل البصري
         
         window.addEventListener('load', () => { history.replaceState({ screen: 'dama-game' }, ''); });
 
