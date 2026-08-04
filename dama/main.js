@@ -1,8 +1,9 @@
 // ملف: main.js
 /**
  * main.js
- * العقل المدبر المحلي للعبة: يحتوي على أنظمة الحفظ، وإدارة الأزرار،
- * وربط نافذة التحدي بنظام الرهانات، وعجلة الحظ والمهام.
+ * العقل المدبر المحلي للعبة: إدارة الأزرار، والمهام، وعجلة الحظ،
+ * وربط نافذة التحدي بنظام المراهنات للمشاهدين.
+ * (تمت إزالة نظام التخزين المؤقت للمباريات لتنظيف بيئة العمل بناءً على طلبك).
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -14,40 +15,14 @@ import { t } from './i18n.js';
 // 💡 الإصلاحات الذكية (الشاشة البيضاء، الرادار، البينج)
 // ==========================================
 
-// 1. القضاء نهائياً على الشاشة البيضاء عند العودة للعبة وحذف اللعبة بعد 5 دقائق من الخروج
 document.addEventListener('visibilitychange', async () => {
-    if (document.visibilityState === 'hidden') {
-        // عند خروج اللاعب أو وضع التطبيق في الخلفية، نحفظ وقت الخروج
-        localStorage.setItem('dama_last_exit_time', Date.now().toString());
-    } else if (document.visibilityState === 'visible') {
-        // 1. معالجة مشكلة الشاشة البيضاء
+    if (document.visibilityState === 'visible') {
+        // 1. معالجة مشكلة الشاشة البيضاء عند العودة للعبة
         setTimeout(() => {
             document.body.style.display = 'none';
             void document.body.offsetHeight;
             document.body.style.display = 'flex';
         }, 50);
-
-        // 2. التحقق من مرور 5 دقائق (300,000 مللي ثانية)
-        const lastExit = localStorage.getItem('dama_last_exit_time');
-        if (lastExit) {
-            const timePassed = Date.now() - parseInt(lastExit);
-            if (timePassed > 5 * 60 * 1000) {
-                // إذا مر أكثر من 5 دقائق، نحذف اللعبة المحفوظة
-                await deleteFromDB('dama_saved_game');
-                localStorage.removeItem('dama_last_exit_time');
-
-                // إذا كان اللاعب داخل اللعبة (أوفلاين) عند عودته، نفرغ الرقعة ونعطيه تنبيهاً
-                if (window.isMatchRunning && !gameState.isOnlineMode) {
-                    if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard();
-                    if (typeof ui.showCustomAlert === 'function') {
-                        ui.showCustomAlert("تم إنهاء المباراة السابقة وحذفها لأنك غادرت اللعبة لأكثر من 5 دقائق.", "تنبيه النظام");
-                    }
-                }
-            } else {
-                // إذا لم تمر 5 دقائق، نزيل العداد فقط لنسمح له بإكمال اللعب
-                localStorage.removeItem('dama_last_exit_time');
-            }
-        }
     }
 });
 
@@ -71,142 +46,20 @@ socket.on('connect', () => {
 });
 
 // ==========================================
-// نظام الحفظ (IndexedDB)
+// إزالة نظام الحفظ (تم التخلص منه لتنظيف المشروع)
 // ==========================================
-const DB_NAME = 'DamaGameDB';
-const STORE_NAME = 'GameStateStore';
-
-function initDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, 1);
-        request.onupgradeneeded = (e) => { e.target.result.createObjectStore(STORE_NAME); };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-}
-
-async function saveToDB(key, data) {
-    try {
-        const db = await initDB();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            tx.objectStore(STORE_NAME).put(data, key);
-            tx.oncomplete = () => resolve();
-            tx.onerror = () => reject(tx.error);
-        });
-    } catch(e) {}
-}
-
-async function loadFromDB(key) {
-    try {
-        const db = await initDB();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readonly');
-            const req = tx.objectStore(STORE_NAME).get(key);
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => reject(req.error);
-        });
-    } catch(e) { return null; }
-}
-
-async function deleteFromDB(key) {
-    try {
-        const db = await initDB();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            tx.objectStore(STORE_NAME).delete(key);
-            tx.oncomplete = () => resolve();
-            tx.onerror = () => reject(tx.error);
-        });
-    } catch(e) {}
-}
-
-function serializeBoard(board) {
-    if (!board) return "";
-    return board.map(row => row.map(cell => {
-        if (!cell) return '0';
-        if (cell === 'white') return 'w';
-        if (cell === 'black') return 'b';
-        if (cell === 'white-dama') return 'W';
-        if (cell === 'black-dama') return 'B';
-        return '0';
-    }).join('')).join('-');
-}
-
-function deserializeBoard(str) {
-    if (!str) return Array(8).fill(null).map(() => Array(8).fill(null));
-    const dict = { '0': null, 'w': 'white', 'b': 'black', 'W': 'white-dama', 'B': 'black-dama' };
-    return str.split('-').map(row => row.split('').map(char => dict[char]));
-}
-
-let saveTimeout = null;
 export function saveGameState() {
-    if (gameState.isOnlineMode) return;
-    if (saveTimeout) clearTimeout(saveTimeout);
-
-    saveTimeout = setTimeout(async () => {
-        try {
-            let optimizedHistory = (gameState.boardHistory || []).map(h => ({
-                boardStr: serializeBoard(h.board),
-                turn: h.turn
-            }));
-
-            const stateToSave = {
-                boardStr: serializeBoard(gameState.virtualBoard),
-                currentTurn: gameState.currentTurn,
-                gameMode: document.getElementById('game-mode')?.value || 'ai',
-                difficulty: document.getElementById('diff-quick-select')?.value || '3',
-                playerColor: gameState.playerColor,
-                lang: gameState.lang,
-                gameOver: gameState.blockGameOverModal ? undefined : false,
-                pieceDirection: gameState.pieceDirection,
-                boardHistory: optimizedHistory,
-                boardHistoryStr: gameState.boardHistoryStr || [],
-                movesWithoutProgress: gameState.movesWithoutProgress || 0
-            };
-
-            await saveToDB('dama_saved_game', stateToSave);
-        } catch(e) {}
-    }, 800);
+    // تمت الإزالة لعدم التعارض مع تحديثات الأكواد من GitHub
 }
 
 export async function loadGameState() {
-    // تم التعليق على كود التحميل ليمنع التحميل التلقائي بعد التحديثات ولكن الكود محتفظ به بالكامل
+    // تمت الإزالة
     return false;
-    /*
-    try {
-        const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 1000));
-        const dbPromise = loadFromDB('dama_saved_game');
-
-        const state = await Promise.race([dbPromise, timeoutPromise]);
-
-        if (state) {
-            gameState.virtualBoard = deserializeBoard(state.boardStr);
-            gameState.currentTurn = state.currentTurn;
-            gameState.playerColor = state.playerColor;
-            gameState.pieceDirection = state.pieceDirection || gameState.pieceDirection;
-
-            gameState.boardHistory = (state.boardHistory || []).map(h => ({
-                board: deserializeBoard(h.boardStr),
-                turn: h.turn
-            }));
-
-            gameState.boardHistoryStr = state.boardHistoryStr || [];
-            gameState.movesWithoutProgress = state.movesWithoutProgress || 0;
-
-            const gm = document.getElementById('game-mode'); if(gm) gm.value = state.gameMode;
-            const diff = document.getElementById('diff-quick-select'); if(diff) diff.value = state.difficulty;
-            const lSel = document.getElementById('lang-select-modal'); if(lSel) lSel.value = gameState.lang;
-
-            if (window.updateHtmlTexts) window.updateHtmlTexts();
-            ui.renderBoard();
-            return true;
-        }
-    } catch(e) {}
-    return false;
-    */
 }
 
+// ==========================================
+// دوال التلميحات وعجلة الحظ
+// ==========================================
 export function startOnlineHintSystem() {
     if (gameState.originalHints === null) { gameState.originalHints = gameState.userProfile.hints !== undefined ? gameState.userProfile.hints : 5; }
     gameState.userProfile.hints = 2;
@@ -254,32 +107,11 @@ export function updateSpinTimerDisplay(nextFreeTime) {
 }
 
 window.addEventListener('load', async () => {
-    // --- التحقق من الخروج لأكثر من 5 دقائق (حالة إغلاق التطبيق بالكامل) ---
-    const lastExit = localStorage.getItem('dama_last_exit_time');
-    if (lastExit) {
-        if (Date.now() - parseInt(lastExit) > 5 * 60 * 1000) {
-            await deleteFromDB('dama_saved_game');
-        }
-        localStorage.removeItem('dama_last_exit_time');
-    }
-    // ----------------------------------------------------------------------
-
     ui.initProfileSystem();
     ui.drawEmptyBoard();
     if (window.updateHtmlTexts) window.updateHtmlTexts();
 
     socketManager.init();
-
-    const isLoaded = await loadGameState();
-
-    if (isLoaded) {
-        if (gameState.virtualBoard.some(r => r.some(c => c !== null))) {
-            window.isMatchRunning = true;
-            ui.toggleOfflineInMatchUI(true);
-        }
-        ui.renderBoard();
-        ui.startTurn();
-    }
 
     if (gameState.userProfile && gameState.userProfile.nextFreeSpin) { updateSpinTimerDisplay(gameState.userProfile.nextFreeSpin); } else { updateSpinTimerDisplay(0); }
     if (!socket.connected) socket.connect();
@@ -305,7 +137,6 @@ window.addEventListener('load', async () => {
         gameState.userProfile = { ...gameState.userProfile, ...profile };
         try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
 
-        // 👉 تحديث حالة زر المزامنة في الإعدادات بناءً على بيانات السيرفر (إن وُجد)
         if (gameState.userProfile.syncThemeOptOut !== undefined) {
             const optCb = document.getElementById('sync-theme-optout');
             if (optCb) optCb.checked = gameState.userProfile.syncThemeOptOut;
@@ -318,11 +149,10 @@ window.addEventListener('load', async () => {
 
     socket.on('gameStart', (data) => { gameState.roomBet = data.roomBet || 0; });
 
-    // ربط زر إنشاء الغرفة من اللوبي ليعيد تعيين المودال للحالة العادية
     const lobbyCreateBtn = document.querySelector('#online-modal .save-settings-btn');
     if (lobbyCreateBtn) {
         lobbyCreateBtn.onclick = () => {
-            window.isEditingBet = false; // 💡 تأكيد إغلاق وضع التعديل
+            window.isEditingBet = false; 
             window.pendingChallengeId = null;
             document.getElementById('create-room-password-input').style.display = 'block';
             document.getElementById('create-room-password-input').previousElementSibling.style.display = 'block';
@@ -332,7 +162,9 @@ window.addEventListener('load', async () => {
     }
 });
 
-// متغير لحفظ الـ ID الخاص بالصديق عند إرسال التحدي
+// ==========================================
+// إدارة التحديات والأزرار
+// ==========================================
 window.pendingChallengeId = null;
 
 window.challengeFriend = function(friendId) {
@@ -340,11 +172,8 @@ window.challengeFriend = function(friendId) {
     if (!socket || !socket.connected) return ui.showCustomAlert(t('sys_offline') || "يجب الاتصال بالإنترنت أولاً");
 
     ui.setDisplay('in-game-profile-modal', 'none');
-
-    // حفظ معرف الصديق مؤقتاً
     window.pendingChallengeId = friendId;
 
-    // إخفاء حقل كلمة السر لأن التحدي خاص بالصديق عبر زر التحدي
     document.getElementById('create-room-password-input').style.display = 'none';
     document.getElementById('create-room-password-input').previousElementSibling.style.display = 'none';
 
@@ -366,7 +195,6 @@ ui.onClick('settings-overlay', e => { if (e.target.id === 'settings-overlay') ui
 ui.onClick('lang-select-modal', e => {
     gameState.lang = e.target.value;
     if (window.updateHtmlTexts) window.updateHtmlTexts();
-    saveGameState();
 });
 
 ui.onClick('login-guest-btn', () => {
@@ -443,7 +271,6 @@ if (onlineBtn) {
         if (gameState.isOnlineMode) { if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('already_match')); return; }
         if (!socket || !socket.connected) { if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected')); return; }
 
-        // 💡 حذف الغرفة الخاصة باللاعب إن وجدت لتجنب التضارب قبل دخول البحث العشوائي
         if (window.myCurrentRoomId && window.socket && window.socket.connected) {
             window.socket.emit('leaveRoom', { roomID: window.myCurrentRoomId });
             window.socket.emit('deleteRoom', { roomID: window.myCurrentRoomId });
@@ -530,10 +357,6 @@ ui.onClick('online-create-btn', () => {
     }
 });
 
-// ==========================================
-// 💡 نظام الغرف المطور (الرقم السري وإعدادات المنشئ وتحديث الرهان)
-// ==========================================
-
 window.showCustomPasswordPrompt = function(roomId) {
     document.getElementById('custom-target-room-id').value = roomId;
     document.getElementById('custom-room-pwd-input').value = '';
@@ -561,10 +384,9 @@ document.getElementById('custom-join-confirm-btn')?.addEventListener('click', ()
     }
 });
 
-// 💡 تمرير الرهان الحالي لنافذة الإعدادات لسهولة التعديل
 window.openCreatorSettings = function(roomId, currentBet) {
     document.getElementById('creator-target-room-id').value = roomId;
-    window.isEditingBet = true; // تفعيل وضع التعديل للرهان
+    window.isEditingBet = true; 
     document.getElementById('edit-room-bet-input').value = currentBet || 0;
     
     let betDisplay = 'بدون رهان (مجاني)';
@@ -578,7 +400,6 @@ window.openCreatorSettings = function(roomId, currentBet) {
     }
 };
 
-// 💡 مستمع الزر الجديد لتحديث الرهان
 document.getElementById('creator-update-bet-btn')?.addEventListener('click', () => {
     const roomId = document.getElementById('creator-target-room-id').value;
     const newBet = document.getElementById('edit-room-bet-input').value;
@@ -618,14 +439,12 @@ window.showSpectatorBetModal = function(roomID, player1, player2) {
     const modal = document.getElementById('spectator-bet-modal');
     if (!modal) return;
 
-    // حفظ رقم الغرفة وتصفير الاختيار السابق
     document.getElementById('spectator-bet-room-id').value = roomID;
     document.getElementById('spectator-bet-color').value = ''; 
     
     document.getElementById('bet-p1-card').style.border = '2px solid transparent';
     document.getElementById('bet-p2-card').style.border = '2px solid transparent';
 
-    // تعيين بيانات اللاعب الأول (أبيض)
     const p1Name = player1 ? player1.name : 'اللاعب 1';
     let p1Avatar = player1 && player1.avatar ? player1.avatar : '1000132081.png';
     if (!p1Avatar.startsWith('http') && !p1Avatar.startsWith('data:')) {
@@ -635,7 +454,6 @@ window.showSpectatorBetModal = function(roomID, player1, player2) {
     document.getElementById('bet-p1-name').innerText = p1Name;
     document.getElementById('bet-p1-avatar').style.backgroundImage = `url('${p1Avatar}')`;
 
-    // تعيين بيانات اللاعب الثاني (أسود)
     const p2Name = player2 ? player2.name : 'اللاعب 2';
     let p2Avatar = player2 && player2.avatar ? player2.avatar : '1000132081.png';
     if (!p2Avatar.startsWith('http') && !p2Avatar.startsWith('data:')) {
