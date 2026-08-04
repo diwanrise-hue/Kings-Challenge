@@ -1,3 +1,4 @@
+// ملف: main.js
 /**
  * main.js
  * العقل المدبر المحلي للعبة: يحتوي على أنظمة الحفظ، وإدارة الأزرار،
@@ -608,4 +609,58 @@ document.getElementById('creator-cancel-room-btn')?.addEventListener('click', ()
     if(window.ui && typeof window.ui.showCustomAlert === 'function') {
         window.ui.showCustomAlert('تم إغلاق وحذف الغرفة بنجاح.');
     }
+});
+
+// ==========================================
+// 🌟 نظام نافذة مراهنات المشاهدين (Spectator Betting)
+// ==========================================
+window.showSpectatorBetModal = function(roomID, player1, player2) {
+    const modal = document.getElementById('spectator-bet-modal');
+    if (!modal) return;
+
+    // حفظ رقم الغرفة وتصفير الاختيار السابق
+    document.getElementById('spectator-bet-room-id').value = roomID;
+    document.getElementById('spectator-bet-color').value = ''; 
+    
+    document.getElementById('bet-p1-card').style.border = '2px solid transparent';
+    document.getElementById('bet-p2-card').style.border = '2px solid transparent';
+
+    // تعيين بيانات اللاعب الأول (أبيض)
+    const p1Name = player1 ? player1.name : 'اللاعب 1';
+    let p1Avatar = player1 && player1.avatar ? player1.avatar : '1000132081.png';
+    if (!p1Avatar.startsWith('http') && !p1Avatar.startsWith('data:')) {
+        let cleanName = p1Avatar.replace(/\.\.\//g, '').replace('Photo/', '');
+        p1Avatar = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
+    }
+    document.getElementById('bet-p1-name').innerText = p1Name;
+    document.getElementById('bet-p1-avatar').style.backgroundImage = `url('${p1Avatar}')`;
+
+    // تعيين بيانات اللاعب الثاني (أسود)
+    const p2Name = player2 ? player2.name : 'اللاعب 2';
+    let p2Avatar = player2 && player2.avatar ? player2.avatar : '1000132081.png';
+    if (!p2Avatar.startsWith('http') && !p2Avatar.startsWith('data:')) {
+        let cleanName = p2Avatar.replace(/\.\.\//g, '').replace('Photo/', '');
+        p2Avatar = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
+    }
+    document.getElementById('bet-p2-name').innerText = p2Name;
+    document.getElementById('bet-p2-avatar').style.backgroundImage = `url('${p2Avatar}')`;
+
+    if (typeof openAppModal === 'function') openAppModal('spectator-bet-modal');
+};
+
+ui.onClick('spectator-submit-bet-btn', () => {
+    const roomID = document.getElementById('spectator-bet-room-id').value;
+    const color = document.getElementById('spectator-bet-color').value;
+    const amount = document.getElementById('spectator-bet-amount').value;
+
+    if (!color) {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert('الرجاء اختيار اللاعب الذي تتوقع فوزه أولاً!');
+        return;
+    }
+
+    if (window.socketManager && typeof window.socketManager.placeSpectatorBet === 'function') {
+        window.socketManager.placeSpectatorBet(roomID, color, amount);
+    }
+
+    if (typeof closeAppModal === 'function') closeAppModal('spectator-bet-modal');
 });
