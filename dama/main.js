@@ -1,3 +1,4 @@
+// ملف: main.js
 /**
  * main.js
  * العقل المدبر المحلي للعبة: يحتوي على أنظمة الحفظ، وإدارة الأزرار،
@@ -440,6 +441,13 @@ if (onlineBtn) {
         e.preventDefault();
         if (gameState.isOnlineMode) { if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('already_match')); return; }
         if (!socket || !socket.connected) { if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected')); return; }
+
+        // 💡 التعديل هنا: حذف الغرفة الخاصة باللاعب إن وجدت لتجنب التضارب قبل دخول البحث العشوائي
+        if (window.myCurrentRoomId && window.socket && window.socket.connected) {
+            window.socket.emit('leaveRoom', { roomID: window.myCurrentRoomId });
+            window.socket.emit('deleteRoom', { roomID: window.myCurrentRoomId });
+            window.myCurrentRoomId = null; // تصفير المتغير
+        }
 
         const mmModal = document.getElementById('matchmaking-modal');
         if (mmModal) {
