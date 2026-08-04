@@ -996,6 +996,7 @@
         </div>
     </div>
 
+    <!-- 🌟 سجل الشرف بثلاث تبويبات -->
     <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 9999999;">
         <div class="settings-card leaderboard-full-screen" dir="auto">
             <button class="modal-close-btn" onclick="closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
@@ -1004,22 +1005,44 @@
             <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">🏆 <span id="lb-title-text">لوحة الشرف</span></h3>
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="lb-tab-wins" class="custom-tab-button active" onclick="switchLbTab('wins')">الأكثر فوزاً</button>
+                <button id="lb-tab-xp" class="custom-tab-button" onclick="switchLbTab('xp')">الأعلى مستوى</button>
                 <button id="lb-tab-tokens" class="custom-tab-button" onclick="switchLbTab('tokens')">الأغنى (المال)</button>
             </div>
-            <div class="scrollable-content lb-list-container" id="leaderboard-list-wins"></div><div class="scrollable-content lb-list-container" id="leaderboard-list-tokens" style="display: none;"></div>
+            <div class="scrollable-content lb-list-container" id="leaderboard-list-wins"></div>
+            <div class="scrollable-content lb-list-container" id="leaderboard-list-xp" style="display: none;"></div>
+            <div class="scrollable-content lb-list-container" id="leaderboard-list-tokens" style="display: none;"></div>
         </div>
     </div>
 
+    <!-- 🌟 الجوائز المفصلة بناءً على الفئة -->
     <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 10000000 !important;">
-        <div class="settings-card" dir="auto" style="max-width: 320px;">
+        <div class="settings-card" dir="auto" style="max-width: 340px;">
             <button class="modal-close-btn" onclick="closeAppModal('top3-rewards-modal')" style="left:15px; right:auto;">✕</button>
-            <h3 style="color:#ffd700;">جوائز لوحة الشرف 🎁</h3>
-            <ul style="color: white; text-align: right; line-height: 2.2; font-size: 14px; padding: 0 10px; list-style: none;">
-                <li>🥇 <span style="color:#ffd700; font-weight:bold;">المركز الأول:</span> 35,000 🪙 + خصم 25% + 15 💡</li>
-                <li>🥈 <span style="color:#c0c0c0; font-weight:bold;">المركز الثاني:</span> 20,000 🪙 + خصم 10% + 10 💡</li>
-                <li>🥉 <span style="color:#cd7f32; font-weight:bold;">المركز الثالث:</span> 15,000 🪙 + خصم 5% + 10 💡</li>
-            </ul>
-            <p style="color: #a1a1aa; font-size: 12px; margin-top: 15px;">يتم توزيع الجوائز تلقائياً نهاية كل موسم.</p>
+            <h3 style="color:#ffd700; margin-bottom: 15px;">جوائز نهاية الموسم 🎁</h3>
+            
+            <div style="text-align: right; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(52,199,89,0.3);">
+                <h4 style="color: #34c759; margin: 0 0 5px 0; font-size: 14px;">⚔️ أبطال الفوز (الأكثر فوزاً):</h4>
+                <ul style="color: white; line-height: 1.8; font-size: 12px; padding: 0 15px; margin: 0;">
+                    <li>🥇 الأول: 35,000 🪙 + خصم 25% + 15 💡</li>
+                    <li>🥈 الثاني: 20,000 🪙 + خصم 10% + 10 💡</li>
+                    <li>🥉 الثالث: 15,000 🪙 + خصم 5% + 10 💡</li>
+                </ul>
+            </div>
+
+            <div style="text-align: right; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(155,89,182,0.3);">
+                <h4 style="color: #9b59b6; margin: 0 0 5px 0; font-size: 14px;">🌟 عمداء اللعبة (الأعلى مستوى):</h4>
+                <ul style="color: white; line-height: 1.8; font-size: 12px; padding: 0 15px; margin: 0;">
+                    <li>🥇 الأول: إطار "أسطورة الدامة" الحصري + لقب البطل</li>
+                    <li>🥈 الثاني والثالث: إطار "النخبة" الحصري</li>
+                </ul>
+            </div>
+
+            <div style="text-align: right; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(241,196,15,0.3);">
+                <h4 style="color: #f1c40f; margin: 0 0 5px 0; font-size: 14px;">💰 نادي الأثرياء (الأغنى):</h4>
+                <p style="color: #e0e0e0; font-size: 12px; margin: 0;">شهرة ومجد! سيتم تخليد أسمائكم في لوحة الشرف كأغنى تجار اللعبة طوال الموسم القادم.</p>
+            </div>
+
+            <p style="color: #a1a1aa; font-size: 11px; margin-top: 15px; text-align: center;">يتم توزيع الجوائز تلقائياً نهاية كل موسم.</p>
         </div>
     </div>
 
@@ -1401,10 +1424,18 @@
             else overlay.classList.add('open');
         }
 
+        // 🌟 تحديث دالة التبديل لتشمل تبويب (الأعلى مستوى)
         function switchLbTab(tab) {
-            document.getElementById('lb-tab-wins').classList.remove('active'); document.getElementById('lb-tab-tokens').classList.remove('active');
-            document.getElementById('leaderboard-list-wins').style.display = 'none'; document.getElementById('leaderboard-list-tokens').style.display = 'none';
-            document.getElementById('lb-tab-' + tab).classList.add('active'); document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
+            document.getElementById('lb-tab-wins').classList.remove('active'); 
+            document.getElementById('lb-tab-xp').classList.remove('active'); 
+            document.getElementById('lb-tab-tokens').classList.remove('active');
+            
+            document.getElementById('leaderboard-list-wins').style.display = 'none'; 
+            document.getElementById('leaderboard-list-xp').style.display = 'none'; 
+            document.getElementById('leaderboard-list-tokens').style.display = 'none';
+            
+            document.getElementById('lb-tab-' + tab).classList.add('active'); 
+            document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
         }
 
         function switchRoomTab(tab) {
@@ -1419,9 +1450,10 @@
         }
         window.switchRoomTab = switchRoomTab;
 
+        // 🌟 تحديث دالة البناء لتعرض كلمة XP للتبويب الجديد
         function createLbItemHTML(rank, name, score, type, avatarStr, playerRankInfo) {
-            let prefix = type === 'wins' ? '' : '🪙 ';
-            let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : '';
+            let prefix = type === 'tokens' ? '🪙 ' : (type === 'xp' ? '🌟 ' : '');
+            let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : (type === 'xp' ? ' XP' : '');
             const div = document.createElement('div');
             div.className = 'lb-item';
             let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>` : '';
@@ -1453,16 +1485,27 @@
             return div;
         }
 
-        function populateLeaderboards(winsData, tokensData) {
+        // 🌟 تحديث الدالة لتعرض الثلاث قوائم
+        function populateLeaderboards(winsData, xpData, tokensData) {
             const winsList = document.getElementById('leaderboard-list-wins');
+            const xpList = document.getElementById('leaderboard-list-xp');
             const tokensList = document.getElementById('leaderboard-list-tokens');
-            winsList.innerHTML = ''; tokensList.innerHTML = '';
+            
+            winsList.innerHTML = ''; xpList.innerHTML = ''; tokensList.innerHTML = '';
             const unknownText = window.t ? window.t('lb_unknown') : 'لاعب مجهول';
+            
             for(let i = 0; i < 20; i++) {
                 let wPlayer = winsData && winsData[i] ? winsData[i].name : `${unknownText} ${i+1}`;
                 let wScore = winsData && winsData[i] ? winsData[i].score : (100 - (i * 2));
                 winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins', winsData && winsData[i] ? winsData[i].avatar : null, winsData && winsData[i] ? winsData[i].rankInfo : null));
             }
+            
+            for(let i = 0; i < 20; i++) {
+                let xPlayer = xpData && xpData[i] ? xpData[i].name : `${unknownText} ${i+1}`;
+                let xScore = xpData && xpData[i] ? xpData[i].score : (5000 - (i * 150));
+                xpList.appendChild(createLbItemHTML(i+1, xPlayer, xScore, 'xp', xpData && xpData[i] ? xpData[i].avatar : null, xpData && xpData[i] ? xpData[i].rankInfo : null));
+            }
+
             for(let i = 0; i < 20; i++) {
                 let tPlayer = tokensData && tokensData[i] ? tokensData[i].name : `${unknownText} ${i+1}`;
                 let tScore = tokensData && tokensData[i] ? tokensData[i].score : (10000 - (i * 300));
@@ -1474,18 +1517,26 @@
             if (window.socket) {
                 window.socket.off('leaderboardData');
                 window.socket.on('leaderboardData', (data) => {
-                    let formattedWins = [], formattedTokens = [];
+                    let formattedWins = [], formattedXp = [], formattedTokens = [];
                     if(Array.isArray(data)) {
-                        for(let i=0; i<data.length; i+=2) { formattedWins.push({ name: data[i], score: data[i+1] }); formattedTokens.push({ name: data[i], score: data[i+1] * 125 }); }
-                    } else { formattedWins = data.wins || null; formattedTokens = data.tokens || null; }
-                    populateLeaderboards(formattedWins, formattedTokens);
+                        for(let i=0; i<data.length; i+=2) { 
+                            formattedWins.push({ name: data[i], score: data[i+1] }); 
+                            formattedXp.push({ name: data[i], score: data[i+1] * 25 });
+                            formattedTokens.push({ name: data[i], score: data[i+1] * 125 }); 
+                        }
+                    } else { 
+                        formattedWins = data.wins || null; 
+                        formattedXp = data.xp || null; 
+                        formattedTokens = data.tokens || null; 
+                    }
+                    populateLeaderboards(formattedWins, formattedXp, formattedTokens);
                 });
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             window.showLeaderboard = function() {
-                openAppModal('leaderboard-modal'); populateLeaderboards(null, null);
+                openAppModal('leaderboard-modal'); populateLeaderboards(null, null, null);
                 if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
             };
             setupSocketListeners();
