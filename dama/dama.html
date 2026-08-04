@@ -413,9 +413,10 @@
         .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
         @keyframes thinkPulse { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
-        /* النوافذ الكبيرة */
+        /* النوافذ الكبيرة (تم تعديلها لمنع القفز وتغطية الشاشة بالكامل) */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
         
+        /* فئة جديدة للشاشة الكاملة الحقيقية */
         .fullscreen-modal-container { padding: 0 !important; }
         
         #custom-alert-modal { z-index: 99999999 !important; }
@@ -648,6 +649,50 @@
         .bet-option-item.selected .bet-radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #3498db; }
         .bet-option-text { color: white; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; width: 100%; }
     </style>
+    <script>
+        const originalGetItem = localStorage.getItem;
+        localStorage.getItem = function(key) {
+            let value = originalGetItem.call(this, key);
+            if (key === 'hub_user_profile' && value) {
+                try {
+                    let profile = JSON.parse(value);
+                    if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
+                        profile.avatar = '../' + profile.avatar;
+                        return JSON.stringify(profile);
+                    }
+                } catch(e) {}
+            }
+            return value;
+        };
+
+        const originalSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, value) {
+            if (key === 'hub_user_profile' && value) {
+                try {
+                    let profile = JSON.parse(value);
+                    if (profile && profile.avatar && profile.avatar.startsWith('../')) {
+                        profile.avatar = profile.avatar.replace('../', '');
+                        value = JSON.stringify(profile);
+                    }
+                } catch(e) {}
+                
+                if(window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                }
+            }
+            originalSetItem.call(this, key, value);
+        };
+
+        const originalRemoveItem = localStorage.removeItem;
+        localStorage.removeItem = function(key) {
+            if (key === 'hub_user_profile') {
+                if(window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                }
+            }
+            originalRemoveItem.call(this, key);
+        };
+    </script>
 </head>
 <body data-piece-style="pc_original">
     
@@ -673,9 +718,10 @@
         </div>
     </div>
     
-    <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 85px; left: 25px; z-index: 10001; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px); cursor: pointer;">
+        <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 85px; left: 25px; z-index: 10001; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px); cursor: pointer;">
         <span data-icon="dailyQuests" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; transform: scale(1.1);"></span>
     </button>
+
 
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
     <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none;" data-icon="bagQuick"></button>
@@ -994,15 +1040,10 @@
         </div>
     </div>
 
-    <div id="custom-alert-modal" class="modal-overlay" style="z-index: 99999999 !important;">
+    <div id="custom-alert-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 id="custom-alert-title">تنبيه</h3>
             <p id="custom-alert-message" style="color: #e0e0e0; margin: 20px 0; font-size: 15px; line-height: 1.6;"></p>
-            
-            <div id="custom-alert-input-group" style="display: none; margin-bottom: 20px; width: 100%;">
-                <input type="password" id="custom-alert-input" class="online-input" style="text-align: center; margin-bottom: 0;" placeholder="******">
-            </div>
-
             <div style="display: flex; gap: 10px;">
                 <button id="custom-alert-ok" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255,255,255,0.15) !important;">حسناً</button>
                 <button id="custom-alert-cancel" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; display: none;">إلغاء</button>
@@ -1086,6 +1127,69 @@
         </div>
     </div>
 
+    <div id="matchmaking-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto" style="max-width: 350px;">
+            <h3 id="matchmaking-title">البحث</h3>
+            <div style="display: flex; justify-content: space-around; align-items: center; margin: 30px 0;">
+                <div style="text-align: center;"><div id="mm-my-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05);"></div><div id="mm-my-name" style="color: white; margin-top: 10px; font-weight: 500; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">أنت</div></div>
+                <div style="text-align: center;"><div id="mm-opp-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: rgba(255,255,255,0.02);">❓</div><div id="mm-opp-name" style="color: #a1a1aa; margin-top: 10px; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">الخصم</div></div>
+            </div>
+            <div style="margin: 20px 0;">
+                <div id="mm-status-label" class="settings-label" style="text-align: center;">جاري البحث عن خصم...</div>
+                <div class="loading-dots-container"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
+                <div id="mm-timer" style="color: white; font-weight: 600; font-size: 18px; margin-top: 15px;">00:00</div>
+            </div>
+            <button id="mm-cancel-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important;">إلغاء البحث</button>
+        </div>
+    </div>
+
+    <div id="settings-overlay" class="modal-overlay">
+        <div class="settings-card" dir="auto">
+            <button class="modal-close-btn" onclick="closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
+            <h3 id="set-title">الإعدادات</h3>
+            <div class="audio-controls"><label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label><input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7"></div>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; background: rgba(255,255,255,0.04); padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <label for="sync-theme-optout" style="color: #e0e0e0; font-size: 13px; font-weight: 500; text-align: right; line-height: 1.4;">عدم استخدام شكل الساحة للاعب الأعلى مستوى (أونلاين)</label>
+                <input type="checkbox" id="sync-theme-optout" style="width: 18px; height: 18px; accent-color: #f5a623; margin-right: 10px;">
+            </div>
+
+            <button id="save-settings-btn" class="save-settings-btn" style="margin-top: 25px;">حفظ</button>
+        </div>
+    </div>
+
+    <div id="purchase-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <h3 id="modal-item-name">اسم المنتج</h3>
+            <div id="modal-item-preview" class="purchase-preview-box" style="flex-direction: column; overflow: hidden;"></div>
+            <p id="modal-item-cost" style="color: #f5a623; font-weight: 700; font-size: 18px; margin-bottom: 25px;">🪙 السعر: 0</p>
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button id="confirm-buy-btn" class="save-settings-btn" style="margin: 0; background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border-color: rgba(245, 166, 35, 0.4) !important;">شراء الآن</button>
+                <button onclick="closeAppModal('purchase-modal')" class="save-settings-btn" style="margin: 0; background: transparent !important;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="control-panel" id="bottom-control-panel">
+        <button id="reset-btn" title="Reset">بدء</button>
+        
+        <input type="hidden" id="diff-quick-select" value="3">
+        <button id="custom-diff-btn" title="تغيير مستوى الصعوبة" onclick="openAppModal('level-select-modal')" style="width: 60px; font-weight: 800; color: #f5a623 !important; font-size: 16px;">L3</button>
+
+        <button id="hint-btn" title="أفضل حركة" style="font-size: 18px; position: relative; overflow: visible; padding: 0; width: 44px; display: flex; align-items: center; justify-content: center;">
+            <span data-icon="bulb" style="display: flex; align-items: center; justify-content: center;"></span>
+            <span id="hint-counter" style="position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 50%; border: 1.5px solid #282a32; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10;">0</span>
+        </button>
+        <button id="undo-btn" title="تراجع (أوفلاين)" style="font-size: 18px; display: none; padding: 0; width: 44px; align-items: center; justify-content: center;">↩️</button>
+        
+        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" style="position: relative; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;" onclick="window.toggleRadioMusic()">
+            <span id="dama-radio-status" class="radio-status-dot"></span><span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
+        </button>
+        
+        <button id="mic-toggle-btn" title="المحادثة الصوتية" style="display: none; align-items: center; justify-content: center; background: rgba(45, 48, 55, 0.65) !important; border: 1px solid rgba(135, 206, 235, 0.4) !important; color: #ffffff; font-size: 18px; cursor: pointer; width: 44px !important; height: 44px !important; border-radius: 12px !important; padding: 0 !important; box-shadow: 0 0 3px rgba(135, 206, 235, 0.3) !important;"></button>
+        <button id="resign-btn" title="الانسحاب" style="display: none; font-weight: bold;">الانسحاب</button>
+    </div>
+
     <script src="icons.js"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
@@ -1129,6 +1233,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { if (window.updateHtmlTexts) window.updateHtmlTexts(); }, 300);
             
+            // 👉 ربط زر الإعدادات بالبروفايل والسيرفر
             const optoutCheck = document.getElementById('sync-theme-optout');
             if (optoutCheck) {
                 let savedProfile = {};
@@ -1156,7 +1261,7 @@
                 });
             }
             
-            syncRadioStatusDot(); 
+            syncRadioStatusDot(); // التأكد من ضبط حالة النقطة عند بدء اللعبة
         });
 
         function toggleSideMenu() {
@@ -1303,7 +1408,7 @@
             let globalProfile = localStorage.getItem('hub_user_profile');
             let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
             if (globalProfile) { try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); } } catch(e) {} }
-            if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) { let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', ''); avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName; }
+            if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) { let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', ''); avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
             const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
             targetAvatars.forEach(id => {
                 const el = document.getElementById(id); if (!el) return;
@@ -1332,6 +1437,9 @@
         const originalAudioPlay = HTMLAudioElement.prototype.play;
         HTMLAudioElement.prototype.play = function() { const savedVol = localStorage.getItem('sfx_volume') || localStorage.getItem('dama_sfx_volume') || '0.7'; this.volume = parseFloat(savedVol); return originalAudioPlay.call(this); };
 
+        // ==========================================
+        // 📻 النظام الذكي لتشغيل وإيقاف الراديو
+        // ==========================================
         window.toggleRadioMusic = function() {
             const dot = document.getElementById('dama-radio-status');
             let isActive = false;
@@ -1340,6 +1448,7 @@
                 isActive = dot.classList.toggle('active');
             }
             
+            // إرسال أوامر التشغيل أو الإيقاف الصارمة للنافذة الأب
             if (isActive) {
                 window.parent.postMessage({ type: 'PLAY_RADIO' }, '*');
             } else {
@@ -1356,6 +1465,7 @@
             } 
         }
 
+        // مراقبة الذاكرة لتحديث النقطة الخضراء إذا تم تشغيل الراديو من النافذة الأب
         window.addEventListener('storage', (e) => {
             if (e.key === 'hub_music_enabled') {
                 syncRadioStatusDot();
@@ -1381,6 +1491,7 @@
         });
 
         function uiStateChangeTracker() { const matchCard = document.getElementById('match-players-card'); const isOnline = (matchCard && matchCard.style.display !== 'none'); if (isOnline) document.body.classList.add('online-mode-active'); else document.body.classList.remove('online-mode-active'); }
+        // تم إيقاف المراقبة المتكررة لمنع التداخل البصري
         
         window.addEventListener('load', () => { history.replaceState({ screen: 'dama-game' }, ''); });
 
@@ -1471,58 +1582,15 @@
         setInterval(() => {
             if (window.ui && window.ui.showCustomAlert && !window.ui._alertPatched) {
                 const originalShowAlert = window.ui.showCustomAlert;
-                window.ui.showCustomAlert = function(msg, title, onConfirm, showCancel, customCancelText, customOkText, onCancel, isPrompt) {
+                window.ui.showCustomAlert = function(msg, title, onConfirm, showCancel, customCancelText, customOkText, onCancel) {
                     if (msg && msg.includes("السيرفر غير متصل، يرجى الانتظار قليلاً...")) {
                         msg = "جاري الاتصال، يرجى انتظار قليلاً....";
                     }
-                    originalShowAlert.call(window.ui, msg, title, onConfirm, showCancel, customCancelText, customOkText, onCancel, isPrompt);
+                    originalShowAlert.call(window.ui, msg, title, onConfirm, showCancel, customCancelText, customOkText, onCancel);
                 };
                 window.ui._alertPatched = true;
             }
         }, 500);
-
-        // ==========================================
-        // 🚀 أزرار النافذة الخاصة بالغرف (تأكيد وإنشاء الغرف)
-        // ==========================================
-        document.addEventListener('DOMContentLoaded', () => {
-            const createRoomBtn = document.getElementById('online-create-btn');
-            const roomPortalBtn = document.getElementById('room-portal-btn');
-            
-            if (createRoomBtn) {
-                createRoomBtn.addEventListener('click', () => {
-                    let betAmt = parseInt(document.getElementById('room-bet-input').value) || 0;
-
-                    if (window.pendingChallengeId) {
-                        if (window.socketManager && typeof window.socketManager.sendChallenge === 'function') {
-                            window.socketManager.sendChallenge(window.pendingChallengeId, betAmt);
-                        }
-                        if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
-                        window.pendingChallengeId = null; 
-                    } else {
-                        let pwd = document.getElementById('create-room-password-input').value;
-                        let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
-                        
-                        if (window.socketManager && typeof window.socketManager.handleRoomAction === 'function') {
-                            window.socketManager.handleRoomAction('createRoom', rID, pwd, betAmt); 
-                        }
-                        if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
-                    }
-                });
-            }
-
-            if (roomPortalBtn) {
-                roomPortalBtn.addEventListener('click', () => {
-                    if (typeof openAppModal === 'function') openAppModal('online-modal');
-                });
-            }
-            
-            const onlineCloseBtn = document.getElementById('online-close-btn');
-            if (onlineCloseBtn) {
-                onlineCloseBtn.addEventListener('click', () => {
-                    if (typeof closeAppModal === 'function') closeAppModal('online-modal');
-                });
-            }
-        });
     </script>
 </body>
 </html>
