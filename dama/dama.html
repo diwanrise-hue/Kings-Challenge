@@ -1,3 +1,4 @@
+<!-- ملف: dama.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1201,6 +1202,44 @@
                 <button id="creator-update-bet-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.2) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.4) !important; margin: 0;">تحديث الرهان 🔄</button>
                 <button id="creator-cancel-room-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; border-color: rgba(255, 69, 58, 0.4) !important; margin: 0;">إغلاق وحذف الغرفة 🗑️</button>
             </div>
+        </div>
+    </div>
+
+    <!-- نافذة مراهنات المشاهدين (Spectator Betting Modal) -->
+    <div id="spectator-bet-modal" class="modal-overlay" style="z-index: 1000005;">
+        <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <button class="modal-close-btn" onclick="closeAppModal('spectator-bet-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #f1c40f; margin-bottom: 10px;">صندوق المراهنات 🎯</h3>
+            <p style="color: #e0e0e0; font-size: 13px; margin-bottom: 15px; text-align: center;">راهن على اللاعب الذي تتوقع فوزه! (أمامك 60 ثانية)</p>
+
+            <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
+                <!-- لاعب 1 (أبيض) -->
+                <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('spectator-bet-color').value = 'white'; document.getElementById('bet-p1-card').style.border='2px solid #34c759'; document.getElementById('bet-p2-card').style.border='2px solid transparent';" id="bet-p1-card" style="border: 2px solid transparent; padding: 5px; border-radius: 12px; transition: 0.3s;">
+                    <div id="bet-p1-avatar" style="width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
+                    <div id="bet-p1-name" style="color: white; margin-top: 5px; font-weight: bold; font-size: 12px;">اللاعب 1</div>
+                    <div style="color: #a1a1aa; font-size: 10px;">أبيض ⚪</div>
+                </div>
+                <div style="color: #a1a1aa; font-weight: bold; font-size: 16px;">VS</div>
+                <!-- لاعب 2 (أسود) -->
+                <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('spectator-bet-color').value = 'black'; document.getElementById('bet-p2-card').style.border='2px solid #34c759'; document.getElementById('bet-p1-card').style.border='2px solid transparent';" id="bet-p2-card" style="border: 2px solid transparent; padding: 5px; border-radius: 12px; transition: 0.3s;">
+                    <div id="bet-p2-avatar" style="width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
+                    <div id="bet-p2-name" style="color: white; margin-top: 5px; font-weight: bold; font-size: 12px;">اللاعب 2</div>
+                    <div style="color: #a1a1aa; font-size: 10px;">أسود ⚫</div>
+                </div>
+            </div>
+
+            <input type="hidden" id="spectator-bet-color" value="">
+            <input type="hidden" id="spectator-bet-room-id" value="">
+
+            <label class="settings-label" style="text-align: center;">اختر مبلغ الرهان:</label>
+            <select id="spectator-bet-amount" class="online-input" style="margin-bottom: 20px;">
+                <option value="50">50 🪙</option>
+                <option value="100">100 🪙</option>
+                <option value="200">200 🪙</option>
+                <option value="500">500 🪙 (الحد الأقصى)</option>
+            </select>
+
+            <button id="spectator-submit-bet-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #f5a623, #d35400) !important; color: white !important;">تأكيد الرهان 💰</button>
         </div>
     </div>
     
