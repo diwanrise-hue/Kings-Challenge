@@ -1,4 +1,3 @@
-<!--index.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -411,7 +410,6 @@
         </div>
     </div>
 
-    <!-- 💡 تم سد ثغرة XSS باستخدام innerText -->
     <div id="custom-popup-modal" class="modal-overlay" style="z-index: 99999;">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <p id="custom-popup-msg"></p>
@@ -871,19 +869,6 @@
         }
 
         const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
-
-        window.addEventListener('message', (event) => {
-            if (!event.data) return;
-            if (event.data.type === 'SYNC_PROFILE') {
-                syncHubProfile();
-            } else if (event.data.type === 'EXIT_GAME') {
-                exitGame();
-            } else if (event.data.type === 'TOGGLE_RADIO') {
-                if (typeof toggleRadioPlayState === 'function') toggleRadioPlayState();
-            } else if (event.data.type === 'OPEN_RADIO_MODAL') {
-                if (typeof openRadioModal === 'function') openRadioModal();
-            }
-        });
 
         socket.on('connect', () => {
             console.log('تم الاتصال بالسيرفر بنجاح!');
@@ -1447,14 +1432,24 @@
 
         function triggerLogout() { handleAccountExit(false); }
 
+        // ===================================== //
+        // 📡 الإضافة الذهبية: نظام استقبال الأوامر الصارمة من اللعبة
+        // ===================================== //
         window.addEventListener('message', (event) => {
             if (!event.data) return;
+            
             if (event.data.type === 'SYNC_PROFILE') {
                 syncHubProfile();
             } else if (event.data.type === 'EXIT_GAME') {
                 exitGame();
             } else if (event.data.type === 'TOGGLE_RADIO') {
                 if (typeof toggleRadioPlayState === 'function') toggleRadioPlayState();
+            } else if (event.data.type === 'PLAY_RADIO') {
+                // أمر إجباري لتشغيل الصوت 🟢
+                if (typeof triggerPlayRadio === 'function') triggerPlayRadio();
+            } else if (event.data.type === 'STOP_RADIO') {
+                // أمر إجباري لإيقاف الصوت 🔴
+                if (typeof stopRadio === 'function') stopRadio();
             } else if (event.data.type === 'OPEN_RADIO_MODAL') {
                 if (typeof openRadioModal === 'function') openRadioModal();
             }
