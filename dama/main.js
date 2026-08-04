@@ -486,22 +486,74 @@ if (cancelMmBtn) {
 ui.onClick('room-portal-btn', () => { ui.setDisplay('online-modal', 'flex'); });
 ui.onClick('online-close-btn', () => ui.setDisplay('online-modal', 'none'));
 
-// إنشاء غرفة أو إرسال تحدي من نفس النافذة
 ui.onClick('online-create-btn', () => { 
     let betAmt = parseInt(document.getElementById('room-bet-input').value) || 0;
 
     if (window.pendingChallengeId) {
-        // إرسال التحدي بالرهان المطلوب
         socketManager.sendChallenge(window.pendingChallengeId, betAmt);
         if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
         window.pendingChallengeId = null; 
     } else {
-        // إنشاء غرفة جديدة للوبي
         let pwd = document.getElementById('create-room-password-input').value;
         let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
         
         socketManager.handleRoomAction('createRoom', rID, pwd, betAmt); 
         socketManager.showStatusMsg("جاري إنشاء الغرفة..."); 
         if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
+    }
+});
+
+// ==========================================
+// 💡 نظام الغرف المطور (الرقم السري وإعدادات المنشئ)
+// ==========================================
+
+window.showCustomPasswordPrompt = function(roomId) {
+    document.getElementById('custom-target-room-id').value = roomId;
+    document.getElementById('custom-room-pwd-input').value = '';
+    
+    if (typeof openAppModal === 'function') {
+        openAppModal('custom-password-modal');
+    }
+};
+
+document.getElementById('custom-join-confirm-btn')?.addEventListener('click', () => {
+    const roomId = document.getElementById('custom-target-room-id').value;
+    const pwd = document.getElementById('custom-room-pwd-input').value;
+    
+    if (!pwd) {
+        if(window.ui && typeof window.ui.showCustomAlert === 'function') window.ui.showCustomAlert('الرجاء إدخال كلمة السر!');
+        return;
+    }
+    
+    if (window.socket && window.socket.connected) {
+         window.socket.emit('joinRoom', { roomID: roomId, password: pwd });
+    }
+    
+    if (typeof closeAppModal === 'function') {
+        closeAppModal('custom-password-modal');
+    }
+});
+
+window.openCreatorSettings = function(roomId) {
+    document.getElementById('creator-target-room-id').value = roomId;
+    if (typeof openAppModal === 'function') {
+        openAppModal('creator-room-settings-modal');
+    }
+};
+
+document.getElementById('creator-cancel-room-btn')?.addEventListener('click', () => {
+    const roomId = document.getElementById('creator-target-room-id').value;
+    
+    if (window.socket && window.socket.connected) {
+         window.socket.emit('leaveRoom', { roomID: roomId }); 
+         window.socket.emit('deleteRoom', { roomID: roomId }); 
+    }
+    
+    if (typeof closeAppModal === 'function') {
+        closeAppModal('creator-room-settings-modal');
+    }
+    
+    if(window.ui && typeof window.ui.showCustomAlert === 'function') {
+        window.ui.showCustomAlert('تم إغلاق وحذف الغرفة بنجاح.');
     }
 });
