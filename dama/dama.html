@@ -413,10 +413,9 @@
         .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
         @keyframes thinkPulse { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
-        /* النوافذ الكبيرة (تم تعديلها لمنع القفز وتغطية الشاشة بالكامل) */
+        /* النوافذ الكبيرة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
         
-        /* فئة جديدة للشاشة الكاملة الحقيقية */
         .fullscreen-modal-container { padding: 0 !important; }
         
         #custom-alert-modal { z-index: 99999999 !important; }
@@ -649,50 +648,6 @@
         .bet-option-item.selected .bet-radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #3498db; }
         .bet-option-text { color: white; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; width: 100%; }
     </style>
-    <script>
-        const originalGetItem = localStorage.getItem;
-        localStorage.getItem = function(key) {
-            let value = originalGetItem.call(this, key);
-            if (key === 'hub_user_profile' && value) {
-                try {
-                    let profile = JSON.parse(value);
-                    if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
-                        profile.avatar = '../' + profile.avatar;
-                        return JSON.stringify(profile);
-                    }
-                } catch(e) {}
-            }
-            return value;
-        };
-
-        const originalSetItem = localStorage.setItem;
-        localStorage.setItem = function(key, value) {
-            if (key === 'hub_user_profile' && value) {
-                try {
-                    let profile = JSON.parse(value);
-                    if (profile && profile.avatar && profile.avatar.startsWith('../')) {
-                        profile.avatar = profile.avatar.replace('../', '');
-                        value = JSON.stringify(profile);
-                    }
-                } catch(e) {}
-                
-                if(window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-                }
-            }
-            originalSetItem.call(this, key, value);
-        };
-
-        const originalRemoveItem = localStorage.removeItem;
-        localStorage.removeItem = function(key) {
-            if (key === 'hub_user_profile') {
-                if(window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-                }
-            }
-            originalRemoveItem.call(this, key);
-        };
-    </script>
 </head>
 <body data-piece-style="pc_original">
     
@@ -1348,7 +1303,7 @@
             let globalProfile = localStorage.getItem('hub_user_profile');
             let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
             if (globalProfile) { try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); } } catch(e) {} }
-            if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) { let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', ''); avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
+            if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) { let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', ''); avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName; }
             const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
             targetAvatars.forEach(id => {
                 const el = document.getElementById(id); if (!el) return;
@@ -1525,6 +1480,49 @@
                 window.ui._alertPatched = true;
             }
         }, 500);
+
+        // ==========================================
+        // 🚀 أزرار النافذة الخاصة بالغرف (تأكيد وإنشاء الغرف)
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const createRoomBtn = document.getElementById('online-create-btn');
+            const roomPortalBtn = document.getElementById('room-portal-btn');
+            
+            if (createRoomBtn) {
+                createRoomBtn.addEventListener('click', () => {
+                    let betAmt = parseInt(document.getElementById('room-bet-input').value) || 0;
+
+                    if (window.pendingChallengeId) {
+                        if (window.socketManager && typeof window.socketManager.sendChallenge === 'function') {
+                            window.socketManager.sendChallenge(window.pendingChallengeId, betAmt);
+                        }
+                        if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
+                        window.pendingChallengeId = null; 
+                    } else {
+                        let pwd = document.getElementById('create-room-password-input').value;
+                        let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
+                        
+                        if (window.socketManager && typeof window.socketManager.handleRoomAction === 'function') {
+                            window.socketManager.handleRoomAction('createRoom', rID, pwd, betAmt); 
+                        }
+                        if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
+                    }
+                });
+            }
+
+            if (roomPortalBtn) {
+                roomPortalBtn.addEventListener('click', () => {
+                    if (typeof openAppModal === 'function') openAppModal('online-modal');
+                });
+            }
+            
+            const onlineCloseBtn = document.getElementById('online-close-btn');
+            if (onlineCloseBtn) {
+                onlineCloseBtn.addEventListener('click', () => {
+                    if (typeof closeAppModal === 'function') closeAppModal('online-modal');
+                });
+            }
+        });
     </script>
 </body>
 </html>
