@@ -638,3 +638,5 @@ window.prevChannel = prevChannel;
 window.toggleRadioPlayState = toggleRadioPlayState;
 window.changeRadioVolume = changeRadioVolume;
 window.setRadioLanguage = setRadioLanguage;
+window.triggerPlayRadio = triggerPlayRadio;
+window.stopRadio = stopRadio;
