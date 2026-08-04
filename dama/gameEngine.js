@@ -1,11 +1,10 @@
 /**
  * gameEngine.js
- * 🚀 النسخة الصاروخية (Ultra-Optimized): 
- * تم استبدال جميع دوال النصوص البطيئة بمعالجة مباشرة للحروف
- * مما يرفع أداء المحرك واللعبة أضعافاً مضاعفة ويمنع التقطيع.
+ * 🚀 النسخة الصاروخية (Ultra-Optimized) + إصلاح أنظمة التعادل والمماطلة:
+ * تم دمج نظام احتساب (حجر ضد حجر)، و 40 حركة بدون أكل،
+ * ونظام خسارة التكرار (3 تحذير، 4 خسارة).
  */
 import { gameState } from './gameState.js'; 
-// 💡 تم حذف استيراد uiController.js من هنا لمنع انهيار البوت
 
 let workerCachedDirections = null;
 
@@ -25,7 +24,6 @@ export const gameEngine = {
                 for (let c = 0; c < 8; c++) {
                     let p = bState[r][c];
                     if (p) {
-                        // 🔥 تسريع: استخدام الحرف الأول
                         if (p[0] === 'w') { wSumRow += r; wCount++; }
                         else if (p[0] === 'b') { bSumRow += r; bCount++; }
                     }
@@ -44,8 +42,7 @@ export const gameEngine = {
     computeOnlineFlip(color) { return color === 'black'; },
 
     getPieceCapturePaths(r, c, color, bState, parentDr = null, parentDc = null) {
-        const colorChar = color[0]; // 'w' أو 'b'
-        // 🔥 تسريع: التحقق من الدامة عن طريق طول النص
+        const colorChar = color[0]; 
         let isDama = bState[r][c] && bState[r][c].length > 5; 
         let paths = [];
         let dirY = this.getPieceDirection(colorChar === 'b' ? 'black' : 'white', bState); 
@@ -63,7 +60,6 @@ export const gameEngine = {
                     let piece = bState[nextR][nextC];
                     if (!foundEnemy) {
                         if (piece === null) { step++; continue; }
-                        // 🔥 تسريع: فحص اللون بالحرف الأول
                         else if (piece[0] !== colorChar) { foundEnemy = piece; enemyR = nextR; enemyC = nextC; step++; continue; }
                         else break; 
                     } else {
@@ -86,7 +82,6 @@ export const gameEngine = {
                 let midR = r + dr, midC = c + dc, toR = r + 2 * dr, toC = c + 2 * dc;
                 if (toR >= 0 && toR < 8 && toC >= 0 && toC < 8) {
                     let midPiece = bState[midR][midC];
-                    // 🔥 تسريع: فحص اللون بالحرف الأول
                     if (midPiece && midPiece[0] !== colorChar && bState[toR][toC] === null) {
                         let capturedPiece = bState[midR][midC]; let movingPiece = bState[r][c];
                         bState[midR][midC] = null; bState[toR][toC] = movingPiece; bState[r][c] = null;
@@ -137,7 +132,6 @@ export const gameEngine = {
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 let piece = bState[r][c];
-                // 🔥 تسريع
                 if (piece && piece[0] === colorChar && (activeR === null || (r === activeR && c === activeC))) {
                     let paths = this.getPieceCapturePaths(r, c, color, bState, (r === activeR ? activeDr : null), (c === activeC ? activeDc : null));
                     for (let p of paths) {
@@ -175,7 +169,6 @@ export const gameEngine = {
         });
         
         let last = path[path.length - 1]; let fPiece = nextBoard[last.toR][last.toC];
-        // 🔥 تسريع: بديل fPiece.includes('dama')
         if (fPiece && fPiece.length <= 5) { 
             let dirY = this.getPieceDirection(fPiece.split('-')[0], nextBoard); let promoRow = (dirY === 1) ? 7 : 0;
             if (last.toR === promoRow) { nextBoard[last.toR][last.toC] += '-dama'; }
@@ -235,16 +228,48 @@ export const gameEngine = {
         return false; 
     },
 
+    // ==========================================
+    // 💡 إصلاح نظام التعادل (40 حركة بدون أكل، أو حجر ضد حجر)
+    // ==========================================
     checkIdleDraw(bState, currentTurn) {
+        // 1. فحص التعادل 40 حركة بدون تقدم (أكل أو تحريك بيدق)
+        if (gameState.movesWithoutProgress >= 40) return true;
+
+        // 2. فحص التعادل "حجر ضد حجر" 
+        let wCount = 0, bCount = 0;
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                if (bState[r][c]) {
+                    if (bState[r][c][0] === 'w') wCount++;
+                    else if (bState[r][c][0] === 'b') bCount++;
+                }
+            }
+        }
+        // إذا تبقى حجر أبيض واحد وحجر أسود واحد، نعلن التعادل فوراً
+        if (wCount === 1 && bCount === 1) return true;
+
         return false;
     },
 
+    // ==========================================
+    // 💡 إصلاح نظام المماطلة وتكرار الحركات
+    // ==========================================
     checkRepetitionAndStalling() {
-        if (!gameState.boardHistoryStr || gameState.boardHistoryStr.length < 4) return 0;
+        // إذا قام بأي عملية أكل، يتم تصفير العداد، فالتكرار مستحيل
+        if (gameState.movesWithoutProgress === 0) return 0;
+
+        if (!gameState.boardHistoryStr) gameState.boardHistoryStr = [];
+        
         const currentStr = JSON.stringify(gameState.virtualBoard);
-        let count = 1; 
-        for (let str of gameState.boardHistoryStr) { if (str === currentStr) count++; }
-        return count; 
+        let count = 0; 
+        
+        // كم مرة تكرر هذا الشكل في السجل الحالي؟
+        for (let str of gameState.boardHistoryStr) { 
+            if (str === currentStr) count++; 
+        }
+
+        // بما أن الشكل الحالي سيُضاف الآن للسجل، نقوم بإضافة 1 للعداد
+        return count + 1; 
     },
 
     checkGameOver(bState, isSimulation = false) {
@@ -265,7 +290,6 @@ export const gameEngine = {
         if (winnerColor !== 'draw') { this.updateUserStats(winnerColor); }
         gameState.statsUpdated = true; gameState.isUpdatingStats = false; 
 
-        // 💡 قراءة واجهة المستخدم بأمان إذا كنا في المتصفح فقط
         const ui = typeof window !== 'undefined' ? window.ui : null;
 
         if (ui && typeof ui.showOnlineResultsModal === 'function') { ui.showOnlineResultsModal(winnerColor); } 
@@ -277,7 +301,6 @@ export const gameEngine = {
     },
 
     updateUserStats(winnerColor) {
-        // 💡 قراءة واجهة المستخدم بأمان
         const ui = typeof window !== 'undefined' ? window.ui : null;
         if (ui && typeof ui.updateUserStats === 'function') {
             const myColor = gameState.myOnlineColor || gameState.playerColor;
@@ -286,14 +309,12 @@ export const gameEngine = {
     },
 
     closeResultsMenu() {
-        // 💡 قراءة واجهة المستخدم بأمان
         const ui = typeof window !== 'undefined' ? window.ui : null;
         if (ui && typeof ui.hideOnlineResultsModal === 'function') { ui.hideOnlineResultsModal(); } 
         else if (ui && typeof ui.closeModal === 'function') { ui.closeModal(); }
     },
 
     resetGame() {
-        // 💡 قراءة واجهة المستخدم بأمان
         const ui = typeof window !== 'undefined' ? window.ui : null;
         if (ui && typeof ui.initBoard === 'function') { ui.initBoard(); }
         gameState.currentTurn = 'white'; gameState.isGameOver = false; gameState.isGameActive = true; 
@@ -306,7 +327,6 @@ export const gameEngine = {
     }
 };
 
-// 💡 تعريف المحرك في النافذة فقط إذا كنا داخل المتصفح
 if (typeof window !== 'undefined') {
     window.gameEngine = gameEngine;
 }
