@@ -1188,13 +1188,18 @@
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <button class="modal-close-btn" onclick="closeAppModal('creator-room-settings-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color: #87ceeb; margin-bottom: 10px;">إدارة غرفتي ⚙️</h3>
-            <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 20px; text-align: center;">أنت منشئ هذه الغرفة، ماذا تريد أن تفعل؟</p>
             
             <input type="hidden" id="creator-target-room-id">
             
+            <label class="settings-label" style="margin-top: 15px;">تعديل مبلغ الرهان:</label>
+            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px;" onclick="window.isEditingBet = true; openAppModal('bet-selector-modal')">
+                <span id="edit-room-bet-display">اختر الرهان الجديد</span><span style="font-size: 14px; color: rgba(255,255,255,0.4);">▼</span>
+            </div>
+            <input type="hidden" id="edit-room-bet-input" value="0">
+            
             <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button id="creator-update-bet-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.2) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.4) !important; margin: 0;">تحديث الرهان 🔄</button>
                 <button id="creator-cancel-room-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; border-color: rgba(255, 69, 58, 0.4) !important; margin: 0;">إغلاق وحذف الغرفة 🗑️</button>
-                <button onclick="closeAppModal('creator-room-settings-modal')" class="save-settings-btn" style="background: transparent !important; margin: 0;">خروج</button>
             </div>
         </div>
     </div>
@@ -1223,9 +1228,58 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
     <script>
+        const originalGetItem = localStorage.getItem;
+        localStorage.getItem = function(key) {
+            let value = originalGetItem.call(this, key);
+            if (key === 'hub_user_profile' && value) {
+                try {
+                    let profile = JSON.parse(value);
+                    if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
+                        profile.avatar = '../' + profile.avatar;
+                        return JSON.stringify(profile);
+                    }
+                } catch(e) {}
+            }
+            return value;
+        };
+
+        const originalSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, value) {
+            if (key === 'hub_user_profile' && value) {
+                try {
+                    let profile = JSON.parse(value);
+                    if (profile && profile.avatar && profile.avatar.startsWith('../')) {
+                        profile.avatar = profile.avatar.replace('../', '');
+                        value = JSON.stringify(profile);
+                    }
+                } catch(e) {}
+                
+                if(window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                }
+            }
+            originalSetItem.call(this, key, value);
+        };
+
+        const originalRemoveItem = localStorage.removeItem;
+        localStorage.removeItem = function(key) {
+            if (key === 'hub_user_profile') {
+                if(window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                }
+            }
+            originalRemoveItem.call(this, key);
+        };
+    </script>
+    <script>
         function selectBetAmount(value, displayText, element) {
-            document.getElementById('room-bet-input').value = value;
-            document.getElementById('custom-bet-display').innerText = displayText;
+            if (window.isEditingBet) {
+                document.getElementById('edit-room-bet-input').value = value;
+                document.getElementById('edit-room-bet-display').innerText = displayText;
+            } else {
+                document.getElementById('room-bet-input').value = value;
+                document.getElementById('custom-bet-display').innerText = displayText;
+            }
             document.querySelectorAll('.bet-option-item').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
             setTimeout(() => closeAppModal('bet-selector-modal'), 150);
@@ -1247,6 +1301,9 @@
             if (modal) { 
                 modal.style.display = 'flex'; 
                 if (!window.modalStack.includes(id)) window.modalStack.push(id);
+                if (id === 'online-modal' && window.socket && window.socket.connected) {
+                    window.socket.emit('requestActiveRooms');
+                }
             }
         }
 
