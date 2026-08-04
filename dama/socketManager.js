@@ -670,7 +670,7 @@ export const socketManager = {
             
             if (isMultiJumpContinuation && data.to) {
                 const boardEl = document.getElementById('board');
-                const activeCell = boardEl?.querySelector(`[data-row="${data.to}"][data-col="${data.to.c}"]`);
+                const activeCell = boardEl?.querySelector(`[data-row="${data.to.r}"][data-col="${data.to.c}"]`);
                 if (activeCell && activeCell.children.length > 0) activeCell.children[0].classList.add('forced'); 
             }
             
@@ -1133,14 +1133,12 @@ export const socketManager = {
         }
     },
 
-    // 🌟 الانضمام كمشاهد للغرفة
     joinSpectator(roomID) {
         if (!socket.connected) socket.connect();
         const profile = this._ensureUserProfile();
         socket.emit('joinSpectator', { roomID: roomID, guestId: profile.id });
     },
 
-    // 🌟 إرسال الرهان للمشاهد
     placeSpectatorBet(roomID, color, amount) {
         if (!socket.connected) return;
         const profile = this._ensureUserProfile();
