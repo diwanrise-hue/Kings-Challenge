@@ -1,12 +1,12 @@
 /**
  * main.js
- * العقل المدبر المحلي للعبة: يحتوي على أنظمة الحفظ، وإدارة الأزرار، 
+ * العقل المدبر المحلي للعبة: يحتوي على أنظمة الحفظ، وإدارة الأزرار،
  * وربط نافذة التحدي بنظام الرهانات، وعجلة الحظ والمهام.
  */
-import { gameState } from './gameState.js'; 
+import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
-import { socket, socketManager } from './socketManager.js'; 
-import { gameEngine } from './gameEngine.js'; 
+import { socket, socketManager } from './socketManager.js';
+import { gameEngine } from './gameEngine.js';
 import { t } from './i18n.js';
 
 // ==========================================
@@ -22,7 +22,7 @@ document.addEventListener('visibilitychange', async () => {
         // 1. معالجة مشكلة الشاشة البيضاء
         setTimeout(() => {
             document.body.style.display = 'none';
-            void document.body.offsetHeight; 
+            void document.body.offsetHeight;
             document.body.style.display = 'flex';
         }, 50);
 
@@ -30,11 +30,11 @@ document.addEventListener('visibilitychange', async () => {
         const lastExit = localStorage.getItem('dama_last_exit_time');
         if (lastExit) {
             const timePassed = Date.now() - parseInt(lastExit);
-            if (timePassed > 5 * 60 * 1000) { 
+            if (timePassed > 5 * 60 * 1000) {
                 // إذا مر أكثر من 5 دقائق، نحذف اللعبة المحفوظة
                 await deleteFromDB('dama_saved_game');
                 localStorage.removeItem('dama_last_exit_time');
-                
+
                 // إذا كان اللاعب داخل اللعبة (أوفلاين) عند عودته، نفرغ الرقعة ونعطيه تنبيهاً
                 if (window.isMatchRunning && !gameState.isOnlineMode) {
                     if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard();
@@ -55,16 +55,16 @@ socket.on('connect', () => {
     setTimeout(() => {
         const pingText = document.getElementById('ping-text');
         const pingEl = document.getElementById('real-ping-indicator');
-        
+
         if (pingText && pingText.innerText.includes('999')) {
             pingText.innerText = '... ms';
             if (pingEl) pingEl.style.color = '#66bb6a';
         }
-        
+
         if (window.socketManager && typeof window.socketManager._hideDisconnectUI === 'function') {
             window.socketManager._hideDisconnectUI();
         }
-        
+
         socket.volatile.emit('clientPing', Date.now());
     }, 300);
 });
@@ -142,75 +142,79 @@ let saveTimeout = null;
 export function saveGameState() {
     if (gameState.isOnlineMode) return;
     if (saveTimeout) clearTimeout(saveTimeout);
-    
+
     saveTimeout = setTimeout(async () => {
         try {
             let optimizedHistory = (gameState.boardHistory || []).map(h => ({
                 boardStr: serializeBoard(h.board),
                 turn: h.turn
             }));
-            
+
             const stateToSave = {
                 boardStr: serializeBoard(gameState.virtualBoard),
-                currentTurn: gameState.currentTurn, 
+                currentTurn: gameState.currentTurn,
                 gameMode: document.getElementById('game-mode')?.value || 'ai',
-                difficulty: document.getElementById('diff-quick-select')?.value || '3', 
-                playerColor: gameState.playerColor, 
+                difficulty: document.getElementById('diff-quick-select')?.value || '3',
+                playerColor: gameState.playerColor,
                 lang: gameState.lang,
-                gameOver: gameState.blockGameOverModal ? undefined : false, 
+                gameOver: gameState.blockGameOverModal ? undefined : false,
                 pieceDirection: gameState.pieceDirection,
                 boardHistory: optimizedHistory,
                 boardHistoryStr: gameState.boardHistoryStr || [],
                 movesWithoutProgress: gameState.movesWithoutProgress || 0
             };
-            
+
             await saveToDB('dama_saved_game', stateToSave);
         } catch(e) {}
     }, 800);
 }
 
 export async function loadGameState() {
+    // تم التعليق على كود التحميل ليمنع التحميل التلقائي بعد التحديثات ولكن الكود محتفظ به بالكامل
+    return false;
+    /*
     try {
         const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 1000));
         const dbPromise = loadFromDB('dama_saved_game');
-        
+
         const state = await Promise.race([dbPromise, timeoutPromise]);
-        
+
         if (state) {
-            gameState.virtualBoard = deserializeBoard(state.boardStr); 
-            gameState.currentTurn = state.currentTurn; 
-            gameState.playerColor = state.playerColor; 
+            gameState.virtualBoard = deserializeBoard(state.boardStr);
+            gameState.currentTurn = state.currentTurn;
+            gameState.playerColor = state.playerColor;
             gameState.pieceDirection = state.pieceDirection || gameState.pieceDirection;
-            
+
             gameState.boardHistory = (state.boardHistory || []).map(h => ({
                 board: deserializeBoard(h.boardStr),
                 turn: h.turn
             }));
-            
+
             gameState.boardHistoryStr = state.boardHistoryStr || [];
             gameState.movesWithoutProgress = state.movesWithoutProgress || 0;
 
             const gm = document.getElementById('game-mode'); if(gm) gm.value = state.gameMode;
             const diff = document.getElementById('diff-quick-select'); if(diff) diff.value = state.difficulty;
             const lSel = document.getElementById('lang-select-modal'); if(lSel) lSel.value = gameState.lang;
-            
-            if (window.updateHtmlTexts) window.updateHtmlTexts(); 
-            ui.renderBoard(); 
+
+            if (window.updateHtmlTexts) window.updateHtmlTexts();
+            ui.renderBoard();
             return true;
         }
     } catch(e) {}
     return false;
+    */
 }
 
 export function startOnlineHintSystem() {
     if (gameState.originalHints === null) { gameState.originalHints = gameState.userProfile.hints !== undefined ? gameState.userProfile.hints : 5; }
-    gameState.userProfile.hints = 2; 
+    gameState.userProfile.hints = 2;
     ui.updateProfileUI();
 }
 
 export function restoreOfflineHintSystem() {
     if (gameState.originalHints !== null) {
-        gameState.userProfile.hints = gameState.originalHints; 
+        gameState.userProfile.hints = gameState.originalHints;
         gameState.originalHints = null;
         try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e) { }
         ui.updateProfileUI();
@@ -225,13 +229,13 @@ export function updateSpinTimerDisplay(nextFreeTime) {
         const timerEl = document.getElementById('spin-timer');
         const freeBtn = document.getElementById('spin-free-btn');
         const paidBtn = document.getElementById('spin-paid-btn');
-        const menuNotifyBadge = document.getElementById('menu-spin-notify-badge'); 
-        
+        const menuNotifyBadge = document.getElementById('menu-spin-notify-badge');
+
         if (!nextFreeTime || now >= nextFreeTime) {
             if (timerEl) timerEl.innerText = "اللفة المجانية جاهزة! 🎁";
             if (freeBtn) { freeBtn.style.display = 'flex'; }
             if (paidBtn) paidBtn.style.display = 'none';
-            if (menuNotifyBadge) menuNotifyBadge.style.display = 'block'; 
+            if (menuNotifyBadge) menuNotifyBadge.style.display = 'block';
             clearInterval(spinTimerInterval); spinTimerInterval = null;
         } else {
             let diff = Math.floor((nextFreeTime - now) / 1000);
@@ -241,7 +245,7 @@ export function updateSpinTimerDisplay(nextFreeTime) {
             if (timerEl) timerEl.innerText = `اللفة المجانية القادمة بعد: ${h}:${m}:${s}`;
             if (freeBtn) freeBtn.style.display = 'none';
             if (paidBtn) { paidBtn.style.display = 'flex'; }
-            if (menuNotifyBadge) menuNotifyBadge.style.display = 'none'; 
+            if (menuNotifyBadge) menuNotifyBadge.style.display = 'none';
         }
     };
     tick();
@@ -261,21 +265,21 @@ window.addEventListener('load', async () => {
 
     ui.initProfileSystem();
     ui.drawEmptyBoard();
-    if (window.updateHtmlTexts) window.updateHtmlTexts(); 
+    if (window.updateHtmlTexts) window.updateHtmlTexts();
 
     socketManager.init();
-    
+
     const isLoaded = await loadGameState();
-    
+
     if (isLoaded) {
-        if (gameState.virtualBoard.some(r => r.some(c => c !== null))) { 
-            window.isMatchRunning = true; 
-            ui.toggleOfflineInMatchUI(true); 
+        if (gameState.virtualBoard.some(r => r.some(c => c !== null))) {
+            window.isMatchRunning = true;
+            ui.toggleOfflineInMatchUI(true);
         }
-        ui.renderBoard(); 
+        ui.renderBoard();
         ui.startTurn();
     }
-    
+
     if (gameState.userProfile && gameState.userProfile.nextFreeSpin) { updateSpinTimerDisplay(gameState.userProfile.nextFreeSpin); } else { updateSpinTimerDisplay(0); }
     if (!socket.connected) socket.connect();
     setTimeout(() => { const profileStr = localStorage.getItem('hub_user_profile'); if (profileStr && socket && socket.connected) { socket.emit('syncProfile', JSON.parse(profileStr)); } }, 1000);
@@ -299,7 +303,7 @@ window.addEventListener('load', async () => {
         if (!profile) return;
         gameState.userProfile = { ...gameState.userProfile, ...profile };
         try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
-        
+
         // 👉 تحديث حالة زر المزامنة في الإعدادات بناءً على بيانات السيرفر (إن وُجد)
         if (gameState.userProfile.syncThemeOptOut !== undefined) {
             const optCb = document.getElementById('sync-theme-optout');
@@ -337,14 +341,14 @@ window.challengeFriend = function(friendId) {
 
     // حفظ معرف الصديق مؤقتاً
     window.pendingChallengeId = friendId;
-    
+
     // إخفاء حقل كلمة السر لأن التحدي خاص بالصديق عبر زر التحدي
     document.getElementById('create-room-password-input').style.display = 'none';
     document.getElementById('create-room-password-input').previousElementSibling.style.display = 'none';
-    
+
     const createBtn = document.getElementById('online-create-btn');
     createBtn.innerText = "إرسال التحدي ⚔️";
-    
+
     if (typeof openAppModal === 'function') openAppModal('create-room-modal');
 };
 
@@ -357,53 +361,53 @@ ui.onClick('settings-btn', e => { e.stopPropagation(); ui.setDisplay('settings-o
 ui.onClick('save-settings-btn', () => { saveGameState(); ui.setDisplay('settings-overlay', 'none'); });
 ui.onClick('settings-overlay', e => { if (e.target.id === 'settings-overlay') ui.setDisplay('settings-overlay', 'none'); });
 
-ui.onClick('lang-select-modal', e => { 
-    gameState.lang = e.target.value; 
-    if (window.updateHtmlTexts) window.updateHtmlTexts(); 
-    saveGameState(); 
+ui.onClick('lang-select-modal', e => {
+    gameState.lang = e.target.value;
+    if (window.updateHtmlTexts) window.updateHtmlTexts();
+    saveGameState();
 });
 
-ui.onClick('login-guest-btn', () => { 
-    gameState.userProfile = { ...gameState.userProfile, name: t('guest_prefix') + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), id: "GUEST-" + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), avatar: ui.getVal('login-avatar-select', '1000132081.png'), isCustomAvatar: false }; 
+ui.onClick('login-guest-btn', () => {
+    gameState.userProfile = { ...gameState.userProfile, name: t('guest_prefix') + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), id: "GUEST-" + (10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000)), avatar: ui.getVal('login-avatar-select', '1000132081.png'), isCustomAvatar: false };
     try { localStorage.setItem('dama_guest_expiry', Date.now() + (30 * 24 * 60 * 60 * 1000)); localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch (e) { }
-    ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); 
+    ui.updateProfileUI(); ui.setDisplay('login-modal', 'none');
 });
 
-ui.onClick('login-submit-btn', () => { 
-    let name = ui.getVal('login-name-input').trim(); 
-    if (!name) return ui.showCustomAlert(t('enter_name')); 
+ui.onClick('login-submit-btn', () => {
+    let name = ui.getVal('login-name-input').trim();
+    if (!name) return ui.showCustomAlert(t('enter_name'));
     name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
-    gameState.userProfile = { ...gameState.userProfile, name, id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.png') }; 
+    gameState.userProfile = { ...gameState.userProfile, name, id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.png') };
     try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); localStorage.removeItem('dama_guest_expiry'); } catch (e) { }
-    ui.updateProfileUI(); ui.setDisplay('login-modal', 'none'); 
+    ui.updateProfileUI(); ui.setDisplay('login-modal', 'none');
 });
 
-ui.onClick('add-friend-btn', () => { 
-    let fId = ui.getVal('friend-id-input').trim().toUpperCase(); 
-    if (!fId || fId === gameState.userProfile.id || gameState.userProfile.friends.includes(fId)) return ui.showCustomAlert(t('invalid_id')); 
-    gameState.userProfile.friends.push(fId); 
+ui.onClick('add-friend-btn', () => {
+    let fId = ui.getVal('friend-id-input').trim().toUpperCase();
+    if (!fId || fId === gameState.userProfile.id || gameState.userProfile.friends.includes(fId)) return ui.showCustomAlert(t('invalid_id'));
+    gameState.userProfile.friends.push(fId);
     try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
-    ui.updateProfileUI(); document.getElementById('friend-id-input').value = ''; ui.showCustomAlert(t('added_success')); 
+    ui.updateProfileUI(); document.getElementById('friend-id-input').value = ''; ui.showCustomAlert(t('added_success'));
 });
 
-document.getElementById('avatar-upload-input')?.addEventListener('change', e => { 
-    const file = e.target.files[0]; 
-    if (!file || !file.type.startsWith('image/') || file.size > 800 * 1024) return ui.showCustomAlert(t('img_large')); 
-    const reader = new FileReader(); 
-    reader.onload = ev => { 
-        gameState.userProfile.avatar = ev.target.result; gameState.userProfile.isCustomAvatar = true; ui.updateProfileUI(); 
-        try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(err) { ui.showCustomAlert("Storage limit exceeded."); } 
-    }; 
-    reader.readAsDataURL(file); 
+document.getElementById('avatar-upload-input')?.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith('image/') || file.size > 800 * 1024) return ui.showCustomAlert(t('img_large'));
+    const reader = new FileReader();
+    reader.onload = ev => {
+        gameState.userProfile.avatar = ev.target.result; gameState.userProfile.isCustomAvatar = true; ui.updateProfileUI();
+        try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(err) { ui.showCustomAlert("Storage limit exceeded."); }
+    };
+    reader.readAsDataURL(file);
 });
 
 ui.onClick('logout-btn', () => {
     const isGuest = gameState.userProfile.id.startsWith("GUEST-");
     const msg = isGuest ? t('guest_logout_warn') : t('logout_confirm');
-    ui.showCustomAlert(msg, null, () => { 
-            gameState.originalHints = null; localStorage.removeItem('hub_user_profile'); localStorage.removeItem('dama_guest_expiry'); 
-            gameState.userProfile = { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0 }; 
-            ui.setDisplay('profile-modal', 'none'); ui.setDisplay('login-modal', 'flex'); 
+    ui.showCustomAlert(msg, null, () => {
+            gameState.originalHints = null; localStorage.removeItem('hub_user_profile'); localStorage.removeItem('dama_guest_expiry');
+            gameState.userProfile = { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0 };
+            ui.setDisplay('profile-modal', 'none'); ui.setDisplay('login-modal', 'flex');
             if (typeof window.applyProfileDataToUI === 'function') window.applyProfileDataToUI(gameState.userProfile);
         }, true);
 });
@@ -411,7 +415,7 @@ ui.onClick('logout-btn', () => {
 ui.onClick('switch-account-btn', () => { ui.setDisplay('profile-modal', 'none'); ui.setDisplay('login-modal', 'flex'); });
 
 ui.onClick('spin-free-btn', () => {
-    if (window.isSpinning) return; 
+    if (window.isSpinning) return;
     if (socket && socket.connected) {
         const btn = document.getElementById('spin-free-btn'); if (btn) btn.innerText = "جاري التحقق...";
         socket.emit('requestLuckySpin', { type: 'free', guestId: gameState.userProfile.id });
@@ -419,7 +423,7 @@ ui.onClick('spin-free-btn', () => {
 });
 
 ui.onClick('spin-paid-btn', () => {
-    if (window.isSpinning) return; 
+    if (window.isSpinning) return;
     if (gameState.userProfile.tokens < 200) { return ui.showCustomAlert("رصيدك غير كافٍ للفة الإضافية (مطلوب 200 🪙)", "عذراً"); }
     if (socket && socket.connected) {
         ui.showCustomAlert("سيتم خصم 200 🪙 من رصيدك مقابل هذه اللفة الإضافية. هل أنت مستعد؟", "تأكيد اللفة", () => {
@@ -443,10 +447,10 @@ if (onlineBtn) {
             if (!window.modalStack) window.modalStack = [];
             if (!window.modalStack.includes('matchmaking-modal')) { window.modalStack.push('matchmaking-modal'); history.pushState({ modalOpen: 'matchmaking-modal' }, ''); }
         }
-        
+
         const profile = gameState.userProfile || {};
         const myNameEl = document.getElementById('mm-my-name'); const myAvatarEl = document.getElementById('mm-my-avatar');
-        
+
         if (myNameEl) myNameEl.innerText = profile.name || t('badge_you');
         if (myAvatarEl) {
             let avatarSrc = profile.avatar || "1000132081.png";
@@ -476,7 +480,7 @@ if (onlineBtn) {
 const cancelMmBtn = document.getElementById('mm-cancel-btn');
 if (cancelMmBtn) {
     cancelMmBtn.addEventListener('click', (e) => {
-        e.preventDefault(); clearInterval(gameState.mmInterval); gameState.mmInterval = null; 
+        e.preventDefault(); clearInterval(gameState.mmInterval); gameState.mmInterval = null;
         const mmModal = document.getElementById('matchmaking-modal');
         if (mmModal) { mmModal.style.display = 'none'; if (window.modalStack) { window.modalStack = window.modalStack.filter(id => id !== 'matchmaking-modal'); } }
         if (socket && socket.connected) { socket.emit('leaveMatchmakingPool'); }
@@ -486,19 +490,37 @@ if (cancelMmBtn) {
 ui.onClick('room-portal-btn', () => { ui.setDisplay('online-modal', 'flex'); });
 ui.onClick('online-close-btn', () => ui.setDisplay('online-modal', 'none'));
 
-ui.onClick('online-create-btn', () => { 
+// ==========================================
+// 💡 دالة إغلاق الغرفة الخاصة من قِبل المنشئ
+// ==========================================
+window.deleteMyRoom = function(roomId) {
+    if (window.socket && window.socket.connected) {
+         window.socket.emit('leaveRoom', { roomID: roomId });
+         window.socket.emit('deleteRoom', { roomID: roomId });
+         if (window.socketManager) window.socketManager._showToast('تم إغلاق وحذف غرفتك بنجاح 🗑️');
+    }
+};
+
+ui.onClick('online-create-btn', () => {
     let betAmt = parseInt(document.getElementById('room-bet-input').value) || 0;
 
     if (window.pendingChallengeId) {
         socketManager.sendChallenge(window.pendingChallengeId, betAmt);
         if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
-        window.pendingChallengeId = null; 
+        window.pendingChallengeId = null;
     } else {
+        // 💡 التحقق مما إذا كان اللاعب يملك غرفة نشطة بالفعل
+        if (window.myCurrentRoomId) {
+            if (window.socketManager) window.socketManager._showToast('لديك غرفة سابقاً! يرجى إغلاقها أولاً.');
+            if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
+            return;
+        }
+
         let pwd = document.getElementById('create-room-password-input').value;
         let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
-        
-        socketManager.handleRoomAction('createRoom', rID, pwd, betAmt); 
-        socketManager.showStatusMsg("جاري إنشاء الغرفة..."); 
+
+        socketManager.handleRoomAction('createRoom', rID, pwd, betAmt);
+        socketManager.showStatusMsg("جاري إنشاء الغرفة...");
         if (typeof closeAppModal === 'function') closeAppModal('create-room-modal');
     }
 });
@@ -510,7 +532,7 @@ ui.onClick('online-create-btn', () => {
 window.showCustomPasswordPrompt = function(roomId) {
     document.getElementById('custom-target-room-id').value = roomId;
     document.getElementById('custom-room-pwd-input').value = '';
-    
+
     if (typeof openAppModal === 'function') {
         openAppModal('custom-password-modal');
     }
@@ -519,16 +541,16 @@ window.showCustomPasswordPrompt = function(roomId) {
 document.getElementById('custom-join-confirm-btn')?.addEventListener('click', () => {
     const roomId = document.getElementById('custom-target-room-id').value;
     const pwd = document.getElementById('custom-room-pwd-input').value;
-    
+
     if (!pwd) {
         if(window.ui && typeof window.ui.showCustomAlert === 'function') window.ui.showCustomAlert('الرجاء إدخال كلمة السر!');
         return;
     }
-    
+
     if (window.socket && window.socket.connected) {
          window.socket.emit('joinRoom', { roomID: roomId, password: pwd });
     }
-    
+
     if (typeof closeAppModal === 'function') {
         closeAppModal('custom-password-modal');
     }
@@ -543,16 +565,16 @@ window.openCreatorSettings = function(roomId) {
 
 document.getElementById('creator-cancel-room-btn')?.addEventListener('click', () => {
     const roomId = document.getElementById('creator-target-room-id').value;
-    
+
     if (window.socket && window.socket.connected) {
-         window.socket.emit('leaveRoom', { roomID: roomId }); 
-         window.socket.emit('deleteRoom', { roomID: roomId }); 
+         window.socket.emit('leaveRoom', { roomID: roomId });
+         window.socket.emit('deleteRoom', { roomID: roomId });
     }
-    
+
     if (typeof closeAppModal === 'function') {
         closeAppModal('creator-room-settings-modal');
     }
-    
+
     if(window.ui && typeof window.ui.showCustomAlert === 'function') {
         window.ui.showCustomAlert('تم إغلاق وحذف الغرفة بنجاح.');
     }
