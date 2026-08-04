@@ -262,14 +262,28 @@ export const socketManager = {
             const listContainer = document.getElementById('active-rooms-list');
             if (!listContainer) return;
             
+            const currentUserId = gameState.userProfile ? gameState.userProfile.id : null;
+            window.myCurrentRoomId = null;
+
             if (!rooms || rooms.length === 0) {
                 listContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>';
                 return;
             }
             
-            listContainer.innerHTML = '';
+            // 💡 1. البحث وتخزين غرفة اللاعب لمنع تكرار الإنشاء
+            const myRoom = rooms.find(r => r.creatorId === currentUserId || r.hostId === currentUserId);
+            if (myRoom) window.myCurrentRoomId = myRoom.id;
             
-            const currentUserId = gameState.userProfile ? gameState.userProfile.id : null;
+            // 💡 2. تثبيت الغرفة الخاصة باللاعب في الأعلى
+            rooms.sort((a, b) => {
+                const isAMine = (a.creatorId === currentUserId || a.hostId === currentUserId);
+                const isBMine = (b.creatorId === currentUserId || b.hostId === currentUserId);
+                if (isAMine && !isBMine) return -1;
+                if (!isAMine && isBMine) return 1;
+                return 0;
+            });
+
+            listContainer.innerHTML = '';
 
             rooms.forEach(r => {
                 const isPrivate = r.hasPassword ? '🔒 محمية' : '🔓 عامة';
@@ -290,8 +304,12 @@ export const socketManager = {
                 let actionBtnHTML = '';
 
                 if (isCreator) {
-                    // ⚙️ زر المسننة لمنشئ الغرفة
-                    actionBtnHTML = `<button onclick="window.openCreatorSettings('${r.id}')" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 6px 14px; color: #fff; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" title="إعدادات الغرفة">⚙️</button>`;
+                    // ⚙️ زر المسننة + ❌ زر الحذف الأحمر لمنشئ الغرفة
+                    actionBtnHTML = `
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="window.openCreatorSettings('${r.id}')" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 6px 14px; color: #fff; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" title="إعدادات الغرفة">⚙️</button>
+                        <button onclick="window.deleteMyRoom('${r.id}')" style="background: rgba(255,69,58,0.15); border: 1px solid rgba(255,69,58,0.3); border-radius: 12px; padding: 6px 14px; color: #ff453a; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,69,58,0.25)'" onmouseout="this.style.background='rgba(255,69,58,0.15)'" title="إغلاق وحذف الغرفة">✕</button>
+                    </div>`;
                 } else {
                     // أزرار الدخول للزوار
                     if (r.hasPassword) {
@@ -392,7 +410,6 @@ export const socketManager = {
 
         socket.on('waitingForOpponent', msg => this._showToast(msg));
 
-        // مزامنة ساحة اللاعب الأعلى مستوى
         socket.on('gameStart', data => {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
@@ -448,7 +465,6 @@ export const socketManager = {
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
             const myProfile = this._ensureUserProfile();
             
-            // منطق مزامنة الساحة حسب الأعلى XP
             const optout = localStorage.getItem('dama_sync_optout') === 'true';
             const myXp = myProfile.xp || 0;
             const oppXp = gameState.currentOpponentXp;
@@ -704,7 +720,6 @@ export const socketManager = {
             }
         });
 
-        // استقبال التحدي كإشعار جانبي منزلق
         socket.on('receiveChallenge', data => {
             if (!data) return;
             const profile = this._ensureUserProfile();
@@ -772,7 +787,6 @@ export const socketManager = {
             }
         });
 
-        // الاستماع لطلب تفعيل المايك من الخصم
         socket.on('mic-request', (data) => {
             if (!gameState.isOnlineMode) return;
             const modal = document.getElementById('mic-request-modal');
@@ -892,7 +906,6 @@ export const socketManager = {
             gameState.turnTimerInterval = null;
         }
         
-        // استعادة شكل الساحة الافتراضي إذا تم تغييره بسبب الأونلاين
         if (gameState.isOnlineMode && typeof window.applyTheme === 'function' && gameState.userProfile) {
             window.applyTheme(gameState.userProfile);
         }
@@ -1000,7 +1013,6 @@ export const socketManager = {
         if (el) el.style.cssText = "color:#f1c40f;display:block;";
     },
 
-    // دعم إرسال التحدي بمبلغ الرهان
     sendChallenge(friendId, betAmount = 0) {
         if (!friendId || this.isAlertShown) return;
 
