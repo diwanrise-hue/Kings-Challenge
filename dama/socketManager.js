@@ -1,3 +1,4 @@
+// ملف: socketManager.js
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة: تدعم نظام التحديات المتقدم، استئذان المايك، 
@@ -257,7 +258,7 @@ export const socketManager = {
             }
         });
 
-        // جلب قائمة الرومات النشطة (Lobby)
+        // جلب قائمة الرومات النشطة (Lobby) - تعتمد الآن على المعرف الموحد hostId
         socket.on('activeRoomsList', (rooms) => {
             const listContainer = document.getElementById('active-rooms-list');
             if (!listContainer) return;
@@ -269,15 +270,15 @@ export const socketManager = {
                 listContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>';
                 return;
             }
-            
-            // 💡 1. البحث وتخزين غرفة اللاعب لمنع تكرار الإنشاء
-            const myRoom = rooms.find(r => r.creatorId === currentUserId || r.hostId === currentUserId);
+
+            // 💡 1. البحث وتخزين غرفة اللاعب (الآن نعتمد على ID الموحد فقط)
+            const myRoom = rooms.find(r => r.hostId === currentUserId);
             if (myRoom) window.myCurrentRoomId = myRoom.id;
             
             // 💡 2. تثبيت الغرفة الخاصة باللاعب في الأعلى
             rooms.sort((a, b) => {
-                const isAMine = (a.creatorId === currentUserId || a.hostId === currentUserId);
-                const isBMine = (b.creatorId === currentUserId || b.hostId === currentUserId);
+                const isAMine = (a.hostId === currentUserId);
+                const isBMine = (b.hostId === currentUserId);
                 if (isAMine && !isBMine) return -1;
                 if (!isAMine && isBMine) return 1;
                 return 0;
@@ -300,7 +301,8 @@ export const socketManager = {
                 roomEl.onmouseenter = () => roomEl.style.background = 'rgba(255,255,255,0.1)';
                 roomEl.onmouseleave = () => roomEl.style.background = 'rgba(255,255,255,0.05)';
                 
-                const isCreator = (r.creatorId === currentUserId || r.hostId === currentUserId);
+                // 💡 التحقق النظيف والمباشر
+                const isCreator = (r.hostId === currentUserId);
                 let actionBtnHTML = '';
 
                 if (isCreator) {
