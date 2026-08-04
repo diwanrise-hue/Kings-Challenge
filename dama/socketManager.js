@@ -2,7 +2,7 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة: تدعم نظام التحديات المتقدم، استئذان المايك، 
- * ردهة الغرف النشطة (Lobby)، ومزامنة الساحة للاعب الأعلى XP.
+ * ردهة الغرف النشطة (Lobby) مفصولة (للعب وللمراهنات)، مزامنة الساحة، ونظام المشاهدة والرهانات الجانبية.
  */
 
 import { gameState } from './gameState.js'; 
@@ -248,7 +248,8 @@ export const socketManager = {
             'challengeResponse', 'profileUpdated', 'friendAddedNotification',
             'friendAddSuccess', 'friendAddFailed', 'opponentLeftRoom', 'roomClosedByTimeout',
             'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState',
-            'activeRoomsList', 'mic-request', 'mic-response'
+            'activeRoomsList', 'mic-request', 'mic-response', 'spectatorJoined', 'spectatorCountChanged',
+            'bettingClosed', 'betResult', 'creatorCutReceived'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
@@ -258,24 +259,30 @@ export const socketManager = {
             }
         });
 
-        // جلب قائمة الرومات النشطة (Lobby) - تعتمد الآن على المعرف الموحد hostId
+        // جلب قائمة الرومات وفرزها في التبويبات 
         socket.on('activeRoomsList', (rooms) => {
-            const listContainer = document.getElementById('active-rooms-list');
-            if (!listContainer) return;
+            const playListContainer = document.getElementById('active-rooms-list');
+            const spectateListContainer = document.getElementById('spectate-rooms-list');
+            if (!playListContainer) return;
             
             const currentUserId = gameState.userProfile ? gameState.userProfile.id : null;
             window.myCurrentRoomId = null;
 
+            playListContainer.innerHTML = '';
+            if (spectateListContainer) spectateListContainer.innerHTML = '';
+
+            let playCount = 0;
+            let spectateCount = 0;
+
             if (!rooms || rooms.length === 0) {
-                listContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>';
+                playListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>';
+                if (spectateListContainer) spectateListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>';
                 return;
             }
 
-            // 💡 1. البحث وتخزين غرفة اللاعب (الآن نعتمد على ID الموحد فقط)
             const myRoom = rooms.find(r => r.hostId === currentUserId);
             if (myRoom) window.myCurrentRoomId = myRoom.id;
             
-            // 💡 2. تثبيت الغرفة الخاصة باللاعب في الأعلى
             rooms.sort((a, b) => {
                 const isAMine = (a.hostId === currentUserId);
                 const isBMine = (b.hostId === currentUserId);
@@ -283,8 +290,6 @@ export const socketManager = {
                 if (!isAMine && isBMine) return 1;
                 return 0;
             });
-
-            listContainer.innerHTML = '';
 
             rooms.forEach(r => {
                 const isPrivate = r.hasPassword ? '🔒 محمية' : '🔓 عامة';
@@ -301,41 +306,74 @@ export const socketManager = {
                 roomEl.onmouseenter = () => roomEl.style.background = 'rgba(255,255,255,0.1)';
                 roomEl.onmouseleave = () => roomEl.style.background = 'rgba(255,255,255,0.05)';
                 
-                // 💡 التحقق النظيف والمباشر
                 const isCreator = (r.hostId === currentUserId);
                 let actionBtnHTML = '';
 
-                if (isCreator) {
-                    // ⚙️ زر المسننة + ❌ زر الحذف الأحمر لمنشئ الغرفة
-                    actionBtnHTML = `
-                    <div style="display: flex; gap: 8px;">
-                        <button onclick="window.openCreatorSettings('${r.id}')" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 6px 14px; color: #fff; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" title="إعدادات الغرفة">⚙️</button>
-                        <button onclick="window.deleteMyRoom('${r.id}')" style="background: rgba(255,69,58,0.15); border: 1px solid rgba(255,69,58,0.3); border-radius: 12px; padding: 6px 14px; color: #ff453a; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,69,58,0.25)'" onmouseout="this.style.background='rgba(255,69,58,0.15)'" title="إغلاق وحذف الغرفة">✕</button>
-                    </div>`;
-                } else {
-                    // أزرار الدخول للزوار
-                    if (r.hasPassword) {
-                        actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(52,152,219,0.2); border: 1px solid rgba(52,152,219,0.4); border-radius: 12px; padding: 6px 16px; color: #3498db; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">دخول 🔒</button>`;
+                if (r.isFull) {
+                    // 🌟 إضافة الغرفة لقائمة المراهنة والمشاهدة
+                    if (r.isBettingOpen) {
+                        actionBtnHTML = `<button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(241,196,15,0.2); border: 1px solid rgba(241,196,15,0.4); border-radius: 12px; padding: 6px 16px; color: #f1c40f; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">رهان ومشاهدة 👁️ (${r.spectatorsCount || 0})</button>`;
                     } else {
-                        actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(48,209,88,0.2); border: 1px solid rgba(48,209,88,0.4); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">دخول</button>`;
+                        actionBtnHTML = `<button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.2); border: 1px solid rgba(155,89,182,0.4); border-radius: 12px; padding: 6px 16px; color: #9b59b6; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">مشاهدة فقط 👁️ (${r.spectatorsCount || 0})</button>`;
                     }
-                }
+                    
+                    roomEl.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid #3498db; background-color: rgba(255,255,255,0.05);">
+                                <img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width:100%;height:100%;object-fit:cover; display:flex; align-items:center; justify-content:center;">
+                            </div>
+                            <div>
+                                <div style="color: white; font-weight: bold; font-size: 14px;">مباراة: ${r.hostName}</div>
+                                <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
+                            </div>
+                        </div>
+                        ${actionBtnHTML}
+                    `;
+                    
+                    if (spectateListContainer) {
+                        spectateListContainer.appendChild(roomEl);
+                        spectateCount++;
+                    }
+                } else {
+                    // إضافة الغرفة لقائمة اللعب
+                    if (isCreator) {
+                        actionBtnHTML = `
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="window.openCreatorSettings('${r.id}', ${r.betAmount})" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 6px 14px; color: #fff; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" title="إعدادات الغرفة">⚙️</button>
+                            <button onclick="window.deleteMyRoom('${r.id}')" style="background: rgba(255,69,58,0.15); border: 1px solid rgba(255,69,58,0.3); border-radius: 12px; padding: 6px 14px; color: #ff453a; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,69,58,0.25)'" onmouseout="this.style.background='rgba(255,69,58,0.15)'" title="إغلاق وحذف الغرفة">✕</button>
+                        </div>`;
+                    } else {
+                        if (r.hasPassword) {
+                            actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(52,152,219,0.2); border: 1px solid rgba(52,152,219,0.4); border-radius: 12px; padding: 6px 16px; color: #3498db; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">دخول 🔒</button>`;
+                        } else {
+                            actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(48,209,88,0.2); border: 1px solid rgba(48,209,88,0.4); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">دخول</button>`;
+                        }
+                    }
 
-                roomEl.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid #3498db; background-color: rgba(255,255,255,0.05);">
-                            <img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width:100%;height:100%;object-fit:cover; display:flex; align-items:center; justify-content:center;">
+                    roomEl.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid #3498db; background-color: rgba(255,255,255,0.05);">
+                                <img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width:100%;height:100%;object-fit:cover; display:flex; align-items:center; justify-content:center;">
+                            </div>
+                            <div>
+                                <div style="color: white; font-weight: bold; font-size: 14px;">${r.hostName}</div>
+                                <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
+                            </div>
                         </div>
-                        <div>
-                            <div style="color: white; font-weight: bold; font-size: 14px;">${r.hostName}</div>
-                            <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
-                        </div>
-                    </div>
-                    ${actionBtnHTML}
-                `;
-                
-                listContainer.appendChild(roomEl);
+                        ${actionBtnHTML}
+                    `;
+                    
+                    playListContainer.appendChild(roomEl);
+                    playCount++;
+                }
             });
+
+            if (playCount === 0) {
+                playListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>';
+            }
+            if (spectateCount === 0 && spectateListContainer) {
+                spectateListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة أو المشاهدة حالياً.</p>';
+            }
         });
 
         socket.on('connect', () => {
@@ -346,7 +384,6 @@ export const socketManager = {
             const profile = this._ensureUserProfile();
             socket.emit('deviceFingerprint', { guestId: profile.id });
             
-            // طلب جلب الرومات المفتوحة للوبي
             socket.emit('requestActiveRooms');
 
             if (gameState.isOnlineMode && gameState.onlineRoomID) {
@@ -389,12 +426,15 @@ export const socketManager = {
             ui.renderBoard(true);
             ui.startTurn();
             
-            this._showToast(gameState.lang === 'ar' ? "تمت مزامنة الرقعة بنجاح 🔄" : "Board synchronized 🔄");
+            if (!gameState.isSpectator) {
+                this._showToast(gameState.lang === 'ar' ? "تمت مزامنة الرقعة بنجاح 🔄" : "Board synchronized 🔄");
+            }
         });
 
         socket.on('roomCreated', id => {
             gameState.isBotOpponent = false;
             gameState.playerColor = gameState.myOnlineColor = 'white';
+            gameState.isSpectator = false;
             if(id) gameState.onlineRoomID = id;
             this._showToast(gameState.lang === 'ar' ? "تم الإنشاء! بانتظار الخصم" : "Created! Waiting...");
             if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
@@ -403,6 +443,7 @@ export const socketManager = {
         socket.on('roomJoined', () => {
             gameState.isBotOpponent = false;
             gameState.playerColor = gameState.myOnlineColor = 'black';
+            gameState.isSpectator = false;
             this._showToast(gameState.lang === 'ar' ? "تم الانضمام!" : "Joined!");
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('online-modal');
@@ -411,6 +452,73 @@ export const socketManager = {
         });
 
         socket.on('waitingForOpponent', msg => this._showToast(msg));
+
+        // 🌟 مستمع دخول المشاهد للغرفة الممتلئة
+        socket.on('spectatorJoined', (data) => {
+            if (!data) return;
+            gameState.isBotOpponent = false;
+            gameState.isGameOver = false;
+            gameState.isGameActive = true;
+            gameState.isOnlineMode = true;
+            gameState.isSpectator = true; 
+            gameState.onlineRoomID = data.roomID;
+            gameState.virtualBoard = data.board;
+            gameState.currentTurn = data.turn || 'white';
+            
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
+
+            // إخفاء لوحة التحكم للمشاهد حتى لا يتمكن من اللعب
+            ui.setDisplay('bottom-control-panel', 'none'); 
+
+            let p1Name = data.player1?.name || "اللاعب 1";
+            let p2Name = data.player2?.name || "اللاعب 2";
+
+            // إظهار أسماء اللاعبين
+            ui.toggleOnlineUILayout(true, p2Name, data.player2?.avatar);
+            
+            // تعديل واجهة المستخدم (تغيير اسم المشاهد ليكون هو Player 1 لغرض العرض فقط)
+            ui.setTxt('card-my-name', p1Name);
+            if (data.player1?.avatar) ui.applyAvatar('card-my-avatar', data.player1.avatar, data.player1.avatar.startsWith('data:image'));
+
+            ui.renderBoard(true);
+            
+            // إظهار نافذة المراهنة للمشاهد إذا كان الرهان مفتوحاً
+            if (data.isBettingOpen && typeof window.showSpectatorBetModal === 'function') {
+                window.showSpectatorBetModal(data.roomID, data.player1, data.player2);
+            } else {
+                this._showToast("أنت الآن تشاهد المباراة 👁️");
+            }
+        });
+
+        // تحديث عداد المشاهدين
+        socket.on('spectatorCountChanged', (data) => {
+            const countEl = document.getElementById('spectator-count-display');
+            if (countEl) countEl.innerText = data.count;
+            else this._showToast(`👁️ المشاهدون الآن: ${data.count}`);
+        });
+
+        socket.on('betResult', (data) => {
+            if (data && data.msg) {
+                if (typeof ui.showCustomAlert === 'function') {
+                    ui.showCustomAlert(data.msg, data.won ? "نتيجة الرهان 🎉" : "نتيجة الرهان", null, false, null, "رائع");
+                } else {
+                    this._showToast(data.msg);
+                }
+            }
+        });
+
+        socket.on('creatorCutReceived', (data) => {
+            if (data && data.amount) {
+                this._showToast(`🎁 مكافأة دعم: حصلت على ${data.amount} 🪙 من رهانات المشاهدين!`);
+            }
+        });
+
+        socket.on('bettingClosed', () => {
+            if (typeof window.closeAppModal === 'function') {
+                window.closeAppModal('spectator-bet-modal');
+            }
+            if (gameState.isSpectator) this._showToast("تم إغلاق المراهنات لهذه المباراة 🔒");
+        });
 
         socket.on('gameStart', data => {
             if (!data) return;
@@ -428,6 +536,7 @@ export const socketManager = {
             gameState.isBotOpponent = false;
             gameState.isGameOver = false;
             gameState.isGameActive = true;
+            gameState.isSpectator = false;
             gameState.statsUpdated = false; 
             gameState.isUpdatingStats = false; 
             gameState.selectedPiece = null; 
@@ -494,6 +603,8 @@ export const socketManager = {
             }
 
             ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
+            ui.setDisplay('bottom-control-panel', 'flex'); 
+
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('online-modal');
                 window.closeAppModal('create-room-modal');
@@ -559,7 +670,7 @@ export const socketManager = {
             
             if (isMultiJumpContinuation && data.to) {
                 const boardEl = document.getElementById('board');
-                const activeCell = boardEl?.querySelector(`[data-row="${data.to.r}"][data-col="${data.to.c}"]`);
+                const activeCell = boardEl?.querySelector(`[data-row="${data.to}"][data-col="${data.to.c}"]`);
                 if (activeCell && activeCell.children.length > 0) activeCell.children[0].classList.add('forced'); 
             }
             
@@ -572,9 +683,13 @@ export const socketManager = {
 
             gameState.isGameOver = true;
             gameState.isGameActive = false;
-            gameEngine.endGame(gameState.myOnlineColor);
             
-            this._showToast(gameState.lang === 'ar' ? "انسحب الخصم! لقد فزت 🏆" : "Opponent Resigned! You Win 🏆");
+            if (!gameState.isSpectator) {
+                gameEngine.endGame(gameState.myOnlineColor);
+                this._showToast(gameState.lang === 'ar' ? "انسحب الخصم! لقد فزت 🏆" : "Opponent Resigned! You Win 🏆");
+            } else {
+                this._showToast("انسحب أحد اللاعبين وانتهت المباراة.");
+            }
         });
 
         socket.on('turnTimeout', data => {
@@ -585,14 +700,18 @@ export const socketManager = {
             gameState.isGameActive = false;
 
             const winnerColor = (data && data.winner) ? data.winner : gameState.myOnlineColor;
-            gameEngine.endGame(winnerColor);
             
-            if (winnerColor === 'draw') {
-                this._showToast(gameState.lang === 'ar' ? "انتهى الوقت بالتعادل 🤝" : "Time out! Draw 🤝");
-            } else if (winnerColor === gameState.myOnlineColor) {
-                this._showToast(gameState.lang === 'ar' ? "انتهى وقت الخصم! لقد فزت 🏆" : "Opponent timeout! You Win 🏆");
+            if (!gameState.isSpectator) {
+                gameEngine.endGame(winnerColor);
+                if (winnerColor === 'draw') {
+                    this._showToast(gameState.lang === 'ar' ? "انتهى الوقت بالتعادل 🤝" : "Time out! Draw 🤝");
+                } else if (winnerColor === gameState.myOnlineColor) {
+                    this._showToast(gameState.lang === 'ar' ? "انتهى وقت الخصم! لقد فزت 🏆" : "Opponent timeout! You Win 🏆");
+                } else {
+                    this._showToast(gameState.lang === 'ar' ? "انتهى وقتك! حظاً موفقاً ⏳" : "Time out! Better luck next time ⏳");
+                }
             } else {
-                this._showToast(gameState.lang === 'ar' ? "انتهى وقتك! حظاً موفقاً ⏳" : "Time out! Better luck next time ⏳");
+                this._showToast("انتهى وقت أحد اللاعبين وانتهت المباراة.");
             }
         });
 
@@ -611,7 +730,7 @@ export const socketManager = {
             if (!gameState.isOnlineMode) return;
             this._showToast((data && data.message) || (gameState.lang === 'ar' ? "انقطع اتصال الخصم" : "Opponent disconnected"));
             
-            if (!gameState.isGameOver) {
+            if (!gameState.isGameOver && !gameState.isSpectator) {
                 gameState.isGameOver = true;
                 gameState.isGameActive = false;
                 if (typeof ui.showOnlineResultsModal === 'function') {
@@ -623,7 +742,7 @@ export const socketManager = {
         socket.on('opponentReconnected', data => {
             if (!gameState.isOnlineMode || !data) return;
             this._showToast(gameState.lang === 'ar' ? `عاد ${data.name || 'الخصم'} للاتصال!` : `${data.name || 'Opponent'} reconnected!`);
-            if (data.avatar) {
+            if (data.avatar && !gameState.isSpectator) {
                 gameState.currentOpponentAvatar = data.avatar;
                 ui.applyAvatar('card-opp-avatar', data.avatar, data.avatar.startsWith('data:image') || data.avatar.endsWith('.png') || data.avatar.endsWith('.jpg'));
             }
@@ -642,7 +761,7 @@ export const socketManager = {
         });
 
         socket.on('rematchOffer', () => {
-            if (this.isAlertShown) return; 
+            if (this.isAlertShown || gameState.isSpectator) return; 
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
             else ui.setDisplay('custom-alert-modal', 'none');
@@ -790,7 +909,7 @@ export const socketManager = {
         });
 
         socket.on('mic-request', (data) => {
-            if (!gameState.isOnlineMode) return;
+            if (!gameState.isOnlineMode || gameState.isSpectator) return;
             const modal = document.getElementById('mic-request-modal');
             if (modal) {
                 modal.style.display = 'flex';
@@ -845,13 +964,13 @@ export const socketManager = {
     },
 
     sendChatData(type, value) {
-        if (gameState.isOnlineMode && gameState.onlineRoomID && socket.connected) {
+        if (gameState.isOnlineMode && gameState.onlineRoomID && socket.connected && !gameState.isSpectator) {
             socket.emit('sendChat', { roomID: String(gameState.onlineRoomID).trim(), type: type, value: value });
         }
     },
 
     sendMoveToServer(fromR, fromC, toR, toC, boardState, nextTurn) {
-        if (gameState.isOnlineMode && gameState.onlineRoomID) {
+        if (gameState.isOnlineMode && gameState.onlineRoomID && !gameState.isSpectator) {
             const profile = this._ensureUserProfile(); 
             socket.emit('makeMove', { 
                 roomID: String(gameState.onlineRoomID).trim(), 
@@ -865,7 +984,7 @@ export const socketManager = {
     },
 
     sendSurrender() {
-        if (gameState.isOnlineMode && gameState.onlineRoomID) {
+        if (gameState.isOnlineMode && gameState.onlineRoomID && !gameState.isSpectator) {
             if (gameState.isGameOver) return; 
             socket.emit('playerResigned', { roomID: String(gameState.onlineRoomID).trim() }); 
             gameState.isGameOver = true;
@@ -890,9 +1009,11 @@ export const socketManager = {
         if (typeof window.closeAppModal === 'function') {
             window.closeAppModal('custom-alert-modal');
             window.closeAppModal('challenge-action-modal');
+            window.closeAppModal('spectator-bet-modal');
         } else {
             ui.setDisplay('custom-alert-modal', 'none');
             ui.setDisplay('challenge-action-modal', 'none');
+            ui.setDisplay('spectator-bet-modal', 'none');
         }
         
         if (gameState.onlineRoomID && socket.connected) {
@@ -915,6 +1036,7 @@ export const socketManager = {
         gameState.isOnlineMode = false;
         gameState.isGameActive = false;
         gameState.isGameOver = false;
+        gameState.isSpectator = false; 
         gameState.onlineRoomID = null;
         gameState.currentOpponentName = null;
         gameState.currentOpponentAvatar = null;
@@ -926,11 +1048,13 @@ export const socketManager = {
         if (window.bridge && typeof window.bridge.unlockRoom === 'function') window.bridge.unlockRoom();
         
         ui.toggleOnlineUILayout(false);
+        ui.setDisplay('bottom-control-panel', 'flex'); 
+
         if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
     },
 
     sendRematchRequest() {
-        if (gameState.onlineRoomID && !this.isAlertShown) { 
+        if (gameState.onlineRoomID && !this.isAlertShown && !gameState.isSpectator) { 
             this.isAlertShown = true;
             socket.emit('requestRematch', { roomID: String(gameState.onlineRoomID).trim() });
             
@@ -1007,6 +1131,20 @@ export const socketManager = {
         } else {
             this._safeEmit(targetAction, dataPayload);
         }
+    },
+
+    // 🌟 الانضمام كمشاهد للغرفة
+    joinSpectator(roomID) {
+        if (!socket.connected) socket.connect();
+        const profile = this._ensureUserProfile();
+        socket.emit('joinSpectator', { roomID: roomID, guestId: profile.id });
+    },
+
+    // 🌟 إرسال الرهان للمشاهد
+    placeSpectatorBet(roomID, color, amount) {
+        if (!socket.connected) return;
+        const profile = this._ensureUserProfile();
+        socket.emit('placeSpectatorBet', { roomID: roomID, color: color, amount: amount, guestId: profile.id });
     },
 
     showStatusMsg(msg) {
