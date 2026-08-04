@@ -268,6 +268,9 @@ export const socketManager = {
             }
             
             listContainer.innerHTML = '';
+            
+            const currentUserId = gameState.userProfile ? gameState.userProfile.id : null;
+
             rooms.forEach(r => {
                 const isPrivate = r.hasPassword ? '🔒 محمية' : '🔓 عامة';
                 const betText = r.betAmount > 0 ? `💰 ${r.betAmount} 🪙` : `🆓 مجاني`;
@@ -279,10 +282,25 @@ export const socketManager = {
                     avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
                 }
 
-                roomEl.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.3s;";
+                roomEl.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;";
                 roomEl.onmouseenter = () => roomEl.style.background = 'rgba(255,255,255,0.1)';
                 roomEl.onmouseleave = () => roomEl.style.background = 'rgba(255,255,255,0.05)';
                 
+                const isCreator = (r.creatorId === currentUserId || r.hostId === currentUserId);
+                let actionBtnHTML = '';
+
+                if (isCreator) {
+                    // ⚙️ زر المسننة لمنشئ الغرفة
+                    actionBtnHTML = `<button onclick="window.openCreatorSettings('${r.id}')" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 6px 14px; color: #fff; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" title="إعدادات الغرفة">⚙️</button>`;
+                } else {
+                    // أزرار الدخول للزوار
+                    if (r.hasPassword) {
+                        actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(52,152,219,0.2); border: 1px solid rgba(52,152,219,0.4); border-radius: 12px; padding: 6px 16px; color: #3498db; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">دخول 🔒</button>`;
+                    } else {
+                        actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(48,209,88,0.2); border: 1px solid rgba(48,209,88,0.4); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">دخول</button>`;
+                    }
+                }
+
                 roomEl.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid #3498db; background-color: rgba(255,255,255,0.05);">
@@ -293,16 +311,9 @@ export const socketManager = {
                             <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
                         </div>
                     </div>
-                    <button style="background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.4); border-radius: 8px; padding: 6px 14px; font-weight: bold; font-size: 12px; pointer-events: none;">دخول</button>
+                    ${actionBtnHTML}
                 `;
-                roomEl.onclick = () => {
-                    if (r.hasPassword) {
-                        const pwd = prompt("هذه الغرفة محمية بكلمة سر. الرجاء إدخالها:");
-                        if (pwd !== null) socketManager.handleRoomAction('joinRoom', r.id, pwd, r.betAmount);
-                    } else {
-                        socketManager.handleRoomAction('joinRoom', r.id, null, r.betAmount);
-                    }
-                };
+                
                 listContainer.appendChild(roomEl);
             });
         });
