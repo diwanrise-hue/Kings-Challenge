@@ -1052,7 +1052,7 @@ export const ui = {
 };
 
 // ==========================================
-// 🌟 دوال إدارة الواجهة العالمية (النوافذ والتبويبات)
+// 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
 // ==========================================
 window.openAppModal = function(id) {
     const modal = document.getElementById(id);
@@ -1090,20 +1090,6 @@ window.switchQuestTab = function(tab) {
     if (window.questsManager) { window.questsManager.currentTab = tab; window.questsManager.updateTimerDisplay(); }
 };
 
-window.switchStoreTabCategory = function(category) {
-    const tabs = ['bg', 'frames', 'pieces', 'offers'];
-    tabs.forEach(tab => { const btn = document.getElementById('store-btn-tab-' + tab); const sec = document.getElementById('store-section-' + tab); if(btn) btn.classList.remove('active'); if(sec) sec.style.display = 'none'; });
-    const activeBtn = document.getElementById('store-btn-tab-' + category); const activeSec = document.getElementById('store-section-' + category);
-    if(activeBtn) activeBtn.classList.add('active'); if(activeSec) activeSec.style.display = 'grid';
-};
-
-window.switchThemeGridTabCategory = function(category) {
-    const tabs = ['bg', 'frames', 'pieces'];
-    tabs.forEach(tab => { const btn = document.getElementById('theme-btn-tab-' + tab); const sec = document.getElementById('theme-grid-section-' + tab); if(btn) btn.classList.remove('active'); if(sec) sec.style.display = 'none'; });
-    const activeBtn = document.getElementById('theme-btn-tab-' + category); const activeSec = document.getElementById('theme-grid-section-' + category);
-    if(activeBtn) activeBtn.classList.add('active'); if(activeSec) activeSec.style.display = 'grid';
-};
-
 window.switchRoomTab = function(tab) {
     document.getElementById('room-tab-play').classList.remove('active'); document.getElementById('room-tab-bet').classList.remove('active');
     document.getElementById('active-rooms-list').style.display = 'none'; document.getElementById('spectate-rooms-list').style.display = 'none';
@@ -1129,9 +1115,6 @@ window.selectBetAmount = function(value, displayText, element) {
     setTimeout(() => window.closeAppModal('bet-selector-modal'), 150);
 };
 
-// ==========================================
-// 🌟 نظام الأصدقاء والملف الشخصي للواجهة
-// ==========================================
 function cleanExpiredRequests(profile) {
     if (!profile.friendRequests) profile.friendRequests = [];
     const now = Date.now(); const threeDays = 3 * 24 * 60 * 60 * 1000;
@@ -1290,9 +1273,6 @@ window.copyMyId = function() {
     }
 };
 
-// ==========================================
-// 🌟 دوال لوحة الشرف (Leaderboard) للواجهة
-// ==========================================
 window.createLbItemHTML = function(rank, playerObj, type) {
     let score = playerObj.score; let name = playerObj.name; let avatarStr = playerObj.avatar; let playerRankInfo = playerObj.rankInfo;
     let prefix = type === 'tokens' ? '🪙 ' : (type === 'xp' ? '🌟 ' : '');
@@ -1352,58 +1332,6 @@ window.showLeaderboard = function() {
     if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
 };
 
-// ==========================================
-// 🌟 المتجر والتخصيص والإشعارات للواجهة
-// ==========================================
-window.showEquipNotification = function(itemType) {
-    const toast = document.getElementById('toast-notification'); if (!toast) return;
-    let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
-    if (itemType === 'bg') msg = window.t ? window.t('toast_bg') : "تم تغيير الساحة بنجاح";
-    else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
-    else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
-    else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
-    toast.innerText = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
-
-    setTimeout(() => {
-        try {
-            let profStr = localStorage.getItem('hub_user_profile');
-            if (profStr) {
-                let prof = JSON.parse(profStr);
-                if (typeof window.applyTheme === 'function') window.applyTheme(prof);
-                if (window.ui && typeof window.ui.renderBoard === 'function') window.ui.renderBoard(true);
-            }
-        } catch(e) {}
-    }, 50);
-};
-
-window.triggerCustomAlertNotification = function(msg) {
-    if (typeof ui.showCustomAlert === 'function') { ui.showCustomAlert(msg); } else {
-        const alertModal = document.getElementById('custom-alert-modal'); const alertMsg = document.getElementById('custom-alert-message'); const alertOk = document.getElementById('custom-alert-ok'); const alertCancel = document.getElementById('custom-alert-cancel');
-        if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.innerText = msg; if(alertCancel) alertCancel.style.display = 'none'; window.openAppModal('custom-alert-modal'); alertOk.onclick = () => window.closeAppModal('custom-alert-modal'); } else { alert(msg); }
-    }
-};
-
-window.triggerGridThemeChange = function(index, lightHex, darkHex) {
-    document.documentElement.style.setProperty('--light-cell', lightHex); document.documentElement.style.setProperty('--dark-cell', darkHex);
-    if (index !== -1) { const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item'); items.forEach((item, idx) => { if (idx === index) item.classList.add('active'); else item.classList.remove('active'); }); }
-    let p = localStorage.getItem('hub_user_profile');
-    if (p && index !== -1) { let prof = JSON.parse(p); prof.equippedBg = null; localStorage.setItem('hub_user_profile', JSON.stringify(prof)); if(window.updateInventoryUI) window.updateInventoryUI(); }
-};
-
-window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
-    const nameEl = document.getElementById('modal-item-name'); const costEl = document.getElementById('modal-item-cost'); const previewEl = document.getElementById('modal-item-preview'); const buyBtn = document.getElementById('confirm-buy-btn');
-    nameEl.innerText = itemName; costEl.innerText = '🪙 ' + cost; const itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null; previewEl.innerHTML = ''; previewEl.style.background = 'rgba(255,255,255,0.05)'; previewEl.style.backgroundImage = 'none';
-    if(itemData) {
-        previewEl.style.border = itemData.isLegendary ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.1)'; previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
-        if (itemData.isImage) { let imgUrl = itemData.imagePath || itemData.imagePathWhite || ''; previewEl.style.backgroundImage = `url('${imgUrl}')`; previewEl.style.backgroundSize = 'cover'; previewEl.style.backgroundPosition = 'center'; } else if(itemType === 'pc') { previewEl.innerHTML = itemData.icon || '💎'; } else if(itemType === 'score') { previewEl.innerHTML = `<div style="width: 80%; height: 35px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2);"><div style="flex: 1; background: ${itemData.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div><div style="flex: 1; background: ${itemData.scoreBg1};"></div></div>`; } else if(itemType === 'bg' || itemType === 'fr') { if (itemData.cssLight && itemData.cssDark) { previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`; } else if (itemData.cssBoard) { previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`; } else { previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`; } }
-    } else { previewEl.innerHTML = '🎁'; previewEl.className = 'purchase-preview-box'; }
-    buyBtn.onclick = () => { window.closeAppModal('purchase-modal'); setTimeout(() => { if (window.socket && window.socket.connected) { window.socket.emit('requestPurchase', { userId: getUserIdLocally(), itemId: itemId }); } else { const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً."; if (typeof window.triggerCustomAlertNotification === 'function') window.triggerCustomAlertNotification(msg); else alert(msg); } }, 120); };
-    window.openAppModal('purchase-modal');
-};
-
-// ==========================================
-// 🌟 حماية الصورة وتحديث البروفايل للواجهة
-// ==========================================
 function forceLockedGlobalAvatar() {
     let globalProfile = localStorage.getItem('hub_user_profile');
     let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
@@ -1430,9 +1358,6 @@ window.applyProfileDataToUI = function(profile) {
     if (typeof window.applyTheme === 'function') { window.applyTheme(profile); }
 };
 
-// ==========================================
-// 🌟 دوال مساعدة (ترجمة، راديو، خلفية)
-// ==========================================
 window.currentLang = 'ar';
 window.updateHtmlTexts = function() {
     if (!window.t) return;
@@ -1470,7 +1395,7 @@ window.addEventListener('storage', (e) => {
 });
 
 // ==========================================
-// 🌟 دوال التفاعلات للأزرار (Event Listeners)
+// 🌟 دوال التفاعلات للأزرار والاستماع (Event Listeners)
 // ==========================================
 function hasPlayerMoved() {
     if (!gameState.boardHistory) return false;
@@ -1673,7 +1598,10 @@ ui.onClick('board', e => {
                         ui.renderBoard();
 
                         if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                            socketManager.sendMoveToServer(gameState.moveSequenceStartR, gameState.moveSequenceStartC, toRow, toCol, gameState.movePath, gameState.currentTurn);
+                            socketManager.sendMoveToServer(
+                                gameState.moveSequenceStartR, gameState.moveSequenceStartC, 
+                                toRow, toCol, gameState.movePath, gameState.currentTurn
+                            );
                         }
                         
                         saveGameState(); ui.startTurn();
@@ -1686,7 +1614,11 @@ ui.onClick('board', e => {
 
                         if (!gameState.isOnlineMode) {
                             if (!gameState.boardHistory) gameState.boardHistory = [];
-                            gameState.boardHistory.push({ board: gameState.virtualBoard.map(row => [...row]), turn: gameState.currentTurn, moves: gameState.movesWithoutProgress });
+                            gameState.boardHistory.push({ 
+                                board: gameState.virtualBoard.map(row => [...row]), 
+                                turn: gameState.currentTurn,
+                                moves: gameState.movesWithoutProgress
+                            });
                             if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
                         }
                         ui.showValidMovesHighlights(toRow, toCol); 
@@ -1710,9 +1642,11 @@ ui.onClick('board', e => {
                 }
                 
                 if (isPromotion || !movingPieceStr.includes('dama')) {
-                    gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = [];
+                    gameState.movesWithoutProgress = 0;
+                    gameState.boardHistoryStr = [];
                 } else {
-                    gameState.movesWithoutProgress++; gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                    gameState.movesWithoutProgress++;
+                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
                 }
                 
                 if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
@@ -1723,7 +1657,10 @@ ui.onClick('board', e => {
                 ui.renderBoard();
 
                 if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                    socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, gameState.movePath, gameState.currentTurn); 
+                    socketManager.sendMoveToServer(
+                        fromRow, fromCol, 
+                        toRow, toCol, gameState.movePath, gameState.currentTurn
+                    ); 
                 }
                 
                 saveGameState(); ui.startTurn();
@@ -1745,8 +1682,4 @@ document.addEventListener('DOMContentLoaded', () => {
         let defaultProfile = { id: '#00000', name: t('badge_you'), avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
         if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(defaultProfile); }
     }
-    
-    // تشغيل نظام حماية وتحديث الأفاتار في بداية التحميل
-    forceLockedGlobalAvatar();
-    startAvatarGuard();
 });
