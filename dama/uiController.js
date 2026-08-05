@@ -2,6 +2,7 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
+ * (تم إزالة دوال المتجر لأنها تعمل بشكل مستقل داخل store.js)
  */
 
 import { gameState } from './gameState.js'; 
@@ -1330,6 +1331,35 @@ window.showLeaderboard = function() {
     document.getElementById('leaderboard-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
     document.getElementById('leaderboard-list-tokens').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
     if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
+};
+
+// 💡 دوال مساعدة لملف المتجر
+window.showEquipNotification = function(itemType) {
+    const toast = document.getElementById('toast-notification'); if (!toast) return;
+    let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
+    if (itemType === 'bg') msg = window.t ? window.t('toast_bg') : "تم تغيير الساحة بنجاح";
+    else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
+    else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
+    else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
+    toast.innerText = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
+
+    setTimeout(() => {
+        try {
+            let profStr = localStorage.getItem('hub_user_profile');
+            if (profStr) {
+                let prof = JSON.parse(profStr);
+                if (typeof window.applyTheme === 'function') window.applyTheme(prof);
+                if (window.ui && typeof window.ui.renderBoard === 'function') window.ui.renderBoard(true);
+            }
+        } catch(e) {}
+    }, 50);
+};
+
+window.triggerCustomAlertNotification = function(msg) {
+    if (typeof ui.showCustomAlert === 'function') { ui.showCustomAlert(msg); } else {
+        const alertModal = document.getElementById('custom-alert-modal'); const alertMsg = document.getElementById('custom-alert-message'); const alertOk = document.getElementById('custom-alert-ok'); const alertCancel = document.getElementById('custom-alert-cancel');
+        if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.innerText = msg; if(alertCancel) alertCancel.style.display = 'none'; window.openAppModal('custom-alert-modal'); alertOk.onclick = () => window.closeAppModal('custom-alert-modal'); } else { alert(msg); }
+    }
 };
 
 function forceLockedGlobalAvatar() {
