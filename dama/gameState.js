@@ -43,6 +43,7 @@ export const gameState = {
     roomBet: 0, 
     movesWithoutProgress: 0, // عداد حركات التعادل للخمول
     boardHistoryStr: [], // مصفوفة تعقب المماطلة وتكرار الحركات
+    pieceHistories: {}, // 💡 سجل تتبع التكرار لكل حجر على حدة
     virtualBoard: Array(8).fill(null).map(() => Array(8).fill(null)),
     
     // ==========================================
