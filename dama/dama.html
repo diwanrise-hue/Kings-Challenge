@@ -467,9 +467,43 @@
         .lb-info { flex: 1; text-align: right; display: flex; flex-direction: column; }
         .lb-name { font-size: 15px; font-weight: 700; color: white; display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
         .lb-score { font-size: 13px; font-weight: 600; color: #f5a623; margin-top: 4px; }
-        .lb-item:nth-child(1) .lb-rank { color: #FFD700; font-size: 20px; }
-        .lb-item:nth-child(2) .lb-rank { color: #FF453A; font-size: 18px; }
-        .lb-item:nth-child(3) .lb-rank { color: #9B59B6; font-size: 18px; }
+
+        /* ========================================== */
+        /* 🏆 تمييز المراكز الثلاثة الأولى في لوحة الشرف */
+        /* ========================================== */
+
+        /* 🥇 المركز الأول - البطل (ذهبي) */
+        .lb-item:nth-child(1) {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.02) 100%) !important;
+            border: 1px solid rgba(255, 215, 0, 0.6) !important;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
+            transform: scale(1.02);
+            margin-bottom: 8px;
+        }
+        .lb-item:nth-child(1) .lb-rank { color: #FFD700; font-size: 24px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
+        .lb-item:nth-child(1) .lb-avatar { border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+
+        /* 🥈 المركز الثاني (فضي) */
+        .lb-item:nth-child(2) {
+            background: linear-gradient(90deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.02) 100%) !important;
+            border: 1px solid rgba(192, 192, 192, 0.5) !important;
+            box-shadow: 0 4px 10px rgba(192, 192, 192, 0.1);
+        }
+        .lb-item:nth-child(2) .lb-rank { color: #E0E0E0; font-size: 20px; text-shadow: 0 0 8px rgba(192, 192, 192, 0.5); }
+        .lb-item:nth-child(2) .lb-avatar { border-color: #C0C0C0; box-shadow: 0 0 10px rgba(192, 192, 192, 0.4); }
+
+        /* 🥉 المركز الثالث (برونزي) */
+        .lb-item:nth-child(3) {
+            background: linear-gradient(90deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.02) 100%) !important;
+            border: 1px solid rgba(205, 127, 50, 0.5) !important;
+            box-shadow: 0 4px 10px rgba(205, 127, 50, 0.1);
+            margin-bottom: 15px; 
+        }
+        .lb-item:nth-child(3) .lb-rank { color: #CD7F32; font-size: 18px; text-shadow: 0 0 8px rgba(205, 127, 50, 0.5); }
+        .lb-item:nth-child(3) .lb-avatar { border-color: #CD7F32; box-shadow: 0 0 10px rgba(205, 127, 50, 0.4); }
+
+        /* تأثير انتقال ناعم لكل القائمة */
+        .lb-item { transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
 
         .themes-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 5px 0; }
         .theme-grid-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 10px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -697,7 +731,8 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) openAppModal('in-game-profile-modal')">
+    <!-- 🌟 تم ربط النقر هنا بدالة openMyProfile الجديدة -->
+    <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) window.openMyProfile()">
         <div class="xp-svg-wrapper">
             <svg width="138" height="56.8" viewBox="0 0 122.2 56.8">
                 <path d="M 72.6,48.7 L 104.5,48.7 A 21.5,21.5 0 0,0 104.5,8.7 L 45,8.7" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.8" stroke-linecap="round" />
@@ -943,17 +978,23 @@
             </div>
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
             <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; margin-bottom: 5px;">الرتبة: 🥉 برونزي</div>
-            <div style="width: 100%; margin-bottom: 20px;">
+            
+            <!-- 🌟 حاوية شريط الـ XP -->
+            <div id="igp-xp-container" style="width: 100%; margin-bottom: 20px;">
                 <div class="xp-bar-bg"><div class="xp-bar-fill" id="igp-xp-fill"></div><div class="xp-bar-text" id="igp-xp-text">0 / 100 XP</div></div>
             </div>
+            
             <div onclick="copyMyId()" id="copy-id-btn" style="cursor: pointer; color: #a1a1aa; font-size: 13px; margin-bottom: 15px; font-family: monospace; padding: 4px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;" title="نسخ المعرف">
                 <span>ID: <span id="igp-id-display" style="color: white; font-weight: bold;">...</span></span><span data-icon="copyId"></span>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; box-sizing: border-box;">
+            
+            <!-- 🌟 حاوية الإحصائيات (الفوز والخسارة) -->
+            <div id="igp-stats-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; box-sizing: border-box;">
                 <div style="display: flex; flex-direction: column; align-items: center;"><span id="igp-games" style="color: white; font-size: 22px; font-weight: 700;">0</span><span id="igp-lbl-games" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">لعب</span></div>
                 <div style="display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); border-left: 1px solid rgba(255,255,255,0.05); align-items: center;"><span id="igp-wins" style="color: #34c759; font-size: 22px; font-weight: 700;">0</span><span id="igp-lbl-wins" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">فوز</span></div>
                 <div style="display: flex; flex-direction: column; align-items: center;"><span id="igp-losses" style="color: #ff453a; font-size: 22px; font-weight: 700;">0</span><span id="igp-lbl-losses" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">خسارة</span></div>
             </div>
+            
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; box-sizing: border-box;">
                 <input type="text" id="friend-id-input" class="online-input" placeholder="معرف الصديق (ID)" style="margin-bottom: 0; height: 40px; font-size: 12px; width: 100%;">
                 <button id="add-friend-btn" class="save-settings-btn" style="margin-top: 0; height: 40px; padding: 0 30px; width: auto; font-size: 13px;">إضافة صديق</button>
@@ -1297,50 +1338,80 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
     <script>
-        const originalGetItem = localStorage.getItem;
-        localStorage.getItem = function(key) {
-            let value = originalGetItem.call(this, key);
-            if (key === 'hub_user_profile' && value) {
-                try {
-                    let profile = JSON.parse(value);
-                    if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
-                        profile.avatar = '../' + profile.avatar;
-                        return JSON.stringify(profile);
-                    }
-                } catch(e) {}
-            }
-            return value;
-        };
-
-        const originalSetItem = localStorage.setItem;
-        localStorage.setItem = function(key, value) {
-            if (key === 'hub_user_profile' && value) {
-                try {
-                    let profile = JSON.parse(value);
-                    if (profile && profile.avatar && profile.avatar.startsWith('../')) {
-                        profile.avatar = profile.avatar.replace('../', '');
-                        value = JSON.stringify(profile);
-                    }
-                } catch(e) {}
+        // 🌟 دالة لفتح ملفك الشخصي أنت (تظهر فيها كل التفاصيل كشريط الـ XP وعدد المباريات)
+        window.openMyProfile = function() {
+            const xpCont = document.getElementById('igp-xp-container');
+            const statGrid = document.getElementById('igp-stats-grid');
+            const lvlBadge = document.getElementById('igp-level');
+            
+            if(xpCont) xpCont.style.display = 'block';
+            if(statGrid) statGrid.style.display = 'grid';
+            if(lvlBadge) lvlBadge.style.display = 'block';
+            
+            let globalProfile = localStorage.getItem('hub_user_profile');
+            if (globalProfile) {
+                let prof = JSON.parse(globalProfile);
+                window.applyProfileDataToUI(prof);
                 
-                if(window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                const avatarContainer = document.getElementById('igp-avatar');
+                let imgSrc = prof.avatar || '../Photo/1000132081.webp';
+                if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:image')) {
+                    let cleanName = imgSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+                    imgSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
+                }
+                avatarContainer.style.backgroundImage = 'none';
+                avatarContainer.innerHTML = `<img src="${imgSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                
+                let level = Math.floor(Math.sqrt(Math.max(0, prof.xp || 0) / 50)) + 1;
+                if(lvlBadge) lvlBadge.innerText = `Lv.${level}`;
+                
+                let xpBar = document.getElementById('igp-xp-fill');
+                let xpText = document.getElementById('igp-xp-text');
+                if(xpBar && xpText) {
+                    let currentLevelXp = Math.pow(level - 1, 2) * 50;
+                    let nextLevelXp = Math.pow(level, 2) * 50;
+                    let progress = ((prof.xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
+                    xpBar.style.width = Math.min(100, Math.max(0, progress)) + '%';
+                    xpText.innerText = `${prof.xp || 0} / ${nextLevelXp} XP`;
                 }
             }
-            originalSetItem.call(this, key, value);
+            openAppModal('in-game-profile-modal');
         };
 
-        const originalRemoveItem = localStorage.removeItem;
-        localStorage.removeItem = function(key) {
-            if (key === 'hub_user_profile') {
-                if(window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-                }
+        // 🌟 دالة لفتح ملف أي لاعب آخر من لوحة الشرف (يتم إخفاء التفاصيل غير المتوفرة)
+        window.showPlayerProfileFromLB = function(player) {
+            const xpContainer = document.getElementById('igp-xp-container');
+            const statsGrid = document.getElementById('igp-stats-grid');
+            const levelBadge = document.getElementById('igp-level');
+            
+            if(xpContainer) xpContainer.style.display = 'none';
+            if(statsGrid) statsGrid.style.display = 'none';
+            if(levelBadge) levelBadge.style.display = 'none';
+            
+            document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول';
+            document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
+            
+            const avatarContainer = document.getElementById('igp-avatar');
+            let imgSrc = player.avatar || '../Photo/1000132081.webp';
+            if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:image')) {
+                let cleanName = imgSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+                imgSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
             }
-            originalRemoveItem.call(this, key);
+            avatarContainer.style.backgroundImage = 'none';
+            avatarContainer.innerHTML = `<img src="${imgSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            
+            if (player.rankInfo) {
+                document.getElementById('igp-rank-title').innerText = `الرتبة: ${player.rankInfo.icon} ${player.rankInfo.title}`;
+            } else {
+                document.getElementById('igp-rank-title').innerText = `الرتبة: 🥉 برونزي`;
+            }
+            
+            const friendInput = document.getElementById('friend-id-input');
+            if(friendInput) friendInput.value = player.id || '';
+            
+            openAppModal('in-game-profile-modal');
         };
-    </script>
-    <script>
+
         function selectBetAmount(value, displayText, element) {
             if (window.isEditingBet) {
                 document.getElementById('edit-room-bet-input').value = value;
@@ -1449,7 +1520,13 @@
         }
         window.switchRoomTab = switchRoomTab;
 
-        function createLbItemHTML(rank, name, score, type, avatarStr, playerRankInfo) {
+        // 🌟 تحديث دالة اللوحة لتقبل كائن بيانات اللاعب وتفعيل النقر
+        function createLbItemHTML(rank, playerObj, type) {
+            let score = playerObj.score;
+            let name = playerObj.name;
+            let avatarStr = playerObj.avatar;
+            let playerRankInfo = playerObj.rankInfo;
+            
             let prefix = type === 'tokens' ? '🪙 ' : (type === 'xp' ? '🌟 ' : '');
             let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : (type === 'xp' ? ' XP' : '');
             
@@ -1467,7 +1544,7 @@
             nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
             div.innerHTML = `
                 <div class="lb-rank">#${rank}</div>
-                <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden;"></div>
+                <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s;" title="عرض الملف الشخصي"></div>
                 <div class="lb-info">
                     <div class="lb-name-container"></div>
                     <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${prefix}${score}${suffix}</div>
@@ -1475,6 +1552,15 @@
             `;
             div.querySelector('.lb-name-container').replaceWith(nameEl);
             const avatarContainer = div.querySelector('.lb-avatar');
+            
+            // 🌟 إضافة حدث النقر وربطه بدالة عرض البروفايل
+            avatarContainer.onclick = function() {
+                if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(playerObj);
+            };
+            
+            avatarContainer.onmouseover = () => { avatarContainer.style.transform = 'scale(1.1)'; avatarContainer.style.borderColor = '#3498db'; };
+            avatarContainer.onmouseout = () => { avatarContainer.style.transform = 'scale(1)'; avatarContainer.style.borderColor = 'rgba(255,255,255,0.1)'; };
+
             if (avatarStr && avatarStr !== 'null' && avatarStr !== 'undefined') {
                 let imgSrc = avatarStr;
                 if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:image')) {
@@ -1505,7 +1591,7 @@
                     return;
                 }
                 for (let i = 0; i < data.length; i++) {
-                    container.appendChild(createLbItemHTML(i + 1, data[i].name, data[i].score, type, data[i].avatar, data[i].rankInfo));
+                    container.appendChild(createLbItemHTML(i + 1, data[i], type));
                 }
             };
 
@@ -1574,7 +1660,6 @@
             else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
             toast.innerText = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
 
-            // 💡 التحديث الفوري للساحة والألوان دون الحاجة لإعادة التشغيل
             setTimeout(() => {
                 try {
                     let profStr = localStorage.getItem('hub_user_profile');
@@ -1620,7 +1705,9 @@
             let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
             if (globalProfile) { try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); } } catch(e) {} }
             if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) { let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', ''); avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
-            const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar'];
+            
+            // 🌟 تمت إزالة igp-avatar من الحماية الإجبارية لكي يسمح بعرض صور الزوار
+            const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar'];
             targetAvatars.forEach(id => {
                 const el = document.getElementById(id); if (!el) return;
                 if (isImage) { const existingImg = el.querySelector('img'); if (!existingImg || existingImg.getAttribute('src') !== avatarSrc) { el.style.backgroundImage = 'none'; el.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`; } } else { if (el.textContent !== avatarSrc) { el.innerHTML = ''; el.textContent = avatarSrc; } }
@@ -1628,7 +1715,9 @@
         }
 
         const avatarGuardObserver = new MutationObserver((mutations) => { let shouldProtect = false; for (let mutation of mutations) { if (mutation.type === 'childList') { const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG'); if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; } } } if (shouldProtect) { avatarGuardObserver.disconnect(); forceLockedGlobalAvatar(); startAvatarGuard(); } });
-        function startAvatarGuard() { const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar', 'igp-avatar']; targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } }); }
+        
+        // 🌟 تمت إزالة igp-avatar من المراقبة المستمرة هنا أيضاً
+        function startAvatarGuard() { const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar']; targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } }); }
 
         window.applyProfileDataToUI = function(profile) {
             const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
@@ -1643,7 +1732,6 @@
             forceLockedGlobalAvatar(); 
             if(window.updateInventoryUI) window.updateInventoryUI(); 
 
-            // 💡 تحديث الثيم إذا تم جلبه من السيرفر أو تغييره
             if (typeof window.applyTheme === 'function') {
                  window.applyTheme(profile);
             }
