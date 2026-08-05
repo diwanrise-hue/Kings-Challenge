@@ -45,6 +45,15 @@ export const gameState = {
     boardHistoryStr: [], // مصفوفة تعقب المماطلة وتكرار الحركات
     virtualBoard: Array(8).fill(null).map(() => Array(8).fill(null)),
     
+    // ==========================================
+    // 🌟 المتغيرات الجديدة التي تم نقلها من main.js
+    // ==========================================
+    modalStack: [],           // مصفوفة تتبع النوافذ المفتوحة
+    isEditingBet: false,      // حالة تعديل الرهان
+    pendingChallengeId: null, // رقم التحدي المعلق
+    myCurrentRoomId: null,    // رقم الغرفة الحالية الخاصة بك
+    currentViewedPlayer: null,// بيانات اللاعب الذي تشاهد ملفه الشخصي
+
     userProfile: (() => {
         const stored = safeStorage.getItem('hub_user_profile');
         if (stored) {
