@@ -756,29 +756,30 @@ export const ui = {
         this.startTurnTimer();
         
         // 💡 5. معالجة التحذير (التكرار الثالث) بعد إعداد الدور
-        let triggerAI = false;
-        if (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID) {
-            triggerAI = true;
-        }
+        let isBotTurn = (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID);
+        let alertShown = false;
 
         if (!isExemptFromStalling && repCount === 3) {
             let justPlayedColor = gameState.currentTurn === 'white' ? 'black' : 'white';
 
             if (justPlayedColor === gameState.playerColor) {
+                alertShown = true;
+                if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
+                
                 this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️", () => {
-                    // تشغيل البوت فقط بعد موافقة اللاعب على التنبيه
-                    if (triggerAI) {
-                        gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 150);
+                    if (isBotTurn) {
+                        const tIndEl = document.getElementById('turn-indicator');
+                        if (tIndEl) tIndEl.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
+                        gameState.aiTimeout = setTimeout(() => ui.triggerComputerMove(), 150);
                     }
                 });
-                triggerAI = false; // نمنع تشغيل البوت التلقائي في الأسفل لأنه سيعمل من خلال التنبيه
             } else if (gameState.isOnlineMode && justPlayedColor !== gameState.playerColor) {
                 this.showCustomAlert("الخصم يكرر الحركات.. تكراره للحركة القادمة سيمنحك الفوز!", "الخصم يماطل ⏳");
             }
         }
 
-        // تشغيل البوت التلقائي (إذا لم يكن هناك تنبيه يوقفه)
-        if (triggerAI) {
+        // تشغيل البوت التلقائي (إذا لم يظهر تنبيه يوقفه)
+        if (isBotTurn && !alertShown) {
             tInd.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
             clearTimeout(gameState.aiTimeout);
             gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 150);
@@ -1724,7 +1725,6 @@ ui.onClick('board', e => {
                     if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
                 }
                 
-                // 💡 تصفير سجل التعادل فقط عند الترقية (أو عند الأكل المبرمج أعلاه)
                 if (isPromotion) {
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
