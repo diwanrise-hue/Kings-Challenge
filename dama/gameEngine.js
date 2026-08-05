@@ -1,8 +1,8 @@
 /**
  * gameEngine.js
  * 🚀 النسخة الصاروخية (Ultra-Optimized) + إصلاح أنظمة التعادل والمماطلة:
- * تم دمج نظام احتساب (حجر ضد حجر)، و 40 حركة بدون أكل،
- * ونظام خسارة التكرار (3 تحذير، 4 خسارة).
+ * تم دمج نظام احتساب (حجر ضد حجر)، و 50 حركة بدون أكل،
+ * ونظام خسارة التكرار (3 تحذير، 4 خسارة) لكل حجر على حدة.
  */
 import { gameState } from './gameState.js'; 
 
@@ -228,12 +228,33 @@ export const gameEngine = {
         return false; 
     },
 
+    // 💡 تتبع التكرار لكل حجر على حدة
+    trackPieceHistory(fromR, fromC, toR, toC, color) {
+        if (!gameState.pieceHistories) gameState.pieceHistories = {};
+        
+        let tracker = gameState.pieceHistories[color];
+        
+        // إذا كان الحجر الذي يتحرك هو نفس الحجر الذي تحرك في الدور السابق
+        if (tracker && tracker.r === fromR && tracker.c === fromC) {
+            tracker.r = toR;
+            tracker.c = toC;
+            tracker.history.push(`${toR},${toC}`);
+        } else {
+            // ويجب ان يحذف التكرار ويصفر اذا قام بحركة اخرى (حجر مختلف)
+            gameState.pieceHistories[color] = {
+                r: toR,
+                c: toC,
+                history: [`${fromR},${fromC}`, `${toR},${toC}`]
+            };
+        }
+    },
+
     // ==========================================
-    // 💡 إصلاح نظام التعادل (40 حركة بدون أكل، أو حجر ضد حجر)
+    // 💡 إصلاح نظام التعادل (50 حركة بدون أكل، أو حجر ضد حجر)
     // ==========================================
     checkIdleDraw(bState, currentTurn) {
-        // 1. فحص التعادل 40 حركة بدون تقدم (أكل أو تحريك بيدق)
-        if (gameState.movesWithoutProgress >= 40) return true;
+        // 1. فحص التعادل 50 حركة بدون تقدم (أكل أو تحريك بيدق)
+        if (gameState.movesWithoutProgress >= 50) return true;
 
         // 2. فحص التعادل "حجر ضد حجر" 
         let wCount = 0, bCount = 0;
@@ -252,24 +273,33 @@ export const gameEngine = {
     },
 
     // ==========================================
-    // 💡 إصلاح نظام المماطلة وتكرار الحركات
+    // 💡 نظام المماطلة وتكرار الحركات لكل حجر
     // ==========================================
     checkRepetitionAndStalling() {
-        // إذا قام بأي عملية أكل، يتم تصفير العداد، فالتكرار مستحيل
-        if (gameState.movesWithoutProgress === 0) return 0;
-
-        if (!gameState.boardHistoryStr) gameState.boardHistoryStr = [];
-        
-        const currentStr = JSON.stringify(gameState.virtualBoard);
-        let count = 0; 
-        
-        // كم مرة تكرر هذا الشكل في السجل الحالي؟
-        for (let str of gameState.boardHistoryStr) { 
-            if (str === currentStr) count++; 
+        if (gameState.movesWithoutProgress === 0) {
+            gameState.pieceHistories = {};
+            return 0;
         }
 
-        // بما أن الشكل الحالي سيُضاف الآن للسجل، نقوم بإضافة 1 للعداد
-        return count ; 
+        if (!gameState.pieceHistories) return 0;
+        
+        let maxRep = 0;
+        
+        // نتحقق من التكرار لكل لاعب بناءً على الحجر الأخير الذي يحركه
+        for (let color in gameState.pieceHistories) {
+            let tracker = gameState.pieceHistories[color];
+            let counts = {};
+            
+            // نحسب عدد المرات التي تواجد فيها هذا الحجر في نفس المربع
+            for (let pos of tracker.history) {
+                counts[pos] = (counts[pos] || 0) + 1;
+                if (counts[pos] > maxRep) {
+                    maxRep = counts[pos];
+                }
+            }
+        }
+
+        return maxRep; 
     },
 
     checkGameOver(bState, isSimulation = false) {
