@@ -643,6 +643,27 @@ export const ui = {
             repCount = gameEngine.checkRepetitionAndStalling();
         }
 
+        // ==========================================
+        // 💡 تحديث واجهة عداد المماطلة والخمول
+        // ==========================================
+        const stallCounter = document.getElementById('stalling-counter');
+        if (stallCounter) {
+            if (repCount > 1 && !isExemptFromStalling) { 
+                stallCounter.style.display = 'block';
+                stallCounter.textContent = `تكرار: ${repCount}/3`;
+                stallCounter.style.color = repCount === 3 ? '#e74c3c' : '#f5a623';
+                stallCounter.style.borderColor = repCount === 3 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(245, 166, 35, 0.3)';
+            } else if (gameState.movesWithoutProgress >= 15) {
+                stallCounter.style.display = 'block';
+                stallCounter.textContent = `خمول: ${gameState.movesWithoutProgress}/40`;
+                stallCounter.style.color = gameState.movesWithoutProgress >= 30 ? '#e74c3c' : '#a1a1aa';
+                stallCounter.style.borderColor = gameState.movesWithoutProgress >= 30 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(255, 255, 255, 0.1)';
+            } else {
+                stallCounter.style.display = 'none';
+            }
+        }
+        // ==========================================
+
         // 💡 3. معالجة الخسارة والتعادل أولاً لمنع استمرار اللعب
         if (!isExemptFromStalling && repCount >= 4) {
             if (gameState.blockGameOverModal) return;
@@ -766,7 +787,7 @@ export const ui = {
                 alertShown = true;
                 if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
                 
-                this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️", () => {
+                ui.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️", () => {
                     if (isBotTurn) {
                         const tIndEl = document.getElementById('turn-indicator');
                         if (tIndEl) tIndEl.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
@@ -774,7 +795,7 @@ export const ui = {
                     }
                 });
             } else if (gameState.isOnlineMode && justPlayedColor !== gameState.playerColor) {
-                this.showCustomAlert("الخصم يكرر الحركات.. تكراره للحركة القادمة سيمنحك الفوز!", "الخصم يماطل ⏳");
+                ui.showCustomAlert("الخصم يكرر الحركات.. تكراره للحركة القادمة سيمنحك الفوز!", "الخصم يماطل ⏳");
             }
         }
 
