@@ -269,7 +269,7 @@ export const gameEngine = {
         }
 
         // بما أن الشكل الحالي سيُضاف الآن للسجل، نقوم بإضافة 1 للعداد
-        return count + 1; 
+        return count ; 
     },
 
     checkGameOver(bState, isSimulation = false) {
