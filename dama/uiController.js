@@ -636,27 +636,50 @@ export const ui = {
         const isConnected = (typeof socket !== 'undefined' && socket && socket.connected);
         const isBotMatch = !gameState.isOnlineMode;
         
-        // 💡 2. تحديد الإعفاء من المحاسبة: (وضع تعليمي) أو (ضد البوت وغير متصل بالإنترنت)
+        // 💡 2. تحديد الإعفاء من المحاسبة
         const isExemptFromStalling = gameState.isTutorialMode || (isBotMatch && !isConnected);
 
         let repCount = (typeof gameEngine.checkRepetitionAndStalling === 'function') ? gameEngine.checkRepetitionAndStalling() : 0;
         
-        // 💡 3. تطبيق المحاسبة والتحذير بناءً على الإعفاء
+        // 💡 3. تطبيق المحاسبة والتحذير (النسخة المصححة)
         if (!isExemptFromStalling) {
-            if (repCount === 3 && gameState.currentTurn === gameState.playerColor) {
-                this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة");
+            // من هو اللاعب الذي قام بالحركة للتو وتسبب في هذا التكرار؟
+            let justPlayedColor = gameState.currentTurn === 'white' ? 'black' : 'white';
+            
+            if (repCount === 3) {
+                // إذا كنت أنت من يماطل
+                if (justPlayedColor === gameState.playerColor) {
+                    this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️");
+                } 
+                // إذا كان الخصم هو من يماطل (في الأونلاين)
+                else if (gameState.isOnlineMode && justPlayedColor !== gameState.playerColor) {
+                    this.showCustomAlert("الخصم يكرر الحركات.. تكراره للحركة القادمة سيمنحك الفوز!", "الخصم يماطل ⏳");
+                }
             } else if (repCount >= 4) {
                 if (gameState.blockGameOverModal) return;
-                let winnerColor = gameState.currentTurn === 'white' ? 'black' : 'white';
-                if (tInd) { tInd.textContent = "خسارة بسبب المماطلة 🚫"; tInd.style.color = "#e74c3c"; }
-                gameEngine.endGame(winnerColor); return;
+                
+                // الفائز هو صاحب الدور الحالي (الذي لم يماطل)
+                let winnerColor = gameState.currentTurn; 
+                
+                if (tInd) { 
+                    tInd.textContent = "خسارة بسبب المماطلة 🚫"; 
+                    tInd.style.color = "#e74c3c"; 
+                }
+                
+                // توجيه الأمر للمحرك لإنهاء اللعبة
+                gameEngine.endGame(winnerColor); 
+                return;
             }
         }
 
-        if (gameState.movesWithoutProgress >= 40 || gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn)) {
+        // 💡 4. فحص التعادل
+        if (gameState.movesWithoutProgress >= 40 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
             if (gameState.blockGameOverModal) return;
             if (tInd) { tInd.textContent = "تم إعلان التعادل 🤝"; tInd.style.color = "#f1c40f"; }
-            gameEngine.endGame('draw'); return;
+            
+            // توجيه الأمر للمحرك لإنهاء اللعبة بالتعادل
+            gameEngine.endGame('draw'); 
+            return;
         }
 
         if (!gameState.isOnlineMode) {
@@ -942,7 +965,7 @@ export const ui = {
                         }
                     } else {
                         if (isMeWin) {
-                            xpGained = 0; // 💡 تم التعديل: يحصل على توكن فقط ضد البوت
+                            xpGained = 0; // 💡 تم التعديل: يحصل على توكن فقط ضد البوت بدون نقاط خبرة
                             if (lvl <= 2) displayReward = 10;
                             else if (lvl <= 4) displayReward = 15;
                             else if (lvl <= 6) displayReward = 50;
@@ -1682,7 +1705,7 @@ ui.onClick('board', e => {
                     if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
                 }
                 
-                // 💡 الإصلاح الجذري: تصفير سجل التعادل فقط عند الترقية
+                // 💡 تصفير سجل التعادل فقط عند الترقية (أو عند الأكل المبرمج أعلاه)
                 if (isPromotion) {
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
