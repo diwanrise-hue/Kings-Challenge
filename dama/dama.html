@@ -457,9 +457,10 @@
         .audio-controls label { display: block; margin-bottom: 8px; font-weight: 500; color: #a1a1aa; font-size: 13px; }
         .audio-controls input[type="range"] { width: 100%; margin-bottom: 5px; accent-color: #ffffff; }
         
-        .custom-nav-tabs { display: flex; gap: 4px; margin-bottom: 10px; background: rgba(255, 255, 255, 0.06); padding: 4px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; }
-        .custom-tab-button { flex: 1; min-width: 60px; height: 36px; border-radius: 50px; background: transparent; color: #a1a1aa; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; outline: none; }
-        .custom-tab-button.active { background: rgba(255,255,255,0.1); color: white; }
+        /* 🌟 التعديلات الجديدة للأزرار العلوية وكلماتها للظهور بوضوح فوق الخلفيات الفاتحة 🌟 */
+        .custom-nav-tabs { display: flex; gap: 4px; margin-bottom: 10px; background: rgba(15, 18, 25, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 4px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.6); flex-wrap: wrap; }
+        .custom-tab-button { flex: 1; min-width: 60px; height: 36px; border-radius: 50px; background: transparent; color: #e0e0e0; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s; border: none; outline: none; text-shadow: 1px 1px 3px rgba(0,0,0,1), 0 0 6px rgba(0,0,0,0.8); }
+        .custom-tab-button.active { background: rgba(255,255,255,0.25); color: #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,255,255,0.3); text-shadow: 1px 1px 4px rgba(0,0,0,1), 0 0 8px rgba(0,0,0,0.9); }
 
         .lb-list-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
         .lb-item { display: flex; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
@@ -1079,7 +1080,7 @@
             <button class="modal-close-btn" onclick="window.closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
             <button id="lb-rewards-btn" style="position: absolute; top: 20px; left: 70px; background: rgba(255,215,0,0.15); border: 1px solid #ffd700; border-radius: 12px; padding: 6px 12px; color: #ffd700; font-weight: bold; z-index: 100000; cursor: pointer;" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
             
-            <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">🏆 <span id="lb-title-text">لوحة الشرف</span></h3>
+            <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8);">🏆 <span id="lb-title-text">لوحة الشرف</span></h3>
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="lb-tab-wins" class="custom-tab-button active" onclick="window.switchLbTab('wins')">الأكثر فوزاً</button>
                 <button id="lb-tab-xp" class="custom-tab-button" onclick="window.switchLbTab('xp')">الأعلى مستوى</button>
@@ -1180,7 +1181,7 @@
     <div id="online-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 1000000;">
         <div class="settings-card room-full-screen" dir="auto">
             <button class="modal-close-btn" onclick="window.closeAppModal('online-modal')" style="left: 20px; right: auto; top: 20px; background: rgba(0,0,0,0.5) !important;">✕</button>
-            <h3 style="font-size: 26px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">الغرف الخاصة 🚪</h3>
+            <h3 style="font-size: 26px; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8);">الغرف الخاصة 🚪</h3>
             
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="room-tab-play" class="custom-tab-button active" onclick="window.switchRoomTab('play')">الغرف</button>
@@ -1188,11 +1189,11 @@
             </div>
 
             <div style="flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin-bottom: 20px; overflow-y: auto; padding: 10px;" id="active-rooms-list">
-                <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>
+                <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>
             </div>
 
             <div style="display: none; flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin-bottom: 20px; overflow-y: auto; padding: 10px;" id="spectate-rooms-list">
-                <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>
+                <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>
             </div>
 
             <button onclick="window.openAppModal('create-room-modal')" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; height: 55px; font-size: 18px; font-weight: bold; border: none !important; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important;">+ إنشاء غرفة جديدة</button>
