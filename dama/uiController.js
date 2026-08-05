@@ -2,7 +2,6 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * (تم إزالة دوال المتجر لأنها تعمل بشكل مستقل داخل store.js)
  */
 
 import { gameState } from './gameState.js'; 
@@ -632,53 +631,76 @@ export const ui = {
 
         this.updateVirtualBoardState();
 
-        // 💡 1. تحديد ما إذا كان اللاعب متصلاً بالإنترنت أم لا
+        // 💡 1. تحديد الاتصال ونوع المباراة
         const isConnected = (typeof socket !== 'undefined' && socket && socket.connected);
         const isBotMatch = !gameState.isOnlineMode;
         
-        // 💡 2. تحديد الإعفاء من المحاسبة
+        // 💡 2. الإعفاء من المماطلة
         const isExemptFromStalling = gameState.isTutorialMode || (isBotMatch && !isConnected);
 
-        let repCount = (typeof gameEngine.checkRepetitionAndStalling === 'function') ? gameEngine.checkRepetitionAndStalling() : 0;
-        
-        // 💡 3. تطبيق المحاسبة والتحذير (النسخة المصححة)
+        // 💡 3. استخراج عدد التكرار بأمان
+        let repCount = 0;
+        if (typeof gameEngine.checkRepetitionAndStalling === 'function') {
+            repCount = gameEngine.checkRepetitionAndStalling();
+        }
+
+        // 💡 4. تطبيق التنبيه والمحاسبة بشكل جذري وصارم
         if (!isExemptFromStalling) {
-            // من هو اللاعب الذي قام بالحركة للتو وتسبب في هذا التكرار؟
             let justPlayedColor = gameState.currentTurn === 'white' ? 'black' : 'white';
-            
+
             if (repCount === 3) {
-                // إذا كنت أنت من يماطل
                 if (justPlayedColor === gameState.playerColor) {
-                    this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️");
-                } 
-                // إذا كان الخصم هو من يماطل (في الأونلاين)
-                else if (gameState.isOnlineMode && justPlayedColor !== gameState.playerColor) {
+                    // إيقاف تفكير البوت حتى يقرأ اللاعب التنبيه
+                    if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
+                    
+                    this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️", () => {
+                        // استئناف البوت بعد أن يضغط اللاعب 'حسناً'
+                        if (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID) {
+                            gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 150);
+                        }
+                    });
+                    // الخروج المبكر لمنع تداخل الأوامر
+                    return;
+                } else if (gameState.isOnlineMode && justPlayedColor !== gameState.playerColor) {
                     this.showCustomAlert("الخصم يكرر الحركات.. تكراره للحركة القادمة سيمنحك الفوز!", "الخصم يماطل ⏳");
                 }
             } else if (repCount >= 4) {
                 if (gameState.blockGameOverModal) return;
-                
-                // الفائز هو صاحب الدور الحالي (الذي لم يماطل)
-                let winnerColor = gameState.currentTurn; 
-                
-                if (tInd) { 
-                    tInd.textContent = "خسارة بسبب المماطلة 🚫"; 
-                    tInd.style.color = "#e74c3c"; 
+
+                let winnerColor = gameState.currentTurn;
+                if (tInd) {
+                    tInd.textContent = "خسارة بسبب المماطلة 🚫";
+                    tInd.style.color = "#e74c3c";
                 }
-                
-                // توجيه الأمر للمحرك لإنهاء اللعبة
-                gameEngine.endGame(winnerColor); 
+
+                // 💡 إيقاف اللعبة بأمان تام لمنع التشنج
+                gameState.isGameOver = true;
+                gameState.isGameActive = false;
+                if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
+                if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
+
+                // تأخير بسيط لإعطاء الشاشة وقتاً للرسم ثم إظهار النافذة
+                setTimeout(() => {
+                    this.showResultsModal(winnerColor);
+                }, 500);
                 return;
             }
         }
 
-        // 💡 4. فحص التعادل
+        // 💡 5. فحص التعادل الصارم (40 حركة بدون تقدم)
         if (gameState.movesWithoutProgress >= 40 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
             if (gameState.blockGameOverModal) return;
             if (tInd) { tInd.textContent = "تم إعلان التعادل 🤝"; tInd.style.color = "#f1c40f"; }
-            
-            // توجيه الأمر للمحرك لإنهاء اللعبة بالتعادل
-            gameEngine.endGame('draw'); 
+
+            // 💡 إيقاف اللعبة بأمان تام
+            gameState.isGameOver = true;
+            gameState.isGameActive = false;
+            if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
+            if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
+
+            setTimeout(() => {
+                this.showResultsModal('draw');
+            }, 500);
             return;
         }
 
@@ -965,7 +987,7 @@ export const ui = {
                         }
                     } else {
                         if (isMeWin) {
-                            xpGained = 0; // 💡 تم التعديل: يحصل على توكن فقط ضد البوت بدون نقاط خبرة
+                            xpGained = 0; 
                             if (lvl <= 2) displayReward = 10;
                             else if (lvl <= 4) displayReward = 15;
                             else if (lvl <= 6) displayReward = 50;
