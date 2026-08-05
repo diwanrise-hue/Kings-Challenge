@@ -393,7 +393,7 @@
 
         /* إطار الدور والتفكير */
         #turn-box-container {
-            position: relative; /* 💡 تعديل برمجي ضروري لاحتواء العداد */
+            position: relative; 
             display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
             background: rgba(45, 48, 55, 0.65) !important;
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); 
@@ -801,8 +801,10 @@
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
             <div id="mini-disconnect-radar" style="display: none; position: fixed; bottom: 25px; left: calc(50% + 118px); transform: translateX(-50%); border-radius: 50%; width: 34px; height: 34px; z-index: 999999; background: rgba(15, 18, 25, 0.85); padding: 4px; border: 1px solid rgba(255, 69, 58, 0.4); box-shadow: 0 0 12px rgba(255, 69, 58, 0.3);"></div>
             <div id="turn-box-container">
-                <!-- 💡 العداد الجديد الخاص بالمماطلة والخمول -->
-                <div id="stalling-counter" style="position: absolute; top: 5px; left: 12px; font-size: 10px; font-weight: 800; color: #f5a623; background: rgba(0,0,0,0.4); padding: 2px 6px; border-radius: 8px; display: none; border: 1px solid rgba(245, 166, 35, 0.3);"></div>
+                <!-- 💡 العدادات الجديدة منفصلة (الرقم فوق، والتكرار تحته) -->
+                <div id="idle-counter" style="position: absolute; top: 5px; left: 12px; font-size: 11px; font-weight: 800; color: #a1a1aa; background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 8px; display: none; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
+                <div id="repetition-counter" style="position: absolute; top: 28px; left: 12px; font-size: 10px; font-weight: 800; color: #f5a623; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 8px; display: none; border: 1px solid rgba(245, 166, 35, 0.3); box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
+                
                 <h3 id="turn-indicator">Your Turn</h3>
                 <div id="turn-countdown"></div>
             </div>
