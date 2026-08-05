@@ -640,10 +640,14 @@ export const ui = {
         // 💡 2. الإعفاء من المماطلة
         const isExemptFromStalling = gameState.isTutorialMode || (isBotMatch && !isConnected);
 
-        let repCount = 0;
+        let myColor = gameState.playerColor;
+        let oppColor = myColor === 'white' ? 'black' : 'white';
+
+        let myRep = 0, oppRep = 0;
         if (typeof gameEngine.checkRepetitionAndStalling === 'function') {
-            // التحقق من التكرار للاعب الذي حان دوره فقط!
-            repCount = gameEngine.checkRepetitionAndStalling(gameState.currentTurn);
+            // فحص التكرارات لكلا اللاعبين بشكل مستقل لتجنب الخلط
+            myRep = gameEngine.checkRepetitionAndStalling(myColor);
+            oppRep = gameEngine.checkRepetitionAndStalling(oppColor);
         }
 
         // ==========================================
@@ -664,12 +668,12 @@ export const ui = {
         }
 
         if (repCounter) {
-            // إظهار تحذير التكرار البرتقالي فقط إذا كان يخص اللاعب الحالي (أنت)!
-            if (repCount > 1 && !isExemptFromStalling && gameState.currentTurn === gameState.playerColor) { 
+            // إظهار تحذير التكرار البرتقالي فقط لتكرارات اللاعب الحالي (أنت)
+            if (myRep > 1 && !isExemptFromStalling) { 
                 repCounter.style.display = 'block';
-                repCounter.textContent = `تكرار: ${repCount}/3`;
-                repCounter.style.color = repCount === 3 ? '#e74c3c' : '#f5a623';
-                repCounter.style.borderColor = repCount === 3 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(245, 166, 35, 0.3)';
+                repCounter.textContent = `تكرار: ${myRep}/3`;
+                repCounter.style.color = myRep === 3 ? '#e74c3c' : '#f5a623';
+                repCounter.style.borderColor = myRep === 3 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(245, 166, 35, 0.3)';
             } else {
                 repCounter.style.display = 'none';
             }
@@ -677,25 +681,30 @@ export const ui = {
         // ==========================================
 
         // 💡 3. معالجة الخسارة والتعادل أولاً لمنع استمرار اللعب
-        if (!isExemptFromStalling && repCount >= 4) {
-            if (gameState.blockGameOverModal) return;
-
-            // الخاسر هو اللاعب الذي كان دوره وأنهى حركته الرابعة بتكرار!
-            let loserColor = gameState.currentTurn;
-            let winnerColor = loserColor === 'white' ? 'black' : 'white'; 
-            
-            if (tInd) { 
-                tInd.textContent = "خسارة بسبب المماطلة 🚫"; 
-                tInd.style.color = "#e74c3c"; 
+        if (!isExemptFromStalling) {
+            // إذا تجاوز الخصم التكرار، تفوز أنت مباشرة
+            if (oppRep >= 4) {
+                if (gameState.blockGameOverModal) return;
+                if (tInd) { tInd.textContent = "فوز! الخصم كرر حركاته 🚫"; tInd.style.color = "#2ecc71"; }
+                gameState.isGameOver = true;
+                gameState.isGameActive = false;
+                if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
+                if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
+                this.showResultsModal(myColor); 
+                return;
             }
             
-            gameState.isGameOver = true;
-            gameState.isGameActive = false;
-            if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-            if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
-            
-            this.showResultsModal(winnerColor); 
-            return;
+            // إذا تجاوزت أنت التكرار، تخسر أنت
+            if (myRep >= 4) {
+                if (gameState.blockGameOverModal) return;
+                if (tInd) { tInd.textContent = "خسارة بسبب التكرار 🚫"; tInd.style.color = "#e74c3c"; }
+                gameState.isGameOver = true;
+                gameState.isGameActive = false;
+                if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
+                if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
+                this.showResultsModal(oppColor); 
+                return;
+            }
         }
 
         if (gameState.movesWithoutProgress >= 50 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
@@ -789,17 +798,16 @@ export const ui = {
         
         this.startTurnTimer();
         
-        // 💡 5. معالجة التحذير (التكرار الثالث) بعد إعداد الدور
+        // 💡 5. معالجة التحذير (التكرار الثالث) وعرضه للاعب المعني فقط
         let isBotTurn = (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID);
         let alertShown = false;
 
-        if (!isExemptFromStalling && repCount === 3) {
-            if (gameState.currentTurn === gameState.playerColor) {
+        if (!isExemptFromStalling) {
+            if (gameState.currentTurn === gameState.playerColor && myRep === 3) {
                 alertShown = true;
                 if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-                
                 ui.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️");
-            } else if (gameState.isOnlineMode && gameState.currentTurn !== gameState.playerColor) {
+            } else if (gameState.isOnlineMode && gameState.currentTurn !== gameState.playerColor && oppRep === 3) {
                 ui.showCustomAlert("الخصم يكرر الحركات.. تكراره للحركة القادمة سيمنحك الفوز!", "الخصم يماطل ⏳");
             }
         }
