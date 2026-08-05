@@ -1424,7 +1424,6 @@
             else overlay.classList.add('open');
         }
 
-        // 🌟 تحديث دالة التبديل لتشمل تبويب (الأعلى مستوى)
         function switchLbTab(tab) {
             document.getElementById('lb-tab-wins').classList.remove('active'); 
             document.getElementById('lb-tab-xp').classList.remove('active'); 
@@ -1450,10 +1449,16 @@
         }
         window.switchRoomTab = switchRoomTab;
 
-        // 🌟 تحديث دالة البناء لتعرض كلمة XP للتبويب الجديد
         function createLbItemHTML(rank, name, score, type, avatarStr, playerRankInfo) {
             let prefix = type === 'tokens' ? '🪙 ' : (type === 'xp' ? '🌟 ' : '');
             let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : (type === 'xp' ? ' XP' : '');
+            
+            if (type === 'xp') {
+                let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1;
+                if (level > 200) level = 200;
+                prefix = `<span style="color:#87ceeb; font-weight:800; margin-left:6px; background: rgba(135,206,235,0.15); border: 1px solid rgba(135,206,235,0.3); padding: 2px 6px; border-radius: 6px;">Lv.${level}</span> 🌟 `;
+            }
+
             const div = document.createElement('div');
             div.className = 'lb-item';
             let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>` : '';
@@ -1465,7 +1470,7 @@
                 <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden;"></div>
                 <div class="lb-info">
                     <div class="lb-name-container"></div>
-                    <div class="lb-score">${prefix}${score}${suffix}</div>
+                    <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${prefix}${score}${suffix}</div>
                 </div>
             `;
             div.querySelector('.lb-name-container').replaceWith(nameEl);
@@ -1485,32 +1490,28 @@
             return div;
         }
 
-        // 🌟 تحديث الدالة لتعرض الثلاث قوائم
         function populateLeaderboards(winsData, xpData, tokensData) {
             const winsList = document.getElementById('leaderboard-list-wins');
             const xpList = document.getElementById('leaderboard-list-xp');
             const tokensList = document.getElementById('leaderboard-list-tokens');
             
             winsList.innerHTML = ''; xpList.innerHTML = ''; tokensList.innerHTML = '';
-            const unknownText = window.t ? window.t('lb_unknown') : 'لاعب مجهول';
             
-            for(let i = 0; i < 20; i++) {
-                let wPlayer = winsData && winsData[i] ? winsData[i].name : `${unknownText} ${i+1}`;
-                let wScore = winsData && winsData[i] ? winsData[i].score : (100 - (i * 2));
-                winsList.appendChild(createLbItemHTML(i+1, wPlayer, wScore, 'wins', winsData && winsData[i] ? winsData[i].avatar : null, winsData && winsData[i] ? winsData[i].rankInfo : null));
-            }
-            
-            for(let i = 0; i < 20; i++) {
-                let xPlayer = xpData && xpData[i] ? xpData[i].name : `${unknownText} ${i+1}`;
-                let xScore = xpData && xpData[i] ? xpData[i].score : (5000 - (i * 150));
-                xpList.appendChild(createLbItemHTML(i+1, xPlayer, xScore, 'xp', xpData && xpData[i] ? xpData[i].avatar : null, xpData && xpData[i] ? xpData[i].rankInfo : null));
-            }
+            const emptyText = window.t ? window.t('lb_empty') : 'لا توجد بيانات حالياً';
 
-            for(let i = 0; i < 20; i++) {
-                let tPlayer = tokensData && tokensData[i] ? tokensData[i].name : `${unknownText} ${i+1}`;
-                let tScore = tokensData && tokensData[i] ? tokensData[i].score : (10000 - (i * 300));
-                tokensList.appendChild(createLbItemHTML(i+1, tPlayer, tScore, 'tokens', tokensData && tokensData[i] ? tokensData[i].avatar : null, tokensData && tokensData[i] ? tokensData[i].rankInfo : null));
-            }
+            const renderList = (container, data, type) => {
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px; font-weight: 600;">${emptyText}</div>`;
+                    return;
+                }
+                for (let i = 0; i < data.length; i++) {
+                    container.appendChild(createLbItemHTML(i + 1, data[i].name, data[i].score, type, data[i].avatar, data[i].rankInfo));
+                }
+            };
+
+            renderList(winsList, winsData, 'wins');
+            renderList(xpList, xpData, 'xp');
+            renderList(tokensList, tokensData, 'tokens');
         }
 
         function setupSocketListeners() {
@@ -1524,10 +1525,10 @@
                             formattedXp.push({ name: data[i], score: data[i+1] * 25 });
                             formattedTokens.push({ name: data[i], score: data[i+1] * 125 }); 
                         }
-                    } else { 
-                        formattedWins = data.wins || null; 
-                        formattedXp = data.xp || null; 
-                        formattedTokens = data.tokens || null; 
+                    } else if (data) { 
+                        formattedWins = data.wins || []; 
+                        formattedXp = data.xp || []; 
+                        formattedTokens = data.tokens || []; 
                     }
                     populateLeaderboards(formattedWins, formattedXp, formattedTokens);
                 });
@@ -1536,7 +1537,11 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             window.showLeaderboard = function() {
-                openAppModal('leaderboard-modal'); populateLeaderboards(null, null, null);
+                openAppModal('leaderboard-modal'); 
+                const loadingText = window.t ? window.t('lb_loading') : 'جاري التحميل...';
+                document.getElementById('leaderboard-list-wins').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
+                document.getElementById('leaderboard-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
+                document.getElementById('leaderboard-list-tokens').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
                 if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
             };
             setupSocketListeners();
