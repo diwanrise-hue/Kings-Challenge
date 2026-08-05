@@ -644,22 +644,30 @@ export const ui = {
         }
 
         // ==========================================
-        // 💡 تحديث واجهة عداد المماطلة والخمول
+        // 💡 تحديث واجهة العدادات (منفصلة حسب الطلب)
         // ==========================================
-        const stallCounter = document.getElementById('stalling-counter');
-        if (stallCounter) {
-            if (repCount > 1 && !isExemptFromStalling) { 
-                stallCounter.style.display = 'block';
-                stallCounter.textContent = `تكرار: ${repCount}/3`;
-                stallCounter.style.color = repCount === 3 ? '#e74c3c' : '#f5a623';
-                stallCounter.style.borderColor = repCount === 3 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(245, 166, 35, 0.3)';
-            } else if (gameState.movesWithoutProgress >= 15) {
-                stallCounter.style.display = 'block';
-                stallCounter.textContent = `خمول: ${gameState.movesWithoutProgress}/40`;
-                stallCounter.style.color = gameState.movesWithoutProgress >= 30 ? '#e74c3c' : '#a1a1aa';
-                stallCounter.style.borderColor = gameState.movesWithoutProgress >= 30 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(255, 255, 255, 0.1)';
+        const idleCounter = document.getElementById('idle-counter');
+        const repCounter = document.getElementById('repetition-counter');
+
+        if (idleCounter) {
+            if (gameState.movesWithoutProgress >= 15 && !isExemptFromStalling) {
+                idleCounter.style.display = 'block';
+                idleCounter.textContent = `${gameState.movesWithoutProgress}/50`; 
+                idleCounter.style.color = gameState.movesWithoutProgress >= 40 ? '#e74c3c' : '#a1a1aa';
+                idleCounter.style.borderColor = gameState.movesWithoutProgress >= 40 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(255, 255, 255, 0.1)';
             } else {
-                stallCounter.style.display = 'none';
+                idleCounter.style.display = 'none';
+            }
+        }
+
+        if (repCounter) {
+            if (repCount > 1 && !isExemptFromStalling) { 
+                repCounter.style.display = 'block';
+                repCounter.textContent = `تكرار: ${repCount}/3`;
+                repCounter.style.color = repCount === 3 ? '#e74c3c' : '#f5a623';
+                repCounter.style.borderColor = repCount === 3 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(245, 166, 35, 0.3)';
+            } else {
+                repCounter.style.display = 'none';
             }
         }
         // ==========================================
@@ -685,7 +693,7 @@ export const ui = {
             return;
         }
 
-        if (gameState.movesWithoutProgress >= 40 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
+        if (gameState.movesWithoutProgress >= 50 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
             if (gameState.blockGameOverModal) return;
             if (tInd) { tInd.textContent = "تم إعلان التعادل 🤝"; tInd.style.color = "#f1c40f"; }
             
@@ -869,8 +877,15 @@ export const ui = {
                     }
                 }
                 
-                if (isPromotion) { gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = []; } 
-                else if (chosenMove.some(s => s.midR === null)) { gameState.movesWithoutProgress++; gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard)); }
+                if (isPromotion) { 
+                    gameState.movesWithoutProgress = 0; 
+                    gameState.boardHistoryStr = []; 
+                    gameState.pieceHistories = {}; // 💡 تصفير التكرار عند الترقية
+                } else if (chosenMove.some(s => s.midR === null)) { 
+                    gameState.movesWithoutProgress++; 
+                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard)); 
+                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(startRow, startCol, last.toR, last.toC, aiColor);
+                }
 
                 self.highlightMove({ r: startRow, c: startCol }, { r: last.toR, c: last.toC });
                 gameState.currentTurn = gameState.playerColor; saveGameState(); self.startTurn();
@@ -1695,7 +1710,10 @@ ui.onClick('board', e => {
                             if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
                         }
                         
-                        gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = [];
+                        gameState.movesWithoutProgress = 0; 
+                        gameState.boardHistoryStr = [];
+                        gameState.pieceHistories = {}; // 💡 تصفير التكرار عند الأكل
+                        
                         ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
                         gameState.selectedPiece = null; ui.clearHighlights();
                         gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
@@ -1749,9 +1767,11 @@ ui.onClick('board', e => {
                 if (isPromotion) {
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
+                    gameState.pieceHistories = {}; // 💡 تصفير التكرار عند الترقية
                 } else {
                     gameState.movesWithoutProgress++;
                     gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(fromRow, fromCol, toRow, toCol, gameState.currentTurn); // 💡 تتبع تكرار هذا الحجر بالذات
                 }
                 
                 if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
