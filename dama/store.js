@@ -1,5 +1,6 @@
 // ==========================================
-// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة برمجياً بروابط جيت هاب المباشرة
+// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة
+// (تحتفظ بكامل المنطق والواجهة + الإضافات المستخرجة من HTML)
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -1024,4 +1025,110 @@ window.applyTheme = function(profile) {
     if (profile.equippedPc) {
         document.body.setAttribute('data-piece-style', profile.equippedPc);
     }
+};
+
+// ==========================================
+// 🌟 وظائف الواجهة (التبويبات والنوافذ) المستخرجة من HTML
+// ==========================================
+
+window.switchStoreTabCategory = function(category) {
+    const tabs = ['bg', 'frames', 'pieces', 'offers'];
+    tabs.forEach(tab => { 
+        const btn = document.getElementById('store-btn-tab-' + tab); 
+        const sec = document.getElementById('store-section-' + tab); 
+        if(btn) btn.classList.remove('active'); 
+        if(sec) sec.style.display = 'none'; 
+    });
+    const activeBtn = document.getElementById('store-btn-tab-' + category); 
+    const activeSec = document.getElementById('store-section-' + category);
+    if(activeBtn) activeBtn.classList.add('active'); 
+    if(activeSec) activeSec.style.display = 'grid';
+};
+
+window.switchThemeGridTabCategory = function(category) {
+    const tabs = ['bg', 'frames', 'pieces'];
+    tabs.forEach(tab => { 
+        const btn = document.getElementById('theme-btn-tab-' + tab); 
+        const sec = document.getElementById('theme-grid-section-' + tab); 
+        if(btn) btn.classList.remove('active'); 
+        if(sec) sec.style.display = 'none'; 
+    });
+    const activeBtn = document.getElementById('theme-btn-tab-' + category); 
+    const activeSec = document.getElementById('theme-grid-section-' + category);
+    if(activeBtn) activeBtn.classList.add('active'); 
+    if(activeSec) activeSec.style.display = 'grid';
+};
+
+window.triggerGridThemeChange = function(index, lightHex, darkHex) {
+    document.documentElement.style.setProperty('--light-cell', lightHex); 
+    document.documentElement.style.setProperty('--dark-cell', darkHex);
+    if (index !== -1) { 
+        const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item'); 
+        items.forEach((item, idx) => { 
+            if (idx === index) item.classList.add('active'); 
+            else item.classList.remove('active'); 
+        }); 
+    }
+    let p = localStorage.getItem('hub_user_profile');
+    if (p && index !== -1) { 
+        let prof = JSON.parse(p); 
+        prof.equippedBg = null; 
+        localStorage.setItem('hub_user_profile', JSON.stringify(prof)); 
+        if(window.updateInventoryUI) window.updateInventoryUI(); 
+    }
+};
+
+window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
+    const nameEl = document.getElementById('modal-item-name'); 
+    const costEl = document.getElementById('modal-item-cost'); 
+    const previewEl = document.getElementById('modal-item-preview'); 
+    const buyBtn = document.getElementById('confirm-buy-btn');
+    
+    nameEl.innerText = itemName; 
+    costEl.innerText = '🪙 ' + cost; 
+    const itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null; 
+    previewEl.innerHTML = ''; 
+    previewEl.style.background = 'rgba(255,255,255,0.05)'; 
+    previewEl.style.backgroundImage = 'none';
+    
+    if(itemData) {
+        previewEl.style.border = itemData.isLegendary ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.1)'; 
+        previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
+        if (itemData.isImage) { 
+            let imgUrl = itemData.imagePath || itemData.imagePathWhite || ''; 
+            previewEl.style.backgroundImage = `url('${imgUrl}')`; 
+            previewEl.style.backgroundSize = 'cover'; 
+            previewEl.style.backgroundPosition = 'center'; 
+        } else if(itemType === 'pc') { 
+            previewEl.innerHTML = itemData.icon || '💎'; 
+        } else if(itemType === 'score') { 
+            previewEl.innerHTML = `<div style="width: 80%; height: 35px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2);"><div style="flex: 1; background: ${itemData.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div><div style="flex: 1; background: ${itemData.scoreBg1};"></div></div>`; 
+        } else if(itemType === 'bg' || itemType === 'fr') { 
+            if (itemData.cssLight && itemData.cssDark) { 
+                previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`; 
+            } else if (itemData.cssBoard) { 
+                previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`; 
+            } else { 
+                previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`; 
+            } 
+        }
+    } else { 
+        previewEl.innerHTML = '🎁'; 
+        previewEl.className = 'purchase-preview-box'; 
+    }
+    
+    buyBtn.onclick = () => { 
+        if (typeof window.closeAppModal === 'function') window.closeAppModal('purchase-modal'); 
+        setTimeout(() => { 
+            if (window.socket && window.socket.connected) { 
+                let profile = storeManager.getProfile();
+                window.socket.emit('requestPurchase', { userId: profile.id, itemId: itemId }); 
+            } else { 
+                const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً."; 
+                if (typeof window.triggerCustomAlertNotification === 'function') window.triggerCustomAlertNotification(msg); 
+                else alert(msg); 
+            } 
+        }, 120); 
+    };
+    if (typeof window.openAppModal === 'function') window.openAppModal('purchase-modal');
 };
