@@ -208,7 +208,7 @@ export const socketManager = {
 
     _forceReconnect() {
         if (socket.connected) return;
-        socketManager._showToast(gameState.lang === 'ar' ? "جاري محاولة اعادة الاتصال ..." : "Reconnecting to server...");
+        socketManager._showToast(gameState.lang === 'ar' ? "جاري محاولة الاتصال بالسيرفر..." : "Reconnecting to server...");
         socket.disconnect(); 
         setTimeout(() => {
             socket.io.opts.transports = ['websocket']; 
@@ -560,6 +560,7 @@ export const socketManager = {
             gameState.selectedPiece = null; 
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
+            gameState.pieceHistories = {}; // تصفير تتبع الأحجار عند بدء لعبة جديدة
 
             if (data.roomID) gameState.onlineRoomID = data.roomID;
 
@@ -659,9 +660,11 @@ export const socketManager = {
                 if (isCapture || isPromotion) {
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
+                    gameState.pieceHistories = {}; // 💡 تصفير التكرار عند الأكل أو الترقية
                 } else {
                     gameState.movesWithoutProgress++;
                     gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(executedPath[0].fromR, executedPath[0].fromC, lastStep.toR, lastStep.toC, gameState.currentTurn);
                 }
 
             } else {
