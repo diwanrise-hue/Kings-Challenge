@@ -1,4 +1,8 @@
-// dailyQuests.js
+// ==========================================
+// ملف: dailyQuests.js
+// إدارة المهام اليومية والأسبوعية وجوائزها
+// المتوافق مع الـ Clean Architecture
+// ==========================================
 import { ui } from './uiController.js';
 import { gameState } from './gameState.js';
 import { socket } from './socketManager.js';
@@ -33,7 +37,6 @@ export const questsManager = {
         if (saved) {
             try {
                 let parsed = JSON.parse(saved);
-                // التأكد من وجود كائنات daily و weekly وعدم تركها فارغة أو undefined
                 this.progress = parsed.progress || { daily: {}, weekly: {} };
                 if (!this.progress.daily) this.progress.daily = {};
                 if (!this.progress.weekly) this.progress.weekly = {};
@@ -80,9 +83,7 @@ export const questsManager = {
             let quests = this[period + 'Quests'];
             quests.forEach(q => {
                 if (q.type === type) {
-                    // التأكد الإضافي لحماية الكود وتجنب الأخطاء
                     if (!this.progress[period]) this.progress[period] = {};
-                    
                     if (!this.progress[period][q.id]) this.progress[period][q.id] = { current: 0, claimed: false };
                     
                     if (this.progress[period][q.id].current < q.target && !this.progress[period][q.id].claimed) {
@@ -105,7 +106,6 @@ export const questsManager = {
         let q = this[period + 'Quests'].find(x => x.id === questId);
         if (!q) return;
 
-        // التأكد من وجود كائن التقدم قبل محاولة القراءة منه
         if (this.progress[period] && this.progress[period][questId] && this.progress[period][questId].current >= q.target && !this.progress[period][questId].claimed) {
             this.progress[period][questId].claimed = true;
             this.saveProgress();
@@ -114,9 +114,14 @@ export const questsManager = {
                 socket.emit('claimQuestReward', { questId: questId, tokens: q.rewardTokens });
             } else {
                 let profile = gameState.userProfile || JSON.parse(localStorage.getItem('hub_user_profile'));
-                profile.tokens = (profile.tokens || 0) + q.rewardTokens;
-                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                ui.updateProfileUI();
+                if (profile) {
+                    profile.tokens = (profile.tokens || 0) + q.rewardTokens;
+                    gameState.userProfile = profile; // 💡 مزامنة الـ gameState
+                    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                    
+                    // تحديث الواجهة فوراً
+                    if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
+                }
             }
             
             if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.win);
@@ -129,7 +134,6 @@ export const questsManager = {
         if (!container) return;
         container.innerHTML = '';
 
-        // تأكيد وجود كائن التقدم لهذه الفترة لمنع خطأ undefined
         if (!this.progress[period]) {
             this.progress[period] = {};
         }
