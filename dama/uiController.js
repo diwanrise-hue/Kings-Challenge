@@ -1152,6 +1152,45 @@ export const ui = {
 // ==========================================
 // 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
 // ==========================================
+
+// فتح نافذة إعدادات الغرفة الخاصة بمنشئ الغرفة
+window.openCreatorSettings = function(roomId, currentBet) {
+    const roomIdInput = document.getElementById('creator-target-room-id');
+    const betInput = document.getElementById('edit-room-bet-input');
+    const betDisplay = document.getElementById('edit-room-bet-display');
+    
+    if (roomIdInput) roomIdInput.value = roomId;
+    if (betInput) betInput.value = currentBet;
+    
+    if (betDisplay) {
+        let betText = "بدون رهان (مجاني)";
+        if (currentBet == 50) betText = "50 🪙 (الجائزة الكبرى: 100)";
+        else if (currentBet == 100) betText = "100 🪙 (الجائزة الكبرى: 200)";
+        else if (currentBet == 200) betText = "200 🪙 (الجائزة الكبرى: 400)";
+        else if (currentBet == 500) betText = "500 🪙 (الجائزة الكبرى: 1000)";
+        else if (currentBet == 1000) betText = "1000 🪙 (الجائزة الكبرى: 2000)";
+        betDisplay.innerText = betText;
+    }
+    
+    window.openAppModal('creator-room-settings-modal');
+};
+
+// دالة حذف الغرفة عبر الزر الأحمر
+window.deleteMyRoom = function(roomId) {
+    if (typeof ui !== 'undefined' && typeof ui.showCustomAlert === 'function') {
+        ui.showCustomAlert(
+            "هل أنت متأكد من رغبتك في إغلاق وحذف هذه الغرفة نهائياً؟",
+            "حذف الغرفة 🗑️",
+            () => {
+                if (typeof socket !== 'undefined' && socket && socket.connected) {
+                    socket.emit('leaveRoom', { roomID: roomId });
+                }
+            },
+            true, "إلغاء", "نعم، احذفها"
+        );
+    }
+};
+
 window.openAppModal = function(id) {
     const modal = document.getElementById(id);
     if (modal) { 
@@ -1603,6 +1642,32 @@ ui.onClick('undo-btn', () => {
 });
 
 ui.onClick('hint-btn', () => { hintSystem.requestHint(); });
+
+// 🌟 أكواد الأزرار الخاصة بإعدادات الغرفة (جديد)
+ui.onClick('creator-update-bet-btn', () => {
+    const roomIdEl = document.getElementById('creator-target-room-id');
+    const newBetEl = document.getElementById('edit-room-bet-input');
+    
+    if (roomIdEl && newBetEl && typeof socket !== 'undefined' && socket.connected) {
+        const roomId = roomIdEl.value;
+        const newBet = parseInt(newBetEl.value) || 0;
+        socket.emit('updateRoomBet', { roomID: roomId, newBet: newBet });
+        
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('creator-room-settings-modal');
+        }
+    }
+});
+
+ui.onClick('creator-cancel-room-btn', () => {
+    const roomIdEl = document.getElementById('creator-target-room-id');
+    if (roomIdEl) {
+        window.deleteMyRoom(roomIdEl.value);
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('creator-room-settings-modal');
+        }
+    }
+});
 
 window.ui = ui;
 window.updateUITranslations = () => { if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts(); };
