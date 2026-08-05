@@ -731,7 +731,7 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <!-- 🌟 تم ربط النقر هنا بدالة openMyProfile الجديدة -->
+    <!-- 🌟 النقر يفتح ملفك الشخصي -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) window.openMyProfile()">
         <div class="xp-svg-wrapper">
             <svg width="138" height="56.8" viewBox="0 0 122.2 56.8">
@@ -968,18 +968,27 @@
         </div>
     </div>
 
+    <!-- 🌟 الملف الشخصي الحديث والمطوّر -->
     <div id="in-game-profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 40px 25px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             <h3 id="igp-title" style="margin-bottom: 15px;">الملف الشخصي</h3>
+            
             <div class="avatar-wrapper" style="width: 80px; height: 80px; margin-bottom: 20px;">
                 <div class="profile-avatar-capsule" id="igp-avatar" style="border-width: 3px;"></div>
                 <div class="level-badge-small" id="igp-level" style="font-size: 12px; padding: 3px 10px; bottom: -12px;">Lv.1</div>
             </div>
-            <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
-            <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; margin-bottom: 5px;">الرتبة: 🥉 برونزي</div>
             
-            <!-- 🌟 حاوية شريط الـ XP -->
+            <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
+            
+            <!-- 🌟 الرتبة والشعبية -->
+            <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; width: 100%;">
+                <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px;">الرتبة: 🥉 برونزي</div>
+                <div style="color: #ff4d4d; font-size: 13px; font-weight: 600; background: rgba(255,77,77,0.1); border: 1px solid rgba(255,77,77,0.3); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 5px;">
+                    <span style="font-size: 14px;">🔥</span> <span id="igp-popularity-val">0</span>
+                </div>
+            </div>
+            
             <div id="igp-xp-container" style="width: 100%; margin-bottom: 20px;">
                 <div class="xp-bar-bg"><div class="xp-bar-fill" id="igp-xp-fill"></div><div class="xp-bar-text" id="igp-xp-text">0 / 100 XP</div></div>
             </div>
@@ -988,20 +997,42 @@
                 <span>ID: <span id="igp-id-display" style="color: white; font-weight: bold;">...</span></span><span data-icon="copyId"></span>
             </div>
             
-            <!-- 🌟 حاوية الإحصائيات (الفوز والخسارة) -->
             <div id="igp-stats-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; box-sizing: border-box;">
                 <div style="display: flex; flex-direction: column; align-items: center;"><span id="igp-games" style="color: white; font-size: 22px; font-weight: 700;">0</span><span id="igp-lbl-games" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">لعب</span></div>
                 <div style="display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); border-left: 1px solid rgba(255,255,255,0.05); align-items: center;"><span id="igp-wins" style="color: #34c759; font-size: 22px; font-weight: 700;">0</span><span id="igp-lbl-wins" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">فوز</span></div>
                 <div style="display: flex; flex-direction: column; align-items: center;"><span id="igp-losses" style="color: #ff453a; font-size: 22px; font-weight: 700;">0</span><span id="igp-lbl-losses" style="color: #a1a1aa; font-size: 11px; font-weight: 500; margin-top: 4px;">خسارة</span></div>
             </div>
             
-            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; box-sizing: border-box;">
-                <input type="text" id="friend-id-input" class="online-input" placeholder="معرف الصديق (ID)" style="margin-bottom: 0; height: 40px; font-size: 12px; width: 100%;">
-                <button id="add-friend-btn" class="save-settings-btn" style="margin-top: 0; height: 40px; padding: 0 30px; width: auto; font-size: 13px;">إضافة صديق</button>
+            <!-- 🌟 أزرار وواجهة بروفايلك الخاص (أنت) -->
+            <div id="own-profile-actions" style="width: 100%; box-sizing: border-box;">
+                <button onclick="openAppModal('friend-requests-modal')" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border-color: rgba(245, 166, 35, 0.3) !important; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span>🔔 طلبات الصداقة</span>
+                    <span id="friend-requests-badge" style="background: #ff453a; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none;">0</span>
+                </button>
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; margin-top: 15px; text-align: start; width: 100%; box-sizing: border-box;">
+                    <h5 style="margin: 0 0 10px 0; color: #a1a1aa; font-size: 13px; font-weight: 600;">الأصدقاء</h5>
+                    <div id="igp-friends-list" style="color: white; font-size: 13px; text-align: center; padding: 15px 0; font-weight: 500;">لا يوجد أصدقاء حالياً</div>
+                </div>
             </div>
-            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; text-align: start; width: 100%; box-sizing: border-box;">
-                <h5 id="igp-lbl-friends" style="margin: 0 0 10px 0; color: #a1a1aa; font-size: 13px; font-weight: 600;">الأصدقاء</h5>
-                <div id="igp-friends-list" style="color: white; font-size: 13px; text-align: center; padding: 15px 0; font-weight: 500;">لا يوجد أصدقاء حالياً</div>
+
+            <!-- 🌟 أزرار وواجهة بروفايل الزائر (شخص آخر) -->
+            <div id="other-profile-actions" style="display: none; width: 100%; box-sizing: border-box; gap: 10px; flex-direction: column;">
+                <button id="send-friend-req-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.15) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.3) !important; margin: 0;" onclick="window.sendFriendRequest()">➕ إرسال طلب صداقة</button>
+                <button id="give-pop-btn" class="save-settings-btn" style="background: rgba(255,77,77,0.15) !important; color: #ff4d4d !important; border-color: rgba(255,77,77,0.3) !important; margin: 0;" onclick="window.givePopularity()">🔥 منح شعبية</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 🌟 نافذة طلبات الصداقة -->
+    <div id="friend-requests-modal" class="modal-overlay" style="z-index: 1000005;">
+        <div class="settings-card" dir="auto" style="max-width: 340px;">
+            <button class="modal-close-btn" onclick="closeAppModal('friend-requests-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #f5a623; margin-bottom: 10px;">طلبات الصداقة 🔔</h3>
+            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">الطلبات تنتهي صلاحيتها وتُحذف تلقائياً بعد 3 أيام.</p>
+            
+            <div id="friend-requests-container" class="scrollable-content" style="max-height: 40vh; display: flex; flex-direction: column; gap: 10px; padding: 5px;">
+                <!-- سيتم توليد الطلبات هنا برمجياً -->
             </div>
         </div>
     </div>
@@ -1338,7 +1369,166 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
     <script>
-        // 🌟 دالة لفتح ملفك الشخصي أنت (تظهر فيها كل التفاصيل كشريط الـ XP وعدد المباريات)
+        // =====================================
+        // 🌟 دوال نظام الأصدقاء والطلبات المحلية
+        // =====================================
+        
+        // تنظيف الطلبات القديمة (أكثر من 3 أيام = 259200000 ميلي ثانية)
+        function cleanExpiredRequests(profile) {
+            if (!profile.friendRequests) profile.friendRequests = [];
+            const now = Date.now();
+            const threeDays = 3 * 24 * 60 * 60 * 1000;
+            profile.friendRequests = profile.friendRequests.filter(req => (now - req.timestamp) < threeDays);
+            return profile;
+        }
+
+        // تحديث وعرض قائمة الأصدقاء في واجهتك
+        function renderFriendsList(friendsArr) {
+            const listContainer = document.getElementById('igp-friends-list');
+            if (!listContainer) return;
+            if (!friendsArr || friendsArr.length === 0) {
+                listContainer.innerHTML = 'لا يوجد أصدقاء حالياً';
+                return;
+            }
+            listContainer.innerHTML = '';
+            friendsArr.forEach(friend => {
+                let div = document.createElement('div');
+                div.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); padding:8px 12px; border-radius:12px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.05);";
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${friend.avatar || '../Photo/1000132081.webp'}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" onerror="this.src='../Photo/1000132081.webp'">
+                        <div style="text-align:right;">
+                            <div style="font-weight:bold; color:white; font-size:14px;">${friend.name}</div>
+                            <div style="font-size:10px; color:#a1a1aa;">${friend.id}</div>
+                        </div>
+                    </div>
+                    <div style="font-size:16px;">🤝</div>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        // تحديث وعرض طلبات الصداقة في نافذة الطلبات
+        function renderFriendRequests() {
+            let profStr = localStorage.getItem('hub_user_profile');
+            if (!profStr) return;
+            let prof = cleanExpiredRequests(JSON.parse(profStr));
+            localStorage.setItem('hub_user_profile', JSON.stringify(prof)); // تحديث التخزين بعد التنظيف
+
+            let container = document.getElementById('friend-requests-container');
+            let badge = document.getElementById('friend-requests-badge');
+            let reqs = prof.friendRequests || [];
+
+            if(badge) {
+                if(reqs.length > 0) { badge.style.display = 'inline-block'; badge.innerText = reqs.length; } 
+                else { badge.style.display = 'none'; }
+            }
+
+            if (!container) return;
+            container.innerHTML = '';
+            
+            if (reqs.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#a1a1aa; padding:20px;">لا توجد طلبات صداقة حالياً.</div>';
+                return;
+            }
+
+            reqs.forEach(req => {
+                let div = document.createElement('div');
+                div.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.05);";
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${req.avatar || '../Photo/1000132081.webp'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;" onerror="this.src='../Photo/1000132081.webp'">
+                        <div style="text-align:right;">
+                            <div style="font-weight:bold; color:white; font-size:14px;">${req.name}</div>
+                            <div style="font-size:10px; color:#a1a1aa;">طلب صداقة</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <button onclick="acceptFriendReq('${req.id}')" style="background:rgba(48,209,88,0.2); border:1px solid rgba(48,209,88,0.4); color:#30d158; width:34px; height:34px; border-radius:10px; font-size:16px; cursor:pointer;">✓</button>
+                        <button onclick="rejectFriendReq('${req.id}')" style="background:rgba(255,69,58,0.15); border:1px solid rgba(255,69,58,0.3); color:#ff453a; width:34px; height:34px; border-radius:10px; font-size:16px; cursor:pointer;">✕</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // قبول الطلب
+        window.acceptFriendReq = function(reqId) {
+            let profStr = localStorage.getItem('hub_user_profile');
+            if(!profStr) return;
+            let prof = JSON.parse(profStr);
+            if(!prof.friends) prof.friends = [];
+            
+            let reqIndex = prof.friendRequests.findIndex(r => r.id === reqId);
+            if(reqIndex !== -1) {
+                let acceptedUser = prof.friendRequests[reqIndex];
+                // التأكد من عدم التكرار
+                if(!prof.friends.find(f => f.id === reqId)) {
+                    prof.friends.push({ id: acceptedUser.id, name: acceptedUser.name, avatar: acceptedUser.avatar });
+                }
+                prof.friendRequests.splice(reqIndex, 1);
+                localStorage.setItem('hub_user_profile', JSON.stringify(prof));
+                
+                renderFriendRequests();
+                renderFriendsList(prof.friends);
+                
+                const toast = document.getElementById('toast-notification'); 
+                if (toast) { toast.innerText = '✅ تمت إضافة الصديق بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+            }
+        };
+
+        // رفض الطلب
+        window.rejectFriendReq = function(reqId) {
+            let profStr = localStorage.getItem('hub_user_profile');
+            if(!profStr) return;
+            let prof = JSON.parse(profStr);
+            
+            prof.friendRequests = prof.friendRequests.filter(r => r.id !== reqId);
+            localStorage.setItem('hub_user_profile', JSON.stringify(prof));
+            
+            renderFriendRequests();
+        };
+
+        // إرسال طلب صداقة لزائر (محاكاة لوضع الأوفلاين/بدون سيرفر)
+        window.sendFriendRequest = function() {
+            if(!window.currentViewedPlayer) return;
+            const toast = document.getElementById('toast-notification'); 
+            if (toast) { toast.innerText = '📨 تم إرسال طلب الصداقة بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+            // تغيير شكل الزر ليدل على الإرسال
+            const btn = document.getElementById('send-friend-req-btn');
+            if(btn) {
+                btn.innerHTML = '✓ تم الإرسال';
+                btn.style.background = 'rgba(255,255,255,0.1) !important';
+                btn.style.color = '#a1a1aa !important';
+                btn.style.borderColor = 'rgba(255,255,255,0.2) !important';
+                btn.disabled = true;
+            }
+        };
+
+        // منح الشعبية لزائر
+        window.givePopularity = function() {
+            if(!window.currentViewedPlayer) return;
+            const toast = document.getElementById('toast-notification'); 
+            if (toast) { toast.innerText = '🔥 تم منح الشعبية بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+            // زيادة الرقم وهمياً في الواجهة حالياً
+            const valEl = document.getElementById('igp-popularity-val');
+            if(valEl) valEl.innerText = parseInt(valEl.innerText) + 1;
+            
+            const btn = document.getElementById('give-pop-btn');
+            if(btn) {
+                btn.innerHTML = '🔥 تم المنح';
+                btn.style.background = 'rgba(255,255,255,0.1) !important';
+                btn.style.color = '#a1a1aa !important';
+                btn.style.borderColor = 'rgba(255,255,255,0.2) !important';
+                btn.disabled = true;
+            }
+        };
+
+        // =====================================
+        // 🌟 فتح الملفات الشخصية وتجهيز الواجهة
+        // =====================================
+
+        // فتح ملفك الشخصي أنت (تظهر فيها كل التفاصيل كشريط الـ XP وطلبات الصداقة)
         window.openMyProfile = function() {
             const xpCont = document.getElementById('igp-xp-container');
             const statGrid = document.getElementById('igp-stats-grid');
@@ -1348,9 +1538,13 @@
             if(statGrid) statGrid.style.display = 'grid';
             if(lvlBadge) lvlBadge.style.display = 'block';
             
+            document.getElementById('own-profile-actions').style.display = 'block';
+            document.getElementById('other-profile-actions').style.display = 'none';
+            
             let globalProfile = localStorage.getItem('hub_user_profile');
             if (globalProfile) {
-                let prof = JSON.parse(globalProfile);
+                let prof = cleanExpiredRequests(JSON.parse(globalProfile));
+                localStorage.setItem('hub_user_profile', JSON.stringify(prof)); // تحديث بعد التنظيف
                 window.applyProfileDataToUI(prof);
                 
                 const avatarContainer = document.getElementById('igp-avatar');
@@ -1374,12 +1568,21 @@
                     xpBar.style.width = Math.min(100, Math.max(0, progress)) + '%';
                     xpText.innerText = `${prof.xp || 0} / ${nextLevelXp} XP`;
                 }
+
+                // عرض الشعبية الخاصة بك
+                document.getElementById('igp-popularity-val').innerText = prof.popularity || 0;
+
+                // تحديث واجهة الأصدقاء والطلبات
+                renderFriendsList(prof.friends);
+                renderFriendRequests();
             }
             openAppModal('in-game-profile-modal');
         };
 
-        // 🌟 دالة لفتح ملف أي لاعب آخر من لوحة الشرف (يتم إخفاء التفاصيل غير المتوفرة)
+        // فتح ملف أي لاعب آخر من لوحة الشرف (يتم إخفاء التفاصيل وعرض أزرار التفاعل)
         window.showPlayerProfileFromLB = function(player) {
+            window.currentViewedPlayer = player; // حفظ اللاعب الحالي عالمياً لاستخدامه في الأزرار
+
             const xpContainer = document.getElementById('igp-xp-container');
             const statsGrid = document.getElementById('igp-stats-grid');
             const levelBadge = document.getElementById('igp-level');
@@ -1388,9 +1591,22 @@
             if(statsGrid) statsGrid.style.display = 'none';
             if(levelBadge) levelBadge.style.display = 'none';
             
+            document.getElementById('own-profile-actions').style.display = 'none';
+            document.getElementById('other-profile-actions').style.display = 'flex';
+            
+            // إعادة ضبط أزرار التفاعل (في حال تم النقر عليها سابقاً)
+            const reqBtn = document.getElementById('send-friend-req-btn');
+            if(reqBtn) { reqBtn.innerHTML = '➕ إرسال طلب صداقة'; reqBtn.style.cssText = "background: rgba(48,209,88,0.15) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.3) !important; margin: 0;"; reqBtn.disabled = false; }
+            
+            const popBtn = document.getElementById('give-pop-btn');
+            if(popBtn) { popBtn.innerHTML = '🔥 منح شعبية'; popBtn.style.cssText = "background: rgba(255,77,77,0.15) !important; color: #ff4d4d !important; border-color: rgba(255,77,77,0.3) !important; margin: 0;"; popBtn.disabled = false; }
+
             document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول';
             document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
             
+            // محاكاة رقم شعبية عشوائي للزوار (بما أنه غير موجود في السيرفر حالياً)
+            document.getElementById('igp-popularity-val').innerText = player.popularity || Math.floor(Math.random() * 800) + 50;
+
             const avatarContainer = document.getElementById('igp-avatar');
             let imgSrc = player.avatar || '../Photo/1000132081.webp';
             if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:image')) {
@@ -1406,12 +1622,10 @@
                 document.getElementById('igp-rank-title').innerText = `الرتبة: 🥉 برونزي`;
             }
             
-            const friendInput = document.getElementById('friend-id-input');
-            if(friendInput) friendInput.value = player.id || '';
-            
             openAppModal('in-game-profile-modal');
         };
 
+        // بقية الدوال الأساسية
         function selectBetAmount(value, displayText, element) {
             if (window.isEditingBet) {
                 document.getElementById('edit-room-bet-input').value = value;
@@ -1520,7 +1734,6 @@
         }
         window.switchRoomTab = switchRoomTab;
 
-        // 🌟 تحديث دالة اللوحة لتقبل كائن بيانات اللاعب وتفعيل النقر
         function createLbItemHTML(rank, playerObj, type) {
             let score = playerObj.score;
             let name = playerObj.name;
@@ -1553,7 +1766,7 @@
             div.querySelector('.lb-name-container').replaceWith(nameEl);
             const avatarContainer = div.querySelector('.lb-avatar');
             
-            // 🌟 إضافة حدث النقر وربطه بدالة عرض البروفايل
+            // النقر لفتح الملف الشخصي للزائر
             avatarContainer.onclick = function() {
                 if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(playerObj);
             };
@@ -1706,7 +1919,6 @@
             if (globalProfile) { try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); } } catch(e) {} }
             if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) { let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', ''); avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
             
-            // 🌟 تمت إزالة igp-avatar من الحماية الإجبارية لكي يسمح بعرض صور الزوار
             const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar'];
             targetAvatars.forEach(id => {
                 const el = document.getElementById(id); if (!el) return;
@@ -1716,7 +1928,6 @@
 
         const avatarGuardObserver = new MutationObserver((mutations) => { let shouldProtect = false; for (let mutation of mutations) { if (mutation.type === 'childList') { const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG'); if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; } } } if (shouldProtect) { avatarGuardObserver.disconnect(); forceLockedGlobalAvatar(); startAvatarGuard(); } });
         
-        // 🌟 تمت إزالة igp-avatar من المراقبة المستمرة هنا أيضاً
         function startAvatarGuard() { const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar']; targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } }); }
 
         window.applyProfileDataToUI = function(profile) {
