@@ -1,4 +1,3 @@
-// ملف: socketManager.js
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة: تدعم نظام التحديات المتقدم، استئذان المايك، 
@@ -249,9 +248,28 @@ export const socketManager = {
             'friendAddSuccess', 'friendAddFailed', 'opponentLeftRoom', 'roomClosedByTimeout',
             'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState',
             'activeRoomsList', 'mic-request', 'mic-response', 'spectatorJoined', 'spectatorCountChanged',
-            'bettingClosed', 'betResult', 'creatorCutReceived'
+            'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
+
+        // 🌟 مستمع لوحة الشرف (تم نقله هنا ليكون من ضمن نظام السيرفر)
+        socket.on('leaderboardData', (data) => {
+            let formattedWins = [], formattedXp = [], formattedTokens = [];
+            if(Array.isArray(data)) {
+                for(let i=0; i<data.length; i+=2) { 
+                    formattedWins.push({ name: data[i], score: data[i+1] }); 
+                    formattedXp.push({ name: data[i], score: data[i+1] * 25 });
+                    formattedTokens.push({ name: data[i], score: data[i+1] * 125 }); 
+                }
+            } else if (data) { 
+                formattedWins = data.wins || []; 
+                formattedXp = data.xp || []; 
+                formattedTokens = data.tokens || []; 
+            }
+            if (window.populateLeaderboards) {
+                window.populateLeaderboards(formattedWins, formattedXp, formattedTokens);
+            }
+        });
 
         socket.on('receiveChat', (data) => {
             if (window.playInGameChat && data) {
