@@ -512,6 +512,7 @@ export const ui = {
         gameState.isMultiJumping = false; gameState.jumpsCount = 0; gameState.requiredJumps = 0;
         gameState.selectedPiece = null; gameState.lastJumpDir = { dr: null, dc: null };
         gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
+        gameState.pieceHistories = {};
 
         this.toggleOfflineInMatchUI(false); this.toggleOnlineUILayout(false); 
         document.body.classList.remove('game-active');
@@ -534,6 +535,7 @@ export const ui = {
         this.drawEmptyBoard(); 
         
         gameState.botMoveCount = 0; gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
+        gameState.pieceHistories = {};
 
         const tutorialCheck = document.getElementById('tutorial-mode-checkbox');
         if (!gameState.isOnlineMode && tutorialCheck) { gameState.isTutorialMode = tutorialCheck.checked; } 
@@ -640,7 +642,8 @@ export const ui = {
 
         let repCount = 0;
         if (typeof gameEngine.checkRepetitionAndStalling === 'function') {
-            repCount = gameEngine.checkRepetitionAndStalling();
+            // التحقق من التكرار للاعب الذي حان دوره فقط!
+            repCount = gameEngine.checkRepetitionAndStalling(gameState.currentTurn);
         }
 
         // ==========================================
@@ -661,7 +664,8 @@ export const ui = {
         }
 
         if (repCounter) {
-            if (repCount > 1 && !isExemptFromStalling) { 
+            // إظهار تحذير التكرار البرتقالي فقط إذا كان يخص اللاعب الحالي (أنت)!
+            if (repCount > 1 && !isExemptFromStalling && gameState.currentTurn === gameState.playerColor) { 
                 repCounter.style.display = 'block';
                 repCounter.textContent = `تكرار: ${repCount}/3`;
                 repCounter.style.color = repCount === 3 ? '#e74c3c' : '#f5a623';
@@ -676,7 +680,8 @@ export const ui = {
         if (!isExemptFromStalling && repCount >= 4) {
             if (gameState.blockGameOverModal) return;
 
-            let loserColor = gameState.currentTurn === 'white' ? 'black' : 'white';
+            // الخاسر هو اللاعب الذي كان دوره وأنهى حركته الرابعة بتكرار!
+            let loserColor = gameState.currentTurn;
             let winnerColor = loserColor === 'white' ? 'black' : 'white'; 
             
             if (tInd) { 
@@ -789,20 +794,12 @@ export const ui = {
         let alertShown = false;
 
         if (!isExemptFromStalling && repCount === 3) {
-            let justPlayedColor = gameState.currentTurn === 'white' ? 'black' : 'white';
-
-            if (justPlayedColor === gameState.playerColor) {
+            if (gameState.currentTurn === gameState.playerColor) {
                 alertShown = true;
                 if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
                 
-                ui.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️", () => {
-                    if (isBotTurn) {
-                        const tIndEl = document.getElementById('turn-indicator');
-                        if (tIndEl) tIndEl.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
-                        gameState.aiTimeout = setTimeout(() => ui.triggerComputerMove(), 150);
-                    }
-                });
-            } else if (gameState.isOnlineMode && justPlayedColor !== gameState.playerColor) {
+                ui.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️");
+            } else if (gameState.isOnlineMode && gameState.currentTurn !== gameState.playerColor) {
                 ui.showCustomAlert("الخصم يكرر الحركات.. تكراره للحركة القادمة سيمنحك الفوز!", "الخصم يماطل ⏳");
             }
         }
@@ -856,7 +853,9 @@ export const ui = {
                 self.playSound(gameState.virtualBoard[step.midR][step.midC]?.includes('dama') ? sfx.kingDied : sfx.piecesDied);
                 let midCell = board.querySelector(`[data-row="${step.midR}"][data-col="${step.midC}"]`);
                 if (midCell) midCell.innerHTML = '';
-                gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = [];
+                gameState.movesWithoutProgress = 0; 
+                gameState.boardHistoryStr = [];
+                gameState.pieceHistories = {}; // 💡 تصفير التكرار عند الأكل
             }
             
             if (tCell && fCell?.children.length > 0) tCell.appendChild(fCell.children[0]);
