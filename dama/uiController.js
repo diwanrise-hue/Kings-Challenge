@@ -632,14 +632,25 @@ export const ui = {
 
         this.updateVirtualBoardState();
 
-        let repCount = gameEngine.checkRepetitionAndStalling();
-        if (repCount === 3 && gameState.currentTurn === gameState.playerColor && !gameState.isBotOpponent) {
-            this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة");
-        } else if (repCount >= 4) {
-            if (gameState.blockGameOverModal) return;
-            let winnerColor = gameState.currentTurn === 'white' ? 'black' : 'white';
-            if (tInd) { tInd.textContent = "خسارة بسبب المماطلة 🚫"; tInd.style.color = "#e74c3c"; }
-            gameEngine.endGame(winnerColor); return;
+        // 💡 1. تحديد ما إذا كان اللاعب متصلاً بالإنترنت أم لا
+        const isConnected = (typeof socket !== 'undefined' && socket && socket.connected);
+        const isBotMatch = !gameState.isOnlineMode;
+        
+        // 💡 2. تحديد الإعفاء من المحاسبة: (وضع تعليمي) أو (ضد البوت وغير متصل بالإنترنت)
+        const isExemptFromStalling = gameState.isTutorialMode || (isBotMatch && !isConnected);
+
+        let repCount = (typeof gameEngine.checkRepetitionAndStalling === 'function') ? gameEngine.checkRepetitionAndStalling() : 0;
+        
+        // 💡 3. تطبيق المحاسبة والتحذير بناءً على الإعفاء
+        if (!isExemptFromStalling) {
+            if (repCount === 3 && gameState.currentTurn === gameState.playerColor) {
+                this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة");
+            } else if (repCount >= 4) {
+                if (gameState.blockGameOverModal) return;
+                let winnerColor = gameState.currentTurn === 'white' ? 'black' : 'white';
+                if (tInd) { tInd.textContent = "خسارة بسبب المماطلة 🚫"; tInd.style.color = "#e74c3c"; }
+                gameEngine.endGame(winnerColor); return;
+            }
         }
 
         if (gameState.movesWithoutProgress >= 40 || gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn)) {
@@ -931,7 +942,7 @@ export const ui = {
                         }
                     } else {
                         if (isMeWin) {
-                            xpGained = 25;
+                            xpGained = 0; // 💡 تم التعديل: يحصل على توكن فقط ضد البوت
                             if (lvl <= 2) displayReward = 10;
                             else if (lvl <= 4) displayReward = 15;
                             else if (lvl <= 6) displayReward = 50;
@@ -1671,7 +1682,8 @@ ui.onClick('board', e => {
                     if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
                 }
                 
-                if (isPromotion || !movingPieceStr.includes('dama')) {
+                // 💡 الإصلاح الجذري: تصفير سجل التعادل فقط عند الترقية
+                if (isPromotion) {
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
                 } else {
