@@ -1,7 +1,7 @@
 /**
  * socketManager.js
- * النسخة المتطورة والكاملة: تدعم نظام التحديات المتقدم، استئذان المايك، 
- * ردهة الغرف النشطة (Lobby) مفصولة (للعب وللمراهنات)، مزامنة الساحة، ونظام المشاهدة والرهانات الجانبية.
+ * النسخة النقية (Data-Only): تم فصل جميع أكواد الـ HTML والـ UI بالكامل!
+ * هذا الملف مسؤول فقط عن استقبال البيانات من السيرفر وتوجيهها للمحرك والواجهة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -21,131 +21,9 @@ export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', {
 });
 window.socket = socket; 
 
-const fallbackMoveAudio = new Audio('move.mp3');
-
 export const socketManager = {
     isAlertShown: false,
-    lastConnectionErrorTime: 0,
-    toastTimeout: null,
-    disconnectTimer: null, 
-    pingIntervalId: null, 
-    lastPingValue: null, 
-
-    _showToast(msg) {
-        let toast = document.getElementById('game-toast-notification');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'game-toast-notification';
-            toast.style.cssText = `
-                position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
-                background: rgba(25, 25, 30, 0.95); color: #fff; padding: 12px 24px;
-                border-radius: 50px; z-index: 10000000; font-family: sans-serif; font-size: 14px;
-                text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-                transition: opacity 0.3s ease, transform 0.3s ease; opacity: 0;
-                pointer-events: none; border: 1px solid rgba(255,255,255,0.1);
-                white-space: nowrap; max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
-            `;
-            document.body.appendChild(toast);
-        }
-        
-        toast.textContent = msg;
-        toast.style.display = 'block';
-        requestAnimationFrame(() => {
-            toast.style.opacity = '1';
-            toast.style.transform = 'translate(-50%, -10px)';
-        });
-
-        if (this.toastTimeout) clearTimeout(this.toastTimeout);
-        this.toastTimeout = setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translate(-50%, 0)';
-            setTimeout(() => { toast.style.display = 'none'; }, 300);
-        }, 4000);
-    },
-
-    _initRealPingIndicator() {
-        let pingEl = document.getElementById('real-ping-indicator');
-        if (!pingEl) {
-            pingEl = document.createElement('div');
-            pingEl.id = 'real-ping-indicator';
-            pingEl.style.cssText = `
-                position: absolute; 
-                bottom: -1px; 
-                left: calc(50% + 118px); 
-                background: transparent; color: #66bb6a; 
-                font-family: monospace; font-size: 11px; font-weight: 700; 
-                padding: 0; border: none; margin: 0;
-                z-index: 99999; display: flex; align-items: center; justify-content: flex-start; gap: 4px;
-                flex-direction: row; flex-wrap: nowrap; white-space: nowrap; 
-                pointer-events: none; opacity: 0.95;
-                text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.8), 1px -1px 1px rgba(0,0,0,0.8), -1px 1px 1px rgba(0,0,0,0.8); 
-            `;
-            pingEl.innerHTML = `<div id="ping-dot" style="width:5px;height:5px;border-radius:50%;background:#66bb6a;box-shadow:0 0 3px #66bb6a, 0 0 0 1px rgba(0,0,0,0.5); flex-shrink:0;"></div><span id="ping-text" style="white-space: nowrap;">... ms</span>`;
-            
-            const turnBoxWrapper = document.getElementById('turn-box-container')?.parentElement;
-            if (turnBoxWrapper) {
-                turnBoxWrapper.style.position = 'relative'; 
-                turnBoxWrapper.appendChild(pingEl);
-            } else {
-                document.body.appendChild(pingEl); 
-            }
-        }
-
-        if (this.pingIntervalId) clearInterval(this.pingIntervalId);
-
-        this.pingIntervalId = setInterval(() => {
-            if (navigator.onLine) {
-                if (socket && socket.connected) {
-                    socket.volatile.emit('clientPing', Date.now()); 
-                } else {
-                    this._updatePingUI(999);
-                    this._showDisconnectUI();
-                    socket.connect(); 
-                }
-            } else {
-                this._updatePingUI(999);
-                this._showDisconnectUI();
-            }
-        }, 3000); 
-
-        socket.off('serverPong'); 
-        socket.on('serverPong', (clientTime) => {
-            this._hideDisconnectUI();
-            let latency = Date.now() - clientTime; 
-            if (latency > 999) latency = 999;
-            this._updatePingUI(latency);
-        });
-    },
-
-    _updatePingUI(latency) {
-        if (this.lastPingValue !== null && Math.abs(this.lastPingValue - latency) < 15 && latency !== 999) return;
-        this.lastPingValue = latency;
-
-        const pingEl = document.getElementById('real-ping-indicator');
-        const pingText = document.getElementById('ping-text');
-        const pingDot = document.getElementById('ping-dot');
-        if (!pingEl || !pingText || !pingDot) return;
-
-        pingText.innerText = latency + ' ms';
-        
-        let color = '#66bb6a'; 
-        if (latency > 150) color = '#ffb74d'; 
-        if (latency >= 999) color = '#ef5350'; 
-
-        pingEl.style.color = color;
-        pingDot.style.background = color;
-        pingDot.style.boxShadow = `0 0 3px ${color}, 0 0 0 1px rgba(0,0,0,0.5)`; 
-    },
-
-    _showDisconnectUI() {
-        let miniRadar = document.getElementById('mini-disconnect-radar');
-        if (miniRadar) miniRadar.style.display = 'flex !important';
-    },
-
-    _hideDisconnectUI() {
-        const miniRadar = document.getElementById('mini-disconnect-radar');
-        if (miniRadar) miniRadar.style.display = 'none !important';
-    },
+    pingIntervalId: null,
 
     _ensureUserProfile() {
         try {
@@ -200,15 +78,15 @@ export const socketManager = {
     },
 
     _safeEmit(event, data) {
-        if (!socket.connected) {
-            socket.connect();
-        }
+        if (!socket.connected) socket.connect();
         socket.emit(event, data);
     },
 
     _forceReconnect() {
         if (socket.connected) return;
-        socketManager._showToast(gameState.lang === 'ar' ? "جاري محاولة الاتصال بالسيرفر..." : "Reconnecting to server...");
+        if (typeof ui.showToast === 'function') {
+            ui.showToast(gameState.lang === 'ar' ? "جاري محاولة الاتصال بالسيرفر..." : "Reconnecting to server...");
+        }
         socket.disconnect(); 
         setTimeout(() => {
             socket.io.opts.transports = ['websocket']; 
@@ -218,15 +96,16 @@ export const socketManager = {
 
     init() {
         window.socketManager = this;
-        this._initRealPingIndicator();
+        
+        if (typeof ui.initPingIndicator === 'function') ui.initPingIndicator();
 
         window.addEventListener('online', () => {
             setTimeout(() => this._forceReconnect(), 1000); 
         });
 
         window.addEventListener('offline', () => {
-            this._updatePingUI(999);
-            this._showDisconnectUI();
+            if (typeof ui.updatePing === 'function') ui.updatePing(999);
+            if (typeof ui.showDisconnectUI === 'function') ui.showDisconnectUI();
         });
 
         document.addEventListener('visibilitychange', () => {
@@ -239,6 +118,7 @@ export const socketManager = {
             }
         });
 
+        // تنظيف الأحداث السابقة
         const eventsToTurnOff = [
             'connect', 'disconnect', 'roomCreated', 'roomJoined', 'waitingForOpponent',
             'gameStart', 'opponentMove', 'opponentResigned', 'turnTimeout',
@@ -252,7 +132,13 @@ export const socketManager = {
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
-        // 🌟 مستمع لوحة الشرف (تم نقله هنا ليكون من ضمن نظام السيرفر)
+        socket.on('serverPong', (clientTime) => {
+            if (typeof ui.hideDisconnectUI === 'function') ui.hideDisconnectUI();
+            let latency = Date.now() - clientTime; 
+            if (latency > 999) latency = 999;
+            if (typeof ui.updatePing === 'function') ui.updatePing(latency);
+        });
+
         socket.on('leaderboardData', (data) => {
             let formattedWins = [], formattedXp = [], formattedTokens = [];
             if(Array.isArray(data)) {
@@ -266,9 +152,7 @@ export const socketManager = {
                 formattedXp = data.xp || []; 
                 formattedTokens = data.tokens || []; 
             }
-            if (window.populateLeaderboards) {
-                window.populateLeaderboards(formattedWins, formattedXp, formattedTokens);
-            }
+            if (window.populateLeaderboards) window.populateLeaderboards(formattedWins, formattedXp, formattedTokens);
         });
 
         socket.on('receiveChat', (data) => {
@@ -277,158 +161,36 @@ export const socketManager = {
             }
         });
 
-        // جلب قائمة الرومات وفرزها في التبويبات 
+        // 💡 تم تحويل تصميم الغرف بالكامل إلى الواجهة (UI)
         socket.on('activeRoomsList', (rooms) => {
-            const playListContainer = document.getElementById('active-rooms-list');
-            const spectateListContainer = document.getElementById('spectate-rooms-list');
-            if (!playListContainer) return;
-            
-            const currentUserId = gameState.userProfile ? gameState.userProfile.id : null;
-            window.myCurrentRoomId = null;
-
-            playListContainer.innerHTML = '';
-            if (spectateListContainer) spectateListContainer.innerHTML = '';
-
-            let playCount = 0;
-            let spectateCount = 0;
-
-            if (!rooms || rooms.length === 0) {
-                playListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>';
-                if (spectateListContainer) spectateListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>';
-                return;
-            }
-
-            const myRoom = rooms.find(r => r.hostId === currentUserId);
-            if (myRoom) window.myCurrentRoomId = myRoom.id;
-            
-            rooms.sort((a, b) => {
-                const isAMine = (a.hostId === currentUserId);
-                const isBMine = (b.hostId === currentUserId);
-                if (isAMine && !isBMine) return -1;
-                if (!isAMine && isBMine) return 1;
-                return 0;
-            });
-
-            rooms.forEach(r => {
-                const isPrivate = r.hasPassword ? '🔒 محمية' : '🔓 عامة';
-                const betText = r.betAmount > 0 ? `💰 ${r.betAmount} 🪙` : `🆓 مجاني`;
-                const roomEl = document.createElement('div');
-                
-                let avatarSrc = r.hostAvatar || "1000132081.png";
-                if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
-                    let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
-                    avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
-                }
-
-                roomEl.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;";
-                roomEl.onmouseenter = () => roomEl.style.background = 'rgba(255,255,255,0.1)';
-                roomEl.onmouseleave = () => roomEl.style.background = 'rgba(255,255,255,0.05)';
-                
-                const isCreator = (r.hostId === currentUserId);
-                let actionBtnHTML = '';
-
-                if (r.isFull) {
-                    // 🌟 إضافة الغرفة لقائمة المراهنة والمشاهدة
-                    if (r.isBettingOpen) {
-                        actionBtnHTML = `<button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(241,196,15,0.2); border: 1px solid rgba(241,196,15,0.4); border-radius: 12px; padding: 6px 16px; color: #f1c40f; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">رهان ومشاهدة 👁️ (${r.spectatorsCount || 0})</button>`;
-                    } else {
-                        actionBtnHTML = `<button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.2); border: 1px solid rgba(155,89,182,0.4); border-radius: 12px; padding: 6px 16px; color: #9b59b6; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">مشاهدة فقط 👁️ (${r.spectatorsCount || 0})</button>`;
-                    }
-                    
-                    roomEl.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid #3498db; background-color: rgba(255,255,255,0.05);">
-                                <img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width:100%;height:100%;object-fit:cover; display:flex; align-items:center; justify-content:center;">
-                            </div>
-                            <div>
-                                <div style="color: white; font-weight: bold; font-size: 14px;">مباراة: ${r.hostName}</div>
-                                <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
-                            </div>
-                        </div>
-                        ${actionBtnHTML}
-                    `;
-                    
-                    if (spectateListContainer) {
-                        spectateListContainer.appendChild(roomEl);
-                        spectateCount++;
-                    }
-                } else {
-                    // إضافة الغرفة لقائمة اللعب
-                    if (isCreator) {
-                        actionBtnHTML = `
-                        <div style="display: flex; gap: 8px;">
-                            <button onclick="window.openCreatorSettings('${r.id}', ${r.betAmount})" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 6px 14px; color: #fff; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" title="إعدادات الغرفة">⚙️</button>
-                            <button onclick="window.deleteMyRoom('${r.id}')" style="background: rgba(255,69,58,0.15); border: 1px solid rgba(255,69,58,0.3); border-radius: 12px; padding: 6px 14px; color: #ff453a; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,69,58,0.25)'" onmouseout="this.style.background='rgba(255,69,58,0.15)'" title="إغلاق وحذف الغرفة">✕</button>
-                        </div>`;
-                    } else {
-                        if (r.hasPassword) {
-                            actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(52,152,219,0.2); border: 1px solid rgba(52,152,219,0.4); border-radius: 12px; padding: 6px 16px; color: #3498db; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">دخول 🔒</button>`;
-                        } else {
-                            actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(48,209,88,0.2); border: 1px solid rgba(48,209,88,0.4); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">دخول</button>`;
-                        }
-                    }
-
-                    roomEl.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid #3498db; background-color: rgba(255,255,255,0.05);">
-                                <img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width:100%;height:100%;object-fit:cover; display:flex; align-items:center; justify-content:center;">
-                            </div>
-                            <div>
-                                <div style="color: white; font-weight: bold; font-size: 14px;">${r.hostName}</div>
-                                <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
-                            </div>
-                        </div>
-                        ${actionBtnHTML}
-                    `;
-                    
-                    playListContainer.appendChild(roomEl);
-                    playCount++;
-                }
-            });
-
-            if (playCount === 0) {
-                playListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>';
-            }
-            if (spectateCount === 0 && spectateListContainer) {
-                spectateListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة أو المشاهدة حالياً.</p>';
-            }
+            if (typeof ui.renderRoomsList === 'function') ui.renderRoomsList(rooms);
         });
 
         socket.on('connect', () => {
-            this._hideDisconnectUI();
-            this._updatePingUI(45); 
+            if (typeof ui.hideDisconnectUI === 'function') ui.hideDisconnectUI();
+            if (typeof ui.updatePing === 'function') ui.updatePing(45); 
             socket.volatile.emit('clientPing', Date.now()); 
 
             const profile = this._ensureUserProfile();
             socket.emit('deviceFingerprint', { guestId: profile.id });
-            
             socket.emit('requestActiveRooms');
 
             if (gameState.isOnlineMode && gameState.onlineRoomID) {
                 socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
                 this.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
-            
-            if (typeof ui.setDisplay === 'function') {
-                ui.setDisplay('custom-alert-modal', 'none');
-            }
+            if (typeof ui.hideCustomAlert === 'function') ui.hideCustomAlert();
         });
 
-        socket.on('disconnect', (reason) => {
-            this._updatePingUI(999);
-            this._showDisconnectUI();
+        socket.on('disconnect', () => {
+            if (typeof ui.updatePing === 'function') ui.updatePing(999);
+            if (typeof ui.showDisconnectUI === 'function') ui.showDisconnectUI();
         });
 
-        socket.on('connect_error', (err) => {
-            const mmModal = document.getElementById('matchmaking-modal');
-            if (mmModal && (mmModal.style.display === 'block' || mmModal.style.display === 'flex')) {
-                if (typeof window.closeAppModal === 'function') window.closeAppModal('matchmaking-modal');
-                else mmModal.style.display = 'none';
-                clearInterval(gameState.mmInterval);
-                gameState.mmInterval = null;
-            }
-            this._updatePingUI(999);
-            this._showDisconnectUI();
+        socket.on('connect_error', () => {
+            if (typeof ui.closeMatchmakingModal === 'function') ui.closeMatchmakingModal();
+            if (typeof ui.updatePing === 'function') ui.updatePing(999);
+            if (typeof ui.showDisconnectUI === 'function') ui.showDisconnectUI();
         });
 
         socket.on('syncGameState', (data) => {
@@ -444,8 +206,8 @@ export const socketManager = {
             ui.renderBoard(true);
             ui.startTurn();
             
-            if (!gameState.isSpectator) {
-                this._showToast(gameState.lang === 'ar' ? "تمت مزامنة الرقعة بنجاح 🔄" : "Board synchronized 🔄");
+            if (!gameState.isSpectator && typeof ui.showToast === 'function') {
+                ui.showToast(gameState.lang === 'ar' ? "تمت مزامنة الرقعة بنجاح 🔄" : "Board synchronized 🔄");
             }
         });
 
@@ -454,7 +216,8 @@ export const socketManager = {
             gameState.playerColor = gameState.myOnlineColor = 'white';
             gameState.isSpectator = false;
             if(id) gameState.onlineRoomID = id;
-            this._showToast(gameState.lang === 'ar' ? "تم الإنشاء! بانتظار الخصم" : "Created! Waiting...");
+            
+            if (typeof ui.showToast === 'function') ui.showToast(gameState.lang === 'ar' ? "تم الإنشاء! بانتظار الخصم" : "Created! Waiting...");
             if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
         });
 
@@ -462,16 +225,16 @@ export const socketManager = {
             gameState.isBotOpponent = false;
             gameState.playerColor = gameState.myOnlineColor = 'black';
             gameState.isSpectator = false;
-            this._showToast(gameState.lang === 'ar' ? "تم الانضمام!" : "Joined!");
+            
+            if (typeof ui.showToast === 'function') ui.showToast(gameState.lang === 'ar' ? "تم الانضمام!" : "Joined!");
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('online-modal');
                 window.closeAppModal('create-room-modal');
             }
         });
 
-        socket.on('waitingForOpponent', msg => this._showToast(msg));
+        socket.on('waitingForOpponent', msg => { if(typeof ui.showToast === 'function') ui.showToast(msg); });
 
-        // 🌟 مستمع دخول المشاهد للغرفة الممتلئة
         socket.on('spectatorJoined', (data) => {
             if (!data) return;
             gameState.isBotOpponent = false;
@@ -483,73 +246,31 @@ export const socketManager = {
             gameState.virtualBoard = data.board;
             gameState.currentTurn = data.turn || 'white';
             
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
-
-            // إخفاء لوحة التحكم للمشاهد حتى لا يتمكن من اللعب
-            ui.setDisplay('bottom-control-panel', 'none'); 
-
-            let p1Name = data.player1?.name || "اللاعب 1";
-            let p2Name = data.player2?.name || "اللاعب 2";
-
-            // إظهار أسماء اللاعبين
-            ui.toggleOnlineUILayout(true, p2Name, data.player2?.avatar);
-            
-            // تعديل واجهة المستخدم (تغيير اسم المشاهد ليكون هو Player 1 لغرض العرض فقط)
-            ui.setTxt('card-my-name', p1Name);
-            if (data.player1?.avatar) ui.applyAvatar('card-my-avatar', data.player1.avatar, data.player1.avatar.startsWith('data:image'));
-
-            ui.renderBoard(true);
-            
-            // إظهار نافذة المراهنة للمشاهد إذا كان الرهان مفتوحاً
-            if (data.isBettingOpen && typeof window.showSpectatorBetModal === 'function') {
-                window.showSpectatorBetModal(data.roomID, data.player1, data.player2);
-            } else {
-                this._showToast("أنت الآن تشاهد المباراة 👁️");
-            }
+            if (typeof ui.handleSpectatorJoined === 'function') ui.handleSpectatorJoined(data);
         });
 
-        // تحديث عداد المشاهدين
         socket.on('spectatorCountChanged', (data) => {
-            const countEl = document.getElementById('spectator-count-display');
-            if (countEl) countEl.innerText = data.count;
-            else this._showToast(`👁️ المشاهدون الآن: ${data.count}`);
+            if (typeof ui.updateSpectatorCount === 'function') ui.updateSpectatorCount(data.count);
         });
 
         socket.on('betResult', (data) => {
-            if (data && data.msg) {
-                if (typeof ui.showCustomAlert === 'function') {
-                    ui.showCustomAlert(data.msg, data.won ? "نتيجة الرهان 🎉" : "نتيجة الرهان", null, false, null, "رائع");
-                } else {
-                    this._showToast(data.msg);
-                }
-            }
+            if (data && data.msg && typeof ui.showBetResult === 'function') ui.showBetResult(data);
         });
 
         socket.on('creatorCutReceived', (data) => {
-            if (data && data.amount) {
-                this._showToast(`🎁 مكافأة دعم: حصلت على ${data.amount} 🪙 من رهانات المشاهدين!`);
+            if (data && data.amount && typeof ui.showToast === 'function') {
+                ui.showToast(`🎁 مكافأة دعم: حصلت على ${data.amount} 🪙 من رهانات المشاهدين!`);
             }
         });
 
         socket.on('bettingClosed', () => {
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('spectator-bet-modal');
-            }
-            if (gameState.isSpectator) this._showToast("تم إغلاق المراهنات لهذه المباراة 🔒");
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('spectator-bet-modal');
+            if (gameState.isSpectator && typeof ui.showToast === 'function') ui.showToast("تم إغلاق المراهنات لهذه المباراة 🔒");
         });
 
         socket.on('gameStart', data => {
             if (!data) return;
-            document.getElementById('custom-results-modal-container')?.remove(); 
-            
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
-            else ui.setDisplay('custom-alert-modal', 'none');
-            
             this.isAlertShown = false; 
-
-            if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
-            clearInterval(gameState.mmInterval);
-            gameState.mmInterval = null; 
 
             gameState.isBotOpponent = false;
             gameState.isGameOver = false;
@@ -572,7 +293,6 @@ export const socketManager = {
 
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
-
             if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
 
             if (gameState.virtualBoard && Array.isArray(gameState.virtualBoard)) {
@@ -592,51 +312,14 @@ export const socketManager = {
             }
             
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
-            const myProfile = this._ensureUserProfile();
             
-            const optout = localStorage.getItem('dama_sync_optout') === 'true';
-            const myXp = myProfile.xp || 0;
-            const oppXp = gameState.currentOpponentXp;
-
-            if (!optout && oppXp > myXp) {
-                this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً!`);
-                const oppBgId = data.opponent?.equippedBg || 'bg_wood';
-                const oppPcId = data.opponent?.equippedPc || 'pc_original';
-                
-                if (window.STORE_ITEMS) {
-                    const bgItem = window.STORE_ITEMS[oppBgId];
-                    if (bgItem) {
-                        if (bgItem.light && bgItem.dark) {
-                            document.documentElement.style.setProperty('--light-cell', bgItem.light);
-                            document.documentElement.style.setProperty('--dark-cell', bgItem.dark);
-                        }
-                    }
-                    document.body.setAttribute('data-piece-style', oppPcId);
-                }
-            } else if (!optout && myXp > oppXp) {
-                this._showToast("✨ تم تطبيق ساحتك على الخصم لأنك الأعلى تصنيفاً!");
-                if (typeof window.applyTheme === 'function') window.applyTheme(myProfile);
-            } else {
-                if (typeof window.applyTheme === 'function') window.applyTheme(myProfile);
+            if (typeof ui.handleGameStart === 'function') {
+                ui.handleGameStart(data, this._ensureUserProfile());
             }
-
-            ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
-            ui.setDisplay('bottom-control-panel', 'flex'); 
-
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('online-modal');
-                window.closeAppModal('create-room-modal');
-                window.closeAppModal('matchmaking-modal');
-            }
-            ui.renderBoard(true);
-
-            gameState.currentTurn = data.turn || 'white';
-            ui.startTurn();
         });
 
         socket.on('opponentMove', data => {
             if (!data || !data.from || !data.to) return;
-            
             let isMultiJumpContinuation = (gameState.currentTurn === data.nextTurn);
             
             let possibleMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, data.from.r, data.from.c);
@@ -650,11 +333,7 @@ export const socketManager = {
                 
                 let lastStep = executedPath[executedPath.length - 1];
                 let finalPieceStr = gameState.virtualBoard[lastStep.toR][lastStep.toC];
-                let isPromotion = false;
-                
-                if (movingPieceStr && !movingPieceStr.includes('dama') && finalPieceStr && finalPieceStr.includes('dama')) {
-                    isPromotion = true;
-                }
+                let isPromotion = (!movingPieceStr.includes('dama') && finalPieceStr && finalPieceStr.includes('dama'));
 
                 if (isCapture || isPromotion) {
                     gameState.movesWithoutProgress = 0;
@@ -672,27 +351,9 @@ export const socketManager = {
             gameState.currentTurn = data.nextTurn;
             if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
 
-            ui.renderBoard();
-            
-            try {
-                if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move || fallbackMoveAudio);
-            } catch (err) {}
-            
-            if(gameState.selectedPiece) {
-                gameState.selectedPiece.classList.remove('selected');
-                gameState.selectedPiece = null;
+            if (typeof ui.handleOpponentMove === 'function') {
+                ui.handleOpponentMove(data, isMultiJumpContinuation);
             }
-            
-            ui.clearHighlights();
-            if (typeof ui.highlightMove === 'function') ui.highlightMove(data.from, data.to);
-            
-            if (isMultiJumpContinuation && data.to) {
-                const boardEl = document.getElementById('board');
-                const activeCell = boardEl?.querySelector(`[data-row="${data.to.r}"][data-col="${data.to.c}"]`);
-                if (activeCell && activeCell.children.length > 0) activeCell.children[0].classList.add('forced'); 
-            }
-            
-            ui.startTurn();
         });
 
         socket.on('opponentResigned', () => {
@@ -704,9 +365,9 @@ export const socketManager = {
             
             if (!gameState.isSpectator) {
                 gameEngine.endGame(gameState.myOnlineColor);
-                this._showToast(gameState.lang === 'ar' ? "انسحب الخصم! لقد فزت 🏆" : "Opponent Resigned! You Win 🏆");
+                if (typeof ui.showToast === 'function') ui.showToast(gameState.lang === 'ar' ? "انسحب الخصم! لقد فزت 🏆" : "Opponent Resigned! You Win 🏆");
             } else {
-                this._showToast("انسحب أحد اللاعبين وانتهت المباراة.");
+                if (typeof ui.showToast === 'function') ui.showToast("انسحب أحد اللاعبين وانتهت المباراة.");
             }
         });
 
@@ -721,15 +382,13 @@ export const socketManager = {
             
             if (!gameState.isSpectator) {
                 gameEngine.endGame(winnerColor);
-                if (winnerColor === 'draw') {
-                    this._showToast(gameState.lang === 'ar' ? "انتهى الوقت بالتعادل 🤝" : "Time out! Draw 🤝");
-                } else if (winnerColor === gameState.myOnlineColor) {
-                    this._showToast(gameState.lang === 'ar' ? "انتهى وقت الخصم! لقد فزت 🏆" : "Opponent timeout! You Win 🏆");
-                } else {
-                    this._showToast(gameState.lang === 'ar' ? "انتهى وقتك! حظاً موفقاً ⏳" : "Time out! Better luck next time ⏳");
+                if (typeof ui.showToast === 'function') {
+                    if (winnerColor === 'draw') ui.showToast(gameState.lang === 'ar' ? "انتهى الوقت بالتعادل 🤝" : "Time out! Draw 🤝");
+                    else if (winnerColor === gameState.myOnlineColor) ui.showToast(gameState.lang === 'ar' ? "انتهى وقت الخصم! لقد فزت 🏆" : "Opponent timeout! You Win 🏆");
+                    else ui.showToast(gameState.lang === 'ar' ? "انتهى وقتك! حظاً موفقاً ⏳" : "Time out! Better luck next time ⏳");
                 }
             } else {
-                this._showToast("انتهى وقت أحد اللاعبين وانتهت المباراة.");
+                if (typeof ui.showToast === 'function') ui.showToast("انتهى وقت أحد اللاعبين وانتهت المباراة.");
             }
         });
 
@@ -738,122 +397,64 @@ export const socketManager = {
                 const seconds = data.secondsLeft || 0;
                 gameState.turnTimeLeft = seconds;
                 gameState.turnEndTime = Date.now() + (seconds * 1000);
-                
                 if (typeof ui.startTurnTimer === 'function') ui.startTurnTimer();
-                else ui.setTxt('turn-countdown', ui.translate(`⏳ المتبقي للدور: ${seconds} ثانية`, `⏳ Turn Time Left: ${seconds}s`));
             }
         });
 
         socket.on('opponentDisconnected', data => {
             if (!gameState.isOnlineMode) return;
-            this._showToast((data && data.message) || (gameState.lang === 'ar' ? "انقطع اتصال الخصم" : "Opponent disconnected"));
+            if (typeof ui.showToast === 'function') ui.showToast((data && data.message) || (gameState.lang === 'ar' ? "انقطع اتصال الخصم" : "Opponent disconnected"));
             
             if (!gameState.isGameOver && !gameState.isSpectator) {
                 gameState.isGameOver = true;
                 gameState.isGameActive = false;
-                if (typeof ui.showOnlineResultsModal === 'function') {
-                    ui.showOnlineResultsModal(gameState.myOnlineColor); 
-                }
+                if (typeof ui.showOnlineResultsModal === 'function') ui.showOnlineResultsModal(gameState.myOnlineColor); 
             }
         });
 
         socket.on('opponentReconnected', data => {
             if (!gameState.isOnlineMode || !data) return;
-            this._showToast(gameState.lang === 'ar' ? `عاد ${data.name || 'الخصم'} للاتصال!` : `${data.name || 'Opponent'} reconnected!`);
+            if (typeof ui.showToast === 'function') ui.showToast(gameState.lang === 'ar' ? `عاد ${data.name || 'الخصم'} للاتصال!` : `${data.name || 'Opponent'} reconnected!`);
+            
             if (data.avatar && !gameState.isSpectator) {
                 gameState.currentOpponentAvatar = data.avatar;
-                ui.applyAvatar('card-opp-avatar', data.avatar, data.avatar.startsWith('data:image') || data.avatar.endsWith('.png') || data.avatar.endsWith('.jpg'));
+                if (typeof ui.applyAvatar === 'function') ui.applyAvatar('card-opp-avatar', data.avatar, data.avatar.startsWith('data:image') || data.avatar.endsWith('.png') || data.avatar.endsWith('.jpg'));
             }
         });
 
         socket.on('playerDisconnected', () => {
             if (!gameState.isOnlineMode) { socket.disconnect(); return; }
-            this._showToast(gameState.lang === 'ar' ? "غادر الخصم الغرفة" : "Opponent left the room");
+            if (typeof ui.showToast === 'function') ui.showToast(gameState.lang === 'ar' ? "غادر الخصم الغرفة" : "Opponent left the room");
             this.handleExitGame();
         });
 
         socket.on('opponentLeftRoom', data => {
             if (!gameState.isOnlineMode) return;
-            this._showToast((data && data.message) || (gameState.lang === 'ar' ? "غادر الخصم المباراة." : "Opponent left the room."));
+            if (typeof ui.showToast === 'function') ui.showToast((data && data.message) || (gameState.lang === 'ar' ? "غادر الخصم المباراة." : "Opponent left the room."));
             this.handleExitGame(); 
         });
 
         socket.on('rematchOffer', () => {
             if (this.isAlertShown || gameState.isSpectator) return; 
-            
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
-            else ui.setDisplay('custom-alert-modal', 'none');
-            
             this.isAlertShown = true;
-
-            if (typeof ui.showCustomAlert === 'function') {
-                ui.showCustomAlert(
-                    ui.translate("الخصم يطلب إعادة اللعب!", "Opponent wants a rematch!"), 
-                    ui.translate("إعادة اللعب", "Rematch"), 
-                    () => {
-                        this.isAlertShown = false;
-                        socket.emit('acceptRematch', { roomID: String(gameState.onlineRoomID).trim() });
-                        document.getElementById('custom-results-modal-container')?.remove();
-                        if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
-                        
-                        const ind = document.getElementById('turn-indicator');
-                        if(ind) ind.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
-                    }, 
-                    true, 
-                    ui.translate("الخروج", "Exit"), 
-                    ui.translate("قبول", "Accept")  
-                );
-
-                const updateRematchUI = () => {
-                    const alertContainer = document.getElementById('custom-alert-modal'); 
-                    if (alertContainer) {
-                        alertContainer.style.setProperty('z-index', '99999999', 'important'); 
-                        const buttons = alertContainer.querySelectorAll('button');
-                        if (buttons && buttons.length >= 2) {
-                            buttons[1].onclick = (e) => {
-                                e.preventDefault();
-                                socketManager.isAlertShown = false;
-                                if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
-                                else ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(); 
-                            };
-                        }
-                    }
-                };
-                updateRematchUI();
-                setTimeout(updateRematchUI, 50); 
-            }
+            if (typeof ui.showRematchOffer === 'function') ui.showRematchOffer();
         });
 
         socket.on('rematchAccepted', () => {
             this.isAlertShown = false;
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
-            else ui.setDisplay('custom-alert-modal', 'none');
-            
-            document.getElementById('custom-results-modal-container')?.remove();
-            if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
-            
-            const ind = document.getElementById('turn-indicator');
-            if(ind) ind.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
+            if (typeof ui.handleRematchAccepted === 'function') ui.handleRematchAccepted();
         });
 
         socket.on('roomClosedByTimeout', (data) => {
             if (!gameState.isOnlineMode) return;
             this.isAlertShown = false;
-            
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
-            else ui.setDisplay('custom-alert-modal', 'none');
-            
-            document.getElementById('custom-results-modal-container')?.remove();
-
             const reasonMsg = data && data.reason ? data.reason : (gameState.lang === 'ar' ? "انتهى وقت الاستجابة لإعادة اللعب." : "Rematch timeout expired.");
-            this._showToast(reasonMsg);
-            
+            if (typeof ui.showToast === 'function') ui.showToast(reasonMsg);
             this.handleExitGame(); 
         });
 
         socket.on('error', msg => {
-            this._showToast(msg);
+            if (typeof ui.showToast === 'function') ui.showToast(msg);
             if (msg && (msg.includes('match') || msg.includes('غرفة') || msg.includes('Room') || msg.includes('غير قانونية'))) {
                 this.handleExitGame();
             }
@@ -861,94 +462,30 @@ export const socketManager = {
 
         socket.on('receiveChallenge', data => {
             if (!data) return;
-            const profile = this._ensureUserProfile();
-            const challengerName = data.challengerName || (gameState.lang === 'ar' ? 'صديق' : 'Friend');
-            const betText = data.betAmount > 0 ? `برهان قدره <b>${data.betAmount} 🪙</b>` : `في مباراة ودية`;
-            
-            const toast = document.getElementById('challenge-toast');
-            const toastMsg = document.getElementById('challenge-toast-msg');
-            const openBtn = document.getElementById('challenge-toast-open-btn');
-            
-            if (toast && toastMsg && openBtn) {
-                toastMsg.innerHTML = `اللاعب <b>${challengerName}</b> يتحداك ${betText}.`;
-                toast.style.right = '15px'; 
-                
-                const hideTimeout = setTimeout(() => { toast.style.right = '-320px'; }, 15000);
-                
-                openBtn.onclick = () => {
-                    clearTimeout(hideTimeout);
-                    toast.style.right = '-320px';
-                    
-                    const actionModal = document.getElementById('challenge-action-modal');
-                    const actionMsg = document.getElementById('challenge-action-msg');
-                    const acceptBtn = document.getElementById('challenge-accept-btn');
-                    const rejectBtn = document.getElementById('challenge-reject-btn');
-                    
-                    if (actionModal && actionMsg) {
-                        actionMsg.innerHTML = `هل تقبل تحدي <b>${challengerName}</b> ${betText}؟`;
-                        actionModal.style.display = 'flex';
-                        
-                        acceptBtn.onclick = () => {
-                            actionModal.style.display = 'none';
-                            socket.emit('challengeResponse', { 
-                                challengerId: data.challengerId, 
-                                accept: true, 
-                                responderId: profile.id,
-                                responderName: profile.name,
-                                roomID: data.roomID
-                            });
-                            socketManager._showToast(gameState.lang === 'ar' ? "جاري الدخول للمباراة..." : "Entering match...");
-                            if (data.roomID) {
-                                socketManager.handleRoomAction('joinRoom', data.roomID); 
-                            }
-                        };
-                        
-                        rejectBtn.onclick = () => {
-                            actionModal.style.display = 'none';
-                            socket.emit('challengeResponse', { 
-                                challengerId: data.challengerId, 
-                                accept: false, 
-                                responderName: profile.name
-                            });
-                        };
-                    }
-                };
-            }
+            if (typeof ui.showChallengeToast === 'function') ui.showChallengeToast(data);
         });
 
         socket.on('challengeResponse', data => {
             if (data && data.accept) {
-                this._showToast(gameState.lang === 'ar' ? "تم القبول! جاري التجهيز..." : "Accepted! Preparing...");
+                if (typeof ui.showToast === 'function') ui.showToast(gameState.lang === 'ar' ? "تم القبول! جاري التجهيز..." : "Accepted! Preparing...");
             } else {
                 const responderName = (data && data.responderName) || (gameState.lang === 'ar' ? 'الصديق' : 'Friend');
-                this._showToast(gameState.lang === 'ar' ? `رفض ${responderName} التحدي.` : `${responderName} declined.`);
+                if (typeof ui.showToast === 'function') ui.showToast(gameState.lang === 'ar' ? `رفض ${responderName} التحدي.` : `${responderName} declined.`);
                 this.handleExitGame(); 
             }
         });
 
         socket.on('mic-request', (data) => {
             if (!gameState.isOnlineMode || gameState.isSpectator) return;
-            const modal = document.getElementById('mic-request-modal');
-            if (modal) {
-                modal.style.display = 'flex';
-                document.getElementById('mic-accept-btn').onclick = () => {
-                    modal.style.display = 'none';
-                    socket.emit('mic-response', { roomID: gameState.onlineRoomID, accept: true, senderId: data.senderId });
-                    if (window.voiceChat) window.voiceChat.forceStartCall();
-                };
-                document.getElementById('mic-reject-btn').onclick = () => {
-                    modal.style.display = 'none';
-                    socket.emit('mic-response', { roomID: gameState.onlineRoomID, accept: false, senderId: data.senderId });
-                };
-            }
+            if (typeof ui.showMicRequest === 'function') ui.showMicRequest(data);
         });
 
         socket.on('mic-response', (data) => {
             if (data.accept) {
-                this._showToast("تم قبول طلب الصوت 🎤");
+                if (typeof ui.showToast === 'function') ui.showToast("تم قبول طلب الصوت 🎤");
                 if (window.voiceChat) window.voiceChat.forceStartCall();
             } else {
-                this._showToast("رفض الخصم طلب المحادثة الصوتية 🔕");
+                if (typeof ui.showToast === 'function') ui.showToast("رفض الخصم طلب المحادثة الصوتية 🔕");
                 if (window.voiceChat) window.voiceChat.updateMicUI(false);
             }
         });
@@ -961,15 +498,15 @@ export const socketManager = {
         });
 
         socket.on('friendAddedNotification', (data) => {
-            if (data) this._showToast(gameState.lang === 'ar' ? `قام اللاعب (${data.newFriendId}) بإضافتك!` : `Player (${data.newFriendId}) added you!`);
+            if (data && typeof ui.showToast === 'function') ui.showToast(gameState.lang === 'ar' ? `قام اللاعب (${data.newFriendId}) بإضافتك!` : `Player (${data.newFriendId}) added you!`);
         });
 
         socket.on('friendAddSuccess', (data) => {
-            if (data) this._showToast(data.msg);
+            if (data && typeof ui.showToast === 'function') ui.showToast(data.msg);
         });
 
         socket.on('friendAddFailed', (data) => {
-            if (data) this._showToast(data.msg);
+            if (data && typeof ui.showToast === 'function') ui.showToast(data.msg);
         });
 
         socket.on('levelUpAlert', (data) => {
@@ -1019,20 +556,10 @@ export const socketManager = {
         }
 
         restoreOfflineHintSystem(); 
-
         if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
-        document.getElementById('custom-results-modal-container')?.remove();
+        if (typeof ui.cleanupMatchUI === 'function') ui.cleanupMatchUI();
         
         this.isAlertShown = false; 
-        if (typeof window.closeAppModal === 'function') {
-            window.closeAppModal('custom-alert-modal');
-            window.closeAppModal('challenge-action-modal');
-            window.closeAppModal('spectator-bet-modal');
-        } else {
-            ui.setDisplay('custom-alert-modal', 'none');
-            ui.setDisplay('challenge-action-modal', 'none');
-            ui.setDisplay('spectator-bet-modal', 'none');
-        }
         
         if (gameState.onlineRoomID && socket.connected) {
             socket.emit('leaveRoom', { roomID: String(gameState.onlineRoomID).trim() });
@@ -1047,10 +574,6 @@ export const socketManager = {
             gameState.turnTimerInterval = null;
         }
         
-        if (gameState.isOnlineMode && typeof window.applyTheme === 'function' && gameState.userProfile) {
-            window.applyTheme(gameState.userProfile);
-        }
-        
         gameState.isOnlineMode = false;
         gameState.isGameActive = false;
         gameState.isGameOver = false;
@@ -1061,13 +584,7 @@ export const socketManager = {
         gameState.currentOpponentXp = 0;
         if (typeof gameState.inMatch !== 'undefined') gameState.inMatch = false;
         
-        this._hideDisconnectUI();
-
         if (window.bridge && typeof window.bridge.unlockRoom === 'function') window.bridge.unlockRoom();
-        
-        ui.toggleOnlineUILayout(false);
-        ui.setDisplay('bottom-control-panel', 'flex'); 
-
         if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
     },
 
@@ -1075,52 +592,22 @@ export const socketManager = {
         if (gameState.onlineRoomID && !this.isAlertShown && !gameState.isSpectator) { 
             this.isAlertShown = true;
             socket.emit('requestRematch', { roomID: String(gameState.onlineRoomID).trim() });
-            
-            if (typeof ui.showCustomAlert === 'function') {
-                ui.showCustomAlert(
-                    gameState.lang === 'ar' ? "تم إرسال طلبك! بانتظار رد الخصم..." : "Rematch request sent! Waiting...",
-                    gameState.lang === 'ar' ? "في الانتظار" : "Waiting",
-                    null, true  
-                );
-                
-                const updateRematchRequestUI = () => {
-                    const alertContainer = document.getElementById('custom-alert-modal'); 
-                    if (alertContainer) {
-                        alertContainer.style.setProperty('z-index', '99999999', 'important'); 
-                        const buttons = alertContainer.querySelectorAll('button');
-                        if (buttons && buttons.length >= 2) {
-                            buttons[0].style.display = 'none';
-                            buttons[1].textContent = gameState.lang === 'ar' ? "خروج" : "Exit";
-                            buttons[1].onclick = (e) => {
-                                e.preventDefault();
-                                socketManager.isAlertShown = false;
-                                if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
-                                else ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(); 
-                            };
-                        }
-                    }
-                };
-                updateRematchRequestUI();
-                setTimeout(updateRematchRequestUI, 50);
-            }
+            if (typeof ui.showRematchWaiting === 'function') ui.showRematchWaiting();
         }
     },
 
     handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0) {
         let targetAction = action;
-
         if (action === 'startMatchmaking' || action === 'joinMatchmaking' || action === 'joinMatchmakingPool') {
             targetAction = 'joinMatchmakingPool';
         }
 
         if (targetAction !== 'joinMatchmakingPool' && !roomIdInput) {
-            this._showToast(gameState.lang === 'ar' ? "الرجاء إدخال رقم الغرفة!" : "Please enter Room ID!");
+            if (typeof ui.showToast === 'function') ui.showToast(gameState.lang === 'ar' ? "الرجاء إدخال رقم الغرفة!" : "Please enter Room ID!");
             return;
         }
         
         const profile = this._ensureUserProfile();
-
         const dataPayload = { 
             roomID: roomIdInput ? String(roomIdInput).trim() : null, 
             userName: profile.name, 
@@ -1163,12 +650,6 @@ export const socketManager = {
         socket.emit('placeSpectatorBet', { roomID: roomID, color: color, amount: amount, guestId: profile.id });
     },
 
-    showStatusMsg(msg) {
-        ui.setTxt('online-status-text', msg);
-        const el = document.getElementById('online-status-text');
-        if (el) el.style.cssText = "color:#f1c40f;display:block;";
-    },
-
     sendChallenge(friendId, betAmount = 0) {
         if (!friendId || this.isAlertShown) return;
 
@@ -1186,7 +667,7 @@ export const socketManager = {
         this._safeEmit('sendChallenge', challengePayload);
         this.handleRoomAction('createRoom', challengeRoomID, null, betAmount);
         
-        this._showToast("تم إرسال طلب التحدي! بانتظار رد الصديق...");
+        if (typeof ui.showToast === 'function') ui.showToast("تم إرسال طلب التحدي! بانتظار رد الصديق...");
     },
 
     sendAddFriend(friendId) {
@@ -1194,5 +675,7 @@ export const socketManager = {
         const profile = this._ensureUserProfile();
         const friendPayload = { requesterId: profile.id, targetId: friendId };
         this._safeEmit('addFriend', friendPayload);
+    }
+};
     }
 };
