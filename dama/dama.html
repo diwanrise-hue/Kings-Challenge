@@ -222,7 +222,7 @@
         }
 
         /* ========================================== */
-        /* 🌟 نظام المستوى والرتب                     */
+        /* 🌟 نظام المستوى والرتب باللون الأحمر دائمًا */
         /* ========================================== */
         .avatar-wrapper { 
             position: relative; 
@@ -242,9 +242,11 @@
             position: absolute; 
             bottom: -10px;
             left: 50%; transform: translateX(-50%);
-            background: #ff453a; color: white; font-size: 10px; padding: 2px 8px; 
+            background: #ff453a !important; 
+            color: #ffffff !important; 
+            font-size: 10px; padding: 2px 8px; 
             border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; 
-            z-index: 10; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            z-index: 10; white-space: nowrap; box-shadow: 0 2px 6px rgba(255, 69, 58, 0.5);
         }
 
         .rank-icon-small {
@@ -342,20 +344,24 @@
 
         #profile-badge .ai-level-badge { 
             position: absolute; 
-            bottom: 4px;  
+            bottom: 6px;  
             left: 53.1px;   
-            width: 23.5px; 
-            height: 1.5px; 
             display: flex; align-items: center; justify-content: center; 
             z-index: 4 !important; 
         }
         
         #profile-badge #badge-level { 
-            color: #87ceeb; 
-            font-size: 8.5px; 
+            background: #ff453a !important; 
+            color: #ffffff !important; 
+            padding: 3px 6px;
+            border-radius: 8px;
+            border: 1px solid #282a32;
+            font-size: 9px; 
             font-weight: 800; 
             line-height: 1; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 4px rgba(255, 69, 58, 0.4);
+            transform: translateY(6px);
         }
 
         #profile-badge .level-badge-small { display: none; }
@@ -462,8 +468,22 @@
         .custom-tab-button { flex: 1; min-width: 60px; height: 36px; border-radius: 50px; background: transparent; color: #e0e0e0; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s; border: none; outline: none; text-shadow: 1px 1px 3px rgba(0,0,0,1), 0 0 6px rgba(0,0,0,0.8); }
         .custom-tab-button.active { background: rgba(255,255,255,0.25); color: #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,255,255,0.3); text-shadow: 1px 1px 4px rgba(0,0,0,1), 0 0 8px rgba(0,0,0,0.9); }
 
-        .lb-list-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
-        .lb-item { display: flex; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
+        .lb-list-container { 
+            display: flex; flex-direction: column; gap: 10px; 
+            padding-top: 15px; /* حل مشكلة اختفاء إطار اللاعب الأول من الأعلى */
+            padding-bottom: 20px; 
+        }
+        
+        /* حل مشكلة تباين الإطارات */
+        .lb-item { 
+            display: flex; align-items: center; padding: 12px; 
+            background: rgba(15, 18, 25, 0.75); /* خلفية داكنة قوية */
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border-radius: 16px; border: 1px solid rgba(255,255,255,0.15); 
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            margin-bottom: 8px;
+        }
+        
         .lb-rank { font-size: 16px; font-weight: 800; width: 35px; text-align: center; color: #a1a1aa; }
         .lb-avatar { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,0.05); overflow: hidden; margin-left: 12px; margin-right: 5px; position: relative; }
         .lb-info { flex: 1; text-align: right; display: flex; flex-direction: column; }
@@ -476,36 +496,34 @@
 
         /* 🥇 المركز الأول - البطل (ذهبي) */
         .lb-item:nth-child(1) {
-            background: linear-gradient(90deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.02) 100%) !important;
-            border: 1px solid rgba(255, 215, 0, 0.6) !important;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.3) 0%, rgba(15, 18, 25, 0.8) 100%) !important;
+            border: 1px solid rgba(255, 215, 0, 0.8) !important;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
             transform: scale(1.02);
-            margin-bottom: 8px;
+            margin-top: 5px; /* لحماية الإطار العلوي من الاختفاء */
+            margin-bottom: 12px;
         }
         .lb-item:nth-child(1) .lb-rank { color: #FFD700; font-size: 24px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
         .lb-item:nth-child(1) .lb-avatar { border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
 
         /* 🥈 المركز الثاني (فضي) */
         .lb-item:nth-child(2) {
-            background: linear-gradient(90deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.02) 100%) !important;
-            border: 1px solid rgba(192, 192, 192, 0.5) !important;
-            box-shadow: 0 4px 10px rgba(192, 192, 192, 0.1);
+            background: linear-gradient(90deg, rgba(192, 192, 192, 0.3) 0%, rgba(15, 18, 25, 0.8) 100%) !important;
+            border: 1px solid rgba(192, 192, 192, 0.6) !important;
+            box-shadow: 0 4px 10px rgba(192, 192, 192, 0.15);
         }
         .lb-item:nth-child(2) .lb-rank { color: #E0E0E0; font-size: 20px; text-shadow: 0 0 8px rgba(192, 192, 192, 0.5); }
         .lb-item:nth-child(2) .lb-avatar { border-color: #C0C0C0; box-shadow: 0 0 10px rgba(192, 192, 192, 0.4); }
 
         /* 🥉 المركز الثالث (برونزي) */
         .lb-item:nth-child(3) {
-            background: linear-gradient(90deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.02) 100%) !important;
-            border: 1px solid rgba(205, 127, 50, 0.5) !important;
-            box-shadow: 0 4px 10px rgba(205, 127, 50, 0.1);
+            background: linear-gradient(90deg, rgba(205, 127, 50, 0.3) 0%, rgba(15, 18, 25, 0.8) 100%) !important;
+            border: 1px solid rgba(205, 127, 50, 0.6) !important;
+            box-shadow: 0 4px 10px rgba(205, 127, 50, 0.15);
             margin-bottom: 15px; 
         }
         .lb-item:nth-child(3) .lb-rank { color: #CD7F32; font-size: 18px; text-shadow: 0 0 8px rgba(205, 127, 50, 0.5); }
         .lb-item:nth-child(3) .lb-avatar { border-color: #CD7F32; box-shadow: 0 0 10px rgba(205, 127, 50, 0.4); }
-
-        /* تأثير انتقال ناعم لكل القائمة */
-        .lb-item { transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
 
         .themes-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 5px 0; }
         .theme-grid-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 10px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -655,7 +673,7 @@
         /* الحفاظ على عمل التنسيقات للشاشات الداخلية  */
         /* ========================================== */
         #in-game-profile-modal .profile-avatar-capsule { position: relative !important; top: auto !important; left: auto !important; z-index: 1 !important; border: 2px solid #282a32 !important; width: 100% !important; height: 100% !important; }
-        #in-game-profile-modal .level-badge-small { display: block; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: #ff453a; color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; z-index: 10; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        #in-game-profile-modal .level-badge-small { display: block; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: #ff453a !important; color: white !important; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; z-index: 10; white-space: nowrap; box-shadow: 0 2px 6px rgba(255, 69, 58, 0.5); }
         .avatar-wrapper { position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
         .rank-icon-small { font-size: 14px; margin-left: 4px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); }
         
@@ -727,6 +745,22 @@
             }
             originalRemoveItem.call(this, key);
         };
+        
+        window.sendFriendReqById = function() {
+            const idInput = document.getElementById('add-friend-id-input');
+            if(idInput && idInput.value.trim() !== '') {
+                if(window.socket && window.socket.connected) {
+                    let targetId = idInput.value.trim();
+                    window.socket.emit('sendFriendReq', { targetId: targetId });
+                    const toast = document.getElementById('toast-notification');
+                    if (toast) { toast.innerText = '📨 تم إرسال طلب الصداقة!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+                    idInput.value = '';
+                } else {
+                    const toast = document.getElementById('toast-notification');
+                    if (toast) { toast.innerText = '❌ يجب أن تكون متصلاً بالإنترنت!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+                }
+            }
+        };
     </script>
 </head>
 <body data-piece-style="pc_original">
@@ -793,7 +827,7 @@
             <div class="match-players-flex">
                 <div class="avatar-wrapper" style="width: 50px; height: 50px; margin-bottom: 10px;">
                     <div id="card-opp-avatar" class="profile-avatar-capsule" style="border: 2px solid #282a32;">❓</div>
-                    <div class="level-badge-small" id="card-opp-level" style="background:#555;">Lv.?</div>
+                    <div class="level-badge-small" id="card-opp-level" style="background:#555 !important;">Lv.?</div>
                 </div>
                 <span id="card-opp-name" class="match-players-name">الخصم</span>
             </div>
@@ -1011,9 +1045,16 @@
             
             <!-- 🌟 أزرار وواجهة بروفايلك الخاص (أنت) -->
             <div id="own-profile-actions" style="width: 100%; box-sizing: border-box;">
+                
+                <!-- 🌟 إضافة صديق عن طريق المعرف (ID) -->
+                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                    <input type="text" id="add-friend-id-input" class="online-input" placeholder="إضافة صديق بواسطة ID..." style="margin: 0; height: 44px; flex: 1; font-size: 13px; text-align: right; padding-right: 15px;">
+                    <button onclick="window.sendFriendReqById()" class="save-settings-btn" style="margin: 0; height: 44px; width: auto; padding: 0 15px; background: rgba(48,209,88,0.2) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.4) !important;">إضافة</button>
+                </div>
+                
                 <button onclick="window.openAppModal('friend-requests-modal')" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border-color: rgba(245, 166, 35, 0.3) !important; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <span>🔔 طلبات الصداقة</span>
-                    <span id="friend-requests-badge" style="background: #ff453a; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none;">0</span>
+                    <span id="friend-requests-badge" style="background: #ff453a !important; color: white !important; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none;">0</span>
                 </button>
                 <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; margin-top: 15px; text-align: start; width: 100%; box-sizing: border-box;">
                     <h5 style="margin: 0 0 10px 0; color: #a1a1aa; font-size: 13px; font-weight: 600;">الأصدقاء</h5>
