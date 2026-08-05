@@ -638,72 +638,46 @@ export const ui = {
         // 💡 2. الإعفاء من المماطلة
         const isExemptFromStalling = gameState.isTutorialMode || (isBotMatch && !isConnected);
 
-        // 💡 3. استخراج عدد التكرار بأمان
         let repCount = 0;
         if (typeof gameEngine.checkRepetitionAndStalling === 'function') {
             repCount = gameEngine.checkRepetitionAndStalling();
         }
 
-        // 💡 4. تطبيق التنبيه والمحاسبة بشكل جذري وصارم
-        if (!isExemptFromStalling) {
-            let justPlayedColor = gameState.currentTurn === 'white' ? 'black' : 'white';
-
-            if (repCount === 3) {
-                if (justPlayedColor === gameState.playerColor) {
-                    // إيقاف تفكير البوت حتى يقرأ اللاعب التنبيه
-                    if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-                    
-                    this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️", () => {
-                        // استئناف البوت بعد أن يضغط اللاعب 'حسناً'
-                        if (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID) {
-                            gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 150);
-                        }
-                    });
-                    // الخروج المبكر لمنع تداخل الأوامر
-                    return;
-                } else if (gameState.isOnlineMode && justPlayedColor !== gameState.playerColor) {
-                    this.showCustomAlert("الخصم يكرر الحركات.. تكراره للحركة القادمة سيمنحك الفوز!", "الخصم يماطل ⏳");
-                }
-            } else if (repCount >= 4) {
-                if (gameState.blockGameOverModal) return;
-
-                let winnerColor = gameState.currentTurn;
-                if (tInd) {
-                    tInd.textContent = "خسارة بسبب المماطلة 🚫";
-                    tInd.style.color = "#e74c3c";
-                }
-
-                // 💡 إيقاف اللعبة بأمان تام لمنع التشنج
-                gameState.isGameOver = true;
-                gameState.isGameActive = false;
-                if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-                if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
-
-                // تأخير بسيط لإعطاء الشاشة وقتاً للرسم ثم إظهار النافذة
-                setTimeout(() => {
-                    this.showResultsModal(winnerColor);
-                }, 500);
-                return;
-            }
-        }
-
-        // 💡 5. فحص التعادل الصارم (40 حركة بدون تقدم)
-        if (gameState.movesWithoutProgress >= 40 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
+        // 💡 3. معالجة الخسارة والتعادل أولاً لمنع استمرار اللعب
+        if (!isExemptFromStalling && repCount >= 4) {
             if (gameState.blockGameOverModal) return;
-            if (tInd) { tInd.textContent = "تم إعلان التعادل 🤝"; tInd.style.color = "#f1c40f"; }
 
-            // 💡 إيقاف اللعبة بأمان تام
+            let loserColor = gameState.currentTurn === 'white' ? 'black' : 'white';
+            let winnerColor = loserColor === 'white' ? 'black' : 'white'; 
+            
+            if (tInd) { 
+                tInd.textContent = "خسارة بسبب المماطلة 🚫"; 
+                tInd.style.color = "#e74c3c"; 
+            }
+            
             gameState.isGameOver = true;
             gameState.isGameActive = false;
             if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
             if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
-
-            setTimeout(() => {
-                this.showResultsModal('draw');
-            }, 500);
+            
+            this.showResultsModal(winnerColor); 
             return;
         }
 
+        if (gameState.movesWithoutProgress >= 40 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
+            if (gameState.blockGameOverModal) return;
+            if (tInd) { tInd.textContent = "تم إعلان التعادل 🤝"; tInd.style.color = "#f1c40f"; }
+            
+            gameState.isGameOver = true;
+            gameState.isGameActive = false;
+            if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
+            if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
+            
+            this.showResultsModal('draw'); 
+            return;
+        }
+
+        // 💡 4. تسجيل اللوحة للعب الأوفلاين
         if (!gameState.isOnlineMode) {
             if (!gameState.boardHistory) gameState.boardHistory = [];
             let currentBoardStr = JSON.stringify(gameState.virtualBoard);
@@ -781,7 +755,30 @@ export const ui = {
         
         this.startTurnTimer();
         
+        // 💡 5. معالجة التحذير (التكرار الثالث) بعد إعداد الدور
+        let triggerAI = false;
         if (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID) {
+            triggerAI = true;
+        }
+
+        if (!isExemptFromStalling && repCount === 3) {
+            let justPlayedColor = gameState.currentTurn === 'white' ? 'black' : 'white';
+
+            if (justPlayedColor === gameState.playerColor) {
+                this.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️", () => {
+                    // تشغيل البوت فقط بعد موافقة اللاعب على التنبيه
+                    if (triggerAI) {
+                        gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 150);
+                    }
+                });
+                triggerAI = false; // نمنع تشغيل البوت التلقائي في الأسفل لأنه سيعمل من خلال التنبيه
+            } else if (gameState.isOnlineMode && justPlayedColor !== gameState.playerColor) {
+                this.showCustomAlert("الخصم يكرر الحركات.. تكراره للحركة القادمة سيمنحك الفوز!", "الخصم يماطل ⏳");
+            }
+        }
+
+        // تشغيل البوت التلقائي (إذا لم يكن هناك تنبيه يوقفه)
+        if (triggerAI) {
             tInd.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
             clearTimeout(gameState.aiTimeout);
             gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 150);
