@@ -703,6 +703,26 @@
         .bet-option-item.selected .bet-radio-circle { border-color: #3498db; }
         .bet-option-item.selected .bet-radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #3498db; }
         .bet-option-text { color: white; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; width: 100%; }
+
+        /* حركة صعود النوافذ من الأسفل */
+        @keyframes slideUpBottomSheet {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* تعديل إطار طلبات الصداقة ليظهر من الأسفل */
+        #friend-requests-modal {
+            align-items: flex-end !important;
+            padding: 0 !important;
+        }
+        #friend-requests-modal .settings-card {
+            margin: 0 !important;
+            border-radius: 32px 32px 0 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            animation: slideUpBottomSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            padding-bottom: 40px !important;
+        }
     </style>
     <script>
         const originalGetItem = localStorage.getItem;
@@ -762,6 +782,26 @@
                     if (toast) { toast.innerText = '❌ يجب أن تكون متصلاً بالإنترنت!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
                 }
             }
+        };
+
+        window.challengeTargetFriendId = null;
+
+        window.challengeFriend = function(friendId) {
+            window.challengeTargetFriendId = friendId;
+            window.openAppModal('challenge-bet-modal');
+        };
+
+        window.confirmChallenge = function(betAmount, element) {
+            document.querySelectorAll('#challenge-bet-modal .bet-option-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected'); 
+            
+            setTimeout(() => {
+                window.closeAppModal('challenge-bet-modal');
+                if (window.challengeTargetFriendId && window.socketManager) {
+                    window.socketManager.sendChallenge(window.challengeTargetFriendId, parseInt(betAmount));
+                    window.challengeTargetFriendId = null; 
+                }
+            }, 250);
         };
     </script>
 </head>
@@ -1137,35 +1177,59 @@
         </div>
     </div>
 
-    <!-- 🌟 الجوائز المفصلة بناءً على الفئة -->
+    <!-- 🌟 الجوائز المفصلة بناءً على الفئة (تصميم احترافي فخم) -->
     <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 10000000 !important;">
-        <div class="settings-card" dir="auto" style="max-width: 340px;">
-            <button class="modal-close-btn" onclick="window.closeAppModal('top3-rewards-modal')" style="left:15px; right:auto;">✕</button>
-            <h3 style="color:#ffd700; margin-bottom: 15px;">جوائز نهاية الموسم 🎁</h3>
+        <div class="settings-card" dir="auto" style="max-width: 360px; padding: 30px 20px; background: linear-gradient(145deg, #1a1a24, #2b2b35) !important; border: 1px solid rgba(255,215,0,0.2) !important; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,215,0,0.05) !important;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('top3-rewards-modal')" style="left:15px; right:auto; background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important;">✕</button>
             
-            <div style="text-align: right; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(52,199,89,0.3);">
-                <h4 style="color: #34c759; margin: 0 0 5px 0; font-size: 14px;">⚔️ أبطال الفوز (الأكثر فوزاً):</h4>
-                <ul style="color: white; line-height: 1.8; font-size: 12px; padding: 0 15px; margin: 0;">
-                    <li>🥇 الأول: 35,000 🪙 + خصم 25% + 15 💡</li>
-                    <li>🥈 الثاني: 20,000 🪙 + خصم 10% + 10 💡</li>
-                    <li>🥉 الثالث: 15,000 🪙 + خصم 5% + 10 💡</li>
-                </ul>
+            <div style="text-align: center; margin-bottom: 25px;">
+                <span style="font-size: 45px; filter: drop-shadow(0 0 15px rgba(255,215,0,0.6));">🎁</span>
+                <h3 style="color:#ffd700; margin: 10px 0 5px 0; font-size: 24px; font-weight: 800; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">جوائز نهاية الموسم</h3>
+                <p style="color:#a1a1aa; font-size: 12px; margin: 0;">يتم توزيع الجوائز تلقائياً نهاية كل موسم لتتويج الأبطال</p>
+            </div>
+            
+            <!-- البطاقة الأولى: الأكثر فوزاً -->
+            <div style="background: linear-gradient(135deg, rgba(52,199,89,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(52,199,89,0.3); border-radius: 18px; padding: 15px; margin-bottom: 15px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #34c759, transparent);"></div>
+                <h4 style="color: #30d158; margin: 0 0 12px 0; font-size: 16px; display: flex; align-items: center; gap: 8px;">⚔️ أبطال الفوز <span style="font-size:11px; color:#a1a1aa; font-weight:normal;">(الأكثر فوزاً)</span></h4>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 12px; border-right: 3px solid #ffd700;">
+                        <span style="font-size: 20px; margin-left: 10px; filter: drop-shadow(0 0 5px rgba(255,215,0,0.5));">🥇</span>
+                        <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.5;">35,000 🪙 + خصم 25% + 15 💡</div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 12px; border-right: 3px solid #c0c0c0;">
+                        <span style="font-size: 20px; margin-left: 10px;">🥈</span>
+                        <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.5;">20,000 🪙 + خصم 10% + 10 💡</div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 12px; border-right: 3px solid #cd7f32;">
+                        <span style="font-size: 20px; margin-left: 10px;">🥉</span>
+                        <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.5;">15,000 🪙 + خصم 5% + 10 💡</div>
+                    </div>
+                </div>
             </div>
 
-            <div style="text-align: right; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(155,89,182,0.3);">
-                <h4 style="color: #9b59b6; margin: 0 0 5px 0; font-size: 14px;">🌟 عمداء اللعبة (الأعلى مستوى):</h4>
-                <ul style="color: white; line-height: 1.8; font-size: 12px; padding: 0 15px; margin: 0;">
-                    <li>🥇 الأول: إطار "أسطورة الدامة" الحصري + لقب البطل</li>
-                    <li>🥈 الثاني والثالث: إطار "النخبة" الحصري</li>
-                </ul>
+            <!-- البطاقة الثانية: الأعلى مستوى -->
+            <div style="background: linear-gradient(135deg, rgba(155,89,182,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(155,89,182,0.3); border-radius: 18px; padding: 15px; margin-bottom: 15px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #9b59b6, transparent);"></div>
+                <h4 style="color: #b589d6; margin: 0 0 12px 0; font-size: 16px; display: flex; align-items: center; gap: 8px;">🌟 عمداء اللعبة <span style="font-size:11px; color:#a1a1aa; font-weight:normal;">(الأعلى مستوى)</span></h4>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 12px;">
+                        <span style="font-size: 18px; margin-left: 10px;">🥇</span>
+                        <div style="color: white; font-size: 12px; font-weight: bold;">إطار "أسطورة الدامة" الحصري + لقب البطل</div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 12px;">
+                        <span style="font-size: 18px; margin-left: 10px;">🥈🥉</span>
+                        <div style="color: white; font-size: 12px; font-weight: bold;">الثاني والثالث: إطار "النخبة" الحصري</div>
+                    </div>
+                </div>
             </div>
 
-            <div style="text-align: right; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(241,196,15,0.3);">
-                <h4 style="color: #f1c40f; margin: 0 0 5px 0; font-size: 14px;">💰 نادي الأثرياء (الأغنى):</h4>
-                <p style="color: #e0e0e0; font-size: 12px; margin: 0;">شهرة ومجد! سيتم تخليد أسمائكم في لوحة الشرف كأغنى تجار اللعبة طوال الموسم القادم.</p>
+            <!-- البطاقة الثالثة: الأغنى -->
+            <div style="background: linear-gradient(135deg, rgba(241,196,15,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(241,196,15,0.3); border-radius: 18px; padding: 15px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #f1c40f, transparent);"></div>
+                <h4 style="color: #f1c40f; margin: 0 0 8px 0; font-size: 16px; display: flex; align-items: center; gap: 8px;">💰 نادي الأثرياء <span style="font-size:11px; color:#a1a1aa; font-weight:normal;">(الأغنى)</span></h4>
+                <p style="color: #e0e0e0; font-size: 12px; margin: 0; line-height: 1.6;">شهرة ومجد! سيتم تخليد أسمائكم في لوحة الشرف كأغنى تجار اللعبة طوال الموسم القادم.</p>
             </div>
-
-            <p style="color: #a1a1aa; font-size: 11px; margin-top: 15px; text-align: center;">يتم توزيع الجوائز تلقائياً نهاية كل موسم.</p>
         </div>
     </div>
 
@@ -1276,6 +1340,22 @@
                 <div class="bet-option-item" onclick="window.selectBetAmount('200', '200 🪙 (الجائزة الكبرى: 400)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 400)</span></div></div>
                 <div class="bet-option-item" onclick="window.selectBetAmount('500', '500 🪙 (الجائزة الكبرى: 1000)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 1000)</span></div></div>
                 <div class="bet-option-item" onclick="window.selectBetAmount('1000', '1000 🪙 (الجائزة الكبرى: 2000)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">1000 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 2000)</span></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تحديد رهان تحدي الأصدقاء -->
+    <div id="challenge-bet-modal" class="modal-overlay" style="z-index: 99999999; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('challenge-bet-modal')">
+        <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: slideUpBottomSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
+            <h3 style="color: #34c759; text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: 800;">تحديد رهان التحدي ⚔️</h3>
+            <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-bottom: 20px;">اختر مبلغ الرهان للعب ضد صديقك</p>
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="bet-option-item selected" onclick="window.confirmChallenge('0', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">بدون رهان (مباراة ودية)</div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('50', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('100', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('200', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('500', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <span style="font-size:18px;">🪙</span></div></div>
             </div>
         </div>
     </div>
