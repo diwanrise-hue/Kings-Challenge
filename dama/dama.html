@@ -877,7 +877,9 @@
         </div>
 
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-            <div id="mini-disconnect-radar" style="display: none; position: fixed; bottom: 25px; left: calc(50% + 118px); transform: translateX(-50%); border-radius: 50%; width: 34px; height: 34px; z-index: 999999; background: rgba(15, 18, 25, 0.85); padding: 4px; border: 1px solid rgba(255, 69, 58, 0.4); box-shadow: 0 0 12px rgba(255, 69, 58, 0.3);"></div>
+            <!-- أيقونة الرادار فوق البينج تماماً -->
+            <div id="mini-disconnect-radar" data-icon="disconnectIcon" style="display: none; position: absolute; bottom: 18px; left: calc(50% + 118px); transform: translateX(-50%); width: 24px; height: 24px; z-index: 999999; background: transparent; border: none; box-shadow: none; align-items: center; justify-content: center;"></div>
+            
             <div id="turn-box-container">
                 <!-- 💡 العدادات الجديدة منفصلة (الرقم فوق، والتكرار تحته) -->
                 <div id="idle-counter" style="position: absolute; top: 5px; left: 12px; font-size: 11px; font-weight: 800; color: #a1a1aa; background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 8px; display: none; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
