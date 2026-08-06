@@ -1117,7 +1117,7 @@ export const ui = {
                 const normalizedFriends = [...new Set((gameState.userProfile.friends || []).map(id => id.toUpperCase()))];
                 gameState.userProfile.friends = normalizedFriends;
                 
-                // استدعاء دالة بناء الأصدقاء الحديثة التي تم إضافتها
+                // استدعاء دالة بناء الأصدقاء الحديثة 
                 renderFriendsList(gameState.userProfile.friends);
             }
         }
