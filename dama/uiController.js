@@ -1116,21 +1116,9 @@ export const ui = {
             } else {
                 const normalizedFriends = [...new Set((gameState.userProfile.friends || []).map(id => id.toUpperCase()))];
                 gameState.userProfile.friends = normalizedFriends;
-
-                gameState.userProfile.friends.forEach(fId => {
-                    const fItem = this.makeEl('div', null, "padding:5px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;display:flex;justify-content:space-between;align-items:center;color:white;");
-                    const labelSpan = this.makeEl('span', null, "font-weight:600;");
-                    labelSpan.textContent = `👤 ${t('friend')} (${fId})`;
-                    const actionsDiv = this.makeEl('div', null, "display: flex; gap: 8px;");
-                    
-                    const challengeBtn = this.makeEl('button', 'challenge-btn', "background:rgba(48,209,88,0.15);border:1px solid rgba(48,209,88,0.3);color:#30d158;border-radius:50px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;", `⚔️ ${t('challenge')}`);
-                    challengeBtn.title = t('challenge'); challengeBtn.dataset.action = 'challenge-friend'; challengeBtn.dataset.fid = fId;
-                    
-                    const removeBtn = this.makeEl('button', 'remove-btn', "background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.2);color:#ff453a;border-radius:50px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600;", t('remove'));
-                    removeBtn.dataset.action = 'remove-friend'; removeBtn.dataset.fid = fId;
-                    
-                    actionsDiv.append(challengeBtn, removeBtn); fItem.append(labelSpan, actionsDiv); fList.appendChild(fItem);
-                });
+                
+                // استدعاء دالة بناء الأصدقاء الحديثة التي تم إضافتها
+                renderFriendsList(gameState.userProfile.friends);
             }
         }
     },
@@ -1259,22 +1247,51 @@ function cleanExpiredRequests(profile) {
     return profile;
 }
 
+// 🌟 تحديث دالة عرض الأصدقاء بالتصميم الجديد والأزرار
 function renderFriendsList(friendsArr) {
     const listContainer = document.getElementById('igp-friends-list'); if (!listContainer) return;
     if (!friendsArr || friendsArr.length === 0) { listContainer.innerHTML = 'لا يوجد أصدقاء حالياً'; return; }
     listContainer.innerHTML = '';
-    friendsArr.forEach(friend => {
+    
+    // تحويل قائمة IDs إلى كائنات إذا لزم الأمر من خلال البروفايل
+    let actualFriends = friendsArr;
+    if (friendsArr.length > 0 && typeof friendsArr[0] === 'string') {
+        let globalProfile = localStorage.getItem('hub_user_profile');
+        if (globalProfile) {
+            let prof = cleanExpiredRequests(JSON.parse(globalProfile));
+            if(prof.friends && prof.friends.length > 0 && typeof prof.friends[0] === 'object') {
+                actualFriends = prof.friends;
+            }
+        }
+    }
+
+    actualFriends.forEach(friend => {
         let div = document.createElement('div');
-        div.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); padding:8px 12px; border-radius:12px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.05);";
+        // تعديل تصميم خلفية الصديق
+        div.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); padding:10px 12px; border-radius:14px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 10px rgba(0,0,0,0.2);";
+        
+        let friendId = typeof friend === 'string' ? friend : friend.id;
+        let friendName = typeof friend === 'object' && friend.name ? friend.name : 'لاعب';
+        let friendAvatar = typeof friend === 'object' && friend.avatar ? friend.avatar : '../Photo/1000132081.webp';
+        
         div.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px;">
-                <img src="${friend.avatar || '../Photo/1000132081.webp'}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" onerror="this.src='../Photo/1000132081.webp'">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <img src="${friendAvatar}" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border: 1px solid rgba(255,255,255,0.2);" onerror="this.src='../Photo/1000132081.webp'">
                 <div style="text-align:right;">
-                    <div style="font-weight:bold; color:white; font-size:14px;">${friend.name}</div>
-                    <div style="font-size:10px; color:#a1a1aa;">${friend.id}</div>
+                    <div style="font-weight:bold; color:white; font-size:14px;">${friendName}</div>
+                    <div style="font-size:10px; color:#a1a1aa; font-family: monospace;">${friendId}</div>
                 </div>
             </div>
-            <div style="font-size:16px;">🤝</div>
+            <div style="display:flex; gap:6px;">
+                <!-- زر لعب ضده (يفتح نافذة الرهان) -->
+                <button data-action="challenge-friend" data-fid="${friendId}" style="background:linear-gradient(135deg, #34c759, #28a745); border:none; color:#fff; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(40,167,69,0.3); transition: transform 0.2s;">
+                    لعب ضده ⚔️
+                </button>
+                <!-- زر الحذف -->
+                <button data-action="remove-friend" data-fid="${friendId}" style="background:rgba(255,69,58,0.15); border:1px solid rgba(255,69,58,0.3); color:#ff453a; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:12px; font-weight:bold; transition: transform 0.2s;">
+                    حذف 🗑️
+                </button>
+            </div>
         `;
         listContainer.appendChild(div);
     });
@@ -1317,7 +1334,7 @@ window.acceptFriendReq = function(reqId) {
     let reqIndex = prof.friendRequests.findIndex(r => r.id === reqId);
     if(reqIndex !== -1) {
         let acceptedUser = prof.friendRequests[reqIndex];
-        if(!prof.friends.find(f => f.id === reqId)) { prof.friends.push({ id: acceptedUser.id, name: acceptedUser.name, avatar: acceptedUser.avatar }); }
+        if(!prof.friends.find(f => (typeof f === 'string' ? f === reqId : f.id === reqId))) { prof.friends.push({ id: acceptedUser.id, name: acceptedUser.name, avatar: acceptedUser.avatar }); }
         prof.friendRequests.splice(reqIndex, 1); localStorage.setItem('hub_user_profile', JSON.stringify(prof));
         renderFriendRequests(); renderFriendsList(prof.friends);
         const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '✅ تمت إضافة الصديق بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
@@ -1688,11 +1705,17 @@ document.addEventListener('click', (e) => {
             if (typeof window.challengeFriend === 'function') { window.challengeFriend(fId); } 
             else { ui.showCustomAlert(t('coming_soon')); }
         } else if (action === 'remove-friend') {
-            gameState.userProfile.friends = (gameState.userProfile.friends || []).filter(id => id.toUpperCase() !== fId); 
+            // تحديث قائمة الأصدقاء بإزالة الصديق وحفظ التغيير
+            let currentFriends = gameState.userProfile.friends || [];
+            gameState.userProfile.friends = currentFriends.filter(f => (typeof f === 'string' ? f.toUpperCase() !== fId : f.id.toUpperCase() !== fId)); 
+            
             let profileToSave = { ...gameState.userProfile };
             if (gameState.originalHints !== undefined && gameState.originalHints !== null) { profileToSave.hints = gameState.originalHints; }
             localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
             ui.updateProfileUI();
+            
+            const toast = document.getElementById('toast-notification'); 
+            if (toast) { toast.innerText = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
         }
     }
 });
