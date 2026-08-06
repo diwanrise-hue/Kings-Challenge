@@ -142,10 +142,6 @@ export const socketManager = {
         let miniRadar = document.getElementById('mini-disconnect-radar');
         if (miniRadar) miniRadar.style.setProperty('display', 'flex', 'important');
 
-        // 🌟 إظهار الكبسولة الجديدة لإعادة الاتصال بدلاً من الإشعار القديم
-        let reconnectBox = document.getElementById('reconnect-overlay');
-        if (reconnectBox) reconnectBox.style.display = 'flex';
-
         // بدء مؤقت إخفاء البينج بعد 30 ثانية
         if (this.hidePingTimer) clearTimeout(this.hidePingTimer);
         this.hidePingTimer = setTimeout(() => {
@@ -157,10 +153,6 @@ export const socketManager = {
     _hideDisconnectUI() {
         const miniRadar = document.getElementById('mini-disconnect-radar');
         if (miniRadar) miniRadar.style.setProperty('display', 'none', 'important');
-
-        // 🌟 إخفاء الكبسولة الجديدة عند نجاح الاتصال
-        let reconnectBox = document.getElementById('reconnect-overlay');
-        if (reconnectBox) reconnectBox.style.display = 'none';
 
         // إلغاء المؤقت وإظهار البينج مجدداً
         if (this.hidePingTimer) clearTimeout(this.hidePingTimer);
@@ -230,7 +222,6 @@ export const socketManager = {
     _forceReconnect() {
         if (socket.connected) return;
         
-        // 🌟 استدعاء الواجهة المخصصة لإعادة الاتصال
         this._showDisconnectUI();
         
         socket.disconnect(); 
