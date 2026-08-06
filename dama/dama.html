@@ -1517,60 +1517,85 @@
     <script src="chat.js"></script>
     <script type="module" src="voice.js"></script>
     
-<script>
-    (function() {
-        let hidePingTimer = null;
-
-        function handleOfflineState() {
-            const radar = document.getElementById('mini-disconnect-radar');
-            // 💡 التصحيح: استخدام setProperty مع important لكسر أي إخفاء سابق
-            if (radar) radar.style.setProperty('display', 'flex', 'important');
-            
-            const reconnectBox = document.getElementById('reconnect-overlay');
-            if (reconnectBox) reconnectBox.style.display = 'flex';
-            
-            // بدء مؤقت 30 ثانية لإخفاء البينج
-            clearTimeout(hidePingTimer);
-            hidePingTimer = setTimeout(() => {
-                const pingEl = document.getElementById('real-ping-indicator');
-                if (pingEl) pingEl.style.opacity = '0';
-            }, 30000);
-        }
-
-        function handleOnlineState() {
-            const radar = document.getElementById('mini-disconnect-radar');
-            // 💡 التصحيح: استخدام setProperty مع important
-            if (radar) radar.style.setProperty('display', 'none', 'important');
-            
-            const reconnectBox = document.getElementById('reconnect-overlay');
-            if (reconnectBox) reconnectBox.style.display = 'none';
-
-            clearTimeout(hidePingTimer);
-            const pingEl = document.getElementById('real-ping-indicator');
-            if (pingEl) pingEl.style.opacity = '0.95'; 
-        }
-
-        window.addEventListener('offline', handleOfflineState);
-        window.addEventListener('online', handleOnlineState);
-
-        window.addEventListener('load', () => {
-            if (!navigator.onLine) {
-                handleOfflineState();
-            }
-        });
-        
-        // مراقبة تدخلات socketManager التي قد تعيد إظهار البينج أثناء انقطاع النت
-        const observer = new MutationObserver(() => {
-            if (!navigator.onLine) {
-                const radar = document.getElementById('mini-disconnect-radar');
-                if (radar && radar.style.display !== 'flex') {
-                    // 💡 التصحيح: فرض الإظهار بالقوة القصوى
-                    radar.style.setProperty('display', 'flex', 'important');
+    <!-- 🌟 نظام مزامنة الخلفية مع الواجهة الرئيسية -->
+    <script>
+        function syncGlobalBackground() {
+            const bg = localStorage.getItem('custom_app_bg'); 
+            if (bg) {
+                let bgUrl = bg; 
+                if (!bg.startsWith('http') && !bg.startsWith('data:') && !bg.startsWith('../')) { 
+                    bgUrl = '../' + bg; 
                 }
+                document.body.style.backgroundImage = `url('${bgUrl}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                document.body.style.backgroundColor = 'transparent';
+            } else {
+                document.body.style.backgroundImage = 'none';
+                document.body.style.backgroundColor = '#2c3e50'; 
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', syncGlobalBackground);
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'custom_app_bg') { 
+                syncGlobalBackground(); 
             }
         });
-        observer.observe(document.body, { childList: true, subtree: true });
-    })();
-</script>
+    </script>
+
+    <!-- 🌟 سكريبت إدارة حالة الاتصال وإخفاء البينج -->
+    <script>
+        (function() {
+            let hidePingTimer = null;
+
+            function handleOfflineState() {
+                const radar = document.getElementById('mini-disconnect-radar');
+                if (radar) radar.style.setProperty('display', 'flex', 'important');
+                
+                const reconnectBox = document.getElementById('reconnect-overlay');
+                if (reconnectBox) reconnectBox.style.display = 'flex';
+                
+                clearTimeout(hidePingTimer);
+                hidePingTimer = setTimeout(() => {
+                    const pingEl = document.getElementById('real-ping-indicator');
+                    if (pingEl) pingEl.style.opacity = '0';
+                }, 30000);
+            }
+
+            function handleOnlineState() {
+                const radar = document.getElementById('mini-disconnect-radar');
+                if (radar) radar.style.setProperty('display', 'none', 'important');
+                
+                const reconnectBox = document.getElementById('reconnect-overlay');
+                if (reconnectBox) reconnectBox.style.display = 'none';
+
+                clearTimeout(hidePingTimer);
+                const pingEl = document.getElementById('real-ping-indicator');
+                if (pingEl) pingEl.style.opacity = '0.95'; 
+            }
+
+            window.addEventListener('offline', handleOfflineState);
+            window.addEventListener('online', handleOnlineState);
+
+            window.addEventListener('load', () => {
+                if (!navigator.onLine) {
+                    handleOfflineState();
+                }
+            });
+            
+            const observer = new MutationObserver(() => {
+                if (!navigator.onLine) {
+                    const radar = document.getElementById('mini-disconnect-radar');
+                    if (radar && radar.style.display !== 'flex') {
+                        radar.style.setProperty('display', 'flex', 'important');
+                    }
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        })();
+    </script>
 </body>
 </html>
