@@ -162,7 +162,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 6. حقيبة الأزياء الجانبية - قمنا بتمييز المعرفات بإضافة "Side" لتجنب اختفاءها
+    // 6. حقيبة الأزياء الجانبية
     bagSide: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
         <defs>
             <linearGradient id="bagGoldSide" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="25%" stop-color="#f59e0b"/><stop offset="50%" stop-color="#d97706"/><stop offset="75%" stop-color="#b45309"/><stop offset="100%" stop-color="#78350f"/></linearGradient>
