@@ -1518,61 +1518,61 @@
     <script type="module" src="voice.js"></script>
     
     <!-- 🌟 سكريبت إدارة حالة الاتصال وإخفاء البينج -->
-    <script>
-        (function() {
-            let hidePingTimer = null;
+   // 🌟 سكريبت إدارة حالة الاتصال وإخفاء البينج (تم تصحيح مشكلة !important)
+<script>
+    (function() {
+        let hidePingTimer = null;
 
-            function handleOfflineState() {
-                const radar = document.getElementById('mini-disconnect-radar');
-                if (radar) radar.style.display = 'flex';
-                
-                // 💡 إظهار نافذة "جاري محاولة إعادة الاتصال..."
-                const reconnectBox = document.getElementById('reconnect-overlay');
-                if (reconnectBox) reconnectBox.style.display = 'flex';
-                
-                // بدء مؤقت 30 ثانية لإخفاء البينج
-                clearTimeout(hidePingTimer);
-                hidePingTimer = setTimeout(() => {
-                    const pingEl = document.getElementById('real-ping-indicator');
-                    if (pingEl) pingEl.style.opacity = '0';
-                }, 30000);
-            }
-
-            function handleOnlineState() {
-                const radar = document.getElementById('mini-disconnect-radar');
-                if (radar) radar.style.display = 'none';
-                
-                // 💡 إخفاء نافذة "جاري محاولة إعادة الاتصال..."
-                const reconnectBox = document.getElementById('reconnect-overlay');
-                if (reconnectBox) reconnectBox.style.display = 'none';
-
-                // إلغاء المؤقت وإظهار البينج فوراً
-                clearTimeout(hidePingTimer);
-                const pingEl = document.getElementById('real-ping-indicator');
-                if (pingEl) pingEl.style.opacity = '0.95'; 
-            }
-
-            window.addEventListener('offline', handleOfflineState);
-            window.addEventListener('online', handleOnlineState);
-
-            // فحص الحالة عند فتح اللعبة مباشرة
-            window.addEventListener('load', () => {
-                if (!navigator.onLine) {
-                    handleOfflineState();
-                }
-            });
+        function handleOfflineState() {
+            const radar = document.getElementById('mini-disconnect-radar');
+            // 💡 التصحيح: استخدام setProperty مع important لكسر أي إخفاء سابق
+            if (radar) radar.style.setProperty('display', 'flex', 'important');
             
-            // مراقبة تدخلات socketManager التي قد تعيد إظهار البينج أثناء انقطاع النت
-            const observer = new MutationObserver(() => {
-                if (!navigator.onLine) {
-                    const radar = document.getElementById('mini-disconnect-radar');
-                    if (radar && radar.style.display !== 'flex') {
-                        radar.style.display = 'flex';
-                    }
+            const reconnectBox = document.getElementById('reconnect-overlay');
+            if (reconnectBox) reconnectBox.style.display = 'flex';
+            
+            // بدء مؤقت 30 ثانية لإخفاء البينج
+            clearTimeout(hidePingTimer);
+            hidePingTimer = setTimeout(() => {
+                const pingEl = document.getElementById('real-ping-indicator');
+                if (pingEl) pingEl.style.opacity = '0';
+            }, 30000);
+        }
+
+        function handleOnlineState() {
+            const radar = document.getElementById('mini-disconnect-radar');
+            // 💡 التصحيح: استخدام setProperty مع important
+            if (radar) radar.style.setProperty('display', 'none', 'important');
+            
+            const reconnectBox = document.getElementById('reconnect-overlay');
+            if (reconnectBox) reconnectBox.style.display = 'none';
+
+            clearTimeout(hidePingTimer);
+            const pingEl = document.getElementById('real-ping-indicator');
+            if (pingEl) pingEl.style.opacity = '0.95'; 
+        }
+
+        window.addEventListener('offline', handleOfflineState);
+        window.addEventListener('online', handleOnlineState);
+
+        window.addEventListener('load', () => {
+            if (!navigator.onLine) {
+                handleOfflineState();
+            }
+        });
+        
+        // مراقبة تدخلات socketManager التي قد تعيد إظهار البينج أثناء انقطاع النت
+        const observer = new MutationObserver(() => {
+            if (!navigator.onLine) {
+                const radar = document.getElementById('mini-disconnect-radar');
+                if (radar && radar.style.display !== 'flex') {
+                    // 💡 التصحيح: فرض الإظهار بالقوة القصوى
+                    radar.style.setProperty('display', 'flex', 'important');
                 }
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
-        })();
-    </script>
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    })();
+</script>
 </body>
 </html>
