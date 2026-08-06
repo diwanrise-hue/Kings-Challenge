@@ -30,7 +30,7 @@ export const socketManager = {
     disconnectTimer: null, 
     pingIntervalId: null, 
     lastPingValue: null, 
-    hidePingTimer: null, // 💡 مؤقت إخفاء البينج بعد 30 ثانية
+    hidePingTimer: null, 
 
     _showToast(msg) {
         let toast = document.getElementById('game-toast-notification');
@@ -138,10 +138,13 @@ export const socketManager = {
         pingDot.style.boxShadow = `0 0 3px ${color}, 0 0 0 1px rgba(0,0,0,0.5)`; 
     },
 
-    // 💡 إصلاح المشكلة هنا
     _showDisconnectUI() {
         let miniRadar = document.getElementById('mini-disconnect-radar');
         if (miniRadar) miniRadar.style.setProperty('display', 'flex', 'important');
+
+        // 🌟 إظهار الكبسولة الجديدة لإعادة الاتصال بدلاً من الإشعار القديم
+        let reconnectBox = document.getElementById('reconnect-overlay');
+        if (reconnectBox) reconnectBox.style.display = 'flex';
 
         // بدء مؤقت إخفاء البينج بعد 30 ثانية
         if (this.hidePingTimer) clearTimeout(this.hidePingTimer);
@@ -151,10 +154,13 @@ export const socketManager = {
         }, 30000);
     },
 
-    // 💡 إخفاء الرادار وإرجاع البينج
     _hideDisconnectUI() {
         const miniRadar = document.getElementById('mini-disconnect-radar');
         if (miniRadar) miniRadar.style.setProperty('display', 'none', 'important');
+
+        // 🌟 إخفاء الكبسولة الجديدة عند نجاح الاتصال
+        let reconnectBox = document.getElementById('reconnect-overlay');
+        if (reconnectBox) reconnectBox.style.display = 'none';
 
         // إلغاء المؤقت وإظهار البينج مجدداً
         if (this.hidePingTimer) clearTimeout(this.hidePingTimer);
@@ -223,7 +229,10 @@ export const socketManager = {
 
     _forceReconnect() {
         if (socket.connected) return;
-        socketManager._showToast(gameState.lang === 'ar' ? "جاري محاولة اعادة الاتصال..." : "Reconnecting to server...");
+        
+        // 🌟 استدعاء الواجهة المخصصة لإعادة الاتصال
+        this._showDisconnectUI();
+        
         socket.disconnect(); 
         setTimeout(() => {
             socket.io.opts.transports = ['websocket']; 
@@ -245,7 +254,6 @@ export const socketManager = {
             this._showDisconnectUI();
         });
 
-        // 💡 فحص حالة الاتصال عند فتح اللعبة
         if (!navigator.onLine) {
             this._updatePingUI(999);
             this._showDisconnectUI();
