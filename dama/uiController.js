@@ -1114,8 +1114,16 @@ export const ui = {
                 const noFriendsTxt = this.makeEl('p', null, "text-align:center;color:#a1a1aa;font-size:12px;", t('igp_no_friends'));
                 fList.appendChild(noFriendsTxt);
             } else {
-                const normalizedFriends = [...new Set((gameState.userProfile.friends || []).map(id => id.toUpperCase()))];
-                gameState.userProfile.friends = normalizedFriends;
+                let uniqueFriends = [];
+                let seenIds = new Set();
+                (gameState.userProfile.friends || []).forEach(f => {
+                    let fId = typeof f === 'string' ? f.toUpperCase() : (f.id ? f.id.toUpperCase() : null);
+                    if (fId && !seenIds.has(fId)) {
+                        seenIds.add(fId);
+                        uniqueFriends.push(f);
+                    }
+                });
+                gameState.userProfile.friends = uniqueFriends;
                 
                 // استدعاء دالة بناء الأصدقاء الحديثة 
                 renderFriendsList(gameState.userProfile.friends);
@@ -1129,7 +1137,20 @@ export const ui = {
             try {
                 const parsed = JSON.parse(saved);
                 if (parsed.id) parsed.id = parsed.id.toUpperCase();
-                if (parsed.friends) { parsed.friends = [...new Set(parsed.friends.map(f => f.toUpperCase()))]; }
+                
+                if (parsed.friends) {
+                    let uniqueArr = [];
+                    let seen = new Set();
+                    parsed.friends.forEach(f => {
+                        let fId = typeof f === 'string' ? f.toUpperCase() : (f.id ? f.id.toUpperCase() : null);
+                        if (fId && !seen.has(fId)) {
+                            seen.add(fId);
+                            uniqueArr.push(f);
+                        }
+                    });
+                    parsed.friends = uniqueArr;
+                }
+                
                 gameState.userProfile = { ...gameState.userProfile, ...parsed }; 
             } catch(e) {}
         }
