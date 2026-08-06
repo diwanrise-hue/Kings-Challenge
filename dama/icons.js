@@ -374,7 +374,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 12. أيقونة الراديو للقائمة الجانبية (بمعرفات مختلفة لمنع التعارض)
+    // 12. أيقونة الراديو للقائمة الجانبية
     radioSide: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" style="width: 100%; height: 100%; transform: scale(1.3);">
         <defs>
             <style>@keyframes floatAnimRadioSide { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } } .anim-f-radio-side { animation: floatAnimRadioSide 3.5s ease-in-out infinite; }</style>
@@ -413,13 +413,13 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 13. أيقونة الرادار لفقدان الاتصال (بدون إنترنت) - شكل مسطح بدون ألوان ومؤثرات
-    disconnectIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M2.5 8.5a16 16 0 0 1 19 0" />
-        <path d="M6 12.5a11 11 0 0 1 12 0" />
-        <path d="M9.5 16.5a5 5 0 0 1 5 0" />
-        <circle cx="12" cy="20" r="1" fill="white" stroke="none" />
-        <line x1="22" y1="2" x2="2" y2="22" />
+    // 13. أيقونة الرادار لفقدان الاتصال (بدون إنترنت) - شكل مسطح أبيض مع ظل أسود للتباين
+    disconnectIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.9));">
+        <line x1="2" y1="2" x2="22" y2="22" />
+        <path d="M8.5 16.5a5 5 0 0 1 7 0" />
+        <path d="M5 12.5a10 10 0 0 1 14 0" />
+        <path d="M2 8.5a15 15 0 0 1 20 0" />
+        <circle cx="12" cy="20" r="1.5" fill="#ffffff" stroke="none" />
     </svg>`,
 
     // 14. أيقونة عجلة الحظ الملونة (Lucky Spin) 🌟
