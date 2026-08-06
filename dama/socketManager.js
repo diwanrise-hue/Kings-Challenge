@@ -208,7 +208,7 @@ export const socketManager = {
 
     _forceReconnect() {
         if (socket.connected) return;
-        socketManager._showToast(gameState.lang === 'ar' ? "جاري محاولة الاتصال بالسيرفر..." : "Reconnecting to server...");
+        socketManager._showToast(gameState.lang === 'ar' ? "جاري محاولة اعادة الاتصال ..." : "Reconnecting to server...");
         socket.disconnect(); 
         setTimeout(() => {
             socket.io.opts.transports = ['websocket']; 
