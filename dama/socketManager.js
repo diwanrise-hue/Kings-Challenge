@@ -30,6 +30,7 @@ export const socketManager = {
     disconnectTimer: null, 
     pingIntervalId: null, 
     lastPingValue: null, 
+    hidePingTimer: null, // 💡 مؤقت إخفاء البينج بعد 30 ثانية
 
     _showToast(msg) {
         let toast = document.getElementById('game-toast-notification');
@@ -77,7 +78,7 @@ export const socketManager = {
                 padding: 0; border: none; margin: 0;
                 z-index: 99999; display: flex; align-items: center; justify-content: flex-start; gap: 4px;
                 flex-direction: row; flex-wrap: nowrap; white-space: nowrap; 
-                pointer-events: none; opacity: 0.95;
+                pointer-events: none; opacity: 0.95; transition: opacity 0.5s ease;
                 text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.8), 1px -1px 1px rgba(0,0,0,0.8), -1px 1px 1px rgba(0,0,0,0.8); 
             `;
             pingEl.innerHTML = `<div id="ping-dot" style="width:5px;height:5px;border-radius:50%;background:#66bb6a;box-shadow:0 0 3px #66bb6a, 0 0 0 1px rgba(0,0,0,0.5); flex-shrink:0;"></div><span id="ping-text" style="white-space: nowrap;">... ms</span>`;
@@ -137,14 +138,28 @@ export const socketManager = {
         pingDot.style.boxShadow = `0 0 3px ${color}, 0 0 0 1px rgba(0,0,0,0.5)`; 
     },
 
+    // 💡 إصلاح المشكلة هنا
     _showDisconnectUI() {
         let miniRadar = document.getElementById('mini-disconnect-radar');
-        if (miniRadar) miniRadar.style.display = 'flex !important';
+        if (miniRadar) miniRadar.style.setProperty('display', 'flex', 'important');
+
+        // بدء مؤقت إخفاء البينج بعد 30 ثانية
+        if (this.hidePingTimer) clearTimeout(this.hidePingTimer);
+        this.hidePingTimer = setTimeout(() => {
+            const pingEl = document.getElementById('real-ping-indicator');
+            if (pingEl) pingEl.style.opacity = '0';
+        }, 30000);
     },
 
+    // 💡 إخفاء الرادار وإرجاع البينج
     _hideDisconnectUI() {
         const miniRadar = document.getElementById('mini-disconnect-radar');
-        if (miniRadar) miniRadar.style.display = 'none !important';
+        if (miniRadar) miniRadar.style.setProperty('display', 'none', 'important');
+
+        // إلغاء المؤقت وإظهار البينج مجدداً
+        if (this.hidePingTimer) clearTimeout(this.hidePingTimer);
+        const pingEl = document.getElementById('real-ping-indicator');
+        if (pingEl) pingEl.style.opacity = '0.95';
     },
 
     _ensureUserProfile() {
@@ -208,7 +223,7 @@ export const socketManager = {
 
     _forceReconnect() {
         if (socket.connected) return;
-        socketManager._showToast(gameState.lang === 'ar' ? "جاري محاولة اعادة الاتصال ..." : "Reconnecting to server...");
+        socketManager._showToast(gameState.lang === 'ar' ? "جاري محاولة اعادة الاتصال..." : "Reconnecting to server...");
         socket.disconnect(); 
         setTimeout(() => {
             socket.io.opts.transports = ['websocket']; 
@@ -221,6 +236,7 @@ export const socketManager = {
         this._initRealPingIndicator();
 
         window.addEventListener('online', () => {
+            this._hideDisconnectUI();
             setTimeout(() => this._forceReconnect(), 1000); 
         });
 
@@ -228,6 +244,12 @@ export const socketManager = {
             this._updatePingUI(999);
             this._showDisconnectUI();
         });
+
+        // 💡 فحص حالة الاتصال عند فتح اللعبة
+        if (!navigator.onLine) {
+            this._updatePingUI(999);
+            this._showDisconnectUI();
+        }
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
@@ -252,7 +274,6 @@ export const socketManager = {
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
-        // 🌟 مستمع لوحة الشرف (تم نقله هنا ليكون من ضمن نظام السيرفر)
         socket.on('leaderboardData', (data) => {
             let formattedWins = [], formattedXp = [], formattedTokens = [];
             if(Array.isArray(data)) {
@@ -277,7 +298,6 @@ export const socketManager = {
             }
         });
 
-        // جلب قائمة الرومات وفرزها في التبويبات 
         socket.on('activeRoomsList', (rooms) => {
             const playListContainer = document.getElementById('active-rooms-list');
             const spectateListContainer = document.getElementById('spectate-rooms-list');
@@ -328,7 +348,6 @@ export const socketManager = {
                 let actionBtnHTML = '';
 
                 if (r.isFull) {
-                    // 🌟 إضافة الغرفة لقائمة المراهنة والمشاهدة
                     if (r.isBettingOpen) {
                         actionBtnHTML = `<button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(241,196,15,0.2); border: 1px solid rgba(241,196,15,0.4); border-radius: 12px; padding: 6px 16px; color: #f1c40f; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">رهان ومشاهدة 👁️ (${r.spectatorsCount || 0})</button>`;
                     } else {
@@ -353,7 +372,6 @@ export const socketManager = {
                         spectateCount++;
                     }
                 } else {
-                    // إضافة الغرفة لقائمة اللعب
                     if (isCreator) {
                         actionBtnHTML = `
                         <div style="display: flex; gap: 8px;">
@@ -471,7 +489,6 @@ export const socketManager = {
 
         socket.on('waitingForOpponent', msg => this._showToast(msg));
 
-        // 🌟 مستمع دخول المشاهد للغرفة الممتلئة
         socket.on('spectatorJoined', (data) => {
             if (!data) return;
             gameState.isBotOpponent = false;
@@ -485,22 +502,17 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
 
-            // إخفاء لوحة التحكم للمشاهد حتى لا يتمكن من اللعب
             ui.setDisplay('bottom-control-panel', 'none'); 
 
             let p1Name = data.player1?.name || "اللاعب 1";
             let p2Name = data.player2?.name || "اللاعب 2";
 
-            // إظهار أسماء اللاعبين
             ui.toggleOnlineUILayout(true, p2Name, data.player2?.avatar);
-            
-            // تعديل واجهة المستخدم (تغيير اسم المشاهد ليكون هو Player 1 لغرض العرض فقط)
             ui.setTxt('card-my-name', p1Name);
             if (data.player1?.avatar) ui.applyAvatar('card-my-avatar', data.player1.avatar, data.player1.avatar.startsWith('data:image'));
 
             ui.renderBoard(true);
             
-            // إظهار نافذة المراهنة للمشاهد إذا كان الرهان مفتوحاً
             if (data.isBettingOpen && typeof window.showSpectatorBetModal === 'function') {
                 window.showSpectatorBetModal(data.roomID, data.player1, data.player2);
             } else {
@@ -508,7 +520,6 @@ export const socketManager = {
             }
         });
 
-        // تحديث عداد المشاهدين
         socket.on('spectatorCountChanged', (data) => {
             const countEl = document.getElementById('spectator-count-display');
             if (countEl) countEl.innerText = data.count;
@@ -560,7 +571,7 @@ export const socketManager = {
             gameState.selectedPiece = null; 
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
-            gameState.pieceHistories = {}; // تصفير تتبع الأحجار عند بدء لعبة جديدة
+            gameState.pieceHistories = {}; 
 
             if (data.roomID) gameState.onlineRoomID = data.roomID;
 
@@ -660,7 +671,7 @@ export const socketManager = {
                 if (isCapture || isPromotion) {
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
-                    gameState.pieceHistories = {}; // 💡 تصفير التكرار عند الأكل أو الترقية
+                    gameState.pieceHistories = {}; 
                 } else {
                     gameState.movesWithoutProgress++;
                     gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
