@@ -214,15 +214,16 @@ export const ui = {
         if (btnFree) btnFree.style.pointerEvents = 'none';
         if (btnPaid) btnPaid.style.pointerEvents = 'none';
 
+        // 🌟 حساب الزاوية لضمان وقوف الإبرة في منتصف الجائزة تماماً
         const extraSpins = 5 * 360; 
-        const targetDeg = extraSpins + (360 - (((prizeIndex + 1) * 45) % 360));
+        const targetAngle = 360 - ((prizeIndex * 45) + 22.5);
+        
         const currentMod = this.currentWheelDeg % 360;
-        const targetMod = targetDeg % 360;
-        let diff = targetMod - currentMod;
+        let diff = targetAngle - currentMod;
         if (diff < 0) diff += 360; 
         
-        let startDeg = this.currentWheelDeg;
-        let totalChange = extraSpins + diff;
+        const totalChange = extraSpins + diff;
+        const startDeg = this.currentWheelDeg;
         this.currentWheelDeg += totalChange;
 
         wheel.style.transition = 'none';
@@ -1114,16 +1115,16 @@ export const ui = {
                 const noFriendsTxt = this.makeEl('p', null, "text-align:center;color:#a1a1aa;font-size:12px;", t('igp_no_friends'));
                 fList.appendChild(noFriendsTxt);
             } else {
-                let uniqueFriends = [];
-                let seenIds = new Set();
+                let uniqueArr = [];
+                let seen = new Set();
                 (gameState.userProfile.friends || []).forEach(f => {
                     let fId = typeof f === 'string' ? f.toUpperCase() : (f.id ? f.id.toUpperCase() : null);
-                    if (fId && !seenIds.has(fId)) {
-                        seenIds.add(fId);
-                        uniqueFriends.push(f);
+                    if (fId && !seen.has(fId)) {
+                        seen.add(fId);
+                        uniqueArr.push(f);
                     }
                 });
-                gameState.userProfile.friends = uniqueFriends;
+                gameState.userProfile.friends = uniqueArr;
                 
                 // استدعاء دالة بناء الأصدقاء الحديثة 
                 renderFriendsList(gameState.userProfile.friends);
@@ -1268,7 +1269,7 @@ function cleanExpiredRequests(profile) {
     return profile;
 }
 
-// 🌟 تحديث دالة عرض الأصدقاء بالتصميم الجديد والأزرار
+// 🌟 تحديث دالة عرض الأصدقاء لإصلاح تشوه الأزرار وتنسيقها للهاتف
 function renderFriendsList(friendsArr) {
     const listContainer = document.getElementById('igp-friends-list'); if (!listContainer) return;
     if (!friendsArr || friendsArr.length === 0) { listContainer.innerHTML = 'لا يوجد أصدقاء حالياً'; return; }
@@ -1288,28 +1289,26 @@ function renderFriendsList(friendsArr) {
 
     actualFriends.forEach(friend => {
         let div = document.createElement('div');
-        // تعديل تصميم خلفية الصديق
-        div.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); padding:10px 12px; border-radius:14px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 10px rgba(0,0,0,0.2);";
+        // تقليل الـ Padding قليلاً ليتسع للأزرار في الهواتف الصغيرة
+        div.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); padding:8px 10px; border-radius:14px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 10px rgba(0,0,0,0.2);";
         
         let friendId = typeof friend === 'string' ? friend : friend.id;
         let friendName = typeof friend === 'object' && friend.name ? friend.name : 'لاعب';
         let friendAvatar = typeof friend === 'object' && friend.avatar ? friend.avatar : '../Photo/1000132081.webp';
         
         div.innerHTML = `
-            <div style="display:flex; align-items:center; gap:12px;">
-                <img src="${friendAvatar}" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border: 1px solid rgba(255,255,255,0.2);" onerror="this.src='../Photo/1000132081.webp'">
-                <div style="text-align:right;">
-                    <div style="font-weight:bold; color:white; font-size:14px;">${friendName}</div>
-                    <div style="font-size:10px; color:#a1a1aa; font-family: monospace;">${friendId}</div>
+            <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                <img src="${friendAvatar}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0;" onerror="this.src='../Photo/1000132081.webp'">
+                <div style="text-align:right; overflow:hidden;">
+                    <div style="font-weight:bold; color:white; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${friendName}</div>
+                    <div style="font-size:9px; color:#a1a1aa; font-family: monospace;">${friendId}</div>
                 </div>
             </div>
-            <div style="display:flex; gap:6px;">
-                <!-- زر لعب ضده (يفتح نافذة الرهان) -->
-                <button data-action="challenge-friend" data-fid="${friendId}" style="background:linear-gradient(135deg, #34c759, #28a745); border:none; color:#fff; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:12px; font-weight:bold; box-shadow:0 2px 5px rgba(40,167,69,0.3); transition: transform 0.2s;">
-                    لعب ضده ⚔️
+            <div style="display:flex; gap:4px; flex-shrink: 0;">
+                <button data-action="challenge-friend" data-fid="${friendId}" style="background:linear-gradient(135deg, #34c759, #28a745); border:none; color:#fff; border-radius:8px; padding:6px 8px; cursor:pointer; font-size:11px; font-weight:bold; box-shadow:0 2px 5px rgba(40,167,69,0.3); transition: transform 0.2s; white-space: nowrap;">
+                    تحدي ⚔️
                 </button>
-                <!-- زر الحذف -->
-                <button data-action="remove-friend" data-fid="${friendId}" style="background:rgba(255,69,58,0.15); border:1px solid rgba(255,69,58,0.3); color:#ff453a; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:12px; font-weight:bold; transition: transform 0.2s;">
+                <button data-action="remove-friend" data-fid="${friendId}" style="background:rgba(255,69,58,0.15); border:1px solid rgba(255,69,58,0.3); color:#ff453a; border-radius:8px; padding:6px 8px; cursor:pointer; font-size:11px; font-weight:bold; transition: transform 0.2s; white-space: nowrap;">
                     حذف 🗑️
                 </button>
             </div>
