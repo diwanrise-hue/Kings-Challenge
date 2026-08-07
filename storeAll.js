@@ -8,9 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
-        // تعديل تموضع الحاوية لتكون قريبة من الأعلى بدلاً من المنتصف
-        storeContainer.style.justifyContent = 'flex-start';
-        storeContainer.style.paddingTop = '110px'; // ترك مسافة مناسبة للشريط العلوي (الرصيد والملف الشخصي)
+        // فصل الحاوية عن التوسيط التلقائي الخاص بالواجهة الرئيسية وجعلها تملأ الشاشة
+        storeContainer.style.position = 'absolute';
+        storeContainer.style.top = '0';
+        storeContainer.style.left = '0';
+        storeContainer.style.width = '100%';
+        storeContainer.style.height = '100%';
+        storeContainer.style.justifyContent = 'flex-start'; // البدء من الأعلى
+        storeContainer.style.paddingTop = '95px'; // المسافة الدقيقة تحت الأزرار العلوية (مكان الخط الأحمر)
         
         // 1. إضافة ستايلات التبويبات ديناميكياً
         if (!document.getElementById('store-tabs-style')) {
@@ -18,10 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
             style.id = 'store-tabs-style';
             style.innerHTML = `
                 .store-tabs-container {
-                    display: flex; gap: 8px; margin-bottom: 25px; 
+                    display: flex; gap: 8px; 
                     background: rgba(15, 18, 25, 0.6); padding: 6px;
                     border-radius: 50px; border: 1px solid rgba(255,255,255,0.08);
                     width: 90%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+                    z-index: 10;
                 }
                 .store-tab-btn {
                     flex: 1; background: transparent; border: none; color: var(--text-secondary);
@@ -38,7 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(211,84,0,0.3));
                     color: var(--accent); border: 1px solid rgba(245,166,35,0.4);
                 }
-                .store-tab-content { display: none; width: 100%; max-width: 350px; animation: fadeIn 0.4s ease; }
+                .store-tab-content { 
+                    display: none; width: 90%; max-width: 350px; 
+                    animation: fadeIn 0.4s ease; 
+                    margin-top: 25px; /* مسافة بين الأزرار العلوية والمحتوى */
+                }
                 .store-tab-content.active-content { display: block; }
             `;
             document.head.appendChild(style);
