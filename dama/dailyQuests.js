@@ -8,15 +8,28 @@ import { gameState } from './gameState.js';
 import { socket } from './socketManager.js';
 
 export const questsManager = {
+    // 7 مهام يومية
     dailyQuests: [
         { id: 'd1', type: 'play', target: 3, rewardTokens: 50, desc: 'العب 3 مباريات' },
         { id: 'd2', type: 'win', target: 2, rewardTokens: 80, desc: 'فز في مباراتين' },
-        { id: 'd3', type: 'capture', target: 15, rewardTokens: 60, desc: 'كُل 15 قطعة للخصم' }
+        { id: 'd3', type: 'capture', target: 15, rewardTokens: 60, desc: 'كُل 15 قطعة للخصم' },
+        { id: 'd4', type: 'spin', target: 1, rewardTokens: 30, desc: 'استخدم عجلة الحظ مرة واحدة' },
+        { id: 'd5', type: 'play', target: 5, rewardTokens: 100, desc: 'العب 5 مباريات' },
+        { id: 'd6', type: 'win', target: 4, rewardTokens: 150, desc: 'فز في 4 مباريات' },
+        { id: 'd7', type: 'capture', target: 30, rewardTokens: 120, desc: 'كُل 30 قطعة للخصم' }
     ],
+    // 10 مهام أسبوعية
     weeklyQuests: [
         { id: 'w1', type: 'play', target: 20, rewardTokens: 300, desc: 'العب 20 مباراة (أسبوعياً)' },
         { id: 'w2', type: 'win', target: 10, rewardTokens: 500, desc: 'فز في 10 مباريات' },
-        { id: 'w3', type: 'spin', target: 7, rewardTokens: 200, desc: 'استخدم عجلة الحظ 7 مرات' }
+        { id: 'w3', type: 'spin', target: 7, rewardTokens: 200, desc: 'استخدم عجلة الحظ 7 مرات' },
+        { id: 'w4', type: 'capture', target: 100, rewardTokens: 400, desc: 'كُل 100 قطعة للخصم' },
+        { id: 'w5', type: 'play', target: 50, rewardTokens: 600, desc: 'العب 50 مباراة' },
+        { id: 'w6', type: 'win', target: 25, rewardTokens: 800, desc: 'فز في 25 مباراة' },
+        { id: 'w7', type: 'capture', target: 200, rewardTokens: 700, desc: 'كُل 200 قطعة للخصم' },
+        { id: 'w8', type: 'spin', target: 15, rewardTokens: 400, desc: 'استخدم عجلة الحظ 15 مرة' },
+        { id: 'w9', type: 'play', target: 100, rewardTokens: 1000, desc: 'العب 100 مباراة' },
+        { id: 'w10', type: 'win', target: 50, rewardTokens: 1500, desc: 'فز في 50 مباراة' }
     ],
     progress: { daily: {}, weekly: {} },
     lastReset: { daily: 0, weekly: 0 },
@@ -102,6 +115,61 @@ export const questsManager = {
         }
     },
 
+    // 💡 دالة إظهار علامة (الصح) على أيقونة المهام الخارجية
+    updateNotificationBadge() {
+        let hasClaimable = false;
+        ['daily', 'weekly'].forEach(period => {
+            let quests = this[period + 'Quests'];
+            quests.forEach(q => {
+                let prog = this.progress[period] && this.progress[period][q.id];
+                if (prog && prog.current >= q.target && !prog.claimed) {
+                    hasClaimable = true;
+                }
+            });
+        });
+
+        let badge = document.getElementById('quests-notify-badge');
+        if (badge) {
+            badge.style.display = hasClaimable ? 'flex' : 'none';
+        }
+    },
+
+    // 💡 دالة جمع كل الجوائز المكتملة في التبويب الحالي
+    claimAllRewards(period) {
+        let totalReward = 0;
+        let quests = this[period + 'Quests'];
+        let updated = false;
+
+        quests.forEach(q => {
+            let prog = this.progress[period] && this.progress[period][q.id];
+            if (prog && prog.current >= q.target && !prog.claimed) {
+                prog.claimed = true;
+                totalReward += q.rewardTokens;
+                updated = true;
+            }
+        });
+
+        if (updated) {
+            this.saveProgress();
+            
+            if (gameState.isOnlineMode && socket && socket.connected) {
+                socket.emit('claimQuestReward', { questId: 'ALL_' + period, tokens: totalReward });
+            } else {
+                let profile = gameState.userProfile || JSON.parse(localStorage.getItem('hub_user_profile'));
+                if (profile) {
+                    profile.tokens = (profile.tokens || 0) + totalReward;
+                    gameState.userProfile = profile; 
+                    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                    if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
+                }
+            }
+            
+            if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.win);
+            if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert(`تم جمع ${totalReward} 🪙 بنجاح!`, "تهانينا 🎉");
+            this.renderQuests(period);
+        }
+    },
+
     claimReward(period, questId) {
         let q = this[period + 'Quests'].find(x => x.id === questId);
         if (!q) return;
@@ -116,10 +184,8 @@ export const questsManager = {
                 let profile = gameState.userProfile || JSON.parse(localStorage.getItem('hub_user_profile'));
                 if (profile) {
                     profile.tokens = (profile.tokens || 0) + q.rewardTokens;
-                    gameState.userProfile = profile; // 💡 مزامنة الـ gameState
+                    gameState.userProfile = profile; 
                     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                    
-                    // تحديث الواجهة فوراً
                     if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
                 }
             }
@@ -139,11 +205,16 @@ export const questsManager = {
         }
 
         let quests = this[period + 'Quests'];
+        let hasClaimableInCurrentTab = false; // 💡 للتحقق من وجود مهام لجمعها
         
         quests.forEach(q => {
             let prog = this.progress[period][q.id] || { current: 0, claimed: false };
             let isCompleted = prog.current >= q.target;
             
+            if (isCompleted && !prog.claimed) {
+                hasClaimableInCurrentTab = true;
+            }
+
             let el = document.createElement('div');
             el.style.cssText = "background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; display: flex; flex-direction: column; gap: 10px; position: relative;";
             
@@ -191,6 +262,17 @@ export const questsManager = {
             el.appendChild(footer);
             container.appendChild(el);
         });
+
+        // 💡 إظهار أو إخفاء زر "جمع الكل" بناءً على حالة المهام في التبويب الحالي
+        if (period === this.currentTab) {
+            let collectAllBtn = document.getElementById('collect-all-btn');
+            if (collectAllBtn) {
+                collectAllBtn.style.display = hasClaimableInCurrentTab ? 'flex' : 'none';
+            }
+        }
+        
+        // 💡 تحديث علامة الصح الخارجية
+        this.updateNotificationBadge();
     },
 
     updateTimerDisplay() {
