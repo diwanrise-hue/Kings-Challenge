@@ -791,6 +791,8 @@
     
     <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 100px; left: 25px; z-index: 10001; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px); cursor: pointer;">
         <span data-icon="dailyQuests" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; transform: scale(1.1);"></span>
+        <!-- 💡 علامة الصح للمهام المكتملة -->
+        <span id="quests-notify-badge" style="display: none; position: absolute; top: -6px; right: -6px; background: #34c759; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 900; border: 2px solid #282a32; box-shadow: 0 2px 4px rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 10;">✓</span>
     </button>
 
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
@@ -910,6 +912,7 @@
         </div>
     </div>
 
+    <!-- 💡 تحديث نافذة المهام مع زر جمع الكل -->
     <div id="daily-quests-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')">✕</button>
@@ -921,10 +924,13 @@
                 <button id="quest-tab-weekly" class="custom-tab-button" onclick="switchQuestTab('weekly')">أسبوعية</button>
             </div>
 
-            <div id="quests-list-container-daily" style="display: flex; flex-direction: column; gap: 12px; max-height: 50vh; overflow-y: auto; padding-right: 5px;"></div>
-            <div id="quests-list-container-weekly" style="display: none; flex-direction: column; gap: 12px; max-height: 50vh; overflow-y: auto; padding-right: 5px;"></div>
+            <div id="quests-list-container-daily" style="display: flex; flex-direction: column; gap: 12px; max-height: 48vh; overflow-y: auto; padding-right: 5px;"></div>
+            <div id="quests-list-container-weekly" style="display: none; flex-direction: column; gap: 12px; max-height: 48vh; overflow-y: auto; padding-right: 5px;"></div>
             
-            <p id="quests-reset-timer" style="color: #a1a1aa; font-size: 12px; margin-top: 20px; font-weight: 600;">تتجدد المهام بعد: --:--:--</p>
+            <!-- 💡 زر جمع الكل (يظهر فقط عند وجود جوائز) -->
+            <button id="collect-all-btn" class="save-settings-btn" style="display: none; background: linear-gradient(135deg, #34c759, #28a745) !important; margin: 15px auto 0 auto; width: 80%; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important;" onclick="if(window.questsManager) window.questsManager.claimAllRewards(window.questsManager.currentTab)">جمع الكل 🎁</button>
+
+            <p id="quests-reset-timer" style="color: #a1a1aa; font-size: 12px; margin-top: 15px; font-weight: 600;">تتجدد المهام بعد: --:--:--</p>
         </div>
     </div>
 
