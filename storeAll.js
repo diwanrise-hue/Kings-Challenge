@@ -15,13 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
         storeContainer.style.width = '100%';
         storeContainer.style.height = '100%';
         storeContainer.style.justifyContent = 'flex-start'; // البدء من الأعلى
-        storeContainer.style.paddingTop = '95px'; // المسافة الدقيقة تحت الأزرار العلوية (مكان الخط الأحمر)
+        storeContainer.style.paddingTop = '95px'; // المسافة الدقيقة تحت الأزرار العلوية
         
         // 1. إضافة ستايلات التبويبات ديناميكياً
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
             style.innerHTML = `
+                /* ستايل التبويبات الرئيسية (العلوية) */
                 .store-tabs-container {
                     display: flex; gap: 8px; 
                     background: rgba(15, 18, 25, 0.6); padding: 6px;
@@ -51,13 +52,34 @@ document.addEventListener('DOMContentLoaded', () => {
                     margin-top: 25px; /* مسافة بين الأزرار العلوية والمحتوى */
                 }
                 .store-tab-content.active-content { display: block; }
+
+                /* ستايل التبويبات الفرعية (دامة / طاولة) */
+                .store-sub-tabs-container {
+                    display: flex; gap: 5px; margin-bottom: 15px; 
+                    background: rgba(0, 0, 0, 0.4); padding: 5px;
+                    border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);
+                    width: 100%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+                }
+                .store-sub-tab-btn {
+                    flex: 1; background: transparent; border: none; color: var(--text-secondary);
+                    padding: 8px; border-radius: 50px; font-weight: 700; font-size: 14px;
+                    cursor: pointer; transition: var(--transition);
+                }
+                .store-sub-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+                .store-sub-tab-btn.active {
+                    background: rgba(255,255,255,0.1); color: white; 
+                    border: 1px solid rgba(255,255,255,0.15);
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                }
+                .store-sub-tab-content { display: none; animation: fadeIn 0.3s ease; }
+                .store-sub-tab-content.active-content { display: block; }
             `;
             document.head.appendChild(style);
         }
 
-        // 2. بناء هيكل المتجر (تم إزالة كلمة "المتجر" والتبويبات أصبحت في الأعلى)
+        // 2. بناء هيكل المتجر
         storeContainer.innerHTML = `
-            <!-- أزرار التبويبات العلوية -->
+            <!-- أزرار التبويبات العلوية الرئيسية -->
             <div class="store-tabs-container">
                 <button class="store-tab-btn active" onclick="window.switchStoreContentTab('store-games-content', this)">
                     <span>🎮</span> <span data-i18n="store_games">الألعاب</span>
@@ -73,17 +95,33 @@ document.addEventListener('DOMContentLoaded', () => {
             <!-- حاوية محتوى الألعاب (مفتوحة افتراضياً) -->
             <div id="store-games-content" class="store-tab-content active-content">
                 <div class="store-group-box">
-                    <h4 class="store-group-title" style="text-align: center; color: white;" data-i18n="store_games">الألعاب المتاحة</h4>
-                    <div class="store-games-grid">
-                        <button class="store-sub-btn" onclick="triggerAlertSoon()">
-                            <span class="store-sub-icon">♟️</span>
+                    
+                    <!-- أزرار التبويبات الفرعية (دامة وطاولة بدون إيموجي) -->
+                    <div class="store-sub-tabs-container">
+                        <button class="store-sub-tab-btn active" onclick="window.switchSubStoreTab('store-dama-items', this)">
                             <span data-i18n="store_dama">دامة</span>
                         </button>
-                        <button class="store-sub-btn" onclick="triggerAlertSoon()">
-                            <span class="store-sub-icon">🎲</span>
+                        <button class="store-sub-tab-btn" onclick="window.switchSubStoreTab('store-tawla-items', this)">
                             <span data-i18n="store_tawla">طاولة</span>
                         </button>
                     </div>
+
+                    <!-- محتوى متجر دامة -->
+                    <div id="store-dama-items" class="store-sub-tab-content active-content">
+                        <p style="color: var(--text-secondary); font-size: 13px; text-align: center; margin: 20px 0;">
+                            ملحقات وأزياء خاصة بلعبة الدامة
+                        </p>
+                        <button class="btn btn-primary" style="width: 100%; margin: 0;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                    </div>
+
+                    <!-- محتوى متجر طاولة -->
+                    <div id="store-tawla-items" class="store-sub-tab-content">
+                        <p style="color: var(--text-secondary); font-size: 13px; text-align: center; margin: 20px 0;">
+                            ملحقات وأزياء خاصة بلعبة الطاولة
+                        </p>
+                        <button class="btn btn-primary" style="width: 100%; margin: 0;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                    </div>
+
                 </div>
             </div>
 
@@ -95,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
                         ادعم أصدقاءك أو تصدر قائمة الأكثر شعبية باقتناء باقات نادرة!
                     </p>
-                    <button class="btn btn-primary" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                    <button class="btn btn-primary" style="width: 100%; margin: 0;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
                 </div>
             </div>
 
@@ -119,16 +157,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 4. دالة التبديل بين التبويبات
+// 4. دالة التبديل بين التبويبات العلوية الرئيسية
 window.switchStoreContentTab = function(contentId, btnElement) {
-    // إخفاء جميع الحاويات
     document.querySelectorAll('.store-tab-content').forEach(el => {
         el.style.display = 'none';
         el.classList.remove('active-content');
     });
     
-    // إزالة تفعيل التحديد من جميع الأزرار
     document.querySelectorAll('.store-tab-btn').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    const targetContent = document.getElementById(contentId);
+    if (targetContent) {
+        targetContent.style.display = 'block';
+        targetContent.classList.add('active-content');
+    }
+    
+    if (btnElement) {
+        btnElement.classList.add('active');
+    }
+};
+
+// 5. دالة التبديل بين التبويبات الفرعية (دامة / طاولة)
+window.switchSubStoreTab = function(contentId, btnElement) {
+    const parentBox = btnElement.closest('.store-group-box');
+    
+    // إخفاء جميع محتويات التبويبات الفرعية
+    parentBox.querySelectorAll('.store-sub-tab-content').forEach(el => {
+        el.style.display = 'none';
+        el.classList.remove('active-content');
+    });
+    
+    // إزالة التفعيل عن الأزرار الفرعية
+    parentBox.querySelectorAll('.store-sub-tab-btn').forEach(el => {
         el.classList.remove('active');
     });
     
@@ -139,7 +201,7 @@ window.switchStoreContentTab = function(contentId, btnElement) {
         targetContent.classList.add('active-content');
     }
     
-    // تفعيل الزر المضغوط
+    // تفعيل الزر الذي تم الضغط عليه
     if (btnElement) {
         btnElement.classList.add('active');
     }
