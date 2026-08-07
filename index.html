@@ -322,26 +322,25 @@
         /* ========================================== */
         .bottom-nav-bar {
             position: fixed;
-            bottom: 0; /* ملتصق بالأسفل تماماً */
+            bottom: 0; 
             left: 0;
-            transform: none; /* إلغاء التوسيط السابق لأنه الآن بعرض الشاشة */
+            transform: none; 
             display: flex;
             align-items: center;
-            justify-content: space-around; /* توزيع متساوٍ للأزرار */
+            justify-content: space-around; 
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border: none;
-            border-top: 1px solid var(--glass-border); /* حد علوي فقط */
-            border-radius: 0; /* إلغاء الحواف الدائرية ليلتصق تماماً */
-            /* مراعاة شريط الآيفون السفلي لعدم التداخل */
+            border-top: 1px solid var(--glass-border); 
+            border-radius: 0; 
             padding: 5px 10px calc(5px + env(safe-area-inset-bottom, 0px)); 
-            width: 100%; /* العرض كامل */
+            width: 100%; 
             max-width: 100%;
             z-index: 9999;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
             transition: opacity 0.4s ease, visibility 0.4s ease;
-            height: 60px; /* ارتفاع ثابت ومناسب */
+            height: 60px; 
         }
 
         .nav-item {
@@ -403,124 +402,6 @@
             display: flex;
             animation: fadeIn 0.4s ease-out;
         }
-
-        /* ========================================== */
-        /* تصميم هيكل المتجر والتنسيقات الداكنة والثابتة */
-        /* ========================================== */
-        #nav-section-store {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            justify-content: flex-start;
-            padding-top: 95px; /* المسافة من الأعلى للخط الأحمر */
-        }
-
-        .store-tabs-container {
-            display: flex; gap: 8px; 
-            background: rgba(15, 18, 25, 0.6); padding: 6px;
-            border-radius: 50px; border: 1px solid rgba(255,255,255,0.08);
-            width: 90%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            z-index: 10; margin-bottom: 10px;
-        }
-        .store-tab-btn {
-            flex: 1; background: transparent; border: none; color: var(--text-secondary);
-            padding: 10px 5px; border-radius: 50px; font-weight: 700; font-size: 13px;
-            cursor: pointer; transition: var(--transition); white-space: nowrap;
-            display: flex; align-items: center; justify-content: center; gap: 5px;
-        }
-        .store-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
-        .store-tab-btn.active {
-            background: rgba(255,255,255,0.15); color: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        .store-tab-btn.premium-tab.active {
-            background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(211,84,0,0.3));
-            color: var(--accent); border: 1px solid rgba(245,166,35,0.4);
-        }
-        .store-tab-content { display: none; width: 90%; max-width: 350px; animation: fadeIn 0.4s ease; }
-        .store-tab-content.active-content { display: block; }
-
-        .store-sub-tabs-container {
-            display: flex; gap: 5px; margin-bottom: 10px; 
-            background: rgba(15, 18, 25, 0.5); padding: 4px; 
-            border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);
-            width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-        }
-        .store-sub-tab-btn {
-            flex: 1; background: transparent; border: none; color: var(--text-secondary);
-            padding: 6px 10px; border-radius: 50px; font-weight: 700; font-size: 13px; 
-            cursor: pointer; transition: var(--transition);
-        }
-        .store-sub-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
-        .store-sub-tab-btn.active {
-            background: rgba(255,255,255,0.1); color: white; 
-            border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-        .store-sub-tab-content { display: none; animation: fadeIn 0.3s ease; height: 100%; }
-        .store-sub-tab-content.active-content { display: flex; flex-direction: column; }
-
-        .dama-cats-container {
-            display: flex; gap: 6px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0;
-        }
-        .dama-cats-container::-webkit-scrollbar { height: 0; display: none; }
-        .dama-cat-btn {
-            flex: 1; min-width: 65px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
-            color: var(--text-secondary); padding: 8px 10px; border-radius: 12px;
-            font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition);
-            white-space: nowrap; text-align: center;
-        }
-        .dama-cat-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-        .dama-cat-btn.active {
-            background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.2);
-        }
-
-        /* الصندوق الثابت الذي يحمي المنتجات من الاختفاء خلف الشريط */
-        .store-group-box-dark {
-            padding: 15px 10px 5px 10px;
-            background: rgba(10, 12, 16, 0.85);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
-            display: flex;
-            flex-direction: column;
-            /* 🌟 الارتفاع معدل ليتناسب مع الشريط السفلي الجديد */
-            height: calc(100dvh - 240px); 
-            overflow: hidden;
-        }
-
-        /* منطقة تمرير المنتجات المحمية بالصندوق */
-        .store-scrollable-area {
-            flex: 1;
-            overflow-y: auto; overflow-x: hidden; 
-            padding-right: 5px;
-            padding-top: 5px;
-            padding-bottom: 60px; /* مسافة للأسفل لضمان عدم القص */
-        }
-        .store-scrollable-area::-webkit-scrollbar { width: 4px; }
-        .store-scrollable-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
-        .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        
-        .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .store-item-card { 
-            background: rgba(25, 30, 35, 0.95);
-            border: 1px solid rgba(255,255,255,0.08); 
-            border-radius: 16px; 
-            padding: 10px 5px; 
-            display: flex; flex-direction: column; align-items: center; gap: 6px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        .store-buy-btn-small { 
-            height: 32px; font-size: 12px; border-radius: 10px; width: 90%; 
-            background: rgba(255,255,255,0.1); color: white; border: none; 
-            cursor: pointer; transition: 0.2s;
-        }
-        .store-buy-btn-small:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
@@ -532,7 +413,7 @@
         <h1 data-i18n="app_title">DAMA CHALLENGE</h1>
     </div>
 
-    <!-- الشريط السفلي للتنقل المحدث بالكامل -->
+    <!-- الشريط السفلي للتنقل -->
     <div class="bottom-nav-bar" id="bottom-nav-bar" style="display: none;">
         <button class="nav-item" onclick="switchNavTab('latest')">
             <span class="nav-icon">✨</span>
@@ -735,8 +616,6 @@
             </button>
         </div>
     </div>
-
-    <input type="file" id="bg-upload-input" accept="image/*" style="display: none;" onchange="changeAppBackground(event)">
 
     <script>
         window.fbAsyncInit = function() {
