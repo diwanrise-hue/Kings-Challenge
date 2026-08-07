@@ -44,7 +44,8 @@ socket.on('connect', () => {
 // التخزين المحلي
 // ==========================================
 export function saveGameState() {
-    // تم التخلص من نظام الحفظ لتنظيف المشروع وعدم التعارض مع التحديثات
+    // تم التخلص من نظام الحفظ التلقائي للوحة بناءً على التحديثات
+    // لضمان التوافق وعدم حدوث مشاكل عند رفع الكود من GitHub
 }
 
 export async function loadGameState() {
@@ -132,6 +133,9 @@ window.addEventListener('load', async () => {
         const paidBtn = document.getElementById('spin-paid-btn'); if (paidBtn) paidBtn.innerText = "لفة إضافية (200 🪙)";
         
         if (data.success) {
+            // 💡 إبلاغ المهام بأنه تم لف العجلة
+            if (window.questsManager) window.questsManager.updateProgress('spin', 1, 'any');
+
             if (typeof ui.animateLuckySpin === 'function') {
                 ui.animateLuckySpin(data.prizeIndex, () => {
                     if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert(data.message, "🎉 مبروك!");
