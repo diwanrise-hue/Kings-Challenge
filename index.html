@@ -313,6 +313,92 @@
             color: var(--accent); cursor: pointer; transition: var(--transition); text-decoration: none;
         }
         .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }    
+
+        /* ========================================== */
+        /* تصميم الشريط السفلي (Bottom Navigation)    */
+        /* ========================================== */
+        .bottom-nav-bar {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-pill);
+            padding: 6px 15px;
+            width: 90%;
+            max-width: 400px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
+        }
+
+        .nav-item {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 8px 10px;
+            border-radius: 20px;
+            width: 32%;
+        }
+
+        .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+        }
+
+        .nav-item.active .nav-icon {
+            transform: translateY(-3px) scale(1.15);
+            text-shadow: 0 0 10px rgba(245, 166, 35, 0.6);
+            color: var(--accent);
+        }
+
+        .nav-icon {
+            font-size: 22px;
+            transition: var(--transition);
+            margin-bottom: 2px;
+            filter: grayscale(100%) opacity(0.8);
+        }
+
+        .nav-item.active .nav-icon {
+            filter: grayscale(0%) opacity(1);
+        }
+
+        .nav-text {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* حاويات محتوى التبويبات */
+        .nav-section-container {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 90px; /* لترك مساحة للشريط السفلي */
+        }
+        .nav-section-container.active-section {
+            display: flex;
+            animation: fadeIn 0.4s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -322,6 +408,27 @@
             <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM5 18H19V20H5V18Z"/>
         </svg>
         <h1 data-i18n="app_title">DAMA CHALLENGE</h1>
+    </div>
+
+    <!-- الشريط السفلي للتنقل -->
+    <div class="bottom-nav-bar" id="bottom-nav-bar" style="display: none;">
+        <!-- الأحدث (يمين الشاشة) -->
+        <button class="nav-item" onclick="switchNavTab('latest')">
+            <span class="nav-icon">✨</span>
+            <span class="nav-text" data-i18n="nav_latest">الأحدث</span>
+        </button>
+
+        <!-- الألعاب (المنتصف - افتراضي) -->
+        <button class="nav-item active" onclick="switchNavTab('games')">
+            <span class="nav-icon">🎮</span>
+            <span class="nav-text" data-i18n="nav_games">الألعاب</span>
+        </button>
+
+        <!-- المتجر (يسار الشاشة) -->
+        <button class="nav-item" onclick="switchNavTab('store')">
+            <span class="nav-icon">🛍️</span>
+            <span class="nav-text" data-i18n="nav_store">المتجر</span>
+        </button>
     </div>
 
     <div id="game-selector">
@@ -344,14 +451,29 @@
 
         </div>
 
-        <div class="cards-container">
-            <div class="dama-card" onclick="startGame()">
-                <img src="Photo/1000138342.webp" alt="Dama Game" class="card-bg">
-                <div class="dama-card-content">
-                    <span id="dama-title-text" data-i18n="dama">دامة</span>
+        <!-- قسم المتجر -->
+        <div id="nav-section-store" class="nav-section-container">
+            <h2 style="color:white; margin-bottom: 20px;">المتجر</h2>
+            <div class="game-card-soon" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</div>
+        </div>
+
+        <!-- قسم الألعاب (الافتراضي) -->
+        <div id="nav-section-games" class="nav-section-container active-section">
+            <div class="cards-container">
+                <div class="dama-card" onclick="startGame()">
+                    <img src="Photo/1000138342.webp" alt="Dama Game" class="card-bg">
+                    <div class="dama-card-content">
+                        <span id="dama-title-text" data-i18n="dama">دامة</span>
+                    </div>
                 </div>
+                
+                <div class="game-card-soon" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</div>
             </div>
-            
+        </div>
+
+        <!-- قسم الأحدث -->
+        <div id="nav-section-latest" class="nav-section-container">
+            <h2 style="color:white; margin-bottom: 20px;">الأحدث</h2>
             <div class="game-card-soon" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</div>
         </div>
     </div>
@@ -596,7 +718,10 @@
                 register_tab_title: "إنشاء حساب",
                 register_tab_desc: "أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.",
                 register_tab_btn: "متابعة",
-                register_tab_toggle: "امتلك حساباً بالفعل؟ تسجيل الدخول"
+                register_tab_toggle: "امتلك حساباً بالفعل؟ تسجيل الدخول",
+                nav_store: "المتجر",
+                nav_games: "الألعاب",
+                nav_latest: "الأحدث"
             },
             en: {
                 app_title: "DAMA CHALLENGE",
@@ -657,7 +782,10 @@
                 register_tab_title: "Create Account",
                 register_tab_desc: "Welcome. Create your account to collect tokens across all games.",
                 register_tab_btn: "Continue",
-                register_tab_toggle: "Already have an account? Sign In"
+                register_tab_toggle: "Already have an account? Sign In",
+                nav_store: "Store",
+                nav_games: "Games",
+                nav_latest: "Latest"
             },
             ku: {
                 app_title: "DAMA CHALLENGE",
@@ -718,7 +846,10 @@
                 register_tab_title: "دروستکردنی هەژمار",
                 register_tab_desc: "بەخێربێیت. هەژمارەکەت دروست بکە بۆ کۆکردنەوەی دراوەکان لە هەموو یارییەکاندا.",
                 register_tab_btn: "بەردەوام بە",
-                register_tab_toggle: "هەژمارت هەیە؟ چوونە ژوورەوە"
+                register_tab_toggle: "هەژمارت هەیە؟ چوونە ژوورەوە",
+                nav_store: "فرۆشگا",
+                nav_games: "یارییەکان",
+                nav_latest: "نوێترین"
             }
         };
 
@@ -726,6 +857,22 @@
         let currentLang = localStorage.getItem('app_lang') || 'ar';
         if (!langs.includes(currentLang)) currentLang = 'ar';
         let isLoginMode = false; 
+
+        // 🌟 وظيفة التنقل بين التبويبات (Bottom Navigation Logic)
+        function switchNavTab(tabName) {
+            // إخفاء جميع الأقسام
+            document.querySelectorAll('.nav-section-container').forEach(el => {
+                el.classList.remove('active-section');
+            });
+            // إزالة التفعيل من جميع الأزرار
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // تفعيل القسم والزر المختار
+            document.getElementById(`nav-section-${tabName}`).classList.add('active-section');
+            event.currentTarget.classList.add('active');
+        }
 
         function toggleHamburgerMenu() {
             document.getElementById('side-drawer-overlay').classList.add('show');
@@ -1166,14 +1313,17 @@
                     JSON.parse(globalProfile);
                     document.getElementById('login-modal').style.display = 'none';
                     document.getElementById('game-selector').style.display = 'flex';
+                    document.getElementById('bottom-nav-bar').style.display = 'flex'; // إظهار الشريط عند تسجيل الدخول
                     syncHubProfile();
                 } catch (e) {
                     localStorage.removeItem('hub_user_profile');
                     document.getElementById('game-selector').style.display = 'none';
+                    document.getElementById('bottom-nav-bar').style.display = 'none'; // إخفاء الشريط
                     document.getElementById('login-modal').style.display = 'flex';
                 }
             } else {
                 document.getElementById('game-selector').style.display = 'none';
+                document.getElementById('bottom-nav-bar').style.display = 'none'; // إخفاء الشريط
                 document.getElementById('login-modal').style.display = 'flex';
             }
         }
@@ -1350,6 +1500,7 @@
             }
             
             document.getElementById('game-selector').style.display = 'none';
+            document.getElementById('bottom-nav-bar').style.display = 'none'; // إخفاء الشريط عند بدء اللعبة
             document.getElementById('game-interface').style.display = 'block';
             const gameFrame = document.getElementById('game-frame');
             gameFrame.src = 'dama/dama.html';
@@ -1363,7 +1514,10 @@
         
         function exitGame() {
             document.getElementById('game-interface').style.display = 'none';
-            if(localStorage.getItem('hub_user_profile')) document.getElementById('game-selector').style.display = 'flex';
+            if(localStorage.getItem('hub_user_profile')) {
+                document.getElementById('game-selector').style.display = 'flex';
+                document.getElementById('bottom-nav-bar').style.display = 'flex'; // إظهار الشريط عند الخروج من اللعبة
+            }
             setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
             history.pushState({ view: 'hub' }, '');
             syncHubProfile();
@@ -1383,7 +1537,10 @@
             if (document.getElementById('game-interface').style.display === 'block') {
                 if (e.state && e.state.view === 'hub') {
                     document.getElementById('game-interface').style.display = 'none';
-                    if(localStorage.getItem('hub_user_profile')) document.getElementById('game-selector').style.display = 'flex';
+                    if(localStorage.getItem('hub_user_profile')) {
+                        document.getElementById('game-selector').style.display = 'flex';
+                        document.getElementById('bottom-nav-bar').style.display = 'flex'; // إظهار الشريط
+                    }
                     setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
                     syncHubProfile();
                     if (socket && !socket.connected) socket.connect(); 
