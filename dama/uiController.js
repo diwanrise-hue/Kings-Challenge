@@ -2,6 +2,7 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
+ * 🌟 (مُحدّث): تم تجريد الكلاينت من صلاحية إغلاق اللعبة في وضع الأونلاين لمنع الانفصال (Desync) والامتثال الكامل للسيرفر.
  */
 
 import { gameState } from './gameState.js'; 
@@ -214,7 +215,6 @@ export const ui = {
         if (btnFree) btnFree.style.pointerEvents = 'none';
         if (btnPaid) btnPaid.style.pointerEvents = 'none';
 
-        // 🌟 حساب الزاوية لضمان وقوف الإبرة في منتصف الجائزة تماماً
         const extraSpins = 5 * 360; 
         const targetAngle = 360 - ((prizeIndex * 45) + 22.5);
         
@@ -646,14 +646,10 @@ export const ui = {
 
         let myRep = 0, oppRep = 0;
         if (typeof gameEngine.checkRepetitionAndStalling === 'function') {
-            // فحص التكرارات لكلا اللاعبين بشكل مستقل لتجنب الخلط
             myRep = gameEngine.checkRepetitionAndStalling(myColor);
             oppRep = gameEngine.checkRepetitionAndStalling(oppColor);
         }
 
-        // ==========================================
-        // 💡 تحديث واجهة العدادات (منفصلة حسب الطلب)
-        // ==========================================
         const idleCounter = document.getElementById('idle-counter');
         const repCounter = document.getElementById('repetition-counter');
 
@@ -669,7 +665,6 @@ export const ui = {
         }
 
         if (repCounter) {
-            // إظهار تحذير التكرار البرتقالي فقط لتكرارات اللاعب الحالي (أنت)
             if (myRep > 1 && !isExemptFromStalling) { 
                 repCounter.style.display = 'block';
                 repCounter.textContent = `تكرار: ${myRep}/3`;
@@ -679,12 +674,16 @@ export const ui = {
                 repCounter.style.display = 'none';
             }
         }
-        // ==========================================
 
         // 💡 3. معالجة الخسارة والتعادل أولاً لمنع استمرار اللعب
         if (!isExemptFromStalling) {
-            // إذا تجاوز الخصم التكرار، تفوز أنت مباشرة
+            // إذا تجاوز الخصم التكرار
             if (oppRep >= 4) {
+                if (gameState.isOnlineMode) {
+                    if (tInd) { tInd.textContent = "بانتظار قرار السيرفر... ⏳"; tInd.style.color = "#f5a623"; }
+                    return;
+                }
+                
                 if (gameState.blockGameOverModal) return;
                 if (tInd) { tInd.textContent = "فوز! الخصم كرر حركاته 🚫"; tInd.style.color = "#2ecc71"; }
                 gameState.isGameOver = true;
@@ -695,8 +694,10 @@ export const ui = {
                 return;
             }
             
-            // إذا تجاوزت أنت التكرار، تخسر أنت
+            // إذا تجاوزت أنت التكرار
             if (myRep >= 4) {
+                if (gameState.isOnlineMode) return; // 🌟 السيرفر سيغلق اللعبة
+
                 if (gameState.blockGameOverModal) return;
                 if (tInd) { tInd.textContent = "خسارة بسبب التكرار 🚫"; tInd.style.color = "#e74c3c"; }
                 gameState.isGameOver = true;
@@ -709,6 +710,8 @@ export const ui = {
         }
 
         if (gameState.movesWithoutProgress >= 50 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
+            if (gameState.isOnlineMode) return; // 🌟 السيرفر سيغلق اللعبة ويحتسب التعادل
+
             if (gameState.blockGameOverModal) return;
             if (tInd) { tInd.textContent = "تم إعلان التعادل 🤝"; tInd.style.color = "#f1c40f"; }
             
@@ -742,6 +745,8 @@ export const ui = {
         if (!isBoardEmpty) { currentAvailableMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard).length; }
         
         if (!isBoardEmpty && currentAvailableMoves === 0) {
+            if (gameState.isOnlineMode) return; // 🌟 السيرفر سيقرر حالة انعدام الحركات ويغلق اللعبة
+
             if (gameState.blockGameOverModal) return; 
             let winnerColor = gameState.currentTurn === 'white' ? 'black' : 'white';
             tInd.textContent = winnerColor === 'white' ? t('white_wins') : t('black_wins');
@@ -864,7 +869,7 @@ export const ui = {
                 if (midCell) midCell.innerHTML = '';
                 gameState.movesWithoutProgress = 0; 
                 gameState.boardHistoryStr = [];
-                gameState.pieceHistories = {}; // 💡 تصفير التكرار عند الأكل
+                gameState.pieceHistories = {}; 
             }
             
             if (tCell && fCell?.children.length > 0) tCell.appendChild(fCell.children[0]);
@@ -888,7 +893,7 @@ export const ui = {
                 if (isPromotion) { 
                     gameState.movesWithoutProgress = 0; 
                     gameState.boardHistoryStr = []; 
-                    gameState.pieceHistories = {}; // 💡 تصفير التكرار عند الترقية
+                    gameState.pieceHistories = {}; 
                 } else if (chosenMove.some(s => s.midR === null)) { 
                     gameState.movesWithoutProgress++; 
                     gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard)); 
@@ -1126,7 +1131,6 @@ export const ui = {
                 });
                 gameState.userProfile.friends = uniqueArr;
                 
-                // استدعاء دالة بناء الأصدقاء الحديثة 
                 renderFriendsList(gameState.userProfile.friends);
             }
         }
@@ -1163,7 +1167,6 @@ export const ui = {
 // 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
 // ==========================================
 
-// فتح نافذة إعدادات الغرفة الخاصة بمنشئ الغرفة
 window.openCreatorSettings = function(roomId, currentBet) {
     const roomIdInput = document.getElementById('creator-target-room-id');
     const betInput = document.getElementById('edit-room-bet-input');
@@ -1185,7 +1188,6 @@ window.openCreatorSettings = function(roomId, currentBet) {
     window.openAppModal('creator-room-settings-modal');
 };
 
-// دالة حذف الغرفة عبر الزر الأحمر
 window.deleteMyRoom = function(roomId) {
     if (typeof ui !== 'undefined' && typeof ui.showCustomAlert === 'function') {
         ui.showCustomAlert(
@@ -1237,7 +1239,7 @@ window.switchQuestTab = function(tab) {
     if (window.questsManager) { 
         window.questsManager.currentTab = tab; 
         window.questsManager.updateTimerDisplay(); 
-        window.questsManager.renderQuests(tab); // 💡 التعديل هنا لتحديث الزر فوراً
+        window.questsManager.renderQuests(tab); 
     }
 };
 
@@ -1273,13 +1275,11 @@ function cleanExpiredRequests(profile) {
     return profile;
 }
 
-// 🌟 تحديث دالة عرض الأصدقاء لإصلاح تشوه الأزرار وتنسيقها للهاتف
 function renderFriendsList(friendsArr) {
     const listContainer = document.getElementById('igp-friends-list'); if (!listContainer) return;
     if (!friendsArr || friendsArr.length === 0) { listContainer.innerHTML = 'لا يوجد أصدقاء حالياً'; return; }
     listContainer.innerHTML = '';
     
-    // تحويل قائمة IDs إلى كائنات إذا لزم الأمر من خلال البروفايل
     let actualFriends = friendsArr;
     if (friendsArr.length > 0 && typeof friendsArr[0] === 'string') {
         let globalProfile = localStorage.getItem('hub_user_profile');
@@ -1293,7 +1293,6 @@ function renderFriendsList(friendsArr) {
 
     actualFriends.forEach(friend => {
         let div = document.createElement('div');
-        // تقليل الـ Padding قليلاً ليتسع للأزرار في الهواتف الصغيرة
         div.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); padding:8px 10px; border-radius:14px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 10px rgba(0,0,0,0.2);";
         
         let friendId = typeof friend === 'string' ? friend : friend.id;
@@ -1510,7 +1509,6 @@ window.showLeaderboard = function() {
     if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
 };
 
-// 💡 دوال مساعدة لملف المتجر
 window.showEquipNotification = function(itemType) {
     const toast = document.getElementById('toast-notification'); if (!toast) return;
     let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
@@ -1684,7 +1682,6 @@ ui.onClick('undo-btn', () => {
 
 ui.onClick('hint-btn', () => { hintSystem.requestHint(); });
 
-// 🌟 أكواد الأزرار الخاصة بإعدادات الغرفة (جديد)
 ui.onClick('creator-update-bet-btn', () => {
     const roomIdEl = document.getElementById('creator-target-room-id');
     const newBetEl = document.getElementById('edit-room-bet-input');
@@ -1729,7 +1726,6 @@ document.addEventListener('click', (e) => {
             if (typeof window.challengeFriend === 'function') { window.challengeFriend(fId); } 
             else { ui.showCustomAlert(t('coming_soon')); }
         } else if (action === 'remove-friend') {
-            // تحديث قائمة الأصدقاء بإزالة الصديق وحفظ التغيير
             let currentFriends = gameState.userProfile.friends || [];
             gameState.userProfile.friends = currentFriends.filter(f => (typeof f === 'string' ? f.toUpperCase() !== fId : f.id.toUpperCase() !== fId)); 
             
@@ -1818,7 +1814,6 @@ ui.onClick('board', e => {
                     if (typeof ui.playSound === 'function') { ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied); }
                     
                     gameState.virtualBoard = tempBoard; gameState.jumpsCount++; gameState.lastJumpDir = { dr: currDr, dc: currDc };
-                    // 💡 التعديل هنا: إضافة السياق
                     if (window.questsManager) { window.questsManager.updateProgress('capture', 1, gameState.isOnlineMode ? 'online' : 'bot'); }
 
                     let isFinalJump = (gameState.jumpsCount === gameState.requiredJumps);
@@ -1832,7 +1827,7 @@ ui.onClick('board', e => {
                         
                         gameState.movesWithoutProgress = 0; 
                         gameState.boardHistoryStr = [];
-                        gameState.pieceHistories = {}; // 💡 تصفير التكرار عند الأكل
+                        gameState.pieceHistories = {}; 
                         
                         ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
                         gameState.selectedPiece = null; ui.clearHighlights();
@@ -1887,11 +1882,11 @@ ui.onClick('board', e => {
                 if (isPromotion) {
                     gameState.movesWithoutProgress = 0;
                     gameState.boardHistoryStr = [];
-                    gameState.pieceHistories = {}; // 💡 تصفير التكرار عند الترقية
+                    gameState.pieceHistories = {}; 
                 } else {
                     gameState.movesWithoutProgress++;
                     gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
-                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(fromRow, fromCol, toRow, toCol, gameState.currentTurn); // 💡 تتبع تكرار هذا الحجر بالذات
+                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(fromRow, fromCol, toRow, toCol, gameState.currentTurn); 
                 }
                 
                 if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
