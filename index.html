@@ -318,28 +318,30 @@
         .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }    
 
         /* ========================================== */
-        /* تصميم الشريط السفلي (أنحف وفي الأسفل)       */
+        /* تصميم الشريط السفلي (ثابت وملتصق بالشاشة بالكامل) */
         /* ========================================== */
         .bottom-nav-bar {
             position: fixed;
-            bottom: 10px; /* للأسفل أكثر */
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 0; /* ملتصق بالأسفل تماماً */
+            left: 0;
+            transform: none; /* إلغاء التوسيط السابق لأنه الآن بعرض الشاشة */
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: space-around; /* توزيع متساوٍ للأزرار */
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-pill);
-            padding: 4px 10px; /* أنحف */
-            width: 90%;
-            max-width: 400px;
+            border: none;
+            border-top: 1px solid var(--glass-border); /* حد علوي فقط */
+            border-radius: 0; /* إلغاء الحواف الدائرية ليلتصق تماماً */
+            /* مراعاة شريط الآيفون السفلي لعدم التداخل */
+            padding: 5px 10px calc(5px + env(safe-area-inset-bottom, 0px)); 
+            width: 100%; /* العرض كامل */
+            max-width: 100%;
             z-index: 9999;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
-            height: 55px; /* ارتفاع ثابت ونحيف */
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            height: 60px; /* ارتفاع ثابت ومناسب */
         }
 
         .nav-item {
@@ -353,9 +355,8 @@
             gap: 2px;
             cursor: pointer;
             transition: var(--transition);
-            padding: 4px;
-            border-radius: 20px;
-            width: 32%;
+            padding: 5px 20px;
+            border-radius: 15px;
         }
 
         .nav-item:hover {
@@ -374,7 +375,7 @@
         }
 
         .nav-icon {
-            font-size: 18px; /* تصغير الأيقونة */
+            font-size: 20px;
             transition: var(--transition);
             margin-bottom: 0;
             filter: grayscale(100%) opacity(0.8);
@@ -385,11 +386,12 @@
         }
 
         .nav-text {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
 
+        /* حاويات محتوى التبويبات */
         .nav-section-container {
             display: none;
             width: 100%;
@@ -487,7 +489,8 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
             display: flex;
             flex-direction: column;
-            height: calc(100dvh - 235px); /* ارتفاع ديناميكي صارم للحماية */
+            /* 🌟 الارتفاع معدل ليتناسب مع الشريط السفلي الجديد */
+            height: calc(100dvh - 240px); 
             overflow: hidden;
         }
 
@@ -529,7 +532,7 @@
         <h1 data-i18n="app_title">DAMA CHALLENGE</h1>
     </div>
 
-    <!-- الشريط السفلي للتنقل -->
+    <!-- الشريط السفلي للتنقل المحدث بالكامل -->
     <div class="bottom-nav-bar" id="bottom-nav-bar" style="display: none;">
         <button class="nav-item" onclick="switchNavTab('latest')">
             <span class="nav-icon">✨</span>
@@ -732,6 +735,8 @@
             </button>
         </div>
     </div>
+
+    <input type="file" id="bg-upload-input" accept="image/*" style="display: none;" onchange="changeAppBackground(event)">
 
     <script>
         window.fbAsyncInit = function() {
