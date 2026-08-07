@@ -2,6 +2,7 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
+ * 🌟 (مُحدّث): إصلاح مشكلة عدم تحديث مبلغ الرهان في إعدادات الغرفة (isEditingBet).
  * 🌟 (مُحدّث): تم تجريد الكلاينت من صلاحية إغلاق اللعبة في وضع الأونلاين لمنع الانفصال (Desync) والامتثال الكامل للسيرفر.
  */
 
@@ -679,11 +680,13 @@ export const ui = {
         if (!isExemptFromStalling) {
             // إذا تجاوز الخصم التكرار
             if (oppRep >= 4) {
+                // 🌟 التعديل هنا: إذا كنا في وضع الأونلاين، لا تنهِ اللعبة محلياً، دع السيرفر يقرر
                 if (gameState.isOnlineMode) {
                     if (tInd) { tInd.textContent = "بانتظار قرار السيرفر... ⏳"; tInd.style.color = "#f5a623"; }
                     return;
                 }
                 
+                // الباقي للعب الأوفلاين ضد الكمبيوتر
                 if (gameState.blockGameOverModal) return;
                 if (tInd) { tInd.textContent = "فوز! الخصم كرر حركاته 🚫"; tInd.style.color = "#2ecc71"; }
                 gameState.isGameOver = true;
@@ -709,6 +712,7 @@ export const ui = {
             }
         }
 
+        // التعادل بقانون الـ 50 حركة
         if (gameState.movesWithoutProgress >= 50 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
             if (gameState.isOnlineMode) return; // 🌟 السيرفر سيغلق اللعبة ويحتسب التعادل
 
@@ -1257,11 +1261,14 @@ window.switchLbTab = function(tab) {
     document.getElementById('lb-tab-' + tab).classList.add('active'); document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
 };
 
+// 🌟 التعديل الخاص بإصلاح تحديث الرهان في إعدادات الغرفة
 window.selectBetAmount = function(value, displayText, element) {
-    if (gameState.isEditingBet) {
-        document.getElementById('edit-room-bet-input').value = value; document.getElementById('edit-room-bet-display').innerText = displayText;
+    if (window.isEditingBet) {
+        document.getElementById('edit-room-bet-input').value = value; 
+        document.getElementById('edit-room-bet-display').innerText = displayText;
     } else {
-        document.getElementById('room-bet-input').value = value; document.getElementById('custom-bet-display').innerText = displayText;
+        document.getElementById('room-bet-input').value = value; 
+        document.getElementById('custom-bet-display').innerText = displayText;
     }
     document.querySelectorAll('.bet-option-item').forEach(el => el.classList.remove('selected'));
     element.classList.add('selected');
