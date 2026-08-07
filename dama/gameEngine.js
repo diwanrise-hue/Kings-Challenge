@@ -3,6 +3,7 @@
  * 🚀 النسخة الصاروخية (Ultra-Optimized) + إصلاح أنظمة التعادل والمماطلة:
  * تم دمج نظام احتساب (حجر ضد حجر)، و 50 حركة بدون أكل،
  * ونظام خسارة التكرار (3 تحذير، 4 خسارة) لكل حجر على حدة.
+ * + ربط نظام المهام (أونلاين / ضد البوت).
  */
 import { gameState } from './gameState.js'; 
 
@@ -320,8 +321,18 @@ export const gameEngine = {
         if (winnerColor !== 'draw') { this.updateUserStats(winnerColor); }
         gameState.statsUpdated = true; gameState.isUpdatingStats = false; 
 
-        const ui = typeof window !== 'undefined' ? window.ui : null;
+        // 💡 إرسال التحديث لمدير المهام وإخباره بالسياق (أونلاين أو ضد البوت)
+        if (window.questsManager && !gameState.isTutorialMode && !gameState.isSpectator) {
+            const mode = gameState.isOnlineMode ? 'online' : 'bot';
+            window.questsManager.updateProgress('play', 1, mode); // تحديث لعب مباراة
+            
+            const myColor = gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor;
+            if (winnerColor === myColor) {
+                window.questsManager.updateProgress('win', 1, mode); // تحديث الفوز
+            }
+        }
 
+        const ui = typeof window !== 'undefined' ? window.ui : null;
         if (ui && typeof ui.showOnlineResultsModal === 'function') { ui.showOnlineResultsModal(winnerColor); } 
         else if (ui && typeof ui.showResultsModal === 'function') { ui.showResultsModal(winnerColor); }
 
