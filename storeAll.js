@@ -7,14 +7,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const storeContainer = document.getElementById('nav-section-store');
     
     if (storeContainer) {
-        // بناء هيكل المتجر بالكامل وحقنه في الحاوية
+        
+        // 1. إضافة ستايلات التبويبات ديناميكياً لتجنب تعديل ملف CSS الأساسي
+        if (!document.getElementById('store-tabs-style')) {
+            const style = document.createElement('style');
+            style.id = 'store-tabs-style';
+            style.innerHTML = `
+                .store-tabs-container {
+                    display: flex; gap: 8px; margin-bottom: 25px; 
+                    background: rgba(15, 18, 25, 0.6); padding: 6px;
+                    border-radius: 50px; border: 1px solid rgba(255,255,255,0.08);
+                    width: 100%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                }
+                .store-tab-btn {
+                    flex: 1; background: transparent; border: none; color: var(--text-secondary);
+                    padding: 10px 5px; border-radius: 50px; font-weight: 700; font-size: 13px;
+                    cursor: pointer; transition: var(--transition); white-space: nowrap;
+                    display: flex; align-items: center; justify-content: center; gap: 5px;
+                }
+                .store-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+                .store-tab-btn.active {
+                    background: rgba(255,255,255,0.15); color: white;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                }
+                .store-tab-btn.premium-tab.active {
+                    background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(211,84,0,0.3));
+                    color: var(--accent); border: 1px solid rgba(245,166,35,0.4);
+                }
+                .store-tab-content { display: none; width: 100%; max-width: 350px; animation: fadeIn 0.4s ease; }
+                .store-tab-content.active-content { display: block; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // 2. بناء هيكل المتجر (تبويبات + حاويات المحتوى)
         storeContainer.innerHTML = `
-            <h2 style="color:white; margin-bottom: 25px;" data-i18n="nav_store">المتجر</h2>
+            <h2 style="color:white; margin-bottom: 20px;" data-i18n="nav_store">المتجر</h2>
             
-            <div class="store-menu-container">
-                <!-- 1. زر الألعاب (مجموعة فرعية) -->
+            <!-- أزرار التبويبات العلوية -->
+            <div class="store-tabs-container">
+                <button class="store-tab-btn active" onclick="window.switchStoreContentTab('store-games-content', this)">
+                    <span>🎮</span> <span data-i18n="store_games">الألعاب</span>
+                </button>
+                <button class="store-tab-btn" onclick="window.switchStoreContentTab('store-popularity-content', this)">
+                    <span>🔥</span> <span data-i18n="store_popularity">الشعبية</span>
+                </button>
+                <button class="store-tab-btn premium-tab" onclick="window.switchStoreContentTab('store-topup-content', this)">
+                    <span>💎</span> <span data-i18n="store_topup">شحن</span>
+                </button>
+            </div>
+
+            <!-- حاوية محتوى الألعاب (مفتوحة افتراضياً) -->
+            <div id="store-games-content" class="store-tab-content active-content">
                 <div class="store-group-box">
-                    <h4 class="store-group-title" data-i18n="store_games">الألعاب</h4>
+                    <h4 class="store-group-title" style="text-align: center; color: white;" data-i18n="store_games">الألعاب المتاحة</h4>
                     <div class="store-games-grid">
                         <button class="store-sub-btn" onclick="triggerAlertSoon()">
                             <span class="store-sub-icon">♟️</span>
@@ -26,19 +72,62 @@ document.addEventListener('DOMContentLoaded', () => {
                         </button>
                     </div>
                 </div>
+            </div>
 
-                <!-- 2. زر الشعبية -->
-                <button class="store-btn" onclick="triggerAlertSoon()">
-                    <span class="store-btn-icon">🔥</span>
-                    <span data-i18n="store_popularity">الشعبية</span>
-                </button>
+            <!-- حاوية محتوى الشعبية (مخفية) -->
+            <div id="store-popularity-content" class="store-tab-content">
+                <div class="store-group-box" style="text-align: center;">
+                    <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.5));">🔥</span>
+                    <h4 style="color: white; font-size: 18px; margin-bottom: 10px;" data-i18n="store_popularity">باقات الشعبية</h4>
+                    <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
+                        ادعم أصدقاءك أو تصدر قائمة الأكثر شعبية باقتناء باقات نادرة!
+                    </p>
+                    <button class="btn btn-primary" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                </div>
+            </div>
 
-                <!-- 3. زر الشحن -->
-                <button class="store-btn premium" onclick="triggerAlertSoon()">
-                    <span class="store-btn-icon">💎</span>
-                    <span data-i18n="store_topup">شحن</span>
-                </button>
+            <!-- حاوية محتوى الشحن (مخفية) -->
+            <div id="store-topup-content" class="store-tab-content">
+                <div class="store-group-box" style="text-align: center; border-color: rgba(245,166,35,0.4); background: linear-gradient(180deg, rgba(245,166,35,0.05), transparent);">
+                    <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(245, 166, 35, 0.5));">💎</span>
+                    <h4 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;" data-i18n="store_topup">شحن الرصيد</h4>
+                    <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
+                        اشحن رصيدك الآن للمشاركة في البطولات الكبرى والمراهنات الفاخرة.
+                    </p>
+                    <button class="store-btn premium" style="justify-content: center; width: 100%; margin: 0;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                </div>
             </div>
         `;
+        
+        // 3. تحديث الترجمات على العناصر الجديدة مباشرة
+        if (typeof updateTranslations === 'function') {
+            updateTranslations();
+        }
     }
 });
+
+// 4. دالة التبديل بين التبويبات (مرفقة بالنافذة لتكون متاحة للـ onclick)
+window.switchStoreContentTab = function(contentId, btnElement) {
+    // إخفاء جميع الحاويات
+    document.querySelectorAll('.store-tab-content').forEach(el => {
+        el.style.display = 'none';
+        el.classList.remove('active-content');
+    });
+    
+    // إزالة تفعيل التحديد من جميع الأزرار
+    document.querySelectorAll('.store-tab-btn').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    // إظهار المحتوى المطلوب
+    const targetContent = document.getElementById(contentId);
+    if (targetContent) {
+        targetContent.style.display = 'block';
+        targetContent.classList.add('active-content');
+    }
+    
+    // تفعيل الزر المضغوط
+    if (btnElement) {
+        btnElement.classList.add('active');
+    }
+};
