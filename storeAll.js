@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً في الواجهة الرئيسية
- * تم ربطه بملف store.js لجلب العناصر داخل تبويب "دامة" وإظهارها فوراً
+ * تم ربطه بملف store.js لجلب العناصر داخل تبويب "دامة"
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
-        // فصل الحاوية لتكون متمركزة في الأعلى (تحت الرصيد والملف الشخصي مباشرة)
+        // فصل الحاوية لتكون متمركزة في الأعلى
         storeContainer.style.position = 'absolute';
         storeContainer.style.top = '0';
         storeContainer.style.left = '0';
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-tab-content { display: none; width: 90%; max-width: 350px; animation: fadeIn 0.4s ease; }
                 .store-tab-content.active-content { display: block; }
 
-                /* التبويبات الفرعية (دامة / طاولة) - أنحف وبدون صور */
+                /* التبويبات الفرعية (دامة / طاولة) */
                 .store-sub-tabs-container {
                     display: flex; gap: 5px; margin-bottom: 15px; 
                     background: rgba(15, 18, 25, 0.5); padding: 4px; 
@@ -87,24 +87,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.2);
                 }
 
+                /* صندوق الألعاب المحدث (داكن ومضبب لعزل الخلفية المزعجة) */
+                .store-group-box-dark {
+                    padding: 15px 10px;
+                    background: rgba(10, 12, 16, 0.85) !important; /* لون داكن شبه صلب */
+                    backdrop-filter: blur(15px); /* عزل الخلفية بقوة */
+                    -webkit-backdrop-filter: blur(15px);
+                    border: 1px solid rgba(255,255,255,0.1);
+                    border-radius: 24px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+                }
+
                 /* منطقة التمرير للمنتجات */
                 .store-scrollable-area {
-                    max-height: 52vh; overflow-y: auto; overflow-x: hidden; padding-right: 5px;
+                    max-height: 50vh; overflow-y: auto; overflow-x: hidden; padding-right: 5px;
                 }
                 .store-scrollable-area::-webkit-scrollbar { width: 4px; }
                 .store-scrollable-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
                 
-                /* شبكة المنتجات (تنسيقات العناصر التي يبنيها store.js) */
+                /* شبكة المنتجات والكروت (تنسيقات داكنة جداً لتبرز المنتجات) */
                 .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-                .store-item-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; padding: 10px 5px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-                .store-buy-btn-small { height: 32px; font-size: 12px; border-radius: 10px; width: 90%; background: rgba(255,255,255,0.1); color: white; border: none; cursor: pointer; transition: 0.2s;}
+                .store-item-card { 
+                    background: rgba(25, 30, 35, 0.95) !important; /* خلفية الكارت داكنة وصلبة */
+                    border: 1px solid rgba(255,255,255,0.08); 
+                    border-radius: 16px; 
+                    padding: 10px 5px; 
+                    display: flex; flex-direction: column; align-items: center; gap: 6px; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                }
+                .store-buy-btn-small { 
+                    height: 32px; font-size: 12px; border-radius: 10px; width: 90%; 
+                    background: rgba(255,255,255,0.1); color: white; border: none; 
+                    cursor: pointer; transition: 0.2s;
+                }
                 .store-buy-btn-small:hover { background: rgba(255,255,255,0.2); }
             `;
             document.head.appendChild(style);
         }
 
-        // 2. بناء هيكل المتجر بالكامل
+        // 2. بناء هيكل المتجر
         storeContainer.innerHTML = `
             <!-- أزرار التبويبات العلوية الرئيسية -->
             <div class="store-tabs-container">
@@ -132,10 +154,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </div>
 
-                <!-- صندوق المحتوى الفعلي للألعاب -->
-                <div class="store-group-box" style="padding: 15px 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-card);">
+                <!-- صندوق المحتوى الفعلي للألعاب (تم تطبيق الكلاس الداكن الجديد هنا) -->
+                <div class="store-group-box-dark">
                     
-                    <!-- 💡 محتوى متجر دامة (يتم تعبئته بواسطة store.js) -->
+                    <!-- 💡 محتوى متجر دامة -->
                     <div id="store-dama-items" class="store-sub-tab-content active-content">
                         
                         <!-- أزرار التصنيفات الداخلية للدامة -->
@@ -170,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- حاوية محتوى الشعبية -->
             <div id="store-popularity-content" class="store-tab-content">
-                <div class="store-group-box" style="text-align: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-card); padding: 15px;">
+                <div class="store-group-box-dark" style="text-align: center;">
                     <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.5));">🔥</span>
                     <h4 style="color: white; font-size: 18px; margin-bottom: 10px;" data-i18n="store_popularity">باقات الشعبية</h4>
                     <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
@@ -182,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- حاوية محتوى الشحن -->
             <div id="store-topup-content" class="store-tab-content">
-                <div class="store-group-box" style="text-align: center; border-color: rgba(245,166,35,0.4); background: linear-gradient(180deg, rgba(245,166,35,0.05), transparent); border-radius: var(--radius-card); padding: 15px;">
+                <div class="store-group-box-dark" style="text-align: center; border-color: rgba(245,166,35,0.4); background: linear-gradient(180deg, rgba(245,166,35,0.1), rgba(10,12,16,0.95)) !important;">
                     <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(245, 166, 35, 0.5));">💎</span>
                     <h4 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;" data-i18n="store_topup">شحن الرصيد</h4>
                     <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
@@ -193,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         
-        // 3. تحديث الترجمات على العناصر الجديدة مباشرة
+        // 3. تحديث الترجمات
         if (typeof updateTranslations === 'function') {
             updateTranslations();
         }
