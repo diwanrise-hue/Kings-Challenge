@@ -399,6 +399,62 @@
             display: flex;
             animation: fadeIn 0.4s ease-out;
         }
+
+        /* ========================================== */
+        /* تصميم قائمة المتجر (Store List)            */
+        /* ========================================== */
+        .store-menu-container {
+            width: 85%; max-width: 320px;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        .store-group-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-card);
+            padding: 15px;
+        }
+        .store-group-title {
+            color: var(--text-secondary);
+            font-size: 14px; font-weight: 700;
+            margin: 0 0 12px 0; text-align: start;
+        }
+        .store-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 15px 20px;
+            display: flex; align-items: center; gap: 15px;
+            color: var(--text-primary); font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: var(--transition);
+            width: 100%; margin-bottom: 10px;
+        }
+        .store-btn:last-child { margin-bottom: 0; }
+        .store-btn:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
+        .store-btn:active { transform: scale(0.98); }
+        
+        .store-btn-icon { font-size: 24px; display: flex; align-items: center; justify-content: center; width: 30px; }
+        
+        .store-btn.premium {
+            background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(211,84,0,0.2));
+            border-color: rgba(245,166,35,0.4);
+            color: #f5a623;
+        }
+        .store-btn.premium:hover { background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(211,84,0,0.3)); }
+        
+        .store-games-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .store-sub-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            color: var(--text-primary); font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: var(--transition);
+        }
+        .store-sub-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); color: var(--accent); }
+        .store-sub-icon { font-size: 28px; }
     </style>
 </head>
 <body>
@@ -451,10 +507,38 @@
 
         </div>
 
-        <!-- قسم المتجر -->
+        <!-- قسم المتجر المحدث -->
         <div id="nav-section-store" class="nav-section-container">
-            <h2 style="color:white; margin-bottom: 20px;">المتجر</h2>
-            <div class="game-card-soon" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</div>
+            <h2 style="color:white; margin-bottom: 25px;" data-i18n="nav_store">المتجر</h2>
+            
+            <div class="store-menu-container">
+                <!-- 1. زر الألعاب (مجموعة فرعية) -->
+                <div class="store-group-box">
+                    <h4 class="store-group-title" data-i18n="store_games">الألعاب</h4>
+                    <div class="store-games-grid">
+                        <button class="store-sub-btn" onclick="triggerAlertSoon()">
+                            <span class="store-sub-icon">♟️</span>
+                            <span data-i18n="store_dama">دامة</span>
+                        </button>
+                        <button class="store-sub-btn" onclick="triggerAlertSoon()">
+                            <span class="store-sub-icon">🎲</span>
+                            <span data-i18n="store_tawla">طاولة</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. زر الشعبية -->
+                <button class="store-btn" onclick="triggerAlertSoon()">
+                    <span class="store-btn-icon">🔥</span>
+                    <span data-i18n="store_popularity">الشعبية</span>
+                </button>
+
+                <!-- 3. زر الشحن -->
+                <button class="store-btn premium" onclick="triggerAlertSoon()">
+                    <span class="store-btn-icon">💎</span>
+                    <span data-i18n="store_topup">شحن</span>
+                </button>
+            </div>
         </div>
 
         <!-- قسم الألعاب (الافتراضي) -->
@@ -473,7 +557,7 @@
 
         <!-- قسم الأحدث -->
         <div id="nav-section-latest" class="nav-section-container">
-            <h2 style="color:white; margin-bottom: 20px;">الأحدث</h2>
+            <h2 style="color:white; margin-bottom: 20px;" data-i18n="nav_latest">الأحدث</h2>
             <div class="game-card-soon" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</div>
         </div>
     </div>
@@ -721,7 +805,12 @@
                 register_tab_toggle: "امتلك حساباً بالفعل؟ تسجيل الدخول",
                 nav_store: "المتجر",
                 nav_games: "الألعاب",
-                nav_latest: "الأحدث"
+                nav_latest: "الأحدث",
+                store_games: "الألعاب",
+                store_dama: "دامة",
+                store_tawla: "طاولة",
+                store_popularity: "الشعبية",
+                store_topup: "شحن"
             },
             en: {
                 app_title: "DAMA CHALLENGE",
@@ -785,7 +874,12 @@
                 register_tab_toggle: "Already have an account? Sign In",
                 nav_store: "Store",
                 nav_games: "Games",
-                nav_latest: "Latest"
+                nav_latest: "Latest",
+                store_games: "Games",
+                store_dama: "Dama",
+                store_tawla: "Backgammon",
+                store_popularity: "Popularity",
+                store_topup: "Top-up"
             },
             ku: {
                 app_title: "DAMA CHALLENGE",
@@ -849,7 +943,12 @@
                 register_tab_toggle: "هەژمارت هەیە؟ چوونە ژوورەوە",
                 nav_store: "فرۆشگا",
                 nav_games: "یارییەکان",
-                nav_latest: "نوێترین"
+                nav_latest: "نوێترین",
+                store_games: "یارییەکان",
+                store_dama: "دامە",
+                store_tawla: "تاوڵە",
+                store_popularity: "ناوبانگ",
+                store_topup: "بارکردن"
             }
         };
 
