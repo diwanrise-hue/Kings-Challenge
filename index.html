@@ -17,7 +17,7 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     <script src="radio.js?v=4" defer></script>
     
-    <!-- 🌟 تم استدعاء ملف المتجر الجديد هنا -->
+    <!-- 🌟 استدعاء ملف المتجر الديناميكي -->
     <script src="storeAll.js" defer></script>
 
     <style>
@@ -396,68 +396,12 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding-bottom: 90px; /* لترك مساحة للشريط السفلي */
+            padding-bottom: 90px;
         }
         .nav-section-container.active-section {
             display: flex;
             animation: fadeIn 0.4s ease-out;
         }
-
-        /* ========================================== */
-        /* تصميم قائمة المتجر (Store List)            */
-        /* ========================================== */
-        .store-menu-container {
-            width: 85%; max-width: 320px;
-            display: flex; flex-direction: column; gap: 15px;
-        }
-        .store-group-box {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: var(--radius-card);
-            padding: 15px;
-        }
-        .store-group-title {
-            color: var(--text-secondary);
-            font-size: 14px; font-weight: 700;
-            margin: 0 0 12px 0; text-align: start;
-        }
-        .store-btn {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 15px 20px;
-            display: flex; align-items: center; gap: 15px;
-            color: var(--text-primary); font-size: 16px; font-weight: 600;
-            cursor: pointer; transition: var(--transition);
-            width: 100%; margin-bottom: 10px;
-        }
-        .store-btn:last-child { margin-bottom: 0; }
-        .store-btn:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
-        .store-btn:active { transform: scale(0.98); }
-        
-        .store-btn-icon { font-size: 24px; display: flex; align-items: center; justify-content: center; width: 30px; }
-        
-        .store-btn.premium {
-            background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(211,84,0,0.2));
-            border-color: rgba(245,166,35,0.4);
-            color: #f5a623;
-        }
-        .store-btn.premium:hover { background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(211,84,0,0.3)); }
-        
-        .store-games-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-        }
-        .store-sub-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 14px;
-            padding: 12px;
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
-            color: var(--text-primary); font-size: 14px; font-weight: 600;
-            cursor: pointer; transition: var(--transition);
-        }
-        .store-sub-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); color: var(--accent); }
-        .store-sub-icon { font-size: 28px; }
     </style>
 </head>
 <body>
@@ -492,25 +436,21 @@
 
     <div id="game-selector">
         <div class="top-hud">
-            
             <div style="display: flex; gap: 12px; align-items: center;">
                 <div class="hamburger-btn" id="hamburger-toggle-btn" onclick="toggleHamburgerMenu()">
                     <span></span><span></span><span></span>
                 </div>
-                
                 <button id="music-toggle-btn" class="radio-hud-btn-fallback auto-radio-icon" onclick="openRadioModal()"></button>
             </div>
-
             <div class="hud-group">
                 <div class="hub-token-badge">
                     🪙 <span id="hub-token-count">0</span>
                 </div>
                 <div class="profile-avatar" id="hub-profile-avatar" onclick="openProfileModal()"></div>
             </div>
-
         </div>
 
-        <!-- قسم المتجر المحدث (فارغ ليتم توليده عبر storeAll.js) -->
+        <!-- 🌟 قسم المتجر (يتم حقنه ديناميكياً من storeAll.js) -->
         <div id="nav-section-store" class="nav-section-container"></div>
 
         <!-- قسم الألعاب (الافتراضي) -->
@@ -522,7 +462,6 @@
                         <span id="dama-title-text" data-i18n="dama">دامة</span>
                     </div>
                 </div>
-                
                 <div class="game-card-soon" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</div>
             </div>
         </div>
@@ -560,7 +499,6 @@
         <div class="settings-card" dir="auto" style="max-width: 250px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeLangModal()">✕</button>
             <h3 data-i18n="change_lang" style="margin-bottom: 25px;">اللغة</h3>
-            
             <div class="action-grid" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 0;">
                 <button class="btn btn-secondary" onclick="selectLanguage('ar')">عربي</button>
                 <button class="btn btn-secondary" onclick="selectLanguage('ku')">کوردی</button>
@@ -573,7 +511,6 @@
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeBgModal()">✕</button>
             <h3 data-i18n="bg_title" style="margin-bottom: 25px;">تغيير الخلفية</h3>
-            
             <div class="action-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 0;">
                 <button class="btn btn-secondary" onclick="setPredefinedBackground('default')" data-i18n="bg_default">الخلفية الافتراضية</button>
                 <button class="btn btn-secondary" onclick="setPredefinedBackground('Photo/1000139835.webp')" data-i18n="bg_snow_castle">قلعة الثلج</button>
@@ -583,7 +520,6 @@
                 <button class="btn btn-secondary" onclick="setPredefinedBackground('Photo/1000139943.webp')" data-i18n="bg_forest_river">الغابة والطبيعة</button>
                 <button class="btn btn-secondary" onclick="setPredefinedBackground('Photo/1000139898.webp')" data-i18n="bg_green_domino">دومينو ملكية</button>
                 <button class="btn btn-secondary" onclick="setPredefinedBackground('Photo/1000139896.webp')" data-i18n="bg_black_gold_cards">ورق أسود وذهبي</button>
-                
                 <button class="btn btn-primary full-width" onclick="document.getElementById('bg-upload-input').click(); closeBgModal();" data-i18n="bg_upload">رفع من المعرض</button>
             </div>
         </div>
@@ -929,18 +865,15 @@
         if (!langs.includes(currentLang)) currentLang = 'ar';
         let isLoginMode = false; 
 
-        // 🌟 وظيفة التنقل بين التبويبات (Bottom Navigation Logic)
+        // التنقل بين التبويبات السفلية
         function switchNavTab(tabName) {
-            // إخفاء جميع الأقسام
             document.querySelectorAll('.nav-section-container').forEach(el => {
                 el.classList.remove('active-section');
             });
-            // إزالة التفعيل من جميع الأزرار
             document.querySelectorAll('.nav-item').forEach(el => {
                 el.classList.remove('active');
             });
 
-            // تفعيل القسم والزر المختار
             document.getElementById(`nav-section-${tabName}`).classList.add('active-section');
             event.currentTarget.classList.add('active');
         }
@@ -1027,7 +960,6 @@
         function updateTranslations() {
             const t = translations[currentLang];
 
-            // 💡 سد ثغرة XSS باستخدام textContent بدلاً من innerHTML للترجمات
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.textContent = t[key];
@@ -1156,7 +1088,7 @@
 
         function showLoadingPopup(msg) {
             document.getElementById('custom-popup-modal').style.display = 'flex';
-            document.getElementById('custom-popup-msg').innerText = msg; // 💡 سد ثغرة XSS باستخدام innerText
+            document.getElementById('custom-popup-msg').innerText = msg;
             document.getElementById('custom-popup-input-group').style.display = 'none';
             document.getElementById('custom-popup-ok').style.display = 'none'; 
             document.getElementById('custom-popup-cancel').style.display = 'none';
@@ -1286,7 +1218,7 @@
 
         function showCustomPopup(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
             document.getElementById('custom-popup-modal').style.display = 'flex';
-            document.getElementById('custom-popup-msg').innerText = msg; // 💡 تم سد ثغرة XSS باستخدام innerText
+            document.getElementById('custom-popup-msg').innerText = msg;
             
             const inputContainer = document.getElementById('custom-popup-input-group');
             const inputEl = document.getElementById('custom-popup-input');
@@ -1384,17 +1316,17 @@
                     JSON.parse(globalProfile);
                     document.getElementById('login-modal').style.display = 'none';
                     document.getElementById('game-selector').style.display = 'flex';
-                    document.getElementById('bottom-nav-bar').style.display = 'flex'; // إظهار الشريط عند تسجيل الدخول
+                    document.getElementById('bottom-nav-bar').style.display = 'flex';
                     syncHubProfile();
                 } catch (e) {
                     localStorage.removeItem('hub_user_profile');
                     document.getElementById('game-selector').style.display = 'none';
-                    document.getElementById('bottom-nav-bar').style.display = 'none'; // إخفاء الشريط
+                    document.getElementById('bottom-nav-bar').style.display = 'none';
                     document.getElementById('login-modal').style.display = 'flex';
                 }
             } else {
                 document.getElementById('game-selector').style.display = 'none';
-                document.getElementById('bottom-nav-bar').style.display = 'none'; // إخفاء الشريط
+                document.getElementById('bottom-nav-bar').style.display = 'none';
                 document.getElementById('login-modal').style.display = 'flex';
             }
         }
@@ -1571,7 +1503,7 @@
             }
             
             document.getElementById('game-selector').style.display = 'none';
-            document.getElementById('bottom-nav-bar').style.display = 'none'; // إخفاء الشريط عند بدء اللعبة
+            document.getElementById('bottom-nav-bar').style.display = 'none'; 
             document.getElementById('game-interface').style.display = 'block';
             const gameFrame = document.getElementById('game-frame');
             gameFrame.src = 'dama/dama.html';
@@ -1587,7 +1519,7 @@
             document.getElementById('game-interface').style.display = 'none';
             if(localStorage.getItem('hub_user_profile')) {
                 document.getElementById('game-selector').style.display = 'flex';
-                document.getElementById('bottom-nav-bar').style.display = 'flex'; // إظهار الشريط عند الخروج من اللعبة
+                document.getElementById('bottom-nav-bar').style.display = 'flex';
             }
             setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
             history.pushState({ view: 'hub' }, '');
@@ -1610,7 +1542,7 @@
                     document.getElementById('game-interface').style.display = 'none';
                     if(localStorage.getItem('hub_user_profile')) {
                         document.getElementById('game-selector').style.display = 'flex';
-                        document.getElementById('bottom-nav-bar').style.display = 'flex'; // إظهار الشريط
+                        document.getElementById('bottom-nav-bar').style.display = 'flex';
                     }
                     setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
                     syncHubProfile();
@@ -1661,9 +1593,6 @@
 
         function triggerLogout() { handleAccountExit(false); }
 
-        // ===================================== //
-        // 📡 الإضافة الذهبية: نظام استقبال الأوامر الصارمة من اللعبة
-        // ===================================== //
         window.addEventListener('message', (event) => {
             if (!event.data) return;
             
@@ -1674,10 +1603,8 @@
             } else if (event.data.type === 'TOGGLE_RADIO') {
                 if (typeof toggleRadioPlayState === 'function') toggleRadioPlayState();
             } else if (event.data.type === 'PLAY_RADIO') {
-                // أمر إجباري لتشغيل الصوت 🟢
                 if (typeof triggerPlayRadio === 'function') triggerPlayRadio();
             } else if (event.data.type === 'STOP_RADIO') {
-                // أمر إجباري لإيقاف الصوت 🔴
                 if (typeof stopRadio === 'function') stopRadio();
             } else if (event.data.type === 'OPEN_RADIO_MODAL') {
                 if (typeof openRadioModal === 'function') openRadioModal();
@@ -1687,5 +1614,18 @@
         window.syncHubProfile = syncHubProfile;
         window.exitGame = exitGame; 
     </script>
+
+    <!-- 🌟 التعديل الأخير: استدعاء ملفات المتجر وتهيئتها لضخ المنتجات -->
+    <script type="module">
+        import { storeManager } from './dama/store.js'; // يتم جلب المنتجات من محرك الدامة
+        
+        // تهيئة المتجر عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            if (storeManager && typeof storeManager.init === 'function') {
+                storeManager.init();
+            }
+        });
+    </script>
+
 </body>
 </html>
