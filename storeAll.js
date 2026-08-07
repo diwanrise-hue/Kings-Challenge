@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * تم إضافة حماية صارمة لمنع تداخل المنتجات مع الواجهة
+ * التحديث: تحويل أزرار دامة وطاولة لتصبح شريطاً جانبياً (Side Tabs) بجوار المنتجات
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         storeContainer.style.justifyContent = 'flex-start'; 
         storeContainer.style.paddingTop = '95px'; 
         
-        // 1. حقن ستايلات المتجر بقوة (!important) لمنع أي انهيار في التصميم
+        // 1. حقن ستايلات المتجر
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: flex; gap: 8px; 
                     background: rgba(15, 18, 25, 0.6); padding: 6px;
                     border-radius: 50px; border: 1px solid rgba(255,255,255,0.08);
-                    width: 90%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    width: 95%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
                     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-                    z-index: 10; margin-bottom: 10px;
+                    z-index: 10; margin-bottom: 10px; margin-left: auto; margin-right: auto;
                 }
                 .store-tab-btn {
                     flex: 1; background: transparent; border: none; color: var(--text-secondary);
@@ -41,38 +41,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
                 .store-tab-btn.active { background: rgba(255,255,255,0.15); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
                 .store-tab-btn.premium-tab.active { background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(211,84,0,0.3)); color: var(--accent); border: 1px solid rgba(245,166,35,0.4); }
-                .store-tab-content { display: none; width: 90%; max-width: 350px; animation: fadeIn 0.4s ease; }
-                .store-tab-content.active-content { display: block; }
-
-                /* التبويبات الفرعية (دامة / طاولة) */
-                .store-sub-tabs-container {
-                    display: flex; gap: 5px; margin-bottom: 10px; 
-                    background: rgba(15, 18, 25, 0.5); padding: 4px; 
-                    border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);
-                    width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-                    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+                
+                /* حاوية المحتوى الرئيسية - معدلة لتناسب التصميم الجانبي */
+                .store-tab-content { 
+                    display: none; width: 95%; max-width: 400px; margin: 0 auto;
+                    height: calc(100dvh - 180px); /* ارتفاع ثابت يحمي المنتجات من الشريط السفلي */
+                    animation: fadeIn 0.4s ease; 
                 }
-                .store-sub-tab-btn {
-                    flex: 1; background: transparent; border: none; color: var(--text-secondary);
-                    padding: 6px 10px; border-radius: 50px; font-weight: 700; font-size: 13px; cursor: pointer; transition: var(--transition);
-                }
-                .store-sub-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
-                .store-sub-tab-btn.active { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-                .store-sub-tab-content { display: none; animation: fadeIn 0.3s ease; height: 100%; }
-                .store-sub-tab-content.active-content { display: flex; flex-direction: column; }
+                .store-tab-content.active-content { display: flex; flex-direction: row; gap: 8px; }
 
-                /* تصنيفات المتجر الداخلية (خلفيات، إطارات..) */
-                .dama-cats-container { display: flex; gap: 6px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
-                .dama-cats-container::-webkit-scrollbar { height: 0; display: none; }
-                .dama-cat-btn {
-                    flex: 1; min-width: 65px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
-                    color: var(--text-secondary); padding: 8px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; text-align: center;
+                /* 🌟 الأزرار الجانبية (دامة وطاولة) - التصميم الجديد 🌟 */
+                .store-side-tabs {
+                    display: flex; flex-direction: column; gap: 10px;
+                    width: 60px; /* عرض ثابت للشريط الجانبي */
+                    flex-shrink: 0;
                 }
-                .dama-cat-btn.active { background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.2); }
+                .store-side-tab-btn {
+                    background: rgba(15, 18, 25, 0.6);
+                    border: 1px solid rgba(255,255,255,0.05);
+                    border-radius: 16px;
+                    color: var(--text-secondary);
+                    font-weight: 700; font-size: 13px;
+                    height: 80px; /* زر طولي احترافي */
+                    display: flex; align-items: center; justify-content: center;
+                    cursor: pointer; transition: 0.3s;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                }
+                .store-side-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+                .store-side-tab-btn.active {
+                    background: rgba(10, 12, 16, 0.95); /* نفس لون الصندوق المظلم ليبدو متصلاً به */
+                    color: white; 
+                    border: 1px solid rgba(255,255,255,0.2); 
+                    box-shadow: 0 0 15px rgba(255,255,255,0.1);
+                }
 
-                /* 🌟 الصندوق الثابت - يمنع تسرب المنتجات للخارج */
+                /* محتوى التبويب الجانبي */
+                .store-sub-tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease; }
+                .store-sub-tab-content.active-content { display: flex; flex-direction: column; width: 100%; }
+
+                /* 🌟 الصندوق المظلم الثابت (الآن يملأ المساحة المتبقية بجوار الأزرار) */
                 .store-group-box-dark {
-                    padding: 15px 10px 5px 10px !important;
+                    flex: 1; /* يأخذ المساحة المتبقية بجانب الأزرار */
+                    padding: 12px 8px 5px 8px !important;
                     background: rgba(10, 12, 16, 0.95) !important;
                     backdrop-filter: blur(20px) !important;
                     -webkit-backdrop-filter: blur(20px) !important;
@@ -81,11 +91,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
                     display: flex !important;
                     flex-direction: column !important;
-                    height: calc(100dvh - 240px) !important;
-                    overflow: hidden !important; /* هذا السطر يمنع تداخل العناصر مع الواجهة */
-                    position: relative !important;
-                    z-index: 10 !important;
+                    height: 100% !important; /* يأخذ ارتفاع الحاوية الأب */
+                    overflow: hidden !important;
                 }
+
+                /* تصنيفات المتجر الداخلية (خلفيات، إطارات..) */
+                .dama-cats-container { display: flex; gap: 6px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
+                .dama-cats-container::-webkit-scrollbar { height: 0; display: none; }
+                .dama-cat-btn {
+                    flex: 1; min-width: 60px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
+                    color: var(--text-secondary); padding: 8px 5px; border-radius: 12px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; text-align: center;
+                }
+                .dama-cat-btn.active { background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.2); }
 
                 /* 🌟 منطقة التمرير للمنتجات */
                 .store-scrollable-area {
@@ -94,36 +111,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     overflow-x: hidden !important; 
                     padding-right: 5px !important;
                     padding-top: 5px !important;
-                    padding-bottom: 60px !important;
+                    padding-bottom: 60px !important; /* مساحة لعدم القص */
                 }
                 .store-scrollable-area::-webkit-scrollbar { width: 4px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
                 
-                /* 🌟 شبكة الكروت الصارمة - تجبر الكروت على الترتيب بـ 3 أعمدة */
+                /* شبكة الكروت (تم تصغير الجاب والبادينج لتناسب العرض الجديد) */
                 .store-items-grid { 
                     display: grid !important; 
                     grid-template-columns: repeat(3, 1fr) !important; 
-                    gap: 8px !important; 
+                    gap: 6px !important; 
                     width: 100% !important;
                 }
-                
-                /* 🌟 شكل الكارت نفسه لحماية النصوص من التداخل */
                 .store-item-card { 
                     background: rgba(25, 30, 35, 0.98) !important;
                     border: 1px solid rgba(255,255,255,0.08) !important; 
                     border-radius: 16px !important; 
-                    padding: 10px 5px !important; 
-                    display: flex !important; 
-                    flex-direction: column !important; 
-                    align-items: center !important; 
-                    gap: 6px !important; 
-                    overflow: hidden !important;
+                    padding: 8px 4px !important; /* حشوة أصغر */
+                    display: flex !important; flex-direction: column !important; align-items: center !important; gap: 6px !important; 
                     text-align: center !important;
                 }
                 .store-buy-btn-small { 
-                    height: 32px !important; font-size: 12px !important; border-radius: 10px !important; width: 90% !important; 
-                    background: rgba(255,255,255,0.1) !important; color: white !important; border: none !important; 
-                    cursor: pointer !important;
+                    height: 30px !important; font-size: 11px !important; border-radius: 10px !important; width: 90% !important; 
+                    background: rgba(255,255,255,0.1) !important; color: white !important; border: none !important; cursor: pointer !important;
                 }
             `;
             document.head.appendChild(style);
@@ -144,20 +154,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
 
-            <!-- حاوية محتوى الألعاب -->
+            <!-- حاوية محتوى الألعاب (تصميم جانبي جديد) -->
             <div id="store-games-content" class="store-tab-content active-content">
                 
-                <!-- التبويبات الفرعية (دامة وطاولة) -->
-                <div class="store-sub-tabs-container">
-                    <button class="store-sub-tab-btn active" onclick="window.switchSubStoreTab('store-dama-items', this)">
+                <!-- الأزرار الجانبية العمودية (دامة وطاولة) -->
+                <div class="store-side-tabs">
+                    <button class="store-side-tab-btn active" onclick="window.switchSubStoreTab('store-dama-items', this)">
                         <span data-i18n="store_dama">دامة</span>
                     </button>
-                    <button class="store-sub-tab-btn" onclick="window.switchSubStoreTab('store-tawla-items', this)">
+                    <button class="store-side-tab-btn" onclick="window.switchSubStoreTab('store-tawla-items', this)">
                         <span data-i18n="store_tawla">طاولة</span>
                     </button>
                 </div>
 
-                <!-- الصندوق الداكن الفعلي للألعاب -->
+                <!-- الصندوق الداكن الفعلي للألعاب (بجانب الأزرار) -->
                 <div class="store-group-box-dark">
                     
                     <!-- محتوى متجر دامة -->
@@ -192,8 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <!-- حاوية محتوى الشعبية -->
-            <div id="store-popularity-content" class="store-tab-content">
-                <div class="store-group-box-dark" style="text-align: center; height: auto; justify-content: center;">
+            <div id="store-popularity-content" class="store-tab-content" style="display: none;">
+                <div class="store-group-box-dark" style="width: 100%; text-align: center; justify-content: center;">
                     <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.5));">🔥</span>
                     <h4 style="color: white; font-size: 18px; margin-bottom: 10px;" data-i18n="store_popularity">باقات الشعبية</h4>
                     <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
@@ -204,8 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <!-- حاوية محتوى الشحن -->
-            <div id="store-topup-content" class="store-tab-content">
-                <div class="store-group-box-dark" style="text-align: center; height: auto; justify-content: center; border-color: rgba(245,166,35,0.4); background: linear-gradient(180deg, rgba(245,166,35,0.1), rgba(10,12,16,0.95)) !important;">
+            <div id="store-topup-content" class="store-tab-content" style="display: none;">
+                <div class="store-group-box-dark" style="width: 100%; text-align: center; justify-content: center; border-color: rgba(245,166,35,0.4) !important; background: linear-gradient(180deg, rgba(245,166,35,0.1), rgba(10,12,16,0.95)) !important;">
                     <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(245, 166, 35, 0.5));">💎</span>
                     <h4 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;" data-i18n="store_topup">شحن الرصيد</h4>
                     <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
@@ -221,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateTranslations();
         }
 
-        // إجبار السكربت على ضخ المنتجات
+        // إجبار السكربت على ضخ المنتجات وفتح تبويب الخلفيات افتراضياً بعد بناء العناصر
         setTimeout(() => {
             if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
                 window.storeManager.renderUI();
@@ -242,7 +252,9 @@ window.switchStoreContentTab = function(contentId, btnElement) {
     
     const targetContent = document.getElementById(contentId);
     if (targetContent) {
-        targetContent.style.display = 'block'; targetContent.classList.add('active-content');
+        // إذا كان التبويب هو "الألعاب"، يجب عرضة كـ flex row ليظهر الشريط الجانبي بجوار الصندوق
+        targetContent.style.display = (contentId === 'store-games-content') ? 'flex' : 'block'; 
+        targetContent.classList.add('active-content');
     }
     if (btnElement) btnElement.classList.add('active');
 };
@@ -252,7 +264,7 @@ window.switchSubStoreTab = function(contentId, btnElement) {
     parentTab.querySelectorAll('.store-sub-tab-content').forEach(el => {
         el.style.display = 'none'; el.classList.remove('active-content');
     });
-    parentTab.querySelectorAll('.store-sub-tab-btn').forEach(el => { el.classList.remove('active'); });
+    parentTab.querySelectorAll('.store-side-tab-btn').forEach(el => { el.classList.remove('active'); });
     
     const targetContent = document.getElementById(contentId);
     if (targetContent) {
