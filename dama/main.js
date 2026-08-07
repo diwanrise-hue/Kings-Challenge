@@ -392,10 +392,12 @@ if (onlineBtn) {
             return; 
         }
 
-        if (gameState.myCurrentRoomId && socketManager) {
-            socket.emit('leaveRoom', { roomID: gameState.myCurrentRoomId });
-            socket.emit('deleteRoom', { roomID: gameState.myCurrentRoomId });
-            gameState.myCurrentRoomId = null; 
+        if (window.myCurrentRoomId || gameState.myCurrentRoomId) {
+            if (socketManager) {
+                socket.emit('leaveRoom', { roomID: window.myCurrentRoomId || gameState.myCurrentRoomId });
+                window.myCurrentRoomId = null;
+                gameState.myCurrentRoomId = null; 
+            }
         }
 
         const mmModal = document.getElementById('matchmaking-modal');
@@ -472,6 +474,7 @@ ui.onClick('online-close-btn', () => {
     if(typeof window.closeAppModal === 'function') window.closeAppModal('online-modal'); 
 });
 
+// 💡 تعديل توافق المتغيرات لمنع إنشاء غرف متعددة في الواجهة
 ui.onClick('online-create-btn', () => {
     let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
 
@@ -480,7 +483,7 @@ ui.onClick('online-create-btn', () => {
         if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
         gameState.pendingChallengeId = null;
     } else {
-        if (gameState.myCurrentRoomId) {
+        if (window.myCurrentRoomId || gameState.myCurrentRoomId) {
             if (socketManager) socketManager._showToast('لديك غرفة سابقاً! يرجى إغلاقها أولاً.');
             if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
             return;
