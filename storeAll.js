@@ -1,7 +1,7 @@
 /**
  * storeAll.js
- * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً في الواجهة الرئيسية
- * تم نقل جميع ستايلات وهيكل المتجر إلى هنا لتخفيف الضغط عن index.html
+ * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
+ * تم إضافة حماية صارمة لمنع تداخل المنتجات مع الواجهة
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
-        // 1. ضبط الحاوية الأساسية للمتجر
+        // ضبط الحاوية الأساسية للمتجر لتبدأ من تحت الرصيد
         storeContainer.style.position = 'absolute';
         storeContainer.style.top = '0';
         storeContainer.style.left = '0';
@@ -18,12 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
         storeContainer.style.justifyContent = 'flex-start'; 
         storeContainer.style.paddingTop = '95px'; 
         
-        // 2. حقن ستايلات المتجر (CSS) ديناميكياً
+        // 1. حقن ستايلات المتجر بقوة (!important) لمنع أي انهيار في التصميم
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
             style.innerHTML = `
-                /* التبويبات الرئيسية (العلوية) */
+                /* التبويبات العلوية الرئيسية */
                 .store-tabs-container {
                     display: flex; gap: 8px; 
                     background: rgba(15, 18, 25, 0.6); padding: 6px;
@@ -39,14 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: flex; align-items: center; justify-content: center; gap: 5px;
                 }
                 .store-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
-                .store-tab-btn.active {
-                    background: rgba(255,255,255,0.15); color: white;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-                }
-                .store-tab-btn.premium-tab.active {
-                    background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(211,84,0,0.3));
-                    color: var(--accent); border: 1px solid rgba(245,166,35,0.4);
-                }
+                .store-tab-btn.active { background: rgba(255,255,255,0.15); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+                .store-tab-btn.premium-tab.active { background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(211,84,0,0.3)); color: var(--accent); border: 1px solid rgba(245,166,35,0.4); }
                 .store-tab-content { display: none; width: 90%; max-width: 350px; animation: fadeIn 0.4s ease; }
                 .store-tab-content.active-content { display: block; }
 
@@ -60,83 +54,84 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 .store-sub-tab-btn {
                     flex: 1; background: transparent; border: none; color: var(--text-secondary);
-                    padding: 6px 10px; border-radius: 50px; font-weight: 700; font-size: 13px; 
-                    cursor: pointer; transition: var(--transition);
+                    padding: 6px 10px; border-radius: 50px; font-weight: 700; font-size: 13px; cursor: pointer; transition: var(--transition);
                 }
                 .store-sub-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
-                .store-sub-tab-btn.active {
-                    background: rgba(255,255,255,0.1); color: white; 
-                    border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                }
+                .store-sub-tab-btn.active { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
                 .store-sub-tab-content { display: none; animation: fadeIn 0.3s ease; height: 100%; }
                 .store-sub-tab-content.active-content { display: flex; flex-direction: column; }
 
-                /* تصنيفات متجر الدامة الداخلية (خلفيات، إطارات، الخ) */
-                .dama-cats-container {
-                    display: flex; gap: 6px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0;
-                }
+                /* تصنيفات المتجر الداخلية (خلفيات، إطارات..) */
+                .dama-cats-container { display: flex; gap: 6px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
                 .dama-cats-container::-webkit-scrollbar { height: 0; display: none; }
                 .dama-cat-btn {
                     flex: 1; min-width: 65px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
-                    color: var(--text-secondary); padding: 8px 10px; border-radius: 12px;
-                    font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition);
-                    white-space: nowrap; text-align: center;
+                    color: var(--text-secondary); padding: 8px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; text-align: center;
                 }
-                .dama-cat-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-                .dama-cat-btn.active {
-                    background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.2);
-                }
+                .dama-cat-btn.active { background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.2); }
 
-                /* الصندوق الثابت لحماية المنتجات من الاختفاء خلف الشريط السفلي */
+                /* 🌟 الصندوق الثابت - يمنع تسرب المنتجات للخارج */
                 .store-group-box-dark {
-                    padding: 15px 10px 5px 10px;
-                    background: rgba(10, 12, 16, 0.85);
-                    backdrop-filter: blur(15px);
-                    -webkit-backdrop-filter: blur(15px);
-                    border: 1px solid rgba(255,255,255,0.1);
-                    border-radius: 24px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
-                    display: flex;
-                    flex-direction: column;
-                    height: calc(100dvh - 240px); /* ارتفاع ديناميكي */
-                    overflow: hidden;
+                    padding: 15px 10px 5px 10px !important;
+                    background: rgba(10, 12, 16, 0.95) !important;
+                    backdrop-filter: blur(20px) !important;
+                    -webkit-backdrop-filter: blur(20px) !important;
+                    border: 1px solid rgba(255,255,255,0.1) !important;
+                    border-radius: 24px !important;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    height: calc(100dvh - 240px) !important;
+                    overflow: hidden !important; /* هذا السطر يمنع تداخل العناصر مع الواجهة */
+                    position: relative !important;
+                    z-index: 10 !important;
                 }
 
-                /* منطقة تمرير المنتجات المحمية بالصندوق */
+                /* 🌟 منطقة التمرير للمنتجات */
                 .store-scrollable-area {
-                    flex: 1;
-                    overflow-y: auto; overflow-x: hidden; 
-                    padding-right: 5px;
-                    padding-top: 5px;
-                    padding-bottom: 60px; /* مسافة للأسفل لضمان عدم القص */
+                    flex: 1 !important;
+                    overflow-y: auto !important; 
+                    overflow-x: hidden !important; 
+                    padding-right: 5px !important;
+                    padding-top: 5px !important;
+                    padding-bottom: 60px !important;
                 }
                 .store-scrollable-area::-webkit-scrollbar { width: 4px; }
-                .store-scrollable-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
                 
-                /* شبكة المنتجات والكروت */
-                .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+                /* 🌟 شبكة الكروت الصارمة - تجبر الكروت على الترتيب بـ 3 أعمدة */
+                .store-items-grid { 
+                    display: grid !important; 
+                    grid-template-columns: repeat(3, 1fr) !important; 
+                    gap: 8px !important; 
+                    width: 100% !important;
+                }
+                
+                /* 🌟 شكل الكارت نفسه لحماية النصوص من التداخل */
                 .store-item-card { 
-                    background: rgba(25, 30, 35, 0.95);
-                    border: 1px solid rgba(255,255,255,0.08); 
-                    border-radius: 16px; 
-                    padding: 10px 5px; 
-                    display: flex; flex-direction: column; align-items: center; gap: 6px; 
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                    background: rgba(25, 30, 35, 0.98) !important;
+                    border: 1px solid rgba(255,255,255,0.08) !important; 
+                    border-radius: 16px !important; 
+                    padding: 10px 5px !important; 
+                    display: flex !important; 
+                    flex-direction: column !important; 
+                    align-items: center !important; 
+                    gap: 6px !important; 
+                    overflow: hidden !important;
+                    text-align: center !important;
                 }
                 .store-buy-btn-small { 
-                    height: 32px; font-size: 12px; border-radius: 10px; width: 90%; 
-                    background: rgba(255,255,255,0.1); color: white; border: none; 
-                    cursor: pointer; transition: 0.2s;
+                    height: 32px !important; font-size: 12px !important; border-radius: 10px !important; width: 90% !important; 
+                    background: rgba(255,255,255,0.1) !important; color: white !important; border: none !important; 
+                    cursor: pointer !important;
                 }
-                .store-buy-btn-small:hover { background: rgba(255,255,255,0.2); }
             `;
             document.head.appendChild(style);
         }
 
-        // 3. بناء الهيكل (HTML)
+        // 2. بناء هيكل المتجر بالكامل (HTML)
         storeContainer.innerHTML = `
-            <!-- أزرار التبويبات العلوية الرئيسية -->
+            <!-- التبويبات العلوية الرئيسية -->
             <div class="store-tabs-container">
                 <button class="store-tab-btn active" onclick="window.switchStoreContentTab('store-games-content', this)">
                     <span>🎮</span> <span data-i18n="store_games">الألعاب</span>
@@ -149,10 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
 
-            <!-- حاوية محتوى الألعاب (مفتوحة افتراضياً) -->
+            <!-- حاوية محتوى الألعاب -->
             <div id="store-games-content" class="store-tab-content active-content">
                 
-                <!-- أزرار التبويبات الفرعية (دامة وطاولة) -->
+                <!-- التبويبات الفرعية (دامة وطاولة) -->
                 <div class="store-sub-tabs-container">
                     <button class="store-sub-tab-btn active" onclick="window.switchSubStoreTab('store-dama-items', this)">
                         <span data-i18n="store_dama">دامة</span>
@@ -162,13 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </div>
 
-                <!-- صندوق المحتوى الفعلي للألعاب -->
+                <!-- الصندوق الداكن الفعلي للألعاب -->
                 <div class="store-group-box-dark">
                     
-                    <!-- 💡 محتوى متجر دامة -->
+                    <!-- محتوى متجر دامة -->
                     <div id="store-dama-items" class="store-sub-tab-content active-content">
-                        
-                        <!-- أزرار التصنيفات الداخلية للدامة -->
+                        <!-- تصنيفات الدامة -->
                         <div class="dama-cats-container">
                             <button id="store-btn-tab-bg" class="dama-cat-btn active" onclick="window.switchStoreTabCategory('bg')">خلفيات</button>
                             <button id="store-btn-tab-frames" class="dama-cat-btn" onclick="window.switchStoreTabCategory('frames')">إطارات</button>
@@ -183,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div id="store-section-pieces" class="store-items-grid" style="display: none;"></div>
                             <div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
                         </div>
-
                     </div>
 
                     <!-- محتوى متجر طاولة -->
@@ -228,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateTranslations();
         }
 
-        // إجبار السكربت على ضخ المنتجات وفتح التبويب الافتراضي
+        // إجبار السكربت على ضخ المنتجات
         setTimeout(() => {
             if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
                 window.storeManager.renderUI();
@@ -240,10 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ===================================== //
-// دوال التنقل المربوطة بالنافذة (Global)
-// ===================================== //
-
+// دوال التنقل
 window.switchStoreContentTab = function(contentId, btnElement) {
     document.querySelectorAll('.store-tab-content').forEach(el => {
         el.style.display = 'none'; el.classList.remove('active-content');
