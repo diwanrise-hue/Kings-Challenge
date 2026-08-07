@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً في الواجهة الرئيسية
- * تم ربطه بملف store.js لجلب العناصر داخل تبويب "دامة"
+ * تم ربطه بملف store.js لجلب العناصر داخل تبويب "دامة" وإظهارها فوراً
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
-        // فصل الحاوية لتكون متمركزة في الأعلى
+        // فصل الحاوية لتكون متمركزة في الأعلى (تحت الرصيد والملف الشخصي مباشرة)
         storeContainer.style.position = 'absolute';
         storeContainer.style.top = '0';
         storeContainer.style.left = '0';
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-tab-content { display: none; width: 90%; max-width: 350px; animation: fadeIn 0.4s ease; }
                 .store-tab-content.active-content { display: block; }
 
-                /* التبويبات الفرعية (دامة / طاولة) */
+                /* التبويبات الفرعية (دامة / طاولة) - أنحف وبدون صور */
                 .store-sub-tabs-container {
                     display: flex; gap: 5px; margin-bottom: 15px; 
                     background: rgba(15, 18, 25, 0.5); padding: 4px; 
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.head.appendChild(style);
         }
 
-        // 2. بناء هيكل المتجر
+        // 2. بناء هيكل المتجر بالكامل
         storeContainer.innerHTML = `
             <!-- أزرار التبويبات العلوية الرئيسية -->
             <div class="store-tabs-container">
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <!-- صندوق المحتوى الفعلي للألعاب -->
-                <div class="store-group-box" style="padding: 15px 10px;">
+                <div class="store-group-box" style="padding: 15px 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-card);">
                     
                     <!-- 💡 محتوى متجر دامة (يتم تعبئته بواسطة store.js) -->
                     <div id="store-dama-items" class="store-sub-tab-content active-content">
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- حاوية محتوى الشعبية -->
             <div id="store-popularity-content" class="store-tab-content">
-                <div class="store-group-box" style="text-align: center;">
+                <div class="store-group-box" style="text-align: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-card); padding: 15px;">
                     <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.5));">🔥</span>
                     <h4 style="color: white; font-size: 18px; margin-bottom: 10px;" data-i18n="store_popularity">باقات الشعبية</h4>
                     <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
@@ -182,26 +182,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- حاوية محتوى الشحن -->
             <div id="store-topup-content" class="store-tab-content">
-                <div class="store-group-box" style="text-align: center; border-color: rgba(245,166,35,0.4); background: linear-gradient(180deg, rgba(245,166,35,0.05), transparent);">
+                <div class="store-group-box" style="text-align: center; border-color: rgba(245,166,35,0.4); background: linear-gradient(180deg, rgba(245,166,35,0.05), transparent); border-radius: var(--radius-card); padding: 15px;">
                     <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(245, 166, 35, 0.5));">💎</span>
                     <h4 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;" data-i18n="store_topup">شحن الرصيد</h4>
                     <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
                         اشحن رصيدك الآن للمشاركة في البطولات الكبرى والمراهنات الفاخرة.
                     </p>
-                    <button class="store-btn premium" style="justify-content: center; width: 100%; margin: 0;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                    <button class="store-btn premium" style="justify-content: center; width: 100%; margin: 0; background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(211,84,0,0.2)); border: 1px solid rgba(245,166,35,0.4); color: #f5a623; border-radius: 16px; padding: 15px; font-weight: 600;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
                 </div>
             </div>
         `;
         
-        // 3. تحديث الترجمات
+        // 3. تحديث الترجمات على العناصر الجديدة مباشرة
         if (typeof updateTranslations === 'function') {
             updateTranslations();
         }
 
-        // 4. استدعاء renderUI لضمان ضخ المنتجات من store.js إن كان جاهزاً
-        if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
-            window.storeManager.renderUI();
-        }
+        // 4. إجبار السكربت على ضخ المنتجات وفتح تبويب الخلفيات افتراضياً بعد بناء العناصر
+        setTimeout(() => {
+            if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
+                window.storeManager.renderUI();
+            }
+            if (typeof window.switchStoreTabCategory === 'function') {
+                window.switchStoreTabCategory('bg'); 
+            }
+        }, 300);
     }
 });
 
@@ -234,7 +239,7 @@ window.switchSubStoreTab = function(contentId, btnElement) {
     if (btnElement) btnElement.classList.add('active');
 };
 
-// دالة التبديل بين تصنيفات الدامة (خلفيات، إطارات، الخ) - (كانت في HTML سابقاً)
+// دالة التبديل بين تصنيفات الدامة (خلفيات، إطارات، الخ)
 window.switchStoreTabCategory = function(category) {
     const tabs = ['bg', 'frames', 'pieces', 'offers'];
     tabs.forEach(tab => { 
@@ -247,5 +252,5 @@ window.switchStoreTabCategory = function(category) {
     const activeSec = document.getElementById('store-section-' + category);
     
     if(activeBtn) activeBtn.classList.add('active'); 
-    if(activeSec) activeSec.style.display = 'grid'; // Grid بناءً على الستايل في الأعلى
+    if(activeSec) activeSec.style.display = 'grid'; 
 };
