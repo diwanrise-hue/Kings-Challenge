@@ -16,6 +16,9 @@
     
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     <script src="radio.js?v=4" defer></script>
+    
+    <!-- 🌟 تم استدعاء ملف المتجر الجديد هنا -->
+    <script src="storeAll.js" defer></script>
 
     <style>
         :root {
@@ -507,39 +510,8 @@
 
         </div>
 
-        <!-- قسم المتجر المحدث -->
-        <div id="nav-section-store" class="nav-section-container">
-            <h2 style="color:white; margin-bottom: 25px;" data-i18n="nav_store">المتجر</h2>
-            
-            <div class="store-menu-container">
-                <!-- 1. زر الألعاب (مجموعة فرعية) -->
-                <div class="store-group-box">
-                    <h4 class="store-group-title" data-i18n="store_games">الألعاب</h4>
-                    <div class="store-games-grid">
-                        <button class="store-sub-btn" onclick="triggerAlertSoon()">
-                            <span class="store-sub-icon">♟️</span>
-                            <span data-i18n="store_dama">دامة</span>
-                        </button>
-                        <button class="store-sub-btn" onclick="triggerAlertSoon()">
-                            <span class="store-sub-icon">🎲</span>
-                            <span data-i18n="store_tawla">طاولة</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 2. زر الشعبية -->
-                <button class="store-btn" onclick="triggerAlertSoon()">
-                    <span class="store-btn-icon">🔥</span>
-                    <span data-i18n="store_popularity">الشعبية</span>
-                </button>
-
-                <!-- 3. زر الشحن -->
-                <button class="store-btn premium" onclick="triggerAlertSoon()">
-                    <span class="store-btn-icon">💎</span>
-                    <span data-i18n="store_topup">شحن</span>
-                </button>
-            </div>
-        </div>
+        <!-- قسم المتجر المحدث (فارغ ليتم توليده عبر storeAll.js) -->
+        <div id="nav-section-store" class="nav-section-container"></div>
 
         <!-- قسم الألعاب (الافتراضي) -->
         <div id="nav-section-games" class="nav-section-container active-section">
