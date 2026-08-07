@@ -17,7 +17,7 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     <script src="radio.js?v=4" defer></script>
     
-    <!-- 🌟 استدعاء ملف المتجر الديناميكي -->
+    <!-- استدعاء ملف المتجر الديناميكي -->
     <script src="storeAll.js" defer></script>
 
     <style>
@@ -318,11 +318,11 @@
         .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }    
 
         /* ========================================== */
-        /* 🌟 تصميم الشريط السفلي (تم تصغيره وإنزاله للأسفل) */
+        /* تصميم الشريط السفلي (أنحف وفي الأسفل)       */
         /* ========================================== */
         .bottom-nav-bar {
             position: fixed;
-            bottom: 15px; /* تم إنزاله للأسفل جداً */
+            bottom: 10px; /* للأسفل أكثر */
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -333,13 +333,13 @@
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-pill);
-            padding: 4px 10px; /* تم تقليل الـ padding ليصبح الشريط أنحف */
+            padding: 4px 10px; /* أنحف */
             width: 90%;
             max-width: 400px;
-            z-index: 1000; /* تم رفع الـ z-index لضمان بقائه فوق كل شيء */
+            z-index: 9999;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
-            height: 55px; /* تثبيت ارتفاع الشريط ليكون نحيفاً */
+            height: 55px; /* ارتفاع ثابت ونحيف */
         }
 
         .nav-item {
@@ -350,10 +350,10 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 2px; /* تقليل المسافة بين الأيقونة والنص */
+            gap: 2px;
             cursor: pointer;
             transition: var(--transition);
-            padding: 4px 10px;
+            padding: 4px;
             border-radius: 20px;
             width: 32%;
         }
@@ -374,7 +374,7 @@
         }
 
         .nav-icon {
-            font-size: 18px; /* تصغير الأيقونات قليلاً */
+            font-size: 18px; /* تصغير الأيقونة */
             transition: var(--transition);
             margin-bottom: 0;
             filter: grayscale(100%) opacity(0.8);
@@ -385,12 +385,11 @@
         }
 
         .nav-text {
-            font-size: 10px; /* تصغير النص قليلاً ليتناسب مع الشريط الأنحف */
+            font-size: 10px;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
 
-        /* حاويات محتوى التبويبات */
         .nav-section-container {
             display: none;
             width: 100%;
@@ -402,6 +401,123 @@
             display: flex;
             animation: fadeIn 0.4s ease-out;
         }
+
+        /* ========================================== */
+        /* تصميم هيكل المتجر والتنسيقات الداكنة والثابتة */
+        /* ========================================== */
+        #nav-section-store {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            justify-content: flex-start;
+            padding-top: 95px; /* المسافة من الأعلى للخط الأحمر */
+        }
+
+        .store-tabs-container {
+            display: flex; gap: 8px; 
+            background: rgba(15, 18, 25, 0.6); padding: 6px;
+            border-radius: 50px; border: 1px solid rgba(255,255,255,0.08);
+            width: 90%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 10; margin-bottom: 10px;
+        }
+        .store-tab-btn {
+            flex: 1; background: transparent; border: none; color: var(--text-secondary);
+            padding: 10px 5px; border-radius: 50px; font-weight: 700; font-size: 13px;
+            cursor: pointer; transition: var(--transition); white-space: nowrap;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .store-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+        .store-tab-btn.active {
+            background: rgba(255,255,255,0.15); color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .store-tab-btn.premium-tab.active {
+            background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(211,84,0,0.3));
+            color: var(--accent); border: 1px solid rgba(245,166,35,0.4);
+        }
+        .store-tab-content { display: none; width: 90%; max-width: 350px; animation: fadeIn 0.4s ease; }
+        .store-tab-content.active-content { display: block; }
+
+        .store-sub-tabs-container {
+            display: flex; gap: 5px; margin-bottom: 10px; 
+            background: rgba(15, 18, 25, 0.5); padding: 4px; 
+            border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);
+            width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        .store-sub-tab-btn {
+            flex: 1; background: transparent; border: none; color: var(--text-secondary);
+            padding: 6px 10px; border-radius: 50px; font-weight: 700; font-size: 13px; 
+            cursor: pointer; transition: var(--transition);
+        }
+        .store-sub-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+        .store-sub-tab-btn.active {
+            background: rgba(255,255,255,0.1); color: white; 
+            border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .store-sub-tab-content { display: none; animation: fadeIn 0.3s ease; height: 100%; }
+        .store-sub-tab-content.active-content { display: flex; flex-direction: column; }
+
+        .dama-cats-container {
+            display: flex; gap: 6px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0;
+        }
+        .dama-cats-container::-webkit-scrollbar { height: 0; display: none; }
+        .dama-cat-btn {
+            flex: 1; min-width: 65px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-secondary); padding: 8px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition);
+            white-space: nowrap; text-align: center;
+        }
+        .dama-cat-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        .dama-cat-btn.active {
+            background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.2);
+        }
+
+        /* الصندوق الثابت الذي يحمي المنتجات من الاختفاء خلف الشريط */
+        .store-group-box-dark {
+            padding: 15px 10px 5px 10px;
+            background: rgba(10, 12, 16, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            height: calc(100dvh - 235px); /* ارتفاع ديناميكي صارم للحماية */
+            overflow: hidden;
+        }
+
+        /* منطقة تمرير المنتجات المحمية بالصندوق */
+        .store-scrollable-area {
+            flex: 1;
+            overflow-y: auto; overflow-x: hidden; 
+            padding-right: 5px;
+            padding-top: 5px;
+            padding-bottom: 60px; /* مسافة للأسفل لضمان عدم القص */
+        }
+        .store-scrollable-area::-webkit-scrollbar { width: 4px; }
+        .store-scrollable-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        
+        .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .store-item-card { 
+            background: rgba(25, 30, 35, 0.95);
+            border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 16px; 
+            padding: 10px 5px; 
+            display: flex; flex-direction: column; align-items: center; gap: 6px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .store-buy-btn-small { 
+            height: 32px; font-size: 12px; border-radius: 10px; width: 90%; 
+            background: rgba(255,255,255,0.1); color: white; border: none; 
+            cursor: pointer; transition: 0.2s;
+        }
+        .store-buy-btn-small:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
@@ -415,19 +531,16 @@
 
     <!-- الشريط السفلي للتنقل -->
     <div class="bottom-nav-bar" id="bottom-nav-bar" style="display: none;">
-        <!-- الأحدث (يمين الشاشة) -->
         <button class="nav-item" onclick="switchNavTab('latest')">
             <span class="nav-icon">✨</span>
             <span class="nav-text" data-i18n="nav_latest">الأحدث</span>
         </button>
 
-        <!-- الألعاب (المنتصف - افتراضي) -->
         <button class="nav-item active" onclick="switchNavTab('games')">
             <span class="nav-icon">🎮</span>
             <span class="nav-text" data-i18n="nav_games">الألعاب</span>
         </button>
 
-        <!-- المتجر (يسار الشاشة) -->
         <button class="nav-item" onclick="switchNavTab('store')">
             <span class="nav-icon">🛍️</span>
             <span class="nav-text" data-i18n="nav_store">المتجر</span>
@@ -450,7 +563,7 @@
             </div>
         </div>
 
-        <!-- 🌟 قسم المتجر (يتم حقنه ديناميكياً من storeAll.js) -->
+        <!-- 🌟 قسم المتجر (يتم حقنه من storeAll.js) -->
         <div id="nav-section-store" class="nav-section-container"></div>
 
         <!-- قسم الألعاب (الافتراضي) -->
@@ -583,18 +696,13 @@
     <div id="profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeProfileModal()">✕</button>
-
             <h3 data-i18n="profile_title" style="margin-bottom: 25px;">الملف الشخصي</h3>
-            
             <div class="profile-display-avatar" id="profile-display-avatar"></div>
-            
             <h4 id="profile-display-name">الاسم</h4>
-            
             <div class="profile-id-box">
                 <span data-i18n="profile_id">المعرف:</span> 
                 <span id="profile-display-id" onclick="copyPlayerID()" title="نسخ المعرف">#00000</span>
             </div>
-
             <div class="action-grid">
                 <select id="edit-avatar-select" class="btn btn-secondary" onchange="changeAvatarFromDropdown(this.value)">
                     <option value="" disabled selected data-i18n="profile_change_avatar">الشخصية</option>
@@ -605,22 +713,17 @@
                     <option value="Photo/1000132077.webp" data-i18n="avatar_5">الرجل العربي</option>
                     <option value="Photo/1000132079.webp" data-i18n="avatar_6">الأميرة الشقراء</option>
                 </select>
-                
                 <button onclick="document.getElementById('upload-phone-img').click()" class="btn btn-secondary" data-i18n="profile_phone_img">المعرض</button>
                 <input type="file" id="upload-phone-img" accept="image/*" style="display: none;" onchange="uploadImageFromPhone(event)">
-                
                 <button onclick="changePlayerName()" class="btn btn-secondary full-width" data-i18n="profile_change_name">تغيير الاسم</button>
             </div>
-
             <div class="stats-box">
                 <span data-i18n="profile_balance">🪙 الرصيد الكلي:</span>
                 <span id="profile-stat-tokens">0</span>
             </div>
-
             <div class="bottom-actions">
                 <button onclick="triggerLogout()" class="btn btn-danger" style="flex:1;" data-i18n="profile_logout">تسجيل الخروج</button>
             </div>
-
             <button id="link-facebook-guest-btn" onclick="linkGuestWithFacebook()" class="btn" style="background:#1877f2; color:white; display:none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: 15px;">
                 <svg style="width:20px; height:20px; margin-left:8px; fill:currentColor;" viewBox="0 0 24 24">
                     <path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/>
@@ -629,8 +732,6 @@
             </button>
         </div>
     </div>
-
-    <input type="file" id="bg-upload-input" accept="image/*" style="display: none;" onchange="changeAppBackground(event)">
 
     <script>
         window.fbAsyncInit = function() {
@@ -865,7 +966,6 @@
         if (!langs.includes(currentLang)) currentLang = 'ar';
         let isLoginMode = false; 
 
-        // التنقل بين التبويبات السفلية
         function switchNavTab(tabName) {
             document.querySelectorAll('.nav-section-container').forEach(el => {
                 el.classList.remove('active-section');
@@ -1615,7 +1715,7 @@
         window.exitGame = exitGame; 
     </script>
 
-    <!-- 🌟 التعديل الأخير: استدعاء ملفات المتجر وتهيئتها لضخ المنتجات -->
+    <!-- 🌟 استدعاء ملفات المتجر وتهيئتها لضخ المنتجات -->
     <script type="module">
         import { storeManager } from './dama/store.js'; 
         
