@@ -8,7 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
-        // 1. إضافة ستايلات التبويبات ديناميكياً لتجنب تعديل ملف CSS الأساسي
+        // تعديل تموضع الحاوية لتكون قريبة من الأعلى بدلاً من المنتصف
+        storeContainer.style.justifyContent = 'flex-start';
+        storeContainer.style.paddingTop = '110px'; // ترك مسافة مناسبة للشريط العلوي (الرصيد والملف الشخصي)
+        
+        // 1. إضافة ستايلات التبويبات ديناميكياً
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
@@ -17,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: flex; gap: 8px; margin-bottom: 25px; 
                     background: rgba(15, 18, 25, 0.6); padding: 6px;
                     border-radius: 50px; border: 1px solid rgba(255,255,255,0.08);
-                    width: 100%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    width: 90%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
                 }
                 .store-tab-btn {
                     flex: 1; background: transparent; border: none; color: var(--text-secondary);
@@ -40,10 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.head.appendChild(style);
         }
 
-        // 2. بناء هيكل المتجر (تبويبات + حاويات المحتوى)
+        // 2. بناء هيكل المتجر (تم إزالة كلمة "المتجر" والتبويبات أصبحت في الأعلى)
         storeContainer.innerHTML = `
-            <h2 style="color:white; margin-bottom: 20px;" data-i18n="nav_store">المتجر</h2>
-            
             <!-- أزرار التبويبات العلوية -->
             <div class="store-tabs-container">
                 <button class="store-tab-btn active" onclick="window.switchStoreContentTab('store-games-content', this)">
@@ -106,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 4. دالة التبديل بين التبويبات (مرفقة بالنافذة لتكون متاحة للـ onclick)
+// 4. دالة التبديل بين التبويبات
 window.switchStoreContentTab = function(contentId, btnElement) {
     // إخفاء جميع الحاويات
     document.querySelectorAll('.store-tab-content').forEach(el => {
