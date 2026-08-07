@@ -1,7 +1,9 @@
+// ملف: socketManager.js
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة: تدعم نظام التحديات المتقدم، استئذان المايك، 
  * ردهة الغرف النشطة (Lobby) مفصولة (للعب وللمراهنات)، مزامنة الساحة، ونظام المشاهدة والرهانات الجانبية.
+ * 🌟 (مُحدّث): أصبح العميل (Client) مطيعاً بالكامل للسيرفر في إعلان النتائج وإنشاء غرف التحدي.
  */
 
 import { gameState } from './gameState.js'; 
@@ -269,7 +271,7 @@ export const socketManager = {
             'friendAddSuccess', 'friendAddFailed', 'opponentLeftRoom', 'roomClosedByTimeout',
             'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState',
             'activeRoomsList', 'mic-request', 'mic-response', 'spectatorJoined', 'spectatorCountChanged',
-            'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData'
+            'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData', 'gameOverByServer'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
@@ -791,6 +793,30 @@ export const socketManager = {
             this.handleExitGame(); 
         });
 
+        // 🌟 الحدث المضاف: استجابة الكلاينت لقرار الفوز القادم من السيرفر
+        socket.on('gameOverByServer', data => {
+            if (gameState.isGameOver) return;
+            gameState.isGameOver = true;
+            gameState.isGameActive = false;
+            
+            if (gameState.turnTimerInterval) { 
+                clearInterval(gameState.turnTimerInterval); 
+                gameState.turnTimerInterval = null; 
+            }
+            
+            if (data.winner === 'draw') {
+                this._showToast(`انتهت المباراة بالتعادل 🤝 (${data.reason})`);
+            } else if (data.winner === gameState.myOnlineColor) {
+                this._showToast(`لقد فزت! 🏆 (${data.reason})`);
+            } else {
+                this._showToast(`لقد خسرت 😢 (${data.reason})`);
+            }
+            
+            if (typeof ui.showOnlineResultsModal === 'function') {
+                ui.showOnlineResultsModal(data.winner);
+            }
+        });
+
         socket.on('rematchOffer', () => {
             if (this.isAlertShown || gameState.isSpectator) return; 
             
@@ -872,6 +898,7 @@ export const socketManager = {
             }
         });
 
+        // 🌟 تحديث التحديات مع النظام الجديد الذي يستخدم challengeId
         socket.on('receiveChallenge', data => {
             if (!data) return;
             const profile = this._ensureUserProfile();
@@ -904,22 +931,17 @@ export const socketManager = {
                         acceptBtn.onclick = () => {
                             actionModal.style.display = 'none';
                             socket.emit('challengeResponse', { 
-                                challengerId: data.challengerId, 
+                                challengeId: data.challengeId, 
                                 accept: true, 
-                                responderId: profile.id,
-                                responderName: profile.name,
-                                roomID: data.roomID
+                                responderName: profile.name
                             });
-                            socketManager._showToast(gameState.lang === 'ar' ? "جاري الدخول للمباراة..." : "Entering match...");
-                            if (data.roomID) {
-                                socketManager.handleRoomAction('joinRoom', data.roomID); 
-                            }
+                            socketManager._showToast(gameState.lang === 'ar' ? "جاري تجهيز الغرفة..." : "Preparing match...");
                         };
                         
                         rejectBtn.onclick = () => {
                             actionModal.style.display = 'none';
                             socket.emit('challengeResponse', { 
-                                challengerId: data.challengerId, 
+                                challengeId: data.challengeId, 
                                 accept: false, 
                                 responderName: profile.name
                             });
@@ -931,7 +953,7 @@ export const socketManager = {
 
         socket.on('challengeResponse', data => {
             if (data && data.accept) {
-                this._showToast(gameState.lang === 'ar' ? "تم القبول! جاري التجهيز..." : "Accepted! Preparing...");
+                this._showToast(gameState.lang === 'ar' ? "تم قبول التحدي! جاري الدخول..." : "Accepted! Entering...");
             } else {
                 const responderName = (data && data.responderName) || (gameState.lang === 'ar' ? 'الصديق' : 'Friend');
                 this._showToast(gameState.lang === 'ar' ? `رفض ${responderName} التحدي.` : `${responderName} declined.`);
@@ -1182,22 +1204,19 @@ export const socketManager = {
         if (el) el.style.cssText = "color:#f1c40f;display:block;";
     },
 
+    // 🌟 التحدي الجديد: الاعتماد على السيرفر فقط (إلغاء بناء الغرف الوهمية)
     sendChallenge(friendId, betAmount = 0) {
         if (!friendId || this.isAlertShown) return;
 
-        const challengeRoomID = "CHAL-" + Math.random().toString(36).substring(2, 8).toUpperCase();
         const profile = this._ensureUserProfile();
         
         const challengePayload = {
             targetId: friendId,
-            challengerId: profile.id,
             challengerName: profile.name,
-            roomID: challengeRoomID,
             betAmount: betAmount
         };
 
         this._safeEmit('sendChallenge', challengePayload);
-        this.handleRoomAction('createRoom', challengeRoomID, null, betAmount);
         
         this._showToast("تم إرسال طلب التحدي! بانتظار رد الصديق...");
     },
