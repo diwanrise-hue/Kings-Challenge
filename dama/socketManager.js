@@ -4,6 +4,7 @@
  * النسخة المتطورة والكاملة: تدعم نظام التحديات المتقدم، استئذان المايك، 
  * ردهة الغرف النشطة (Lobby) مفصولة (للعب وللمراهنات)، مزامنة الساحة، ونظام المشاهدة والرهانات الجانبية.
  * 🌟 (مُحدّث): أصبح العميل (Client) مطيعاً بالكامل للسيرفر في إعلان النتائج وإنشاء غرف التحدي.
+ * 🔄 تم تعديل الرابط ليكون ديناميكياً (/dama) ليتوافق مع البوابة الرئيسية الموحدة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -11,9 +12,11 @@ import { startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
 
-export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { 
-    transports: ['websocket'], 
-    upgrade: false,            
+// 🟢 التعديل هنا: استخدام مسار ديناميكي بدلاً من الرابط الطويل
+export const socket = io('/dama', { 
+    path: '/socket.io',
+    transports: ['websocket', 'polling'], // دمج polling مع websocket لضمان استقرار الاتصال 
+    upgrade: true,            
     reconnection: true,                   
     reconnectionAttempts: Infinity,       
     reconnectionDelay: 1000,              
@@ -144,7 +147,6 @@ export const socketManager = {
         let miniRadar = document.getElementById('mini-disconnect-radar');
         if (miniRadar) miniRadar.style.setProperty('display', 'flex', 'important');
 
-        // بدء مؤقت إخفاء البينج بعد 30 ثانية
         if (this.hidePingTimer) clearTimeout(this.hidePingTimer);
         this.hidePingTimer = setTimeout(() => {
             const pingEl = document.getElementById('real-ping-indicator');
@@ -156,7 +158,6 @@ export const socketManager = {
         const miniRadar = document.getElementById('mini-disconnect-radar');
         if (miniRadar) miniRadar.style.setProperty('display', 'none', 'important');
 
-        // إلغاء المؤقت وإظهار البينج مجدداً
         if (this.hidePingTimer) clearTimeout(this.hidePingTimer);
         const pingEl = document.getElementById('real-ping-indicator');
         if (pingEl) pingEl.style.opacity = '0.95';
@@ -228,7 +229,7 @@ export const socketManager = {
         
         socket.disconnect(); 
         setTimeout(() => {
-            socket.io.opts.transports = ['websocket']; 
+            socket.io.opts.transports = ['websocket', 'polling']; 
             socket.connect();
         }, 500);
     },
@@ -793,7 +794,6 @@ export const socketManager = {
             this.handleExitGame(); 
         });
 
-        // 🌟 الحدث المضاف: استجابة الكلاينت لقرار الفوز القادم من السيرفر
         socket.on('gameOverByServer', data => {
             if (gameState.isGameOver) return;
             gameState.isGameOver = true;
@@ -898,7 +898,6 @@ export const socketManager = {
             }
         });
 
-        // 🌟 تحديث التحديات مع النظام الجديد الذي يستخدم challengeId
         socket.on('receiveChallenge', data => {
             if (!data) return;
             const profile = this._ensureUserProfile();
@@ -1204,7 +1203,6 @@ export const socketManager = {
         if (el) el.style.cssText = "color:#f1c40f;display:block;";
     },
 
-    // 🌟 التحدي الجديد: الاعتماد على السيرفر فقط (إلغاء بناء الغرف الوهمية)
     sendChallenge(friendId, betAmount = 0) {
         if (!friendId || this.isAlertShown) return;
 
