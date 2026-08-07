@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
         storeContainer.style.left = '0';
         storeContainer.style.width = '100%';
         storeContainer.style.height = '100%';
-        storeContainer.style.justifyContent = 'flex-start'; // البدء من الأعلى
-        storeContainer.style.paddingTop = '95px'; // المسافة الدقيقة تحت الأزرار العلوية
+        storeContainer.style.justifyContent = 'flex-start'; 
+        storeContainer.style.paddingTop = '95px'; 
         
         // 1. إضافة ستايلات التبويبات ديناميكياً
         if (!document.getElementById('store-tabs-style')) {
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     width: 90%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
                     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
                     z-index: 10;
-                    margin-bottom: 5px; /* تم تقليل المسافة لرفع المحتوى للأعلى */
+                    margin-bottom: 10px; /* مسافة قليلة جداً بين الشريطين */
                 }
                 .store-tab-btn {
                     flex: 1; background: transparent; border: none; color: var(--text-secondary);
@@ -50,21 +50,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-tab-content { 
                     display: none; width: 90%; max-width: 350px; 
                     animation: fadeIn 0.4s ease; 
-                    margin-top: 5px; /* تم تقليل المسافة بين الأزرار العلوية والمحتوى */
                 }
                 .store-tab-content.active-content { display: block; }
 
-                /* ستايل التبويبات الفرعية (دامة / طاولة) */
+                /* ستايل التبويبات الفرعية (دامة / طاولة) - أصبحت شريطاً مستقلاً */
                 .store-sub-tabs-container {
-                    display: flex; gap: 5px; margin-bottom: 15px; 
-                    background: rgba(0, 0, 0, 0.4); padding: 4px; /* تم تقليل الحشوة لجعل الشريط أنحف */
+                    display: flex; gap: 5px; margin-bottom: 20px; 
+                    background: rgba(15, 18, 25, 0.5); padding: 4px; 
                     border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);
-                    width: 100%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+                    width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
                 }
                 .store-sub-tab-btn {
                     flex: 1; background: transparent; border: none; color: var(--text-secondary);
-                    padding: 5px 10px; /* تم تقليل الارتفاع (Padding) لجعل الأزرار أنحف */
-                    border-radius: 50px; font-weight: 700; font-size: 13px; /* خط أصغر بشكل طفيف للتناسق */
+                    padding: 6px 10px; 
+                    border-radius: 50px; font-weight: 700; font-size: 13px; 
                     cursor: pointer; transition: var(--transition);
                 }
                 .store-sub-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
@@ -96,21 +96,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- حاوية محتوى الألعاب (مفتوحة افتراضياً) -->
             <div id="store-games-content" class="store-tab-content active-content">
+                
+                <!-- أزرار التبويبات الفرعية (تم إخراجها قبل الصندوق لتكون فوق الخط الأحمر) -->
+                <div class="store-sub-tabs-container">
+                    <button class="store-sub-tab-btn active" onclick="window.switchSubStoreTab('store-dama-items', this)">
+                        <span data-i18n="store_dama">دامة</span>
+                    </button>
+                    <button class="store-sub-tab-btn" onclick="window.switchSubStoreTab('store-tawla-items', this)">
+                        <span data-i18n="store_tawla">طاولة</span>
+                    </button>
+                </div>
+
+                <!-- صندوق المحتوى الفعلي (بعد الخط الأحمر) -->
                 <div class="store-group-box">
                     
-                    <!-- أزرار التبويبات الفرعية (دامة وطاولة أنحف) -->
-                    <div class="store-sub-tabs-container">
-                        <button class="store-sub-tab-btn active" onclick="window.switchSubStoreTab('store-dama-items', this)">
-                            <span data-i18n="store_dama">دامة</span>
-                        </button>
-                        <button class="store-sub-tab-btn" onclick="window.switchSubStoreTab('store-tawla-items', this)">
-                            <span data-i18n="store_tawla">طاولة</span>
-                        </button>
-                    </div>
-
                     <!-- محتوى متجر دامة -->
                     <div id="store-dama-items" class="store-sub-tab-content active-content">
-                        <p style="color: var(--text-secondary); font-size: 13px; text-align: center; margin: 20px 0;">
+                        <p style="color: var(--text-secondary); font-size: 13px; text-align: center; margin: 10px 0 20px 0;">
                             ملحقات وأزياء خاصة بلعبة الدامة
                         </p>
                         <button class="btn btn-primary" style="width: 100%; margin: 0;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
@@ -118,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     <!-- محتوى متجر طاولة -->
                     <div id="store-tawla-items" class="store-sub-tab-content">
-                        <p style="color: var(--text-secondary); font-size: 13px; text-align: center; margin: 20px 0;">
+                        <p style="color: var(--text-secondary); font-size: 13px; text-align: center; margin: 10px 0 20px 0;">
                             ملحقات وأزياء خاصة بلعبة الطاولة
                         </p>
                         <button class="btn btn-primary" style="width: 100%; margin: 0;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
@@ -183,16 +185,17 @@ window.switchStoreContentTab = function(contentId, btnElement) {
 
 // 5. دالة التبديل بين التبويبات الفرعية (دامة / طاولة)
 window.switchSubStoreTab = function(contentId, btnElement) {
-    const parentBox = btnElement.closest('.store-group-box');
+    // تم التعديل هنا ليعمل مع الهيكل الجديد (لأن الأزرار أصبحت خارج الصندوق)
+    const parentTab = btnElement.closest('.store-tab-content');
     
     // إخفاء جميع محتويات التبويبات الفرعية
-    parentBox.querySelectorAll('.store-sub-tab-content').forEach(el => {
+    parentTab.querySelectorAll('.store-sub-tab-content').forEach(el => {
         el.style.display = 'none';
         el.classList.remove('active-content');
     });
     
     // إزالة التفعيل عن الأزرار الفرعية
-    parentBox.querySelectorAll('.store-sub-tab-btn').forEach(el => {
+    parentTab.querySelectorAll('.store-sub-tab-btn').forEach(el => {
         el.classList.remove('active');
     });
     
