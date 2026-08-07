@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     width: 90%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
                     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
                     z-index: 10;
+                    margin-bottom: 5px; /* تم تقليل المسافة لرفع المحتوى للأعلى */
                 }
                 .store-tab-btn {
                     flex: 1; background: transparent; border: none; color: var(--text-secondary);
@@ -49,20 +50,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-tab-content { 
                     display: none; width: 90%; max-width: 350px; 
                     animation: fadeIn 0.4s ease; 
-                    margin-top: 25px; /* مسافة بين الأزرار العلوية والمحتوى */
+                    margin-top: 5px; /* تم تقليل المسافة بين الأزرار العلوية والمحتوى */
                 }
                 .store-tab-content.active-content { display: block; }
 
                 /* ستايل التبويبات الفرعية (دامة / طاولة) */
                 .store-sub-tabs-container {
                     display: flex; gap: 5px; margin-bottom: 15px; 
-                    background: rgba(0, 0, 0, 0.4); padding: 5px;
+                    background: rgba(0, 0, 0, 0.4); padding: 4px; /* تم تقليل الحشوة لجعل الشريط أنحف */
                     border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);
                     width: 100%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
                 }
                 .store-sub-tab-btn {
                     flex: 1; background: transparent; border: none; color: var(--text-secondary);
-                    padding: 8px; border-radius: 50px; font-weight: 700; font-size: 14px;
+                    padding: 5px 10px; /* تم تقليل الارتفاع (Padding) لجعل الأزرار أنحف */
+                    border-radius: 50px; font-weight: 700; font-size: 13px; /* خط أصغر بشكل طفيف للتناسق */
                     cursor: pointer; transition: var(--transition);
                 }
                 .store-sub-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
@@ -96,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div id="store-games-content" class="store-tab-content active-content">
                 <div class="store-group-box">
                     
-                    <!-- أزرار التبويبات الفرعية (دامة وطاولة بدون إيموجي) -->
+                    <!-- أزرار التبويبات الفرعية (دامة وطاولة أنحف) -->
                     <div class="store-sub-tabs-container">
                         <button class="store-sub-tab-btn active" onclick="window.switchSubStoreTab('store-dama-items', this)">
                             <span data-i18n="store_dama">دامة</span>
