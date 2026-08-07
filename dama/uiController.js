@@ -141,7 +141,7 @@ export const ui = {
         
         this.setTxt('custom-alert-title', title);
         this.setTxt('custom-alert-ok', customOkText || t('alert_ok'));
-        this.setTxt('custom-alert-cancel', customCancelText || t('btn_cancel'));
+        this.setTxt('custom-alert-cancel', customCancelText || 'إلغاء');
         
         const okBtn = this.getEl('custom-alert-ok');
         if (okBtn) okBtn.style.display = 'inline-block'; 
@@ -983,7 +983,7 @@ export const ui = {
             } else { setTimeout(() => { container.remove(); this.initBoard(); }, 500); }
         });
         
-        const eBtn = this.makeEl('button', 'modal-btn-exit', "flex:1;background:rgba(255,69,58,0.15);color:#ff453a;border:1px solid rgba(255,69,58,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(255,69,58,0.3);", t('exit'));
+        const eBtn = this.makeEl('button', 'modal-btn-exit', "flex:1;background:rgba(255,69,58,0.15);color:#ff453a;border:1px solid rgba(255,69,58,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(255,69,58,0.3);", 'خروج');
         eBtn.id = 'modal-btn-exit';
         eBtn.onmouseenter = () => eBtn.style.transform = 'scale(0.96)'; eBtn.onmouseleave = () => eBtn.style.transform = 'scale(1)';
         
@@ -1234,7 +1234,12 @@ window.switchQuestTab = function(tab) {
     document.getElementById('quests-list-container-weekly').style.display = 'none';
     document.getElementById('quest-tab-' + tab).classList.add('active');
     document.getElementById('quests-list-container-' + tab).style.display = 'flex';
-    if (window.questsManager) { window.questsManager.currentTab = tab; window.questsManager.updateTimerDisplay(); }
+    
+    if (window.questsManager) { 
+        window.questsManager.currentTab = tab; 
+        window.questsManager.updateTimerDisplay(); 
+        window.questsManager.renderQuests(tab); // 💡 تحديث الزر فوراً عند التبديل
+    }
 };
 
 window.switchRoomTab = function(tab) {
