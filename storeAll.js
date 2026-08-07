@@ -68,12 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: rgba(255,255,255,0.1); color: white; 
                     border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 2px 8px rgba(0,0,0,0.3);
                 }
-                .store-sub-tab-content { display: none; animation: fadeIn 0.3s ease; }
-                .store-sub-tab-content.active-content { display: block; }
+                .store-sub-tab-content { display: none; animation: fadeIn 0.3s ease; height: 100%; }
+                .store-sub-tab-content.active-content { display: flex; flex-direction: column; }
 
                 /* تصنيفات متجر الدامة الداخلية (خلفيات، إطارات، الخ) */
                 .dama-cats-container {
-                    display: flex; gap: 6px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px;
+                    display: flex; gap: 6px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0;
                 }
                 .dama-cats-container::-webkit-scrollbar { height: 0; display: none; }
                 .dama-cat-btn {
@@ -90,17 +90,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 /* صندوق الألعاب المحدث (داكن ومضبب لعزل الخلفية المزعجة) */
                 .store-group-box-dark {
                     padding: 15px 10px;
-                    background: rgba(10, 12, 16, 0.85) !important; /* لون داكن شبه صلب */
-                    backdrop-filter: blur(15px); /* عزل الخلفية بقوة */
+                    background: rgba(10, 12, 16, 0.85) !important;
+                    backdrop-filter: blur(15px);
                     -webkit-backdrop-filter: blur(15px);
                     border: 1px solid rgba(255,255,255,0.1);
                     border-radius: 24px;
                     box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+                    display: flex;
+                    flex-direction: column;
+                    height: calc(100vh - 270px); /* 🌟 يجعل الصندوق ثابت الارتفاع ولا يتجاوز الشريط السفلي */
+                    overflow: hidden;
                 }
 
-                /* منطقة التمرير للمنتجات */
+                /* 🌟 منطقة التمرير للمنتجات (تأخذ المساحة المتبقية داخل الصندوق الثابت) */
                 .store-scrollable-area {
-                    max-height: 50vh; overflow-y: auto; overflow-x: hidden; padding-right: 5px;
+                    flex: 1;
+                    overflow-y: auto; overflow-x: hidden; 
+                    padding-right: 5px;
+                    padding-top: 10px; /* 🌟 يمنع اختفاء الجزء العلوي من الكروت */
+                    padding-bottom: 20px; /* 🌟 يمنع اختفاء الجزء السفلي */
                 }
                 .store-scrollable-area::-webkit-scrollbar { width: 4px; }
                 .store-scrollable-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
@@ -109,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 /* شبكة المنتجات والكروت (تنسيقات داكنة جداً لتبرز المنتجات) */
                 .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
                 .store-item-card { 
-                    background: rgba(25, 30, 35, 0.95) !important; /* خلفية الكارت داكنة وصلبة */
+                    background: rgba(25, 30, 35, 0.95) !important;
                     border: 1px solid rgba(255,255,255,0.08); 
                     border-radius: 16px; 
                     padding: 10px 5px; 
@@ -192,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- حاوية محتوى الشعبية -->
             <div id="store-popularity-content" class="store-tab-content">
-                <div class="store-group-box-dark" style="text-align: center;">
+                <div class="store-group-box-dark" style="text-align: center; height: auto; justify-content: center;">
                     <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.5));">🔥</span>
                     <h4 style="color: white; font-size: 18px; margin-bottom: 10px;" data-i18n="store_popularity">باقات الشعبية</h4>
                     <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
@@ -204,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- حاوية محتوى الشحن -->
             <div id="store-topup-content" class="store-tab-content">
-                <div class="store-group-box-dark" style="text-align: center; border-color: rgba(245,166,35,0.4); background: linear-gradient(180deg, rgba(245,166,35,0.1), rgba(10,12,16,0.95)) !important;">
+                <div class="store-group-box-dark" style="text-align: center; height: auto; justify-content: center; border-color: rgba(245,166,35,0.4); background: linear-gradient(180deg, rgba(245,166,35,0.1), rgba(10,12,16,0.95)) !important;">
                     <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(245, 166, 35, 0.5));">💎</span>
                     <h4 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;" data-i18n="store_topup">شحن الرصيد</h4>
                     <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
@@ -256,7 +264,7 @@ window.switchSubStoreTab = function(contentId, btnElement) {
     
     const targetContent = document.getElementById(contentId);
     if (targetContent) {
-        targetContent.style.display = 'block'; targetContent.classList.add('active-content');
+        targetContent.style.display = 'flex'; targetContent.classList.add('active-content');
     }
     if (btnElement) btnElement.classList.add('active');
 };
