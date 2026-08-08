@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: تغليف كل قسم بمنتجاته في صندوق خاص وعنوان مستقل
+ * 🌟 التحديث النهائي: استغلال أقصى مساحة للشاشة وإزالة عناوين الأقسام مع الحفاظ على الإطارات
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,13 +9,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
-        // ضبط الحاوية الأساسية 
+        // 🌟 ضبط الحاوية الأساسية (تم تقليل المسافة العلوية لرفع المتجر لأقصى حد ممكن)
         storeContainer.style.width = '100%';
         storeContainer.style.height = '100%';
         storeContainer.style.flexDirection = 'column';
         storeContainer.style.alignItems = 'center';
-        storeContainer.style.paddingTop = '75px'; 
-        storeContainer.style.boxSizing = 'border-box'; /* 🌟 لضمان حساب الأبعاد بدقة */
+        storeContainer.style.paddingTop = '65px'; /* 🌟 تم الرفع هنا */
+        storeContainer.style.boxSizing = 'border-box'; 
         
         // 1. حقن الستايلات 
         if (!document.getElementById('store-tabs-style')) {
@@ -31,7 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     border: 1px solid #b38d36 !important; 
                     width: 95%; max-width: 450px; 
                     box-shadow: 0 5px 15px rgba(0,0,0,0.6) !important;
-                    z-index: 10; margin-bottom: 10px !important; direction: ltr; 
+                    z-index: 10; 
+                    margin-bottom: 6px !important; /* 🌟 تقليل المسافة لرفع الصندوق */
+                    direction: ltr; 
                 }
                 .store-tab-btn {
                     flex: 1; background: transparent; color: var(--text-secondary);
@@ -76,10 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     z-index: 5;
                 }
 
-                /* 🌟 حاوية الأقسام السفلية */
+                /* 🌟 حاوية الأقسام السفلية 🌟 */
                 .store-tab-content { 
                     display: none !important; width: 95%; max-width: 450px; 
-                    height: calc(100dvh - 225px) !important; 
+                    /* 🌟 حساب دقيق: يضمن عدم اختفاء المحتوى تحت الشريط السفلي 🌟 */
+                    height: calc(100dvh - 175px) !important; 
                     direction: rtl;
                 }
                 #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 0 !important; align-items: flex-start; }
@@ -93,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: flex; flex-direction: column; gap: 6px; 
                     width: 50px; 
                     flex-shrink: 0;
-                    margin-top: 15 !important; 
+                    margin-top: 15px !important; 
                     margin-left: -2px !important; 
                     position: relative;
                     z-index: 5; 
@@ -142,12 +145,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: none; 
                 }
 
-                /* 🌟 الإطار يظهر فوراً بدون تغيير حجم 🌟 */
                 .store-side-tab-btn.active::before {
                     display: block; 
                 }
 
-                /* 🌟 رفع الأيقونة والنص فوق الإطار الأخضر 🌟 */
                 .store-side-tab-btn.active span {
                     position: relative;
                     z-index: 2;
@@ -193,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 .dama-cat-btn span.cat-icon { font-size: 12px !important; filter: grayscale(100%); margin-left: 3px !important; } 
                 
-                /* 🌟 الزر الداخلي المفعل (بدون أنيميشن) */
                 .dama-cat-btn.active { 
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: white !important; 
@@ -212,31 +212,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-scrollable-area {
                     flex: 1; overflow-y: auto; overflow-x: hidden; 
                     padding-right: 2px; padding-top: 5px; 
-                    padding-bottom: 15px; 
+                    padding-bottom: 10px; 
                 }
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
                 
-                /* 🌟 حاوية القسم الواحد (صندوق المنتجات) 🌟 */
+                /* 🌟 حاوية القسم الواحد (صندوق المنتجات المحتفظ بالإطار الداخلي بدون نصوص) 🌟 */
                 .category-section-container {
-                    display: none; /* يتم التحكم بها عبر الجافاسكريبت */
+                    display: none; 
                     flex-direction: column;
-                    background: rgba(255, 255, 255, 0.02); /* خلفية خفيفة جداً للصندوق */
-                    border: 1px solid rgba(179, 141, 54, 0.3); /* إطار ذهبي خافت */
+                    background: rgba(255, 255, 255, 0.02); 
+                    border: 1px solid rgba(179, 141, 54, 0.3); /* الإطار الذهبي الداخلي المطلوب */
                     border-radius: 12px;
-                    padding: 10px;
-                    margin-bottom: 15px;
-                }
-                
-                /* 🌟 عنوان صندوق القسم 🌟 */
-                .category-section-title {
-                    color: #ffd700;
-                    font-size: 14px;
-                    font-weight: bold;
+                    padding: 6px; /* تم تقليل الحشوة قليلاً لاستغلال المساحة */
                     margin-bottom: 10px;
-                    text-align: right;
-                    border-bottom: 1px solid rgba(179, 141, 54, 0.3);
-                    padding-bottom: 5px;
                 }
 
                 .store-items-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; width: 100% !important; }
@@ -251,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     box-shadow: inset 0 0 6px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.4) !important; 
                 }
                 
-                /* 🌟 زر الشراء */
                 .store-buy-btn-small { 
                     height: 26px !important; font-size: 11px !important; font-weight: bold !important; 
                     border-radius: 15px !important; width: 95% !important; 
@@ -264,8 +252,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.head.appendChild(style);
         }
 
-        // 2. بناء هيكل المتجر بالكامل (HTML) - إضافة الحاويات الخاصة بكل قسم
+        // 2. بناء هيكل المتجر بالكامل (HTML) - تم مسح العناوين من الحاويات الداخلية
         storeContainer.innerHTML = `
+            <!-- التبويبات العلوية الرئيسية -->
             <div class="store-tabs-container">
                 <button class="store-tab-btn" onclick="window.switchStoreContentTab('store-topup-content', this)">
                     <span data-i18n="store_topup">شحن</span> <span>💎</span>
@@ -278,8 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
 
+            <!-- حاوية الألعاب (الشريط يمين والصندوق يسار) -->
             <div id="store-games-content" class="store-tab-content active-content">
                 
+                <!-- الشريط الجانبي الأيمن -->
                 <div class="store-side-tabs">
                     <button class="store-side-tab-btn active" onclick="window.switchSubStoreTab('store-dama-items', this)">
                         <span class="emoji-icon">👑</span>
@@ -291,9 +282,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </div>
 
+                <!-- الصندوق الأيسر للمنتجات -->
                 <div class="store-group-box-dark">
                     
+                    <!-- محتوى متجر دامة -->
                     <div id="store-dama-items" class="store-sub-tab-content active-content">
+                        <!-- تصنيفات الدامة -->
                         <div class="dama-cats-container">
                             <button id="store-btn-tab-bg" class="dama-cat-btn active" onclick="window.switchStoreTabCategory('bg', this)">
                                 خلفيات <span class="cat-icon">🎨</span>
@@ -309,29 +303,28 @@ document.addEventListener('DOMContentLoaded', () => {
                             </button>
                         </div>
 
+                        <!-- منطقة التمرير للمنتجات -->
                         <div class="store-scrollable-area">
+                            <!-- 🌟 حاويات الأقسام (تم مسح النصوص والخطوط مع الإبقاء على الصندوق) 🌟 -->
                             <div id="store-section-bg-container" class="category-section-container">
-                                <div class="category-section-title">خلفيات الساحة</div>
                                 <div id="store-section-bg" class="store-items-grid"></div>
                             </div>
                             
                             <div id="store-section-frames-container" class="category-section-container" style="display: none;">
-                                <div class="category-section-title">إطارات اللعب</div>
                                 <div id="store-section-frames" class="store-items-grid"></div>
                             </div>
                             
                             <div id="store-section-pieces-container" class="category-section-container" style="display: none;">
-                                <div class="category-section-title">أحجار اللعب</div>
                                 <div id="store-section-pieces" class="store-items-grid"></div>
                             </div>
                             
                             <div id="store-section-offers-container" class="category-section-container" style="display: none;">
-                                <div class="category-section-title">عروض خاصة</div>
                                 <div id="store-section-offers" class="store-items-grid"></div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- محتوى متجر طاولة -->
                     <div id="store-tawla-items" class="store-sub-tab-content">
                         <span style="font-size: 50px; display: block; text-align: center; margin-top: 50px; margin-bottom: 10px;">🎲</span>
                         <p style="color: var(--text-secondary); font-size: 15px; text-align: center; margin: 10px 0 20px 0;">
@@ -344,6 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             </div>
 
+            <!-- حاوية محتوى الشعبية -->
             <div id="store-popularity-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; text-align: center; align-items: center; justify-content: center;">
                     <span style="font-size: 60px; display: block; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.5));">🔥</span>
@@ -355,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
 
+            <!-- حاوية محتوى الشحن -->
             <div id="store-topup-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; text-align: center; align-items: center; justify-content: center; border-color: rgba(245,166,35,0.4) !important; background: linear-gradient(180deg, rgba(245,166,35,0.1), rgba(10,12,16,0.95)) !important;">
                     <span style="font-size: 60px; display: block; margin-bottom: 15px; filter: drop-shadow(0 0 15px rgba(245, 166, 35, 0.5));">💎</span>
@@ -411,7 +406,6 @@ window.switchStoreTabCategory = function(category, btnElement) {
     const tabs = ['bg', 'frames', 'pieces', 'offers'];
     
     tabs.forEach(tab => { 
-        // التعديل هنا للتحكم بظهور حاوية القسم بدلاً من الجريد مباشرة
         const secContainer = document.getElementById('store-section-' + tab + '-container'); 
         const btn = document.getElementById('store-btn-tab-' + tab);
         if(secContainer) secContainer.style.display = 'none'; 
