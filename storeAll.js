@@ -66,22 +66,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-tab-btn.active { 
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; /* تدرج أخضر زجاجي */
                     color: white !important; 
-                    border: 1px solid #d4af37 !important; /* 🌟 الإطار الذهبي حول الزر الأخضر كما في الصورة */
+                    border: 1px solid #ffd700 !important; /* 🌟 الإطار الذهبي الساطع حول الزر */
                     box-shadow: 
                         inset 0 2px 1px rgba(255, 255, 255, 0.5), /* لمعة علوية حادة للزجاج */
                         inset 0 -4px 10px rgba(0, 0, 0, 0.9),     /* عمق سفلي داكن */
-                        0 4px 10px rgba(0, 0, 0, 0.8) !important; /* ظل خارجي للبروز */
+                        0 4px 10px rgba(0, 0, 0, 0.8),            /* ظل خارجي للبروز */
+                        0 0 8px rgba(255, 215, 0, 0.2) !important; /* توهج ذهبي خفيف */
                     border-radius: 40px !important;
                     text-shadow: 0 1px 3px rgba(0,0,0,0.9);
                     transform: scale(1.04); /* تكبير طفيف جداً لإعطاء البروز الثلاثي الأبعاد */
                     z-index: 5;
                 }
 
-                /* 🌟 حاوية الأقسام السفلية */
+                /* 🌟 حاوية الأقسام السفلية (تم حذف حركة fadeIn لإلغاء التأخير) */
                 .store-tab-content { 
                     display: none !important; width: 95%; max-width: 450px; 
                     height: calc(100dvh - 180px) !important; 
-                    animation: fadeIn 0.4s ease; direction: rtl;
+                    direction: rtl;
                 }
                 #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 0 !important; align-items: flex-start; }
                 #store-popularity-content.active-content { display: block !important; }
@@ -139,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     z-index: 1; 
                 }
 
-                .store-sub-tab-content { display: none !important; height: 100%; flex-direction: column; animation: fadeIn 0.3s ease; }
+                .store-sub-tab-content { display: none !important; height: 100%; flex-direction: column; }
                 .store-sub-tab-content.active-content { display: flex !important; }
 
                 /* 🌟 شريط تصنيفات الدامة الداخلي */
