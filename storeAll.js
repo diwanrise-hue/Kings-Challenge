@@ -16,16 +16,16 @@ document.addEventListener('DOMContentLoaded', () => {
         storeContainer.style.alignItems = 'center';
         storeContainer.style.paddingTop = '75px'; 
         
-        // 1. حقن الستايلات (تم ضبط الإطارات والخطوط الفاصلة هنا)
+        // 1. حقن الستايلات 
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
             style.innerHTML = `
                 /* 🌟 التبويبات العلوية الرئيسية */
                 .store-tabs-container {
-                    display: flex; gap: 4px; 
+                    display: flex; gap: 0; 
                     background: #060907 !important; 
-                    padding: 4px !important; /* 🌟 حشوة تمنع الأزرار والخطوط من لمس الإطار الخارجي */
+                    padding: 4px !important; 
                     border-radius: 40px !important; 
                     border: 1px solid #b38d36 !important; /* إطار ذهبي خارجي */
                     width: 95%; max-width: 450px; 
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     font-weight: 700; font-size: 12px !important;
                     cursor: pointer; transition: 0.3s;
                     display: flex; align-items: center; justify-content: center; gap: 5px !important;
-                    border: 1px solid transparent !important; /* إطار مخفي يمنع تغير الحجم */
+                    border: 1px solid transparent !important; 
                     position: relative;
                 }
                 
@@ -48,24 +48,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     content: '';
                     position: absolute;
                     left: -2.5px;
-                    top: 15%; /* 🌟 يبعد عن الأعلى */
-                    height: 70%; /* 🌟 يبعد عن الأسفل */
+                    top: 15%; 
+                    height: 70%; 
                     width: 1px;
                     background-color: #b38d36;
                     opacity: 0.6;
                     pointer-events: none;
                 }
                 
-                /* 🌟 إخفاء الخطوط الفاصلة المجاورة للزر المفعل ليكون مظهره نظيفاً */
+                /* إخفاء الخط الفاصل بجانب الزر المفعل */
                 .store-tab-btn.active::before { display: none; }
                 .store-tab-btn.active + .store-tab-btn::before { display: none; }
 
-                /* 🌟 الزر المفعل (إطار ذهبي + خلفية خضراء) */
+                /* 🌟 الزر المفعل (تصميم ثلاثي الأبعاد مطابق للصورة تماماً) 🌟 */
                 .store-tab-btn.active { 
-                    background: #0f3d17 !important; /* لون أخضر */
+                    background: linear-gradient(180deg, #1d5f26 0%, #0a2610 100%) !important; /* تدرج أخضر داكن */
                     color: white !important; 
-                    border: 1px solid #b38d36 !important; /* إطار ذهبي داخلي للزر */
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important; 
+                    border: 1px solid rgba(0, 0, 0, 0.5) !important; /* حافة داكنة لدمج الظل */
+                    box-shadow: 
+                        inset 0 2px 2px rgba(255, 255, 255, 0.4), /* لمعة علوية تشبه الزجاج */
+                        inset 0 -3px 6px rgba(0, 0, 0, 0.8),      /* ظل داخلي سفلي عميق */
+                        0 4px 10px rgba(0, 0, 0, 0.6) !important; /* ظل خارجي لإبراز الزر */
+                    border-radius: 40px !important;
+                    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+                    transform: scale(1.02); /* تكبير طفيف جداً لإعطاء إحساس بالبروز */
+                    z-index: 2; /* ليكون فوق الخطوط الفاصلة */
                 }
 
                 /* 🌟 حاوية الأقسام السفلية */
