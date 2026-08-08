@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * تم إصلاح نظام العرض ليكون شريط الألعاب الجانبي بجوار المنتجات تماماً
+ * تم التحديث لمطابقة تصميم الصورة (قائمة جانبية يمنى + صندوق أيسر + أيقونات مخصصة)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,16 +9,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
-        // ضبط الحاوية الأساسية للمتجر لتبدأ من الأعلى
+        // 1. ضبط الحاوية الأساسية للمتجر لتبدأ من تحت الرصيد وتتوسط الشاشة
         storeContainer.style.position = 'absolute';
         storeContainer.style.top = '0';
         storeContainer.style.left = '0';
         storeContainer.style.width = '100%';
         storeContainer.style.height = '100%';
-        storeContainer.style.justifyContent = 'flex-start'; 
+        storeContainer.style.display = 'flex';
+        storeContainer.style.flexDirection = 'column';
+        storeContainer.style.alignItems = 'center';
         storeContainer.style.paddingTop = '95px'; 
         
-        // 1. حقن ستايلات المتجر الصارمة لمنع التداخل
+        // 2. حقن ستايلات المتجر المطابقة للصورة تماماً
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
@@ -26,120 +28,107 @@ document.addEventListener('DOMContentLoaded', () => {
                 /* 🌟 التبويبات العلوية الرئيسية */
                 .store-tabs-container {
                     display: flex; gap: 8px; 
-                    background: rgba(15, 18, 25, 0.6); padding: 6px;
-                    border-radius: 50px; border: 1px solid rgba(255,255,255,0.08);
-                    width: 90%; max-width: 380px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-                    z-index: 10; margin-bottom: 15px; margin-left: auto; margin-right: auto;
+                    background: rgba(10, 12, 16, 0.9); padding: 6px;
+                    border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);
+                    width: 95%; max-width: 450px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+                    z-index: 10; margin-bottom: 15px;
                 }
                 .store-tab-btn {
                     flex: 1; background: transparent; border: none; color: var(--text-secondary);
-                    padding: 10px 5px; border-radius: 50px; font-weight: 700; font-size: 13px;
-                    cursor: pointer; transition: var(--transition); white-space: nowrap;
-                    display: flex; align-items: center; justify-content: center; gap: 5px;
+                    padding: 10px 5px; border-radius: 50px; font-weight: 700; font-size: 14px;
+                    cursor: pointer; transition: var(--transition);
+                    display: flex; align-items: center; justify-content: center; gap: 8px;
                 }
                 .store-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
-                .store-tab-btn.active { background: rgba(255,255,255,0.15); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-                .store-tab-btn.premium-tab.active { background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(211,84,0,0.3)); color: var(--accent); border: 1px solid rgba(245,166,35,0.4); }
-                
-                /* 🌟 إخفاء الأقسام وإظهارها بنظام صارم */
-                .store-tab-content { display: none !important; width: 95%; max-width: 400px; margin: 0 auto; height: calc(100dvh - 200px); animation: fadeIn 0.4s ease; }
-                
-                /* السر هنا: إجبار قسم الألعاب على العرض بشكل أفقي (جنباً إلى جنب) */
-                #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 8px !important; }
+                .store-tab-btn.active { 
+                    background: #0f361a; /* لون أخضر داكن للزر المفعل */
+                    color: white; border: 1px solid #1c6b32; box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+                }
+
+                /* 🌟 حاوية المحتوى الرئيسية (Flex Row لجعل القائمة على اليمين والصندوق على اليسار) */
+                .store-tab-content { display: none !important; width: 95%; max-width: 450px; animation: fadeIn 0.4s ease; height: calc(100dvh - 190px); }
+                #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 10px !important; }
                 #store-popularity-content.active-content { display: block !important; }
                 #store-topup-content.active-content { display: block !important; }
 
-                /* 🌟 الشريط الجانبي (أزرار دامة / طاولة) */
+                /* 🌟 الشريط الجانبي الأيمن (أزرار دامة / طاولة) */
                 .store-side-tabs {
-                    display: flex; flex-direction: column; gap: 8px;
-                    width: 70px; /* عرض ثابت للأزرار لتكون في اليمين */
-                    flex-shrink: 0;
+                    display: flex; flex-direction: column; gap: 12px;
+                    width: 75px; flex-shrink: 0;
                 }
                 .store-side-tab-btn {
-                    background: rgba(15, 18, 25, 0.6);
-                    border: 1px solid rgba(255,255,255,0.05);
-                    border-radius: 16px;
-                    color: var(--text-secondary);
-                    font-weight: 700; font-size: 13px;
-                    height: 80px; 
-                    display: flex; align-items: center; justify-content: center;
-                    cursor: pointer; transition: 0.3s;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                    background: rgba(15, 18, 25, 0.8); border: 1px solid rgba(255,255,255,0.05);
+                    border-radius: 16px; color: var(--text-secondary);
+                    font-weight: 700; font-size: 14px; height: 100px; 
+                    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+                    cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
                 }
-                .store-side-tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+                .store-side-tab-btn i { font-size: 28px; font-style: normal; }
                 .store-side-tab-btn.active {
-                    background: rgba(10, 12, 16, 0.95);
-                    color: white; 
-                    border: 1px solid rgba(255,255,255,0.2); 
-                    box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
+                    background: #0d2114; color: white; border: 1px solid #d4af37; /* لون ذهبي للحافة */
+                    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
                 }
+                .store-side-tab-btn.active i { filter: drop-shadow(0 0 5px #ffd700); }
 
-                /* 🌟 الصندوق المظلم (نافذة المنتجات المجاورة للأزرار) */
+                /* 🌟 الصندوق الأيسر (نافذة المنتجات) */
                 .store-group-box-dark {
-                    flex: 1; /* يتمدد ليأخذ باقي المساحة المجاورة للأزرار */
-                    padding: 12px 6px 5px 6px !important;
-                    background: rgba(10, 12, 16, 0.95) !important;
-                    backdrop-filter: blur(20px) !important;
-                    -webkit-backdrop-filter: blur(20px) !important;
-                    border: 1px solid rgba(255,255,255,0.1) !important;
-                    border-radius: 20px !important;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
-                    display: flex !important;
-                    flex-direction: column !important;
-                    height: 100% !important;
-                    overflow: hidden !important;
+                    flex: 1; padding: 12px;
+                    background: rgba(15, 20, 25, 0.95);
+                    border: 1px solid rgba(212, 175, 55, 0.3); /* حافة ذهبية خفيفة للصندوق */
+                    border-radius: 20px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+                    display: flex; flex-direction: column; height: 100%; overflow: hidden;
                 }
 
-                /* 🌟 محتوى التبويب الفرعي */
+                /* محتوى التبويب الفرعي للصندوق الأيسر */
                 .store-sub-tab-content { display: none !important; height: 100%; flex-direction: column; animation: fadeIn 0.3s ease; }
                 .store-sub-tab-content.active-content { display: flex !important; }
 
-                /* 🌟 تصنيفات المتجر (خلفيات، إطارات..) */
-                .dama-cats-container { display: flex; gap: 4px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
+                /* 🌟 تصنيفات المتجر العلوية الداخلية (خلفيات، إطارات..) */
+                .dama-cats-container { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
                 .dama-cats-container::-webkit-scrollbar { height: 0; display: none; }
                 .dama-cat-btn {
-                    flex: 1; min-width: 60px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
-                    color: var(--text-secondary); padding: 8px 5px; border-radius: 12px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; text-align: center;
+                    flex: 1; min-width: 75px; background: rgba(25, 30, 35, 0.9); border: 1px solid rgba(255,255,255,0.05);
+                    color: var(--text-secondary); padding: 8px 5px; border-radius: 12px; font-size: 12px; font-weight: 700; 
+                    cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;
                 }
-                .dama-cat-btn.active { background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.2); }
+                .dama-cat-btn i { font-size: 14px; font-style: normal; }
+                .dama-cat-btn.active { 
+                    background: #0f361a; color: white; border: 1px solid #d4af37; /* أخضر وذهبي */
+                }
 
                 /* 🌟 منطقة التمرير للمنتجات */
                 .store-scrollable-area {
-                    flex: 1 !important;
-                    overflow-y: auto !important; 
-                    overflow-x: hidden !important; 
-                    padding-right: 3px !important;
-                    padding-top: 5px !important;
-                    padding-bottom: 60px !important; /* مساحة لضمان عدم قص المنتجات */
+                    flex: 1; overflow-y: auto; overflow-x: hidden; 
+                    padding-right: 2px; padding-top: 5px; padding-bottom: 60px;
                 }
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
-                .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+                .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.5); border-radius: 10px; }
                 
-                /* 🌟 شبكة الكروت */
-                .store-items-grid { 
-                    display: grid !important; 
-                    grid-template-columns: repeat(3, 1fr) !important; /* 3 أعمدة */
-                    gap: 6px !important; 
-                    width: 100% !important;
-                }
+                /* 🌟 شبكة الكروت (3 أعمدة) */
+                .store-items-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; width: 100% !important; }
+                
+                /* 🌟 شكل كارت المنتج */
                 .store-item-card { 
-                    background: rgba(25, 30, 35, 0.98) !important;
-                    border: 1px solid rgba(255,255,255,0.08) !important; 
+                    background: rgba(10, 15, 20, 0.9) !important;
+                    border: 1px solid rgba(212, 175, 55, 0.2) !important; 
                     border-radius: 14px !important; 
-                    padding: 8px 4px !important; 
-                    display: flex !important; flex-direction: column !important; align-items: center !important; gap: 4px !important; 
-                    text-align: center !important;
+                    padding: 10px 5px !important; 
+                    display: flex !important; flex-direction: column !important; align-items: center !important; gap: 6px !important; 
+                    text-align: center !important; position: relative;
                 }
+                
+                /* 🌟 زر الشراء الأخضر */
                 .store-buy-btn-small { 
-                    height: 28px !important; font-size: 11px !important; border-radius: 8px !important; width: 95% !important; 
-                    background: rgba(255,255,255,0.1) !important; color: white !important; border: none !important; cursor: pointer !important;
+                    height: 28px !important; font-size: 12px !important; font-weight: bold !important; border-radius: 8px !important; width: 90% !important; 
+                    background: #145224 !important; color: white !important; border: 1px solid #1e7a36 !important; cursor: pointer !important; transition: 0.2s;
                 }
+                .store-buy-btn-small:hover { background: #1b6e31 !important; }
             `;
             document.head.appendChild(style);
         }
 
-        // 2. بناء هيكل المتجر بالكامل (HTML)
+        // 3. بناء هيكل المتجر بالكامل (HTML)
         storeContainer.innerHTML = `
             <!-- التبويبات العلوية الرئيسية -->
             <div class="store-tabs-container">
@@ -154,33 +143,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
 
-            <!-- 🌟 حاوية محتوى الألعاب (دامة وطاولة) - مصممة كـ Flex Row -->
+            <!-- حاوية محتوى الألعاب (Flex Row: شريط جانبي يمين، وصندوق يسار) -->
             <div id="store-games-content" class="store-tab-content active-content">
                 
-                <!-- الأزرار الجانبية العمودية -->
+                <!-- الشريط الجانبي الأيمن -->
                 <div class="store-side-tabs">
                     <button class="store-side-tab-btn active" onclick="window.switchSubStoreTab('store-dama-items', this)">
-                        <span data-i18n="store_dama">دامة</span>
+                        <i>👑</i> <span data-i18n="store_dama">دامة</span>
                     </button>
                     <button class="store-side-tab-btn" onclick="window.switchSubStoreTab('store-tawla-items', this)">
-                        <span data-i18n="store_tawla">طاولة</span>
+                        <i>🛍️</i> <span data-i18n="store_tawla">طاولة</span>
                     </button>
                 </div>
 
-                <!-- الصندوق الداكن الفعلي للألعاب بجانب الأزرار -->
+                <!-- الصندوق الأيسر للمنتجات -->
                 <div class="store-group-box-dark">
                     
                     <!-- محتوى متجر دامة -->
                     <div id="store-dama-items" class="store-sub-tab-content active-content">
-                        <!-- تصنيفات الدامة -->
+                        <!-- تصنيفات الدامة مع الأيقونات -->
                         <div class="dama-cats-container">
-                            <button id="store-btn-tab-bg" class="dama-cat-btn active" onclick="window.switchStoreTabCategory('bg')">خلفيات</button>
-                            <button id="store-btn-tab-frames" class="dama-cat-btn" onclick="window.switchStoreTabCategory('frames')">إطارات</button>
-                            <button id="store-btn-tab-pieces" class="dama-cat-btn" onclick="window.switchStoreTabCategory('pieces')">أحجار</button>
-                            <button id="store-btn-tab-offers" class="dama-cat-btn" onclick="window.switchStoreTabCategory('offers')">عروضات</button>
+                            <button id="store-btn-tab-bg" class="dama-cat-btn active" onclick="window.switchStoreTabCategory('bg')">
+                                <i>🎨</i> خلفيات
+                            </button>
+                            <button id="store-btn-tab-frames" class="dama-cat-btn" onclick="window.switchStoreTabCategory('frames')">
+                                <i>🖼️</i> إطارات
+                            </button>
+                            <button id="store-btn-tab-pieces" class="dama-cat-btn" onclick="window.switchStoreTabCategory('pieces')">
+                                <i>💎</i> أحجار
+                            </button>
+                            <button id="store-btn-tab-offers" class="dama-cat-btn" onclick="window.switchStoreTabCategory('offers')">
+                                <i>🏷️</i> عروضات
+                            </button>
                         </div>
 
-                        <!-- الحاويات المستهدفة من store.js لضخ العناصر -->
+                        <!-- منطقة التمرير للمنتجات -->
                         <div class="store-scrollable-area">
                             <div id="store-section-bg" class="store-items-grid"></div>
                             <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
@@ -191,11 +188,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     <!-- محتوى متجر طاولة -->
                     <div id="store-tawla-items" class="store-sub-tab-content">
-                        <span style="font-size: 40px; display: block; text-align: center; margin-bottom: 10px;">🎲</span>
-                        <p style="color: var(--text-secondary); font-size: 13px; text-align: center; margin: 10px 0 20px 0;">
+                        <span style="font-size: 40px; display: block; text-align: center; margin-top: 20px; margin-bottom: 10px;">🎲</span>
+                        <p style="color: var(--text-secondary); font-size: 14px; text-align: center; margin: 10px 0 20px 0;">
                             ملحقات وأزياء خاصة بلعبة الطاولة
                         </p>
-                        <button class="btn btn-primary" style="width: 100%; margin: 0;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                        <button class="store-buy-btn-small" style="width: 80%; margin: 0 auto; height: 40px !important; font-size: 14px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
                     </div>
 
                 </div>
@@ -203,25 +200,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- حاوية محتوى الشعبية -->
             <div id="store-popularity-content" class="store-tab-content">
-                <div class="store-group-box-dark" style="width: 100%; text-align: center; justify-content: center;">
-                    <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.5));">🔥</span>
-                    <h4 style="color: white; font-size: 18px; margin-bottom: 10px;" data-i18n="store_popularity">باقات الشعبية</h4>
-                    <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
+                <div class="store-group-box-dark" style="width: 100%; text-align: center; align-items: center; justify-content: center;">
+                    <span style="font-size: 60px; display: block; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.5));">🔥</span>
+                    <h4 style="color: white; font-size: 20px; margin-bottom: 10px;" data-i18n="store_popularity">باقات الشعبية</h4>
+                    <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 25px; max-width: 80%;">
                         ادعم أصدقاءك أو تصدر قائمة الأكثر شعبية باقتناء باقات نادرة!
                     </p>
-                    <button class="btn btn-primary" style="width: 100%; margin: 0;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                    <button class="store-buy-btn-small" style="width: 80%; height: 45px !important; font-size: 15px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
                 </div>
             </div>
 
             <!-- حاوية محتوى الشحن -->
             <div id="store-topup-content" class="store-tab-content">
-                <div class="store-group-box-dark" style="width: 100%; text-align: center; justify-content: center; border-color: rgba(245,166,35,0.4) !important; background: linear-gradient(180deg, rgba(245,166,35,0.1), rgba(10,12,16,0.95)) !important;">
-                    <span style="font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(245, 166, 35, 0.5));">💎</span>
-                    <h4 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;" data-i18n="store_topup">شحن الرصيد</h4>
-                    <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
+                <div class="store-group-box-dark" style="width: 100%; text-align: center; align-items: center; justify-content: center; border-color: rgba(245,166,35,0.4) !important; background: linear-gradient(180deg, rgba(245,166,35,0.1), rgba(10,12,16,0.95)) !important;">
+                    <span style="font-size: 60px; display: block; margin-bottom: 15px; filter: drop-shadow(0 0 15px rgba(245, 166, 35, 0.5));">💎</span>
+                    <h4 style="color: var(--accent); font-size: 20px; margin-bottom: 10px;" data-i18n="store_topup">شحن الرصيد</h4>
+                    <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 25px; max-width: 80%;">
                         اشحن رصيدك الآن للمشاركة في البطولات الكبرى والمراهنات الفاخرة.
                     </p>
-                    <button class="store-btn premium" style="justify-content: center; width: 100%; margin: 0; background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(211,84,0,0.2)); border: 1px solid rgba(245,166,35,0.4); color: #f5a623; border-radius: 16px; padding: 15px; font-weight: 600;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                    <button class="store-buy-btn-small" style="background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(211,84,0,0.2)) !important; border: 1px solid rgba(245,166,35,0.4) !important; color: #f5a623 !important; width: 80%; height: 45px !important; font-size: 15px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
                 </div>
             </div>
         `;
@@ -243,35 +240,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// دوال التنقل (تم إزالة التحكم بـ display عبر الجافا سكريبت للاعتماد على CSS !important)
+// دوال التنقل
 window.switchStoreContentTab = function(contentId, btnElement) {
-    document.querySelectorAll('.store-tab-content').forEach(el => {
-        el.classList.remove('active-content');
-    });
-    document.querySelectorAll('.store-tab-btn').forEach(el => { 
-        el.classList.remove('active'); 
-    });
+    document.querySelectorAll('.store-tab-content').forEach(el => { el.classList.remove('active-content'); });
+    document.querySelectorAll('.store-tab-btn').forEach(el => { el.classList.remove('active'); });
     
     const targetContent = document.getElementById(contentId);
-    if (targetContent) {
-        targetContent.classList.add('active-content');
-    }
+    if (targetContent) { targetContent.classList.add('active-content'); }
     if (btnElement) btnElement.classList.add('active');
 };
 
 window.switchSubStoreTab = function(contentId, btnElement) {
     const parentTab = btnElement.closest('.store-tab-content');
-    parentTab.querySelectorAll('.store-sub-tab-content').forEach(el => {
-        el.classList.remove('active-content');
-    });
-    parentTab.querySelectorAll('.store-side-tab-btn').forEach(el => { 
-        el.classList.remove('active'); 
-    });
+    parentTab.querySelectorAll('.store-sub-tab-content').forEach(el => { el.classList.remove('active-content'); });
+    parentTab.querySelectorAll('.store-side-tab-btn').forEach(el => { el.classList.remove('active'); });
     
     const targetContent = document.getElementById(contentId);
-    if (targetContent) {
-        targetContent.classList.add('active-content');
-    }
+    if (targetContent) { targetContent.classList.add('active-content'); }
     if (btnElement) btnElement.classList.add('active');
 };
 
@@ -287,6 +272,5 @@ window.switchStoreTabCategory = function(category) {
     const activeSec = document.getElementById('store-section-' + category);
     
     if(activeBtn) activeBtn.classList.add('active'); 
-    // إرجاعها إلى نظام الشبكة Grid
     if(activeSec) activeSec.style.setProperty('display', 'grid', 'important'); 
 };
