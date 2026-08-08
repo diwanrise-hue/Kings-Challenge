@@ -431,7 +431,6 @@ export const STORE_ITEMS = {
 
     // ===================================
     // رابعاً: الأشرطة المخفية (المرتبطة تلقائياً بالساحات)
-    // متزامنة كلياً مع ألوان مربعات الساحة وبدون أي إطارات 
     // ===================================
     'score_default': { 
         type: 'score', isDefault: true, nameAr: 'الشريط الافتراضي', nameEn: 'Default Bar', 
@@ -911,7 +910,8 @@ export const storeManager = {
                     storeCard.style.boxShadow = '0 0 12px rgba(168, 85, 247, 0.15), inset 0 0 6px rgba(0,0,0,0.9)';
                 }
 
-                storeCard.innerHTML = `${legendaryTag} <div class="${legendaryClassText}" style="color: white; font-weight: 600; font-size: 14px; text-align: center; margin-top: ${item.isLegendary ? '10px' : '0'};">${name}</div> ${visualHtml} <div style="color: #f5a623; font-size: 13px; font-weight: bold; margin-bottom: 2px; text-shadow: ${item.isLegendary ? '0 0 5px rgba(245,166,35,0.5)' : 'none'};">🪙 ${item.cost}</div>`;
+                // 🌟 التعديل السحري هنا: تم إضافة margin-top: auto; لdiv السعر ليدفع نفسه وزر الشراء لأسفل الكارت دائماً
+                storeCard.innerHTML = `${legendaryTag} <div class="${legendaryClassText}" style="color: white; font-weight: 600; font-size: 14px; text-align: center; margin-top: ${item.isLegendary ? '10px' : '0'}; line-height: 1.2;">${name}</div> ${visualHtml} <div style="color: #f5a623; font-size: 13px; font-weight: bold; margin-bottom: 2px; margin-top: auto; text-shadow: ${item.isLegendary ? '0 0 5px rgba(245,166,35,0.5)' : 'none'};">🪙 ${item.cost}</div>`;
                 
                 const buyBtn = document.createElement('button');
                 buyBtn.className = `store-buy-btn store-buy-btn-small ${legendaryClassBtn}`; buyBtn.innerText = isAr ? 'شراء' : 'Buy';
@@ -1026,20 +1026,6 @@ window.applyTheme = function(profile) {
 // ==========================================
 // 🌟 وظائف الواجهة (التبويبات والنوافذ) المستخرجة من HTML
 // ==========================================
-
-window.switchStoreTabCategory = function(category) {
-    const tabs = ['bg', 'frames', 'pieces', 'offers'];
-    tabs.forEach(tab => { 
-        const btn = document.getElementById('store-btn-tab-' + tab); 
-        const sec = document.getElementById('store-section-' + tab); 
-        if(btn) btn.classList.remove('active'); 
-        if(sec) sec.style.display = 'none'; 
-    });
-    const activeBtn = document.getElementById('store-btn-tab-' + category); 
-    const activeSec = document.getElementById('store-section-' + category);
-    if(activeBtn) activeBtn.classList.add('active'); 
-    if(activeSec) activeSec.style.display = 'grid';
-};
 
 window.switchThemeGridTabCategory = function(category) {
     const tabs = ['bg', 'frames', 'pieces'];
