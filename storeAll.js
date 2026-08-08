@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: استغلال أقصى مساحة للشاشة وإزالة عناوين الأقسام مع الحفاظ على الإطارات
+ * 🌟 التحديث النهائي: ضبط الارتفاع بدقة لرفع الصندوق الأسود فوق الشريط السفلي
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,12 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
-        // 🌟 ضبط الحاوية الأساسية (تم تقليل المسافة العلوية لرفع المتجر لأقصى حد ممكن)
+        // 🌟 ضبط الحاوية الأساسية 
         storeContainer.style.width = '100%';
         storeContainer.style.height = '100%';
         storeContainer.style.flexDirection = 'column';
         storeContainer.style.alignItems = 'center';
-        storeContainer.style.paddingTop = '65px'; /* 🌟 تم الرفع هنا */
+        storeContainer.style.paddingTop = '65px'; 
         storeContainer.style.boxSizing = 'border-box'; 
         
         // 1. حقن الستايلات 
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     width: 95%; max-width: 450px; 
                     box-shadow: 0 5px 15px rgba(0,0,0,0.6) !important;
                     z-index: 10; 
-                    margin-bottom: 6px !important; /* 🌟 تقليل المسافة لرفع الصندوق */
+                    margin-bottom: 6px !important; 
                     direction: ltr; 
                 }
                 .store-tab-btn {
@@ -78,11 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     z-index: 5;
                 }
 
-                /* 🌟 حاوية الأقسام السفلية 🌟 */
+                /* ======================================================== */
+                /* 🌟 حاوية الأقسام السفلية (تم التعديل هنا لرفع الصندوق) 🌟 */
+                /* ======================================================== */
                 .store-tab-content { 
-                    display: none !important; width: 95%; max-width: 450px; 
-                    /* 🌟 حساب دقيق: يضمن عدم اختفاء المحتوى تحت الشريط السفلي 🌟 */
-                    height: calc(100dvh - 175px) !important; 
+                    display: none !important; 
+                    width: 95%; max-width: 450px; 
+                    /* 🌟 حساب دقيق: تم الخصم أكثر (235px) لضمان ظهوره فوق الشريط السفلي تماماً 🌟 */
+                    height: calc(100dvh - 235px) !important; 
+                    margin-bottom: 10px !important; /* مساحة أمان من الأسفل */
                     direction: rtl;
                 }
                 #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 0 !important; align-items: flex-start; }
@@ -167,7 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     border: 1px solid #b38d36 !important; 
                     border-radius: 18px 0 18px 18px !important; 
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
-                    display: flex; flex-direction: column; height: 100%; overflow: hidden;
+                    display: flex; flex-direction: column; 
+                    height: 100%; /* يعتمد على ارتفاع الحاوية الأب المضبوطة */
+                    overflow: hidden;
                     z-index: 1; 
                 }
 
@@ -212,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-scrollable-area {
                     flex: 1; overflow-y: auto; overflow-x: hidden; 
                     padding-right: 2px; padding-top: 5px; 
-                    padding-bottom: 10px; 
+                    padding-bottom: 15px; 
                 }
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
@@ -222,9 +228,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: none; 
                     flex-direction: column;
                     background: rgba(255, 255, 255, 0.02); 
-                    border: 1px solid rgba(179, 141, 54, 0.3); /* الإطار الذهبي الداخلي المطلوب */
+                    border: 1px solid rgba(179, 141, 54, 0.3); 
                     border-radius: 12px;
-                    padding: 6px; /* تم تقليل الحشوة قليلاً لاستغلال المساحة */
+                    padding: 6px; 
                     margin-bottom: 10px;
                 }
 
@@ -252,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.head.appendChild(style);
         }
 
-        // 2. بناء هيكل المتجر بالكامل (HTML) - تم مسح العناوين من الحاويات الداخلية
+        // 2. بناء هيكل المتجر بالكامل (HTML) 
         storeContainer.innerHTML = `
             <!-- التبويبات العلوية الرئيسية -->
             <div class="store-tabs-container">
@@ -305,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         <!-- منطقة التمرير للمنتجات -->
                         <div class="store-scrollable-area">
-                            <!-- 🌟 حاويات الأقسام (تم مسح النصوص والخطوط مع الإبقاء على الصندوق) 🌟 -->
+                            <!-- 🌟 حاويات الأقسام 🌟 -->
                             <div id="store-section-bg-container" class="category-section-container">
                                 <div id="store-section-bg" class="store-items-grid"></div>
                             </div>
