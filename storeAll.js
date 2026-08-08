@@ -9,42 +9,63 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
-        // ضبط الحاوية الأساسية (تم تعديل الخصائص لحل مشكلة التداخل مع التبويبات)
+        // ضبط الحاوية الأساسية 
         storeContainer.style.width = '100%';
         storeContainer.style.height = '100%';
         storeContainer.style.flexDirection = 'column';
         storeContainer.style.alignItems = 'center';
         storeContainer.style.paddingTop = '75px'; 
         
-        // 1. حقن الستايلات (تم إضافة الإطار الذهبي وخطوط الفصل)
+        // 1. حقن الستايلات (تم ضبط الإطارات والخطوط الفاصلة هنا)
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
             style.innerHTML = `
                 /* 🌟 التبويبات العلوية الرئيسية */
                 .store-tabs-container {
-                    display: flex; gap: 0; /* تم إلغاء gap لإضافة الحدود */
+                    display: flex; gap: 4px; 
                     background: #060907 !important; 
+                    padding: 4px !important; /* 🌟 حشوة تمنع الأزرار والخطوط من لمس الإطار الخارجي */
                     border-radius: 40px !important; 
                     border: 1px solid #b38d36 !important; /* إطار ذهبي خارجي */
                     width: 95%; max-width: 450px; 
                     box-shadow: 0 5px 15px rgba(0,0,0,0.6) !important;
                     z-index: 10; margin-bottom: 10px !important; direction: ltr; 
-                    overflow: hidden;
                 }
                 .store-tab-btn {
                     flex: 1; background: transparent; color: var(--text-secondary);
-                    padding: 8px 5px !important; 
+                    padding: 6px 5px !important; 
+                    border-radius: 40px !important; 
                     font-weight: 700; font-size: 12px !important;
                     cursor: pointer; transition: 0.3s;
                     display: flex; align-items: center; justify-content: center; gap: 5px !important;
-                    border: none;
-                    border-right: 1px solid #b38d36 !important; /* خط فاصل ذهبي */
+                    border: 1px solid transparent !important; /* إطار مخفي يمنع تغير الحجم */
+                    position: relative;
                 }
-                .store-tab-btn:first-child { border-right: none !important; }
+                
+                /* 🌟 خط فاصل ذهبي قصير (لا يلمس الأعلى أو الأسفل) */
+                .store-tab-btn:not(:first-child)::before {
+                    content: '';
+                    position: absolute;
+                    left: -2.5px;
+                    top: 15%; /* 🌟 يبعد عن الأعلى */
+                    height: 70%; /* 🌟 يبعد عن الأسفل */
+                    width: 1px;
+                    background-color: #b38d36;
+                    opacity: 0.6;
+                    pointer-events: none;
+                }
+                
+                /* 🌟 إخفاء الخطوط الفاصلة المجاورة للزر المفعل ليكون مظهره نظيفاً */
+                .store-tab-btn.active::before { display: none; }
+                .store-tab-btn.active + .store-tab-btn::before { display: none; }
+
+                /* 🌟 الزر المفعل (إطار ذهبي + خلفية خضراء) */
                 .store-tab-btn.active { 
-                    background: #0f3d17 !important; 
+                    background: #0f3d17 !important; /* لون أخضر */
                     color: white !important; 
+                    border: 1px solid #b38d36 !important; /* إطار ذهبي داخلي للزر */
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important; 
                 }
 
                 /* 🌟 حاوية الأقسام السفلية */
@@ -67,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     margin-top: 15 !important; 
                     margin-left: -2px !important; 
                     position: relative;
-                    z-index: 5;
+                    z-index: 5; 
                 }
                 .store-side-tab-btn {
                     background: rgba(15, 20, 24, 0.8) !important; 
@@ -86,9 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 .store-side-tab-btn.active {
-                    background: #0b120d !important;
+                    background: #0b120d !important; 
                     color: #fff !important; 
-                    border: 1px solid #b38d36 !important;
+                    border: 1px solid #b38d36 !important; 
                     border-left: 2px solid #0b120d !important; 
                     box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
                 }
@@ -106,13 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     border-radius: 18px 0 18px 18px !important; 
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
                     display: flex; flex-direction: column; height: 100%; overflow: hidden;
-                    z-index: 1;
+                    z-index: 1; 
                 }
 
                 .store-sub-tab-content { display: none !important; height: 100%; flex-direction: column; animation: fadeIn 0.3s ease; }
                 .store-sub-tab-content.active-content { display: flex !important; }
 
-                /* 🌟 شريط تصنيفات الداخلي */
+                /* 🌟 شريط تصنيفات الدامة الداخلي */
                 .dama-cats-container { 
                     display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 4px; flex-shrink: 0; 
                     direction: rtl; 
@@ -137,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 .dama-cat-btn.active span.cat-icon { filter: grayscale(0%); }
 
+                /* 🌟 منطقة التمرير للمنتجات */
                 .store-scrollable-area {
                     flex: 1; overflow-y: auto; overflow-x: hidden; 
                     padding-right: 2px; padding-top: 5px; padding-bottom: 60px; 
@@ -144,18 +166,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
                 
-                .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; width: 100% !important; }
+                .store-items-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; width: 100% !important; }
                 
                 .store-item-card { 
                     background: #080d09 !important; 
-                    border: 1px solid rgba(166, 131, 49, 0.4) !important;
+                    border: 1px solid rgba(166, 131, 49, 0.4) !important; 
                     border-radius: 10px !important; 
                     padding: 8px 4px !important; 
                     display: flex !important; flex-direction: column !important; align-items: center !important; gap: 5px !important; 
                     text-align: center !important; position: relative;
-                    box-shadow: inset 0 0 6px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.4) !important;
+                    box-shadow: inset 0 0 6px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.4) !important; 
                 }
                 
+                /* 🌟 زر الشراء */
                 .store-buy-btn-small { 
                     height: 26px !important; font-size: 11px !important; font-weight: bold !important; 
                     border-radius: 15px !important; width: 95% !important; 
@@ -203,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     <!-- محتوى متجر دامة -->
                     <div id="store-dama-items" class="store-sub-tab-content active-content">
-                        <!-- تصنيفات الدامة (تم تعديل الترتيب كما طلبت) -->
+                        <!-- تصنيفات الدامة -->
                         <div class="dama-cats-container">
                             <button id="store-btn-tab-bg" class="dama-cat-btn active" onclick="window.switchStoreTabCategory('bg', this)">
                                 خلفيات <span class="cat-icon">🎨</span>
