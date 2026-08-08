@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     height: 95px !important; 
                     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px !important;
                     cursor: pointer; transition: 0.3s; 
-                    position: relative; /* 🌟 مهم ليحتوي الطبقة الداخلية الخضراء */
+                    position: relative; 
                 }
                 .store-side-tab-btn span.emoji-icon { 
                     font-size: 24px !important; 
@@ -127,13 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     z-index: 5;
                 }
 
-                /* 🌟 إنشاء الإطار الذهبي المحصور الذي يحتوي اللون الأخضر بالداخل 🌟 */
-                .store-side-tab-btn.active::before {
+                /* 🌟 تجهيز الإطار الداخلي مسبقاً ومخفي لمنع انيميشن السحب العشوائي 🌟 */
+                .store-side-tab-btn::before {
                     content: '';
                     position: absolute;
-                    top: 6px; bottom: 6px; left: 4px; right: 6px; /* 🌟 هوامش تترك اللون الأسود يظهر من الأطراف */
+                    top: 6px; bottom: 6px; left: 4px; right: 6px; 
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-                    border: 1px solid #ffd700 !important; /* 🌟 الإطار الذهبي الساطع محصور بالداخل */
+                    border: 1px solid #ffd700 !important; 
                     border-radius: 8px !important;
                     box-shadow: 
                         inset 0 2px 1px rgba(255, 255, 255, 0.5), 
@@ -141,6 +141,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         0 0 8px rgba(255, 215, 0, 0.2) !important;
                     z-index: 0;
                     pointer-events: none;
+                    opacity: 0; /* 🌟 مخفي تماماً في الحالة العادية */
+                    transition: opacity 0.2s ease; /* 🌟 انتقال سلس للشفافية فقط وليس للحجم */
+                }
+
+                /* 🌟 إظهار الإطار المحصور عند التفعيل فقط بدون أي تغيير في الحجم 🌟 */
+                .store-side-tab-btn.active::before {
+                    opacity: 1;
                 }
 
                 /* 🌟 رفع الأيقونة والنص فوق الإطار الأخضر 🌟 */
