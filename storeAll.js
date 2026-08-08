@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث: سحب الأزرار الجانبية للأعلى بقوة باستخدام (margin-top سالب) لتتطابق تماماً
+ * 🌟 التحديث النهائي: محاذاة الأزرار الجانبية لتكون بمستوى نافذة المنتجات تماماً (بالمليمتر)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -50,25 +50,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important; 
                 }
 
-                /* 🌟 حاوية الأقسام السفلية */
+                /* 🌟 حاوية الأقسام السفلية (ألعاب، شحن..) */
                 .store-tab-content { 
                     display: none !important; width: 95%; max-width: 450px; 
                     height: calc(100dvh - 180px) !important; 
                     animation: fadeIn 0.4s ease; direction: rtl;
                 }
-                #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 0 !important; align-items: flex-start; }
+                
+                /* إجبار قسم الألعاب على البدء من أعلى نقطة للجميع */
+                #store-games-content.active-content { 
+                    display: flex !important; 
+                    flex-direction: row !important; 
+                    gap: 0 !important; 
+                    align-items: flex-start !important; 
+                }
+                
                 #store-popularity-content.active-content { display: block !important; }
                 #store-topup-content.active-content { display: block !important; }
 
                 /* ======================================================== */
-                /* 🌟 الشريط الجانبي الأيمن 🌟 */
+                /* 🌟 الشريط الجانبي الأيمن (محاذاة تامة مع الصندوق) 🌟 */
                 /* ======================================================== */
                 .store-side-tabs {
                     display: flex; flex-direction: column; gap: 6px; 
                     width: 50px; 
                     flex-shrink: 0;
-                    /* 🌟 التعديل هنا: استخدام قيمة سالبة لسحبها للأعلى بالقوة 🌟 */
-                    margin-top: -15px !important; 
+                    margin-top: 0 !important; /* 🌟 0 بالمليمتر ليتساوى مع الصندوق 🌟 */
                     position: relative;
                     right: 2px; 
                     z-index: 5; 
@@ -104,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 /* ======================================================== */
                 .store-group-box-dark {
                     flex: 1; 
+                    margin-top: 0 !important; /* 🌟 صفر ليطابق الأزرار تماماً 🌟 */
                     padding: 12px 6px; 
                     background: #0b120d !important; 
                     border: 1px solid #b38d36 !important; 
