@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: flex; flex-direction: column; gap: 6px; 
                     width: 50px; 
                     flex-shrink: 0;
-                    margin-top: 0 !important; 
+                    margin-top: 15 !important; 
                     /* 🌟 الخدعة السحرية: سحب الأزرار لليسار لتتداخل مع الصندوق بمقدار 2 بكسل 🌟 */
                     margin-left: -2px !important; 
                     position: relative;
