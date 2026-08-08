@@ -210,19 +210,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     <!-- محتوى متجر دامة -->
                     <div id="store-dama-items" class="store-sub-tab-content active-content">
-                        <!-- تصنيفات الدامة -->
+                        <!-- تصنيفات الدامة (تم تعديل الترتيب هنا) -->
                         <div class="dama-cats-container">
-                            <button id="store-btn-tab-offers" class="dama-cat-btn" onclick="window.switchStoreTabCategory('offers', this)">
-                                عروضات <span class="cat-icon">🏷️</span>
-                            </button>
-                            <button id="store-btn-tab-pieces" class="dama-cat-btn" onclick="window.switchStoreTabCategory('pieces', this)">
-                                أحجار <span class="cat-icon">💎</span>
+                            <button id="store-btn-tab-bg" class="dama-cat-btn active" onclick="window.switchStoreTabCategory('bg', this)">
+                                خلفيات <span class="cat-icon">🎨</span>
                             </button>
                             <button id="store-btn-tab-frames" class="dama-cat-btn" onclick="window.switchStoreTabCategory('frames', this)">
                                 إطارات <span class="cat-icon">🖼️</span>
                             </button>
-                            <button id="store-btn-tab-bg" class="dama-cat-btn active" onclick="window.switchStoreTabCategory('bg', this)">
-                                خلفيات <span class="cat-icon">🎨</span>
+                            <button id="store-btn-tab-pieces" class="dama-cat-btn" onclick="window.switchStoreTabCategory('pieces', this)">
+                                أحجار <span class="cat-icon">💎</span>
+                            </button>
+                            <button id="store-btn-tab-offers" class="dama-cat-btn" onclick="window.switchStoreTabCategory('offers', this)">
+                                عروضات <span class="cat-icon">🏷️</span>
                             </button>
                         </div>
 
