@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: معالجة الزوايا المشطوفة لدمج الإطار الذهبي العلوي بشكل مسطح ومثالي 100%
+ * 🌟 التحديث النهائي: معالجة الزوايا المشطوفة، ودمج منتجات الشعبية ديناميكياً
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -344,13 +344,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- حاوية محتوى الشعبية -->
             <div id="store-popularity-content" class="store-tab-content">
-                <div class="store-group-box-dark" style="width: 100%; text-align: center; align-items: center; justify-content: center;">
-                    <span style="font-size: 60px; display: block; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.5));">🔥</span>
-                    <h4 style="color: white; font-size: 20px; margin-bottom: 10px;" data-i18n="store_popularity">باقات الشعبية</h4>
-                    <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 25px; max-width: 80%;">
-                        ادعم أصدقاءك أو تصدر قائمة الأكثر شعبية باقتناء باقات نادرة!
-                    </p>
-                    <button class="store-buy-btn-small" style="width: 80%; height: 40px !important; font-size: 14px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; padding: 12px; display: flex; flex-direction: column;">
+                    
+                    <!-- ترويسة بسيطة لقسم الشعبية -->
+                    <div style="text-align: center; margin-bottom: 12px; flex-shrink: 0;">
+                        <span style="font-size: 20px; filter: drop-shadow(0 0 5px rgba(255, 69, 58, 0.5));">🔥</span>
+                        <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;" data-i18n="store_popularity">باقات الشعبية</span>
+                    </div>
+                    
+                    <!-- منطقة التمرير للمنتجات -->
+                    <div class="store-scrollable-area" style="padding-top: 0; flex: 1;">
+                        <div id="store-popularity-grid" class="store-items-grid">
+                            <!-- سيتم حقن المنتجات هنا عبر الجافاسكربت -->
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -381,6 +389,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const firstBtn = document.getElementById('store-btn-tab-bg');
                 window.switchStoreTabCategory('bg', firstBtn); 
             }
+            
+            // 🌟 استدعاء دالة بناء منتجات الشعبية
+            if (typeof window.renderPopularityItems === 'function') {
+                window.renderPopularityItems();
+            }
+            
         }, 300);
     }
 });
@@ -426,4 +440,42 @@ window.switchStoreTabCategory = function(category, btnElement) {
         const fallbackBtn = document.getElementById('store-btn-tab-' + category);
         if(fallbackBtn) fallbackBtn.classList.add('active');
     }
+};
+
+// ==========================================
+// دوال عرض منتجات الشعبية
+// ==========================================
+window.renderPopularityItems = function() {
+    const grid = document.getElementById('store-popularity-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = ''; // مسح المحتوى القديم إن وجد
+    
+    // التحقق من وجود مصفوفة الهدايا في populars.js
+    if (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.length > 0) {
+        window.POPULARITY_ITEMS.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'store-item-card';
+            
+            // هيكل البطاقة
+            card.innerHTML = `
+                <div style="height: 60px; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                    <img src="${item.imagePath}" alt="${item.nameAr}" style="max-width: 80%; max-height: 80%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
+                </div>
+                <span style="color: #fff; font-size: 11px; font-weight: bold; margin-bottom: 4px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.nameAr}</span>
+                <button class="store-buy-btn-small" onclick="buyPopularityItem('${item.id}')">
+                    ${item.price} <span style="color: gold; font-size: 10px;">🪙</span>
+                </button>
+            `;
+            grid.appendChild(card);
+        });
+    } else {
+        grid.innerHTML = '<p style="color: var(--text-secondary); text-align: center; grid-column: span 3; margin-top: 20px;">جاري تحميل الهدايا...</p>';
+    }
+};
+
+// دالة مبدئية للشراء
+window.buyPopularityItem = function(itemId) {
+    console.log("تم طلب شراء أو إرسال العنصر رقم:", itemId);
+    // يمكنك لاحقاً ربط هذه الدالة بنظام الشراء أو خصم العملات
 };
