@@ -9,13 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
-        // ضبط الحاوية الأساسية
-        storeContainer.style.position = 'absolute';
-        storeContainer.style.top = '0';
-        storeContainer.style.left = '0';
+        // ضبط الحاوية الأساسية (تم تعديل الخصائص لحل مشكلة التداخل مع التبويبات)
         storeContainer.style.width = '100%';
         storeContainer.style.height = '100%';
-        storeContainer.style.display = 'flex';
         storeContainer.style.flexDirection = 'column';
         storeContainer.style.alignItems = 'center';
         storeContainer.style.paddingTop = '75px'; 
