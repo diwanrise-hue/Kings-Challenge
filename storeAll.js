@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: ضبط الارتفاع بدقة لرفع الصندوق الأسود فوق الشريط السفلي
+ * 🌟 التحديث النهائي: معالجة الزوايا المشطوفة لدمج الإطار الذهبي العلوي بشكل مسطح ومثالي 100%
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -79,14 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 /* ======================================================== */
-                /* 🌟 حاوية الأقسام السفلية (تم التعديل هنا لرفع الصندوق) 🌟 */
+                /* 🌟 حاوية الأقسام السفلية */
                 /* ======================================================== */
                 .store-tab-content { 
                     display: none !important; 
                     width: 95%; max-width: 450px; 
-                    /* 🌟 حساب دقيق: تم الخصم أكثر (235px) لضمان ظهوره فوق الشريط السفلي تماماً 🌟 */
                     height: calc(100dvh - 235px) !important; 
-                    margin-bottom: 10px !important; /* مساحة أمان من الأسفل */
+                    margin-bottom: 10px !important; 
                     direction: rtl;
                 }
                 #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 0 !important; align-items: flex-start; }
@@ -100,15 +99,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: flex; flex-direction: column; gap: 6px; 
                     width: 50px; 
                     flex-shrink: 0;
-                    margin-top: 0px !important; 
-                    margin-left: -2px !important; 
+                    margin-top: 0 !important; /* 🌟 محاذاة القمة بشكل مثالي */
+                    margin-left: -1px !important; /* 🌟 تداخل بمقدار 1px فقط لمنع القطع */
                     position: relative;
                     z-index: 5; 
                 }
                 .store-side-tab-btn {
                     background: rgba(15, 20, 24, 0.8) !important; 
                     border: 1px solid #4a3e1c !important; 
-                    border-left: 2px solid transparent !important; 
+                    border-left: 1px solid transparent !important; /* 🌟 مساواة الحدود بـ 1px */
                     border-radius: 0 8px 8px 0 !important; 
                     color: var(--text-secondary);
                     font-weight: 700; font-size: 11px !important; 
@@ -127,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: #0b120d !important; 
                     color: #fff !important; 
                     border: 1px solid #b38d36 !important; 
-                    border-left: 2px solid #0b120d !important; 
+                    border-left: 1px solid #0b120d !important; /* 🌟 1px فقط يمحو خط الصندوق دون أن يخدش الزاوية العلوية */
                     box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
                     z-index: 5;
                 }
@@ -168,11 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     margin-top: 0 !important; 
                     padding: 12px 6px; 
                     background: #0b120d !important; 
-                    border: 1px solid #b38d36 !important; 
+                    border: 1px solid #b38d36 !important; /* 🌟 الخطوط 1px تتلاقى هنا بمثالية */
                     border-radius: 18px 0 18px 18px !important; 
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
                     display: flex; flex-direction: column; 
-                    height: 100%; /* يعتمد على ارتفاع الحاوية الأب المضبوطة */
+                    height: 100%; 
                     overflow: hidden;
                     z-index: 1; 
                 }
