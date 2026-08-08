@@ -575,21 +575,17 @@ export const storeManager = {
         style.id = 'store-legendary-styles';
         style.innerHTML = `
             @keyframes legendaryGlow {
-                0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); border-color: rgba(255, 215, 0, 0.5); }
-                50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), inset 0 0 15px rgba(255, 215, 0, 0.6); border-color: rgba(255, 215, 0, 1); transform: scale(1.02); }
-                100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); border-color: rgba(255, 215, 0, 0.5); }
-            }
-            @keyframes legendaryFloat {
-                0% { transform: translateY(0px) rotate(0deg) scale(1); filter: drop-shadow(0 0 5px rgba(255,215,0,0.5)); }
-                50% { transform: translateY(-6px) rotate(5deg) scale(1.15); filter: drop-shadow(0 0 20px rgba(255,215,0,1)); }
-                100% { transform: translateY(0px) rotate(0deg) scale(1); filter: drop-shadow(0 0 5px rgba(255,215,0,0.5)); }
+                0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3), inset 0 0 5px rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.4); }
+                50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.7), inset 0 0 8px rgba(255, 215, 0, 0.2); border-color: rgba(255, 215, 0, 0.9); transform: scale(1.02); }
+                100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3), inset 0 0 5px rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.4); }
             }
             @keyframes legendaryPulseText {
                 0%, 100% { text-shadow: 0 0 5px #ffd700; color: #ffd700; }
                 50% { text-shadow: 0 0 15px #ff8c00, 0 0 30px #ff8c00; color: #fff; }
             }
-            .legendary-card { animation: legendaryGlow 2.5s infinite ease-in-out; background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(0, 0, 0, 0.5)) !important; }
-            .legendary-icon { animation: legendaryFloat 3s infinite ease-in-out; }
+            /* 🌟 تم إلغاء أنيميشن الحركة (الطفو) للحفاظ على ثبات العناصر */
+            .legendary-card { animation: legendaryGlow 2.5s infinite ease-in-out; background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(0, 0, 0, 0.6)) !important; border-width: 1px !important; border-style: solid !important; }
+            .legendary-icon { filter: drop-shadow(0 0 5px rgba(255,215,0,0.5)); }
             .legendary-text { animation: legendaryPulseText 2s infinite ease-in-out; }
             .legendary-btn { background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 140, 0, 0.3)) !important; border: 1px solid #ffd700 !important; color: #fff !important; text-shadow: 0 0 5px rgba(255, 215, 0, 0.8); }
             .legendary-btn:hover { background: linear-gradient(135deg, rgba(255, 215, 0, 0.6), rgba(255, 140, 0, 0.6)) !important; transform: scale(1.05) !important; }
@@ -911,8 +907,8 @@ export const storeManager = {
                 storeCard.className = `store-item-card ${legendaryClassCard}`; storeCard.style.position = 'relative'; 
                 
                 if (item.hasPurpleBorder) {
-                    storeCard.style.border = '2px solid rgba(168, 85, 247, 0.4)'; 
-                    storeCard.style.boxShadow = '0 0 12px rgba(168, 85, 247, 0.15)';
+                    storeCard.style.border = '1px solid rgba(168, 85, 247, 0.6)'; 
+                    storeCard.style.boxShadow = '0 0 12px rgba(168, 85, 247, 0.15), inset 0 0 6px rgba(0,0,0,0.9)';
                 }
 
                 storeCard.innerHTML = `${legendaryTag} <div class="${legendaryClassText}" style="color: white; font-weight: 600; font-size: 14px; text-align: center; margin-top: ${item.isLegendary ? '10px' : '0'};">${name}</div> ${visualHtml} <div style="color: #f5a623; font-size: 13px; font-weight: bold; margin-bottom: 2px; text-shadow: ${item.isLegendary ? '0 0 5px rgba(245,166,35,0.5)' : 'none'};">🪙 ${item.cost}</div>`;
@@ -1092,7 +1088,7 @@ window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
     previewEl.style.backgroundImage = 'none';
     
     if(itemData) {
-        previewEl.style.border = itemData.isLegendary ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.1)'; 
+        previewEl.style.border = itemData.isLegendary ? '1px solid #ffd700' : '1px solid rgba(255,255,255,0.1)'; 
         previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
         if (itemData.isImage) { 
             let imgUrl = itemData.imagePath || itemData.imagePathWhite || ''; 
