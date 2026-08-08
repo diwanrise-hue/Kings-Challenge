@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: محاذاة الأزرار الجانبية لتكون بمستوى نافذة المنتجات تماماً (بالمليمتر)
+ * 🌟 التحديث: إزالة التقوس من الزاوية العلوية اليمنى للصندوق ليلتحم الزر الجانبي بدون أي فراغ
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -50,32 +50,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important; 
                 }
 
-                /* 🌟 حاوية الأقسام السفلية (ألعاب، شحن..) */
+                /* 🌟 حاوية الأقسام السفلية */
                 .store-tab-content { 
                     display: none !important; width: 95%; max-width: 450px; 
                     height: calc(100dvh - 180px) !important; 
                     animation: fadeIn 0.4s ease; direction: rtl;
                 }
-                
-                /* إجبار قسم الألعاب على البدء من أعلى نقطة للجميع */
-                #store-games-content.active-content { 
-                    display: flex !important; 
-                    flex-direction: row !important; 
-                    gap: 0 !important; 
-                    align-items: flex-start !important; 
-                }
-                
+                #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 0 !important; align-items: flex-start; }
                 #store-popularity-content.active-content { display: block !important; }
                 #store-topup-content.active-content { display: block !important; }
 
                 /* ======================================================== */
-                /* 🌟 الشريط الجانبي الأيمن (محاذاة تامة مع الصندوق) 🌟 */
+                /* 🌟 الشريط الجانبي الأيمن 🌟 */
                 /* ======================================================== */
                 .store-side-tabs {
                     display: flex; flex-direction: column; gap: 6px; 
                     width: 50px; 
                     flex-shrink: 0;
-                    margin-top: 0 !important; /* 🌟 0 بالمليمتر ليتساوى مع الصندوق 🌟 */
+                    margin-top: -15px !important; 
                     position: relative;
                     right: 2px; 
                     z-index: 5; 
@@ -111,11 +103,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 /* ======================================================== */
                 .store-group-box-dark {
                     flex: 1; 
-                    margin-top: 0 !important; /* 🌟 صفر ليطابق الأزرار تماماً 🌟 */
                     padding: 12px 6px; 
                     background: #0b120d !important; 
                     border: 1px solid #b38d36 !important; 
-                    border-radius: 18px !important;
+                    
+                    /* 🌟 التعديل هنا: زاوية علوية يمنى (0) لتلتحم بالزر، وباقي الزوايا مقوسة (18) 🌟 */
+                    border-radius: 18px 0 18px 18px !important; 
+                    
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
                     display: flex; flex-direction: column; height: 100%; overflow: hidden;
                     z-index: 1; 
