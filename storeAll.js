@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث: رفع الأزرار الجانبية لتكون بمستوى نافذة المنتجات تماماً
+ * 🌟 التحديث: رفع الأزرار الجانبية لتكون ملتصقة وبمستوى القمة مع صندوق المنتجات تماماً (margin-top: 0)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -67,8 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: flex; flex-direction: column; gap: 6px; 
                     width: 50px; 
                     flex-shrink: 0;
-                    /* 🌟 تم التعديل هنا: تقليل المسافة العلوية لرفع الأزرار بمحاذاة الصندوق 🌟 */
-                    margin-top: 10px; 
+                    /* 🌟 تم التعديل هنا: صفر لتكون بمستوى الصندوق تماماً 🌟 */
+                    margin-top: 0 !important; 
                     position: relative;
                     right: 2px; 
                     z-index: 5; 
