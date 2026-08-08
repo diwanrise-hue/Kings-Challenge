@@ -116,12 +116,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0 !important; 
                 }
                 
-                /* 🌟 الزر الجانبي المفعل (أخضر 3D + إطار ذهبي) */
+                /* 🌟 الزر الجانبي المفعل (أخضر 3D + إطار ذهبي محصور متصل) */
                 .store-side-tab-btn.active {
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: #fff !important; 
                     border: 1px solid #ffd700 !important; 
-                    border-left: none !important; /* للحفاظ على الاندماج التام مع الصندوق */
+                    border-left: 2px solid #ffd700 !important; /* 🌟 إغلاق الإطار من اليسار لحصر الأخضر ودمج الخط مع الصندوق */
                     box-shadow: 
                         inset 0 2px 1px rgba(255, 255, 255, 0.5), 
                         inset -4px -4px 10px rgba(0, 0, 0, 0.9), 
