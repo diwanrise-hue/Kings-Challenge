@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: flex; flex-direction: column; gap: 6px; 
                     width: 50px; 
                     flex-shrink: 0;
-                    margin-top: 15px !important; 
+                    margin-top: 0px !important; 
                     margin-left: -2px !important; 
                     position: relative;
                     z-index: 5; 
