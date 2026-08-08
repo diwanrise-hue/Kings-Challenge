@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التصميم النهائي المطابق 100%: أزرار ملتصقة بالنافذة، ألوان خضراء/ذهبية متطابقة مع الصورة
+ * 🌟 التحديث الأخير: تصغير الأزرار الجانبية وأزرار التصنيفات العلوية لمظهر أكثر احترافية ومساحة أوسع
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         storeContainer.style.alignItems = 'center';
         storeContainer.style.paddingTop = '95px'; 
         
-        // 1. حقن الستايلات (الالتصاق المدمج والألوان الخضراء/الذهبية)
+        // 1. حقن الستايلات
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 /* 🌟 التبويبات العلوية الرئيسية (الألعاب - الشعبية - شحن) */
                 .store-tabs-container {
                     display: flex; gap: 4px; 
-                    background: #060907 !important; /* أسود مخضر داكن جداً */
+                    background: #060907 !important; 
                     padding: 6px;
                     border-radius: 40px !important; 
                     border: 1px solid rgba(255,255,255,0.08) !important;
@@ -43,114 +43,112 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: flex; align-items: center; justify-content: center; gap: 8px;
                 }
                 .store-tab-btn.active { 
-                    background: #0f3d17 !important; /* أخضر زمردي */
+                    background: #0f3d17 !important; 
                     color: white !important; 
-                    border: 1px solid #2e8b34 !important; /* حافة خضراء فاتحة */
+                    border: 1px solid #2e8b34 !important; 
                     box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important; 
                 }
 
-                /* 🌟 حاوية الأقسام السفلية (يجب أن تكون Flex Row لترتيب اليمين واليسار) */
+                /* 🌟 حاوية الأقسام السفلية */
                 .store-tab-content { 
                     display: none !important; width: 95%; max-width: 450px; 
                     height: calc(100dvh - 210px); 
                     animation: fadeIn 0.4s ease; direction: rtl;
                 }
-                /* إجبار قسم الألعاب على الترتيب الأفقي بدون فراغ (gap: 0) */
                 #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 0 !important; align-items: flex-start; }
                 #store-popularity-content.active-content { display: block !important; }
                 #store-topup-content.active-content { display: block !important; }
 
-                /* 🌟 الشريط الجانبي الأيمن (دامة / طاولة) */
+                /* 🌟 الشريط الجانبي الأيمن (تم التصغير هنا) */
                 .store-side-tabs {
                     display: flex; flex-direction: column; gap: 10px;
-                    width: 80px; flex-shrink: 0;
+                    width: 60px; /* تصغير العرض */
+                    flex-shrink: 0;
                     margin-top: 30px; 
-                    /* 🌟 الخدعة البصرية: دفع الأزرار لليسار لتركب فوق إطار الصندوق */
                     position: relative;
                     right: 2px; 
                     z-index: 5; 
                 }
                 .store-side-tab-btn {
                     background: rgba(15, 20, 24, 0.8) !important; 
-                    border: 1px solid #4a3e1c !important; /* حافة برونزية باهتة للمغلق */
-                    border-left: none !important; /* مسطح من جهة الصندوق */
-                    border-radius: 0 20px 20px 0 !important; /* دائري من اليمين، مسطح من اليسار */
+                    border: 1px solid #4a3e1c !important; 
+                    border-left: none !important; 
+                    border-radius: 0 15px 15px 0 !important; /* تقليل استدارة الحواف لتناسب الحجم الجديد */
                     color: var(--text-secondary);
-                    font-weight: 700; font-size: 15px; height: 100px; 
-                    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+                    font-weight: 700; font-size: 12px; height: 75px; /* تصغير الارتفاع والخط */
+                    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; /* تقليل المسافة بين الأيقونة والنص */
                     cursor: pointer; transition: 0.3s; 
                 }
-                .store-side-tab-btn span.emoji-icon { font-size: 32px; filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 2px; }
+                .store-side-tab-btn span.emoji-icon { font-size: 24px; filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0px; } /* تصغير الأيقونة */
                 
-                /* 🌟 الزر المفعل (يندمج مع الصندوق تماماً) */
+                /* الزر المفعل */
                 .store-side-tab-btn.active {
-                    background: #0b120d !important; /* نفس لون الصندوق تماماً */
+                    background: #0b120d !important; 
                     color: #fff !important; 
-                    border: 1px solid #b38d36 !important; /* حافة ذهبية قوية */
-                    /* 🌟 هذا السطر يمسح الخط الذهبي للصندوق ليظهرا كقطعة واحدة 🌟 */
+                    border: 1px solid #b38d36 !important; 
                     border-left: 2px solid #0b120d !important; 
                     box-shadow: 5px 0 15px rgba(0,0,0,0.3) !important;
                 }
                 .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1); filter: drop-shadow(0 0 8px rgba(255,215,0,0.6)); }
 
-                /* 🌟 الصندوق الأيسر الكبير (نافذة المنتجات) */
+                /* 🌟 الصندوق الأيسر الكبير */
                 .store-group-box-dark {
                     flex: 1; padding: 15px 12px;
-                    background: #0b120d !important; /* أخضر/أسود داكن */
-                    border: 1px solid #b38d36 !important; /* حافة ذهبية للصندوق بالكامل */
+                    background: #0b120d !important; 
+                    border: 1px solid #b38d36 !important; 
                     border-radius: 20px !important;
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
                     display: flex; flex-direction: column; height: 100%; overflow: hidden;
-                    z-index: 1; /* يبقى تحت الأزرار الملتصقة */
+                    z-index: 1; 
                 }
 
                 .store-sub-tab-content { display: none !important; height: 100%; flex-direction: column; animation: fadeIn 0.3s ease; }
                 .store-sub-tab-content.active-content { display: flex !important; }
 
-                /* 🌟 شريط تصنيفات الدامة الداخلي (خلفيات، إطارات..) */
+                /* 🌟 شريط تصنيفات الدامة الداخلي (تم التصغير هنا) */
                 .dama-cats-container { 
-                    display: flex; gap: 4px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; 
+                    display: flex; gap: 4px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; 
                     direction: rtl; 
                     background: transparent !important;
                 }
                 .dama-cats-container::-webkit-scrollbar { height: 0; display: none; }
                 .dama-cat-btn {
-                    flex: 1; min-width: 70px; background: transparent !important; border: 1px solid rgba(255,255,255,0.05) !important;
-                    color: var(--text-secondary); padding: 8px 4px; border-radius: 30px !important; font-size: 13px; font-weight: 700; 
-                    cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px;
+                    flex: 1; min-width: 55px; background: transparent !important; border: 1px solid rgba(255,255,255,0.05) !important;
+                    color: var(--text-secondary); padding: 6px 3px; border-radius: 20px !important; font-size: 11px; font-weight: 700; /* تصغير المساحات والخط */
+                    cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 3px;
                 }
                 .dama-cat-btn.active { 
-                    background: #0f3d17 !important; /* أخضر زمردي */
+                    background: #0f3d17 !important; 
                     color: white !important; 
-                    border: 1px solid #2e8b34 !important; /* حافة خضراء */
+                    border: 1px solid #2e8b34 !important; 
                 }
 
                 /* 🌟 منطقة التمرير للمنتجات */
                 .store-scrollable-area {
                     flex: 1; overflow-y: auto; overflow-x: hidden; 
-                    padding-right: 2px; padding-top: 5px; padding-bottom: 60px; /* مسافة للأسفل */
+                    padding-right: 2px; padding-top: 5px; padding-bottom: 60px; 
                 }
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
                 
-                /* 🌟 شبكة الكروت (3 أعمدة) */
+                /* 🌟 شبكة الكروت */
                 .store-items-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; width: 100% !important; }
                 
-                /* 🌟 شكل كارت المنتج (مطابق للصورة) */
+                /* 🌟 شكل كارت المنتج */
                 .store-item-card { 
-                    background: #080d09 !important; /* أسود مخضر داكن جداً */
-                    border: 1px solid #a68331 !important; /* 🌟 حافة ذهبية صلبة */
+                    background: #080d09 !important; 
+                    border: 1px solid #a68331 !important; 
                     border-radius: 12px !important; 
                     padding: 10px 5px !important; 
                     display: flex !important; flex-direction: column !important; align-items: center !important; gap: 6px !important; 
                     text-align: center !important; position: relative;
                 }
                 
-                /* 🌟 زر الشراء (أخضر وبيضاوي) */
+                /* 🌟 زر الشراء */
                 .store-buy-btn-small { 
                     height: 30px !important; font-size: 13px !important; font-weight: bold !important; 
                     border-radius: 20px !important; width: 90% !important; 
-                    background: #104a1b !important; /* أخضر نقي */
+                    background: #104a1b !important; 
                     color: white !important; border: 1px solid #1c7a2b !important; cursor: pointer !important; transition: 0.2s;
                     margin-bottom: 2px !important;
                 }
@@ -161,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 2. بناء هيكل المتجر بالكامل (HTML)
         storeContainer.innerHTML = `
-            <!-- التبويبات العلوية الرئيسية (شحن - الشعبية - الألعاب) -->
+            <!-- التبويبات العلوية الرئيسية -->
             <div class="store-tabs-container">
                 <button class="store-tab-btn" onclick="window.switchStoreContentTab('store-topup-content', this)">
                     <span data-i18n="store_topup">شحن</span> <span>💎</span>
@@ -174,10 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
 
-            <!-- حاوية الألعاب (الشريط يمين والصندوق يسار ملتصقان تماماً) -->
+            <!-- حاوية الألعاب (الشريط يمين والصندوق يسار) -->
             <div id="store-games-content" class="store-tab-content active-content">
                 
-                <!-- 🌟 الشريط الجانبي الأيمن (يوضع أولاً في HTML بسبب RTL) -->
+                <!-- الشريط الجانبي الأيمن -->
                 <div class="store-side-tabs">
                     <button class="store-side-tab-btn active" onclick="window.switchSubStoreTab('store-dama-items', this)">
                         <span class="emoji-icon">👑</span>
@@ -189,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </div>
 
-                <!-- 🌟 الصندوق الأيسر للمنتجات (ملتصق تماماً بالأزرار) -->
+                <!-- الصندوق الأيسر للمنتجات -->
                 <div class="store-group-box-dark">
                     
                     <!-- محتوى متجر دامة -->
@@ -257,12 +255,12 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         
-        // تحديث الترجمات
+        // 3. تحديث الترجمات
         if (typeof updateTranslations === 'function') {
             updateTranslations();
         }
 
-        // إجبار السكربت على ضخ المنتجات
+        // 4. إجبار السكربت على ضخ المنتجات
         setTimeout(() => {
             if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
                 window.storeManager.renderUI();
