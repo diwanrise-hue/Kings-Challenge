@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         storeContainer.style.alignItems = 'center';
         storeContainer.style.paddingTop = '75px'; 
         
-        // 1. حقن الستايلات (تم حل مشكلة الاندماج بالكامل هنا)
+        // 1. حقن الستايلات
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
@@ -148,8 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
                 
-                /* 🌟 شبكة الكروت */
-                .store-items-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; width: 100% !important; }
+                /* 🌟 شبكة الكروت (تم حذف !important من display لكي يعمل الجافاسكريبت) */
+                .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; width: 100% !important; }
                 
                 /* 🌟 شكل كارت المنتج (تم التعديل لإطار نحيف وحاد) */
                 .store-item-card { 
