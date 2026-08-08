@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث: زيادة ارتفاع الأزرار الجانبية لتصبح أكثر بروزاً وتناسباً مع حجم المنتجات
+ * 🌟 التحديث: زيادة ارتفاع الأزرار الجانبية مع الحفاظ على النحافة لتوفير المساحة
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -60,12 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 #store-popularity-content.active-content { display: block !important; }
                 #store-topup-content.active-content { display: block !important; }
 
-                /* 🌟 الشريط الجانبي الأيمن (تم زيادة الارتفاع) */
+                /* ======================================================== */
+                /* 🌟 الشريط الجانبي الأيمن (تم زيادة الارتفاع بشكل ملحوظ) 🌟 */
+                /* ======================================================== */
                 .store-side-tabs {
-                    display: flex; flex-direction: column; gap: 8px; 
-                    width: 60px; 
+                    display: flex; flex-direction: column; gap: 6px; 
+                    width: 50px; /* نحيف ليعطي مساحة للمنتجات */
                     flex-shrink: 0;
-                    margin-top: 35px; 
+                    margin-top: 40px; 
                     position: relative;
                     right: 2px; 
                     z-index: 5; 
@@ -74,15 +76,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: rgba(15, 20, 24, 0.8) !important; 
                     border: 1px solid #4a3e1c !important; 
                     border-left: none !important; 
-                    border-radius: 0 15px 15px 0 !important; 
+                    border-radius: 0 12px 12px 0 !important; 
                     color: var(--text-secondary);
                     font-weight: 700; font-size: 11px !important; 
-                    height: 100px !important; /* 🌟 تم زيادة الارتفاع هنا */
-                    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px !important;
+                    height: 95px !important; /* 🌟 زيادة الارتفاع ليكون طويلاً وواضحاً */
+                    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px !important;
                     cursor: pointer; transition: 0.3s; 
                 }
                 .store-side-tab-btn span.emoji-icon { 
-                    font-size: 26px !important; 
+                    font-size: 24px !important; /* 🌟 تكبير الأيقونة لتناسب الارتفاع */
                     filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0 !important; 
                 }
                 
@@ -94,14 +96,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     border-left: 2px solid #0b120d !important; 
                     box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
                 }
-                .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1); filter: drop-shadow(0 0 6px rgba(255,215,0,0.6)); }
+                .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1); filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
 
-                /* 🌟 الصندوق الأيسر الكبير */
+                /* ======================================================== */
+                /* 🌟 الصندوق الأيسر الكبير (نافذة المنتجات) 🌟 */
+                /* ======================================================== */
                 .store-group-box-dark {
-                    flex: 1; padding: 15px 8px; 
+                    flex: 1; 
+                    padding: 12px 6px; 
                     background: #0b120d !important; 
                     border: 1px solid #b38d36 !important; 
-                    border-radius: 20px !important;
+                    border-radius: 18px !important;
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
                     display: flex; flex-direction: column; height: 100%; overflow: hidden;
                     z-index: 1; 
@@ -112,20 +117,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 /* 🌟 شريط تصنيفات الدامة الداخلي */
                 .dama-cats-container { 
-                    display: flex; gap: 4px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; flex-shrink: 0; 
+                    display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 4px; flex-shrink: 0; 
                     direction: rtl; 
                     background: transparent !important;
                 }
                 .dama-cats-container::-webkit-scrollbar { height: 0; display: none; }
                 .dama-cat-btn {
                     flex: 1; min-width: max-content !important; 
-                    background: transparent !important; border: 1px solid rgba(255,255,255,0.05) !important;
+                    background: transparent !important; border: 1px solid rgba(255,255,255,0.08) !important;
                     color: var(--text-secondary); 
-                    padding: 5px 8px !important; 
+                    padding: 5px 10px !important; 
                     border-radius: 15px !important; 
                     font-size: 11px !important; 
                     font-weight: 700; 
-                    cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 3px !important;
+                    cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 4px !important;
                 }
                 .dama-cat-btn span.cat-icon { font-size: 12px !important; filter: grayscale(100%); transition: 0.3s; } 
                 .dama-cat-btn.active { 
@@ -143,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
                 
-                /* 🌟 شبكة الكروت (3 أعمدة) */
+                /* 🌟 شبكة الكروت (3 أعمدة، مساحة أوسع) */
                 .store-items-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; width: 100% !important; }
                 
                 /* 🌟 شكل كارت المنتج */
