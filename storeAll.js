@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 #store-topup-content.active-content { display: block !important; }
 
                 /* ======================================================== */
-                /* 🌟 الشريط الجانبي الأيمن (شكل مستطيل + تصميم 3D) 🌟 */
+                /* 🌟 الشريط الجانبي الأيمن 🌟 */
                 /* ======================================================== */
                 .store-side-tabs {
                     display: flex; flex-direction: column; gap: 6px; 
@@ -104,35 +104,52 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: rgba(15, 20, 24, 0.8) !important; 
                     border: 1px solid #4a3e1c !important; 
                     border-left: none !important; 
-                    border-radius: 0 8px 8px 0 !important; /* 🌟 شكل مستطيل يتناسب مع القالب */
+                    border-radius: 0 8px 8px 0 !important; 
                     color: var(--text-secondary);
                     font-weight: 700; font-size: 11px !important; 
                     height: 95px !important; 
                     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px !important;
                     cursor: pointer; transition: 0.3s; 
+                    position: relative; /* 🌟 مهم ليحتوي الطبقة الداخلية الخضراء */
                 }
                 .store-side-tab-btn span.emoji-icon { 
                     font-size: 24px !important; 
                     filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0 !important; 
                 }
                 
-                /* 🌟 الزر الجانبي المفعل (أخضر 3D + إطار ذهبي محصور متصل) */
+                /* 🌟 الزر الجانبي المفعل (أسود أساسي مدمج مع الصندوق) 🌟 */
                 .store-side-tab-btn.active {
-                    background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
+                    background: #0b120d !important; 
                     color: #fff !important; 
-                    border: 1px solid #ffd700 !important; 
-                    border-left: 2px solid #ffd700 !important; /* 🌟 إغلاق الإطار من اليسار لحصر الأخضر ودمج الخط مع الصندوق */
-                    box-shadow: 
-                        inset 0 2px 1px rgba(255, 255, 255, 0.5), 
-                        inset -4px -4px 10px rgba(0, 0, 0, 0.9), 
-                        4px 4px 10px rgba(0, 0, 0, 0.8),
-                        0 0 8px rgba(255, 215, 0, 0.2) !important;
-                    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-                    transform: scale(1.02);
-                    transform-origin: right center;
+                    border: 1px solid #b38d36 !important; 
+                    border-left: 2px solid #0b120d !important; /* 🌟 الخدعة لدمجه بالكامل مع الصندوق الأسود */
+                    box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
                     z-index: 5;
                 }
-                .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1); filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
+
+                /* 🌟 إنشاء الإطار الذهبي المحصور الذي يحتوي اللون الأخضر بالداخل 🌟 */
+                .store-side-tab-btn.active::before {
+                    content: '';
+                    position: absolute;
+                    top: 6px; bottom: 6px; left: 4px; right: 6px; /* 🌟 هوامش تترك اللون الأسود يظهر من الأطراف */
+                    background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
+                    border: 1px solid #ffd700 !important; /* 🌟 الإطار الذهبي الساطع محصور بالداخل */
+                    border-radius: 8px !important;
+                    box-shadow: 
+                        inset 0 2px 1px rgba(255, 255, 255, 0.5), 
+                        inset 0 -4px 10px rgba(0, 0, 0, 0.9), 
+                        0 0 8px rgba(255, 215, 0, 0.2) !important;
+                    z-index: 0;
+                    pointer-events: none;
+                }
+
+                /* 🌟 رفع الأيقونة والنص فوق الإطار الأخضر 🌟 */
+                .store-side-tab-btn.active span {
+                    position: relative;
+                    z-index: 2;
+                    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+                }
+                .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1) drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
 
                 /* ======================================================== */
                 /* 🌟 الصندوق الأيسر الكبير 🌟 */
