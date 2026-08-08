@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: تصميم ملكي بإطارات ذهبية كاملة وتأثيرات زجاجية 3D
+ * 🌟 التحديث النهائي: إرجاع الاندماج التام للأزرار الجانبية مع الاحتفاظ بالتصميم الملكي 3D للتبويبات
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -87,21 +87,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 #store-topup-content.active-content { display: block !important; }
 
                 /* ======================================================== */
-                /* 🌟 الشريط الجانبي الأيمن (مستقل بإطار ذهبي كامل) 🌟 */
+                /* 🌟 الشريط الجانبي الأيمن (تم إرجاع الاندماج التام مع الصندوق) 🌟 */
                 /* ======================================================== */
                 .store-side-tabs {
                     display: flex; flex-direction: column; gap: 6px; 
                     width: 50px; 
                     flex-shrink: 0;
                     margin-top: 15px !important; 
-                    margin-left: 4px !important; /* مسافة بسيطة تفصله عن الصندوق */
+                    margin-left: -2px !important; /* 🌟 الخدعة لسحب الأزرار لليسار للاندماج */
                     position: relative;
                     z-index: 5; 
                 }
                 .store-side-tab-btn {
                     background: rgba(15, 20, 24, 0.8) !important; 
-                    border: 1px solid rgba(179, 141, 54, 0.5) !important; /* إطار ذهبي هادئ للزر غير المفعل */
-                    border-radius: 12px !important; /* حواف دائرية من كل الجهات */
+                    border: 1px solid #4a3e1c !important; 
+                    border-left: none !important; 
+                    border-radius: 0 12px 12px 0 !important; /* 🌟 حواف دائرية يمين فقط للدمج */
                     color: var(--text-secondary);
                     font-weight: 700; font-size: 11px !important; 
                     height: 95px !important; 
@@ -113,25 +114,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0 !important; 
                 }
                 
-                /* 🌟 الزر الجانبي المفعل (أخضر زجاجي 3D + إطار ذهبي ساطع) */
+                /* 🌟 الزر الجانبي المفعل (الاندماج التام مع لون الصندوق) 🌟 */
                 .store-side-tab-btn.active {
-                    background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
+                    background: #0b120d !important; /* 🌟 لون مطابق للصندوق لإنهاء الدمج */
                     color: #fff !important; 
-                    border: 1px solid #ffd700 !important; /* إطار ذهبي ساطع يحيط بالزر كاملاً */
-                    border-radius: 12px !important;
-                    box-shadow: 
-                        inset 0 2px 1px rgba(255, 255, 255, 0.5), 
-                        inset 0 -4px 10px rgba(0, 0, 0, 0.9), 
-                        0 4px 10px rgba(0, 0, 0, 0.8),
-                        0 0 8px rgba(255, 215, 0, 0.2) !important;
-                    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-                    transform: scale(1.02);
+                    border: 1px solid #b38d36 !important; 
+                    border-left: 2px solid #0b120d !important; /* 🌟 مسح الخط الأيسر ليتحد بالصندوق */
+                    box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
                     z-index: 5;
                 }
                 .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1); filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
 
                 /* ======================================================== */
-                /* 🌟 الصندوق الأيسر الكبير (مستقل بحواف دائرية كاملة) 🌟 */
+                /* 🌟 الصندوق الأيسر الكبير (إرجاع الزاوية العلوية اليمنى لتكون حادة) 🌟 */
                 /* ======================================================== */
                 .store-group-box-dark {
                     flex: 1; 
@@ -139,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     padding: 12px 6px; 
                     background: #0b120d !important; 
                     border: 1px solid #b38d36 !important; 
-                    border-radius: 18px !important; /* حواف دائرية كاملة للصندوق */
+                    border-radius: 18px 0 18px 18px !important; /* 🌟 زاوية يمنى حادة للدمج مع الزر */
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
                     display: flex; flex-direction: column; height: 100%; overflow: hidden;
                     z-index: 1; 
@@ -158,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .dama-cat-btn {
                     flex: 1; min-width: max-content !important; 
                     background: transparent !important; 
-                    border: 1px solid rgba(179, 141, 54, 0.6) !important; /* إطار ذهبي هادئ للزر غير المفعل */
+                    border: 1px solid rgba(179, 141, 54, 0.6) !important; 
                     color: var(--text-secondary); 
                     padding: 6px 12px !important; 
                     border-radius: 20px !important; 
@@ -199,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 /* 🌟 شكل كارت المنتج (إطار ذهبي صريح وتصميم غامق) */
                 .store-item-card { 
                     background: #080d09 !important; 
-                    border: 1px solid #b38d36 !important; /* إطار ذهبي واضح للكارت */
+                    border: 1px solid #b38d36 !important; 
                     border-radius: 12px !important; 
                     padding: 8px 4px !important; 
                     display: flex !important; flex-direction: column !important; align-items: center !important; gap: 5px !important; 
@@ -213,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     border-radius: 15px !important; width: 95% !important; 
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: white !important; 
-                    border: 1px solid #b38d36 !important; /* إطار ذهبي للزر */
+                    border: 1px solid #b38d36 !important; 
                     cursor: pointer !important; transition: 0.2s;
                     margin-bottom: 2px !important;
                     box-shadow: 0 2px 5px rgba(0,0,0,0.5);
