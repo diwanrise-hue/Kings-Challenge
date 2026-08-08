@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: إزالة جميع تأثيرات الحركة (الأنيميشن) والسحب من الأزرار لجعلها صلبة وفورية
+ * 🌟 التحديث النهائي: ضبط ارتفاع الصندوق لينتهي تماماً قبل الشريط السفلي
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         storeContainer.style.flexDirection = 'column';
         storeContainer.style.alignItems = 'center';
         storeContainer.style.paddingTop = '75px'; 
+        storeContainer.style.boxSizing = 'border-box'; /* 🌟 لضمان حساب الأبعاد بدقة */
         
         // 1. حقن الستايلات 
         if (!document.getElementById('store-tabs-style')) {
@@ -27,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: #060907 !important; 
                     padding: 4px !important; 
                     border-radius: 40px !important; 
-                    border: 1px solid #b38d36 !important; /* إطار ذهبي خارجي */
+                    border: 1px solid #b38d36 !important; 
                     width: 95%; max-width: 450px; 
                     box-shadow: 0 5px 15px rgba(0,0,0,0.6) !important;
                     z-index: 10; margin-bottom: 10px !important; direction: ltr; 
@@ -60,9 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-tab-btn.active::before { display: none !important; }
                 .store-tab-btn.active + .store-tab-btn::before { display: none !important; }
 
-                /* ======================================================== */
-                /* 🌟 الزر المفعل (بدون أنيميشن أو تصغير) 🌟 */
-                /* ======================================================== */
+                /* 🌟 الزر المفعل */
                 .store-tab-btn.active { 
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: white !important; 
@@ -77,10 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     z-index: 5;
                 }
 
-                /* 🌟 حاوية الأقسام السفلية */
+                /* 🌟 حاوية الأقسام السفلية (هنا تم حل مشكلة الطول) 🌟 */
                 .store-tab-content { 
                     display: none !important; width: 95%; max-width: 450px; 
-                    height: calc(100dvh - 180px) !important; 
+                    /* 🌟 حساب دقيق لارتفاع الشاشة ناقص الشريط العلوي والسفلي لكي لا يغوص لأسفل 🌟 */
+                    height: calc(100dvh - 225px) !important; 
                     direction: rtl;
                 }
                 #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 0 !important; align-items: flex-start; }
@@ -102,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-side-tab-btn {
                     background: rgba(15, 20, 24, 0.8) !important; 
                     border: 1px solid #4a3e1c !important; 
-                    /* 🌟 الحد الأيسر الشفاف يمنع اهتزاز وسحب الأيقونة عند التفعيل */
                     border-left: 2px solid transparent !important; 
                     border-radius: 0 8px 8px 0 !important; 
                     color: var(--text-secondary);
@@ -127,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     z-index: 5;
                 }
 
-                /* 🌟 الإطار الداخلي الصلب (بدون أي أنيميشن أو تدرج في الشفافية) 🌟 */
+                /* 🌟 الإطار الداخلي الصلب */
                 .store-side-tab-btn::before {
                     content: '';
                     position: absolute;
@@ -141,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         0 0 8px rgba(255, 215, 0, 0.2) !important;
                     z-index: 0;
                     pointer-events: none;
-                    display: none; /* 🌟 مخفي تماماً من الهيكل لحين التفعيل */
+                    display: none; 
                 }
 
                 /* 🌟 الإطار يظهر فوراً بدون تغيير حجم 🌟 */
@@ -213,7 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 /* 🌟 منطقة التمرير للمنتجات */
                 .store-scrollable-area {
                     flex: 1; overflow-y: auto; overflow-x: hidden; 
-                    padding-right: 2px; padding-top: 5px; padding-bottom: 60px; 
+                    padding-right: 2px; padding-top: 5px; 
+                    padding-bottom: 15px; /* 🌟 تقليل الحشوة السفلية لأن الصندوق سينتهي الآن بشكل سليم قبل الشريط */
                 }
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
