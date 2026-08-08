@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: الاندماج المثالي! إزالة التقوس من الزاوية وربط الزر بصندوق المنتجات كقطعة واحدة
+ * 🌟 التحديث النهائي: إزالة جميع تأثيرات الحركة (الأنيميشن) والسحب من الأزرار لجعلها صلبة وفورية
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     padding: 6px 5px !important; 
                     border-radius: 40px !important; 
                     font-weight: 700; font-size: 12px !important;
-                    cursor: pointer; transition: 0.3s;
+                    cursor: pointer;
                     display: flex; align-items: center; justify-content: center; gap: 5px !important;
                     border: 1px solid transparent !important; 
                     position: relative;
@@ -61,20 +61,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-tab-btn.active + .store-tab-btn::before { display: none !important; }
 
                 /* ======================================================== */
-                /* 🌟 الزر المفعل (تصميم ثلاثي الأبعاد مطابق للصورة بالضبط) 🌟 */
+                /* 🌟 الزر المفعل (بدون أنيميشن أو تصغير) 🌟 */
                 /* ======================================================== */
                 .store-tab-btn.active { 
-                    background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; /* تدرج أخضر زجاجي */
+                    background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: white !important; 
-                    border: 1px solid #ffd700 !important; /* 🌟 الإطار الذهبي الساطع حول الزر */
+                    border: 1px solid #ffd700 !important; 
                     box-shadow: 
-                        inset 0 2px 1px rgba(255, 255, 255, 0.5), /* لمعة علوية حادة للزجاج */
-                        inset 0 -4px 10px rgba(0, 0, 0, 0.9),     /* عمق سفلي داكن */
-                        0 4px 10px rgba(0, 0, 0, 0.8),            /* ظل خارجي للبروز */
-                        0 0 8px rgba(255, 215, 0, 0.2) !important; /* توهج ذهبي خفيف */
+                        inset 0 2px 1px rgba(255, 255, 255, 0.5), 
+                        inset 0 -4px 10px rgba(0, 0, 0, 0.9),     
+                        0 4px 10px rgba(0, 0, 0, 0.8),            
+                        0 0 8px rgba(255, 215, 0, 0.2) !important; 
                     border-radius: 40px !important;
                     text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-                    transform: scale(1.04); /* تكبير طفيف جداً لإعطاء البروز الثلاثي الأبعاد */
                     z-index: 5;
                 }
 
@@ -103,31 +102,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-side-tab-btn {
                     background: rgba(15, 20, 24, 0.8) !important; 
                     border: 1px solid #4a3e1c !important; 
-                    border-left: none !important; 
+                    /* 🌟 الحد الأيسر الشفاف يمنع اهتزاز وسحب الأيقونة عند التفعيل */
+                    border-left: 2px solid transparent !important; 
                     border-radius: 0 8px 8px 0 !important; 
                     color: var(--text-secondary);
                     font-weight: 700; font-size: 11px !important; 
                     height: 95px !important; 
                     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px !important;
-                    cursor: pointer; transition: 0.3s; 
+                    cursor: pointer;
                     position: relative; 
                 }
                 .store-side-tab-btn span.emoji-icon { 
                     font-size: 24px !important; 
-                    filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0 !important; 
+                    filter: grayscale(100%) opacity(0.7); margin-bottom: 0 !important; 
                 }
                 
-                /* 🌟 الزر الجانبي المفعل (أسود أساسي مدمج مع الصندوق) 🌟 */
+                /* 🌟 الزر الجانبي المفعل */
                 .store-side-tab-btn.active {
                     background: #0b120d !important; 
                     color: #fff !important; 
                     border: 1px solid #b38d36 !important; 
-                    border-left: 2px solid #0b120d !important; /* 🌟 الخدعة لدمجه بالكامل مع الصندوق الأسود */
+                    border-left: 2px solid #0b120d !important; 
                     box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
                     z-index: 5;
                 }
 
-                /* 🌟 تجهيز الإطار الداخلي مسبقاً ومخفي لمنع انيميشن السحب العشوائي 🌟 */
+                /* 🌟 الإطار الداخلي الصلب (بدون أي أنيميشن أو تدرج في الشفافية) 🌟 */
                 .store-side-tab-btn::before {
                     content: '';
                     position: absolute;
@@ -141,13 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         0 0 8px rgba(255, 215, 0, 0.2) !important;
                     z-index: 0;
                     pointer-events: none;
-                    opacity: 0; /* 🌟 مخفي تماماً في الحالة العادية */
-                    transition: opacity 0.2s ease; /* 🌟 انتقال سلس للشفافية فقط وليس للحجم */
+                    display: none; /* 🌟 مخفي تماماً من الهيكل لحين التفعيل */
                 }
 
-                /* 🌟 إظهار الإطار المحصور عند التفعيل فقط بدون أي تغيير في الحجم 🌟 */
+                /* 🌟 الإطار يظهر فوراً بدون تغيير حجم 🌟 */
                 .store-side-tab-btn.active::before {
-                    opacity: 1;
+                    display: block; 
                 }
 
                 /* 🌟 رفع الأيقونة والنص فوق الإطار الأخضر 🌟 */
@@ -193,11 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     font-weight: 700; 
                     cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 3px !important;
                     position: relative;
-                    transition: 0.3s;
                 }
-                .dama-cat-btn span.cat-icon { font-size: 12px !important; filter: grayscale(100%); transition: 0.3s; } 
+                .dama-cat-btn span.cat-icon { font-size: 12px !important; filter: grayscale(100%); margin-left: 3px !important; } 
                 
-                /* 🌟 الزر الداخلي المفعل (أخضر 3D + إطار ذهبي) */
+                /* 🌟 الزر الداخلي المفعل (بدون أنيميشن) */
                 .dama-cat-btn.active { 
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: white !important; 
@@ -208,7 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         0 4px 10px rgba(0, 0, 0, 0.8),            
                         0 0 8px rgba(255, 215, 0, 0.2) !important;
                     text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-                    transform: scale(1.04);
                     z-index: 5;
                 }
                 .dama-cat-btn.active span.cat-icon { filter: grayscale(0%); }
