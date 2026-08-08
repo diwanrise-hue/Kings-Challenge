@@ -155,14 +155,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 /* 🌟 شبكة الكروت */
                 .store-items-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; width: 100% !important; }
                 
-                /* 🌟 شكل كارت المنتج */
+                /* 🌟 شكل كارت المنتج (تم التعديل لإطار نحيف وحاد) */
                 .store-item-card { 
                     background: #080d09 !important; 
-                    border: 1px solid #a68331 !important; 
+                    border: 1px solid rgba(166, 131, 49, 0.4) !important; /* إطار نحيف */
                     border-radius: 10px !important; 
                     padding: 8px 4px !important; 
                     display: flex !important; flex-direction: column !important; align-items: center !important; gap: 5px !important; 
                     text-align: center !important; position: relative;
+                    box-shadow: inset 0 0 6px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.4) !important;
                 }
                 
                 /* 🌟 زر الشراء */
