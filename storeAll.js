@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث: إزالة التقوس من الزاوية العلوية اليمنى للصندوق ليلتحم الزر الجانبي بدون أي فراغ
+ * 🌟 التحديث النهائي: الاندماج المثالي! إزالة التقوس من الزاوية وربط الزر بصندوق المنتجات كقطعة واحدة
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         storeContainer.style.alignItems = 'center';
         storeContainer.style.paddingTop = '75px'; 
         
-        // 1. حقن الستايلات
+        // 1. حقن الستايلات (تم حل مشكلة الاندماج بالكامل هنا)
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
@@ -61,16 +61,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 #store-topup-content.active-content { display: block !important; }
 
                 /* ======================================================== */
-                /* 🌟 الشريط الجانبي الأيمن 🌟 */
+                /* 🌟 الشريط الجانبي الأيمن (دمج تام مع الصندوق) 🌟 */
                 /* ======================================================== */
                 .store-side-tabs {
                     display: flex; flex-direction: column; gap: 6px; 
                     width: 50px; 
                     flex-shrink: 0;
-                    margin-top: -15px !important; 
+                    margin-top: 0 !important; 
+                    /* 🌟 الخدعة السحرية: سحب الأزرار لليسار لتتداخل مع الصندوق بمقدار 2 بكسل 🌟 */
+                    margin-left: -2px !important; 
                     position: relative;
-                    right: 2px; 
-                    z-index: 5; 
+                    z-index: 5; /* 🌟 الزر يكون فوق الصندوق 🌟 */
                 }
                 .store-side-tab-btn {
                     background: rgba(15, 20, 24, 0.8) !important; 
@@ -88,31 +89,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0 !important; 
                 }
                 
-                /* الزر الجانبي المفعل */
+                /* 🌟 الزر الجانبي المفعل (الاندماج التام) 🌟 */
                 .store-side-tab-btn.active {
-                    background: #0b120d !important; 
+                    background: #0b120d !important; /* لون خلفية مطابق للصندوق */
                     color: #fff !important; 
-                    border: 1px solid #b38d36 !important; 
+                    border: 1px solid #b38d36 !important; /* حافة ذهبية */
+                    /* 🌟 هذا الحد الأيسر يمسح خط الصندوق الذهبي ويخلق الاندماج 🌟 */
                     border-left: 2px solid #0b120d !important; 
                     box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
                 }
                 .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1); filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
 
                 /* ======================================================== */
-                /* 🌟 الصندوق الأيسر الكبير (نافذة المنتجات) 🌟 */
+                /* 🌟 الصندوق الأيسر الكبير (إزالة التقوس العلوي الأيمن) 🌟 */
                 /* ======================================================== */
                 .store-group-box-dark {
                     flex: 1; 
+                    margin-top: 0 !important; 
                     padding: 12px 6px; 
                     background: #0b120d !important; 
                     border: 1px solid #b38d36 !important; 
-                    
-                    /* 🌟 التعديل هنا: زاوية علوية يمنى (0) لتلتحم بالزر، وباقي الزوايا مقوسة (18) 🌟 */
+                    /* 🌟 الزاوية العلوية اليمنى (0) لتصبح حادة وتلتحم بالزر المفعل 🌟 */
                     border-radius: 18px 0 18px 18px !important; 
-                    
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
                     display: flex; flex-direction: column; height: 100%; overflow: hidden;
-                    z-index: 1; 
+                    z-index: 1; /* يبقى تحت الأزرار */
                 }
 
                 .store-sub-tab-content { display: none !important; height: 100%; flex-direction: column; animation: fadeIn 0.3s ease; }
