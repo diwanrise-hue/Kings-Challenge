@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     z-index: 5;
                 }
 
-                /* 🌟 حاوية الأقسام السفلية (تم حذف حركة fadeIn لإلغاء التأخير) */
+                /* 🌟 حاوية الأقسام السفلية */
                 .store-tab-content { 
                     display: none !important; width: 95%; max-width: 450px; 
                     height: calc(100dvh - 180px) !important; 
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 #store-topup-content.active-content { display: block !important; }
 
                 /* ======================================================== */
-                /* 🌟 الشريط الجانبي الأيمن (دمج تام مع الصندوق) 🌟 */
+                /* 🌟 الشريط الجانبي الأيمن (شكل مستطيل + تصميم 3D) 🌟 */
                 /* ======================================================== */
                 .store-side-tabs {
                     display: flex; flex-direction: column; gap: 6px; 
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: rgba(15, 20, 24, 0.8) !important; 
                     border: 1px solid #4a3e1c !important; 
                     border-left: none !important; 
-                    border-radius: 0 12px 12px 0 !important; 
+                    border-radius: 0 8px 8px 0 !important; /* 🌟 شكل مستطيل يتناسب مع القالب */
                     color: var(--text-secondary);
                     font-weight: 700; font-size: 11px !important; 
                     height: 95px !important; 
@@ -116,12 +116,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0 !important; 
                 }
                 
+                /* 🌟 الزر الجانبي المفعل (أخضر 3D + إطار ذهبي) */
                 .store-side-tab-btn.active {
-                    background: #0b120d !important; 
+                    background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: #fff !important; 
-                    border: 1px solid #b38d36 !important; 
-                    border-left: 2px solid #0b120d !important; 
-                    box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
+                    border: 1px solid #ffd700 !important; 
+                    border-left: none !important; /* للحفاظ على الاندماج التام مع الصندوق */
+                    box-shadow: 
+                        inset 0 2px 1px rgba(255, 255, 255, 0.5), 
+                        inset -4px -4px 10px rgba(0, 0, 0, 0.9), 
+                        4px 4px 10px rgba(0, 0, 0, 0.8),
+                        0 0 8px rgba(255, 215, 0, 0.2) !important;
+                    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+                    transform: scale(1.02);
+                    transform-origin: right center;
+                    z-index: 5;
                 }
                 .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1); filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
 
@@ -159,12 +168,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     font-size: 11px !important; 
                     font-weight: 700; 
                     cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 3px !important;
+                    position: relative;
+                    transition: 0.3s;
                 }
                 .dama-cat-btn span.cat-icon { font-size: 12px !important; filter: grayscale(100%); transition: 0.3s; } 
+                
+                /* 🌟 الزر الداخلي المفعل (أخضر 3D + إطار ذهبي) */
                 .dama-cat-btn.active { 
-                    background: #0f3d17 !important; 
+                    background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: white !important; 
-                    border: 1px solid #2e8b34 !important; 
+                    border: 1px solid #ffd700 !important; 
+                    box-shadow: 
+                        inset 0 2px 1px rgba(255, 255, 255, 0.5), 
+                        inset 0 -4px 10px rgba(0, 0, 0, 0.9),     
+                        0 4px 10px rgba(0, 0, 0, 0.8),            
+                        0 0 8px rgba(255, 215, 0, 0.2) !important;
+                    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+                    transform: scale(1.04);
+                    z-index: 5;
                 }
                 .dama-cat-btn.active span.cat-icon { filter: grayscale(0%); }
 
