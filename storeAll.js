@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     position: relative;
                 }
                 
-                /* 🌟 خط فاصل ذهبي قصير (لا يلمس الأعلى أو الأسفل) */
+                /* 🌟 خط فاصل ذهبي قصير */
                 .store-tab-btn:not(:first-child)::before {
                     content: '';
                     position: absolute;
@@ -57,22 +57,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 /* إخفاء الخط الفاصل بجانب الزر المفعل */
-                .store-tab-btn.active::before { display: none; }
-                .store-tab-btn.active + .store-tab-btn::before { display: none; }
+                .store-tab-btn.active::before { display: none !important; }
+                .store-tab-btn.active + .store-tab-btn::before { display: none !important; }
 
-                /* 🌟 الزر المفعل (تصميم ثلاثي الأبعاد مطابق للصورة تماماً) 🌟 */
+                /* ======================================================== */
+                /* 🌟 الزر المفعل (تصميم ثلاثي الأبعاد مطابق للصورة بالضبط) 🌟 */
+                /* ======================================================== */
                 .store-tab-btn.active { 
-                    background: linear-gradient(180deg, #1d5f26 0%, #0a2610 100%) !important; /* تدرج أخضر داكن */
+                    background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; /* تدرج أخضر زجاجي */
                     color: white !important; 
-                    border: 1px solid rgba(0, 0, 0, 0.5) !important; /* حافة داكنة لدمج الظل */
+                    border: 1px solid #d4af37 !important; /* 🌟 الإطار الذهبي حول الزر الأخضر كما في الصورة */
                     box-shadow: 
-                        inset 0 2px 2px rgba(255, 255, 255, 0.4), /* لمعة علوية تشبه الزجاج */
-                        inset 0 -3px 6px rgba(0, 0, 0, 0.8),      /* ظل داخلي سفلي عميق */
-                        0 4px 10px rgba(0, 0, 0, 0.6) !important; /* ظل خارجي لإبراز الزر */
+                        inset 0 2px 1px rgba(255, 255, 255, 0.5), /* لمعة علوية حادة للزجاج */
+                        inset 0 -4px 10px rgba(0, 0, 0, 0.9),     /* عمق سفلي داكن */
+                        0 4px 10px rgba(0, 0, 0, 0.8) !important; /* ظل خارجي للبروز */
                     border-radius: 40px !important;
-                    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-                    transform: scale(1.02); /* تكبير طفيف جداً لإعطاء إحساس بالبروز */
-                    z-index: 2; /* ليكون فوق الخطوط الفاصلة */
+                    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+                    transform: scale(1.04); /* تكبير طفيف جداً لإعطاء البروز الثلاثي الأبعاد */
+                    z-index: 5;
                 }
 
                 /* 🌟 حاوية الأقسام السفلية */
