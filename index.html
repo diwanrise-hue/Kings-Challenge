@@ -16,6 +16,9 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     <script src="radio.js?v=4" defer></script>
     
+    <!-- استدعاء بيانات الهدايا الشعبية (يجب أن يكون قبل المتجر) -->
+    <script src="populars.js" defer></script>
+
     <!-- استدعاء ملف المتجر الديناميكي -->
     <script src="storeAll.js?v=2" defer></script>
 
@@ -1066,7 +1069,7 @@
 
         socket.on('auth_failed', (data) => {
             const msg = safeParseAuthMessage(data.message);
-            showCustomPopup(msg);
+            showCustomPopup(data.message);
         });
 
         function showLoadingPopup(msg) {
