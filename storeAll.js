@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث الأخير: تصغير الأزرار الجانبية وأزرار التصنيفات العلوية لمظهر أكثر احترافية ومساحة أوسع
+ * 🌟 التحديث الأخير: تصغير الأزرار الجانبية والعلوية لتصبح أنعم وتوفر مساحة أكبر للمنتجات
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
             style.innerHTML = `
-                /* 🌟 التبويبات العلوية الرئيسية (الألعاب - الشعبية - شحن) */
+                /* 🌟 التبويبات العلوية الرئيسية */
                 .store-tabs-container {
                     display: flex; gap: 4px; 
                     background: #060907 !important; 
@@ -59,10 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 #store-popularity-content.active-content { display: block !important; }
                 #store-topup-content.active-content { display: block !important; }
 
-                /* 🌟 الشريط الجانبي الأيمن (تم التصغير هنا) */
+                /* 🌟 الشريط الجانبي الأيمن (تم تصغيره بالكامل هنا) */
                 .store-side-tabs {
-                    display: flex; flex-direction: column; gap: 10px;
-                    width: 60px; /* تصغير العرض */
+                    display: flex; flex-direction: column; gap: 8px; /* تقليل المسافة بين الزرين */
+                    width: 60px; /* 🌟 تصغير عرض الأزرار */
                     flex-shrink: 0;
                     margin-top: 30px; 
                     position: relative;
@@ -73,27 +73,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: rgba(15, 20, 24, 0.8) !important; 
                     border: 1px solid #4a3e1c !important; 
                     border-left: none !important; 
-                    border-radius: 0 15px 15px 0 !important; /* تقليل استدارة الحواف لتناسب الحجم الجديد */
+                    border-radius: 0 15px 15px 0 !important; /* حواف دائرية أصغر تتناسب مع الحجم */
                     color: var(--text-secondary);
-                    font-weight: 700; font-size: 12px; height: 75px; /* تصغير الارتفاع والخط */
-                    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; /* تقليل المسافة بين الأيقونة والنص */
+                    font-weight: 700; font-size: 11px !important; /* 🌟 تصغير الخط */
+                    height: 75px !important; /* 🌟 تصغير الارتفاع */
+                    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px !important;
                     cursor: pointer; transition: 0.3s; 
                 }
-                .store-side-tab-btn span.emoji-icon { font-size: 24px; filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0px; } /* تصغير الأيقونة */
+                .store-side-tab-btn span.emoji-icon { 
+                    font-size: 24px !important; /* 🌟 تصغير الأيقونة */
+                    filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0 !important; 
+                }
                 
                 /* الزر المفعل */
                 .store-side-tab-btn.active {
                     background: #0b120d !important; 
                     color: #fff !important; 
                     border: 1px solid #b38d36 !important; 
-                    border-left: 2px solid #0b120d !important; 
+                    border-left: 2px solid #0b120d !important; /* يحافظ على الالتصاق والمظهر المدمج */
                     box-shadow: 5px 0 15px rgba(0,0,0,0.3) !important;
                 }
-                .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1); filter: drop-shadow(0 0 8px rgba(255,215,0,0.6)); }
+                .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1); filter: drop-shadow(0 0 6px rgba(255,215,0,0.6)); }
 
-                /* 🌟 الصندوق الأيسر الكبير */
+                /* 🌟 الصندوق الأيسر الكبير (نافذة المنتجات) */
                 .store-group-box-dark {
-                    flex: 1; padding: 15px 12px;
+                    flex: 1; padding: 15px 10px;
                     background: #0b120d !important; 
                     border: 1px solid #b38d36 !important; 
                     border-radius: 20px !important;
@@ -105,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-sub-tab-content { display: none !important; height: 100%; flex-direction: column; animation: fadeIn 0.3s ease; }
                 .store-sub-tab-content.active-content { display: flex !important; }
 
-                /* 🌟 شريط تصنيفات الدامة الداخلي (تم التصغير هنا) */
+                /* 🌟 شريط تصنيفات الدامة الداخلي (تم تصغيره بالكامل هنا) */
                 .dama-cats-container { 
                     display: flex; gap: 4px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; 
                     direction: rtl; 
@@ -113,9 +117,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 .dama-cats-container::-webkit-scrollbar { height: 0; display: none; }
                 .dama-cat-btn {
-                    flex: 1; min-width: 55px; background: transparent !important; border: 1px solid rgba(255,255,255,0.05) !important;
-                    color: var(--text-secondary); padding: 6px 3px; border-radius: 20px !important; font-size: 11px; font-weight: 700; /* تصغير المساحات والخط */
-                    cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 3px;
+                    flex: 1; min-width: 50px !important; /* 🌟 تصغير العرض */
+                    background: transparent !important; border: 1px solid rgba(255,255,255,0.05) !important;
+                    color: var(--text-secondary); 
+                    padding: 6px 2px !important; /* 🌟 تقليل المساحة الداخلية */
+                    border-radius: 20px !important; 
+                    font-size: 11px !important; /* 🌟 تصغير الخط */
+                    font-weight: 700; 
+                    cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 2px !important;
                 }
                 .dama-cat-btn.active { 
                     background: #0f3d17 !important; 
@@ -131,22 +140,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
                 
-                /* 🌟 شبكة الكروت */
-                .store-items-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; width: 100% !important; }
+                /* 🌟 شبكة الكروت (3 أعمدة) */
+                .store-items-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; width: 100% !important; }
                 
                 /* 🌟 شكل كارت المنتج */
                 .store-item-card { 
                     background: #080d09 !important; 
                     border: 1px solid #a68331 !important; 
                     border-radius: 12px !important; 
-                    padding: 10px 5px !important; 
+                    padding: 8px 4px !important; 
                     display: flex !important; flex-direction: column !important; align-items: center !important; gap: 6px !important; 
                     text-align: center !important; position: relative;
                 }
                 
                 /* 🌟 زر الشراء */
                 .store-buy-btn-small { 
-                    height: 30px !important; font-size: 13px !important; font-weight: bold !important; 
+                    height: 26px !important; font-size: 11px !important; font-weight: bold !important; 
                     border-radius: 20px !important; width: 90% !important; 
                     background: #104a1b !important; 
                     color: white !important; border: 1px solid #1c7a2b !important; cursor: pointer !important; transition: 0.2s;
@@ -223,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p style="color: var(--text-secondary); font-size: 15px; text-align: center; margin: 10px 0 20px 0;">
                             ملحقات وأزياء خاصة بلعبة الطاولة
                         </p>
-                        <button class="store-buy-btn-small" style="width: 70%; margin: 0 auto; height: 40px !important; font-size: 15px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                        <button class="store-buy-btn-small" style="width: 70%; margin: 0 auto; height: 35px !important; font-size: 14px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
                     </div>
 
                 </div>
@@ -238,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 25px; max-width: 80%;">
                         ادعم أصدقاءك أو تصدر قائمة الأكثر شعبية باقتناء باقات نادرة!
                     </p>
-                    <button class="store-buy-btn-small" style="width: 80%; height: 45px !important; font-size: 15px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                    <button class="store-buy-btn-small" style="width: 80%; height: 40px !important; font-size: 14px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
                 </div>
             </div>
 
@@ -250,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 25px; max-width: 80%;">
                         اشحن رصيدك الآن للمشاركة في البطولات الكبرى والمراهنات الفاخرة.
                     </p>
-                    <button class="store-buy-btn-small" style="background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(211,84,0,0.2)) !important; border: 1px solid rgba(245,166,35,0.4) !important; color: #f5a623 !important; width: 80%; height: 45px !important; font-size: 15px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                    <button class="store-buy-btn-small" style="background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(211,84,0,0.2)) !important; border: 1px solid rgba(245,166,35,0.4) !important; color: #f5a623 !important; width: 80%; height: 40px !important; font-size: 14px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
                 </div>
             </div>
         `;
