@@ -16,34 +16,35 @@ document.addEventListener('DOMContentLoaded', () => {
         storeContainer.style.alignItems = 'center';
         storeContainer.style.paddingTop = '75px'; 
         
-        // 1. حقن الستايلات
+        // 1. حقن الستايلات (تم إضافة الإطار الذهبي وخطوط الفصل)
         if (!document.getElementById('store-tabs-style')) {
             const style = document.createElement('style');
             style.id = 'store-tabs-style';
             style.innerHTML = `
                 /* 🌟 التبويبات العلوية الرئيسية */
                 .store-tabs-container {
-                    display: flex; gap: 4px; 
+                    display: flex; gap: 0; /* تم إلغاء gap لإضافة الحدود */
                     background: #060907 !important; 
-                    padding: 3px !important; 
                     border-radius: 40px !important; 
-                    border: 1px solid rgba(255,255,255,0.08) !important;
+                    border: 1px solid #b38d36 !important; /* إطار ذهبي خارجي */
                     width: 95%; max-width: 450px; 
                     box-shadow: 0 5px 15px rgba(0,0,0,0.6) !important;
                     z-index: 10; margin-bottom: 10px !important; direction: ltr; 
+                    overflow: hidden;
                 }
                 .store-tab-btn {
-                    flex: 1; background: transparent; border: 1px solid transparent; color: var(--text-secondary);
-                    padding: 4px 5px !important; 
-                    border-radius: 40px !important; font-weight: 700; font-size: 12px !important;
+                    flex: 1; background: transparent; color: var(--text-secondary);
+                    padding: 8px 5px !important; 
+                    font-weight: 700; font-size: 12px !important;
                     cursor: pointer; transition: 0.3s;
                     display: flex; align-items: center; justify-content: center; gap: 5px !important;
+                    border: none;
+                    border-right: 1px solid #b38d36 !important; /* خط فاصل ذهبي */
                 }
+                .store-tab-btn:first-child { border-right: none !important; }
                 .store-tab-btn.active { 
                     background: #0f3d17 !important; 
                     color: white !important; 
-                    border: 1px solid #2e8b34 !important; 
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important; 
                 }
 
                 /* 🌟 حاوية الأقسام السفلية */
@@ -64,10 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     width: 50px; 
                     flex-shrink: 0;
                     margin-top: 15 !important; 
-                    /* 🌟 الخدعة السحرية: سحب الأزرار لليسار لتتداخل مع الصندوق بمقدار 2 بكسل 🌟 */
                     margin-left: -2px !important; 
                     position: relative;
-                    z-index: 5; /* 🌟 الزر يكون فوق الصندوق 🌟 */
+                    z-index: 5;
                 }
                 .store-side-tab-btn {
                     background: rgba(15, 20, 24, 0.8) !important; 
@@ -85,19 +85,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     filter: grayscale(100%) opacity(0.7); transition: 0.3s; margin-bottom: 0 !important; 
                 }
                 
-                /* 🌟 الزر الجانبي المفعل (الاندماج التام) 🌟 */
                 .store-side-tab-btn.active {
-                    background: #0b120d !important; /* لون خلفية مطابق للصندوق */
+                    background: #0b120d !important;
                     color: #fff !important; 
-                    border: 1px solid #b38d36 !important; /* حافة ذهبية */
-                    /* 🌟 هذا الحد الأيسر يمسح خط الصندوق الذهبي ويخلق الاندماج 🌟 */
+                    border: 1px solid #b38d36 !important;
                     border-left: 2px solid #0b120d !important; 
                     box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
                 }
                 .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1); filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
 
                 /* ======================================================== */
-                /* 🌟 الصندوق الأيسر الكبير (إزالة التقوس العلوي الأيمن) 🌟 */
+                /* 🌟 الصندوق الأيسر الكبير 🌟 */
                 /* ======================================================== */
                 .store-group-box-dark {
                     flex: 1; 
@@ -105,17 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     padding: 12px 6px; 
                     background: #0b120d !important; 
                     border: 1px solid #b38d36 !important; 
-                    /* 🌟 الزاوية العلوية اليمنى (0) لتصبح حادة وتلتحم بالزر المفعل 🌟 */
                     border-radius: 18px 0 18px 18px !important; 
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
                     display: flex; flex-direction: column; height: 100%; overflow: hidden;
-                    z-index: 1; /* يبقى تحت الأزرار */
+                    z-index: 1;
                 }
 
                 .store-sub-tab-content { display: none !important; height: 100%; flex-direction: column; animation: fadeIn 0.3s ease; }
                 .store-sub-tab-content.active-content { display: flex !important; }
 
-                /* 🌟 شريط تصنيفات الدامة الداخلي */
+                /* 🌟 شريط تصنيفات الداخلي */
                 .dama-cats-container { 
                     display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 4px; flex-shrink: 0; 
                     direction: rtl; 
@@ -140,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 .dama-cat-btn.active span.cat-icon { filter: grayscale(0%); }
 
-                /* 🌟 منطقة التمرير للمنتجات */
                 .store-scrollable-area {
                     flex: 1; overflow-y: auto; overflow-x: hidden; 
                     padding-right: 2px; padding-top: 5px; padding-bottom: 60px; 
@@ -148,13 +144,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
                 
-                /* 🌟 شبكة الكروت (تم حذف !important من display لكي يعمل الجافاسكريبت) */
                 .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; width: 100% !important; }
                 
-                /* 🌟 شكل كارت المنتج (تم التعديل لإطار نحيف وحاد) */
                 .store-item-card { 
                     background: #080d09 !important; 
-                    border: 1px solid rgba(166, 131, 49, 0.4) !important; /* إطار نحيف */
+                    border: 1px solid rgba(166, 131, 49, 0.4) !important;
                     border-radius: 10px !important; 
                     padding: 8px 4px !important; 
                     display: flex !important; flex-direction: column !important; align-items: center !important; gap: 5px !important; 
@@ -162,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     box-shadow: inset 0 0 6px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.4) !important;
                 }
                 
-                /* 🌟 زر الشراء */
                 .store-buy-btn-small { 
                     height: 26px !important; font-size: 11px !important; font-weight: bold !important; 
                     border-radius: 15px !important; width: 95% !important; 
@@ -210,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     <!-- محتوى متجر دامة -->
                     <div id="store-dama-items" class="store-sub-tab-content active-content">
-                        <!-- تصنيفات الدامة (تم تعديل الترتيب هنا) -->
+                        <!-- تصنيفات الدامة (تم تعديل الترتيب كما طلبت) -->
                         <div class="dama-cats-container">
                             <button id="store-btn-tab-bg" class="dama-cat-btn active" onclick="window.switchStoreTabCategory('bg', this)">
                                 خلفيات <span class="cat-icon">🎨</span>
