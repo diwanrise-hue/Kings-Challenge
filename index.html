@@ -100,30 +100,35 @@
         .profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
         /* ========================================== */
-        /* 🌟 الأزرار العلوية (مطابقة تماماً للمتجر) 🌟 */
+        /* 🌟 الأزرار العلوية (مطابقة لبروز وألوان المتجر تماماً) 🌟 */
         /* ========================================== */
         .hub-token-badge {
             height: 46px; 
-            background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; /* لون أخضر داكن مطابق للمتجر */
-            border: 1px solid #ffd700 !important; /* إطار ذهبي نحيف مطابق */
-            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.4), inset 0 -4px 10px rgba(0, 0, 0, 0.9), 0 4px 10px rgba(0, 0, 0, 0.8), 0 0 8px rgba(255, 215, 0, 0.3) !important; /* بروز 3D مطابق */
+            background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
+            border: 0.5px solid #ffd700 !important; /* إطار نحيف جداً */
+            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.5), inset 0 -4px 10px rgba(0, 0, 0, 0.9), 0 4px 10px rgba(0, 0, 0, 0.8), 0 0 8px rgba(255, 215, 0, 0.2) !important; /* نفس البروز 100% */
             border-radius: var(--radius-pill); 
-            display: flex; align-items: center; padding: 0 20px; 
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 35px !important; /* طويل أفقياً */
+            min-width: 150px; /* لضمان الطول الأفقي */
             color: #ffd700 !important; 
             font-weight: 700; font-size: 16px; 
             direction: ltr; transition: var(--transition); gap: 8px;
         }
 
-        .hamburger-btn {
+        .hamburger-btn, .radio-hud-btn-fallback {
             width: 46px; height: 46px; 
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
             border: 1px solid #ffd700 !important; 
-            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.4), inset 0 -4px 10px rgba(0, 0, 0, 0.9), 0 4px 10px rgba(0, 0, 0, 0.8), 0 0 8px rgba(255, 215, 0, 0.3) !important; 
+            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.5), inset 0 -4px 10px rgba(0, 0, 0, 0.9), 0 4px 10px rgba(0, 0, 0, 0.8), 0 0 8px rgba(255, 215, 0, 0.2) !important; /* نفس البروز 100% */
             border-radius: 14px !important; /* مربع بزوايا مستديرة */
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
             cursor: pointer; transition: var(--transition); padding: 0; 
         }
-        .hamburger-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+        .hamburger-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+        }
+        .hamburger-btn:hover, .radio-hud-btn-fallback:hover { transform: scale(1.05); filter: brightness(1.1); }
         .hamburger-btn span {
             display: block; width: 22px; height: 3px; 
             background: linear-gradient(to right, #ffd700, #d4af37) !important; 
@@ -133,15 +138,8 @@
         }
 
         .radio-hud-btn-fallback {
-            width: 46px; height: 46px; 
-            background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-            border: 1px solid #ffd700 !important; 
-            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.4), inset 0 -4px 10px rgba(0, 0, 0, 0.9), 0 4px 10px rgba(0, 0, 0, 0.8), 0 0 8px rgba(255, 215, 0, 0.3) !important; 
-            border-radius: 14px !important; /* مربع بزوايا مستديرة */
-            padding: 0; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: var(--transition);
+            display: flex; align-items: center; justify-content: center;
         }
-        .radio-hud-btn-fallback:hover { transform: scale(1.05); filter: brightness(1.1); }
 
         .side-drawer-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
