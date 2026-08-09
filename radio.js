@@ -188,18 +188,27 @@ function injectRadioUI() {
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* تعديل الزر هنا ليطابق شكل زر الهمبرغر */
+        /* التعديل الجديد: إطار ذهبي نحيف، لون أخضر، وزر بارز */
         .radio-hud-btn {
             height: 45px; width: 45px;
-            background-color: #0d1f11; 
-            border: 2px solid #ffd700; border-radius: 10px;
+            background: linear-gradient(145deg, #11381b, #09200f); /* تدرج أخضر داكن يماثل لون واجهتك */
+            border: 0.8px solid #ffd700; /* إطار ذهبي نحيف 0.8px */
+            border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
             color: #fff; font-size: 22px; cursor: pointer; padding: 0; outline: none;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            /* ظلال تعطي بروزاً (تأثير 3D) */
+            box-shadow: 0 5px 8px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.15); 
         }
-        .radio-hud-btn:hover { background-color: #1a3a22; transform: scale(1.05); }
-        .radio-hud-btn.playing { border-color: #30d158; box-shadow: 0 0 12px rgba(48, 209, 88, 0.8); }
+        .radio-hud-btn:hover { 
+            background: linear-gradient(145deg, #154522, #0a2612); 
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.7), inset 0 1px 3px rgba(255,255,255,0.2); 
+        }
+        .radio-hud-btn.playing { 
+            border-color: #30d158; 
+            box-shadow: 0 0 12px rgba(48, 209, 88, 0.8), inset 0 1px 3px rgba(255,255,255,0.15); 
+        }
         
         .radio-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
