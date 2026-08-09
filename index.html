@@ -118,30 +118,35 @@
             direction: ltr; transition: var(--transition); gap: 6px;
         }
 
-        .hamburger-btn, .radio-hud-btn-fallback {
+        .hamburger-btn {
+            width: 38px; height: 38px; /* تم تصغير زر الهمبرغر */
+            background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
+            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; /* إطار 0.8px */
+            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
+            border-radius: 11px !important; 
+            cursor: pointer; transition: var(--transition); padding: 0; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+        }
+
+        .radio-hud-btn-fallback {
             width: 46px; height: 46px; /* الحجم الأصلي الكبير */
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
             border: 0.8px solid rgba(255, 215, 0, 0.6) !important; /* إطار 0.8px */
             box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
             border-radius: 14px !important; 
             cursor: pointer; transition: var(--transition); padding: 0; 
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .hamburger-btn {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
-        }
         .hamburger-btn:hover, .radio-hud-btn-fallback:hover { transform: scale(1.05); filter: brightness(1.1); }
         .hamburger-btn span {
-            display: block; width: 22px; height: 3px; /* الحجم الأصلي الكبير */
+            display: block; width: 18px; height: 2.5px; /* تم تصغير الأسطر لتناسب الأبعاد الجديدة */
             background: linear-gradient(to right, #ffd700, #d4af37) !important; 
             border-radius: 2px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.8);
             transition: var(--transition);
         }
 
-        .radio-hud-btn-fallback {
-            display: flex; align-items: center; justify-content: center;
-        }
         .radio-hud-btn-fallback span { transform: scale(1); } /* استعادة الحجم الأصلي */
 
         .side-drawer-overlay {
@@ -537,7 +542,7 @@
     </div>
 
     <div id="game-interface">
-        <iframe id="game-frame" src=""  allow="fullscreen; microphone" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
+        <iframe id="game-frame" src="" allow="fullscreen; microphone" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
     </div>
 
     <div id="lang-select-modal" class="modal-overlay" style="z-index: 1000005;">
