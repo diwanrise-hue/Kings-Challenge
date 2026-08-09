@@ -3,8 +3,7 @@
  * socketManager.js
  * النسخة المتطورة والكاملة: تدعم نظام التحديات المتقدم، استئذان المايك، 
  * ردهة الغرف النشطة (Lobby) مفصولة (للعب وللمراهنات)، مزامنة الساحة، ونظام المشاهدة والرهانات الجانبية.
- * 🌟 (مُحدّث): أصبح العميل (Client) مطيعاً بالكامل للسيرفر في إعلان النتائج وإنشاء غرف التحدي.
- * 🔄 تم تعديل الرابط ليكون ديناميكياً (/dama) ليتوافق مع البوابة الرئيسية الموحدة.
+ * 🌟 (مُحدّث): تصحيح رابط السيرفر المباشر لتجنب أخطاء 404 على جيت هب ولضمان عمل المتجر واللعب الأونلاين.
  */
 
 import { gameState } from './gameState.js'; 
@@ -12,9 +11,8 @@ import { startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
 
-// 🟢 التعديل هنا: استخدام مسار ديناميكي بدلاً من الرابط الطويل
-export const socket = io('/dama', { 
-    path: '/socket.io',
+// 🟢 التعديل الجوهري: الربط المباشر مع سيرفر HuggingFace بدلاً من المسار المحلي لمنع خطأ 404
+export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { 
     transports: ['websocket', 'polling'], // دمج polling مع websocket لضمان استقرار الاتصال 
     upgrade: true,            
     reconnection: true,                   
@@ -24,6 +22,7 @@ export const socket = io('/dama', {
     timeout: 20000,
     autoConnect: true
 });
+
 window.socket = socket; 
 
 const fallbackMoveAudio = new Audio('move.mp3');
@@ -185,7 +184,8 @@ export const socketManager = {
                             equippedFr: parsed.equippedFr || 'fr_classic',
                             equippedPc: parsed.equippedPc || 'pc_original',
                             purchasedItems: Array.isArray(parsed.purchasedItems) ? parsed.purchasedItems : [],
-                            friends: Array.isArray(parsed.friends) ? parsed.friends : []
+                            friends: Array.isArray(parsed.friends) ? parsed.friends : [],
+                            inventory: parsed.inventory || {}
                         };
                     }
                 }
@@ -208,7 +208,8 @@ export const socketManager = {
                 equippedFr: 'fr_classic',
                 equippedPc: 'pc_original',
                 purchasedItems: [],
-                friends: []
+                friends: [],
+                inventory: {}
             };
             try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch (e) {}
         }
@@ -540,7 +541,7 @@ export const socketManager = {
 
         socket.on('creatorCutReceived', (data) => {
             if (data && data.amount) {
-                this._showToast(`🎁 مكافأة دعم: حصلت على ${data.amount} 🪙 من رهانات المشاهدين!`);
+                this._showToast(`🎁 مكافأة دعم:حصلت على ${data.amount} 🪙 من رهانات المشاهدين!`);
             }
         });
 
@@ -1226,3 +1227,5 @@ export const socketManager = {
         this._safeEmit('addFriend', friendPayload);
     }
 };
+
+window.socketManager = socketManager;
