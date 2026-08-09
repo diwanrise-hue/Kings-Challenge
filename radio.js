@@ -85,17 +85,17 @@ function renderRadioIcons() {
     });
 }
 
-// نظام الترجمة (تم تعديل الكلمات حسب طلبك وإضافة عبارة إعادة الاتصال)
+// نظام الترجمة
 const RADIO_TRANSLATIONS = {
     ar: {
-        title: "الراديو", /* تم التعديل */
+        title: "الراديو",
         cat_english: "الإنجليزية",
         cat_arabic: "العربية",
         cat_kurdish: "الكردية",
         play_btn: "تشغيل ▶",
         stop_btn: "إيقاف الراديو 🔴",
         status_connecting: "( جاري الاتصال بالبث... 🔄 )",
-        status_reconnecting: "( جاري إعادة المحاولة... 🔄 )", /* إضافة جديدة */
+        status_reconnecting: "( جاري إعادة المحاولة... 🔄 )",
         status_refreshing: "( جاري إنعاش البث... ⏳ )",
         status_playing: "( تعمل الآن 🟢 )",
         status_failed_all: "( عذراً، لا يوجد اتصال بالبث حالياً ❌ )",
@@ -104,14 +104,14 @@ const RADIO_TRANSLATIONS = {
         direction: "rtl"
     },
     ku: {
-        title: "ڕادیۆ", /* تم التعديل */
+        title: "ڕادیۆ",
         cat_english: "ئینگلیزی",
         cat_arabic: "عەرەبی",
         cat_kurdish: "کوردی",
         play_btn: "لێدان ▶",
         stop_btn: "وەستاندنی ڕادیۆ 🔴",
         status_connecting: "( پەیوەندیکردن بە پەخشەوە... 🔄 )",
-        status_reconnecting: "( دووبارە هەوڵدانەوە... 🔄 )", /* إضافة جديدة */
+        status_reconnecting: "( دووبارە هەوڵدانەوە... 🔄 )",
         status_refreshing: "( نوێکردنەوەی پەخش... ⏳ )",
         status_playing: "( ئێستا پەخش دەکرێت 🟢 )",
         status_failed_all: "( ببورە، پەخشی ڕادیۆ بەردەست نییە ❌ )",
@@ -120,14 +120,14 @@ const RADIO_TRANSLATIONS = {
         direction: "rtl"
     },
     en: {
-        title: "Radio", /* تم التعديل */
+        title: "Radio",
         cat_english: "English",
         cat_arabic: "Arabic",
         cat_kurdish: "Kurdish",
         play_btn: "Play ▶",
         stop_btn: "Stop Radio 🔴",
         status_connecting: "( Connecting to stream... 🔄 )",
-        status_reconnecting: "( Retrying connection... 🔄 )", /* إضافة جديدة */
+        status_reconnecting: "( Retrying connection... 🔄 )",
         status_refreshing: "( Refreshing stream... ⏳ )",
         status_playing: "( Now Playing 🟢 )",
         status_failed_all: "( Sorry, stream unavailable ❌ )",
@@ -188,26 +188,25 @@ function injectRadioUI() {
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* التعديل الجديد: إطار ذهبي نحيف، لون أخضر، وزر بارز */
+        /* 🌟 تم تطبيق نفس أبعاد وألوان وتأثيرات زر الهمبرغر بالكامل 🌟 */
         .radio-hud-btn {
-            height: 45px; width: 45px;
-            background: linear-gradient(145deg, #11381b, #09200f); /* تدرج أخضر داكن يماثل لون واجهتك */
-            border: 0.8px solid #ffd700; /* إطار ذهبي نحيف 0.8px */
-            border-radius: 10px;
+            width: 38px !important; 
+            height: 38px !important;
+            background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
+            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; 
+            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
+            border-radius: 11px !important; 
             display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 22px; cursor: pointer; padding: 0; outline: none;
+            color: #fff; cursor: pointer; padding: 0; outline: none;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            /* ظلال تعطي بروزاً (تأثير 3D) */
-            box-shadow: 0 5px 8px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.15); 
         }
         .radio-hud-btn:hover { 
-            background: linear-gradient(145deg, #154522, #0a2612); 
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 8px 12px rgba(0,0,0,0.7), inset 0 1px 3px rgba(255,255,255,0.2); 
+            transform: scale(1.05);
+            filter: brightness(1.1);
         }
         .radio-hud-btn.playing { 
-            border-color: #30d158; 
-            box-shadow: 0 0 12px rgba(48, 209, 88, 0.8), inset 0 1px 3px rgba(255,255,255,0.15); 
+            border-color: #30d158 !important; 
+            box-shadow: 0 0 12px rgba(48, 209, 88, 0.8), inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8) !important; 
         }
         
         .radio-modal-overlay {
@@ -395,7 +394,6 @@ function nextChannel(isAutoSkip = false) {
     const channels = RADIO_STATIONS[selectedCategory];
     currentChannelIndex = (currentChannelIndex + 1) % channels.length;
     
-    // تصفير المحاولات فقط إذا ضغط المستخدم بنفسه للتبديل، وليس عند التبديل التلقائي بسبب عطل
     if (!isAutoSkip) { currentChannelRetries = 0; channelsTried = 0; }
     
     updateRadioButtonsUI();
@@ -477,7 +475,6 @@ function updateRadioButtonsUI() {
     }
 }
 
-// أضفنا مُعامل isRetry لمنع مسح عبارة (جاري إعادة المحاولة) عند تفعيلها
 function triggerPlayRadio(isRetry = false) {
     const currentChannel = RADIO_STATIONS[selectedCategory][currentChannelIndex];
     if (currentChannel && currentChannel.url) playRadio(currentChannel.url, selectedCategory, currentChannelIndex, isRetry);
@@ -531,7 +528,6 @@ function playRadio(url, category, index, isRetry = false) {
     audioInstance.onplaying = () => {
         clearTimeout(stallTimeout);
         
-        // تصفير عداد المحاولات والقنوات الفاشلة عند النجاح بالاتصال
         currentChannelRetries = 0; 
         channelsTried = 0; 
         
@@ -562,25 +558,21 @@ function playRadio(url, category, index, isRetry = false) {
     }
 }
 
-// الدالة الذكية والمطورة للتعامل مع الفشل
 function handleConnectionFailure(statusText) {
-    currentChannelRetries++; // زيادة محاولات إعادة الاتصال لنفس القناة
+    currentChannelRetries++; 
     const maxChannels = RADIO_STATIONS[selectedCategory].length;
 
     if (currentChannelRetries < 3) {
-        // المحاولة 1 و 2: أعد الاتصال بنفس القناة
         if (statusText) { 
             statusText.innerText = t('status_reconnecting'); 
             statusText.style.color = "#ff9500"; 
         }
         setTimeout(() => { if (isMusicPlaying) triggerPlayRadio(true); }, 1500);
     } else {
-        // المحاولة 3 فشلت: قم بتصفير عداد القناة وانتقل للقناة التالية
         currentChannelRetries = 0;
         channelsTried++;
 
         if (channelsTried >= maxChannels) {
-             // إذا جربنا كل القنوات وعدنا لنقطة الصفر ولم تتصل أي منها (نتجنب اللوب اللانهائي هنا)
              if (statusText) { 
                  statusText.innerText = t('status_failed_all'); 
                  statusText.style.color = "#ff453a"; 
@@ -588,7 +580,6 @@ function handleConnectionFailure(statusText) {
              stopRadio(); 
              channelsTried = 0; 
         } else {
-             // الانتقال التلقائي للقناة التي تليها
              if (statusText) { 
                  statusText.innerText = t('status_failed_next'); 
                  statusText.style.color = "#ff453a"; 
