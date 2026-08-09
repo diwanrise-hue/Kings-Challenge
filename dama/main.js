@@ -164,10 +164,31 @@ window.addEventListener('load', async () => {
         if (typeof window.applyProfileDataToUI === 'function') window.applyProfileDataToUI(gameState.userProfile);
         if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
         if (profile.nextFreeSpin) updateSpinTimerDisplay(profile.nextFreeSpin);
+        
+        // 🌟 إعادة تحديث عناصر الهدايا في الحقيبة عند تحديث البروفايل 🌟
+        if (typeof window.renderGiftsInBag === 'function') {
+            window.renderGiftsInBag();
+        }
     });
 
     socket.on('gameStart', (data) => { 
         gameState.roomBet = data.roomBet || 0; 
+    });
+
+    // 🌟 استقبال هدايا الشعبية المرسلة من لاعب آخر وتحديث الرصيد والتنبه 🌟
+    socket.on('receivePopularityGift', (data) => {
+        if (data && data.popValue) {
+            gameState.userProfile.popularity = (gameState.userProfile.popularity || 0) + data.popValue;
+            try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
+            if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
+            
+            const toast = document.getElementById('toast-notification');
+            if (toast) {
+                toast.innerText = `🎁 تلقيت هدية شعبية جديدة! (+${data.popValue} 🔥)`;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+        }
     });
 
     // ربط زر إنشاء الغرفة بتهيئة الحقول
@@ -248,7 +269,8 @@ ui.onClick('login-guest-btn', () => {
         name: t('guest_prefix') + randomNum, 
         id: "GUEST-" + randomNum, 
         avatar: ui.getVal('login-avatar-select', '1000132081.png'), 
-        isCustomAvatar: false 
+        isCustomAvatar: false,
+        inventory: {}
     };
     try { 
         localStorage.setItem('dama_guest_expiry', Date.now() + (30 * 24 * 60 * 60 * 1000)); 
@@ -271,7 +293,8 @@ ui.onClick('login-submit-btn', () => {
         ...gameState.userProfile, 
         name, 
         id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), 
-        avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.png') 
+        avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.png'),
+        inventory: gameState.userProfile.inventory || {}
     };
     
     try { 
@@ -330,7 +353,7 @@ ui.onClick('logout-btn', () => {
             localStorage.removeItem('hub_user_profile'); 
             localStorage.removeItem('dama_guest_expiry');
             
-            gameState.userProfile = { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0 };
+            gameState.userProfile = { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0, inventory: {} };
             
             if(typeof window.closeAppModal === 'function') window.closeAppModal('profile-modal'); 
             if(typeof window.openAppModal === 'function') window.openAppModal('login-modal');
