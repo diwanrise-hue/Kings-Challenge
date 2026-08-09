@@ -1,6 +1,6 @@
 // ==========================================
 // ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة
-// (تحتفظ بكامل المنطق والواجهة + دعم حفظ واستعراض هدايا الشعبية في الحقيبة)
+// (تحتفظ بكامل المنطق والواجهة + دعم حفظ واستعراض هدايا الشعبية + إطار ذهبي ثابت بدون توهج ساطع)
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -632,20 +632,17 @@ export const storeManager = {
         const style = document.createElement('style');
         style.id = 'store-legendary-styles';
         style.innerHTML = `
-            @keyframes legendaryGlow {
-                0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3), inset 0 0 5px rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.4); }
-                50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.7), inset 0 0 8px rgba(255, 215, 0, 0.2); border-color: rgba(255, 215, 0, 0.9); transform: scale(1.02); }
-                100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3), inset 0 0 5px rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.4); }
+            /* 🌟 إطار ذهبي ثابت بدون توهج ساطع وبدون أي حركة 🌟 */
+            .legendary-card { 
+                animation: none !important; 
+                background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(0, 0, 0, 0.6)) !important; 
+                border: 1px solid #ffd700 !important; 
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5) !important;
             }
-            @keyframes legendaryPulseText {
-                0%, 100% { text-shadow: 0 0 5px #ffd700; color: #ffd700; }
-                50% { text-shadow: 0 0 15px #ff8c00, 0 0 30px #ff8c00; color: #fff; }
-            }
-            .legendary-card { animation: legendaryGlow 2.5s infinite ease-in-out; background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(0, 0, 0, 0.6)) !important; border-width: 1px !important; border-style: solid !important; }
-            .legendary-icon { filter: drop-shadow(0 0 5px rgba(255,215,0,0.5)); }
-            .legendary-text { animation: legendaryPulseText 2s infinite ease-in-out; }
-            .legendary-btn { background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 140, 0, 0.3)) !important; border: 1px solid #ffd700 !important; color: #fff !important; text-shadow: 0 0 5px rgba(255, 215, 0, 0.8); }
-            .legendary-btn:hover { background: linear-gradient(135deg, rgba(255, 215, 0, 0.6), rgba(255, 140, 0, 0.6)) !important; transform: scale(1.05) !important; }
+            .legendary-icon { filter: none !important; }
+            .legendary-text { color: #ffd700 !important; text-shadow: none !important; animation: none !important; }
+            .legendary-btn { background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2)) !important; border: 1px solid #ffd700 !important; color: #fff !important; }
+            .legendary-btn:hover { background: linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 140, 0, 0.4)) !important; transform: scale(1.02) !important; }
         `;
         document.body.appendChild(style);
     },
@@ -944,10 +941,10 @@ export const storeManager = {
 
             if (item.isImage && item.type !== 'fr') {
                 let showImg = item.imagePathWhite || item.imagePath || '';
-                visualHtml = `<div style="width: 50px; height: 50px; border-radius: 8px; background-image: url('${showImg}'); background-size: cover; background-position: center; margin: 5px 0; border: ${item.isLegendary ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.1)'};" class="${legendaryClassIcon}"></div>`;
+                visualHtml = `<div style="width: 50px; height: 50px; border-radius: 8px; background-image: url('${showImg}'); background-size: cover; background-position: center; margin: 5px 0; border: ${item.isLegendary ? '1px solid #FFD700' : '1px solid rgba(255,255,255,0.1)'};" class="${legendaryClassIcon}"></div>`;
             } else if (item.type === 'bg') {
                 let bgStyle = (item.cssLight && item.cssDark) ? `<div style="display:flex; flex:1;"><div style="flex:1; ${item.cssLight}"></div><div style="flex:1; ${item.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${item.cssDark}"></div><div style="flex:1; ${item.cssLight}"></div></div>` : `<div style="display:flex; flex:1; background:${item.light};"></div><div style="flex:1; background:${item.dark};"></div>`;
-                visualHtml = `<div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; margin: 5px 0; border: ${item.isLegendary ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.1)'};" class="${legendaryClassIcon}">${bgStyle}</div>`;
+                visualHtml = `<div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; margin: 5px 0; border: ${item.isLegendary ? '1px solid #FFD700' : '1px solid rgba(255,255,255,0.1)'};" class="${legendaryClassIcon}">${bgStyle}</div>`;
             } else if (item.type === 'fr') {
                 let framePreview = '';
                 if (item.isImage) {
@@ -955,7 +952,7 @@ export const storeManager = {
                 } else {
                     framePreview = `<div style="width: 32px; height: 32px; background: rgba(0,0,0,0.7); ${item.cssBoard || ''} border-width: 6px !important; border-radius: 4px;" class="${legendaryClassIcon}"></div>`;
                 }
-                visualHtml = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.08); border-radius: 8px; margin: 5px auto; border: ${item.isLegendary ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.2)'}; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                visualHtml = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.08); border-radius: 8px; margin: 5px auto; border: ${item.isLegendary ? '1px solid #FFD700' : '1px solid rgba(255,255,255,0.2)'}; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
                     ${framePreview}
                 </div>`;
             } else if (item.type === 'pc') {
@@ -979,10 +976,10 @@ export const storeManager = {
                 
                 if (item.type === 'bg') {
                     if (item.isImage) {
-                        bagVisualHtml = `<div class="theme-grid-preview ${legendaryClassIcon}" style="width: 50px; height: 50px; border-radius: 8px; background-image: url('${item.imagePath}'); background-size: cover; background-position: center; border: ${item.isLegendary ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.2)'}; box-shadow: 0 5px 15px rgba(0,0,0,0.5);"></div>`;
+                        bagVisualHtml = `<div class="theme-grid-preview ${legendaryClassIcon}" style="width: 50px; height: 50px; border-radius: 8px; background-image: url('${item.imagePath}'); background-size: cover; background-position: center; border: ${item.isLegendary ? '1px solid #FFD700' : '1px solid rgba(255,255,255,0.2)'}; box-shadow: 0 5px 15px rgba(0,0,0,0.5);"></div>`;
                     } else {
                         let bgStyle = (item.cssLight && item.cssDark) ? `<div style="display:flex; flex:1;"><div style="flex:1; ${item.cssLight}"></div><div style="flex:1; ${item.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${item.cssDark}"></div><div style="flex:1; ${item.cssLight}"></div></div>` : `<div style="display:flex; flex:1; background:${item.light};"></div><div style="flex:1; background:${item.dark};"></div>`;
-                        bagVisualHtml = `<div class="theme-grid-preview ${legendaryClassIcon}" style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: ${item.isLegendary ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.2)'}; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">${bgStyle}</div>`;
+                        bagVisualHtml = `<div class="theme-grid-preview ${legendaryClassIcon}" style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: ${item.isLegendary ? '1px solid #FFD700' : '1px solid rgba(255,255,255,0.2)'}; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">${bgStyle}</div>`;
                     }
                 }
                 
@@ -1000,7 +997,7 @@ export const storeManager = {
                     storeCard.style.boxShadow = '0 0 12px rgba(168, 85, 247, 0.15), inset 0 0 6px rgba(0,0,0,0.9)';
                 }
 
-                storeCard.innerHTML = `${legendaryTag} <div class="${legendaryClassText}" style="color: white; font-weight: 600; font-size: 14px; text-align: center; margin-top: ${item.isLegendary ? '10px' : '0'}; line-height: 1.2;">${name}</div> ${visualHtml} <div style="color: #f5a623; font-size: 13px; font-weight: bold; margin-bottom: 2px; margin-top: auto; text-shadow: ${item.isLegendary ? '0 0 5px rgba(245,166,35,0.5)' : 'none'};">🪙 ${item.cost}</div>`;
+                storeCard.innerHTML = `${legendaryTag} <div class="${legendaryClassText}" style="color: white; font-weight: 600; font-size: 14px; text-align: center; margin-top: ${item.isLegendary ? '10px' : '0'}; line-height: 1.2;">${name}</div> ${visualHtml} <div style="color: #f5a623; font-size: 13px; font-weight: bold; margin-bottom: 2px; margin-top: auto;">🪙 ${item.cost}</div>`;
                 
                 const buyBtn = document.createElement('button');
                 buyBtn.className = `store-buy-btn store-buy-btn-small ${legendaryClassBtn}`; buyBtn.innerText = isAr ? 'شراء' : 'Buy';
@@ -1170,6 +1167,12 @@ window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
     const previewEl = document.getElementById('modal-item-preview'); 
     const buyBtn = document.getElementById('confirm-buy-btn');
     
+    // التحقق المباشر من وجود عناصر نافذة الشراء لتجنب أي أخطاء
+    if (!nameEl || !costEl || !previewEl || !buyBtn) {
+        storeManager.buyItem(itemId, itemType);
+        return;
+    }
+
     nameEl.innerText = itemName; 
     costEl.innerText = '🪙 ' + cost; 
 
