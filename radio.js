@@ -85,17 +85,17 @@ function renderRadioIcons() {
     });
 }
 
-// نظام الترجمة
+// نظام الترجمة (تم تعديل الكلمات حسب طلبك وإضافة عبارة إعادة الاتصال)
 const RADIO_TRANSLATIONS = {
     ar: {
-        title: "الراديو", 
+        title: "الراديو", /* تم التعديل */
         cat_english: "الإنجليزية",
         cat_arabic: "العربية",
         cat_kurdish: "الكردية",
         play_btn: "تشغيل ▶",
         stop_btn: "إيقاف الراديو 🔴",
         status_connecting: "( جاري الاتصال بالبث... 🔄 )",
-        status_reconnecting: "( جاري إعادة المحاولة... 🔄 )", 
+        status_reconnecting: "( جاري إعادة المحاولة... 🔄 )", /* إضافة جديدة */
         status_refreshing: "( جاري إنعاش البث... ⏳ )",
         status_playing: "( تعمل الآن 🟢 )",
         status_failed_all: "( عذراً، لا يوجد اتصال بالبث حالياً ❌ )",
@@ -104,14 +104,14 @@ const RADIO_TRANSLATIONS = {
         direction: "rtl"
     },
     ku: {
-        title: "ڕادیۆ", 
+        title: "ڕادیۆ", /* تم التعديل */
         cat_english: "ئینگلیزی",
         cat_arabic: "عەرەبی",
         cat_kurdish: "کوردی",
         play_btn: "لێدان ▶",
         stop_btn: "وەستاندنی ڕادیۆ 🔴",
         status_connecting: "( پەیوەندیکردن بە پەخشەوە... 🔄 )",
-        status_reconnecting: "( دووبارە هەوڵدانەوە... 🔄 )", 
+        status_reconnecting: "( دووبارە هەوڵدانەوە... 🔄 )", /* إضافة جديدة */
         status_refreshing: "( نوێکردنەوەی پەخش... ⏳ )",
         status_playing: "( ئێستا پەخش دەکرێت 🟢 )",
         status_failed_all: "( ببورە، پەخشی ڕادیۆ بەردەست نییە ❌ )",
@@ -120,14 +120,14 @@ const RADIO_TRANSLATIONS = {
         direction: "rtl"
     },
     en: {
-        title: "Radio", 
+        title: "Radio", /* تم التعديل */
         cat_english: "English",
         cat_arabic: "Arabic",
         cat_kurdish: "Kurdish",
         play_btn: "Play ▶",
         stop_btn: "Stop Radio 🔴",
         status_connecting: "( Connecting to stream... 🔄 )",
-        status_reconnecting: "( Retrying connection... 🔄 )", 
+        status_reconnecting: "( Retrying connection... 🔄 )", /* إضافة جديدة */
         status_refreshing: "( Refreshing stream... ⏳ )",
         status_playing: "( Now Playing 🟢 )",
         status_failed_all: "( Sorry, stream unavailable ❌ )",
@@ -168,9 +168,9 @@ let audioInstance = null;
 let isMusicPlaying = false;
 let stallTimeout = null; 
 
-// متغيرات نظام المحاولة الذكية 
-let currentChannelRetries = 0; 
-let channelsTried = 0; 
+// متغيرات نظام المحاولة الذكية (Smart Retry & Skip System)
+let currentChannelRetries = 0; // يحسب المحاولات لنفس القناة
+let channelsTried = 0; // يحسب كم قناة قمنا بتجربتها ضمن المجموعة للوصول للقناة الميتة وتجنب الـ Loop
 
 let selectedCategory = localStorage.getItem('hub_radio_category') || 'kurdish';
 let parsedIndex = parseInt(localStorage.getItem('hub_radio_channel_index'));
@@ -188,135 +188,95 @@ function injectRadioUI() {
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* 🌟 زر فتح الراديو في الواجهة (مطابق للخطة) */
+        /* تعديل الزر هنا ليطابق شكل زر الهمبرغر */
         .radio-hud-btn {
-            height: 36px; width: 36px;
-            background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-            border: 0.8px solid rgba(255, 215, 0, 0.6) !important;
-            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
-            border-radius: 12px !important;
+            height: 45px; width: 45px;
+            background-color: #0d1f11; 
+            border: 2px solid #ffd700; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; padding: 0; outline: none;
+            color: #fff; font-size: 22px; cursor: pointer; padding: 0; outline: none;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        .radio-hud-btn svg { transform: scale(1) !important; width: 24px; height: 24px; }
-        .radio-hud-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
-        .radio-hud-btn.playing { 
-            border-color: #ffd700 !important; 
-            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 15px rgba(255, 215, 0, 0.4) !important; 
-        }
+        .radio-hud-btn:hover { background-color: #1a3a22; transform: scale(1.05); }
+        .radio-hud-btn.playing { border-color: #30d158; box-shadow: 0 0 12px rgba(48, 209, 88, 0.8); }
         
         .radio-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
-            display: none; justify-content: center; align-items: center;
+            background: rgba(0, 0, 0, 0.8); display: none; justify-content: center; align-items: center;
             z-index: 100000; font-family: 'Tajawal', sans-serif;
         }
-        
-        /* 🌟 نافذة الراديو المطابقة للمتجر 🌟 */
         .radio-modal-content {
-            background: #0b120d; /* لون أخضر داكن عميق */
-            padding: 25px; border-radius: 24px; text-align: center;
-            color: white; width: 90%; max-width: 380px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8), 0 0 15px rgba(255, 215, 0, 0.15);
+            background: #1c1c1e; padding: 25px; border-radius: 20px; text-align: center;
+            color: white; width: 90%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             position: relative;
-            border: 0.8px solid #ffd700;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .radio-header { display: flex; justify-content: center; align-items: center; margin-bottom: 25px; position: relative; }
-        .radio-header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        
+        .radio-header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #fff; }
         [dir="rtl"] .close-btn { left: 0; right: auto; }
         [dir="ltr"] .close-btn { right: 0; left: auto; }
         .close-btn { 
             position: absolute; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: #a1a1aa; font-size: 20px; cursor: pointer; padding: 5px; transition: 0.3s;
+            background: none; border: none; color: #888; font-size: 20px; cursor: pointer; padding: 5px;
         }
-        .close-btn:hover { color: #ffd700; }
-        
         .stations-list { display: flex; gap: 10px; margin-bottom: 25px; }
         .station-btn {
-            flex: 1; padding: 12px 5px; 
-            background: rgba(255, 255, 255, 0.02); color: #a1a1aa;
-            border: 0.8px solid rgba(255, 215, 0, 0.3); border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600;
+            flex: 1; padding: 12px 5px; background: #2c2c2e; color: #8e8e93;
+            border: 2px solid transparent; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600;
             transition: all 0.3s ease; font-family: inherit;
         }
         .station-btn.active { 
-            background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%); 
-            color: #ffd700; border-color: #ffd700; 
-            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6); 
-            font-weight: 700;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+            background: #1c1c1e; color: #fff; border-color: #30d158; 
+            box-shadow: 0 0 15px rgba(48, 209, 88, 0.6); font-weight: 700;
         }
-        
         .visualizer-container { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
-        
         .nav-arrow-btn {
-            background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%); 
-            border: 0.8px solid rgba(255, 215, 0, 0.6); color: #ffd700;
-            font-size: 16px; width: 38px; height: 38px; border-radius: 12px; cursor: pointer;
+            background: #2c2c2e; border: 1px solid #3a3a3c; color: #30d158;
+            font-size: 18px; width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
             display: flex; justify-content: center; align-items: center; transition: 0.2s ease; user-select: none;
-            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6);
         }
-        .nav-arrow-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .nav-arrow-btn:hover { background: #3a3a3c; box-shadow: 0 0 8px rgba(48, 209, 88, 0.4); }
         [dir="ltr"] .nav-prev-icon { transform: scaleX(-1); }
         [dir="ltr"] .nav-next-icon { transform: scaleX(-1); }
-        
         .visualizer-box {
-            flex: 1; background: #060907; border-radius: 12px; height: 60px; display: flex;
+            flex: 1; background: #111112; border-radius: 12px; height: 70px; display: flex;
             justify-content: center; align-items: center; gap: 3px; overflow: hidden;
-            border: 0.8px solid rgba(255, 215, 0, 0.3);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
         .visualizer-box .bar {
-            width: 3px; height: 10px; background: #4a3e1c; border-radius: 2px; transition: height 0.1s ease;
+            width: 3px; height: 10px; background: #3a3a3c; border-radius: 2px; transition: height 0.1s ease;
         }
-        .visualizer-box.playing .bar { background: #ffd700; animation: equalizer 0.8s infinite alternate ease-in-out; }
+        .visualizer-box.playing .bar { background: #30d158; animation: equalizer 0.8s infinite alternate ease-in-out; }
         @keyframes equalizer { 0% { height: 10px; } 100% { height: 45px; } }
-        
         .channel-info-box { margin-bottom: 25px; min-height: 55px; }
         .channel-name-text { font-size: 20px; font-weight: 700; color: #ffffff; display: block; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .radio-status-text { font-size: 13px; font-weight: 600; min-height: 18px; transition: 0.3s; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        
+        .radio-status-text { font-size: 13px; font-weight: 600; min-height: 18px; transition: 0.3s; }
         .radio-volume-container {
             display: flex; align-items: center; justify-content: center; gap: 12px;
-            margin-bottom: 20px; background: #060907; padding: 10px 15px; border-radius: 12px;
-            border: 0.8px solid rgba(255, 215, 0, 0.3);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+            margin-bottom: 20px; background: #2c2c2e; padding: 10px 15px; border-radius: 12px;
         }
-        .radio-volume-icon { font-size: 16px; color: #ffd700; user-select: none; }
+        .radio-volume-icon { font-size: 16px; color: #30d158; user-select: none; }
         .radio-volume-slider {
             flex: 1; -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px;
-            outline: none; cursor: pointer; background: #4a3e1c; direction: ltr;
+            outline: none; cursor: pointer; background: #3a3a3c; direction: ltr;
         }
         .radio-volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none; appearance: none; width: 16px; height: 16px;
-            border-radius: 50%; background: #1b5e20; border: 1.5px solid #ffd700; cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            border-radius: 50%; background: #ffffff; border: 2px solid #30d158; cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         }
         .radio-volume-slider::-moz-range-thumb {
-            width: 12px; height: 12px; border-radius: 50%; background: #1b5e20;
-            border: 1.5px solid #ffd700; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            width: 12px; height: 12px; border-radius: 50%; background: #ffffff;
+            border: 2px solid #30d158; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         }
-        
         .radio-actions { display: flex; }
         .action-btn {
-            flex: 1; padding: 14px 10px; border-radius: 16px; border: 0.8px solid transparent;
+            flex: 1; padding: 14px 10px; border-radius: 12px; border: 2px solid transparent;
             cursor: pointer; font-size: 16px; font-weight: bold; display: flex; justify-content: center; 
-            align-items: center; gap: 8px; font-family: inherit; transition: all 0.3s ease;
+            align-items: center; gap: 8px; font-family: inherit; transition: background 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
         }
-        .play-btn { 
-            background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%); 
-            color: #ffd700; border-color: #ffd700; 
-            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6); 
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-        }
-        .stop-btn { 
-            background: linear-gradient(to bottom, #7f1d1d 0%, #450a0a 100%); 
-            color: #ffb3b3; border-color: #ff453a; 
-            box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6); 
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-        }
-        .action-btn:active { transform: scale(0.97); }
+        .play-btn { background: #30d158; color: white; border-color: #30d158; box-shadow: 0 4px 10px rgba(48, 209, 88, 0.3); }
+        .stop-btn { background: #3a1c1e; color: #ff453a; border-color: #ff453a; box-shadow: 0 4px 10px rgba(255, 69, 58, 0.15); }
     `;
     document.head.appendChild(style);
 
@@ -426,6 +386,7 @@ function nextChannel(isAutoSkip = false) {
     const channels = RADIO_STATIONS[selectedCategory];
     currentChannelIndex = (currentChannelIndex + 1) % channels.length;
     
+    // تصفير المحاولات فقط إذا ضغط المستخدم بنفسه للتبديل، وليس عند التبديل التلقائي بسبب عطل
     if (!isAutoSkip) { currentChannelRetries = 0; channelsTried = 0; }
     
     updateRadioButtonsUI();
@@ -460,7 +421,7 @@ function changeRadioVolume(value) {
     const slider = document.getElementById('radio-volume-slider');
     if (slider) {
         const percentage = radioVolume * 100;
-        slider.style.background = `linear-gradient(to right, #ffd700 ${percentage}%, #4a3e1c ${percentage}%)`;
+        slider.style.background = `linear-gradient(to right, #30d158 ${percentage}%, #3a3a3c ${percentage}%)`;
     }
 }
 
@@ -507,6 +468,7 @@ function updateRadioButtonsUI() {
     }
 }
 
+// أضفنا مُعامل isRetry لمنع مسح عبارة (جاري إعادة المحاولة) عند تفعيلها
 function triggerPlayRadio(isRetry = false) {
     const currentChannel = RADIO_STATIONS[selectedCategory][currentChannelIndex];
     if (currentChannel && currentChannel.url) playRadio(currentChannel.url, selectedCategory, currentChannelIndex, isRetry);
@@ -519,7 +481,7 @@ function playRadio(url, category, index, isRetry = false) {
 
     if (statusText && !isRetry) {
         statusText.innerText = t('status_connecting');
-        statusText.style.color = "#f5a623"; 
+        statusText.style.color = "#ff9500"; 
     }
     
     if (visualizer) visualizer.classList.remove('playing');
@@ -544,7 +506,7 @@ function playRadio(url, category, index, isRetry = false) {
     audioInstance.onwaiting = () => {
         if (isMusicPlaying && statusText && !isRetry) {
             statusText.innerText = t('status_refreshing');
-            statusText.style.color = "#f5a623";
+            statusText.style.color = "#ff9500";
         }
         clearTimeout(stallTimeout);
         stallTimeout = setTimeout(() => {
@@ -559,12 +521,14 @@ function playRadio(url, category, index, isRetry = false) {
 
     audioInstance.onplaying = () => {
         clearTimeout(stallTimeout);
+        
+        // تصفير عداد المحاولات والقنوات الفاشلة عند النجاح بالاتصال
         currentChannelRetries = 0; 
         channelsTried = 0; 
         
         if (statusText) {
             statusText.innerText = t('status_playing');
-            statusText.style.color = "#ffd700";
+            statusText.style.color = "#30d158";
         }
         if (toggleActionBtn) {
             toggleActionBtn.innerText = t('stop_btn');
@@ -589,21 +553,25 @@ function playRadio(url, category, index, isRetry = false) {
     }
 }
 
+// الدالة الذكية والمطورة للتعامل مع الفشل
 function handleConnectionFailure(statusText) {
-    currentChannelRetries++; 
+    currentChannelRetries++; // زيادة محاولات إعادة الاتصال لنفس القناة
     const maxChannels = RADIO_STATIONS[selectedCategory].length;
 
     if (currentChannelRetries < 3) {
+        // المحاولة 1 و 2: أعد الاتصال بنفس القناة
         if (statusText) { 
             statusText.innerText = t('status_reconnecting'); 
-            statusText.style.color = "#f5a623"; 
+            statusText.style.color = "#ff9500"; 
         }
         setTimeout(() => { if (isMusicPlaying) triggerPlayRadio(true); }, 1500);
     } else {
+        // المحاولة 3 فشلت: قم بتصفير عداد القناة وانتقل للقناة التالية
         currentChannelRetries = 0;
         channelsTried++;
 
         if (channelsTried >= maxChannels) {
+             // إذا جربنا كل القنوات وعدنا لنقطة الصفر ولم تتصل أي منها (نتجنب اللوب اللانهائي هنا)
              if (statusText) { 
                  statusText.innerText = t('status_failed_all'); 
                  statusText.style.color = "#ff453a"; 
@@ -611,6 +579,7 @@ function handleConnectionFailure(statusText) {
              stopRadio(); 
              channelsTried = 0; 
         } else {
+             // الانتقال التلقائي للقناة التي تليها
              if (statusText) { 
                  statusText.innerText = t('status_failed_next'); 
                  statusText.style.color = "#ff453a"; 
