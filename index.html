@@ -17,6 +17,9 @@
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     <script src="radio.js?v=4" defer></script>
     
+    <!-- 🌟 استدعاء ملف الترجمات المنفصل -->
+    <script src="translations.js"></script>
+    
     <!-- استدعاء بيانات الهدايا الشعبية (يجب أن يكون قبل المتجر) -->
     <script src="populars.js" defer></script>
 
@@ -101,29 +104,29 @@
         /* ========================================== */
         .hub-token-badge {
             height: 46px; 
-            background: linear-gradient(145deg, #114222, #072110) !important; /* خلفية خضراء داكنة */
-            border: 1.5px solid #d4af37 !important; /* إطار ذهبي نحيف */
-            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2), inset 0 -3px 5px rgba(0,0,0,0.6) !important; /* بروز 3D للأعلى */
+            background: linear-gradient(145deg, #114222, #072110) !important; 
+            border: 1.5px solid #d4af37 !important; 
+            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2), inset 0 -3px 5px rgba(0,0,0,0.6) !important; 
             border-radius: var(--radius-pill); 
             display: flex; align-items: center; padding: 0 20px; 
-            color: #ffd700 !important; /* لون ذهبي للرقم */
+            color: #ffd700 !important; 
             font-weight: 700; font-size: 16px; 
             direction: ltr; transition: var(--transition); gap: 8px;
         }
 
         .hamburger-btn {
             width: 46px; height: 46px; 
-            background: linear-gradient(145deg, #114222, #072110) !important; /* خلفية خضراء داكنة */
-            border: 1.5px solid #d4af37 !important; /* إطار ذهبي نحيف */
-            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2), inset 0 -3px 5px rgba(0,0,0,0.6) !important; /* بروز 3D للأعلى */
-            border-radius: 14px !important; /* مربع بزوايا مستديرة */
+            background: linear-gradient(145deg, #114222, #072110) !important; 
+            border: 1.5px solid #d4af37 !important; 
+            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2), inset 0 -3px 5px rgba(0,0,0,0.6) !important; 
+            border-radius: 14px !important; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
             cursor: pointer; transition: var(--transition); padding: 0; 
         }
         .hamburger-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
         .hamburger-btn span {
             display: block; width: 22px; height: 3px; 
-            background: linear-gradient(to right, #ffd700, #d4af37) !important; /* خطوط الهمبركر ذهبية */
+            background: linear-gradient(to right, #ffd700, #d4af37) !important; 
             border-radius: 2px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.8);
             transition: var(--transition);
@@ -131,10 +134,10 @@
 
         .radio-hud-btn-fallback {
             width: 46px; height: 46px; 
-            background: linear-gradient(145deg, #114222, #072110) !important; /* خلفية خضراء داكنة */
-            border: 1.5px solid #d4af37 !important; /* إطار ذهبي نحيف */
-            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2), inset 0 -3px 5px rgba(0,0,0,0.6) !important; /* بروز 3D للأعلى */
-            border-radius: 14px !important; /* مربع بزوايا مستديرة */
+            background: linear-gradient(145deg, #114222, #072110) !important; 
+            border: 1.5px solid #d4af37 !important; 
+            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2), inset 0 -3px 5px rgba(0,0,0,0.6) !important; 
+            border-radius: 14px !important; 
             padding: 0; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: var(--transition);
         }
@@ -193,8 +196,8 @@
             border-radius: var(--radius-card); cursor: pointer; 
             position: relative; overflow: hidden; 
             background: #111;
-            border: 2px solid #d4af37 !important; /* إطار ذهبي */
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 15px rgba(212, 175, 55, 0.3) !important; /* توهج ذهبي خفيف */
+            border: 2px solid #d4af37 !important; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 15px rgba(212, 175, 55, 0.3) !important; 
             transition: var(--transition);
             display: flex; align-items: flex-end; justify-content: center;
         }
@@ -228,7 +231,7 @@
             width: 85%; max-width: 320px; padding: 22px; 
             background: rgba(255,255,255,0.02); color: var(--text-secondary); 
             border-radius: var(--radius-card); text-align: center; 
-            border: 2px solid #d4af37 !important; /* إطار ذهبي */
+            border: 2px solid #d4af37 !important; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 10px rgba(212, 175, 55, 0.1) !important;
             cursor: pointer; 
             transition: var(--transition); font-size: 18px; font-weight: 500; 
@@ -612,101 +615,6 @@
         </div>
     </div>
 
-    <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 9999999;">
-        <div class="settings-card leaderboard-full-screen" dir="auto">
-            <button class="modal-close-btn" onclick="window.closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
-            <button id="lb-rewards-btn" style="position: absolute; top: 20px; left: 70px; background: rgba(255,215,0,0.15); border: 1px solid #ffd700; border-radius: 12px; padding: 6px 12px; color: #ffd700; font-weight: bold; z-index: 100000; cursor: pointer;" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
-            
-            <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8);">🏆 <span id="lb-title-text">لوحة الشرف</span></h3>
-            <div class="custom-nav-tabs" style="margin-bottom: 15px;">
-                <button id="lb-tab-wins" class="custom-tab-button active" onclick="window.switchLbTab('wins')">الأكثر فوزاً</button>
-                <button id="lb-tab-xp" class="custom-tab-button" onclick="window.switchLbTab('xp')">الأعلى مستوى</button>
-                <button id="lb-tab-tokens" class="custom-tab-button" onclick="window.switchLbTab('tokens')">الأغنى (المال)</button>
-            </div>
-            <div class="scrollable-content lb-list-container" id="leaderboard-list-wins"></div>
-            <div class="scrollable-content lb-list-container" id="leaderboard-list-xp" style="display: none;"></div>
-            <div class="scrollable-content lb-list-container" id="leaderboard-list-tokens" style="display: none;"></div>
-        </div>
-    </div>
-
-    <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 10000000 !important;">
-        <div class="settings-card" dir="auto" style="max-width: 360px; padding: 30px 20px; background: linear-gradient(145deg, #1a1a24, #2b2b35) !important; border: 1px solid rgba(255,215,0,0.2) !important; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,215,0,0.05) !important; max-height: 90vh; overflow-y: auto;">
-            <button class="modal-close-btn" onclick="window.closeAppModal('top3-rewards-modal')" style="left:15px; right:auto; background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important;">✕</button>
-            
-            <div style="text-align: center; margin-bottom: 20px;">
-                <span style="font-size: 40px; filter: drop-shadow(0 0 15px rgba(255,215,0,0.6));">🎁</span>
-                <h3 style="color:#ffd700; margin: 10px 0 5px 0; font-size: 20px; font-weight: 800; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">جوائز نهاية الموسم</h3>
-                <p style="color:#a1a1aa; font-size: 11px; margin: 0;">يتم توزيع الجوائز تلقائياً نهاية كل موسم لتتويج الأبطال</p>
-            </div>
-            
-            <div style="background: linear-gradient(135deg, rgba(155,89,182,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(155,89,182,0.3); border-radius: 14px; padding: 10px; margin-bottom: 12px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #9b59b6, transparent);"></div>
-                <h4 style="color: #b589d6; margin: 0 0 10px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">🌟 عمداء اللعبة <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأعلى مستوى)</span></h4>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #ffd700;">
-                        <span style="font-size: 16px; margin-left: 8px; filter: drop-shadow(0 0 5px rgba(255,215,0,0.5));">🥇</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "الأسطورة" + 35,000 🪙 + 15 💡</div>
-                    </div>
-                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #c0c0c0;">
-                        <span style="font-size: 16px; margin-left: 8px;">🥈</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "النخبة" + 20,000 🪙 + 10 💡</div>
-                    </div>
-                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #cd7f32;">
-                        <span style="font-size: 16px; margin-left: 8px;">🥉</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "النخبة" + 15,000 🪙 + 10 💡</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="background: linear-gradient(135deg, rgba(52,199,89,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(52,199,89,0.3); border-radius: 14px; padding: 10px; margin-bottom: 12px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #34c759, transparent);"></div>
-                <h4 style="color: #30d158; margin: 0 0 10px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">⚔️ أبطال الفوز <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأكثر فوزاً)</span></h4>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px;">
-                        <span style="font-size: 16px; margin-left: 8px;">🥇</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold;">20,000 🪙 + خصم المتجر 50%</div>
-                    </div>
-                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px;">
-                        <span style="font-size: 16px; margin-left: 8px;">🥈🥉</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold;">الثاني والثالث: 10,000 🪙 + خصم 25%</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="background: linear-gradient(135deg, rgba(241,196,15,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(241,196,15,0.3); border-radius: 14px; padding: 10px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #f1c40f, transparent);"></div>
-                <h4 style="color: #f1c40f; margin: 0 0 6px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">💰 نادي الأثرياء <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأغنى)</span></h4>
-                <p style="color: #e0e0e0; font-size: 11px; margin: 0; line-height: 1.5;">شهرة ومجد! سيتم تخليد أسمائكم في لوحة الشرف كأغنى تجار اللعبة طوال الموسم القادم.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="themes-grid-overlay" class="modal-overlay">
-        <div class="settings-card" dir="auto">
-            <h3 id="themes-grid-title" style="margin-bottom: 15px; font-size: 20px;">المظهر والأزياء</h3>
-            <div class="custom-nav-tabs">
-                <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="window.switchThemeGridTabCategory('bg')">خلفيات</button>
-                <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('frames')">إطارات</button>
-                <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('pieces')">احجار</button>
-            </div>
-            <div class="scrollable-content">
-                <div class="themes-grid-container" id="theme-grid-section-bg"></div><div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div><div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
-            </div>
-            <button id="theme-close-btn" onclick="window.closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">خروج</button>
-        </div>
-    </div>
-
-    <div id="custom-alert-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 300px;">
-            <h3 id="custom-alert-title">تنبيه</h3>
-            <p id="custom-alert-message" style="color: #e0e0e0; margin: 20px 0; font-size: 15px; line-height: 1.6;"></p>
-            <div style="display: flex; gap: 10px;">
-                <button id="custom-alert-ok" class="btn btn-primary" style="flex: 1; margin: 0; background: rgba(255,255,255,0.15) !important;">حسناً</button>
-                <button id="custom-alert-cancel" class="btn btn-secondary" style="flex: 1; margin: 0; background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; display: none;">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
     <div id="profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeProfileModal()">✕</button>
@@ -771,216 +679,6 @@
             js.src = "https://connect.facebook.net/en_US/sdk.js";
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
-
-        const translations = {
-            ar: {
-                app_title: "DAMA CHALLENGE",
-                dama: "دامة",
-                soon: "قريباً",
-                menu_title: "القائمة",
-                change_lang: "اللغة",
-                change_bg: "تغيير الخلفية",
-                bg_title: "تغيير الخلفية",
-                bg_upload: "رفع من المعرض",
-                bg_default: "الخلفية الافتراضية",
-                bg_snow_castle: "قلعة الثلج",
-                bg_smoke_dice: "نرد الدخان",
-                bg_blue_cards: "أوراق زرقاء",
-                bg_water_card: "شلال الورق",
-                bg_forest_river: "الغابة والطبيعة",
-                bg_green_domino: "دومينو ملكية",
-                bg_black_gold_cards: "ورق أسود وذهبي",
-                login_name_label: "الاسم",
-                login_name_placeholder: "اكتب اسمك هنا",
-                login_avatar_label: "الشخصية",
-                avatar_1: "الملك الشاب",
-                avatar_2: "الرجل الكردي",
-                avatar_3: "الملكة",
-                avatar_4: "الملك المسن",
-                avatar_5: "الرجل العربي",
-                avatar_6: "الأميرة الشقراء",
-                login_guest: "دخول كزائر",
-                login_facebook_btn: "تسجيل الدخول بـ فيسبوك",
-                link_facebook_btn: "حفظ الحساب عبر فيسبوك",
-                profile_title: "الملف الشخصي",
-                profile_id: "المعرف:",
-                profile_change_name: "تغيير الاسم",
-                profile_change_avatar: "الشخصية",
-                profile_phone_img: "المعرض",
-                profile_balance: "🪙 الرصيد الكلي:",
-                profile_logout: "تسجيل الخروج",
-                btn_ok: "حسناً",
-                btn_cancel: "إلغاء",
-                token_word: " توكن",
-                msg_soon: "سيتم إضافة ألعاب وتحديات جديدة قريباً.",
-                msg_no_name: "يرجى كتابة الاسم أولاً للبدء.",
-                msg_no_pass: "يرجى كتابة كلمة المرور للاتصال الآمن.",
-                msg_prompt_name: "أدخل الاسم الجديد:",
-                msg_copy_success: "تم نسخ المعرف: ",
-                msg_copy_fail: "يرجى التحديد والنسخ يدوياً.",
-                msg_avatar_success: "تم تحديث الشخصية بنجاح.",
-                msg_img_success: "تم تعيين الصورة بنجاح.",
-                msg_logout_confirm: "هل أنت متأكد من تسجيل الخروج ومسح بيانات الحساب؟",
-                guest_name: "زائر_",
-                msg_disconnect: "⚠️ عذراً، انقطع الاتصال بالخادم أو الإنترنت ضعيف. يرجى الانتظار، جاري محاولة إعادة الاتصال...",
-                msg_fb_connect: "جاري الاتصال بخوادم فيسبوك، جرب مرة أخرى.",
-                msg_server_fail: "فشل الاتصال بالسيرفر! جاري المحاولة...",
-                login_tab_title: "تسجيل الدخول",
-                login_tab_desc: "أدخل اسم المستخدم وكلمة المرور للعودة لرصيدك المزامَن.",
-                login_tab_btn: "تسجيل الدخول",
-                login_tab_toggle: "لا تملك حساباً؟ إنشاء حساب جديد",
-                register_tab_title: "إنشاء حساب",
-                register_tab_desc: "أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.",
-                register_tab_btn: "متابعة",
-                register_tab_toggle: "امتلك حساباً بالفعل؟ تسجيل الدخول",
-                nav_store: "المتجر",
-                nav_games: "الألعاب",
-                nav_latest: "الأحدث",
-                store_games: "الألعاب",
-                store_dama: "دامة",
-                store_tawla: "طاولة",
-                store_popularity: "الشعبية",
-                store_topup: "شحن"
-            },
-            en: {
-                app_title: "DAMA CHALLENGE",
-                dama: "Dama",
-                soon: "Soon",
-                menu_title: "Menu",
-                change_lang: "Language",
-                change_bg: "Change Background",
-                bg_title: "Change Background",
-                bg_upload: "Upload from Gallery",
-                bg_default: "Default Background",
-                bg_snow_castle: "Snow Castle",
-                bg_smoke_dice: "Smoke Dice",
-                bg_blue_cards: "Blue Cards",
-                bg_water_card: "Water Card",
-                bg_forest_river: "Forest & Stream",
-                bg_green_domino: "Green Domino",
-                bg_black_gold_cards: "Black & Gold Cards",
-                login_name_label: "Name",
-                login_name_placeholder: "Type your name",
-                login_avatar_label: "Avatar",
-                avatar_1: "Young King",
-                avatar_2: "Kurdish Man",
-                avatar_3: "Queen",
-                avatar_4: "Old King",
-                avatar_5: "Arab Man",
-                avatar_6: "Blonde Princess",
-                login_guest: "Guest Login",
-                login_facebook_btn: "Sign in with Facebook",
-                link_facebook_btn: "Save Account via Facebook",
-                profile_title: "Profile",
-                profile_id: "ID:",
-                profile_change_name: "Change Name",
-                profile_change_avatar: "Avatar",
-                profile_phone_img: "Gallery",
-                profile_balance: "🪙 Total Balance:",
-                profile_logout: "Logout",
-                btn_ok: "OK",
-                btn_cancel: "Cancel",
-                token_word: " Tokens",
-                msg_soon: "New games and challenges coming soon.",
-                msg_no_name: "Please enter a name to start.",
-                msg_no_pass: "Please type your password for authentication.",
-                msg_prompt_name: "Enter new name:",
-                msg_copy_success: "ID Copied: ",
-                msg_copy_fail: "Please select and copy manually.",
-                msg_avatar_success: "Avatar updated successfully.",
-                msg_img_success: "Image set successfully.",
-                msg_logout_confirm: "Are you sure you want to log out and clear account data?",
-                guest_name: "Guest_",
-                msg_disconnect: "⚠️ Connection lost. Server is down or internet is weak. Reconnecting...",
-                msg_fb_connect: "Connecting to Facebook, try again.",
-                msg_server_fail: "Server connection lost! Retrying...",
-                login_tab_title: "Sign In",
-                login_tab_desc: "Enter your username and password to log back into your profile.",
-                login_tab_btn: "Sign In",
-                login_tab_toggle: "Don't have an account? Create one",
-                register_tab_title: "Create Account",
-                register_tab_desc: "Welcome. Create your account to collect tokens across all games.",
-                register_tab_btn: "Continue",
-                register_tab_toggle: "Already have an account? Sign In",
-                nav_store: "Store",
-                nav_games: "Games",
-                nav_latest: "Latest",
-                store_games: "Games",
-                store_dama: "Dama",
-                store_tawla: "Backgammon",
-                store_popularity: "Popularity",
-                store_topup: "Top-up"
-            },
-            ku: {
-                app_title: "DAMA CHALLENGE",
-                dama: "دامە",
-                soon: "بەمنزیکانە",
-                menu_title: "لیستە",
-                change_lang: "زمان",
-                change_bg: "گۆڕینی پاشبنەما",
-                bg_title: "گۆڕینی پاشبنەما",
-                bg_upload: "بارکردن لە گەلەری",
-                bg_default: "پاشبنەمای بنەڕەتی",
-                bg_snow_castle: "قەڵای بەفر",
-                bg_smoke_dice: "زار و دووکه ڵ",
-                bg_blue_cards: "پەڕەی شین",
-                bg_water_card: "پەڕە و ئاو",
-                bg_forest_river: "دارستان و سروشت",
-                bg_green_domino: "دۆمینۆی سەوز",
-                bg_black_gold_cards: "پەڕەی ڕەش و زێڕین",
-                login_name_label: "ناو",
-                login_name_placeholder: "ناوت لێرە بنووسە",
-                login_avatar_label: "کەسایەتی",
-                avatar_1: "پاشای گەنج",
-                avatar_2: "پیاوی کورد",
-                avatar_3: "شاژن",
-                avatar_4: "پاشای بەتەمەن",
-                avatar_5: "پیاوی عەرەب",
-                avatar_6: "شازادەی قژ زەرد",
-                login_guest: "چوونە ژوورەوە وەک میوان",
-                login_facebook_btn: "چوونە ژوورەوە بە فەیسبووک",
-                link_facebook_btn: "پاراستنی هەژمار بە فەیسبووک",
-                profile_title: "پڕۆفایل",
-                profile_id: "ئایدی:",
-                profile_change_name: "گۆڕینی ناو",
-                profile_change_avatar: "کەسایەتی",
-                profile_phone_img: "گەلەری",
-                profile_balance: "🪙 کۆی باڵانس:",
-                profile_logout: "چوونەدەرەوە",
-                btn_ok: "باشە",
-                btn_cancel: "هەڵوەشاندنەوە",
-                token_word: " تۆکن",
-                msg_soon: "یاری و ئاڵەنگاری نوێ بەمنزیکانە زیاد دەکرێن.",
-                msg_no_name: "تکایە سەرەتا ناوێک بنووسە بۆ دەستپێکردن.",
-                msg_no_pass: "تکایە تێپەڕوشە بنووسە بۆ چوونەژوورەوەی پارێزراو.",
-                msg_prompt_name: "ناوی نوێ بنووسە:",
-                msg_copy_success: "ئایدی کۆپی کرا: ",
-                msg_copy_fail: "تکایە دیاری بکە و بە دەست کۆپی بکە.",
-                msg_avatar_success: "کەسایەتی بە سەرکەوتوویی نوێکرایەوە.",
-                msg_img_success: "وێنە بە سەرکەوتوویی دانرا.",
-                msg_logout_confirm: "دڵنیایت دەتەوێت بچیتە دەرەوە و زانیارییەکانی هەژمار بسڕیتەوە؟",
-                guest_name: "میوان_",
-                msg_disconnect: "⚠️ پەیوەندی پچڕا. سێرڤەر کارناکات یان هێڵی ئینتەرنێت لاوازە. دووبارە هەوڵدەدرێتەوە...",
-                msg_fb_connect: "پەیوەندی بە فەیسبووکەوە دەکرێت، دووبارە هەوڵبدەرەوە.",
-                msg_server_fail: "پەیوەندی سێرڤەر شکستی هێنا! دووبارە هەوڵدەدرێتەوە...",
-                login_tab_title: "چوونە ژوورەوە",
-                login_tab_desc: "ناوی بەکارهێنەر و تێپەڕوشە بنووسە بۆ گەڕانەوە بۆ هەژمارەکەت.",
-                login_tab_btn: "چوونە ژوورەوە",
-                login_tab_toggle: "هەژمارت نییە؟ هەژمارێک دروست بکە",
-                register_tab_title: "دروستکردنی هەژمار",
-                register_tab_desc: "بەخێربێیت. هەژمارەکەت دروست بکە بۆ کۆکردنەوەی دراوەکان لە هەموو یارییەکاندا.",
-                register_tab_btn: "بەردەوام بە",
-                register_tab_toggle: "هەژمارت هەیە؟ چوونە ژوورەوە",
-                nav_store: "فرۆشگا",
-                nav_games: "یارییەکان",
-                nav_latest: "نوێترین",
-                store_games: "یارییەکان",
-                store_dama: "دامە",
-                store_tawla: "تاوڵە",
-                store_popularity: "ناوبانگ",
-                store_topup: "بارکردن"
-            }
-        };
 
         const langs = ['ar', 'en', 'ku'];
         let currentLang = localStorage.getItem('app_lang') || 'ar';
@@ -1079,6 +777,7 @@
         }
 
         function updateTranslations() {
+            if (typeof translations === 'undefined') return;
             const t = translations[currentLang];
 
             document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -1156,9 +855,10 @@
         });
 
         function getSafeProfile() {
+            const guestName = (typeof translations !== 'undefined') ? translations[currentLang].guest_name : "Guest_";
             const defaultProfile = {
                 id: "GUEST-DEFAULT",
-                name: translations[currentLang].guest_name + "0000",
+                name: guestName + "0000",
                 avatar: 'Photo/1000132081.webp',
                 isCustomAvatar: false,
                 tokens: 0,
@@ -1363,8 +1063,10 @@
                 cancelBtn.style.display = showCancel ? 'block' : 'none';
             }
             
-            okBtn.innerText = translations[currentLang].btn_ok;
-            cancelBtn.innerText = translations[currentLang].btn_cancel;
+            if (typeof translations !== 'undefined') {
+                okBtn.innerText = translations[currentLang].btn_ok;
+                cancelBtn.innerText = translations[currentLang].btn_cancel;
+            }
             customPopupCallback = callback;
         }
 
@@ -1381,7 +1083,13 @@
         document.getElementById('custom-popup-ok').addEventListener('click', () => closeCustomPopup(true));
         document.getElementById('custom-popup-cancel').addEventListener('click', () => closeCustomPopup(false));
 
-        function triggerAlertSoon() { showCustomPopup(translations[currentLang].msg_soon); }
+        function triggerAlertSoon() { 
+            if(typeof translations !== 'undefined') {
+                showCustomPopup(translations[currentLang].msg_soon); 
+            } else {
+                showCustomPopup("قريباً");
+            }
+        }
 
         function submitManualAuthForm() {
             const nameInput = document.getElementById('login-name-input').value.trim();
@@ -1459,8 +1167,9 @@
         }
 
         function loginAsGuest() {
+            const guestName = (typeof translations !== 'undefined') ? translations[currentLang].guest_name : "Guest_";
             const randomId = "GUEST-" + Math.floor(100000 + Math.random() * 900000);
-            const randomName = translations[currentLang].guest_name + Math.floor(1000 + Math.random() * 9000);
+            const randomName = guestName + Math.floor(1000 + Math.random() * 9000);
             
             const guestProfile = {
                 id: randomId, name: randomName, avatar: 'Photo/1000132081.webp',
@@ -1481,7 +1190,8 @@
             
             const profile = getSafeProfile();
             const tokenVal = profile.tokens || 0;
-            const tokenText = tokenVal + translations[currentLang].token_word;
+            const tokenWord = (typeof translations !== 'undefined') ? translations[currentLang].token_word : " Tokens";
+            const tokenText = tokenVal + tokenWord;
 
             if (document.getElementById('hub-token-count')) document.getElementById('hub-token-count').innerText = tokenVal;
             if (document.getElementById('profile-stat-tokens')) document.getElementById('profile-stat-tokens').innerText = tokenText;
