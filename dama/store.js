@@ -1,6 +1,6 @@
 // ==========================================
 // ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة
-// (تحتفظ بكامل المنطق والواجهة + الإضافات المستخرجة من HTML)
+// (تحتفظ بكامل المنطق والواجهة + دعم حفظ واستعراض هدايا الشعبية في الحقيبة)
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -538,6 +538,65 @@ export const STORE_ITEMS = {
 
 window.STORE_ITEMS = STORE_ITEMS;
 
+// 🌟 دالة إضافة عنصر شعبية إلى حقيبة اللاعب وحفظه محلياً ومزامنته 🌟
+window.addPopularityToBag = function(itemId, amount = 1) {
+    let profile = storeManager.getProfile();
+    if (!profile) return;
+
+    if (!profile.inventory || typeof profile.inventory !== 'object') {
+        profile.inventory = {};
+    }
+    
+    // زيادة الكمية المملوكة من هذا العنصر
+    profile.inventory[itemId] = (profile.inventory[itemId] || 0) + amount;
+
+    // حفظ البروفايل ومزامنته
+    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+    if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+    }
+
+    // إعادة رسم الهدايا بالحقيبة والمتجر
+    if (typeof window.renderGiftsInBag === 'function') {
+        window.renderGiftsInBag();
+    }
+    storeManager.renderUI();
+};
+
+// 🌟 دالة عرض هدايا الشعبية المملوكة داخل تبويب الهدايا في الحقيبة 🌟
+window.renderGiftsInBag = function() {
+    const container = document.getElementById('theme-grid-section-gifts');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const profile = storeManager.getProfile();
+    const inventory = profile.inventory || {};
+    const giftsList = window.POPULARITY_ITEMS || [];
+
+    let hasGifts = false;
+
+    giftsList.forEach(gift => {
+        const count = inventory[gift.id] || 0;
+        if (count > 0) {
+            hasGifts = true;
+            const giftCard = document.createElement('div');
+            giftCard.className = 'theme-grid-item';
+            giftCard.innerHTML = `
+                <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                    <img src="${gift.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));" alt="${gift.nameAr}">
+                </div>
+                <span class="theme-grid-title" style="font-size: 11px; margin-top: 4px;">${gift.nameAr}</span>
+                <span style="color: #30d158; font-size: 11px; font-weight: bold;">العدد: x${count}</span>
+            `;
+            container.appendChild(giftCard);
+        }
+    });
+
+    if (!hasGifts) {
+        container.innerHTML = '<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">لا تملك هدايا شعبية حالياً. اشترِ من المتجر!</div>';
+    }
+};
+
 export const storeManager = {
     
     startGapKiller() {
@@ -582,7 +641,6 @@ export const storeManager = {
                 0%, 100% { text-shadow: 0 0 5px #ffd700; color: #ffd700; }
                 50% { text-shadow: 0 0 15px #ff8c00, 0 0 30px #ff8c00; color: #fff; }
             }
-            /* 🌟 تم إلغاء أنيميشن الحركة (الطفو) للحفاظ على ثبات العناصر */
             .legendary-card { animation: legendaryGlow 2.5s infinite ease-in-out; background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(0, 0, 0, 0.6)) !important; border-width: 1px !important; border-style: solid !important; }
             .legendary-icon { filter: drop-shadow(0 0 5px rgba(255,215,0,0.5)); }
             .legendary-text { animation: legendaryPulseText 2s infinite ease-in-out; }
@@ -713,6 +771,7 @@ export const storeManager = {
 
         if (profile) {
             if (!Array.isArray(profile.purchasedItems)) profile.purchasedItems = [];
+            if (!profile.inventory || typeof profile.inventory !== 'object') profile.inventory = {};
             
             if (!profile.equippedBg || !STORE_ITEMS[profile.equippedBg]) profile.equippedBg = 'bg_wood';
             if (!profile.equippedFr || !STORE_ITEMS[profile.equippedFr]) profile.equippedFr = 'fr_classic';
@@ -725,10 +784,10 @@ export const storeManager = {
             return profile;
         }
         
-        return { purchasedItems: [], equippedPc: 'pc_original', equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedScore: 'score_default' };
+        return { purchasedItems: [], inventory: {}, equippedPc: 'pc_original', equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedScore: 'score_default' };
     },
 
-    buyItem(itemId) {
+    buyItem(itemId, itemType = 'item') {
         let profile = this.getProfile();
         const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
         const isAr = currentLang !== 'en';
@@ -740,17 +799,43 @@ export const storeManager = {
             return; 
         }
         
-        const item = STORE_ITEMS[itemId];
+        // التحقق من قائمة متجر اللعبة أو قائمة منتجات الشعبية
+        let item = STORE_ITEMS[itemId];
+        if (!item && window.POPULARITY_ITEMS) {
+            item = window.POPULARITY_ITEMS.find(p => p.id === itemId);
+            if (item) {
+                item = { cost: item.price, type: 'popularity', nameAr: item.nameAr };
+            }
+        }
+        
         if (!item) return;
         
         const processMsg = isAr ? "جاري معالجة الشراء عبر السيرفر..." : "Processing purchase...";
         if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(processMsg);
         
         if (window['socket'] && window['socket'].connected) { 
-            window['socket'].emit('requestPurchase', { userId: profile.id, itemId: itemId, cost: item.cost }); 
+            window['socket'].emit('requestPurchase', { userId: profile.id, itemId: itemId, cost: item.cost, itemType: itemType || item.type }); 
         } else { 
-            const errorMsg = isAr ? "أنت غير متصل بالسيرفر!" : "Not connected to server!";
-            if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(errorMsg);
+            // معالجة الشراء أوفلاين كدعم مباشر
+            if (profile.tokens >= item.cost) {
+                profile.tokens -= item.cost;
+                if (itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === itemId))) {
+                    if (!profile.inventory) profile.inventory = {};
+                    profile.inventory[itemId] = (profile.inventory[itemId] || 0) + 1;
+                } else {
+                    if (!profile.purchasedItems.includes(itemId)) profile.purchasedItems.push(itemId);
+                }
+                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                }
+                const successMsg = isAr ? `تم شراء ${item.nameAr || 'المنتج'} بنجاح!` : 'Purchase successful!';
+                if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(successMsg);
+                this.renderUI();
+            } else {
+                const errorMsg = isAr ? "رصيدك غير كافٍ!" : "Insufficient tokens!";
+                if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(errorMsg);
+            }
         }
     },
 
@@ -814,6 +899,11 @@ export const storeManager = {
         if(bagFr) bagFr.innerHTML = ''; 
         if(bagPc) bagPc.innerHTML = '';
 
+        // تحديث هدايا الشعبية في الحقيبة إن وجدت
+        if (typeof window.renderGiftsInBag === 'function') {
+            window.renderGiftsInBag();
+        }
+
         const profile = this.getProfile(); 
         const currentLang = localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar';
         const isAr = currentLang !== 'en';
@@ -836,7 +926,7 @@ export const storeManager = {
             const item = STORE_ITEMS[key];
             const targetSection = item.type; 
 
-            // 💡 إخفاء الأشرطة تماماً من المتجر والحقيبة
+            // إخفاء الأشرطة من القوائم العامة
             if (targetSection === 'score') return;
             
             const safePurchased = Array.isArray(profile.purchasedItems) ? profile.purchasedItems : [];
@@ -910,7 +1000,6 @@ export const storeManager = {
                     storeCard.style.boxShadow = '0 0 12px rgba(168, 85, 247, 0.15), inset 0 0 6px rgba(0,0,0,0.9)';
                 }
 
-                // 🌟 التعديل السحري هنا: تم إضافة margin-top: auto; لdiv السعر ليدفع نفسه وزر الشراء لأسفل الكارت دائماً
                 storeCard.innerHTML = `${legendaryTag} <div class="${legendaryClassText}" style="color: white; font-weight: 600; font-size: 14px; text-align: center; margin-top: ${item.isLegendary ? '10px' : '0'}; line-height: 1.2;">${name}</div> ${visualHtml} <div style="color: #f5a623; font-size: 13px; font-weight: bold; margin-bottom: 2px; margin-top: auto; text-shadow: ${item.isLegendary ? '0 0 5px rgba(245,166,35,0.5)' : 'none'};">🪙 ${item.cost}</div>`;
                 
                 const buyBtn = document.createElement('button');
@@ -919,7 +1008,7 @@ export const storeManager = {
                     if (window['openPurchaseModal']) { 
                         window['openPurchaseModal'](key, name, item.cost, item.type); 
                     } else { 
-                        this.buyItem(key); 
+                        this.buyItem(key, item.type); 
                     } 
                 };
                 
@@ -977,13 +1066,23 @@ export const storeManager = {
                         else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
                     });
                     
-                    window['socket'].on('purchaseSuccess', (msg) => { 
+                    window['socket'].on('purchaseSuccess', (data) => { 
+                        let msg = typeof data === 'string' ? data : (data.message || 'تم الشراء بنجاح!');
+                        
+                        // إضافة الهدية إلى الحقيبة إذا كانت من نوع شعبية
+                        if (data && data.itemId) {
+                            if (data.itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === data.itemId))) {
+                                window.addPopularityToBag(data.itemId, data.amount || 1);
+                            }
+                        }
+
                         if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg); 
                         else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
                         
                         if (typeof window.triggerPurchaseCelebration === 'function') {
                             window.triggerPurchaseCelebration();
                         }
+                        this.renderUI();
                     });
                 }
                 
@@ -1028,7 +1127,7 @@ window.applyTheme = function(profile) {
 // ==========================================
 
 window.switchThemeGridTabCategory = function(category) {
-    const tabs = ['bg', 'frames', 'pieces'];
+    const tabs = ['bg', 'frames', 'pieces', 'gifts'];
     tabs.forEach(tab => { 
         const btn = document.getElementById('theme-btn-tab-' + tab); 
         const sec = document.getElementById('theme-grid-section-' + tab); 
@@ -1038,7 +1137,12 @@ window.switchThemeGridTabCategory = function(category) {
     const activeBtn = document.getElementById('theme-btn-tab-' + category); 
     const activeSec = document.getElementById('theme-grid-section-' + category);
     if(activeBtn) activeBtn.classList.add('active'); 
-    if(activeSec) activeSec.style.display = 'grid';
+    if(activeSec) {
+        activeSec.style.display = 'grid';
+        if (category === 'gifts') {
+            window.renderGiftsInBag();
+        }
+    }
 };
 
 window.triggerGridThemeChange = function(index, lightHex, darkHex) {
@@ -1068,7 +1172,15 @@ window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
     
     nameEl.innerText = itemName; 
     costEl.innerText = '🪙 ' + cost; 
-    const itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null; 
+
+    let itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null; 
+    if (!itemData && window.POPULARITY_ITEMS) {
+        const popItem = window.POPULARITY_ITEMS.find(p => p.id === itemId);
+        if (popItem) {
+            itemData = { isImage: true, imagePath: popItem.imagePath, isLegendary: false, type: 'popularity' };
+        }
+    }
+
     previewEl.innerHTML = ''; 
     previewEl.style.background = 'rgba(255,255,255,0.05)'; 
     previewEl.style.backgroundImage = 'none';
@@ -1079,7 +1191,8 @@ window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
         if (itemData.isImage) { 
             let imgUrl = itemData.imagePath || itemData.imagePathWhite || ''; 
             previewEl.style.backgroundImage = `url('${imgUrl}')`; 
-            previewEl.style.backgroundSize = 'cover'; 
+            previewEl.style.backgroundSize = 'contain'; 
+            previewEl.style.backgroundRepeat = 'no-repeat';
             previewEl.style.backgroundPosition = 'center'; 
         } else if(itemType === 'pc') { 
             previewEl.innerHTML = itemData.icon || '💎'; 
@@ -1102,14 +1215,7 @@ window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
     buyBtn.onclick = () => { 
         if (typeof window.closeAppModal === 'function') window.closeAppModal('purchase-modal'); 
         setTimeout(() => { 
-            if (window.socket && window.socket.connected) { 
-                let profile = storeManager.getProfile();
-                window.socket.emit('requestPurchase', { userId: profile.id, itemId: itemId }); 
-            } else { 
-                const msg = window.t ? window.t('alert_no_store') : "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً."; 
-                if (typeof window.triggerCustomAlertNotification === 'function') window.triggerCustomAlertNotification(msg); 
-                else alert(msg); 
-            } 
+            storeManager.buyItem(itemId, itemType);
         }, 120); 
     };
     if (typeof window.openAppModal === 'function') window.openAppModal('purchase-modal');
