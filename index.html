@@ -20,7 +20,7 @@
     <!-- 🌟 ملف الترجمات -->
     <script src="translations.js"></script>
     
-    <!-- 🌟 ملف أيقونات الشريط السفلي (الجديد) -->
+    <!-- 🌟 ملف أيقونات الشريط السفلي -->
     <script src="hubIcons.js" defer></script>
 
     <!-- استدعاء بيانات الهدايا الشعبية -->
@@ -103,36 +103,36 @@
         .profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
         /* ========================================== */
-        /* 🌟 الأزرار العلوية (نحيفة جداً وصغيرة من الداخل) 🌟 */
+        /* 🌟 الأزرار العلوية (بإطارات 0.8px) 🌟 */
         /* ========================================== */
         .hub-token-badge {
-            height: 36px; /* تصغير الارتفاع لتضييق المساحة */
+            height: 36px; /* توكن ملموم حول الرقم */
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-            border: 0.5px solid rgba(255, 215, 0, 0.6) !important; /* إطار ذهبي نحيف جداً */
+            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; /* إطار 0.8px */
             box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
             border-radius: var(--radius-pill); 
             display: flex; align-items: center; justify-content: center;
-            padding: 0 16px !important; /* مسافة داخلية قليلة جداً */
+            padding: 0 16px !important; 
             color: #ffd700 !important; 
             font-weight: 700; font-size: 15px; 
             direction: ltr; transition: var(--transition); gap: 6px;
         }
 
         .hamburger-btn, .radio-hud-btn-fallback {
-            width: 36px; height: 36px; /* مطابقة الارتفاع الصغير */
+            width: 46px; height: 46px; /* الحجم الأصلي الكبير */
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-            border: 0.5px solid rgba(255, 215, 0, 0.6) !important; /* إطار ذهبي نحيف جداً */
+            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; /* إطار 0.8px */
             box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
-            border-radius: 12px !important; 
+            border-radius: 14px !important; 
             cursor: pointer; transition: var(--transition); padding: 0; 
         }
 
         .hamburger-btn {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
         }
         .hamburger-btn:hover, .radio-hud-btn-fallback:hover { transform: scale(1.05); filter: brightness(1.1); }
         .hamburger-btn span {
-            display: block; width: 16px; height: 2px; /* تصغير خطوط الهمبركر لتناسب الحجم الجديد */
+            display: block; width: 22px; height: 3px; /* الحجم الأصلي الكبير */
             background: linear-gradient(to right, #ffd700, #d4af37) !important; 
             border-radius: 2px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.8);
@@ -142,7 +142,7 @@
         .radio-hud-btn-fallback {
             display: flex; align-items: center; justify-content: center;
         }
-        .radio-hud-btn-fallback span { transform: scale(0.85); } /* تصغير أيقونة الراديو قليلاً */
+        .radio-hud-btn-fallback span { transform: scale(1); } /* استعادة الحجم الأصلي */
 
         .side-drawer-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -189,12 +189,15 @@
 
         .cards-container { display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; }
 
+        /* ========================================== */
+        /* 🌟 بطاقات الألعاب (إطار 0.8px) 🌟           */
+        /* ========================================== */
         .dama-card { 
             width: 85%; max-width: 320px; height: 130px; 
             border-radius: var(--radius-card); cursor: pointer; 
             position: relative; overflow: hidden; 
             background: #111;
-            border: 1.5px solid #ffd700 !important; 
+            border: 0.8px solid #ffd700 !important; /* إطار 0.8px */
             box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 10px rgba(255, 215, 0, 0.2) !important; 
             transition: var(--transition);
             display: flex; align-items: flex-end; justify-content: center;
@@ -229,7 +232,7 @@
             width: 85%; max-width: 320px; padding: 22px; 
             background: rgba(255,255,255,0.02); color: var(--text-secondary); 
             border-radius: var(--radius-card); text-align: center; 
-            border: 1.5px solid #ffd700 !important; 
+            border: 0.8px solid #ffd700 !important; /* إطار 0.8px */
             box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 10px rgba(255, 215, 0, 0.05) !important;
             cursor: pointer; 
             transition: var(--transition); font-size: 18px; font-weight: 500; 
@@ -345,7 +348,7 @@
         .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }    
 
         /* ========================================== */
-        /* تصميم الشريط السفلي الجديد (فواصل ذهبية ذكية + أيقونات SVG) */
+        /* تصميم الشريط السفلي (بإطارات 0.8px وفواصل) */
         /* ========================================== */
         .bottom-nav-bar {
             position: fixed;
@@ -357,10 +360,9 @@
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border: none;
-            /* 🌟 إزالة الخط العلوي الموحد للحاوية لأننا سنضعه لكل زر */
             border-top: none; 
             border-radius: 0; 
-            padding: 0 0 calc(env(safe-area-inset-bottom, 0px)); /* إزالة البادينج العلوي ليلتصق الخط */
+            padding: 0 0 calc(env(safe-area-inset-bottom, 0px)); 
             width: 100%; 
             max-width: 100%;
             z-index: 9999;
@@ -382,12 +384,14 @@
             flex: 1;
             height: 100%;
             
-            /* 🌟 فاصل عمودي ذهبي نحيف وخط علوي ذهبي مقطوع */
+            /* 🌟 فاصل عمودي ذهبي نحيف 0.8px وخط علوي 0.8px */
             border: none;
-            border-left: 0.5px solid rgba(212, 175, 55, 0.4); 
-            border-top: 1px solid rgba(212, 175, 55, 0.6); 
+            border-left: 0.8px solid rgba(212, 175, 55, 0.4); 
+            border-top: 0.8px solid rgba(212, 175, 55, 0.6); 
         }
-        .nav-item:first-child { border-left: none; } 
+        
+        /* إزالة الخط عن آخر زر في اليسار لمنع الالتصاق بحافة الشاشة */
+        .nav-item:last-child { border-left: none; } 
 
         .nav-item:hover {
             color: var(--text-primary);
@@ -396,7 +400,7 @@
 
         .nav-item.active {
             color: var(--accent);
-            /* 🌟 سحر التصميم: اختفاء الخط العلوي للزر النشط */
+            /* 🌟 اختفاء الخط العلوي للزر النشط */
             border-top-color: transparent !important; 
             background: linear-gradient(to top, rgba(255,215,0,0.05), transparent);
         }
@@ -411,7 +415,6 @@
             height: 24px;
         }
 
-        /* 🌟 التحكم بألوان SVG */
         .nav-icon svg {
             width: 100%;
             height: 100%;
@@ -779,7 +782,9 @@
             document.documentElement.lang = currentLang;
             document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
             
-            updateTranslations();
+            if (typeof updateTranslations === 'function') {
+                updateTranslations();
+            }
 
             const gameIframe = document.getElementById('game-frame');
             if (gameIframe && gameIframe.contentWindow) {
@@ -1139,7 +1144,9 @@
             document.documentElement.lang = currentLang;
             document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
             
-            updateTranslations();
+            if (typeof updateTranslations === 'function') {
+                updateTranslations();
+            }
 
             const savedBg = localStorage.getItem('custom_app_bg');
             if (savedBg) {
@@ -1244,7 +1251,6 @@
             }
         }
 
-        // 🌟 دالة تحديث اللهب الأزرق والشعبية في الواجهة الرئيسية
         function updateHubPopularity() {
             try {
                 const profileStr = localStorage.getItem('hub_user_profile');
@@ -1262,7 +1268,6 @@
             }
         }
 
-        // 🌟 مراقبة تغييرات الـ LocalStorage من النوافذ الأخرى 
         window.addEventListener('storage', (event) => {
             if (event.key === 'hub_user_profile') {
                 updateHubPopularity();
