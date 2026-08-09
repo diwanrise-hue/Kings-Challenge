@@ -1,3 +1,4 @@
+<!-- ملف: index.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -95,32 +96,49 @@
         .profile-avatar:hover { transform: scale(1.05); border-color: rgba(255,255,255,0.2); }
         .profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
+        /* ========================================== */
+        /* 🌟 الأزرار العلوية (خضراء، مجسمة، إطار ذهبي) 🌟 */
+        /* ========================================== */
         .hub-token-badge {
-            height: 46px; background: var(--glass-bg); backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border); border-radius: var(--radius-pill); 
+            height: 46px; 
+            background: linear-gradient(145deg, #114222, #072110) !important; /* خلفية خضراء داكنة */
+            border: 1.5px solid #d4af37 !important; /* إطار ذهبي نحيف */
+            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2), inset 0 -3px 5px rgba(0,0,0,0.6) !important; /* بروز 3D للأعلى */
+            border-radius: var(--radius-pill); 
             display: flex; align-items: center; padding: 0 20px; 
-            color: var(--accent); font-weight: 600; font-size: 15px; 
+            color: #ffd700 !important; /* لون ذهبي للرقم */
+            font-weight: 700; font-size: 16px; 
             direction: ltr; transition: var(--transition); gap: 8px;
         }
 
         .hamburger-btn {
-            width: 46px; height: 46px; background: var(--glass-bg); backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border); border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-            cursor: pointer; transition: var(--transition); padding: 0; color: var(--text-primary);
+            width: 46px; height: 46px; 
+            background: linear-gradient(145deg, #114222, #072110) !important; /* خلفية خضراء داكنة */
+            border: 1.5px solid #d4af37 !important; /* إطار ذهبي نحيف */
+            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2), inset 0 -3px 5px rgba(0,0,0,0.6) !important; /* بروز 3D للأعلى */
+            border-radius: 14px !important; /* مربع بزوايا مستديرة */
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+            cursor: pointer; transition: var(--transition); padding: 0; 
         }
-        .hamburger-btn:hover { background: rgba(255,255,255,0.08); transform: scale(1.05); }
+        .hamburger-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
         .hamburger-btn span {
-            display: block; width: 20px; height: 2px; background: var(--text-primary); border-radius: 2px;
+            display: block; width: 22px; height: 3px; 
+            background: linear-gradient(to right, #ffd700, #d4af37) !important; /* خطوط الهمبركر ذهبية */
+            border-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.8);
             transition: var(--transition);
         }
 
         .radio-hud-btn-fallback {
-            width: 46px; height: 46px; background: var(--glass-bg); backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border); border-radius: 50%; padding: 0; cursor: pointer;
+            width: 46px; height: 46px; 
+            background: linear-gradient(145deg, #114222, #072110) !important; /* خلفية خضراء داكنة */
+            border: 1.5px solid #d4af37 !important; /* إطار ذهبي نحيف */
+            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.2), inset 0 -3px 5px rgba(0,0,0,0.6) !important; /* بروز 3D للأعلى */
+            border-radius: 14px !important; /* مربع بزوايا مستديرة */
+            padding: 0; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: var(--transition);
         }
-        .radio-hud-btn-fallback:hover { transform: scale(1.05); background: rgba(255,255,255,0.08); }
+        .radio-hud-btn-fallback:hover { transform: scale(1.05); filter: brightness(1.1); }
 
         .side-drawer-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -167,12 +185,16 @@
 
         .cards-container { display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; }
 
+        /* ========================================== */
+        /* 🌟 بطاقات الألعاب (إطار ذهبي) 🌟           */
+        /* ========================================== */
         .dama-card { 
             width: 85%; max-width: 320px; height: 130px; 
             border-radius: var(--radius-card); cursor: pointer; 
             position: relative; overflow: hidden; 
-            border: 1px solid rgba(255,255,255,0.1); background: #111;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            background: #111;
+            border: 2px solid #d4af37 !important; /* إطار ذهبي */
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 15px rgba(212, 175, 55, 0.3) !important; /* توهج ذهبي خفيف */
             transition: var(--transition);
             display: flex; align-items: flex-end; justify-content: center;
         }
@@ -198,7 +220,7 @@
             transition: var(--transition);
         }
 
-        .dama-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+        .dama-card:hover { transform: translateY(-5px); border-color: #ffd700 !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.5) !important; }
         .dama-card:hover img.card-bg { transform: scale(1.05); opacity: 1; }
         .dama-card:hover span { color: var(--accent); }
 
@@ -206,10 +228,12 @@
             width: 85%; max-width: 320px; padding: 22px; 
             background: rgba(255,255,255,0.02); color: var(--text-secondary); 
             border-radius: var(--radius-card); text-align: center; 
-            border: 1px solid rgba(255,255,255,0.05); cursor: pointer; 
+            border: 2px solid #d4af37 !important; /* إطار ذهبي */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 10px rgba(212, 175, 55, 0.1) !important;
+            cursor: pointer; 
             transition: var(--transition); font-size: 18px; font-weight: 500; 
         }
-        .game-card-soon:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+        .game-card-soon:hover { background: rgba(212, 175, 55, 0.1); color: #ffd700; }
 
         #game-interface { 
             display: none; width: 100vw; height: 100dvh; background: #000; 
@@ -578,13 +602,117 @@
         </div>
     </div>
 
+    <!-- 🌟 تم تحديث حاوية المتجر لتستقبل البناء الديناميكي 🌟 -->
+    <div id="store-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto" style="padding: 0; overflow: hidden; position: relative;">
+            <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
+            <div style="position: absolute; top: 18px; right: 20px; z-index: 100000;" class="stat-item">🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
+            
+            <div id="nav-section-store"></div>
+        </div>
+    </div>
+
+    <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 9999999;">
+        <div class="settings-card leaderboard-full-screen" dir="auto">
+            <button class="modal-close-btn" onclick="window.closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
+            <button id="lb-rewards-btn" style="position: absolute; top: 20px; left: 70px; background: rgba(255,215,0,0.15); border: 1px solid #ffd700; border-radius: 12px; padding: 6px 12px; color: #ffd700; font-weight: bold; z-index: 100000; cursor: pointer;" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
+            
+            <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8);">🏆 <span id="lb-title-text">لوحة الشرف</span></h3>
+            <div class="custom-nav-tabs" style="margin-bottom: 15px;">
+                <button id="lb-tab-wins" class="custom-tab-button active" onclick="window.switchLbTab('wins')">الأكثر فوزاً</button>
+                <button id="lb-tab-xp" class="custom-tab-button" onclick="window.switchLbTab('xp')">الأعلى مستوى</button>
+                <button id="lb-tab-tokens" class="custom-tab-button" onclick="window.switchLbTab('tokens')">الأغنى (المال)</button>
+            </div>
+            <div class="scrollable-content lb-list-container" id="leaderboard-list-wins"></div>
+            <div class="scrollable-content lb-list-container" id="leaderboard-list-xp" style="display: none;"></div>
+            <div class="scrollable-content lb-list-container" id="leaderboard-list-tokens" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 10000000 !important;">
+        <div class="settings-card" dir="auto" style="max-width: 360px; padding: 30px 20px; background: linear-gradient(145deg, #1a1a24, #2b2b35) !important; border: 1px solid rgba(255,215,0,0.2) !important; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,215,0,0.05) !important; max-height: 90vh; overflow-y: auto;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('top3-rewards-modal')" style="left:15px; right:auto; background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important;">✕</button>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 40px; filter: drop-shadow(0 0 15px rgba(255,215,0,0.6));">🎁</span>
+                <h3 style="color:#ffd700; margin: 10px 0 5px 0; font-size: 20px; font-weight: 800; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">جوائز نهاية الموسم</h3>
+                <p style="color:#a1a1aa; font-size: 11px; margin: 0;">يتم توزيع الجوائز تلقائياً نهاية كل موسم لتتويج الأبطال</p>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, rgba(155,89,182,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(155,89,182,0.3); border-radius: 14px; padding: 10px; margin-bottom: 12px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #9b59b6, transparent);"></div>
+                <h4 style="color: #b589d6; margin: 0 0 10px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">🌟 عمداء اللعبة <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأعلى مستوى)</span></h4>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #ffd700;">
+                        <span style="font-size: 16px; margin-left: 8px; filter: drop-shadow(0 0 5px rgba(255,215,0,0.5));">🥇</span>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "الأسطورة" + 35,000 🪙 + 15 💡</div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #c0c0c0;">
+                        <span style="font-size: 16px; margin-left: 8px;">🥈</span>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "النخبة" + 20,000 🪙 + 10 💡</div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #cd7f32;">
+                        <span style="font-size: 16px; margin-left: 8px;">🥉</span>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "النخبة" + 15,000 🪙 + 10 💡</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, rgba(52,199,89,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(52,199,89,0.3); border-radius: 14px; padding: 10px; margin-bottom: 12px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #34c759, transparent);"></div>
+                <h4 style="color: #30d158; margin: 0 0 10px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">⚔️ أبطال الفوز <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأكثر فوزاً)</span></h4>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px;">
+                        <span style="font-size: 16px; margin-left: 8px;">🥇</span>
+                        <div style="color: white; font-size: 11px; font-weight: bold;">20,000 🪙 + خصم المتجر 50%</div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px;">
+                        <span style="font-size: 16px; margin-left: 8px;">🥈🥉</span>
+                        <div style="color: white; font-size: 11px; font-weight: bold;">الثاني والثالث: 10,000 🪙 + خصم 25%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, rgba(241,196,15,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(241,196,15,0.3); border-radius: 14px; padding: 10px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #f1c40f, transparent);"></div>
+                <h4 style="color: #f1c40f; margin: 0 0 6px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">💰 نادي الأثرياء <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأغنى)</span></h4>
+                <p style="color: #e0e0e0; font-size: 11px; margin: 0; line-height: 1.5;">شهرة ومجد! سيتم تخليد أسمائكم في لوحة الشرف كأغنى تجار اللعبة طوال الموسم القادم.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="themes-grid-overlay" class="modal-overlay">
+        <div class="settings-card" dir="auto">
+            <h3 id="themes-grid-title" style="margin-bottom: 15px; font-size: 20px;">المظهر والأزياء</h3>
+            <div class="custom-nav-tabs">
+                <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="window.switchThemeGridTabCategory('bg')">خلفيات</button>
+                <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('frames')">إطارات</button>
+                <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('pieces')">احجار</button>
+            </div>
+            <div class="scrollable-content">
+                <div class="themes-grid-container" id="theme-grid-section-bg"></div><div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div><div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
+            </div>
+            <button id="theme-close-btn" onclick="window.closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">خروج</button>
+        </div>
+    </div>
+
+    <div id="custom-alert-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <h3 id="custom-alert-title">تنبيه</h3>
+            <p id="custom-alert-message" style="color: #e0e0e0; margin: 20px 0; font-size: 15px; line-height: 1.6;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button id="custom-alert-ok" class="btn btn-primary" style="flex: 1; margin: 0; background: rgba(255,255,255,0.15) !important;">حسناً</button>
+                <button id="custom-alert-cancel" class="btn btn-secondary" style="flex: 1; margin: 0; background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; display: none;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <div id="profile-modal" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeProfileModal()">✕</button>
             <h3 data-i18n="profile_title" style="margin-bottom: 25px;">الملف الشخصي</h3>
             
-            <!-- تم إضافة إطار اللهب الأزرق الخاص بالشعبية هنا -->
-            <div style="position: absolute; top: 20px; left: 20px; color: #00d2ff; font-size: 13px; font-weight: 600; background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; box-shadow: 0 2px 8px rgba(0, 210, 255, 0.15);">
+            <div style="position: absolute; top: 20px; right: 20px; color: #00d2ff; font-size: 13px; font-weight: 600; background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; box-shadow: 0 2px 8px rgba(0, 210, 255, 0.15);">
                 <span style="font-size: 15px; filter: hue-rotate(210deg) drop-shadow(0 0 3px rgba(0,210,255,0.6));">🔥</span> 
                 <span id="hub-popularity-val">0</span>
             </div>
