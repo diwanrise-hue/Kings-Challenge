@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: معالجة الزوايا المشطوفة، ودمج منتجات الشعبية ديناميكياً
+ * 🌟 التحديث النهائي: معالجة الزوايا المشطوفة، ودمج منتجات الشعبية، وربط أزرار الشراء.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -474,8 +474,25 @@ window.renderPopularityItems = function() {
     }
 };
 
-// دالة مبدئية للشراء
+// ==========================================
+// 🌟 دوال التنبيهات والشراء والتفعيل (تمت الإضافة)
+// ==========================================
+window.triggerAlertSoon = function() {
+    if (window.socketManager && typeof window.socketManager._showToast === 'function') {
+        window.socketManager._showToast("⏳ هذه الميزة ستتوفر قريباً!");
+    } else {
+        alert("قريباً!");
+    }
+};
+
 window.buyPopularityItem = function(itemId) {
-    console.log("تم طلب شراء أو إرسال العنصر رقم:", itemId);
-    // يمكنك لاحقاً ربط هذه الدالة بنظام الشراء أو خصم العملات
+    const item = window.POPULARITY_ITEMS.find(i => i.id === itemId);
+    if(item) {
+        // استخدام نافذة الشراء الموجودة مسبقاً إذا كانت متوفرة
+        if (typeof window.openPurchaseModal === 'function') {
+            window.openPurchaseModal(item.id, item.nameAr, item.price, 'popularity');
+        } else if (window.socketManager && typeof window.socketManager._showToast === 'function') {
+            window.socketManager._showToast(`تم طلب شراء ${item.nameAr} بـ ${item.price} 🪙`);
+        }
+    }
 };
