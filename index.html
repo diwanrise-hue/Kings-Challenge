@@ -356,9 +356,9 @@
             transition: var(--transition);
             padding: 5px 0;
             flex: 1;
-            border-left: 1px solid rgba(255, 255, 255, 0.1); /* خط فاصل */
+            border-left: 1px solid rgba(255, 255, 255, 0.1); 
         }
-        .nav-item:first-child { border-left: none; } /* إزالة الفاصل عن أول زر */
+        .nav-item:first-child { border-left: none; } 
 
         .nav-item:hover {
             color: var(--text-primary);
@@ -392,7 +392,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* حاويات محتوى التبويبات */
         .nav-section-container {
             display: none !important;
             width: 100%;
@@ -583,8 +582,16 @@
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeProfileModal()">✕</button>
             <h3 data-i18n="profile_title" style="margin-bottom: 25px;">الملف الشخصي</h3>
+            
+            <!-- تم إضافة إطار اللهب الأزرق الخاص بالشعبية هنا -->
+            <div style="position: absolute; top: 20px; left: 20px; color: #00d2ff; font-size: 13px; font-weight: 600; background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; box-shadow: 0 2px 8px rgba(0, 210, 255, 0.15);">
+                <span style="font-size: 15px; filter: hue-rotate(210deg) drop-shadow(0 0 3px rgba(0,210,255,0.6));">🔥</span> 
+                <span id="hub-popularity-val">0</span>
+            </div>
+
             <div class="profile-display-avatar" id="profile-display-avatar"></div>
             <h4 id="profile-display-name">الاسم</h4>
+            
             <div class="profile-id-box">
                 <span data-i18n="profile_id">المعرف:</span> 
                 <span id="profile-display-id" onclick="copyPlayerID()" title="نسخ المعرف">#00000</span>
@@ -1034,14 +1041,18 @@
                 purchasedItems: [],
                 equippedBg: 'bg_wood',
                 equippedFr: 'fr_classic',
-                equippedPc: 'pc_original'
+                equippedPc: 'pc_original',
+                popularity: 0
             };
 
             try {
                 const profileRaw = localStorage.getItem('hub_user_profile');
                 if (!profileRaw) return defaultProfile;
                 const parsed = JSON.parse(profileRaw);
-                if (parsed && typeof parsed === 'object') return parsed;
+                if (parsed && typeof parsed === 'object') {
+                    if (parsed.popularity === undefined) parsed.popularity = 0;
+                    return parsed;
+                }
             } catch (e) { }
             return defaultProfile;
         }
@@ -1060,6 +1071,7 @@
         socket.on('profileUpdated', (updatedProfile) => {
             localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
             syncHubProfile();
+            updateHubPopularity(); 
             
             const gameIframe = document.getElementById('game-frame');
             if (gameIframe && gameIframe.contentWindow) {
@@ -1291,6 +1303,7 @@
                 setTimeout(() => { 
                     splash.style.display = 'none'; 
                     checkUserAuthentication(); 
+                    updateHubPopularity(); 
                 }, 800);
             }, 2000);
         });
@@ -1324,7 +1337,7 @@
             const guestProfile = {
                 id: randomId, name: randomName, avatar: 'Photo/1000132081.webp',
                 isCustomAvatar: false,
-                tokens: 10000, gamesPlayed: 0, wins: 0, losses: 0, friends: [],
+                tokens: 10000, gamesPlayed: 0, wins: 0, losses: 0, friends: [], popularity: 0,
                 purchasedItems: [], equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedPc: 'pc_original'
             };
 
@@ -1375,6 +1388,31 @@
                 linkFbBtn.style.display = (profile.id && !profile.id.startsWith('FB-')) ? 'flex' : 'none';
             }
         }
+
+        // 🌟 دالة تحديث اللهب الأزرق والشعبية في الواجهة الرئيسية
+        function updateHubPopularity() {
+            try {
+                const profileStr = localStorage.getItem('hub_user_profile');
+                if (profileStr) {
+                    const profile = JSON.parse(profileStr);
+                    const popularityVal = profile.popularity || 0;
+                    
+                    const popElement = document.getElementById('hub-popularity-val');
+                    if (popElement) {
+                        popElement.innerText = popularityVal;
+                    }
+                }
+            } catch (e) {
+                console.error("لم يتم العثور على بيانات الشعبية", e);
+            }
+        }
+
+        // 🌟 مراقبة تغييرات الـ LocalStorage من النوافذ الأخرى 
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'hub_user_profile') {
+                updateHubPopularity();
+            }
+        });
 
         function changePlayerName() {
             let profile = getSafeProfile();
@@ -1465,6 +1503,7 @@
 
         function openProfileModal() { 
             syncHubProfile();
+            updateHubPopularity(); 
             document.getElementById('profile-modal').style.display = 'flex'; 
             history.pushState({ view: 'profile' }, '');
         }
@@ -1510,6 +1549,7 @@
             setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
             history.pushState({ view: 'hub' }, '');
             syncHubProfile();
+            updateHubPopularity(); 
             
             if (socket && !socket.connected) {
                 socket.connect();
@@ -1532,6 +1572,7 @@
                     }
                     setTimeout(() => { document.getElementById('game-frame').src = ''; }, 300);
                     syncHubProfile();
+                    updateHubPopularity();
                     if (socket && !socket.connected) socket.connect(); 
                 }
             }
@@ -1584,6 +1625,7 @@
             
             if (event.data.type === 'SYNC_PROFILE') {
                 syncHubProfile();
+                updateHubPopularity();
             } else if (event.data.type === 'EXIT_GAME') {
                 exitGame();
             } else if (event.data.type === 'TOGGLE_RADIO') {
