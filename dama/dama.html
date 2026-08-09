@@ -761,6 +761,57 @@
             }, 250);
         };
 
+        // 🌟 التنقل بين تبويبات متجر الدامة الملكي 🌟
+        window.switchDamaGameStoreTab = function(category) {
+            const tabs = ['bg', 'fr', 'pc', 'offers', 'pop'];
+            tabs.forEach(tab => {
+                const btn = document.getElementById('dama-tab-' + tab);
+                let secId = 'store-section-' + (tab === 'fr' ? 'frames' : tab === 'pc' ? 'pieces' : tab === 'pop' ? 'popularity' : tab);
+                const sec = document.getElementById(secId);
+                if (btn) btn.classList.remove('active');
+                if (sec) sec.style.display = 'none';
+            });
+
+            const activeBtn = document.getElementById('dama-tab-' + category);
+            let activeSecId = 'store-section-' + (category === 'fr' ? 'frames' : category === 'pc' ? 'pieces' : category === 'pop' ? 'popularity' : category);
+            const activeSec = document.getElementById(activeSecId);
+
+            if (activeBtn) activeBtn.classList.add('active');
+            if (activeSec) {
+                activeSec.style.display = 'grid';
+                if (category === 'pop') {
+                    window.renderDamaPopularityStore();
+                }
+            }
+        };
+
+        // 🌟 عرض منتجات الشعبية داخل متجر الدامة 🌟
+        window.renderDamaPopularityStore = function() {
+            const grid = document.getElementById('store-section-popularity');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            if (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.length > 0) {
+                window.POPULARITY_ITEMS.forEach(gift => {
+                    const card = document.createElement('div');
+                    card.className = 'store-item-card';
+                    card.style.padding = '8px 4px';
+                    card.style.position = 'relative';
+                    card.innerHTML = `
+                        <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                            <img src="${gift.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain;">
+                        </div>
+                        <span style="color: white; font-size: 11px; font-weight: bold; line-height: 1.2; text-align: center;">${gift.nameAr}</span>
+                        <div style="color: #f5a623; font-size: 12px; font-weight: bold; margin-top: auto; margin-bottom: 2px;">🪙 ${gift.price}</div>
+                        <button class="store-buy-btn store-buy-btn-small" onclick="window.openPurchaseModal('${gift.id}', '${gift.nameAr}', ${gift.price}, 'popularity')">شراء</button>
+                    `;
+                    grid.appendChild(card);
+                });
+            } else {
+                grid.innerHTML = '<p style="color: #a1a1aa; text-align: center; grid-column: span 3; padding: 15px;">لا توجد عناصر شعبية حالياً.</p>';
+            }
+        };
+
         // 🌟 دالة اختيار هدايا الشعبية وإرسالها للخصوم من الحقيبة 🌟
         window.givePopularity = function() {
             const profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
@@ -1171,12 +1222,31 @@
         </div>
     </div>
 
+    <!-- 🌟 نافذة متجر لعبة الدامة الملكي المخصص والمستقل 🌟 -->
     <div id="store-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="padding: 0; overflow: hidden; position: relative;">
-            <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
-            <div style="position: absolute; top: 18px; right: 20px; z-index: 100000;" class="stat-item">🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
+        <div class="settings-card" dir="auto" style="max-width: 420px; padding: 25px 15px; position: relative;">
+            <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 10;">✕</button>
             
-            <div id="nav-section-store"></div>
+            <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(255,215,0,0.4);">متجر الدامة 👑</h3>
+            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 12px;">رصيدك الحالي: <span style="color: #f5a623; font-weight: bold;">🪙 <span id="profile-stat-tokens-store">0</span></span></p>
+
+            <!-- شريط التبويبات المخصص للدامة فقط -->
+            <div class="custom-nav-tabs" style="margin-bottom: 15px;">
+                <button id="dama-tab-bg" class="custom-tab-button active" onclick="window.switchDamaGameStoreTab('bg')">خلفيات 🎨</button>
+                <button id="dama-tab-fr" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('fr')">إطارات 🖼️</button>
+                <button id="dama-tab-pc" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('pc')">أحجار 💎</button>
+                <button id="dama-tab-offers" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('offers')">عروض 💡</button>
+                <button id="dama-tab-pop" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('pop')">شعبية 🔥</button>
+            </div>
+
+            <!-- شبكة المنتجات المباشرة -->
+            <div class="scrollable-content" style="max-height: 52vh; min-height: 250px;">
+                <div id="store-section-bg" class="store-items-grid"></div>
+                <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
+                <div id="store-section-pieces" class="store-items-grid" style="display: none;"></div>
+                <div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
+                <div id="store-section-popularity" class="store-items-grid" style="display: none;"></div>
+            </div>
         </div>
     </div>
 
@@ -1518,9 +1588,8 @@
     <script type="module" src="main.js"></script>
     <script type="module" src="dailyQuests.js"></script>
     
-    <!-- 🌟 استدعاء السكريبتات الخاصة بالشعبية والمتجر المدمج مع تصحيح المسار والتهيئة والتوقيت 🌟 -->
+    <!-- 🌟 استدعاء السكريبتات الخاصة بالشعبية المباشرة للعبة (تمت إزالة storeAll.js من اللعبة) 🌟 -->
     <script src="../populars.js"></script>
-    <script src="../storeAll.js"></script>
 
     <script src="chat.js"></script>
     <script type="module" src="voice.js"></script>
@@ -1532,7 +1601,7 @@
                 if (storeManager && typeof storeManager.init === 'function') {
                     storeManager.init();
                 }
-            }, 400);
+            }, 300);
         });
     </script>
     
