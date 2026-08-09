@@ -1095,23 +1095,13 @@
         </div>
     </div>
 
+    <!-- 🌟 تم تحديث حاوية المتجر لتستقبل البناء الديناميكي 🌟 -->
     <div id="store-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto">
-            <div style="position: absolute; top: 18px; right: 20px;" class="stat-item">🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
-            <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto;">✕</button>
-            <h3 id="store-title" style="margin-bottom: 5px; font-size: 20px;">المتجر الملكي</h3>
-            <p id="store-desc" class="settings-label" style="text-align: center; margin-bottom: 15px; font-size: 12px;">استبدل رصيدك بملحقات حصرية عصرية!</p>
-            <div class="custom-nav-tabs">
-                <button id="store-btn-tab-bg" class="custom-tab-button active" onclick="window.switchStoreTabCategory('bg')">خلفيات</button>
-                <button id="store-btn-tab-frames" class="custom-tab-button" onclick="window.switchStoreTabCategory('frames')">إطارات</button>
-                <button id="store-btn-tab-pieces" class="custom-tab-button" onclick="window.switchStoreTabCategory('pieces')">أحجار</button>
-                <button id="store-btn-tab-offers" class="custom-tab-button" onclick="window.switchStoreTabCategory('offers')">عروضات</button>
-            </div>
-            <div class="scrollable-content">
-                <div id="store-section-bg" class="store-items-grid"></div><div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
-                <div id="store-section-pieces" class="store-items-grid" style="display: none;"></div><div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
-            </div>
-            <button id="store-return-btn" onclick="window.closeAppModal('store-modal')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">إلغاء</button>
+        <div class="settings-card" dir="auto" style="padding: 0; overflow: hidden; position: relative;">
+            <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
+            <div style="position: absolute; top: 18px; right: 20px; z-index: 100000;" class="stat-item">🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
+            
+            <div id="nav-section-store"></div>
         </div>
     </div>
 
@@ -1457,6 +1447,10 @@
         import { storeManager } from './store.js?v=999';
         document.addEventListener('DOMContentLoaded', () => { storeManager.init(); });
     </script>
+    
+    <!-- 🌟 الأكواد الجديدة التي أضفناها 🌟 -->
+    <script src="populars.js"></script>
+    <script src="storeAll.js"></script>
 
     <script src="chat.js"></script>
     <script type="module" src="voice.js"></script>
