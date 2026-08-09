@@ -1249,7 +1249,7 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة الحقيبة (تمت إضافة تبويب "الهدايا 🔥" وحاويتها هنا) 🌟 -->
+    <!-- 🌟 نافذة الحقيبة 🌟 -->
     <div id="themes-grid-overlay" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <h3 id="themes-grid-title" style="margin-bottom: 15px; font-size: 20px;">المظهر والأزياء</h3>
@@ -1517,17 +1517,24 @@
     
     <script type="module" src="main.js"></script>
     <script type="module" src="dailyQuests.js"></script>
-    <script type="module">
-        import { storeManager } from './store.js?v=999';
-        document.addEventListener('DOMContentLoaded', () => { storeManager.init(); });
-    </script>
     
-    <!-- 🌟 استدعاء السكريبتات الخاصة بالشعبية والمتجر المدمج 🌟 -->
+    <!-- 🌟 استدعاء السكريبتات الخاصة بالشعبية والمتجر المدمج مع تصحيح المسار والتهيئة والتوقيت 🌟 -->
     <script src="populars.js"></script>
     <script src="storeAll.js"></script>
 
     <script src="chat.js"></script>
     <script type="module" src="voice.js"></script>
+
+    <script type="module">
+        import { storeManager } from './store.js?v=999';
+        document.addEventListener('DOMContentLoaded', () => { 
+            setTimeout(() => {
+                if (storeManager && typeof storeManager.init === 'function') {
+                    storeManager.init();
+                }
+            }, 400);
+        });
+    </script>
     
     <!-- 🌟 نظام مزامنة الخلفية مع الواجهة الرئيسية (نسخة قسرية) -->
     <script>
