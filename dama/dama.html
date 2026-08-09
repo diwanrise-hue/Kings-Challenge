@@ -350,7 +350,6 @@
             z-index: 4 !important; 
         }
         
-        /* 💡 تم التعديل: نص المستوى لونه أحمر وبدون خلفية حمراء */
         #profile-badge #badge-level { 
             background: transparent !important; 
             color: #ff453a !important; 
@@ -668,11 +667,10 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* تعديل إطار طلبات الصداقة ليظهر من الأسفل */
         #friend-requests-modal {
             align-items: flex-end !important;
             padding: 0 !important;
-            z-index: 10000015 !important; /* لكي تظهر فوق نافذة البروفايل */
+            z-index: 10000015 !important;
         }
         #friend-requests-modal .settings-card {
             margin: 0 !important;
@@ -762,6 +760,74 @@
                 }
             }, 250);
         };
+
+        // 🌟 دالة اختيار هدايا الشعبية وإرسالها للخصوم من الحقيبة 🌟
+        window.givePopularity = function() {
+            const profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+            const inventory = profile.inventory || {};
+            const grid = document.getElementById('my-gifts-selection-grid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            let availableCount = 0;
+
+            (window.POPULARITY_ITEMS || []).forEach(gift => {
+                const count = inventory[gift.id] || 0;
+                if (count > 0) {
+                    availableCount++;
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'store-item-card';
+                    itemEl.style.padding = '8px';
+                    itemEl.style.display = 'flex';
+                    itemEl.style.flexDirection = 'column';
+                    itemEl.style.alignItems = 'center';
+                    itemEl.style.gap = '5px';
+                    itemEl.innerHTML = `
+                        <img src="${gift.imagePath}" style="width: 40px; height: 40px; object-fit: contain;">
+                        <span style="color: white; font-size: 11px; font-weight: bold; text-align: center;">${gift.nameAr}</span>
+                        <span style="color: #f5a623; font-size: 10px;">لديك: x${count}</span>
+                        <button class="store-buy-btn-small" onclick="window.confirmSendGift('${gift.id}', ${gift.price || 10})" style="width: 100%; height: 26px; font-size: 11px; margin-top: 4px;">إرسال 🚀</button>
+                    `;
+                    grid.appendChild(itemEl);
+                }
+            });
+
+            if (availableCount === 0) {
+                grid.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; grid-column: span 3; padding: 15px;">حقيبتك فارغة من الهدايا! اذهب للمتجر لشراء الشعبية.</p>';
+            }
+
+            if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
+        };
+
+        window.confirmSendGift = function(giftId, popValue) {
+            let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+            if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
+
+            // 1. خصم 1 من كمية الهدية بحقيبة اللاعب
+            profile.inventory[giftId] -= 1;
+            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+
+            // 2. إرسال حدث للسيرفر/الخصم
+            if (window.socket && window.socket.connected) {
+                window.socket.emit('sendPopularityGift', {
+                    giftId: giftId,
+                    popValue: popValue,
+                    targetOpponentId: window.challengeTargetFriendId || window.currentOpponentId
+                });
+            }
+
+            if (typeof window.closeAppModal === 'function') {
+                window.closeAppModal('send-gift-modal');
+                window.closeAppModal('in-game-profile-modal');
+            }
+
+            const toast = document.getElementById('toast-notification');
+            if (toast) {
+                toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${popValue} شعبية)`;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            }
+        };
     </script>
 </head>
 <body data-piece-style="pc_original">
@@ -791,7 +857,6 @@
     
     <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" style="position: fixed; top: 100px; left: 25px; z-index: 10001; background: rgba(45, 48, 55, 0.65); border: 1px solid rgba(135, 206, 235, 0.4); border-radius: 14px; color: white; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s; backdrop-filter: blur(10px); cursor: pointer;">
         <span data-icon="dailyQuests" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; transform: scale(1.1);"></span>
-        <!-- 💡 علامة الصح للمهام المكتملة -->
         <span id="quests-notify-badge" style="display: none; position: absolute; top: -6px; right: -6px; background: #34c759; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 900; border: 2px solid #282a32; box-shadow: 0 2px 4px rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 10;">✓</span>
     </button>
 
@@ -912,7 +977,6 @@
         </div>
     </div>
 
-    <!-- 💡 تحديث نافذة المهام مع زر جمع الكل -->
     <div id="daily-quests-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')">✕</button>
@@ -927,7 +991,6 @@
             <div id="quests-list-container-daily" style="display: flex; flex-direction: column; gap: 12px; max-height: 48vh; overflow-y: auto; padding-right: 5px;"></div>
             <div id="quests-list-container-weekly" style="display: none; flex-direction: column; gap: 12px; max-height: 48vh; overflow-y: auto; padding-right: 5px;"></div>
             
-            <!-- 💡 زر جمع الكل (يظهر فقط عند وجود جوائز) -->
             <button id="collect-all-btn" class="save-settings-btn" style="display: none; background: linear-gradient(135deg, #34c759, #28a745) !important; margin: 15px auto 0 auto; width: 80%; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important;" onclick="if(window.questsManager) window.questsManager.claimAllRewards(window.questsManager.currentTab)">جمع الكل 🎁</button>
 
             <p id="quests-reset-timer" style="color: #a1a1aa; font-size: 12px; margin-top: 15px; font-weight: 600;">تتجدد المهام بعد: --:--:--</p>
@@ -1073,6 +1136,19 @@
         </div>
     </div>
 
+    <!-- 🌟 نافذة اختيار وإرسال هدايا الشعبية للخصوم أثناء اللعب 🌟 -->
+    <div id="send-gift-modal" class="modal-overlay" style="z-index: 10000020;">
+        <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('send-gift-modal')">✕</button>
+            <h3 style="color: #00d2ff; margin-bottom: 10px;">إرسال شعبية 🎁</h3>
+            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">اختر هدية من حقيبتك لإرسالها إلى المنافس:</p>
+            
+            <div id="my-gifts-selection-grid" class="store-items-grid" style="max-height: 50vh; overflow-y: auto;">
+                <!-- سيتم ضخ هداياك المتاحة هنا تلقائياً -->
+            </div>
+        </div>
+    </div>
+
     <div id="friend-requests-modal" class="modal-overlay" style="z-index: 10000015 !important;">
         <div class="settings-card" dir="auto" style="max-width: 340px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('friend-requests-modal')" style="left:15px; right:auto;">✕</button>
@@ -1095,7 +1171,6 @@
         </div>
     </div>
 
-    <!-- 🌟 تم تحديث حاوية المتجر لتستقبل البناء الديناميكي 🌟 -->
     <div id="store-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="padding: 0; overflow: hidden; position: relative;">
             <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
@@ -1174,6 +1249,7 @@
         </div>
     </div>
 
+    <!-- 🌟 نافذة الحقيبة (تمت إضافة تبويب "الهدايا 🔥" وحاويتها هنا) 🌟 -->
     <div id="themes-grid-overlay" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <h3 id="themes-grid-title" style="margin-bottom: 15px; font-size: 20px;">المظهر والأزياء</h3>
@@ -1181,9 +1257,13 @@
                 <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="window.switchThemeGridTabCategory('bg')">خلفيات</button>
                 <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('frames')">إطارات</button>
                 <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('pieces')">احجار</button>
+                <button id="theme-btn-tab-gifts" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('gifts')">الهدايا 🔥</button>
             </div>
             <div class="scrollable-content">
-                <div class="themes-grid-container" id="theme-grid-section-bg"></div><div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div><div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
+                <div class="themes-grid-container" id="theme-grid-section-bg"></div>
+                <div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div>
+                <div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
+                <div id="theme-grid-section-gifts" class="themes-grid-container" style="display: none;"></div>
             </div>
             <button id="theme-close-btn" onclick="window.closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center;">خروج</button>
         </div>
@@ -1285,7 +1365,6 @@
         </div>
     </div>
 
-    <!-- نافذة تحديد رهان تحدي الأصدقاء -->
     <div id="challenge-bet-modal" class="modal-overlay" style="z-index: 99999999; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('challenge-bet-modal')">
         <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: slideUpBottomSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
             <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
@@ -1344,7 +1423,6 @@
         </div>
     </div>
 
-    <!-- نافذة إدخال كلمة السر للزوار -->
     <div id="custom-password-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('custom-password-modal')" style="left:15px; right:auto;">✕</button>
@@ -1358,7 +1436,6 @@
         </div>
     </div>
 
-    <!-- نافذة الإعدادات الخاصة بمنشئ الغرفة -->
     <div id="creator-room-settings-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('creator-room-settings-modal')" style="left:15px; right:auto;">✕</button>
@@ -1379,7 +1456,6 @@
         </div>
     </div>
 
-    <!-- نافذة مراهنات المشاهدين (Spectator Betting Modal) -->
     <div id="spectator-bet-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('spectator-bet-modal')" style="left:15px; right:auto;">✕</button>
@@ -1387,14 +1463,12 @@
             <p style="color: #e0e0e0; font-size: 13px; margin-bottom: 15px; text-align: center;">راهن على اللاعب الذي تتوقع فوزه! (متاح حتى أول حركتين)</p>
 
             <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
-                <!-- لاعب 1 (أبيض) -->
                 <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('spectator-bet-color').value = 'white'; document.getElementById('bet-p1-card').style.border='2px solid #34c759'; document.getElementById('bet-p2-card').style.border='2px solid transparent';" id="bet-p1-card" style="border: 2px solid transparent; padding: 5px; border-radius: 12px; transition: 0.3s;">
                     <div id="bet-p1-avatar" style="width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
                     <div id="bet-p1-name" style="color: white; margin-top: 5px; font-weight: bold; font-size: 12px;">اللاعب 1</div>
                     <div style="color: #a1a1aa; font-size: 10px;">أبيض ⚪</div>
                 </div>
                 <div style="color: #a1a1aa; font-weight: bold; font-size: 16px;">VS</div>
-                <!-- لاعب 2 (أسود) -->
                 <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('spectator-bet-color').value = 'black'; document.getElementById('bet-p2-card').style.border='2px solid #34c759'; document.getElementById('bet-p1-card').style.border='2px solid transparent';" id="bet-p2-card" style="border: 2px solid transparent; padding: 5px; border-radius: 12px; transition: 0.3s;">
                     <div id="bet-p2-avatar" style="width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
                     <div id="bet-p2-name" style="color: white; margin-top: 5px; font-weight: bold; font-size: 12px;">اللاعب 2</div>
@@ -1448,7 +1522,7 @@
         document.addEventListener('DOMContentLoaded', () => { storeManager.init(); });
     </script>
     
-    <!-- 🌟 الأكواد الجديدة التي أضفناها 🌟 -->
+    <!-- 🌟 استدعاء السكريبتات الخاصة بالشعبية والمتجر المدمج 🌟 -->
     <script src="populars.js"></script>
     <script src="storeAll.js"></script>
 
