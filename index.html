@@ -687,6 +687,19 @@
         </div>
     </div>
 
+    <!-- نافذة الشراء -->
+    <div id="purchase-modal" class="modal-overlay">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <h3 id="modal-item-name">اسم المنتج</h3>
+            <div id="modal-item-preview" class="purchase-preview-box" style="flex-direction: column; overflow: hidden;"></div>
+            <p id="modal-item-cost" style="color: #f5a623; font-weight: 700; font-size: 18px; margin-bottom: 25px;">🪙 السعر: 0</p>
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button id="confirm-buy-btn" class="save-settings-btn btn btn-primary" style="margin: 0; background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border: 1px solid rgba(245, 166, 35, 0.4) !important;">شراء الآن</button>
+                <button onclick="window.closeAppModal('purchase-modal')" class="save-settings-btn btn btn-secondary" style="margin: 0; background: transparent !important;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         window.fbAsyncInit = function() {
             FB.init({
@@ -709,6 +722,62 @@
         let currentLang = localStorage.getItem('app_lang') || 'ar';
         if (!langs.includes(currentLang)) currentLang = 'ar';
         let isLoginMode = false; 
+
+        // ==========================================
+        // 🌟 إدارة نوافذ التطبيق (المودال) وعمليات الشراء 🌟
+        // ==========================================
+        window.openAppModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'flex';
+        };
+
+        window.closeAppModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'none';
+        };
+
+        let currentPurchaseItem = null;
+
+        window.openPurchaseModal = function(itemId, itemName, price, itemType) {
+            currentPurchaseItem = { id: itemId, type: itemType, price: price };
+            
+            const nameEl = document.getElementById('modal-item-name');
+            const costEl = document.getElementById('modal-item-cost');
+            
+            if(nameEl) nameEl.innerText = itemName;
+            if(costEl) costEl.innerText = '🪙 السعر: ' + price;
+            
+            window.openAppModal('purchase-modal');
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const confirmBuyBtn = document.getElementById('confirm-buy-btn');
+            if (confirmBuyBtn) {
+                confirmBuyBtn.addEventListener('click', () => {
+                    const profile = getSafeProfile();
+                    
+                    if (!profile || !profile.id || profile.id === "GUEST-DEFAULT") {
+                        showCustomPopup((typeof translations !== 'undefined' && translations[currentLang] && translations[currentLang].msg_must_login) ? translations[currentLang].msg_must_login : "يرجى تسجيل الدخول أولاً!");
+                        return;
+                    }
+
+                    if (!currentPurchaseItem) return;
+
+                    window.closeAppModal('purchase-modal');
+
+                    if (typeof socket !== 'undefined' && socket.connected) {
+                        showLoadingPopup("جاري معالجة الشراء...");
+                        socket.emit('requestPurchase', { 
+                            userId: profile.id, 
+                            itemId: currentPurchaseItem.id 
+                        });
+                    } else {
+                        showCustomPopup("السيرفر غير متصل حالياً!");
+                    }
+                });
+            }
+        });
+        // ==========================================
 
         function switchNavTab(tabName) {
             document.querySelectorAll('.nav-section-container').forEach(el => {
@@ -937,6 +1006,21 @@
         socket.on('auth_failed', (data) => {
             const msg = safeParseAuthMessage(data.message);
             showCustomPopup(data.message);
+        });
+
+        // 🌟 مستمعات المتجر 🌟
+        socket.on('purchaseSuccess', (msg) => {
+            document.getElementById('custom-popup-modal').style.display = 'none';
+            showCustomPopup(msg || "تمت عملية الشراء بنجاح!");
+            
+            if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
+                window.storeManager.renderUI();
+            }
+        });
+
+        socket.on('purchaseFailed', (msg) => {
+            document.getElementById('custom-popup-modal').style.display = 'none';
+            showCustomPopup(msg || "فشلت عملية الشراء!");
         });
 
         function showLoadingPopup(msg) {
