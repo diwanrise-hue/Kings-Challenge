@@ -106,9 +106,9 @@
         /* 🌟 الأزرار العلوية (بإطارات 0.8px) 🌟 */
         /* ========================================== */
         .hub-token-badge {
-            height: 36px; /* توكن ملموم حول الرقم */
+            height: 36px;
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; /* إطار 0.8px */
+            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; 
             box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
             border-radius: var(--radius-pill); 
             display: flex; align-items: center; justify-content: center;
@@ -119,9 +119,9 @@
         }
 
         .hamburger-btn {
-            width: 38px; height: 38px; /* تم تصغير زر الهمبرغر */
+            width: 38px; height: 38px;
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; /* إطار 0.8px */
+            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; 
             box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
             border-radius: 11px !important; 
             cursor: pointer; transition: var(--transition); padding: 0; 
@@ -129,9 +129,9 @@
         }
 
         .radio-hud-btn-fallback {
-            width: 46px; height: 46px; /* الحجم الأصلي الكبير */
+            width: 46px; height: 46px;
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; /* إطار 0.8px */
+            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; 
             box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
             border-radius: 14px !important; 
             cursor: pointer; transition: var(--transition); padding: 0; 
@@ -140,14 +140,14 @@
 
         .hamburger-btn:hover, .radio-hud-btn-fallback:hover { transform: scale(1.05); filter: brightness(1.1); }
         .hamburger-btn span {
-            display: block; width: 18px; height: 2.5px; /* تم تصغير الأسطر لتناسب الأبعاد الجديدة */
+            display: block; width: 18px; height: 2.5px;
             background: linear-gradient(to right, #ffd700, #d4af37) !important; 
             border-radius: 2px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.8);
             transition: var(--transition);
         }
 
-        .radio-hud-btn-fallback span { transform: scale(1); } /* استعادة الحجم الأصلي */
+        .radio-hud-btn-fallback span { transform: scale(1); }
 
         .side-drawer-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -202,7 +202,7 @@
             border-radius: var(--radius-card); cursor: pointer; 
             position: relative; overflow: hidden; 
             background: #111;
-            border: 0.8px solid #ffd700 !important; /* إطار 0.8px */
+            border: 0.8px solid #ffd700 !important; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 10px rgba(255, 215, 0, 0.2) !important; 
             transition: var(--transition);
             display: flex; align-items: flex-end; justify-content: center;
@@ -237,7 +237,7 @@
             width: 85%; max-width: 320px; padding: 22px; 
             background: rgba(255,255,255,0.02); color: var(--text-secondary); 
             border-radius: var(--radius-card); text-align: center; 
-            border: 0.8px solid #ffd700 !important; /* إطار 0.8px */
+            border: 0.8px solid #ffd700 !important; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 10px rgba(255, 215, 0, 0.05) !important;
             cursor: pointer; 
             transition: var(--transition); font-size: 18px; font-weight: 500; 
@@ -389,13 +389,11 @@
             flex: 1;
             height: 100%;
             
-            /* 🌟 فاصل عمودي ذهبي نحيف 0.8px وخط علوي 0.8px */
             border: none;
             border-left: 0.8px solid rgba(212, 175, 55, 0.4); 
             border-top: 0.8px solid rgba(212, 175, 55, 0.6); 
         }
         
-        /* إزالة الخط عن آخر زر في اليسار لمنع الالتصاق بحافة الشاشة */
         .nav-item:last-child { border-left: none; } 
 
         .nav-item:hover {
@@ -405,7 +403,6 @@
 
         .nav-item.active {
             color: var(--accent);
-            /* 🌟 اختفاء الخط العلوي للزر النشط */
             border-top-color: transparent !important; 
             background: linear-gradient(to top, rgba(255,215,0,0.05), transparent);
         }
@@ -687,7 +684,7 @@
         </div>
     </div>
 
-    <!-- نافذة الشراء -->
+    <!-- نافذة تأكيد الشراء -->
     <div id="purchase-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 id="modal-item-name">اسم المنتج</h3>
@@ -701,6 +698,25 @@
     </div>
 
     <script>
+        // ==========================================
+        // 🌟 إدارة نوافذ التطبيق (المودال) 🌟
+        // ==========================================
+        window.openAppModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'flex';
+        };
+
+        window.closeAppModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'none';
+        };
+
+        // دالة لتمكين ملفات أخرى مثل store.js من عرض نافذة التنبيه الخاصة بـ Hub
+        window.triggerCustomAlertNotification = function(msg) {
+            showCustomPopup(msg);
+        };
+        // ==========================================
+
         window.fbAsyncInit = function() {
             FB.init({
                 appId      : '2054342995162540', 
@@ -722,62 +738,6 @@
         let currentLang = localStorage.getItem('app_lang') || 'ar';
         if (!langs.includes(currentLang)) currentLang = 'ar';
         let isLoginMode = false; 
-
-        // ==========================================
-        // 🌟 إدارة نوافذ التطبيق (المودال) وعمليات الشراء 🌟
-        // ==========================================
-        window.openAppModal = function(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) modal.style.display = 'flex';
-        };
-
-        window.closeAppModal = function(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) modal.style.display = 'none';
-        };
-
-        let currentPurchaseItem = null;
-
-        window.openPurchaseModal = function(itemId, itemName, price, itemType) {
-            currentPurchaseItem = { id: itemId, type: itemType, price: price };
-            
-            const nameEl = document.getElementById('modal-item-name');
-            const costEl = document.getElementById('modal-item-cost');
-            
-            if(nameEl) nameEl.innerText = itemName;
-            if(costEl) costEl.innerText = '🪙 السعر: ' + price;
-            
-            window.openAppModal('purchase-modal');
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const confirmBuyBtn = document.getElementById('confirm-buy-btn');
-            if (confirmBuyBtn) {
-                confirmBuyBtn.addEventListener('click', () => {
-                    const profile = getSafeProfile();
-                    
-                    if (!profile || !profile.id || profile.id === "GUEST-DEFAULT") {
-                        showCustomPopup((typeof translations !== 'undefined' && translations[currentLang] && translations[currentLang].msg_must_login) ? translations[currentLang].msg_must_login : "يرجى تسجيل الدخول أولاً!");
-                        return;
-                    }
-
-                    if (!currentPurchaseItem) return;
-
-                    window.closeAppModal('purchase-modal');
-
-                    if (typeof socket !== 'undefined' && socket.connected) {
-                        showLoadingPopup("جاري معالجة الشراء...");
-                        socket.emit('requestPurchase', { 
-                            userId: profile.id, 
-                            itemId: currentPurchaseItem.id 
-                        });
-                    } else {
-                        showCustomPopup("السيرفر غير متصل حالياً!");
-                    }
-                });
-            }
-        });
-        // ==========================================
 
         function switchNavTab(tabName) {
             document.querySelectorAll('.nav-section-container').forEach(el => {
@@ -936,6 +896,7 @@
         }
 
         const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
+        window.socket = socket; // 🌟 الحل الأساسي لجعل السوكيت مرئياً لملف المتجر store.js
 
         socket.on('connect', () => {
             console.log('تم الاتصال بالسيرفر بنجاح!');
@@ -1006,21 +967,6 @@
         socket.on('auth_failed', (data) => {
             const msg = safeParseAuthMessage(data.message);
             showCustomPopup(data.message);
-        });
-
-        // 🌟 مستمعات المتجر 🌟
-        socket.on('purchaseSuccess', (msg) => {
-            document.getElementById('custom-popup-modal').style.display = 'none';
-            showCustomPopup(msg || "تمت عملية الشراء بنجاح!");
-            
-            if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
-                window.storeManager.renderUI();
-            }
-        });
-
-        socket.on('purchaseFailed', (msg) => {
-            document.getElementById('custom-popup-modal').style.display = 'none';
-            showCustomPopup(msg || "فشلت عملية الشراء!");
         });
 
         function showLoadingPopup(msg) {
@@ -1308,6 +1254,10 @@
 
             if (document.getElementById('hub-token-count')) document.getElementById('hub-token-count').innerText = tokenVal;
             if (document.getElementById('profile-stat-tokens')) document.getElementById('profile-stat-tokens').innerText = tokenText;
+            
+            // 🌟 🌟 تحديث النقود داخل نافذة المتجر بشكل مباشر
+            if (document.getElementById('profile-stat-tokens-store')) document.getElementById('profile-stat-tokens-store').innerText = tokenVal;
+            
             if (document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = profile.name;
             if (document.getElementById('profile-display-id')) document.getElementById('profile-display-id').innerText = profile.id;
             
