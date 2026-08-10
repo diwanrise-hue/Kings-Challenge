@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: معالجة الزوايا المشطوفة، ودمج منتجات الشعبية، وربط أزرار الشراء.
+ * 🌟 التحديث النهائي: معالجة الزوايا المشطوفة، دمج منتجات الشعبية، وتطبيق نظام اختصار الأرقام (K, M).
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div id="store-popularity-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; padding: 12px; display: flex; flex-direction: column;">
                     
-                    <!-- ترويسة بسيطة لقسم الشعبية باللون الأزرق -->
+                    <!-- ترويسة بسيطة لقسم الشعبية -->
                     <div style="text-align: center; margin-bottom: 12px; flex-shrink: 0;">
                         <span style="font-size: 20px; filter: hue-rotate(210deg) drop-shadow(0 0 5px rgba(0, 210, 255, 0.5));">🔥</span>
                         <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;" data-i18n="store_popularity">باقات الشعبية</span>
@@ -441,6 +441,18 @@ window.switchStoreTabCategory = function(category, btnElement) {
 };
 
 // ==========================================
+// 🌟 دالة مساعدة لاختصار الأرقام (تأمين إضافي) 🌟
+// ==========================================
+function localFormatCompactNumber(num) {
+    if (typeof window.formatCompactNumber === 'function') {
+        return window.formatCompactNumber(num);
+    }
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return num;
+}
+
+// ==========================================
 // دوال عرض منتجات الشعبية
 // ==========================================
 window.renderPopularityItems = function() {
@@ -454,19 +466,19 @@ window.renderPopularityItems = function() {
             const card = document.createElement('div');
             card.className = 'store-item-card';
             
+            // تم استخدام دالة localFormatCompactNumber لضغط الأرقام الكبيرة
             card.innerHTML = `
                 <div style="height: 60px; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; background: rgba(0,0,0,0.3); border-radius: 8px;">
                     <img src="${item.imagePath}" alt="${item.nameAr}" style="max-width: 80%; max-height: 80%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
                 </div>
                 <span style="color: #fff; font-size: 11px; font-weight: bold; margin-bottom: 2px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.nameAr}</span>
                 
-                <!-- 🌟 عرض مقدار الشعبية المكتسبة باللون الأزرق 🌟 -->
                 <div style="color: #00d2ff; font-size: 10px; font-weight: bold; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 3px;">
-                    +${item.popValue} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
+                    +${localFormatCompactNumber(item.popValue)} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
                 </div>
 
                 <button class="store-buy-btn-small" onclick="buyPopularityItem('${item.id}')">
-                    ${item.price} <span style="color: gold; font-size: 10px;">🪙</span>
+                    ${localFormatCompactNumber(item.price)} <span style="color: gold; font-size: 10px;">🪙</span>
                 </button>
             `;
             grid.appendChild(card);
