@@ -160,7 +160,7 @@
             display: flex; flex-direction: column; padding: 0;
             box-shadow: -10px 0 30px rgba(0,0,0,0.8);
         }
-        html[dir="ltr"] .side-drawer {
+        html[dir="rtl"] .side-drawer {
             right: auto; left: -300px; border-left: none; border-right: 1px solid rgba(255,255,255,0.05);
             box-shadow: 10px 0 30px rgba(0,0,0,0.8);
         }
@@ -337,12 +337,18 @@
         .bottom-actions { display: flex; gap: 10px; }
         .bottom-actions .btn { height: 48px; margin: 0; font-size: 14px; }
 
+        #custom-popup-modal .settings-card { padding: 35px 25px; border: 1px solid rgba(255,255,255,0.1); }
+        #custom-popup-msg { font-size: 15px; font-weight: 500; color: var(--text-primary); line-height: 1.6; margin-bottom: 25px; }
+
         .auth-toggle-link {
             display: inline-block; margin-top: 5px; font-size: 13px; font-weight: 600;
             color: var(--accent); cursor: pointer; transition: var(--transition); text-decoration: none;
         }
         .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }    
 
+        /* ========================================== */
+        /* تصميم الشريط السفلي */
+        /* ========================================== */
         .bottom-nav-bar {
             position: fixed;
             bottom: 0; 
@@ -529,7 +535,7 @@
         <iframe id="game-frame" src="" allow="fullscreen; microphone" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
     </div>
 
-    <!-- المودلز الخاصة بالتطبيق (موجودة مرة واحدة فقط) -->
+    <!-- المودلز الخاصة بالتطبيق -->
     
     <div id="lang-select-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="settings-card" dir="auto" style="max-width: 250px; padding: 25px 20px;">
@@ -631,6 +637,7 @@
             <button class="modal-close-btn" onclick="closeProfileModal()">✕</button>
             <h3 data-i18n="profile_title" style="margin-bottom: 25px;">الملف الشخصي</h3>
             
+            <!-- 🌟 شريط الشعبية في البروفايل (معدل بالفلتر الأزرق) 🌟 -->
             <div style="position: absolute; top: 20px; right: 20px; color: #00d2ff; font-size: 13px; font-weight: 600; background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; box-shadow: 0 2px 8px rgba(0, 210, 255, 0.15);">
                 <span style="font-size: 15px; filter: hue-rotate(210deg) drop-shadow(0 0 3px rgba(0,210,255,0.6));">🔥</span> 
                 <span id="hub-popularity-val">0</span>
@@ -675,31 +682,29 @@
 
     <!-- 🌟 نافذة تأكيد الشراء (بتصميم المتجر الفاخر الجديد) 🌟 -->
     <div id="purchase-modal" class="modal-overlay" style="z-index: 1000005;">
-        <div class="settings-card" dir="auto" style="max-width: 320px; padding: 0; overflow: hidden; border-radius: 24px; border: 1px solid #b38d36; background: #0b120d; box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 15px rgba(255, 215, 0, 0.05);">
-            <!-- الترويسة -->
-            <div style="background: linear-gradient(to bottom, #1a1a24, #0b120d); padding: 20px; border-bottom: 1px solid rgba(179, 141, 54, 0.3); position: relative;">
-                <button onclick="window.closeAppModal('purchase-modal')" class="modal-close-btn" style="top: 15px; left: 15px; background: rgba(255,255,255,0.05); border-radius: 50%;">✕</button>
-                <h3 id="modal-item-name" style="margin: 0; color: white; font-size: 18px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">اسم المنتج</h3>
+        <div class="settings-card" dir="auto" style="max-width: 320px; padding: 30px 20px; background: #111115; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.9);">
+            
+            <!-- عنوان المنتج -->
+            <h3 id="modal-item-name" style="color: white; font-size: 20px; font-weight: 700; margin-bottom: 20px;">اسم المنتج</h3>
+            
+            <!-- خط فاصل -->
+            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 20px;"></div>
+
+            <!-- صورة / فيديو المنتج -->
+            <div id="modal-item-preview" style="width: 80px; height: 80px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 35px; overflow: hidden;">
+                💡
             </div>
             
-            <!-- المحتوى -->
-            <div style="padding: 25px 20px; display: flex; flex-direction: column; align-items: center;">
-                <!-- الأيقونة -->
-                <div id="modal-item-preview" style="width: 80px; height: 80px; background: rgba(0,0,0,0.5); border: 1px solid #ffd700; border-radius: 16px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: inset 0 0 10px rgba(255,215,0,0.2), 0 5px 15px rgba(0,0,0,0.5);">
-                    💡
-                </div>
-                
-                <!-- السعر -->
-                <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;">
-                    <span id="modal-item-cost" style="color: #ffd700; font-weight: 800; font-size: 26px; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">0</span>
-                    <span style="font-size: 22px;">🪙</span>
-                </div>
-                
-                <!-- الأزرار -->
-                <div style="display: flex; gap: 10px; width: 100%;">
-                    <button id="confirm-buy-btn" class="btn" style="flex: 1; margin: 0; background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%); color: white; border: 1px solid #ffd700; box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), 0 4px 10px rgba(0,0,0,0.6); border-radius: 12px; font-weight: bold; font-size: 14px;">شراء الآن</button>
-                    <button onclick="window.closeAppModal('purchase-modal')" class="btn" style="flex: 1; margin: 0; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 14px;">إلغاء</button>
-                </div>
+            <!-- السعر -->
+            <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;">
+                <span id="modal-item-cost" style="color: #ffd700; font-weight: 800; font-size: 22px;">0</span>
+                <span style="font-size: 20px;">🪙</span>
+            </div>
+            
+            <!-- الأزرار -->
+            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                <button id="confirm-buy-btn" class="btn" style="width: 100%; background: rgba(255, 215, 0, 0.05); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.4); border-radius: 20px; font-weight: bold; font-size: 15px; height: 48px;">شراء الآن</button>
+                <button onclick="window.closeAppModal('purchase-modal')" class="btn" style="width: 100%; background: transparent; color: #e0e0e0; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; font-size: 15px; height: 48px;">إلغاء</button>
             </div>
         </div>
     </div>
@@ -735,7 +740,7 @@
             const previewEl = document.getElementById('modal-item-preview');
             
             if(nameEl) nameEl.innerText = itemName;
-            if(costEl) costEl.innerText = price; // تم فصل الرقم عن الإيموجي في التصميم
+            if(costEl) costEl.innerText = price; 
             
             // جلب الأيقونة أو الصورة لتلائم التصميم الجديد
             if (previewEl) {
@@ -755,10 +760,19 @@
                 } 
                 // جلب أيقونة الشعبية
                 else if (itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === itemId))) {
-                     iconHtml = '🔥';
                      if (window.POPULARITY_ITEMS) {
                          const popItem = window.POPULARITY_ITEMS.find(p => p.id === itemId);
-                         if (popItem) iconHtml = `<img src="${popItem.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
+                         if (popItem) {
+                             if (popItem.mediaType === 'video') {
+                                 // تشغيل الفيديو بشكل صامت ومتكرر
+                                 iconHtml = `<video src="${popItem.videoPath}" autoplay loop muted playsinline style="max-width: 100%; max-height: 100%; object-fit: cover;"></video>`;
+                             } else {
+                                 iconHtml = `<img src="${popItem.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
+                             }
+                         } else {
+                             // أيقونة شعلة احتياطية بالفلتر الأزرق
+                             iconHtml = '<span style="filter: hue-rotate(210deg);">🔥</span>';
+                         }
                      }
                 } else if (itemType === 'consumable') {
                     iconHtml = '💡';
@@ -1353,7 +1367,6 @@
             if (document.getElementById('hub-token-count')) document.getElementById('hub-token-count').innerText = tokenVal;
             if (document.getElementById('profile-stat-tokens')) document.getElementById('profile-stat-tokens').innerText = tokenText;
             
-            // 🌟 🌟 تحديث النقود داخل المتجر 🌟 🌟
             if (document.getElementById('profile-stat-tokens-store')) document.getElementById('profile-stat-tokens-store').innerText = tokenVal;
             
             if (document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = profile.name;
