@@ -99,15 +99,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: flex; flex-direction: column; gap: 6px; 
                     width: 50px; 
                     flex-shrink: 0;
-                    margin-top: 0 !important; /* 🌟 محاذاة القمة بشكل مثالي */
-                    margin-left: -1px !important; /* 🌟 تداخل بمقدار 1px فقط لمنع القطع */
+                    margin-top: 0 !important; 
+                    margin-left: -1px !important; 
                     position: relative;
                     z-index: 5; 
                 }
                 .store-side-tab-btn {
                     background: rgba(15, 20, 24, 0.8) !important; 
                     border: 1px solid #4a3e1c !important; 
-                    border-left: 1px solid transparent !important; /* 🌟 مساواة الحدود بـ 1px */
+                    border-left: 1px solid transparent !important; 
                     border-radius: 0 8px 8px 0 !important; 
                     color: var(--text-secondary);
                     font-weight: 700; font-size: 11px !important; 
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: #0b120d !important; 
                     color: #fff !important; 
                     border: 1px solid #b38d36 !important; 
-                    border-left: 1px solid #0b120d !important; /* 🌟 1px فقط يمحو خط الصندوق دون أن يخدش الزاوية العلوية */
+                    border-left: 1px solid #0b120d !important; 
                     box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
                     z-index: 5;
                 }
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     margin-top: 0 !important; 
                     padding: 12px 6px; 
                     background: #0b120d !important; 
-                    border: 1px solid #b38d36 !important; /* 🌟 الخطوط 1px تتلاقى هنا بمثالية */
+                    border: 1px solid #b38d36 !important; 
                     border-radius: 18px 0 18px 18px !important; 
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
                     display: flex; flex-direction: column; 
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
                 .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
                 
-                /* 🌟 حاوية القسم الواحد (صندوق المنتجات المحتفظ بالإطار الداخلي بدون نصوص) 🌟 */
+                /* 🌟 حاوية القسم الواحد */
                 .category-section-container {
                     display: none; 
                     flex-direction: column;
@@ -265,14 +265,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span data-i18n="store_topup">شحن</span> <span>💎</span>
                 </button>
                 <button class="store-tab-btn" onclick="window.switchStoreContentTab('store-popularity-content', this)">
-                    <span data-i18n="store_popularity">الشعبية</span> <span>🔥</span>
+                    <span data-i18n="store_popularity">الشعبية</span> <span style="filter: hue-rotate(210deg);">🔥</span>
                 </button>
                 <button class="store-tab-btn active" onclick="window.switchStoreContentTab('store-games-content', this)">
                     <span data-i18n="store_games">الألعاب</span> <span>🎮</span>
                 </button>
             </div>
 
-            <!-- حاوية الألعاب (الشريط يمين والصندوق يسار) -->
+            <!-- حاوية الألعاب -->
             <div id="store-games-content" class="store-tab-content active-content">
                 
                 <!-- الشريط الجانبي الأيمن -->
@@ -310,7 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         <!-- منطقة التمرير للمنتجات -->
                         <div class="store-scrollable-area">
-                            <!-- 🌟 حاويات الأقسام 🌟 -->
                             <div id="store-section-bg-container" class="category-section-container">
                                 <div id="store-section-bg" class="store-items-grid"></div>
                             </div>
@@ -346,9 +345,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div id="store-popularity-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; padding: 12px; display: flex; flex-direction: column;">
                     
-                    <!-- ترويسة بسيطة لقسم الشعبية -->
+                    <!-- ترويسة بسيطة لقسم الشعبية باللون الأزرق -->
                     <div style="text-align: center; margin-bottom: 12px; flex-shrink: 0;">
-                        <span style="font-size: 20px; filter: drop-shadow(0 0 5px rgba(255, 69, 58, 0.5));">🔥</span>
+                        <span style="font-size: 20px; filter: hue-rotate(210deg) drop-shadow(0 0 5px rgba(0, 210, 255, 0.5));">🔥</span>
                         <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;" data-i18n="store_popularity">باقات الشعبية</span>
                     </div>
                     
@@ -390,7 +389,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.switchStoreTabCategory('bg', firstBtn); 
             }
             
-            // 🌟 استدعاء دالة بناء منتجات الشعبية
             if (typeof window.renderPopularityItems === 'function') {
                 window.renderPopularityItems();
             }
@@ -449,22 +447,20 @@ window.renderPopularityItems = function() {
     const grid = document.getElementById('store-popularity-grid');
     if (!grid) return;
     
-    grid.innerHTML = ''; // مسح المحتوى القديم إن وجد
+    grid.innerHTML = ''; 
     
-    // التحقق من وجود مصفوفة الهدايا في populars.js
     if (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.length > 0) {
         window.POPULARITY_ITEMS.forEach(item => {
             const card = document.createElement('div');
             card.className = 'store-item-card';
             
-            // هيكل البطاقة مع إضافة مقدار الشعبية باستخدام الإيموجي وتأثير الفلتر الأزرق
             card.innerHTML = `
                 <div style="height: 60px; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; background: rgba(0,0,0,0.3); border-radius: 8px;">
                     <img src="${item.imagePath}" alt="${item.nameAr}" style="max-width: 80%; max-height: 80%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
                 </div>
                 <span style="color: #fff; font-size: 11px; font-weight: bold; margin-bottom: 2px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.nameAr}</span>
                 
-                <!-- 🌟 عرض مقدار الشعبية المكتسبة 🌟 -->
+                <!-- 🌟 عرض مقدار الشعبية المكتسبة باللون الأزرق 🌟 -->
                 <div style="color: #00d2ff; font-size: 10px; font-weight: bold; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 3px;">
                     +${item.popValue} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
                 </div>
@@ -494,7 +490,6 @@ window.triggerAlertSoon = function() {
 window.buyPopularityItem = function(itemId) {
     const item = window.POPULARITY_ITEMS.find(i => i.id === itemId);
     if(item) {
-        // استخدام نافذة الشراء الموجودة مسبقاً إذا كانت متوفرة
         if (typeof window.openPurchaseModal === 'function') {
             window.openPurchaseModal(item.id, item.nameAr, item.price, 'popularity');
         } else if (window.socketManager && typeof window.socketManager._showToast === 'function') {
