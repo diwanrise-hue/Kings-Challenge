@@ -713,6 +713,17 @@
     <!-- السكربتات الخاصة بالواجهة والشراء وعمليات السيرفر        -->
     <!-- ======================================================== -->
     <script>
+        // دالة تحويل الأرقام الضخمة إلى K و M 🌟
+        function formatCompactNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+            }
+            return num;
+        }
+
         // 🌟 إدارة فتح وإغلاق النوافذ (المودال) 🌟
         window.openAppModal = function(modalId) {
             const modal = document.getElementById(modalId);
@@ -1401,6 +1412,7 @@
             }
         }
 
+        // 🌟 الدالة المحدثة لتطبيق تنسيق K و M 🌟
         function updateHubPopularity() {
             try {
                 const profileStr = localStorage.getItem('hub_user_profile');
@@ -1410,7 +1422,7 @@
                     
                     const popElement = document.getElementById('hub-popularity-val');
                     if (popElement) {
-                        popElement.innerText = popularityVal;
+                        popElement.innerText = formatCompactNumber(popularityVal);
                     }
                 }
             } catch (e) {
