@@ -1,13 +1,13 @@
 // ملف: hubIcons.js
 // ============================================================
-// أيقونات الشريط السفلي — SVG Premium
-// ملاحظة: تم الحفاظ على نفس أسماء الأيقونات والربط مع الواجهة.
+// أيقونات الشريط السفلي — SVG ملونة Premium
+// لا يوجد أي تغيير في الربط مع الواجهة.
 // ============================================================
 
 window.HUB_ICONS = {
 
     // ========================================================
-    // ✦ الأحدث
+    // ✦ الأحدث — ذهبي + بنفسجي
     // ========================================================
     latest: `
     <svg viewBox="0 0 64 64"
@@ -16,113 +16,149 @@ window.HUB_ICONS = {
          preserveAspectRatio="xMidYMid meet">
 
         <defs>
-            <linearGradient id="latestMain" x1="13" y1="8" x2="51" y2="56">
-                <stop offset="0%" stop-color="currentColor"/>
-                <stop offset="55%" stop-color="currentColor" stop-opacity=".92"/>
-                <stop offset="100%" stop-color="currentColor" stop-opacity=".55"/>
+
+            <linearGradient id="latestGold"
+                            x1="12" y1="8"
+                            x2="53" y2="56"
+                            gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFF4A3"/>
+                <stop offset="25%" stop-color="#FFD84A"/>
+                <stop offset="55%" stop-color="#FFB300"/>
+                <stop offset="100%" stop-color="#FF7A00"/>
             </linearGradient>
 
-            <radialGradient id="latestGlow">
-                <stop offset="0%" stop-color="currentColor" stop-opacity=".45"/>
-                <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+            <linearGradient id="latestPurple"
+                            x1="10" y1="10"
+                            x2="54" y2="54"
+                            gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#D86CFF"/>
+                <stop offset="50%" stop-color="#8B5CFF"/>
+                <stop offset="100%" stop-color="#4C2BBD"/>
+            </linearGradient>
+
+            <radialGradient id="latestAura">
+                <stop offset="0%" stop-color="#FFD84A" stop-opacity=".38"/>
+                <stop offset="55%" stop-color="#A855F7" stop-opacity=".14"/>
+                <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
             </radialGradient>
 
-            <filter id="latestShadow"
+            <filter id="latestGlow"
                     x="-80%" y="-80%"
                     width="260%" height="260%">
-                <feDropShadow
-                    dx="0"
-                    dy="3"
-                    stdDeviation="2"
-                    flood-color="currentColor"
-                    flood-opacity=".25"/>
+                <feGaussianBlur stdDeviation="2.5"
+                                 result="blur"/>
+                <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
             </filter>
+
         </defs>
 
-        <!-- هالة -->
+        <!-- الهالة -->
         <circle
             cx="32"
             cy="32"
-            r="25"
-            fill="url(#latestGlow)"
-            opacity=".5"/>
+            r="28"
+            fill="url(#latestAura)"/>
 
-        <!-- النجمة الخارجية -->
+        <!-- توهج خلف النجمة -->
+        <path
+            d="
+            M32 6
+            L39 23
+            L58 25
+            L43 36
+            L47 55
+            L32 44
+            L17 55
+            L21 36
+            L6 25
+            L25 23
+            Z"
+            fill="url(#latestPurple)"
+            opacity=".3"
+            filter="url(#latestGlow)"/>
+
+        <!-- النجمة الرئيسية -->
         <path
             d="
             M32 5
             L38.5 23.8
-            L58 24.5
-            L42.7 36.2
-            L47.8 55
-            L32 44.4
-            L16.2 55
-            L21.3 36.2
-            L6 24.5
+            L58 24.7
+            L42.8 36.1
+            L47.5 55
+            L32 44.3
+            L16.5 55
+            L21.2 36.1
+            L6 24.7
             L25.5 23.8
             Z"
-            fill="currentColor"
-            fill-opacity=".08"
-            stroke="currentColor"
-            stroke-width="2"
+            fill="url(#latestGold)"
+            stroke="#FFF0A6"
+            stroke-width="1.4"
             stroke-linejoin="round"
-            filter="url(#latestShadow)"/>
+            filter="url(#latestGlow)"/>
 
-        <!-- النجمة الداخلية -->
+        <!-- طبقة داخلية -->
         <path
             d="
-            M32 11
-            L36.4 25.8
-            L51.5 27
-            L39.7 35.6
-            L43.2 50
-            L32 42
-            L20.8 50
-            L24.3 35.6
-            L12.5 27
-            L27.6 25.8
+            M32 12
+            L36.3 26
+            L51 27
+            L39.5 35.4
+            L43 49
+            L32 41.5
+            L21 49
+            L24.5 35.4
+            L13 27
+            L27.7 26
             Z"
-            fill="url(#latestMain)"
-            opacity=".95"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linejoin="round"/>
+            fill="url(#latestPurple)"
+            opacity=".38"/>
 
-        <!-- بريق مركزي -->
+        <!-- لمعان مركزي -->
         <path
-            d="M32 19L34.1 28.4L43 30L35.1 34.8L37 43L32 38.2L27 43L28.9 34.8L21 30L29.9 28.4Z"
-            fill="white"
-            opacity=".18"/>
+            d="
+            M32 18
+            L34.3 27.6
+            L43.5 30
+            L35.2 34.5
+            L37 43
+            L32 37.8
+            L27 43
+            L28.8 34.5
+            L20.5 30
+            L29.7 27.6
+            Z"
+            fill="#FFF8D1"
+            opacity=".72"/>
 
-        <!-- بريق علوي -->
+        <!-- بريق -->
         <path
-            d="M49 8V17M44.5 12.5H53.5"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            opacity=".85"/>
+            d="M50 7V17M45 12H55"
+            stroke="#FFF4A3"
+            stroke-width="2.3"
+            stroke-linecap="round"/>
 
-        <!-- بريق جانبي -->
         <path
-            d="M11 39V45M8 42H14"
-            stroke="currentColor"
+            d="M10 39V46M6.5 42.5H13.5"
+            stroke="#D8B4FE"
             stroke-width="1.8"
-            stroke-linecap="round"
-            opacity=".65"/>
+            stroke-linecap="round"/>
 
         <circle
-            cx="49"
+            cx="51"
             cy="48"
             r="2"
-            fill="currentColor"
-            opacity=".65"/>
+            fill="#FFD84A"/>
 
     </svg>`,
 
 
 
     // ========================================================
-    // 🎮 الألعاب
+    // 🎮 الألعاب — أزرق + سماوي + بنفسجي
     // ========================================================
     games: `
     <svg viewBox="0 0 64 64"
@@ -131,67 +167,87 @@ window.HUB_ICONS = {
          preserveAspectRatio="xMidYMid meet">
 
         <defs>
-            <linearGradient id="gameBody"
-                            x1="10" y1="10"
-                            x2="54" y2="54">
-                <stop offset="0%" stop-color="currentColor"/>
-                <stop offset="100%" stop-color="currentColor" stop-opacity=".55"/>
+
+            <linearGradient id="gameBlue"
+                            x1="8" y1="10"
+                            x2="55" y2="55"
+                            gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#5EE7FF"/>
+                <stop offset="35%" stop-color="#24A8FF"/>
+                <stop offset="70%" stop-color="#536DFF"/>
+                <stop offset="100%" stop-color="#743CFF"/>
             </linearGradient>
 
-            <linearGradient id="gameTop"
-                            x1="20" y1="16"
-                            x2="44" y2="32">
-                <stop offset="0%" stop-color="white" stop-opacity=".18"/>
-                <stop offset="100%" stop-color="white" stop-opacity="0"/>
+            <linearGradient id="gameLight"
+                            x1="20" y1="13"
+                            x2="45" y2="35"
+                            gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity=".7"/>
+                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
             </linearGradient>
 
-            <filter id="gameShadow"
+            <radialGradient id="gameAura">
+                <stop offset="0%" stop-color="#25D9FF" stop-opacity=".28"/>
+                <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+            </radialGradient>
+
+            <filter id="gameGlow"
                     x="-60%" y="-60%"
                     width="220%" height="220%">
-                <feDropShadow
-                    dx="0"
-                    dy="3"
-                    stdDeviation="2"
-                    flood-color="currentColor"
-                    flood-opacity=".28"/>
+                <feGaussianBlur stdDeviation="2"
+                                 result="blur"/>
+                <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
             </filter>
+
         </defs>
+
+        <!-- الهالة -->
+        <ellipse
+            cx="32"
+            cy="32"
+            rx="29"
+            ry="25"
+            fill="url(#gameAura)"/>
 
         <!-- ظل -->
         <ellipse
             cx="32"
             cy="52"
-            rx="18"
+            rx="19"
             ry="4"
-            fill="currentColor"
-            opacity=".12"/>
+            fill="#2463FF"
+            opacity=".16"/>
 
         <!-- جسم يد التحكم -->
         <path
             d="
             M17 17
-            C21.2 14.2 26.3 13 32 13
-            C37.7 13 42.8 14.2 47 17
-            C51.2 19.8 55.3 30.7 56.8 38.3
-            C58 44.2 53.5 48.8 49.1 45.7
+            C21.3 14.1 26.5 13
+            32 13
+            C37.5 13 42.7 14.1 47 17
+            C51.3 19.9 55.2 30.7 56.7 38.3
+            C57.9 44.4 53.3 48.8 48.9 45.7
             L41.2 40H22.8
-            L14.9 45.7
-            C10.5 48.8 6 44.2 7.2 38.3
-            C8.7 30.7 12.8 19.8 17 17Z"
-            fill="url(#gameBody)"
-            fill-opacity=".16"
-            stroke="currentColor"
-            stroke-width="2.5"
+            L15.1 45.7
+            C10.7 48.8 6.1 44.4 7.3 38.3
+            C8.8 30.7 12.7 19.9 17 17Z"
+            fill="url(#gameBlue)"
+            fill-opacity=".88"
+            stroke="#8DEBFF"
+            stroke-width="1.6"
             stroke-linejoin="round"
-            filter="url(#gameShadow)"/>
+            filter="url(#gameGlow)"/>
 
-        <!-- انعكاس علوي -->
+        <!-- لمعان علوي -->
         <path
             d="
             M18 18
-            C22 15.6 26.7 14.7 32 14.7
-            C37.3 14.7 42 15.6 46 18"
-            stroke="url(#gameTop)"
+            C22 15.7 26.7 14.6 32 14.6
+            C37.3 14.6 42 15.7 46 18"
+            stroke="url(#gameLight)"
             stroke-width="3"
             stroke-linecap="round"/>
 
@@ -211,46 +267,56 @@ window.HUB_ICONS = {
             V33
             H14
             Z"
-            fill="currentColor"
-            opacity=".92"/>
+            fill="#E7FBFF"
+            opacity=".95"/>
 
         <!-- زر A -->
         <circle
             cx="42"
             cy="27"
-            r="3.3"
-            fill="currentColor"/>
+            r="3.5"
+            fill="#FF5C8A"/>
+
+        <circle
+            cx="42"
+            cy="27"
+            r="1.4"
+            fill="#FFD1DE"/>
 
         <!-- زر B -->
         <circle
             cx="49"
             cy="34"
-            r="3.3"
-            fill="currentColor"
-            opacity=".68"/>
+            r="3.5"
+            fill="#FFD34E"/>
+
+        <circle
+            cx="49"
+            cy="34"
+            r="1.4"
+            fill="#FFF1A8"/>
 
         <!-- أزرار صغيرة -->
         <circle
             cx="34"
             cy="38"
             r="1.4"
-            fill="currentColor"
-            opacity=".55"/>
+            fill="#D7F9FF"
+            opacity=".75"/>
 
         <circle
             cx="39"
             cy="38"
             r="1.4"
-            fill="currentColor"
-            opacity=".55"/>
+            fill="#D7F9FF"
+            opacity=".75"/>
 
     </svg>`,
 
 
 
     // ========================================================
-    // 🛍️ المتجر
-    // حجر دامة + حجر طاولة
+    // 🎲 المتجر — حجر دامة + حجر طاولة
     // ========================================================
     store: `
     <svg viewBox="0 0 64 64"
@@ -261,142 +327,172 @@ window.HUB_ICONS = {
         <defs>
 
             <!-- حجر الدامة -->
-            <radialGradient id="damaStone"
-                            cx="32%" cy="20%"
-                            r="78%">
-                <stop offset="0%" stop-color="currentColor"/>
-                <stop offset="48%" stop-color="currentColor" stop-opacity=".9"/>
-                <stop offset="100%" stop-color="currentColor" stop-opacity=".48"/>
+            <radialGradient id="damaRed"
+                            cx="30%" cy="18%"
+                            r="82%"
+                            gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FF8A8A"/>
+                <stop offset="28%" stop-color="#FF3B4F"/>
+                <stop offset="65%" stop-color="#D7193F"/>
+                <stop offset="100%" stop-color="#7F102E"/>
             </radialGradient>
 
-            <!-- حجر الطاولة -->
-            <linearGradient id="backgammonStone"
-                            x1="20" y1="10"
-                            x2="49" y2="53">
-                <stop offset="0%" stop-color="currentColor"/>
-                <stop offset="50%" stop-color="currentColor" stop-opacity=".88"/>
-                <stop offset="100%" stop-color="currentColor" stop-opacity=".45"/>
+            <!-- حافة الدامة -->
+            <linearGradient id="damaEdge"
+                            x1="8" y1="20"
+                            x2="32" y2="46"
+                            gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FF6B7A"/>
+                <stop offset="50%" stop-color="#C9183D"/>
+                <stop offset="100%" stop-color="#700D29"/>
             </linearGradient>
 
-            <filter id="stoneShadow"
+            <!-- حجر الطاولة -->
+            <radialGradient id="backgammonGold"
+                            cx="30%" cy="18%"
+                            r="85%"
+                            gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFF4A3"/>
+                <stop offset="25%" stop-color="#FFD84D"/>
+                <stop offset="60%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#A95100"/>
+            </radialGradient>
+
+            <!-- هالة -->
+            <radialGradient id="storeAura">
+                <stop offset="0%" stop-color="#FFB000" stop-opacity=".28"/>
+                <stop offset="55%" stop-color="#FF3B3B" stop-opacity=".10"/>
+                <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+            </radialGradient>
+
+            <filter id="storeGlow"
+                    x="-70%" y="-70%"
+                    width="240%" height="240%">
+                <feGaussianBlur stdDeviation="2"
+                                 result="blur"/>
+                <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+
+            <filter id="storeShadow"
                     x="-70%" y="-70%"
                     width="240%" height="240%">
                 <feDropShadow
                     dx="0"
                     dy="4"
                     stdDeviation="2.5"
-                    flood-color="currentColor"
-                    flood-opacity=".28"/>
+                    flood-color="#6B1026"
+                    flood-opacity=".35"/>
             </filter>
 
-            <filter id="softGlow"
-                    x="-80%"
-                    y="-80%"
-                    width="260%"
-                    height="260%">
-                <feGaussianBlur stdDeviation="1.5"/>
-            </filter>
         </defs>
 
 
-        <!-- ============================================= -->
-        <!-- حجر الدامة — الخلفي -->
-        <!-- ============================================= -->
+        <!-- الهالة -->
+        <circle
+            cx="32"
+            cy="32"
+            r="30"
+            fill="url(#storeAura)"/>
 
-        <!-- ظل -->
+
+        <!-- ================================================= -->
+        <!-- حجر الدامة الأحمر — الخلفي -->
+        <!-- ================================================= -->
+
+        <!-- الظل -->
         <ellipse
-            cx="20"
+            cx="19"
             cy="48"
             rx="13"
             ry="4"
-            fill="currentColor"
-            opacity=".13"/>
+            fill="#7F102E"
+            opacity=".22"/>
 
         <!-- جسم الحجر -->
         <path
             d="
             M7 25
-            C7 20.3 12.8 16.7 20 16.7
-            C27.2 16.7 33 20.3 33 25
+            C7 20.2 12.8 16.5 20 16.5
+            C27.2 16.5 33 20.2 33 25
             V38
-            C33 42.7 27.2 46.3 20 46.3
-            C12.8 46.3 7 42.7 7 38
+            C33 42.8 27.2 46.5 20 46.5
+            C12.8 46.5 7 42.8 7 38
             Z"
-            fill="url(#damaStone)"
-            fill-opacity=".25"
-            stroke="currentColor"
-            stroke-width="2.2"
-            filter="url(#stoneShadow)"/>
+            fill="url(#damaEdge)"
+            stroke="#FF6B7A"
+            stroke-width="1.5"
+            filter="url(#storeShadow)"/>
 
-        <!-- سطح الحجر -->
+        <!-- سطح الدامة -->
         <ellipse
             cx="20"
-            cy="24.8"
+            cy="24.7"
             rx="13"
             ry="7.6"
-            fill="url(#damaStone)"
-            stroke="currentColor"
-            stroke-width="2.2"/>
+            fill="url(#damaRed)"
+            stroke="#FF8A8A"
+            stroke-width="1.7"/>
 
-        <!-- الحلقة الخارجية -->
+        <!-- الحلقة -->
         <ellipse
             cx="20"
-            cy="24.8"
+            cy="24.7"
             rx="8.2"
-            ry="4.4"
-            stroke="currentColor"
+            ry="4.5"
+            stroke="#FFB4BA"
             stroke-width="1.5"
-            opacity=".4"/>
+            opacity=".7"/>
 
-        <!-- الحلقة الداخلية -->
         <ellipse
             cx="20"
-            cy="24.8"
+            cy="24.7"
             rx="4.8"
             ry="2.5"
-            stroke="currentColor"
+            stroke="#8C1230"
             stroke-width="1"
-            opacity=".28"/>
+            opacity=".55"/>
 
-        <!-- لمعان حجر الدامة -->
+        <!-- انعكاس -->
         <path
             d="
-            M12.5 22.5
-            C14.5 20.7 17 19.8 20.3 19.8"
-            stroke="white"
-            stroke-width="1.7"
+            M12.5 22.3
+            C14.5 20.5 17 19.6 20.3 19.6"
+            stroke="#FFD8DC"
+            stroke-width="1.8"
             stroke-linecap="round"
-            opacity=".48"/>
+            opacity=".8"/>
 
 
-        <!-- ============================================= -->
-        <!-- حجر الطاولة — الأمامي -->
-        <!-- ============================================= -->
+        <!-- ================================================= -->
+        <!-- حجر الطاولة الذهبي — الأمامي -->
+        <!-- ================================================= -->
 
-        <!-- ظل -->
+        <!-- الظل -->
         <ellipse
             cx="43"
             cy="51"
             rx="12"
             ry="4"
-            fill="currentColor"
-            opacity=".14"/>
+            fill="#8A4800"
+            opacity=".22"/>
 
         <!-- جسم الحجر -->
         <path
             d="
             M31 21
-            C31 16.8 36.4 13.5 43 13.5
-            C49.6 13.5 55 16.8 55 21
+            C31 16.7 36.4 13.4 43 13.4
+            C49.6 13.4 55 16.7 55 21
             V39
-            C55 43.2 49.6 46.5 43 46.5
-            C36.4 46.5 31 43.2 31 39
+            C55 43.3 49.6 46.6 43 46.6
+            C36.4 46.6 31 43.3 31 39
             Z"
-            fill="url(#backgammonStone)"
-            fill-opacity=".24"
-            stroke="currentColor"
-            stroke-width="2.2"
-            filter="url(#stoneShadow)"/>
+            fill="url(#backgammonGold)"
+            stroke="#FFE27A"
+            stroke-width="1.6"
+            filter="url(#storeGlow)"/>
 
         <!-- سطح -->
         <ellipse
@@ -404,56 +500,56 @@ window.HUB_ICONS = {
             cy="20.8"
             rx="12"
             ry="6.8"
-            fill="url(#backgammonStone)"
-            stroke="currentColor"
-            stroke-width="2.2"/>
+            fill="url(#backgammonGold)"
+            stroke="#FFF0A3"
+            stroke-width="1.7"/>
 
-        <!-- تفاصيل الطاولة -->
+        <!-- نقاط الطاولة -->
         <circle
             cx="38.5"
-            cy="19.7"
+            cy="19.6"
             r="1.35"
-            fill="currentColor"/>
+            fill="#8A4A00"/>
 
         <circle
             cx="43"
             cy="22"
             r="1.35"
-            fill="currentColor"/>
+            fill="#8A4A00"/>
 
         <circle
             cx="47.5"
-            cy="19.7"
+            cy="19.6"
             r="1.35"
-            fill="currentColor"/>
+            fill="#8A4A00"/>
 
-        <!-- حلقة -->
+        <!-- الحلقة الداخلية -->
         <ellipse
             cx="43"
             cy="20.8"
             rx="7"
             ry="3.7"
-            stroke="currentColor"
+            stroke="#FFF4B5"
             stroke-width="1"
-            opacity=".25"/>
+            opacity=".65"/>
 
         <!-- لمعان -->
         <path
             d="
-            M36.5 18.5
-            C38.5 16.9 40.7 16.2 43.2 16.2"
-            stroke="white"
-            stroke-width="1.6"
+            M36.5 18.3
+            C38.5 16.7 40.7 16
+            43.2 16"
+            stroke="#FFFFFF"
+            stroke-width="1.7"
             stroke-linecap="round"
-            opacity=".5"/>
+            opacity=".75"/>
 
-        <!-- لمعة صغيرة خارجية -->
-        <circle
-            cx="54"
-            cy="10"
-            r="1.7"
-            fill="currentColor"
-            opacity=".7"/>
+        <!-- نجمة صغيرة للمتجر -->
+        <path
+            d="M54 7V14M50.5 10.5H57.5"
+            stroke="#FFD84D"
+            stroke-width="1.7"
+            stroke-linecap="round"/>
 
     </svg>`
 };
