@@ -2,6 +2,19 @@
 // يحتوي على جميع الدوال البرمجية الخاصة بواجهة لعبة الدامة (إدارة المتجر، الأصدقاء، الخلفية، والاتصال)
 
 // ==========================================
+// 🌟 دالة تحويل الأرقام الضخمة إلى K و M
+// ==========================================
+function formatCompactNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    }
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    }
+    return num;
+}
+
+// ==========================================
 // 1. تجاوز (Override) وتصحيح مسارات LocalStorage
 // ==========================================
 const originalGetItem = localStorage.getItem;
@@ -131,10 +144,10 @@ window.renderDamaPopularityStore = function() {
                 <span style="color: white; font-size: 11px; font-weight: bold; line-height: 1.2; text-align: center; margin-top: 4px;">${gift.nameAr}</span>
                 
                 <div style="color: #00d2ff; font-size: 10px; font-weight: bold; margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 3px; filter: drop-shadow(0 0 2px rgba(0, 210, 255, 0.4));">
-                    +${gift.popValue} <svg width="10" height="10" viewBox="0 0 24 24" fill="#00d2ff"><path d="M12 2C12 2 5 8 5 13C5 17.4183 8.58172 21 13 21C17.4183 21 21 17.4183 21 13C21 10.5 19 8 17.5 6C17.5 9 15 10 15 10C15 7.5 13.5 4.5 12 2Z"/></svg>
+                    +${formatCompactNumber(gift.popValue)} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
                 </div>
 
-                <div style="color: #f5a623; font-size: 12px; font-weight: bold; margin-top: auto; margin-bottom: 2px;">🪙 ${gift.price}</div>
+                <div style="color: #f5a623; font-size: 12px; font-weight: bold; margin-top: auto; margin-bottom: 2px;">🪙 ${formatCompactNumber(gift.price)}</div>
                 <button class="store-buy-btn store-buy-btn-small" onclick="window.openPurchaseModal('${gift.id}', '${gift.nameAr}', ${gift.price}, 'popularity')">شراء</button>
             `;
             grid.appendChild(card);
@@ -170,7 +183,7 @@ window.givePopularity = function() {
                 <span style="color: white; font-size: 11px; font-weight: bold; text-align: center;">${gift.nameAr}</span>
                 
                 <div style="color: #00d2ff; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 3px; filter: drop-shadow(0 0 2px rgba(0, 210, 255, 0.4));">
-                    +${gift.popValue} <svg width="10" height="10" viewBox="0 0 24 24" fill="#00d2ff"><path d="M12 2C12 2 5 8 5 13C5 17.4183 8.58172 21 13 21C17.4183 21 21 17.4183 21 13C21 10.5 19 8 17.5 6C17.5 9 15 10 15 10C15 7.5 13.5 4.5 12 2Z"/></svg>
+                    +${formatCompactNumber(gift.popValue)} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
                 </div>
 
                 <span style="color: #f5a623; font-size: 10px;">لديك: x${count}</span>
@@ -209,7 +222,7 @@ window.confirmSendGift = function(giftId, popValue) {
 
     const toast = document.getElementById('toast-notification');
     if (toast) {
-        toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${popValue} شعبية)`;
+        toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${formatCompactNumber(popValue)} شعبية)`;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 2500);
     }
@@ -231,7 +244,8 @@ window.showOpponentProfile = function() {
     document.getElementById('igp-avatar').innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
     
     document.getElementById('igp-level').innerText = `Lv.${opp.level || '?'}`;
-    document.getElementById('igp-popularity-val').innerText = opp.popularity || 0;
+    // 🌟 تطبيق دالة اختصار الأرقام هنا لكي يظهر الرقم بشكل مختصر
+    document.getElementById('igp-popularity-val').innerText = formatCompactNumber(opp.popularity || 0);
     
     document.getElementById('own-profile-actions').style.display = 'none';
     document.getElementById('other-profile-actions').style.display = 'flex';
