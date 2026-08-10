@@ -10,6 +10,19 @@ import { gameEngine } from './gameEngine.js';
 import { t } from './i18n.js';
 
 // ==========================================
+// 🌟 دالة تحويل الأرقام الضخمة إلى K و M
+// ==========================================
+function formatCompactNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    }
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    }
+    return num;
+}
+
+// ==========================================
 // 💡 الإصلاحات الذكية (الشاشة البيضاء، الرادار، البينج)
 // ==========================================
 document.addEventListener('visibilitychange', async () => {
@@ -177,7 +190,7 @@ window.addEventListener('load', async () => {
         window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
     });
 
-    // 🌟 استقبال هدايا الشعبية وإظهار أنيميشن الاحتفال بصورة الهدية 🌟
+    // 🌟 استقبال هدايا الشعبية وإظهار أنيميشن الاحتفال مع الشعلة الزرقاء 🌟
     socket.on('receivePopularityGift', (data) => {
         if (data && data.popValue) {
             // 1. تحديث البروفايل المحلي
@@ -229,7 +242,7 @@ window.addEventListener('load', async () => {
                         ${giftImageHtml}
                     </div>
                     <p style="color: white; font-size: 16px; margin: 15px 0; position: relative; z-index: 2;">اللاعب <span style="color: #30d158; font-weight: 800; font-size: 18px;">${data.senderName}</span> أرسل لك:</p>
-                    <p style="color: #f5a623; font-size: 22px; font-weight: 900; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.9); position: relative; z-index: 2;">${giftName} <span style="color:#ff453a;">(+${data.popValue} 🔥)</span></p>
+                    <p style="color: #f5a623; font-size: 22px; font-weight: 900; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.9); position: relative; z-index: 2;">${giftName} <span style="color:#00d2ff;">(+${formatCompactNumber(data.popValue)} <span style="filter: hue-rotate(210deg);">🔥</span>)</span></p>
                 </div>
             `;
             
