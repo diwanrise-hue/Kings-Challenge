@@ -102,9 +102,6 @@
         .profile-avatar:hover { transform: scale(1.05); border-color: rgba(255,255,255,0.2); }
         .profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
-        /* ========================================== */
-        /* 🌟 الأزرار العلوية (بإطارات 0.8px) 🌟 */
-        /* ========================================== */
         .hub-token-badge {
             height: 36px;
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
@@ -194,9 +191,6 @@
 
         .cards-container { display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%; }
 
-        /* ========================================== */
-        /* 🌟 بطاقات الألعاب (إطار 0.8px) 🌟           */
-        /* ========================================== */
         .dama-card { 
             width: 85%; max-width: 320px; height: 130px; 
             border-radius: var(--radius-card); cursor: pointer; 
@@ -343,18 +337,12 @@
         .bottom-actions { display: flex; gap: 10px; }
         .bottom-actions .btn { height: 48px; margin: 0; font-size: 14px; }
 
-        #custom-popup-modal .settings-card { padding: 35px 25px; border: 1px solid rgba(255,255,255,0.1); }
-        #custom-popup-msg { font-size: 15px; font-weight: 500; color: var(--text-primary); line-height: 1.6; margin-bottom: 25px; }
-
         .auth-toggle-link {
             display: inline-block; margin-top: 5px; font-size: 13px; font-weight: 600;
             color: var(--accent); cursor: pointer; transition: var(--transition); text-decoration: none;
         }
         .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }    
 
-        /* ========================================== */
-        /* تصميم الشريط السفلي (بإطارات 0.8px وفواصل) */
-        /* ========================================== */
         .bottom-nav-bar {
             position: fixed;
             bottom: 0; 
@@ -388,7 +376,6 @@
             padding: 8px 0;
             flex: 1;
             height: 100%;
-            
             border: none;
             border-left: 0.8px solid rgba(212, 175, 55, 0.4); 
             border-top: 0.8px solid rgba(212, 175, 55, 0.6); 
@@ -542,6 +529,8 @@
         <iframe id="game-frame" src="" allow="fullscreen; microphone" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
     </div>
 
+    <!-- المودلز الخاصة بالتطبيق (موجودة مرة واحدة فقط) -->
+    
     <div id="lang-select-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="settings-card" dir="auto" style="max-width: 250px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeLangModal()">✕</button>
@@ -573,8 +562,8 @@
     </div>
 
     <div id="custom-popup-modal" class="modal-overlay" style="z-index: 99999;">
-        <div class="settings-card" dir="auto" style="max-width: 300px;">
-            <p id="custom-popup-msg"></p>
+        <div class="settings-card" dir="auto" style="max-width: 300px; padding: 35px 25px; border: 1px solid rgba(255,255,255,0.1);">
+            <p id="custom-popup-msg" style="font-size: 15px; font-weight: 500; color: var(--text-primary); line-height: 1.6; margin-bottom: 25px;"></p>
             <div class="input-group" id="custom-popup-input-group" style="display: none; margin-bottom: 25px;">
                 <input type="text" id="custom-popup-input" class="clean-input" style="text-align: center;">
             </div>
@@ -627,13 +616,13 @@
         </div>
     </div>
 
-    <!-- 🌟 المتجر 🌟 -->
+    <!-- نافذة المتجر الجانبية (إذا تم طلبها خارج التبويب) -->
     <div id="store-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="padding: 0; overflow: hidden; position: relative;">
             <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
-            <div style="position: absolute; top: 18px; right: 20px; z-index: 100000;" class="stat-item">🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
+            <div style="position: absolute; top: 18px; right: 20px; z-index: 100000; color: white;">🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
             
-            <div id="nav-section-store"></div>
+            <!-- سيتم حقن المتجر هنا إذا استخدم من خارج التبويب -->
         </div>
     </div>
 
@@ -684,23 +673,42 @@
         </div>
     </div>
 
-    <!-- نافذة تأكيد الشراء -->
-    <div id="purchase-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 300px;">
-            <h3 id="modal-item-name">اسم المنتج</h3>
-            <div id="modal-item-preview" class="purchase-preview-box" style="flex-direction: column; overflow: hidden;"></div>
-            <p id="modal-item-cost" style="color: #f5a623; font-weight: 700; font-size: 18px; margin-bottom: 25px;">🪙 السعر: 0</p>
-            <div style="display: flex; gap: 10px; flex-direction: column;">
-                <button id="confirm-buy-btn" class="save-settings-btn btn btn-primary" style="margin: 0; background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border: 1px solid rgba(245, 166, 35, 0.4) !important;">شراء الآن</button>
-                <button onclick="window.closeAppModal('purchase-modal')" class="save-settings-btn btn btn-secondary" style="margin: 0; background: transparent !important;">إلغاء</button>
+    <!-- 🌟 نافذة تأكيد الشراء (بتصميم المتجر الفاخر الجديد) 🌟 -->
+    <div id="purchase-modal" class="modal-overlay" style="z-index: 1000005;">
+        <div class="settings-card" dir="auto" style="max-width: 320px; padding: 0; overflow: hidden; border-radius: 24px; border: 1px solid #b38d36; background: #0b120d; box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 15px rgba(255, 215, 0, 0.05);">
+            <!-- الترويسة -->
+            <div style="background: linear-gradient(to bottom, #1a1a24, #0b120d); padding: 20px; border-bottom: 1px solid rgba(179, 141, 54, 0.3); position: relative;">
+                <button onclick="window.closeAppModal('purchase-modal')" class="modal-close-btn" style="top: 15px; left: 15px; background: rgba(255,255,255,0.05); border-radius: 50%;">✕</button>
+                <h3 id="modal-item-name" style="margin: 0; color: white; font-size: 18px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">اسم المنتج</h3>
+            </div>
+            
+            <!-- المحتوى -->
+            <div style="padding: 25px 20px; display: flex; flex-direction: column; align-items: center;">
+                <!-- الأيقونة -->
+                <div id="modal-item-preview" style="width: 80px; height: 80px; background: rgba(0,0,0,0.5); border: 1px solid #ffd700; border-radius: 16px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: inset 0 0 10px rgba(255,215,0,0.2), 0 5px 15px rgba(0,0,0,0.5);">
+                    💡
+                </div>
+                
+                <!-- السعر -->
+                <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;">
+                    <span id="modal-item-cost" style="color: #ffd700; font-weight: 800; font-size: 26px; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">0</span>
+                    <span style="font-size: 22px;">🪙</span>
+                </div>
+                
+                <!-- الأزرار -->
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <button id="confirm-buy-btn" class="btn" style="flex: 1; margin: 0; background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%); color: white; border: 1px solid #ffd700; box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), 0 4px 10px rgba(0,0,0,0.6); border-radius: 12px; font-weight: bold; font-size: 14px;">شراء الآن</button>
+                    <button onclick="window.closeAppModal('purchase-modal')" class="btn" style="flex: 1; margin: 0; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 14px;">إلغاء</button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- ======================================================== -->
+    <!-- السكربتات الخاصة بالواجهة والشراء وعمليات السيرفر        -->
+    <!-- ======================================================== -->
     <script>
-        // ==========================================
-        // 🌟 إدارة نوافذ التطبيق (المودال) 🌟
-        // ==========================================
+        // 🌟 إدارة فتح وإغلاق النوافذ (المودال) 🌟
         window.openAppModal = function(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) modal.style.display = 'flex';
@@ -711,12 +719,87 @@
             if (modal) modal.style.display = 'none';
         };
 
-        // دالة لتمكين ملفات أخرى مثل store.js من عرض نافذة التنبيه الخاصة بـ Hub
+        // دالة لتمكين ملفات أخرى من عرض نافذة التنبيه
         window.triggerCustomAlertNotification = function(msg) {
             showCustomPopup(msg);
         };
-        // ==========================================
 
+        // 🌟 دالة فتح نافذة تأكيد الشراء بالتصميم الجديد 🌟
+        let currentPurchaseItem = null;
+
+        window.openPurchaseModal = function(itemId, itemName, price, itemType) {
+            currentPurchaseItem = { id: itemId, type: itemType, price: price };
+            
+            const nameEl = document.getElementById('modal-item-name');
+            const costEl = document.getElementById('modal-item-cost');
+            const previewEl = document.getElementById('modal-item-preview');
+            
+            if(nameEl) nameEl.innerText = itemName;
+            if(costEl) costEl.innerText = price; // تم فصل الرقم عن الإيموجي في التصميم
+            
+            // جلب الأيقونة أو الصورة لتلائم التصميم الجديد
+            if (previewEl) {
+                let iconHtml = '🎁'; // افتراضي
+                
+                // جلب أيقونة المتجر إذا كانت من المتجر العام
+                if (window.STORE_ITEMS && window.STORE_ITEMS[itemId]) {
+                    const item = window.STORE_ITEMS[itemId];
+                    if (item.isImage) {
+                        let imgSrc = item.imagePathWhite || item.imagePath;
+                        iconHtml = `<img src="${imgSrc}" style="max-width: 85%; max-height: 85%; object-fit: contain;">`;
+                    } else if (item.icon) {
+                        iconHtml = item.icon;
+                    } else if (itemType === 'consumable') {
+                        iconHtml = '💡';
+                    }
+                } 
+                // جلب أيقونة الشعبية
+                else if (itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === itemId))) {
+                     iconHtml = '🔥';
+                     if (window.POPULARITY_ITEMS) {
+                         const popItem = window.POPULARITY_ITEMS.find(p => p.id === itemId);
+                         if (popItem) iconHtml = `<img src="${popItem.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
+                     }
+                } else if (itemType === 'consumable') {
+                    iconHtml = '💡';
+                }
+                
+                previewEl.innerHTML = iconHtml;
+            }
+            
+            window.openAppModal('purchase-modal');
+        };
+
+        // 🌟 ربط زر تأكيد الشراء بالسيرفر 🌟
+        document.addEventListener('DOMContentLoaded', () => {
+            const confirmBuyBtn = document.getElementById('confirm-buy-btn');
+            if (confirmBuyBtn) {
+                confirmBuyBtn.addEventListener('click', () => {
+                    const profile = getSafeProfile();
+                    
+                    if (!profile || !profile.id || profile.id === "GUEST-DEFAULT") {
+                        showCustomPopup((typeof translations !== 'undefined' && translations[currentLang] && translations[currentLang].msg_must_login) ? translations[currentLang].msg_must_login : "يرجى تسجيل الدخول أولاً!");
+                        return;
+                    }
+
+                    if (!currentPurchaseItem) return;
+
+                    window.closeAppModal('purchase-modal');
+
+                    if (typeof socket !== 'undefined' && socket.connected) {
+                        showLoadingPopup("جاري معالجة الشراء...");
+                        socket.emit('requestPurchase', { 
+                            userId: profile.id, 
+                            itemId: currentPurchaseItem.id 
+                        });
+                    } else {
+                        showCustomPopup("السيرفر غير متصل حالياً!");
+                    }
+                });
+            }
+        });
+
+        // ==========================================
         window.fbAsyncInit = function() {
             FB.init({
                 appId      : '2054342995162540', 
@@ -896,7 +979,7 @@
         }
 
         const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { transports: ['websocket', 'polling'] });
-        window.socket = socket; // 🌟 الحل الأساسي لجعل السوكيت مرئياً لملف المتجر store.js
+        window.socket = socket; // 🌟 إتاحة السوكيت للمتجر
 
         socket.on('connect', () => {
             console.log('تم الاتصال بالسيرفر بنجاح!');
@@ -967,6 +1050,21 @@
         socket.on('auth_failed', (data) => {
             const msg = safeParseAuthMessage(data.message);
             showCustomPopup(data.message);
+        });
+
+        // 🌟 مستمعات ردود الشراء من السيرفر 🌟
+        socket.on('purchaseSuccess', (msg) => {
+            document.getElementById('custom-popup-modal').style.display = 'none';
+            showCustomPopup(msg || "تمت عملية الشراء بنجاح!");
+            
+            if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
+                window.storeManager.renderUI();
+            }
+        });
+
+        socket.on('purchaseFailed', (msg) => {
+            document.getElementById('custom-popup-modal').style.display = 'none';
+            showCustomPopup(msg || "فشلت عملية الشراء!");
         });
 
         function showLoadingPopup(msg) {
@@ -1255,7 +1353,7 @@
             if (document.getElementById('hub-token-count')) document.getElementById('hub-token-count').innerText = tokenVal;
             if (document.getElementById('profile-stat-tokens')) document.getElementById('profile-stat-tokens').innerText = tokenText;
             
-            // 🌟 🌟 تحديث النقود داخل نافذة المتجر بشكل مباشر
+            // 🌟 🌟 تحديث النقود داخل المتجر 🌟 🌟
             if (document.getElementById('profile-stat-tokens-store')) document.getElementById('profile-stat-tokens-store').innerText = tokenVal;
             
             if (document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = profile.name;
