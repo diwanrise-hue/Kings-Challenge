@@ -457,12 +457,18 @@ window.renderPopularityItems = function() {
             const card = document.createElement('div');
             card.className = 'store-item-card';
             
-            // هيكل البطاقة
+            // هيكل البطاقة مع إضافة مقدار الشعبية باستخدام الإيموجي وتأثير الفلتر الأزرق
             card.innerHTML = `
                 <div style="height: 60px; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; background: rgba(0,0,0,0.3); border-radius: 8px;">
                     <img src="${item.imagePath}" alt="${item.nameAr}" style="max-width: 80%; max-height: 80%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
                 </div>
-                <span style="color: #fff; font-size: 11px; font-weight: bold; margin-bottom: 4px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.nameAr}</span>
+                <span style="color: #fff; font-size: 11px; font-weight: bold; margin-bottom: 2px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.nameAr}</span>
+                
+                <!-- 🌟 عرض مقدار الشعبية المكتسبة 🌟 -->
+                <div style="color: #00d2ff; font-size: 10px; font-weight: bold; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 3px;">
+                    +${item.popValue} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
+                </div>
+
                 <button class="store-buy-btn-small" onclick="buyPopularityItem('${item.id}')">
                     ${item.price} <span style="color: gold; font-size: 10px;">🪙</span>
                 </button>
@@ -475,7 +481,7 @@ window.renderPopularityItems = function() {
 };
 
 // ==========================================
-// 🌟 دوال التنبيهات والشراء والتفعيل (تمت الإضافة)
+// 🌟 دوال التنبيهات والشراء والتفعيل 
 // ==========================================
 window.triggerAlertSoon = function() {
     if (window.socketManager && typeof window.socketManager._showToast === 'function') {
