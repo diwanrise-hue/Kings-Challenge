@@ -111,6 +111,8 @@ window.HUB_ICONS = {
                 fill="#FFD83D"/>
     </svg>`,
 
+
+
     // ========================================================
     // 🎮 الألعاب
     // ========================================================
@@ -184,6 +186,8 @@ window.HUB_ICONS = {
         <circle cx="49" cy="34" r="1.3"
                 fill="#FFF3B0"/>
     </svg>`,
+
+
 
     // ========================================================
     // 🎲 المتجر
@@ -558,8 +562,20 @@ window.HUB_ICONS = {
             <rect x="68" y="79" width="10" height="3" rx="1.5" fill="#292524" />
             <path d="M 14 35 C 14 30.5 17.5 27 22 27 L 78 27 C 82.5 27 86 30.5 86 35 L 86 39 L 14 39 Z" fill="#ffffff" opacity="0.18" />
         </g>
-    </svg>`
+    </svg>`,
+
+    // ========================================================
+    // ✦ أيقونة شاشة البداية
+    // ========================================================
+    splash: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM5 18H19V20H5V18Z"/></svg>`,
+
+    // ========================================================
+    // ✦ أيقونة فيسبوك
+    // ========================================================
+    facebook: `<svg style="width:20px; height:20px; margin-left:8px; fill:currentColor;" viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/></svg>`
+
 };
+
 
 // ============================================================
 // دالة لحقن الأيقونات في الشريط السفلي والأزرار العلوية
@@ -571,9 +587,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const gamesIconContainer = document.getElementById('icon-games');
     const storeIconContainer = document.getElementById('icon-store');
     
-    // حاويات الأزرار العلوية الجديدة
+    // حاويات الأزرار العلوية
     const bagIconContainer = document.getElementById('hud-icon-bag');
     const radioIconContainer = document.getElementById('hud-icon-radio');
+
+    // حاويات شاشة البداية
+    const splashIconContainer = document.getElementById('icon-splash');
 
     if (latestIconContainer) latestIconContainer.innerHTML = window.HUB_ICONS.latest;
     if (gamesIconContainer) gamesIconContainer.innerHTML = window.HUB_ICONS.games;
@@ -582,4 +601,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // حقن الأيقونات العلوية
     if (bagIconContainer) bagIconContainer.innerHTML = window.HUB_ICONS.bag;
     if (radioIconContainer) radioIconContainer.innerHTML = window.HUB_ICONS.radio;
+
+    // حقن أيقونة شاشة البداية وفيسبوك
+    if (splashIconContainer) splashIconContainer.innerHTML = window.HUB_ICONS.splash;
+    document.querySelectorAll('.icon-facebook').forEach(el => el.innerHTML = window.HUB_ICONS.facebook);
 });
