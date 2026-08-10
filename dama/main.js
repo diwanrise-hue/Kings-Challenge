@@ -173,21 +173,68 @@ window.addEventListener('load', async () => {
 
     socket.on('gameStart', (data) => { 
         gameState.roomBet = data.roomBet || 0; 
+        window.currentOpponentData = data.opponent; // 🌟 حفظ بيانات الخصم لفتح بروفايله 🌟
+        window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
     });
 
-    // 🌟 استقبال هدايا الشعبية المرسلة من لاعب آخر وتحديث الرصيد والتنبه 🌟
+    // 🌟 استقبال هدايا الشعبية وإظهار أنيميشن الاحتفال بصورة الهدية 🌟
     socket.on('receivePopularityGift', (data) => {
         if (data && data.popValue) {
+            // 1. تحديث البروفايل المحلي
             gameState.userProfile.popularity = (gameState.userProfile.popularity || 0) + data.popValue;
             try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
             if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
             
-            const toast = document.getElementById('toast-notification');
-            if (toast) {
-                toast.innerText = `🎁 تلقيت هدية شعبية جديدة! (+${data.popValue} 🔥)`;
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 3000);
+            // 2. البحث عن صورة الهدية واسمها من populars.js
+            let giftImageHtml = '<div style="font-size: 60px;">🎁</div>';
+            let giftName = 'هدية قيمة';
+            
+            if (window.POPULARITY_ITEMS) {
+                const giftObj = window.POPULARITY_ITEMS.find(item => item.id === data.giftId);
+                if (giftObj) {
+                    giftName = giftObj.nameAr;
+                    // جلب الصورة مع إضافة تأثير الحركة
+                    giftImageHtml = `<img src="${giftObj.imagePath}" style="width: 140px; height: 140px; object-fit: contain; animation: floatGift 2s ease-in-out infinite; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));">`;
+                }
             }
+
+            // 3. إنشاء نافذة الاحتفال الفاخرة (شاشة كاملة)
+            const celebrationOverlay = document.createElement('div');
+            celebrationOverlay.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
+                background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+                z-index: 999999999; display: flex; flex-direction: column;
+                align-items: center; justify-content: center;
+                animation: fadeInOverlay 0.4s ease-out;
+            `;
+            
+            celebrationOverlay.innerHTML = `
+                <style>
+                    @keyframes floatGift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-15px) scale(1.05); } }
+                    @keyframes popInModal { 0% { transform: scale(0.5); opacity: 0; } 80% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+                    @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+                    .gift-rays { position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; transform: translate(-50%, -50%); background: repeating-conic-gradient(from 0deg, rgba(255,215,0,0.15) 0deg 15deg, transparent 15deg 30deg); animation: spinRays 10s linear infinite; z-index: -1; }
+                    @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+                </style>
+                <div style="position: relative; overflow: hidden; background: linear-gradient(135deg, rgba(30,32,40,0.95), rgba(15,18,25,0.95)); border: 2px solid #ffd700; border-radius: 28px; padding: 40px 30px; text-align: center; box-shadow: 0 0 40px rgba(255,215,0,0.3); width: 85%; max-width: 340px; animation: popInModal 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                    <div class="gift-rays"></div>
+                    <h3 style="color: #ffd700; margin: 0 0 20px 0; font-size: 26px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); position: relative; z-index: 2;">هدية جديدة! 🎉</h3>
+                    <div style="margin: 25px 0; position: relative; z-index: 2;">
+                        ${giftImageHtml}
+                    </div>
+                    <p style="color: white; font-size: 16px; margin: 15px 0; position: relative; z-index: 2;">اللاعب <span style="color: #30d158; font-weight: 800; font-size: 18px;">${data.senderName}</span> أرسل لك:</p>
+                    <p style="color: #f5a623; font-size: 22px; font-weight: 900; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.9); position: relative; z-index: 2;">${giftName} <span style="color:#ff453a;">(+${data.popValue} 🔥)</span></p>
+                </div>
+            `;
+            
+            document.body.appendChild(celebrationOverlay);
+            
+            // 4. إزالة النافذة بعد 4 ثواني ونصف
+            setTimeout(() => {
+                celebrationOverlay.style.opacity = '0';
+                celebrationOverlay.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => celebrationOverlay.remove(), 500);
+            }, 4500);
         }
     });
 
