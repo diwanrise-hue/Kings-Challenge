@@ -7,6 +7,10 @@
     <title>Dama Challenge</title>
     <link rel="icon" type="image/png" href="1000127272.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- 🌟 تم استدعاء السكربتات المخصصة هنا بدلاً من حشوها في الـ HTML 🌟 -->
+    <script src="dama-scripts.js"></script>
+
     <style>
         /* ========================================== */
         /* المتغيرات الأساسية والهيكل العام الثابت    */
@@ -751,248 +755,6 @@
             padding-bottom: 40px !important;
         }
     </style>
-    <script>
-        const originalGetItem = localStorage.getItem;
-        localStorage.getItem = function(key) {
-            let value = originalGetItem.call(this, key);
-            if (key === 'hub_user_profile' && value) {
-                try {
-                    let profile = JSON.parse(value);
-                    if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
-                        profile.avatar = '../' + profile.avatar;
-                        return JSON.stringify(profile);
-                    }
-                } catch(e) {}
-            }
-            return value;
-        };
-
-        const originalSetItem = localStorage.setItem;
-        localStorage.setItem = function(key, value) {
-            if (key === 'hub_user_profile' && value) {
-                try {
-                    let profile = JSON.parse(value);
-                    if (profile && profile.avatar && profile.avatar.startsWith('../')) {
-                        profile.avatar = profile.avatar.replace('../', '');
-                        value = JSON.stringify(profile);
-                    }
-                } catch(e) {}
-                
-                if(window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-                }
-            }
-            originalSetItem.call(this, key, value);
-        };
-
-        const originalRemoveItem = localStorage.removeItem;
-        localStorage.removeItem = function(key) {
-            if (key === 'hub_user_profile') {
-                if(window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-                }
-            }
-            originalRemoveItem.call(this, key);
-        };
-        
-        window.sendFriendReqById = function() {
-            const idInput = document.getElementById('add-friend-id-input');
-            if(idInput && idInput.value.trim() !== '') {
-                if(window.socket && window.socket.connected) {
-                    let targetId = idInput.value.trim();
-                    window.socket.emit('sendFriendReq', { targetId: targetId });
-                    const toast = document.getElementById('toast-notification');
-                    if (toast) { toast.innerText = '📨 تم إرسال طلب الصداقة!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-                    idInput.value = '';
-                } else {
-                    const toast = document.getElementById('toast-notification');
-                    if (toast) { toast.innerText = '❌ يجب أن تكون متصلاً بالإنترنت!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-                }
-            }
-        };
-
-        window.challengeTargetFriendId = null;
-
-        window.challengeFriend = function(friendId) {
-            window.challengeTargetFriendId = friendId;
-            window.openAppModal('challenge-bet-modal');
-        };
-
-        window.confirmChallenge = function(betAmount, element) {
-            document.querySelectorAll('#challenge-bet-modal .bet-option-item').forEach(el => el.classList.remove('selected'));
-            element.classList.add('selected'); 
-            
-            setTimeout(() => {
-                window.closeAppModal('challenge-bet-modal');
-                if (window.challengeTargetFriendId && window.socketManager) {
-                    window.socketManager.sendChallenge(window.challengeTargetFriendId, parseInt(betAmount));
-                    window.challengeTargetFriendId = null; 
-                }
-            }, 250);
-        };
-
-        // 🌟 التنقل بين تبويبات متجر الدامة الملكي 🌟
-        window.switchDamaGameStoreTab = function(category) {
-            const tabs = ['bg', 'fr', 'pc', 'offers', 'pop'];
-            tabs.forEach(tab => {
-                const btn = document.getElementById('dama-tab-' + tab);
-                let secId = 'store-section-' + (tab === 'fr' ? 'frames' : tab === 'pc' ? 'pieces' : tab === 'pop' ? 'popularity' : tab);
-                const sec = document.getElementById(secId);
-                if (btn) btn.classList.remove('active');
-                if (sec) sec.style.display = 'none';
-            });
-
-            const activeBtn = document.getElementById('dama-tab-' + category);
-            let activeSecId = 'store-section-' + (category === 'fr' ? 'frames' : category === 'pc' ? 'pieces' : category === 'pop' ? 'popularity' : category);
-            const activeSec = document.getElementById(activeSecId);
-
-            if (activeBtn) activeBtn.classList.add('active');
-            if (activeSec) {
-                activeSec.style.display = 'grid';
-                if (category === 'pop') {
-                    window.renderDamaPopularityStore();
-                }
-            }
-        };
-
-        // 🌟 عرض منتجات الشعبية داخل متجر الدامة 🌟
-        window.renderDamaPopularityStore = function() {
-            const grid = document.getElementById('store-section-popularity');
-            if (!grid) return;
-            grid.innerHTML = '';
-
-            if (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.length > 0) {
-                window.POPULARITY_ITEMS.forEach(gift => {
-                    const card = document.createElement('div');
-                    card.className = 'store-item-card';
-                    card.style.padding = '8px 4px';
-                    card.style.position = 'relative';
-                    
-                    card.innerHTML = `
-                        <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border-radius: 8px;">
-                            <img src="${gift.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain;">
-                        </div>
-                        <span style="color: white; font-size: 11px; font-weight: bold; line-height: 1.2; text-align: center; margin-top: 4px;">${gift.nameAr}</span>
-                        
-                        <!-- 🌟 عرض مقدار الشعبية المكتسبة 🌟 -->
-                        <div style="color: #00d2ff; font-size: 10px; font-weight: bold; margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 3px;">
-                            +${gift.popValue} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
-                        </div>
-
-                        <div style="color: #f5a623; font-size: 12px; font-weight: bold; margin-top: auto; margin-bottom: 2px;">🪙 ${gift.price}</div>
-                        <button class="store-buy-btn store-buy-btn-small" onclick="window.openPurchaseModal('${gift.id}', '${gift.nameAr}', ${gift.price}, 'popularity')">شراء</button>
-                    `;
-                    grid.appendChild(card);
-                });
-            } else {
-                grid.innerHTML = '<p style="color: #a1a1aa; text-align: center; grid-column: span 3; padding: 15px;">لا توجد عناصر شعبية حالياً.</p>';
-            }
-        };
-
-        // 🌟 دالة اختيار هدايا الشعبية وإرسالها للخصوم من الحقيبة 🌟
-        window.givePopularity = function() {
-            const profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-            const inventory = profile.inventory || {};
-            const grid = document.getElementById('my-gifts-selection-grid');
-            if (!grid) return;
-            
-            grid.innerHTML = '';
-            let availableCount = 0;
-
-            (window.POPULARITY_ITEMS || []).forEach(gift => {
-                const count = inventory[gift.id] || 0;
-                if (count > 0) {
-                    availableCount++;
-                    const itemEl = document.createElement('div');
-                    itemEl.className = 'store-item-card';
-                    itemEl.style.padding = '8px';
-                    itemEl.style.display = 'flex';
-                    itemEl.style.flexDirection = 'column';
-                    itemEl.style.alignItems = 'center';
-                    itemEl.style.gap = '5px';
-                    
-                    itemEl.innerHTML = `
-                        <img src="${gift.imagePath}" style="width: 40px; height: 40px; object-fit: contain;">
-                        <span style="color: white; font-size: 11px; font-weight: bold; text-align: center;">${gift.nameAr}</span>
-                        
-                        <!-- 🌟 عرض مقدار الشعبية المكتسبة 🌟 -->
-                        <div style="color: #00d2ff; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 3px;">
-                            +${gift.popValue} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
-                        </div>
-
-                        <span style="color: #f5a623; font-size: 10px;">لديك: x${count}</span>
-                        <button class="store-buy-btn-small" onclick="window.confirmSendGift('${gift.id}', ${gift.popValue || gift.price || 10})" style="width: 100%; height: 26px; font-size: 11px; margin-top: auto;">إرسال 🚀</button>
-                    `;
-                    grid.appendChild(itemEl);
-                }
-            });
-
-            if (availableCount === 0) {
-                grid.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; grid-column: span 3; padding: 15px;">حقيبتك فارغة من الهدايا! اذهب للمتجر لشراء الشعبية.</p>';
-            }
-
-            if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
-        };
-
-        window.confirmSendGift = function(giftId, popValue) {
-            let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-            if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
-
-            // 1. خصم 1 من كمية الهدية بحقيبة اللاعب
-            profile.inventory[giftId] -= 1;
-            localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-
-            // 2. إرسال حدث للسيرفر/الخصم
-            if (window.socket && window.socket.connected) {
-                window.socket.emit('sendPopularityGift', {
-                    giftId: giftId,
-                    popValue: popValue,
-                    targetOpponentId: window.challengeTargetFriendId || window.currentOpponentId
-                });
-            }
-
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('send-gift-modal');
-                window.closeAppModal('in-game-profile-modal');
-            }
-
-            const toast = document.getElementById('toast-notification');
-            if (toast) {
-                toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${popValue} شعبية)`;
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2500);
-            }
-        };
-
-        // 🌟 دالة لفتح بروفايل الخصم أثناء اللعب 🌟
-        window.showOpponentProfile = function() {
-            if (!window.currentOpponentData) return;
-            
-            const opp = window.currentOpponentData;
-            
-            // تعبئة البيانات في نافذة البروفايل
-            document.getElementById('igp-name').innerText = opp.name || "الخصم";
-            document.getElementById('igp-id-display').innerText = opp.guestId || "---";
-            
-            // عرض الصورة
-            let avatarSrc = opp.avatar || "1000132081.webp";
-            if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
-                let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
-                avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
-            }
-            document.getElementById('igp-avatar').innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-            
-            // المستوى والشعبية
-            document.getElementById('igp-level').innerText = `Lv.${opp.level || '?'}`;
-            document.getElementById('igp-popularity-val').innerText = opp.popularity || 0;
-            
-            // 🌟 إخفاء أزرار البروفايل الخاص بك وإظهار أزرار "إرسال هدية" للخصم
-            document.getElementById('own-profile-actions').style.display = 'none';
-            document.getElementById('other-profile-actions').style.display = 'flex';
-            
-            window.openAppModal('in-game-profile-modal');
-        };
-    </script>
 </head>
 <body data-piece-style="pc_original">
     
@@ -1254,10 +1016,11 @@
             
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
             
+            <!-- 🌟 شريط الشعبية في البروفايل بلون أزرق 🌟 -->
             <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; width: 100%;">
                 <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px;">الرتبة: 🥉 برونزي</div>
                 <div style="color: #00d2ff; font-size: 13px; font-weight: 600; background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 5px;">
-                    <span style="font-size: 14px; filter: hue-rotate(210deg);">🔥</span> <span id="igp-popularity-val">0</span>
+                    <span style="font-size: 14px; filter: hue-rotate(210deg) drop-shadow(0 0 3px rgba(0,210,255,0.6));">🔥</span> <span id="igp-popularity-val">0</span>
                 </div>
             </div>
             
@@ -1349,7 +1112,7 @@
                 <button id="dama-tab-fr" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('fr')">إطارات 🖼️</button>
                 <button id="dama-tab-pc" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('pc')">أحجار 💎</button>
                 <button id="dama-tab-offers" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('offers')">عروض 💡</button>
-                <button id="dama-tab-pop" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('pop')">شعبية 🔥</button>
+                <button id="dama-tab-pop" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('pop')">شعبية <span style="filter: hue-rotate(210deg);">🔥</span></button>
             </div>
 
             <!-- شبكة المنتجات المباشرة -->
@@ -1440,7 +1203,7 @@
                 <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="window.switchThemeGridTabCategory('bg')">خلفيات</button>
                 <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('frames')">إطارات</button>
                 <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('pieces')">احجار</button>
-                <button id="theme-btn-tab-gifts" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('gifts')">الهدايا 🔥</button>
+                <button id="theme-btn-tab-gifts" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('gifts')">الهدايا <span style="filter: hue-rotate(210deg);">🔥</span></button>
             </div>
             <div class="scrollable-content">
                 <div class="themes-grid-container" id="theme-grid-section-bg"></div>
@@ -1700,10 +1463,7 @@
     
     <script type="module" src="main.js"></script>
     <script type="module" src="dailyQuests.js"></script>
-    
-    <!-- 🌟 استدعاء السكريبتات الخاصة بالشعبية المباشرة للعبة (تمت إزالة storeAll.js من اللعبة) 🌟 -->
     <script src="../populars.js"></script>
-
     <script src="chat.js"></script>
     <script type="module" src="voice.js"></script>
 
@@ -1716,95 +1476,6 @@
                 }
             }, 300);
         });
-    </script>
-    
-    <!-- 🌟 نظام مزامنة الخلفية مع الواجهة الرئيسية (نسخة قسرية) -->
-    <script>
-        function syncGlobalBackground() {
-            const bg = localStorage.getItem('custom_app_bg'); 
-            if (bg) {
-                let bgUrl = bg; 
-                if (!bg.startsWith('http') && !bg.startsWith('data:') && !bg.startsWith('../')) { 
-                    bgUrl = '../' + bg; 
-                }
-                
-                document.body.style.setProperty('background-image', `url('${bgUrl}')`, 'important');
-                document.body.style.setProperty('background-size', 'cover', 'important');
-                document.body.style.setProperty('background-position', 'center', 'important');
-                document.body.style.setProperty('background-attachment', 'fixed', 'important');
-                document.body.style.setProperty('background-color', 'transparent', 'important');
-            } else {
-                document.body.style.setProperty('background-image', 'none', 'important');
-                document.body.style.setProperty('background-color', '#2c3e50', 'important'); 
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', syncGlobalBackground);
-        window.addEventListener('load', syncGlobalBackground);
-
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'custom_app_bg') { 
-                syncGlobalBackground(); 
-            }
-        });
-
-        const bgObserver = new MutationObserver(() => {
-            const bg = localStorage.getItem('custom_app_bg');
-            if (bg) {
-                let expectedUrl = bg.startsWith('http') || bg.startsWith('data:') || bg.startsWith('../') ? bg : '../' + bg;
-                if (!document.body.style.backgroundImage.includes(expectedUrl)) {
-                    syncGlobalBackground();
-                }
-            }
-        });
-        
-        bgObserver.observe(document.body, { attributes: true, attributeFilter: ['style'] });
-    </script>
-
-    <!-- 🌟 سكريبت إدارة حالة الاتصال وإخفاء البينج -->
-    <script>
-        (function() {
-            let hidePingTimer = null;
-
-            function handleOfflineState() {
-                const radar = document.getElementById('mini-disconnect-radar');
-                if (radar) radar.style.setProperty('display', 'flex', 'important');
-                
-                clearTimeout(hidePingTimer);
-                hidePingTimer = setTimeout(() => {
-                    const pingEl = document.getElementById('real-ping-indicator');
-                    if (pingEl) pingEl.style.opacity = '0';
-                }, 30000);
-            }
-
-            function handleOnlineState() {
-                const radar = document.getElementById('mini-disconnect-radar');
-                if (radar) radar.style.setProperty('display', 'none', 'important');
-
-                clearTimeout(hidePingTimer);
-                const pingEl = document.getElementById('real-ping-indicator');
-                if (pingEl) pingEl.style.opacity = '0.95'; 
-            }
-
-            window.addEventListener('offline', handleOfflineState);
-            window.addEventListener('online', handleOnlineState);
-
-            window.addEventListener('load', () => {
-                if (!navigator.onLine) {
-                    handleOfflineState();
-                }
-            });
-            
-            const observer = new MutationObserver(() => {
-                if (!navigator.onLine) {
-                    const radar = document.getElementById('mini-disconnect-radar');
-                    if (radar && radar.style.display !== 'flex') {
-                        radar.style.setProperty('display', 'flex', 'important');
-                    }
-                }
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
-        })();
     </script>
 </body>
 </html>
