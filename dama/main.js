@@ -193,8 +193,14 @@ window.addEventListener('load', async () => {
                 const giftObj = window.POPULARITY_ITEMS.find(item => item.id === data.giftId);
                 if (giftObj) {
                     giftName = giftObj.nameAr;
-                    // جلب الصورة مع إضافة تأثير الحركة
-                    giftImageHtml = `<img src="${giftObj.imagePath}" style="width: 140px; height: 140px; object-fit: contain; animation: floatGift 2s ease-in-out infinite; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));">`;
+                    const style = "width: 140px; height: 140px; object-fit: contain; animation: floatGift 2s ease-in-out infinite; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));";
+                    
+                    // 🌟 التعرف على نوع الميديا (صورة أم فيديو)
+                    if (giftObj.mediaType === 'video') {
+                        giftImageHtml = `<video src="${giftObj.videoPath}" autoplay loop muted playsinline style="${style} border-radius: 12px;"></video>`;
+                    } else {
+                        giftImageHtml = `<img src="${giftObj.imagePath}" style="${style}">`;
+                    }
                 }
             }
 
