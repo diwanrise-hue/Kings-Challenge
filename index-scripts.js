@@ -17,14 +17,14 @@ window.openAppModal = function(modalId) {
     if (modal) {
         modal.style.display = 'flex';
         
-        // تحميل الخلفيات تلقائياً عند فتح الحقيبة
+        // 🌟 إجبار الخلفيات على الظهور تلقائياً عند فتح الحقيبة
         if (modalId === 'themes-grid-overlay') {
             if (typeof window.switchThemeGridTabCategory === 'function') {
                 window.switchThemeGridTabCategory('bg');
             }
         }
         
-        // تحميل الخلفيات تلقائياً عند فتح المتجر
+        // 🌟 إجبار الخلفيات على الظهور تلقائياً عند فتح نافذة المتجر الجانبية
         if (modalId === 'store-modal') {
             if (typeof window.switchStoreTabCategory === 'function') {
                 window.switchStoreTabCategory('bg');
@@ -144,6 +144,7 @@ let currentLang = localStorage.getItem('app_lang') || 'ar';
 if (!langs.includes(currentLang)) currentLang = 'ar';
 let isLoginMode = false; 
 
+// 🌟 دالة التنقل في الشريط السفلي
 window.switchNavTab = function(tabName) {
     document.querySelectorAll('.nav-section-container').forEach(el => {
         el.classList.remove('active-section');
@@ -154,6 +155,13 @@ window.switchNavTab = function(tabName) {
 
     document.getElementById(`nav-section-${tabName}`).classList.add('active-section');
     event.currentTarget.classList.add('active');
+
+    // 🌟 إجبار الخلفيات على الظهور تلقائياً عند فتح المتجر من الشريط السفلي
+    if (tabName === 'store') {
+        if (typeof window.switchStoreTabCategory === 'function') {
+            window.switchStoreTabCategory('bg');
+        }
+    }
 };
 
 window.toggleHamburgerMenu = function() {
@@ -961,7 +969,7 @@ window.addEventListener('message', (event) => {
     }
 });
 
-// 🌟 دالة التنقل وتحديث التبويبات الفرعية للممتلكات (محدثة بـ querySelectorAll)
+// 🌟 دالة التنقل وتحديث التبويبات الفرعية للممتلكات (محدثة بـ querySelectorAll لتجنب التداخل) 🌟
 window.switchThemeGridTabCategory = function(category) {
     const tabs = ['bg', 'frames', 'pieces', 'profile-frames', 'gifts'];
     
@@ -986,8 +994,10 @@ window.switchBagMainTab = function(tabId, btnElement) {
 
     if (tabId === 'general') {
         if (typeof window.renderGiftsInBag === 'function') window.renderGiftsInBag();
+        // إجبار تبويب الهدايا على التفعيل عند الدخول لقسم عام
         if (typeof window.switchThemeGridTabCategory === 'function') window.switchThemeGridTabCategory('gifts');
     } else if (tabId === 'games') {
+        // العودة لخلفيات الألعاب عند الدخول لقسم الألعاب
         if (typeof window.switchThemeGridTabCategory === 'function') window.switchThemeGridTabCategory('bg');
     }
 };
