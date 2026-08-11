@@ -1,3 +1,4 @@
+<!-- ملف: index.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -496,11 +497,14 @@
 
         /* 🌟 الأزرار العلوية الرئيسية للحقيبة 🌟 */
         .bag-main-tab {
-            flex: 1; padding: 10px; background: transparent; color: #a1a1aa; border: none; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s;
+            flex: 1; padding: 8px; background: transparent; color: #a1a1aa; border: none; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s;
         }
         .bag-main-tab.active {
             background: linear-gradient(to bottom, rgba(27, 94, 32, 0.6) 0%, rgba(8, 33, 11, 0.6) 100%); color: #ffd700;
         }
+        /* الفاصل الذهبي بين الزرين */
+        html[dir="rtl"] .bag-main-tab:first-child { border-left: 1px solid rgba(212, 175, 55, 0.4); }
+        html[dir="ltr"] .bag-main-tab:first-child { border-right: 1px solid rgba(212, 175, 55, 0.4); }
 
         /* 🌟 الأزرار الجانبية الخاصة بالألعاب 🌟 */
         .bag-side-btn {
@@ -556,9 +560,9 @@
                     <span id="hud-icon-bag" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.5);"></span>
                 </button>
 
-                <!-- 📻 زر الراديو -->
+                <!-- 📻 زر الراديو (تم تكبير الأيقونة هنا - scale(1.8)) -->
                 <button id="music-toggle-btn" class="radio-hud-btn-fallback auto-radio-icon" onclick="openRadioModal()">
-                    <span id="hud-icon-radio" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.4);"></span>
+                    <span id="hud-icon-radio" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.8);"></span>
                 </button>
             </div>
             <div class="hud-group">
@@ -769,7 +773,7 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة الحقيبة (الممتلكات) بالتصميم المطلوب 🌟 -->
+    <!-- 🌟 نافذة الحقيبة (الممتلكات) - التصميم الجديد 🌟 -->
     <div id="themes-grid-overlay" class="modal-overlay" style="z-index: 1000006;">
         <div class="settings-card" dir="auto" style="width: 90vw; height: 90vh; max-width: none; max-height: none; padding: 0; background: #0b120d; border: 1px solid #b38d36; box-shadow: 0 20px 50px rgba(0,0,0,0.9); display: flex; flex-direction: column; overflow: hidden;">
             
@@ -777,46 +781,13 @@
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,215,0,0.2); flex-shrink: 0;">
                 <h3 style="margin: 0; font-size: 22px; color: #ffd700; text-shadow: 0 2px 4px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 8px;">
                     حقيبتي
-                    <span style="width: 28px; height: 28px; display: inline-block;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" style="width: 100%; height: 100%; display: block;">
-                            <defs>
-                                <linearGradient id="bagGoldSideIdx" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="25%" stop-color="#f59e0b"/><stop offset="50%" stop-color="#d97706"/><stop offset="75%" stop-color="#b45309"/><stop offset="100%" stop-color="#78350f"/></linearGradient>
-                                <linearGradient id="bagBodySideIdx" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#334155"/><stop offset="40%" stop-color="#1e293b"/><stop offset="85%" stop-color="#0f172a"/><stop offset="100%" stop-color="#020617"/></linearGradient>
-                                <linearGradient id="bagIvorySideIdx" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="70%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fde68a"/></linearGradient>
-                                <linearGradient id="bagRubySideIdx" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="50%" stop-color="#dc2626"/><stop offset="100%" stop-color="#991b1b"/></linearGradient>
-                                <radialGradient id="bagGlowSideIdx" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
-                            </defs>
-                            <g style="transform-origin: 60px 60px; animation: luxuryFloat 4s ease-in-out infinite;">
-                                <circle cx="60" cy="60" r="54" fill="url(#bagGlowSideIdx)"/>
-                                <ellipse cx="60" cy="108" rx="34" ry="4" fill="#000000" opacity="0.22"/>
-                                <g>
-                                    <path d="M 44 32 C 44 18 76 18 76 32" fill="none" stroke="url(#bagGoldSideIdx)" stroke-width="4.5" stroke-linecap="round"/>
-                                    <rect x="52" y="20" width="16" height="5" rx="2.5" fill="url(#bagBodySideIdx)" stroke="url(#bagGoldSideIdx)" stroke-width="1"/>
-                                    <rect x="22" y="32" width="76" height="66" rx="14" fill="url(#bagBodySideIdx)" stroke="url(#bagGoldSideIdx)" stroke-width="1.8"/>
-                                    <path d="M 22 46 L 22 38 C 22 34.7 24.7 32 28 32 L 36 32" fill="none" stroke="url(#bagGoldSideIdx)" stroke-width="3.5" stroke-linecap="round"/>
-                                    <path d="M 84 32 L 92 32 C 95.3 32 98 34.7 98 38 L 98 46" fill="none" stroke="url(#bagGoldSideIdx)" stroke-width="3.5" stroke-linecap="round"/>
-                                    <path d="M 22 84 L 22 92 C 22 95.3 24.7 98 28 98 L 36 98" fill="none" stroke="url(#bagGoldSideIdx)" stroke-width="3.5" stroke-linecap="round"/>
-                                    <path d="M 84 98 L 92 98 C 95.3 98 98 95.3 98 92 L 98 84" fill="none" stroke="url(#bagGoldSideIdx)" stroke-width="3.5" stroke-linecap="round"/>
-                                    <rect x="36" y="38" width="6" height="10" rx="1.5" fill="url(#bagGoldSideIdx)"/>
-                                    <circle cx="39" cy="45" r="1" fill="#0f172a"/>
-                                    <rect x="78" y="38" width="6" height="10" rx="1.5" fill="url(#bagGoldSideIdx)"/>
-                                    <circle cx="81" cy="45" r="1" fill="#0f172a"/>
-                                    <line x1="22" y1="48" x2="98" y2="48" stroke="url(#bagGoldSideIdx)" stroke-width="1.5" stroke-dasharray="8,2,2,2"/>
-                                    <g transform="translate(32, 52) rotate(-18)"><rect x="0" y="0" width="22" height="30" rx="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8"/><path d="M 11 19 L 7 13 L 15 13 Z" fill="#1e293b"/><circle cx="11" cy="13" r="2.5" fill="#1e293b"/></g>
-                                    <g transform="translate(38, 50) rotate(-6)"><rect x="0" y="0" width="22" height="30" rx="3" fill="url(#bagIvorySideIdx)" stroke="url(#bagGoldSideIdx)" stroke-width="1"/><text x="3" y="7" font-family="Arial" font-size="5" font-weight="bold" fill="url(#bagRubySideIdx)">A</text><path d="M 11 20 C 11 20 5 14 5 10 C 5 7.5 7 6 9.2 6 C 10.6 6 11 6.8 11 6.8 C 11 6.8 11.4 6 12.8 6 C 15 6 17 7.5 17 10 C 17 14 11 20 11 20 Z" fill="url(#bagRubySideIdx)"/></g>
-                                    <g transform="translate(64, 52) rotate(12)"><rect x="0" y="0" width="19" height="32" rx="3.5" fill="url(#bagIvorySideIdx)" stroke="#1e293b" stroke-width="1.2"/><line x1="3" y1="16" x2="16" y2="16" stroke="#475569" stroke-width="1.2"/><circle cx="9.5" cy="16" r="1.2" fill="url(#bagGoldSideIdx)"/><circle cx="5.5" cy="5.5" r="1.3" fill="#0f172a"/><circle cx="13.5" cy="5.5" r="1.3" fill="#0f172a"/><circle cx="5.5" cy="10.5" r="1.3" fill="#0f172a"/><circle cx="13.5" cy="10.5" r="1.3" fill="#0f172a"/><circle cx="5.5" cy="21.5" r="1.3" fill="#0f172a"/><circle cx="13.5" cy="21.5" r="1.3" fill="#0f172a"/><circle cx="5.5" cy="26.5" r="1.3" fill="#0f172a"/><circle cx="13.5" cy="26.5" r="1.3" fill="#0f172a"/></g>
-                                    <g transform="translate(34, 76) rotate(8)"><rect x="0" y="0" width="15" height="15" rx="3.5" fill="url(#bagIvorySideIdx)" stroke="url(#bagGoldSideIdx)" stroke-width="1"/><circle cx="4" cy="4" r="1.2" fill="#0f172a"/><circle cx="11" cy="4" r="1.2" fill="#0f172a"/><circle cx="7.5" cy="7.5" r="1.4" fill="url(#bagRubySideIdx)"/><circle cx="4" cy="11" r="1.2" fill="#0f172a"/><circle cx="11" cy="11" r="1.2" fill="#0f172a"/></g>
-                                    <g transform="translate(70, 78)"><circle cx="10" cy="10" r="10" fill="url(#bagGoldSideIdx)" stroke="#78350f" stroke-width="1"/><circle cx="10" cy="10" r="7" fill="url(#bagBodySideIdx)" stroke="url(#bagGoldSideIdx)" stroke-width="1"/><circle cx="10" cy="10" r="3.5" fill="url(#bagGoldSideIdx)"/><circle cx="10" cy="10" r="1.5" fill="#ffffff" opacity="0.6"/></g>
-                                </g>
-                            </g>
-                        </svg>
-                    </span>
+                    <span id="bag-modal-svg-icon" style="width: 28px; height: 28px; display: inline-block;"></span>
                 </h3>
                 <button class="modal-close-btn" style="position: static; margin: 0; background: transparent; border: none; color: #a1a1aa; font-size: 22px; cursor: pointer; padding: 0;" onclick="window.closeAppModal('themes-grid-overlay')">✕</button>
             </div>
             
-            <!-- 🌟 الأزرار العلوية (الألعاب / عام) -->
-            <div style="display: flex; width: 90%; margin: 15px auto 5px auto; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,215,0,0.3); overflow: hidden; flex-shrink: 0;">
+            <!-- 🌟 الأزرار العلوية (الألعاب / عام) بإطار ذهبي نحيف -->
+            <div style="display: flex; width: 90%; margin: 15px auto 8px auto; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.5); overflow: hidden; flex-shrink: 0;">
                 <button class="bag-main-tab active" onclick="switchBagMainTab('games', this)" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
                     الألعاب
                     <span style="width: 20px; height: 20px; display: inline-block;">
@@ -843,8 +814,8 @@
                 </button>
             </div>
             
-            <!-- الجسم (محتوى العرض) -->
-            <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0; background: #0b120d;">
+            <!-- الجسم (محتوى العرض) مقلل الحواف -->
+            <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0 4px 6px 4px; background: #0b120d;">
                 
                 <!-- 🎮 قسم الألعاب 🎮 (شريط جانبي رجع لمكانه!) -->
                 <div id="bag-view-games" style="display: flex; flex-direction: row; height: 100%; animation: fadeIn 0.3s ease-out;">
@@ -867,18 +838,18 @@
                         </div>
                     </div>
                     
-                    <!-- مساحة العرض الخاصة باللعبة المحددة -->
-                    <div style="flex: 1; display: flex; flex-direction: column; padding: 15px; overflow: hidden; background: #0b120d;">
+                    <!-- مساحة العرض الخاصة باللعبة المحددة (تم تقليل الفراغات هنا) -->
+                    <div style="flex: 1; display: flex; flex-direction: column; padding: 6px; overflow: hidden; background: #0b120d;">
                         
                         <!-- 1. ممتلكات الدامة -->
                         <div id="bag-content-dama" class="bag-game-content active">
-                            <div class="store-tabs-container" style="margin-bottom: 15px; width: 100%; max-width: 100%; flex-shrink: 0;">
+                            <div class="store-tabs-container" style="margin-bottom: 10px; width: 100%; max-width: 100%; flex-shrink: 0;">
                                 <button id="theme-btn-tab-pieces" class="store-tab-btn" onclick="window.switchThemeGridTabCategory('pieces')">احجار</button>
                                 <button id="theme-btn-tab-frames" class="store-tab-btn" onclick="window.switchThemeGridTabCategory('frames')">إطارات</button>
                                 <button id="theme-btn-tab-bg" class="store-tab-btn active" onclick="window.switchThemeGridTabCategory('bg')">خلفيات</button>
                             </div>
                             
-                            <div class="store-scrollable-area" style="flex: 1; overflow-y: auto; padding: 5px;">
+                            <div class="store-scrollable-area" style="flex: 1; overflow-y: auto; padding: 2px;">
                                 <div id="theme-grid-section-bg" class="bag-items-grid"></div>
                                 <div id="theme-grid-section-frames" class="bag-items-grid" style="display: none;"></div>
                                 <div id="theme-grid-section-pieces" class="bag-items-grid" style="display: none;"></div>
@@ -899,16 +870,16 @@
                     </div>
                 </div>
 
-                <!-- 💎 القسم العام 💎 -->
-                <div id="bag-view-general" style="display: none; flex-direction: column; height: 100%; animation: fadeIn 0.3s ease-out; padding: 15px;">
+                <!-- 💎 القسم العام 💎 (تم تقليل الفراغات هنا) -->
+                <div id="bag-view-general" style="display: none; flex-direction: column; height: 100%; animation: fadeIn 0.3s ease-out; padding: 6px;">
                     <div id="bag-content-general" class="bag-game-content active" style="flex-direction: column; height: 100%;">
                         <!-- تبويبات القسم العام -->
-                        <div class="store-tabs-container" style="margin-bottom: 15px; width: 100%; max-width: 100%; flex-shrink: 0;">
+                        <div class="store-tabs-container" style="margin-bottom: 10px; width: 100%; max-width: 100%; flex-shrink: 0;">
                             <button id="theme-btn-tab-profile-frames" class="store-tab-btn" onclick="window.switchThemeGridTabCategory('profile-frames')">إطارات البروفايل</button>
                             <button id="theme-btn-tab-gifts" class="store-tab-btn active" onclick="window.switchThemeGridTabCategory('gifts')">هدايا <span style="filter: hue-rotate(210deg);">🔥</span></button>
                         </div>
                         
-                        <div class="store-scrollable-area" style="flex: 1; overflow-y: auto; padding: 5px;">
+                        <div class="store-scrollable-area" style="flex: 1; overflow-y: auto; padding: 2px;">
                             <div id="theme-grid-section-gifts" class="bag-items-grid"></div>
                             <div id="theme-grid-section-profile-frames" class="bag-items-grid" style="display: none;">
                                 <!-- محتوى إطارات البروفايل يظهر هنا مستقبلاً -->
