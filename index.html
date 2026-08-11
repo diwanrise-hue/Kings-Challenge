@@ -69,6 +69,7 @@
             justify-content: center; align-items: center; text-align: center; 
             transition: opacity 0.8s ease, visibility 0.8s;
         }
+        #splash-screen svg { fill: var(--accent); width: 60px; height: 60px; margin-bottom: 20px; }
         #splash-screen h1 { 
             font-size: 24px; font-weight: 800; margin: 0; 
             letter-spacing: 3px; color: var(--text-primary);
@@ -508,7 +509,10 @@
 <body>
       
     <div id="splash-screen">
-        <span id="icon-splash" style="display:block; width: 60px; height: 60px; fill: var(--accent); margin-bottom: 20px;"></span>
+        <!-- تم وضع كود الـ SVG للتاج مباشرة ليظهر بدون أي تأخير -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 60px; height: 60px; fill: var(--accent); margin-bottom: 20px; display: block;">
+            <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM5 18H19V20H5V18Z"/>
+        </svg>
         <h1 data-i18n="app_title">DAMA CHALLENGE</h1>
     </div>
 
@@ -538,12 +542,12 @@
                     <span></span><span></span><span></span>
                 </div>
                 
-                <!-- 🎒 زر الحقيبة (يتم تكبير الأيقونة داخلياً) -->
+                <!-- 🎒 زر الحقيبة (الأيقونة تُحقن وتكبر داخلياً) -->
                 <button id="hub-bag-btn" class="radio-hud-btn-fallback" onclick="window.openAppModal('themes-grid-overlay')" title="حقيبتي">
                     <span id="hud-icon-bag" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.5);"></span>
                 </button>
 
-                <!-- 📻 زر الراديو (يتم تكبير الأيقونة داخلياً) -->
+                <!-- 📻 زر الراديو (الأيقونة تُحقن وتكبر داخلياً) -->
                 <button id="music-toggle-btn" class="radio-hud-btn-fallback auto-radio-icon" onclick="openRadioModal()">
                     <span id="hud-icon-radio" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.4);"></span>
                 </button>
@@ -777,16 +781,6 @@
             </div>
         </div>
     </div>
-
-    <!-- 🌟 تهيئة المتجر -->
-    <script type="module">
-        import { storeManager } from './dama/store.js'; 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (storeManager && typeof storeManager.init === 'function') {
-                storeManager.init();
-            }
-        });
-    </script>
 
 </body>
 </html>
