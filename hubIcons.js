@@ -1,7 +1,6 @@
 // ملف: hubIcons.js
 // ============================================================
 // أيقونات الشريط السفلي والأزرار العلوية — SVG ملونة
-// تم الحفاظ على الربط مع الواجهة بدون أي تغيير.
 // ============================================================
 
 window.HUB_ICONS = {
@@ -111,8 +110,6 @@ window.HUB_ICONS = {
                 fill="#FFD83D"/>
     </svg>`,
 
-
-
     // ========================================================
     // 🎮 الألعاب
     // ========================================================
@@ -187,11 +184,8 @@ window.HUB_ICONS = {
                 fill="#FFF3B0"/>
     </svg>`,
 
-
-
     // ========================================================
     // 🎲 المتجر
-    // حجر دامة كبير + حجر طاولة كبير
     // ========================================================
     store: `
     <svg viewBox="0 0 64 64"
@@ -200,11 +194,9 @@ window.HUB_ICONS = {
          preserveAspectRatio="xMidYMid meet">
 
         <defs>
-
             <!-- ========================================= -->
             <!-- حجر الدامة -->
             <!-- ========================================= -->
-
             <radialGradient id="realDamaTop"
                 cx="30%" cy="18%" r="85%">
                 <stop offset="0%" stop-color="#FFB4B4"/>
@@ -221,11 +213,9 @@ window.HUB_ICONS = {
                 <stop offset="100%" stop-color="#650C27"/>
             </linearGradient>
 
-
             <!-- ========================================= -->
             <!-- حجر الطاولة -->
             <!-- ========================================= -->
-
             <radialGradient id="realTableTop"
                 cx="30%" cy="18%" r="85%">
                 <stop offset="0%" stop-color="#FFF7B2"/>
@@ -242,10 +232,8 @@ window.HUB_ICONS = {
                 <stop offset="100%" stop-color="#713000"/>
             </linearGradient>
 
-
             <filter id="stoneDepth"
                 x="-60%" y="-60%" width="220%" height="240%">
-
                 <feDropShadow
                     dx="0"
                     dy="4"
@@ -256,7 +244,6 @@ window.HUB_ICONS = {
 
             <filter id="goldDepth"
                 x="-60%" y="-60%" width="220%" height="240%">
-
                 <feDropShadow
                     dx="0"
                     dy="4"
@@ -264,197 +251,37 @@ window.HUB_ICONS = {
                     flood-color="#5C2800"
                     flood-opacity=".35"/>
             </filter>
-
         </defs>
 
+        <!-- ================================================= -->
+        <!-- حجر الدامة الأحمر -->
+        <!-- ================================================= -->
+        <ellipse cx="19" cy="51" rx="16" ry="4.5" fill="#4D071C" opacity=".28"/>
+        <path
+            d="M4.5 24 C4.5 17.9 11.1 13.5 20 13.5 C28.9 13.5 35.5 17.9 35.5 24 V38.5 C35.5 44.6 28.9 49 20 49 C11.1 49 4.5 44.6 4.5 38.5 Z"
+            fill="url(#realDamaSide)" stroke="#FF7180" stroke-width="1.4" filter="url(#stoneDepth)"/>
+        <path d="M5.5 25 C6.5 30 12.5 33.5 20 33.5 C27.5 33.5 33.5 30 34.5 25" stroke="#FF5D70" stroke-width="1.5" opacity=".65"/>
+        <ellipse cx="20" cy="23.8" rx="15.5" ry="10" fill="url(#realDamaTop)" stroke="#FF8A96" stroke-width="1.8"/>
+        <ellipse cx="20" cy="23.8" rx="11.5" ry="6.8" stroke="#FFB0B7" stroke-width="1.4" opacity=".7"/>
+        <ellipse cx="20" cy="23.8" rx="7.2" ry="4.1" fill="#9C1030" opacity=".3" stroke="#FFD0D4" stroke-width="1.2"/>
+        <ellipse cx="14.5" cy="20.5" rx="4.8" ry="2" fill="#FFDCE0" opacity=".72" transform="rotate(-10 14.5 20.5)"/>
 
         <!-- ================================================= -->
-        <!-- حجر الدامة الأحمر — كبير وواضح في الخلف -->
+        <!-- حجر الطاولة الذهبي -->
         <!-- ================================================= -->
-
-        <!-- الظل -->
-        <ellipse
-            cx="19"
-            cy="51"
-            rx="16"
-            ry="4.5"
-            fill="#4D071C"
-            opacity=".28"/>
-
-        <!-- جسم الحجر الجانبي -->
+        <ellipse cx="44" cy="53" rx="16" ry="4.5" fill="#5B2700" opacity=".28"/>
         <path
-            d="
-            M4.5 24
-            C4.5 17.9 11.1 13.5 20
-            13.5
-            C28.9 13.5 35.5 17.9 35.5 24
-            V38.5
-            C35.5 44.6 28.9 49 20 49
-            C11.1 49 4.5 44.6 4.5 38.5
-            Z"
-            fill="url(#realDamaSide)"
-            stroke="#FF7180"
-            stroke-width="1.4"
-            filter="url(#stoneDepth)"/>
-
-        <!-- خط الحافة -->
-        <path
-            d="
-            M5.5 25
-            C6.5 30 12.5 33.5 20 33.5
-            C27.5 33.5 33.5 30 34.5 25"
-            stroke="#FF5D70"
-            stroke-width="1.5"
-            opacity=".65"/>
-
-        <!-- سطح علوي كبير -->
-        <ellipse
-            cx="20"
-            cy="23.8"
-            rx="15.5"
-            ry="10"
-            fill="url(#realDamaTop)"
-            stroke="#FF8A96"
-            stroke-width="1.8"/>
-
-        <!-- حافة سطح -->
-        <ellipse
-            cx="20"
-            cy="23.8"
-            rx="11.5"
-            ry="6.8"
-            stroke="#FFB0B7"
-            stroke-width="1.4"
-            opacity=".7"/>
-
-        <!-- دائرة داخلية -->
-        <ellipse
-            cx="20"
-            cy="23.8"
-            rx="7.2"
-            ry="4.1"
-            fill="#9C1030"
-            opacity=".3"
-            stroke="#FFD0D4"
-            stroke-width="1.2"/>
-
-        <!-- لمعة كبيرة -->
-        <ellipse
-            cx="14.5"
-            cy="20.5"
-            rx="4.8"
-            ry="2"
-            fill="#FFDCE0"
-            opacity=".72"
-            transform="rotate(-10 14.5 20.5)"/>
-
-
-        <!-- ================================================= -->
-        <!-- حجر الطاولة الذهبي — كبير وواضح في المقدمة -->
-        <!-- ================================================= -->
-
-        <!-- الظل -->
-        <ellipse
-            cx="44"
-            cy="53"
-            rx="16"
-            ry="4.5"
-            fill="#5B2700"
-            opacity=".28"/>
-
-        <!-- الجسم -->
-        <path
-            d="
-            M28
-            22
-            C28
-            15.7 34.8 11.5 44
-            11.5
-            C53.2 11.5 60 15.7 60 22
-            V39
-            C60 45.3 53.2 49.5 44 49.5
-            C34.8 49.5 28 45.3 28 39
-            Z"
-            fill="url(#realTableSide)"
-            stroke="#FFD866"
-            stroke-width="1.5"
-            filter="url(#goldDepth)"/>
-
-        <!-- حافة -->
-        <path
-            d="
-            M29 23
-            C30.5 28.2 36.2 31.5 44 31.5
-            C51.8 31.5 57.5 28.2 59 23"
-            stroke="#F8B72C"
-            stroke-width="1.5"
-            opacity=".7"/>
-
-        <!-- سطح علوي -->
-        <ellipse
-            cx="44"
-            cy="21.8"
-            rx="16"
-            ry="9.8"
-            fill="url(#realTableTop)"
-            stroke="#FFE58A"
-            stroke-width="1.8"/>
-
-        <!-- حلقة سطح -->
-        <ellipse
-            cx="44"
-            cy="21.8"
-            rx="11.8"
-            ry="6.8"
-            stroke="#FFF0A8"
-            stroke-width="1.4"
-            opacity=".72"/>
-
-        <!-- نقاط حجر الطاولة -->
-        <circle
-            cx="38"
-            cy="20"
-            r="1.65"
-            fill="#713000"/>
-
-        <circle
-            cx="44"
-            cy="23.8"
-            r="1.65"
-            fill="#713000"/>
-
-        <circle
-            cx="50"
-            cy="20"
-            r="1.65"
-            fill="#713000"/>
-
-        <!-- نقطة مركزية -->
-        <circle
-            cx="44"
-            cy="21.8"
-            r="2.3"
-            stroke="#FFEFA5"
-            stroke-width="1"
-            opacity=".55"/>
-
-        <!-- لمعان -->
-        <ellipse
-            cx="38"
-            cy="18.5"
-            rx="5"
-            ry="2"
-            fill="#FFFFFF"
-            opacity=".65"
-            transform="rotate(-10 38 18.5)"/>
-
-        <!-- بريق -->
-        <path
-            d="M55 6V14M51 10H59"
-            stroke="#FFE06A"
-            stroke-width="1.8"
-            stroke-linecap="round"/>
-
+            d="M28 22 C28 15.7 34.8 11.5 44 11.5 C53.2 11.5 60 15.7 60 22 V39 C60 45.3 53.2 49.5 44 49.5 C34.8 49.5 28 45.3 28 39 Z"
+            fill="url(#realTableSide)" stroke="#FFD866" stroke-width="1.5" filter="url(#goldDepth)"/>
+        <path d="M29 23 C30.5 28.2 36.2 31.5 44 31.5 C51.8 31.5 57.5 28.2 59 23" stroke="#F8B72C" stroke-width="1.5" opacity=".7"/>
+        <ellipse cx="44" cy="21.8" rx="16" ry="9.8" fill="url(#realTableTop)" stroke="#FFE58A" stroke-width="1.8"/>
+        <ellipse cx="44" cy="21.8" rx="11.8" ry="6.8" stroke="#FFF0A8" stroke-width="1.4" opacity=".72"/>
+        <circle cx="38" cy="20" r="1.65" fill="#713000"/>
+        <circle cx="44" cy="23.8" r="1.65" fill="#713000"/>
+        <circle cx="50" cy="20" r="1.65" fill="#713000"/>
+        <circle cx="44" cy="21.8" r="2.3" stroke="#FFEFA5" stroke-width="1" opacity=".55"/>
+        <ellipse cx="38" cy="18.5" rx="5" ry="2" fill="#FFFFFF" opacity=".65" transform="rotate(-10 38 18.5)"/>
+        <path d="M55 6V14M51 10H59" stroke="#FFE06A" stroke-width="1.8" stroke-linecap="round"/>
     </svg>`,
 
     // ========================================================
@@ -565,11 +392,6 @@ window.HUB_ICONS = {
     </svg>`,
 
     // ========================================================
-    // ✦ أيقونة شاشة البداية
-    // ========================================================
-    splash: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM5 18H19V20H5V18Z"/></svg>`,
-
-    // ========================================================
     // ✦ أيقونة فيسبوك
     // ========================================================
     facebook: `<svg style="width:20px; height:20px; margin-left:8px; fill:currentColor;" viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/></svg>`
@@ -591,9 +413,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const bagIconContainer = document.getElementById('hud-icon-bag');
     const radioIconContainer = document.getElementById('hud-icon-radio');
 
-    // حاويات شاشة البداية
-    const splashIconContainer = document.getElementById('icon-splash');
-
     if (latestIconContainer) latestIconContainer.innerHTML = window.HUB_ICONS.latest;
     if (gamesIconContainer) gamesIconContainer.innerHTML = window.HUB_ICONS.games;
     if (storeIconContainer) storeIconContainer.innerHTML = window.HUB_ICONS.store;
@@ -602,7 +421,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bagIconContainer) bagIconContainer.innerHTML = window.HUB_ICONS.bag;
     if (radioIconContainer) radioIconContainer.innerHTML = window.HUB_ICONS.radio;
 
-    // حقن أيقونة شاشة البداية وفيسبوك
-    if (splashIconContainer) splashIconContainer.innerHTML = window.HUB_ICONS.splash;
+    // حقن أيقونة فيسبوك
     document.querySelectorAll('.icon-facebook').forEach(el => el.innerHTML = window.HUB_ICONS.facebook);
 });
