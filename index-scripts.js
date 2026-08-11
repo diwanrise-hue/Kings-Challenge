@@ -17,14 +17,14 @@ window.openAppModal = function(modalId) {
     if (modal) {
         modal.style.display = 'flex';
         
-        // 🌟 إصلاح: تحميل الخلفيات تلقائياً عند فتح الحقيبة
+        // تحميل الخلفيات تلقائياً عند فتح الحقيبة
         if (modalId === 'themes-grid-overlay') {
             if (typeof window.switchThemeGridTabCategory === 'function') {
                 window.switchThemeGridTabCategory('bg');
             }
         }
         
-        // 🌟 إصلاح: تحميل الخلفيات تلقائياً عند فتح المتجر
+        // تحميل الخلفيات تلقائياً عند فتح المتجر
         if (modalId === 'store-modal') {
             if (typeof window.switchStoreTabCategory === 'function') {
                 window.switchStoreTabCategory('bg');
@@ -56,11 +56,9 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     if(nameEl) nameEl.innerText = itemName;
     if(costEl) costEl.innerText = price; 
     
-    // جلب الأيقونة أو الصورة لتلائم التصميم الجديد
     if (previewEl) {
-        let iconHtml = '🎁'; // افتراضي
+        let iconHtml = '🎁'; 
         
-        // جلب أيقونة المتجر إذا كانت من المتجر العام
         if (window.STORE_ITEMS && window.STORE_ITEMS[itemId]) {
             const item = window.STORE_ITEMS[itemId];
             if (item.isImage) {
@@ -72,7 +70,6 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
                 iconHtml = '💡';
             }
         } 
-        // جلب أيقونة الشعبية
         else if (itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === itemId))) {
              if (window.POPULARITY_ITEMS) {
                  const popItem = window.POPULARITY_ITEMS.find(p => p.id === itemId);
@@ -96,7 +93,6 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     window.openAppModal('purchase-modal');
 };
 
-// 🌟 ربط زر تأكيد الشراء بالسيرفر 🌟
 document.addEventListener('DOMContentLoaded', () => {
     const confirmBuyBtn = document.getElementById('confirm-buy-btn');
     if (confirmBuyBtn) {
@@ -965,42 +961,34 @@ window.addEventListener('message', (event) => {
     }
 });
 
-// 🌟 دالة التنقل بين الأقسام الرئيسية للحقيبة (الألعاب / العام) 🌟
-window.switchBagMainTab = function(tabId, btnElement) {
-    // 1. إزالة التفعيل (اللون الذهبي) عن جميع الأزرار العلوية
-    document.querySelectorAll('.bag-main-tab').forEach(el => {
-        el.classList.remove('active');
+// 🌟 دالة التنقل وتحديث التبويبات الفرعية للممتلكات (محدثة بـ querySelectorAll)
+window.switchThemeGridTabCategory = function(category) {
+    const tabs = ['bg', 'frames', 'pieces', 'profile-frames', 'gifts'];
+    
+    tabs.forEach(tab => { 
+        document.querySelectorAll('[id="theme-btn-tab-' + tab + '"]').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('[id="theme-grid-section-' + tab + '"]').forEach(sec => sec.style.display = 'none');
     });
     
-    // 2. تفعيل الزر الذي تم النقر عليه
-    if (btnElement) {
-        btnElement.classList.add('active');
-    }
+    document.querySelectorAll('[id="theme-btn-tab-' + category + '"]').forEach(activeBtn => activeBtn.classList.add('active'));
+    document.querySelectorAll('[id="theme-grid-section-' + category + '"]').forEach(activeSec => activeSec.style.display = 'grid');
+};
 
-    // 3. إخفاء جميع الأقسام (الألعاب والعام)
-    const viewGames = document.getElementById('bag-view-games');
-    const viewGeneral = document.getElementById('bag-view-general');
-    
-    if (viewGames) viewGames.style.display = 'none';
-    if (viewGeneral) viewGeneral.style.display = 'none';
+// 🌟 دالة التنقل بين الأقسام الرئيسية للحقيبة (الألعاب / العام) 🌟
+window.switchBagMainTab = function(tabId, btnElement) {
+    document.querySelectorAll('.bag-main-tab').forEach(el => el.classList.remove('active'));
+    if (btnElement) btnElement.classList.add('active');
 
-    // 4. إظهار القسم المطلوب بناءً على الزر المضغوط
-    const targetView = document.getElementById('bag-view-' + tabId);
-    if (targetView) {
-        targetView.style.display = 'flex'; // استخدام flex للحفاظ على التنسيق
-    }
+    document.querySelectorAll('[id="bag-view-games"]').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('[id="bag-view-general"]').forEach(el => el.style.display = 'none');
 
-    // 5. إذا تم فتح قسم "عام"، قم بتحديث الهدايا وتفعيل تبويباتها
+    document.querySelectorAll('[id="bag-view-' + tabId + '"]').forEach(el => el.style.display = 'flex');
+
     if (tabId === 'general') {
         if (typeof window.renderGiftsInBag === 'function') window.renderGiftsInBag();
-        if (typeof window.switchThemeGridTabCategory === 'function') {
-            window.switchThemeGridTabCategory('gifts');
-        }
+        if (typeof window.switchThemeGridTabCategory === 'function') window.switchThemeGridTabCategory('gifts');
     } else if (tabId === 'games') {
-        // العودة لخلفيات الألعاب
-        if (typeof window.switchThemeGridTabCategory === 'function') {
-            window.switchThemeGridTabCategory('bg');
-        }
+        if (typeof window.switchThemeGridTabCategory === 'function') window.switchThemeGridTabCategory('bg');
     }
 };
 
@@ -1010,40 +998,13 @@ window.switchBagGameTab = function(gameId, btnElement) {
         el.classList.remove('active');
         el.style.display = 'none';
     });
+    
+    document.querySelectorAll('.bag-game-btn, .bag-side-btn').forEach(el => el.classList.remove('active'));
 
-    // إزالة التفعيل عن الأزرار الأفقية والجانبية (إن وجدت)
-    document.querySelectorAll('.bag-game-btn, .bag-side-btn').forEach(el => {
-        el.classList.remove('active');
-    });
-
-    const targetContent = document.getElementById('bag-content-' + gameId);
-    if (targetContent) {
+    document.querySelectorAll('[id="bag-content-' + gameId + '"]').forEach(targetContent => {
         targetContent.classList.add('active');
         targetContent.style.display = 'flex';
-    }
-
-    if (btnElement) {
-        btnElement.classList.add('active');
-    }
-};
-
-// 🌟 دالة التنقل وتحديث التبويبات الفرعية للممتلكات
-window.switchThemeGridTabCategory = function(category) {
-    // 🌟 تمت إضافة 'profile-frames' و 'gifts' لكي تختفي التبويبات الأخرى بشكل صحيح
-    const tabs = ['bg', 'frames', 'pieces', 'profile-frames', 'gifts'];
-    
-    tabs.forEach(tab => { 
-        const btn = document.getElementById('theme-btn-tab-' + tab); 
-        const sec = document.getElementById('theme-grid-section-' + tab); 
-        if(btn) btn.classList.remove('active'); 
-        if(sec) sec.style.display = 'none'; 
     });
     
-    const activeBtn = document.getElementById('theme-btn-tab-' + category); 
-    const activeSec = document.getElementById('theme-grid-section-' + category);
-    
-    if(activeBtn) activeBtn.classList.add('active'); 
-    if(activeSec) {
-        activeSec.style.display = 'grid';
-    }
+    if (btnElement) btnElement.classList.add('active');
 };
