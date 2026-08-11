@@ -422,6 +422,13 @@ window.switchStoreContentTab = function(contentId, btnElement) {
     const targetContent = document.getElementById(contentId);
     if (targetContent) { targetContent.classList.add('active-content'); }
     if (btnElement) btnElement.classList.add('active');
+
+    // 🌟 فتح الخلفيات تلقائياً عند الدخول لقسم الألعاب في المتجر
+    if (contentId === 'store-games-content') {
+        if (typeof window.switchStoreTabCategory === 'function') {
+            window.switchStoreTabCategory('bg');
+        }
+    }
 };
 
 window.switchSubStoreTab = function(contentId, btnElement) {
@@ -434,24 +441,21 @@ window.switchSubStoreTab = function(contentId, btnElement) {
     if (btnElement) btnElement.classList.add('active');
 };
 
+// 🌟 محدثة بـ querySelectorAll لتجنب أي تداخل
 window.switchStoreTabCategory = function(category, btnElement) {
     const tabs = ['bg', 'frames', 'pieces', 'offers'];
     
     tabs.forEach(tab => { 
-        const secContainer = document.getElementById('store-section-' + tab + '-container'); 
-        const btn = document.getElementById('store-btn-tab-' + tab);
-        if(secContainer) secContainer.style.display = 'none'; 
-        if(btn) btn.classList.remove('active');
+        document.querySelectorAll('[id="store-section-' + tab + '-container"]').forEach(sec => sec.style.display = 'none');
+        document.querySelectorAll('[id="store-btn-tab-' + tab + '"]').forEach(btn => btn.classList.remove('active'));
     });
     
-    const activeSecContainer = document.getElementById('store-section-' + category + '-container');
-    if(activeSecContainer) activeSecContainer.style.setProperty('display', 'flex', 'important'); 
+    document.querySelectorAll('[id="store-section-' + category + '-container"]').forEach(sec => sec.style.setProperty('display', 'flex', 'important'));
     
     if(btnElement) {
         btnElement.classList.add('active');
     } else {
-        const fallbackBtn = document.getElementById('store-btn-tab-' + category);
-        if(fallbackBtn) fallbackBtn.classList.add('active');
+        document.querySelectorAll('[id="store-btn-tab-' + category + '"]').forEach(btn => btn.classList.add('active'));
     }
 };
 
