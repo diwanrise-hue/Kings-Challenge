@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span data-i18n="store_topup">شحن</span>
                 </button>
                 <button class="store-tab-btn" onclick="window.switchStoreContentTab('store-popularity-content', this)">
-                    <span>عام</span> <span style="font-size: 15px; filter: hue-rotate(210deg) drop-shadow(0 0 3px rgba(0,210,255,0.6)); margin-right: 5px;">🔥</span>
+                    <span>شعبية</span> <span style="font-size: 15px; filter: hue-rotate(210deg) drop-shadow(0 0 3px rgba(0,210,255,0.6)); margin-right: 5px;">🔥</span>
                 </button>
                 <button class="store-tab-btn active" onclick="window.switchStoreContentTab('store-games-content', this)">
                     <span data-i18n="store_games">الألعاب</span> 
@@ -356,14 +356,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             </div>
 
-            <!-- حاوية محتوى العام (الشعبية) -->
+            <!-- حاوية محتوى الشعبية -->
             <div id="store-popularity-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; padding: 12px; display: flex; flex-direction: column;">
                     
-                    <!-- ترويسة بسيطة لقسم العام -->
+                    <!-- ترويسة بسيطة لقسم الشعبية -->
                     <div style="text-align: center; margin-bottom: 12px; flex-shrink: 0;">
                         <span style="font-size: 20px; filter: hue-rotate(210deg) drop-shadow(0 0 5px rgba(0, 210, 255, 0.5));">🔥</span>
-                        <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;">هدايا عامة</span>
+                        <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;">هدايا شعبية</span>
                     </div>
                     
                     <!-- منطقة التمرير للمنتجات -->
