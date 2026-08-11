@@ -948,3 +948,45 @@ window.addEventListener('message', (event) => {
         if (typeof openRadioModal === 'function') openRadioModal();
     }
 });
+
+// 🌟 دالة التنقل بين ألعاب الحقيبة
+window.switchBagGameTab = function(gameId, btnElement) {
+    document.querySelectorAll('.bag-game-content').forEach(el => {
+        el.classList.remove('active');
+        el.style.display = 'none';
+    });
+    
+    document.querySelectorAll('.bag-side-btn').forEach(el => {
+        el.classList.remove('active');
+    });
+
+    const targetContent = document.getElementById('bag-content-' + gameId);
+    if (targetContent) {
+        targetContent.classList.add('active');
+        targetContent.style.display = 'flex';
+    }
+    
+    if (btnElement) {
+        btnElement.classList.add('active');
+    }
+
+    if (gameId === 'gifts' && typeof window.renderGiftsInBag === 'function') {
+        window.renderGiftsInBag();
+    }
+};
+
+window.switchThemeGridTabCategory = function(category) {
+    const tabs = ['bg', 'frames', 'pieces'];
+    tabs.forEach(tab => { 
+        const btn = document.getElementById('theme-btn-tab-' + tab); 
+        const sec = document.getElementById('theme-grid-section-' + tab); 
+        if(btn) btn.classList.remove('active'); 
+        if(sec) sec.style.display = 'none'; 
+    });
+    const activeBtn = document.getElementById('theme-btn-tab-' + category); 
+    const activeSec = document.getElementById('theme-grid-section-' + category);
+    if(activeBtn) activeBtn.classList.add('active'); 
+    if(activeSec) {
+        activeSec.style.display = 'grid';
+    }
+};
