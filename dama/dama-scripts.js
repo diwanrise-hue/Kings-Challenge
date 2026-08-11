@@ -14,6 +14,63 @@ function formatCompactNumber(num) {
     return num;
 }
 
+// ===============================================
+// 🌟 دوال الواجهة الجديدة (التكبير والتنسيق) 🌟
+// ===============================================
+
+// دالة آمنة لتغيير الأرقام داخل العناصر (للخبرة والعملات) دون مسح الأيقونات
+function formatHTMLNumbers(el) {
+    if (!el) return;
+    for (let i = 0; i < el.childNodes.length; i++) {
+        let node = el.childNodes[i];
+        if (node.nodeType === 3) { // 3 تعني Text Node
+            node.nodeValue = node.nodeValue.replace(/[0-9,]+/g, match => {
+                let num = parseInt(match.replace(/,/g, ''), 10);
+                if (isNaN(num)) return match;
+                return formatCompactNumber(num);
+            });
+        } else if (node.nodeType === 1) { // 1 تعني Element (مثل span)
+            formatHTMLNumbers(node);
+        }
+    }
+}
+
+// دالة التصغير المركزي (للاسم والـ LV) للحفاظ على تناسق الإطار
+window.autoFitCenterOnly = function(elementSelector, maxWidth, baseTransform = '') {
+    const el = document.querySelector(elementSelector);
+    if (!el) return;
+
+    // ضمان أن نقطة الارتكاز هي المنتصف ليصغر دون أن ينزاح
+    el.style.setProperty('transform-origin', 'center center', 'important');
+    el.style.setProperty('white-space', 'nowrap', 'important');
+    el.style.setProperty('display', 'inline-block', 'important');
+
+    // إرجاع العنصر لحجمه الأساسي لقياس العرض
+    el.style.setProperty('transform', baseTransform, 'important');
+    const scrollWidth = el.scrollWidth;
+
+    // التصغير إذا لزم الأمر
+    if (scrollWidth > maxWidth) {
+        const scaleFactor = maxWidth / scrollWidth;
+        el.style.setProperty('transform', `${baseTransform} scale(${scaleFactor})`, 'important');
+    }
+};
+
+// تحديث قياسات وتنسيقات البروفايل الجديد برمجياً
+window.refreshProfileUIStyles = function() {
+    formatHTMLNumbers(document.getElementById('profile-stat-tokens-badge-container'));
+    formatHTMLNumbers(document.getElementById('xp-text-element'));
+
+    window.autoFitCenterOnly('.player-name', 65, '');        
+    window.autoFitCenterOnly('#badge-level', 21, '');        
+    window.autoFitCenterOnly('#badge-next-level', 15.5, ''); 
+};
+
+// تشغيل التنسيق عند تحميل الصفحة لضمان ترتيب العناصر
+window.addEventListener('load', () => {
+    setTimeout(window.refreshProfileUIStyles, 500);
+});
+
 // ==========================================
 // 1. تجاوز (Override) وتصحيح مسارات LocalStorage
 // ==========================================
@@ -46,6 +103,13 @@ localStorage.setItem = function(key, value) {
         if(window.parent && window.parent !== window) {
             window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
         }
+
+        // تحديث واجهة البروفايل الجديدة برمجياً عند أي تغيير في البيانات
+        setTimeout(() => {
+            if(typeof window.refreshProfileUIStyles === 'function') {
+                window.refreshProfileUIStyles();
+            }
+        }, 150);
     }
     originalSetItem.call(this, key, value);
 };
