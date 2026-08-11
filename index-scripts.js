@@ -56,9 +56,11 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     if(nameEl) nameEl.innerText = itemName;
     if(costEl) costEl.innerText = price; 
     
+    // جلب الأيقونة أو الصورة لتلائم التصميم الجديد
     if (previewEl) {
         let iconHtml = '🎁'; 
         
+        // جلب أيقونة المتجر إذا كانت من المتجر العام
         if (window.STORE_ITEMS && window.STORE_ITEMS[itemId]) {
             const item = window.STORE_ITEMS[itemId];
             if (item.isImage) {
@@ -70,6 +72,7 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
                 iconHtml = '💡';
             }
         } 
+        // جلب أيقونة الشعبية
         else if (itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === itemId))) {
              if (window.POPULARITY_ITEMS) {
                  const popItem = window.POPULARITY_ITEMS.find(p => p.id === itemId);
@@ -93,6 +96,7 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     window.openAppModal('purchase-modal');
 };
 
+// 🌟 ربط زر تأكيد الشراء بالسيرفر 🌟
 document.addEventListener('DOMContentLoaded', () => {
     const confirmBuyBtn = document.getElementById('confirm-buy-btn');
     if (confirmBuyBtn) {
@@ -156,7 +160,7 @@ window.switchNavTab = function(tabName) {
     document.getElementById(`nav-section-${tabName}`).classList.add('active-section');
     event.currentTarget.classList.add('active');
 
-    // 🌟 إجبار الخلفيات على الظهور تلقائياً عند فتح المتجر من الشريط السفلي
+    // إجبار الخلفيات على الظهور تلقائياً عند فتح المتجر من الشريط السفلي
     if (tabName === 'store') {
         if (typeof window.switchStoreTabCategory === 'function') {
             window.switchStoreTabCategory('bg');
@@ -969,7 +973,11 @@ window.addEventListener('message', (event) => {
     }
 });
 
-// 🌟 دالة التنقل وتحديث التبويبات الفرعية للممتلكات (محدثة بـ querySelectorAll لتجنب التداخل) 🌟
+// ===================================================================
+// 🌟 دوال التنقل وإدارة الحقيبة 🌟
+// ===================================================================
+
+// 1. دالة التنقل وتحديث التبويبات الفرعية للممتلكات
 window.switchThemeGridTabCategory = function(category) {
     const tabs = ['bg', 'frames', 'pieces', 'profile-frames', 'gifts'];
     
@@ -982,7 +990,7 @@ window.switchThemeGridTabCategory = function(category) {
     document.querySelectorAll('[id="theme-grid-section-' + category + '"]').forEach(activeSec => activeSec.style.display = 'grid');
 };
 
-// 🌟 دالة التنقل بين الأقسام الرئيسية للحقيبة (الألعاب / العام) 🌟
+// 2. دالة التنقل بين الأقسام الرئيسية للحقيبة (الألعاب / العام)
 window.switchBagMainTab = function(tabId, btnElement) {
     document.querySelectorAll('.bag-main-tab').forEach(el => el.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
@@ -1002,7 +1010,7 @@ window.switchBagMainTab = function(tabId, btnElement) {
     }
 };
 
-// 🌟 دالة التنقل بين ألعاب الحقيبة
+// 3. دالة التنقل بين ألعاب الحقيبة
 window.switchBagGameTab = function(gameId, btnElement) {
     document.querySelectorAll('.bag-game-content').forEach(el => {
         el.classList.remove('active');
