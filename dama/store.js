@@ -1,6 +1,5 @@
 // ==========================================
-// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة
-// (تحتفظ بكامل المنطق والواجهة + دعم حفظ واستعراض هدايا الشعبية + إطار ذهبي ثابت بدون توهج ساطع)
+// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (إصلاح تداخل التبويبات)
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -547,16 +546,13 @@ window.addPopularityToBag = function(itemId, amount = 1) {
         profile.inventory = {};
     }
     
-    // زيادة الكمية المملوكة من هذا العنصر
     profile.inventory[itemId] = (profile.inventory[itemId] || 0) + amount;
 
-    // حفظ البروفايل ومزامنته
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
     if (window.parent && window.parent !== window) {
         window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
     }
 
-    // إعادة رسم الهدايا بالحقيبة والمتجر
     if (typeof window.renderGiftsInBag === 'function') {
         window.renderGiftsInBag();
     }
@@ -632,7 +628,6 @@ export const storeManager = {
         const style = document.createElement('style');
         style.id = 'store-legendary-styles';
         style.innerHTML = `
-            /* 🌟 إطار ذهبي ثابت بدون توهج ساطع وبدون أي حركة 🌟 */
             .legendary-card { 
                 animation: none !important; 
                 background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(0, 0, 0, 0.6)) !important; 
@@ -796,7 +791,6 @@ export const storeManager = {
             return; 
         }
         
-        // التحقق من قائمة متجر اللعبة أو قائمة منتجات الشعبية
         let item = STORE_ITEMS[itemId];
         if (!item && window.POPULARITY_ITEMS) {
             item = window.POPULARITY_ITEMS.find(p => p.id === itemId);
@@ -813,7 +807,6 @@ export const storeManager = {
         if (window['socket'] && window['socket'].connected) { 
             window['socket'].emit('requestPurchase', { userId: profile.id, itemId: itemId, cost: item.cost, itemType: itemType || item.type }); 
         } else { 
-            // معالجة الشراء أوفلاين كدعم مباشر
             if (profile.tokens >= item.cost) {
                 profile.tokens -= item.cost;
                 if (itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === itemId))) {
@@ -896,7 +889,6 @@ export const storeManager = {
         if(bagFr) bagFr.innerHTML = ''; 
         if(bagPc) bagPc.innerHTML = '';
 
-        // تحديث هدايا الشعبية في الحقيبة إن وجدت
         if (typeof window.renderGiftsInBag === 'function') {
             window.renderGiftsInBag();
         }
@@ -923,7 +915,6 @@ export const storeManager = {
             const item = STORE_ITEMS[key];
             const targetSection = item.type; 
 
-            // إخفاء الأشرطة من القوائم العامة
             if (targetSection === 'score') return;
             
             const safePurchased = Array.isArray(profile.purchasedItems) ? profile.purchasedItems : [];
@@ -1034,7 +1025,6 @@ export const storeManager = {
 
         this.injectLegendaryAnimations(); 
         this.injectDynamicPieceStyles();
-        
         this.startGapKiller();
 
         let prof = this.getProfile();
@@ -1066,7 +1056,6 @@ export const storeManager = {
                     window['socket'].on('purchaseSuccess', (data) => { 
                         let msg = typeof data === 'string' ? data : (data.message || 'تم الشراء بنجاح!');
                         
-                        // إضافة الهدية إلى الحقيبة إذا كانت من نوع شعبية
                         if (data && data.itemId) {
                             if (data.itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === data.itemId))) {
                                 window.addPopularityToBag(data.itemId, data.amount || 1);
@@ -1085,7 +1074,6 @@ export const storeManager = {
                 
             } else if (socketAttempts >= maxAttempts) { 
                 clearInterval(socketCheck); 
-                console.warn("Store.js: لم يتم العثور على السوكيت بعد 10 ثوانٍ. سيعمل المتجر في وضع الأوفلاين."); 
             }
         }, 500);
 
@@ -1120,19 +1108,22 @@ window.applyTheme = function(profile) {
 };
 
 // ==========================================
-// 🌟 وظائف الواجهة (التبويبات والنوافذ) المستخرجة من HTML
+// 🌟 وظائف الواجهة (التبويبات النظيفة المتوافقة مع التصميم الجديد) 🌟
 // ==========================================
 
 window.switchThemeGridTabCategory = function(category) {
-    const tabs = ['bg', 'frames', 'pieces', 'gifts'];
-    tabs.forEach(tab => { 
+    // إخفاء كل أقسام الحقيبة (الخاصة بالألعاب والعام) وإزالة التفعيل
+    const allTabs = ['bg', 'frames', 'pieces', 'profile-frames', 'gifts'];
+    allTabs.forEach(tab => { 
         const btn = document.getElementById('theme-btn-tab-' + tab); 
         const sec = document.getElementById('theme-grid-section-' + tab); 
         if(btn) btn.classList.remove('active'); 
         if(sec) sec.style.display = 'none'; 
     });
+    
     const activeBtn = document.getElementById('theme-btn-tab-' + category); 
     const activeSec = document.getElementById('theme-grid-section-' + category);
+    
     if(activeBtn) activeBtn.classList.add('active'); 
     if(activeSec) {
         activeSec.style.display = 'grid';
@@ -1142,32 +1133,12 @@ window.switchThemeGridTabCategory = function(category) {
     }
 };
 
-window.triggerGridThemeChange = function(index, lightHex, darkHex) {
-    document.documentElement.style.setProperty('--light-cell', lightHex); 
-    document.documentElement.style.setProperty('--dark-cell', darkHex);
-    if (index !== -1) { 
-        const items = document.querySelectorAll('#theme-grid-section-bg .theme-grid-item'); 
-        items.forEach((item, idx) => { 
-            if (idx === index) item.classList.add('active'); 
-            else item.classList.remove('active'); 
-        }); 
-    }
-    let p = localStorage.getItem('hub_user_profile');
-    if (p && index !== -1) { 
-        let prof = JSON.parse(p); 
-        prof.equippedBg = null; 
-        localStorage.setItem('hub_user_profile', JSON.stringify(prof)); 
-        if(window.updateInventoryUI) window.updateInventoryUI(); 
-    }
-};
-
 window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
     const nameEl = document.getElementById('modal-item-name'); 
     const costEl = document.getElementById('modal-item-cost'); 
     const previewEl = document.getElementById('modal-item-preview'); 
     const buyBtn = document.getElementById('confirm-buy-btn');
     
-    // التحقق المباشر من وجود عناصر نافذة الشراء لتجنب أي أخطاء
     if (!nameEl || !costEl || !previewEl || !buyBtn) {
         storeManager.buyItem(itemId, itemType);
         return;
