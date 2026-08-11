@@ -69,10 +69,6 @@
             justify-content: center; align-items: center; text-align: center; 
             transition: opacity 0.8s ease, visibility 0.8s;
         }
-        #splash-screen h1 { 
-            font-size: 24px; font-weight: 800; margin: 0; 
-            letter-spacing: 3px; color: var(--text-primary);
-        }
 
         #game-selector { 
             display: none; width: 100%; height: 100%; 
@@ -147,7 +143,6 @@
         }
         .side-drawer-overlay.show { opacity: 1; visibility: visible; }
 
-        /* CSS القائمة الجانبية */
         .side-drawer {
             position: fixed; top: 0; width: 280px; height: 100%;
             background: #111115; z-index: 100002; 
@@ -544,7 +539,6 @@
 <body>
       
     <div id="splash-screen">
-        <!-- تم وضع كود الـ SVG للتاج مباشرة ليظهر بدون أي تأخير -->
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 60px; height: 60px; fill: var(--accent); margin-bottom: 20px; display: block;">
             <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM5 18H19V20H5V18Z"/>
         </svg>
@@ -795,7 +789,7 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة الحقيبة (الممتلكات) متوافقة مع الألعاب المتعددة (ثابتة 90%) -->
+    <!-- 🌟 نافذة الحقيبة (الممتلكات) - القائمة الجانبية مدمجة للتوافق المستقبلي -->
     <div id="themes-grid-overlay" class="modal-overlay" style="z-index: 1000006;">
         <div class="settings-card" dir="auto" style="width: 90vw; height: 90vh; max-width: none; max-height: none; padding: 0; background: #0b120d; border: 1px solid #b38d36; box-shadow: 0 20px 50px rgba(0,0,0,0.9); display: flex; flex-direction: column; overflow: hidden;">
             
@@ -805,10 +799,10 @@
                 <button class="modal-close-btn" style="position: static; margin: 0; background: transparent; border: none; color: #a1a1aa; font-size: 22px; cursor: pointer; padding: 0;" onclick="window.closeAppModal('themes-grid-overlay')">✕</button>
             </div>
             
-            <!-- الجسم (يعتمد على القائمة الجانبية للألعاب) -->
+            <!-- الجسم (القائمة الجانبية + محتوى العرض) -->
             <div style="display: flex; flex: 1; overflow: hidden;">
                 
-                <!-- الأزرار الجانبية لاختيار اللعبة -->
+                <!-- الأزرار الجانبية لاختيار اللعبة/القسم العام -->
                 <div style="width: 70px; background: rgba(15,20,24,0.6); border-left: 1px solid rgba(255,215,0,0.2); display: flex; flex-direction: column; padding: 10px 0; gap: 8px; flex-shrink: 0; overflow-y: auto; direction: ltr;">
                     <div style="direction: rtl; display: flex; flex-direction: column; gap: 8px;">
                         <button class="bag-side-btn active" onclick="switchBagGameTab('dama', this)">
@@ -819,9 +813,10 @@
                             <span style="font-size: 24px;">🎲</span>
                             <span>طاولة</span>
                         </button>
-                        <button class="bag-side-btn" onclick="switchBagGameTab('gifts', this)">
-                            <span style="font-size: 24px; filter: hue-rotate(210deg);">🔥</span>
-                            <span>هدايا</span>
+                        <!-- 🌟 القسم العام (الهدايا وإطارات البروفايل) 🌟 -->
+                        <button class="bag-side-btn" onclick="switchBagGameTab('general', this)">
+                            <span style="font-size: 24px; filter: drop-shadow(0 0 5px rgba(0,210,255,0.6));">💎</span>
+                            <span>عام</span>
                         </button>
                         <button class="bag-side-btn" onclick="switchBagGameTab('soon', this)">
                             <span style="font-size: 24px;">⏳</span>
@@ -830,12 +825,11 @@
                     </div>
                 </div>
                 
-                <!-- مساحة العرض الخاصة باللعبة المحددة -->
+                <!-- مساحة العرض الخاصة بالقسم المحدد -->
                 <div style="flex: 1; display: flex; flex-direction: column; padding: 15px; overflow: hidden; background: #0b120d;">
                     
                     <!-- 1. ممتلكات الدامة -->
                     <div id="bag-content-dama" class="bag-game-content active">
-                        <!-- تبويبات الدامة الداخلية (خلفيات، أحجار، إطارات) مرتبة للعربية -->
                         <div class="store-tabs-container" style="margin-bottom: 15px; width: 100%; max-width: 100%; flex-shrink: 0;">
                             <button id="theme-btn-tab-pieces" class="store-tab-btn" onclick="window.switchThemeGridTabCategory('pieces')">احجار</button>
                             <button id="theme-btn-tab-frames" class="store-tab-btn" onclick="window.switchThemeGridTabCategory('frames')">إطارات</button>
@@ -852,23 +846,30 @@
                     <!-- 2. ممتلكات الطاولة -->
                     <div id="bag-content-tawla" class="bag-game-content" style="display: none; justify-content: center; align-items: center; flex-direction: column; height: 100%;">
                         <span style="font-size: 50px; margin-bottom: 15px;">🎲</span>
-                        <p style="color: var(--text-secondary); font-size: 16px;">ممتلكات الطاولة ستظهر هنا قريباً!</p>
+                        <p style="color: var(--text-secondary); font-size: 16px; text-align: center;">ممتلكات الطاولة ستظهر هنا قريباً!</p>
                     </div>
 
-                    <!-- 3. هدايا الشعبية (نقلناها هنا لتكون قسماً مستقلاً) -->
-                    <div id="bag-content-gifts" class="bag-game-content" style="display: none; flex-direction: column; height: 100%;">
-                        <div style="margin-bottom: 15px; text-align: center;">
-                            <h4 style="color: #00d2ff; margin: 0; font-size: 16px;">هدايا الشعبية <span style="filter: hue-rotate(210deg);">🔥</span></h4>
+                    <!-- 3. 🌟 القسم العام (هدايا وإطارات البروفايل) 🌟 -->
+                    <div id="bag-content-general" class="bag-game-content" style="display: none; flex-direction: column; height: 100%;">
+                        <!-- تبويبات القسم العام -->
+                        <div class="store-tabs-container" style="margin-bottom: 15px; width: 100%; max-width: 100%; flex-shrink: 0;">
+                            <button id="theme-btn-tab-profile-frames" class="store-tab-btn" onclick="window.switchThemeGridTabCategory('profile-frames')">إطارات البروفايل</button>
+                            <button id="theme-btn-tab-gifts" class="store-tab-btn active" onclick="window.switchThemeGridTabCategory('gifts')">هدايا <span style="filter: hue-rotate(210deg);">🔥</span></button>
                         </div>
+                        
                         <div class="store-scrollable-area" style="flex: 1; overflow-y: auto; padding: 5px;">
                             <div id="theme-grid-section-gifts" class="bag-items-grid"></div>
+                            <div id="theme-grid-section-profile-frames" class="bag-items-grid" style="display: none;">
+                                <!-- محتوى إطارات البروفايل يظهر هنا مستقبلاً -->
+                                <div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">لا تملك إطارات للبروفايل حالياً</div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- 4. ألعاب المستقبل (قريباً) -->
                     <div id="bag-content-soon" class="bag-game-content" style="display: none; justify-content: center; align-items: center; flex-direction: column; height: 100%;">
                         <span style="font-size: 50px; margin-bottom: 15px;">⏳</span>
-                        <p style="color: var(--text-secondary); font-size: 16px;">ألعاب وملحقات جديدة قادمة قريباً...</p>
+                        <p style="color: var(--text-secondary); font-size: 16px; text-align: center;">ألعاب وملحقات جديدة قادمة قريباً...</p>
                     </div>
 
                 </div>
