@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="1000127272.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     
-    <!-- 🌟 تم استدعاء السكربتات المخصصة هنا بدلاً من حشوها في الـ HTML 🌟 -->
+    <!-- 🌟 تم استدعاء السكربتات المخصصة هنا 🌟 -->
     <script src="dama-scripts.js"></script>
 
     <style>
@@ -226,65 +226,34 @@
         }
 
         /* ========================================== */
-        /* 🌟 نظام المستوى والرتب باللون الأحمر دائمًا */
+        /* 🌟 نظام البروفايل الجديد المتمركز (أسود/ذهبي) */
         /* ========================================== */
-        .avatar-wrapper { 
-            position: relative; 
-            width: 42px; height: 42px; 
-            display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 8px;
-        }
         
-        .profile-avatar-capsule { 
-            width: 100%; height: 100%; border-radius: 50%; border: 2px solid #282a32; 
-            display: flex; align-items: center; justify-content: center; font-size: 20px; 
-            background-size: cover; background-position: center; overflow: hidden; 
-            background-color: rgba(255,255,255,0.05); z-index: 1; position: relative;
-        }
-        
-        .level-badge-small {
-            position: absolute; 
-            bottom: -10px;
-            left: 50%; transform: translateX(-50%);
-            background: #ff453a !important; 
-            color: #ffffff !important; 
-            font-size: 10px; padding: 2px 8px; 
-            border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; 
-            z-index: 10; white-space: nowrap; box-shadow: 0 2px 6px rgba(255, 69, 58, 0.5);
+        .auto-fit-center {
+            transform-origin: center center !important;
+            white-space: nowrap !important;
+            display: inline-block !important;
         }
 
-        .rank-icon-small {
-            font-size: 14px; margin-left: 4px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.3));
-        }
-
-        .xp-bar-bg {
-            width: 100%; height: 12px; background: rgba(0,0,0,0.4); 
-            border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); 
-            margin-top: 10px; position: relative; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-        }
-        
-        .xp-bar-fill {
-            height: 100%; background: linear-gradient(90deg, #34c759, #2ecc71); 
-            width: 0%; border-radius: 10px; transition: width 0.5s ease-out;
-            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
-        }
-        
-        .xp-bar-text {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 9px; font-weight: 800; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
-
-        /* ========================================== */
-        /* 🌟 نظام البروفايل العلوي                     */
-        /* ========================================== */
         #profile-badge.profile-badge-container { 
-            position: fixed !important; top: 15px !important; z-index: 10001; 
-            width: 132px !important; height: 56.8px !important; 
-            background-image: url('profile.webp');
-            background-size: 100% 100%; background-repeat: no-repeat; background-color: transparent !important;
-            border: none !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important;
-            cursor: pointer; transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1); 
-            direction: ltr !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+            position: fixed !important; 
+            top: 15px !important; 
+            z-index: 10001; 
+            width: 180px !important;       
+            height: 90px !important;       
+            background-image: url('profile.webp'); 
+            background-size: 100% 100%; 
+            background-repeat: no-repeat; 
+            background-color: transparent !important;
+            border: none !important; 
+            padding: 0 !important; 
+            box-shadow: none !important; 
+            border-radius: 0 !important;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1); 
+            direction: ltr !important; 
+            backdrop-filter: none !important; 
+            -webkit-backdrop-filter: none !important;
         }
         html[dir="rtl"] #profile-badge.profile-badge-container { left: 15px !important; right: auto !important; }
         html[dir="ltr"] #profile-badge.profile-badge-container { right: 15px !important; left: auto !important; }
@@ -292,85 +261,218 @@
 
         #profile-badge .profile-avatar-capsule { 
             position: absolute !important; 
-            top: 6.3px !important;    
-            left: 7.54px !important;   
-            width: 43.8px !important; 
-            height: 43.8px !important;
+            top: 19.6px !important;      
+            left: 12.4px !important;     
+            width: 54px !important;      
+            height: 54px !important;     
             border-radius: 50% !important; 
             border: none !important; 
             z-index: 3 !important; 
-        }
-
-        .xp-svg-wrapper {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            z-index: 1; pointer-events: none;
-        }
-
-        .xp-progress-path {
-            transition: stroke-dashoffset 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-            filter: drop-shadow(0 0 2px rgba(52, 199, 89, 0.9)); 
-        }
-
-        #profile-badge .profile-badge-info { 
-            position: absolute !important; 
-            top: 14px !important;   
-            left: 45px !important;  
-            right: 8px !important;  
             display: flex; 
-            flex-direction: column; 
             align-items: center; 
             justify-content: center; 
-            gap: 0.2px; 
-            z-index: 3 !important; 
-        }
-
-        #profile-badge .profile-badge-name { 
-            color: #ffffff; 
-            font-size: 10px; 
-            font-weight: 700; 
-            max-width: 60px; 
             overflow: hidden; 
-            text-overflow: ellipsis; 
-            white-space: nowrap;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
-
-        #profile-badge .profile-badge-coins-row { 
-            display: flex; align-items: center; justify-content: center; gap: 4px; 
-        }
-        
-        #profile-stat-tokens-badge { 
-            color: #f5a623; 
-            font-size: 8px; 
-            font-weight: 800; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            background-color: rgba(0,0,0,0.5);
         }
 
         #profile-badge .ai-level-badge { 
-            position: absolute; 
-            bottom: 6px;  
-            left: 53.1px;   
-            display: flex; align-items: center; justify-content: center; 
+            position: absolute !important; 
+            bottom: 1.4px !important;    
+            left: 29px !important;     
+            width: 21px !important;
+            height: 11px !important;
+            display: flex !important; 
+            align-items: center !important; 
+            justify-content: center !important; 
             z-index: 4 !important; 
         }
-        
+
         #profile-badge #badge-level { 
             background: transparent !important; 
-            color: #ff453a !important; 
+            color: #d4af37 !important; 
+            border: none !important; 
             padding: 0;
-            border: none !important;
-            font-size: 11px; 
+            font-size: 11px;           
             font-weight: 900; 
             line-height: 1; 
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-            box-shadow: none;
-            transform: translateY(6px);
+            text-shadow: 0 1px 3px rgba(0,0,0,1);
+            letter-spacing: 0.5px;
+            text-rendering: geometricPrecision; 
+            -webkit-font-smoothing: antialiased;
         }
 
-        #profile-badge .level-badge-small { display: none; }
-        #profile-badge .stat-item { display: none; }
+        .profile-main-info {
+            position: absolute;
+            top: 29px; 
+            left: 90px;
+            right: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 3;
+        }
 
-        /* الأزرار العلوية */
+        .name-row {
+            display: flex;
+            justify-content: center; 
+            align-items: center;
+            width: 100%;
+            direction: rtl; 
+        }
+        
+        .player-name {
+            color: #ffffff;
+            font-size: 10px; 
+            font-weight: 800;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .title-text-free {
+            position: absolute !important;
+            top: 64px !important;      
+            left: 95px !important;    
+            z-index: 5 !important;
+            width: 100px !important; 
+            height: 10px !important;       
+            font-size: 10px !important;   
+            white-space: nowrap !important;
+            transform: scale(0.6) !important; 
+            transform-origin: center center !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            color: #ff9800; 
+            font-weight: 700; 
+            letter-spacing: 0.5px;
+            direction: rtl; 
+        }
+
+        .vertical-divider-free {
+            position: absolute !important;
+            top: 55px !important;      
+            left: 124px !important;    
+            z-index: 5 !important;
+            width: 0.8px !important;     
+            height: 9px !important;    
+            background: rgba(255, 255, 63, 0.57) !important; 
+        }
+
+        .rank-text-free {
+            position: absolute !important;
+            top: 64px !important;      
+            left: 55px !important;    
+            z-index: 5 !important;
+            width: 100px !important; 
+            height: 10px !important;       
+            font-size: 10px !important;   
+            white-space: nowrap !important;
+            transform: scale(0.55) !important; 
+            transform-origin: center center !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            color: #ff9800; 
+            font-weight: 700; 
+            letter-spacing: 0.5px;
+            direction: rtl; 
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .tokens-text-free {
+            position: absolute !important;
+            top: 95px !important;       
+            left: -4px !important;      
+            z-index: 5 !important;
+            width: 100px !important; 
+            height: 10px !important;       
+            font-size: 10px !important;   
+            white-space: nowrap !important;
+            transform: scale(0.85) !important; 
+            transform-origin: center center !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 2px !important; 
+            color: #f1c40f; 
+            font-weight: 800; 
+            letter-spacing: 0.5px;
+            direction: ltr; 
+            text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+        }
+        .tokens-icon {
+            font-size: 8px; 
+        }
+
+        .xp-text-free {
+            position: absolute !important;
+            top: 74.3px !important;  
+            left: 55px !important;   
+            z-index: 5 !important;
+            width: 100px !important; 
+            height: 10px !important;       
+            font-size: 10px !important;   
+            white-space: nowrap !important;
+            transform: scale(0.43) !important;
+            transform-origin: center center !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            color: #e0e0e0;
+            font-weight: 500; 
+            letter-spacing: 0.5px;
+            direction: ltr; 
+        }
+
+        .xp-wrapper {
+            position: absolute;
+            bottom: 4.11px;
+            left: 61.6px;
+            width: 88px;  
+            height: 4.5px;  
+            z-index: 3;
+        }
+
+        .straight-xp-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%; 
+            width: 0%; 
+            background: linear-gradient(180deg, #5ae87c 0%, #2ecc71 50%, #1e8449 100%); 
+            border-radius: 2px; 
+            transition: width 0.5s ease-out;
+            box-shadow: 0 0 3px rgba(46, 204, 113, 0.4);
+        }
+
+        .next-level-badge-container {
+            position: absolute !important;
+            bottom: -0.8px !important;
+            left: 157.6px !important;
+            width: 15.5px !important;
+            height: 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            z-index: 3 !important;
+        }
+
+        .next-level-badge {
+            background: transparent;
+            color: #d4af37;
+            border: none;
+            padding: 0;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,1);
+            line-height: 1;
+            text-rendering: geometricPrecision; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ========================================== */
+        /* الأزرار العلوية والقوائم                   */
+        /* ========================================== */
         #hamburger-menu-btn, #bag-quick-btn {
             position: fixed !important; top: 15px !important; z-index: 10001;
             background: rgba(45, 48, 55, 0.65); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -466,7 +568,6 @@
         .audio-controls label { display: block; margin-bottom: 8px; font-weight: 500; color: #a1a1aa; font-size: 13px; }
         .audio-controls input[type="range"] { width: 100%; margin-bottom: 5px; accent-color: #ffffff; }
         
-        /* 🌟 التعديل الجديد: التخلص من الإطار الدائري المشوه وتنسيق الأزرار في سطر واحد 🌟 */
         .custom-nav-tabs { 
             display: flex !important; 
             gap: 3px !important; 
@@ -535,7 +636,6 @@
         
         .store-items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 5px; }
         
-        /* 🌟 بطاقة المنتج: تحسين الأبعاد وتثبيت محاذاة عناصرها 🌟 */
         .store-item-card { 
             background: rgba(255,255,255,0.04); 
             border: 1px solid rgba(255,255,255,0.05); 
@@ -551,14 +651,13 @@
         }
         .store-item-card:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
 
-        /* 🌟 أزرار الشراء المصغرة والثابتة في الأسفل دائماً 🌟 */
         .store-buy-btn-small { 
             height: 28px !important; 
             font-size: 11px !important; 
             font-weight: bold !important; 
             border-radius: 14px !important; 
             width: 85% !important; 
-            margin-top: auto !important; /* تثبيت الزر بأسفل الكارت دائماً */
+            margin-top: auto !important;
             margin-bottom: 2px !important;
             padding: 0 !important;
             cursor: pointer !important;
@@ -760,24 +859,40 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <!-- 🌟 النقر يفتح ملفك الشخصي -->
+    <!-- 🌟 النقر يفتح ملفك الشخصي بالاستايل الجديد 🌟 -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) window.openMyProfile()">
-        <div class="xp-svg-wrapper">
-            <svg width="138" height="56.8" viewBox="0 0 122.2 56.8">
-                <path d="M 72.6,48.7 L 104.5,48.7 A 21.5,21.5 0 0,0 104.5,8.7 L 45,8.7" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.8" stroke-linecap="round" />
-                <path id="xp-progress-path" class="xp-progress-path" d="M 72.6,48.7 L 104.5,48.7 A 21.2,21.2 0 0,0 104.5,8.7 L 45,8.7" fill="none" stroke="#34c759" stroke-width="1.8" stroke-linecap="round" /> 
-            </svg>
-        </div>
         <div class="profile-avatar-capsule" id="badge-avatar"></div>
-        <div class="profile-badge-info">
-            <span id="badge-username-display-game" class="profile-badge-name">أنت</span>
-            <div class="profile-badge-coins-row">
-                <span id="profile-stat-tokens-badge">0</span>
-                <span style="font-size: 14px; margin-right: 2px;">🪙</span>
+
+        <div class="ai-level-badge">
+            <span id="badge-level" class="auto-fit-center">Lv.1</span>
+        </div>
+
+        <div class="profile-main-info">
+            <div class="name-row">
+                <span id="badge-username-display-game" class="player-name auto-fit-center">أنت</span>
             </div>
         </div>
-        <div class="ai-level-badge">
-            <span id="badge-level">Lv.1</span>
+
+        <div class="tokens-text-free" id="profile-stat-tokens-badge-container">
+            <span class="tokens-icon">🪙</span> <span id="profile-stat-tokens-badge">0</span>
+        </div>
+
+        <div class="title-text-free" id="profile-stat-title-badge">مبارز</div>
+
+        <div class="vertical-divider-free"></div>
+
+        <div class="rank-text-free" id="profile-stat-rank-badge">برونزي</div>
+
+        <div class="xp-text-free" id="xp-text-element">
+            0 / 100 XP
+        </div>
+
+        <div class="xp-wrapper">
+            <div class="straight-xp-fill" id="xp-bar-fill"></div>
+        </div>
+
+        <div class="next-level-badge-container">
+            <span class="next-level-badge auto-fit-center" id="badge-next-level">Lv.2</span>
         </div>
     </div>
     
@@ -846,6 +961,7 @@
     </div>
     
     <div class="game-container">
+        <!-- تم الحفاظ على ساحة الرقعة كما طلبت -->
         <div id="board"></div> 
     </div>
 
