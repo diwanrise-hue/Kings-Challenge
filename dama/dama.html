@@ -235,7 +235,7 @@
             display: inline-block !important;
         }
 
-        #profile-badge.profile-badge-container { 
+              #profile-badge.profile-badge-container { 
             position: fixed !important; 
             top: 0.8px !important; 
             z-index: 10001; 
@@ -254,10 +254,25 @@
             direction: ltr !important; 
             backdrop-filter: none !important; 
             -webkit-backdrop-filter: none !important;
+            /* 🌟 تم إضافة هذا السطر لتصغير الإطار بالكامل بنسبة 15% 🌟 */
+            transform: scale(0.85) !important; 
         }
-        html[dir="rtl"] #profile-badge.profile-badge-container { left: 15px !important; right: auto !important; }
-        html[dir="ltr"] #profile-badge.profile-badge-container { right: 15px !important; left: auto !important; }
-        #profile-badge.profile-badge-container:hover { transform: scale(0.96); }
+        html[dir="rtl"] #profile-badge.profile-badge-container { 
+            left: 15px !important; 
+            right: auto !important; 
+            /* 🌟 تثبيت نقطة الارتكاز في الزاوية العلوية اليسرى ليبقى في مكانه 🌟 */
+            transform-origin: top left !important; 
+        }
+        html[dir="ltr"] #profile-badge.profile-badge-container { 
+            right: 15px !important; 
+            left: auto !important; 
+            /* 🌟 تثبيت نقطة الارتكاز في الزاوية العلوية اليمنى للغة الإنجليزية 🌟 */
+            transform-origin: top right !important; 
+        }
+        #profile-badge.profile-badge-container:hover { 
+            /* 🌟 تعديل تأثير اللمس ليتناسب مع الحجم الجديد (يصغر قليلاً عند الضغط) 🌟 */
+            transform: scale(0.82) !important; 
+        }
 
         #profile-badge .profile-avatar-capsule { 
             position: absolute !important; 
