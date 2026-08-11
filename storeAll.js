@@ -259,16 +259,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 2. بناء هيكل المتجر بالكامل (HTML) 
         storeContainer.innerHTML = `
-            <!-- التبويبات العلوية الرئيسية -->
+            <!-- التبويبات العلوية الرئيسية للمتجر -->
             <div class="store-tabs-container">
                 <button class="store-tab-btn" onclick="window.switchStoreContentTab('store-topup-content', this)">
-                    <span data-i18n="store_topup">شحن</span> <span>💎</span>
+                    <span data-i18n="store_topup">شحن</span>
                 </button>
                 <button class="store-tab-btn" onclick="window.switchStoreContentTab('store-popularity-content', this)">
-                    <span data-i18n="store_popularity">الشعبية</span> <span style="filter: hue-rotate(210deg);">🔥</span>
+                    <span>عام</span> <span style="font-size: 15px; filter: hue-rotate(210deg) drop-shadow(0 0 3px rgba(0,210,255,0.6)); margin-right: 5px;">🔥</span>
                 </button>
                 <button class="store-tab-btn active" onclick="window.switchStoreContentTab('store-games-content', this)">
-                    <span data-i18n="store_games">الألعاب</span> <span>🎮</span>
+                    <span data-i18n="store_games">الألعاب</span> 
+                    <span style="width: 16px; height: 16px; display: inline-block; margin-right: 4px;">
+                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 100%;">
+                            <defs>
+                                <linearGradient id="gameBlueStore" x1="8" y1="8" x2="56" y2="56"><stop offset="0%" stop-color="#66F2FF"/><stop offset="35%" stop-color="#19B9FF"/><stop offset="70%" stop-color="#536EFF"/><stop offset="100%" stop-color="#743BFF"/></linearGradient>
+                                <radialGradient id="gameGlowStore"><stop offset="0%" stop-color="#35DFFF" stop-opacity=".3"/><stop offset="100%" stop-color="#2764FF" stop-opacity="0"/></radialGradient>
+                                <filter id="gameShadowStore" x="-60%" y="-60%" width="220%" height="220%"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#1667FF" flood-opacity=".35"/></filter>
+                            </defs>
+                            <ellipse cx="32" cy="32" rx="30" ry="26" fill="url(#gameGlowStore)"/>
+                            <path d="M17 17 C21 14 26.5 12.8 32 12.8 C37.5 12.8 43 14 47 17 C51.5 20.2 55.2 30.8 56.7 38.3 C58 44.5 53.2 48.9 48.7 45.7 L41 40H23L15.3 45.7 C10.8 48.9 6 44.5 7.3 38.3 C8.8 30.8 12.5 20.2 17 17Z" fill="url(#gameBlueStore)" stroke="#9AF4FF" stroke-width="1.7" stroke-linejoin="round" filter="url(#gameShadowStore)"/>
+                            <path d="M18 18 C22 15.5 27 14.5 32 14.5 C37 14.5 42 15.5 46 18" stroke="#D9FBFF" stroke-width="2.5" stroke-linecap="round" opacity=".65"/>
+                            <path d="M14 27H20V21H26V27H32V33H26V39H20V33H14Z" fill="#F0FDFF"/>
+                            <circle cx="42" cy="27" r="3.5" fill="#FF527E"/><circle cx="42" cy="27" r="1.3" fill="#FFD3DE"/>
+                            <circle cx="49" cy="34" r="3.5" fill="#FFD449"/><circle cx="49" cy="34" r="1.3" fill="#FFF3B0"/>
+                        </svg>
+                    </span>
                 </button>
             </div>
 
@@ -282,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span data-i18n="store_dama">دامة</span>
                     </button>
                     <button class="store-side-tab-btn" onclick="window.switchSubStoreTab('store-tawla-items', this)">
-                        <span class="emoji-icon">🛍️</span>
+                        <span class="emoji-icon">🎲</span>
                         <span data-i18n="store_tawla">طاولة</span>
                     </button>
                 </div>
@@ -341,14 +356,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             </div>
 
-            <!-- حاوية محتوى الشعبية -->
+            <!-- حاوية محتوى العام (الشعبية) -->
             <div id="store-popularity-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; padding: 12px; display: flex; flex-direction: column;">
                     
-                    <!-- ترويسة بسيطة لقسم الشعبية -->
+                    <!-- ترويسة بسيطة لقسم العام -->
                     <div style="text-align: center; margin-bottom: 12px; flex-shrink: 0;">
                         <span style="font-size: 20px; filter: hue-rotate(210deg) drop-shadow(0 0 5px rgba(0, 210, 255, 0.5));">🔥</span>
-                        <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;" data-i18n="store_popularity">باقات الشعبية</span>
+                        <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;">هدايا عامة</span>
                     </div>
                     
                     <!-- منطقة التمرير للمنتجات -->
