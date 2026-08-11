@@ -990,3 +990,33 @@ window.switchThemeGridTabCategory = function(category) {
         activeSec.style.display = 'grid';
     }
 };
+// 🌟 دالة التنقل بين الأقسام الرئيسية للحقيبة (الألعاب / العام) 🌟
+window.switchBagMainTab = function(tabId, btnElement) {
+    // 1. إزالة التفعيل (اللون الذهبي) عن جميع الأزرار العلوية
+    document.querySelectorAll('.bag-main-tab').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    // 2. تفعيل الزر الذي تم النقر عليه
+    if (btnElement) {
+        btnElement.classList.add('active');
+    }
+
+    // 3. إخفاء جميع الأقسام (الألعاب والعام)
+    const viewGames = document.getElementById('bag-view-games');
+    const viewGeneral = document.getElementById('bag-view-general');
+    
+    if (viewGames) viewGames.style.display = 'none';
+    if (viewGeneral) viewGeneral.style.display = 'none';
+
+    // 4. إظهار القسم المطلوب بناءً على الزر المضغوط
+    const targetView = document.getElementById('bag-view-' + tabId);
+    if (targetView) {
+        targetView.style.display = 'flex'; // استخدام flex للحفاظ على التنسيق
+    }
+
+    // 5. إذا تم فتح قسم "عام"، قم بتحديث الهدايا إذا كانت الدالة موجودة
+    if (tabId === 'general' && typeof window.renderGiftsInBag === 'function') {
+        window.renderGiftsInBag();
+    }
+};
