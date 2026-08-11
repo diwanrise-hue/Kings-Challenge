@@ -15,16 +15,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
-    <script src="radio.js?v=4" defer></script>
+    <script src="radio.js?v=10" defer></script>
     
-    <!-- 🌟 ملفات السكربت الخارجية -->
-    <script src="translations.js"></script>
-    <script src="hubIcons.js" defer></script>
-    <script src="populars.js" defer></script>
-    <script src="storeAll.js?v=2" defer></script>
+    <!-- 🌟 ملفات السكربت الخارجية (تمت إضافة ?v=10 لإجبار المتصفح على تحميل التحديثات) 🌟 -->
+    <script src="translations.js?v=10"></script>
+    <script src="hubIcons.js?v=10" defer></script>
+    <script src="populars.js?v=10" defer></script>
+    <script src="storeAll.js?v=10" defer></script>
     
     <!-- 🌟 ملف السكربت الرئيسي الخاص بالواجهة -->
-    <script src="index-scripts.js" defer></script>
+    <script src="index-scripts.js?v=10" defer></script>
 
     <style>
         :root {
@@ -560,7 +560,7 @@
                     <span id="hud-icon-bag" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.5);"></span>
                 </button>
 
-                <!-- 📻 زر الراديو (تم تكبير الأيقونة هنا - scale(1.8)) -->
+                <!-- 📻 زر الراديو -->
                 <button id="music-toggle-btn" class="radio-hud-btn-fallback auto-radio-icon" onclick="openRadioModal()">
                     <span id="hud-icon-radio" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.8);"></span>
                 </button>
