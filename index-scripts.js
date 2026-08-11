@@ -14,7 +14,23 @@ function formatCompactNumber(num) {
 // 🌟 إدارة فتح وإغلاق النوافذ (المودال) 🌟
 window.openAppModal = function(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'flex';
+    if (modal) {
+        modal.style.display = 'flex';
+        
+        // 🌟 إصلاح: تحميل الخلفيات تلقائياً عند فتح الحقيبة
+        if (modalId === 'themes-grid-overlay') {
+            if (typeof window.switchThemeGridTabCategory === 'function') {
+                window.switchThemeGridTabCategory('bg');
+            }
+        }
+        
+        // 🌟 إصلاح: تحميل الخلفيات تلقائياً عند فتح المتجر
+        if (modalId === 'store-modal') {
+            if (typeof window.switchStoreTabCategory === 'function') {
+                window.switchStoreTabCategory('bg');
+            }
+        }
+    }
 };
 
 window.closeAppModal = function(modalId) {
@@ -949,47 +965,6 @@ window.addEventListener('message', (event) => {
     }
 });
 
-// 🌟 دالة التنقل بين ألعاب الحقيبة
-window.switchBagGameTab = function(gameId, btnElement) {
-    document.querySelectorAll('.bag-game-content').forEach(el => {
-        el.classList.remove('active');
-        el.style.display = 'none';
-    });
-    
-    document.querySelectorAll('.bag-side-btn').forEach(el => {
-        el.classList.remove('active');
-    });
-
-    const targetContent = document.getElementById('bag-content-' + gameId);
-    if (targetContent) {
-        targetContent.classList.add('active');
-        targetContent.style.display = 'flex';
-    }
-    
-    if (btnElement) {
-        btnElement.classList.add('active');
-    }
-
-    if (gameId === 'gifts' && typeof window.renderGiftsInBag === 'function') {
-        window.renderGiftsInBag();
-    }
-};
-
-window.switchThemeGridTabCategory = function(category) {
-    const tabs = ['bg', 'frames', 'pieces'];
-    tabs.forEach(tab => { 
-        const btn = document.getElementById('theme-btn-tab-' + tab); 
-        const sec = document.getElementById('theme-grid-section-' + tab); 
-        if(btn) btn.classList.remove('active'); 
-        if(sec) sec.style.display = 'none'; 
-    });
-    const activeBtn = document.getElementById('theme-btn-tab-' + category); 
-    const activeSec = document.getElementById('theme-grid-section-' + category);
-    if(activeBtn) activeBtn.classList.add('active'); 
-    if(activeSec) {
-        activeSec.style.display = 'grid';
-    }
-};
 // 🌟 دالة التنقل بين الأقسام الرئيسية للحقيبة (الألعاب / العام) 🌟
 window.switchBagMainTab = function(tabId, btnElement) {
     // 1. إزالة التفعيل (اللون الذهبي) عن جميع الأزرار العلوية
@@ -1015,8 +990,60 @@ window.switchBagMainTab = function(tabId, btnElement) {
         targetView.style.display = 'flex'; // استخدام flex للحفاظ على التنسيق
     }
 
-    // 5. إذا تم فتح قسم "عام"، قم بتحديث الهدايا إذا كانت الدالة موجودة
-    if (tabId === 'general' && typeof window.renderGiftsInBag === 'function') {
-        window.renderGiftsInBag();
+    // 5. إذا تم فتح قسم "عام"، قم بتحديث الهدايا وتفعيل تبويباتها
+    if (tabId === 'general') {
+        if (typeof window.renderGiftsInBag === 'function') window.renderGiftsInBag();
+        if (typeof window.switchThemeGridTabCategory === 'function') {
+            window.switchThemeGridTabCategory('gifts');
+        }
+    } else if (tabId === 'games') {
+        // العودة لخلفيات الألعاب
+        if (typeof window.switchThemeGridTabCategory === 'function') {
+            window.switchThemeGridTabCategory('bg');
+        }
+    }
+};
+
+// 🌟 دالة التنقل بين ألعاب الحقيبة
+window.switchBagGameTab = function(gameId, btnElement) {
+    document.querySelectorAll('.bag-game-content').forEach(el => {
+        el.classList.remove('active');
+        el.style.display = 'none';
+    });
+
+    // إزالة التفعيل عن الأزرار الأفقية والجانبية (إن وجدت)
+    document.querySelectorAll('.bag-game-btn, .bag-side-btn').forEach(el => {
+        el.classList.remove('active');
+    });
+
+    const targetContent = document.getElementById('bag-content-' + gameId);
+    if (targetContent) {
+        targetContent.classList.add('active');
+        targetContent.style.display = 'flex';
+    }
+
+    if (btnElement) {
+        btnElement.classList.add('active');
+    }
+};
+
+// 🌟 دالة التنقل وتحديث التبويبات الفرعية للممتلكات
+window.switchThemeGridTabCategory = function(category) {
+    // 🌟 تمت إضافة 'profile-frames' و 'gifts' لكي تختفي التبويبات الأخرى بشكل صحيح
+    const tabs = ['bg', 'frames', 'pieces', 'profile-frames', 'gifts'];
+    
+    tabs.forEach(tab => { 
+        const btn = document.getElementById('theme-btn-tab-' + tab); 
+        const sec = document.getElementById('theme-grid-section-' + tab); 
+        if(btn) btn.classList.remove('active'); 
+        if(sec) sec.style.display = 'none'; 
+    });
+    
+    const activeBtn = document.getElementById('theme-btn-tab-' + category); 
+    const activeSec = document.getElementById('theme-grid-section-' + category);
+    
+    if(activeBtn) activeBtn.classList.add('active'); 
+    if(activeSec) {
+        activeSec.style.display = 'grid';
     }
 };
