@@ -680,13 +680,11 @@ export const ui = {
         if (!isExemptFromStalling) {
             // إذا تجاوز الخصم التكرار
             if (oppRep >= 4) {
-                // 🌟 التعديل هنا: إذا كنا في وضع الأونلاين، لا تنهِ اللعبة محلياً، دع السيرفر يقرر
                 if (gameState.isOnlineMode) {
                     if (tInd) { tInd.textContent = "بانتظار قرار السيرفر... ⏳"; tInd.style.color = "#f5a623"; }
                     return;
                 }
                 
-                // الباقي للعب الأوفلاين ضد الكمبيوتر
                 if (gameState.blockGameOverModal) return;
                 if (tInd) { tInd.textContent = "فوز! الخصم كرر حركاته 🚫"; tInd.style.color = "#2ecc71"; }
                 gameState.isGameOver = true;
@@ -699,7 +697,7 @@ export const ui = {
             
             // إذا تجاوزت أنت التكرار
             if (myRep >= 4) {
-                if (gameState.isOnlineMode) return; // 🌟 السيرفر سيغلق اللعبة
+                if (gameState.isOnlineMode) return; 
 
                 if (gameState.blockGameOverModal) return;
                 if (tInd) { tInd.textContent = "خسارة بسبب التكرار 🚫"; tInd.style.color = "#e74c3c"; }
@@ -714,7 +712,7 @@ export const ui = {
 
         // التعادل بقانون الـ 50 حركة
         if (gameState.movesWithoutProgress >= 50 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
-            if (gameState.isOnlineMode) return; // 🌟 السيرفر سيغلق اللعبة ويحتسب التعادل
+            if (gameState.isOnlineMode) return; 
 
             if (gameState.blockGameOverModal) return;
             if (tInd) { tInd.textContent = "تم إعلان التعادل 🤝"; tInd.style.color = "#f1c40f"; }
@@ -749,7 +747,7 @@ export const ui = {
         if (!isBoardEmpty) { currentAvailableMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard).length; }
         
         if (!isBoardEmpty && currentAvailableMoves === 0) {
-            if (gameState.isOnlineMode) return; // 🌟 السيرفر سيقرر حالة انعدام الحركات ويغلق اللعبة
+            if (gameState.isOnlineMode) return; 
 
             if (gameState.blockGameOverModal) return; 
             let winnerColor = gameState.currentTurn === 'white' ? 'black' : 'white';
@@ -1256,9 +1254,12 @@ window.switchRoomTab = function(tab) {
 };
 
 window.switchLbTab = function(tab) {
-    document.getElementById('lb-tab-wins').classList.remove('active'); document.getElementById('lb-tab-xp').classList.remove('active'); document.getElementById('lb-tab-tokens').classList.remove('active');
-    document.getElementById('leaderboard-list-wins').style.display = 'none'; document.getElementById('leaderboard-list-xp').style.display = 'none'; document.getElementById('leaderboard-list-tokens').style.display = 'none';
-    document.getElementById('lb-tab-' + tab).classList.add('active'); document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
+    document.getElementById('lb-tab-wins').classList.remove('active'); 
+    document.getElementById('lb-tab-xp').classList.remove('active');
+    document.getElementById('leaderboard-list-wins').style.display = 'none'; 
+    document.getElementById('leaderboard-list-xp').style.display = 'none'; 
+    document.getElementById('lb-tab-' + tab).classList.add('active'); 
+    document.getElementById('leaderboard-list-' + tab).style.display = 'flex';
 };
 
 // 🌟 التعديل الخاص بإصلاح تحديث الرهان في إعدادات الغرفة
@@ -1459,7 +1460,7 @@ window.copyMyId = function() {
 
 window.createLbItemHTML = function(rank, playerObj, type) {
     let score = playerObj.score; let name = playerObj.name; let avatarStr = playerObj.avatar; let playerRankInfo = playerObj.rankInfo;
-    let prefix = type === 'tokens' ? '🪙 ' : (type === 'xp' ? '🌟 ' : '');
+    let prefix = type === 'xp' ? '🌟 ' : '';
     let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : (type === 'xp' ? ' XP' : '');
     
     if (type === 'xp') {
@@ -1495,16 +1496,17 @@ window.createLbItemHTML = function(rank, playerObj, type) {
     return div;
 };
 
-window.populateLeaderboards = function(winsData, xpData, tokensData) {
-    const winsList = document.getElementById('leaderboard-list-wins'); const xpList = document.getElementById('leaderboard-list-xp'); const tokensList = document.getElementById('leaderboard-list-tokens');
-    winsList.innerHTML = ''; xpList.innerHTML = ''; tokensList.innerHTML = '';
+window.populateLeaderboards = function(winsData, xpData) {
+    const winsList = document.getElementById('leaderboard-list-wins'); 
+    const xpList = document.getElementById('leaderboard-list-xp'); 
+    winsList.innerHTML = ''; xpList.innerHTML = ''; 
     const emptyText = window.t ? window.t('lb_empty') : 'لا توجد بيانات حالياً';
 
     const renderList = (container, data, type) => {
         if (!data || data.length === 0) { container.innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px; font-weight: 600;">${emptyText}</div>`; return; }
         for (let i = 0; i < data.length; i++) { container.appendChild(window.createLbItemHTML(i + 1, data[i], type)); }
     };
-    renderList(winsList, winsData, 'wins'); renderList(xpList, xpData, 'xp'); renderList(tokensList, tokensData, 'tokens');
+    renderList(winsList, winsData, 'wins'); renderList(xpList, xpData, 'xp'); 
 };
 
 window.showLeaderboard = function() {
@@ -1512,7 +1514,6 @@ window.showLeaderboard = function() {
     const loadingText = window.t ? window.t('lb_loading') : 'جاري التحميل...';
     document.getElementById('leaderboard-list-wins').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
     document.getElementById('leaderboard-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
-    document.getElementById('leaderboard-list-tokens').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
     if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
 };
 
@@ -1574,7 +1575,7 @@ window.currentLang = 'ar';
 window.updateHtmlTexts = function() {
     if (!window.t) return;
     const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.innerText = window.t(key); };
-    setTxt('menu-title-text', 'menu_title'); setTxt('menu-bag-text', 'menu_bag'); setTxt('menu-radio-text', 'menu_radio'); setTxt('menu-room-text', 'menu_room'); setTxt('menu-leaderboard-text', 'menu_leaderboard'); setTxt('menu-settings-text', 'menu_settings'); setTxt('menu-exit-text', 'menu_exit'); setTxt('lb-title-text', 'lb_title'); setTxt('lb-tab-wins', 'lb_wins'); setTxt('lb-tab-tokens', 'lb_tokens'); setTxt('tutorial-mode-label', 'tutorial_mode'); setTxt('menu-quests-text', 'menu_quests');
+    setTxt('menu-title-text', 'menu_title'); setTxt('menu-bag-text', 'menu_bag'); setTxt('menu-radio-text', 'menu_radio'); setTxt('menu-room-text', 'menu_room'); setTxt('menu-leaderboard-text', 'menu_leaderboard'); setTxt('menu-settings-text', 'menu_settings'); setTxt('menu-exit-text', 'menu_exit'); setTxt('lb-title-text', 'lb_title'); setTxt('lb-tab-wins', 'lb_wins'); setTxt('tutorial-mode-label', 'tutorial_mode'); setTxt('menu-quests-text', 'menu_quests');
     if (document.getElementById('matchmaking-modal').style.display === 'flex') setTxt('mm-status-label', 'searching');
 };
 
