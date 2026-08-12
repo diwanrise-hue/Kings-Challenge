@@ -1,5 +1,5 @@
 // ملف: dama-scripts.js
-// يحتوي على جميع الدوال البرمجية الخاصة بواجهة لعبة الدامة (إدارة المتجر، الأصدقاء، الخلفية، والاتصال)
+// يحتوي على جميع الدوال البرمجية الخاصة بواجهة لعبة الدامة (إدارة المتجر، الأصدقاء، الخلفية، والاتصال، ولوحة الشرف)
 
 // ==========================================
 // 🌟 دالة تحويل الأرقام الضخمة إلى K و M
@@ -308,7 +308,6 @@ window.showOpponentProfile = function() {
     document.getElementById('igp-avatar').innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
     
     document.getElementById('igp-level').innerText = `Lv.${opp.level || '?'}`;
-    // 🌟 تطبيق دالة اختصار الأرقام هنا لكي يظهر الرقم بشكل مختصر
     document.getElementById('igp-popularity-val').innerText = formatCompactNumber(opp.popularity || 0);
     
     document.getElementById('own-profile-actions').style.display = 'none';
@@ -438,5 +437,110 @@ window.openBetSelectorForEdit = function() {
     window.isEditingBet = true;
     if (typeof window.openAppModal === 'function') {
         window.openAppModal('bet-selector-modal');
+    }
+};
+
+// ==========================================
+// 8. 🏆 محرك لوحة الشرف (Leaderboard) الديناميكي 🏆
+// ==========================================
+
+// مساعدة للحصول على مسار الصورة بشكل صحيح
+function getSecureAvatarUrl(src) {
+    if (!src) return 'profile.webp';
+    if (!src.startsWith('http') && !src.startsWith('data:') && !src.startsWith('../')) {
+        return '../' + src;
+    }
+    return src;
+}
+
+// دالة لمعالجة وتنسيق النقاط بناءً على التبويب النشط
+function getFormattedLeaderboardScore(player, tabType) {
+    if (tabType === 'wins') return formatCompactNumber(player.wins || 0) + ' 🏆';
+    if (tabType === 'xp') return 'Lv.' + (player.level || 1);
+    return formatCompactNumber(player.score || 0);
+}
+
+// دالة حقن ورسم البيانات داخل التصميم الجديد
+window.renderDynamicLeaderboardUI = function(playersList, tabType) {
+    const podiumContainer = document.getElementById('leaderboard-podium-container');
+    const listContainer = document.getElementById('leaderboard-list-container');
+    
+    if (!podiumContainer || !listContainer) return;
+
+    podiumContainer.innerHTML = '';
+    listContainer.innerHTML = '';
+
+    if (!playersList || playersList.length === 0) {
+        listContainer.innerHTML = '<p style="text-align: center; color: #a1a1aa; padding: 20px; width: 100%;">لا توجد بيانات حالياً في هذا التصنيف.</p>';
+        return;
+    }
+
+    // 🌟 1. رسم منصة المراكز الثلاثة الأولى (Podium) 🌟
+    // ترتيب المنصة في الواجهة هو: المركز الثاني (يسار)، الأول (وسط)، الثالث (يمين)
+    // لذا نقوم بترتيب المصفوفة برمجياً لتناسب الـ Flexbox: [Rank 2, Rank 1, Rank 3]
+    const podiumOrder = [
+        { rank: 2, data: playersList[1] },
+        { rank: 1, data: playersList[0] },
+        { rank: 3, data: playersList[2] }
+    ];
+
+    podiumOrder.forEach(item => {
+        if (!item.data) return; // في حال كان عدد اللاعبين أقل من 3
+        
+        const player = item.data;
+        const card = document.createElement('div');
+        card.className = `lb-podium-card rank-${item.rank}`;
+        
+        card.innerHTML = `
+            <div class="lb-podium-badge">${item.rank}</div>
+            <div class="lb-podium-avatar">
+                <img src="${getSecureAvatarUrl(player.avatar)}" onerror="this.src='profile.webp'">
+            </div>
+            <div class="lb-podium-name">${player.name || 'Guest'}</div>
+            <div class="lb-podium-score">${getFormattedLeaderboardScore(player, tabType)}</div>
+        `;
+        podiumContainer.appendChild(card);
+    });
+
+    // 🌟 2. رسم القائمة لبقية اللاعبين (المركز الرابع فما فوق) 🌟
+    for (let i = 3; i < playersList.length; i++) {
+        const player = playersList[i];
+        const rankNum = i + 1;
+        
+        const listItem = document.createElement('div');
+        listItem.className = 'lb-item';
+        
+        listItem.innerHTML = `
+            <div class="lb-player-group">
+                <span class="lb-rank">#${rankNum}</span>
+                <div class="lb-avatar">
+                    <img src="${getSecureAvatarUrl(player.avatar)}" onerror="this.src='profile.webp'">
+                </div>
+                <div class="lb-info">
+                    <span class="lb-name">${player.name || 'Guest'} <span class="lb-badge-icon">🎖️</span></span>
+                </div>
+            </div>
+            <div class="lb-score">${getFormattedLeaderboardScore(player, tabType)}</div>
+        `;
+        listContainer.appendChild(listItem);
+    }
+};
+
+// تبديل التبويبات وطلب البيانات
+window.switchLbTab = function(tabId) {
+    // تحديث أزرار التبويب
+    document.querySelectorAll('.lb-tab-button').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById('lb-tab-' + tabId);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    // إظهار علامة تحميل مؤقتة أثناء جلب البيانات
+    const listContainer = document.getElementById('leaderboard-list-container');
+    if (listContainer) {
+        listContainer.innerHTML = '<div style="text-align: center; color: #ffd700; padding: 20px; width: 100%;">جاري تحميل السجل... ⏳</div>';
+    }
+
+    // إرسال طلب للسيرفر لجلب البيانات الخاصة بالتصنيف المحدد
+    if (window.socket && window.socket.connected) {
+        window.socket.emit('requestLeaderboard', { type: tabId });
     }
 };
