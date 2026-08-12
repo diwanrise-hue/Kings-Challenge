@@ -278,20 +278,18 @@ export const socketManager = {
         eventsToTurnOff.forEach(event => socket.off(event));
 
         socket.on('leaderboardData', (data) => {
-            let formattedWins = [], formattedXp = [], formattedTokens = [];
+            let formattedWins = [], formattedXp = [];
             if(Array.isArray(data)) {
                 for(let i=0; i<data.length; i+=2) { 
                     formattedWins.push({ name: data[i], score: data[i+1] }); 
                     formattedXp.push({ name: data[i], score: data[i+1] * 25 });
-                    formattedTokens.push({ name: data[i], score: data[i+1] * 125 }); 
                 }
             } else if (data) { 
                 formattedWins = data.wins || []; 
                 formattedXp = data.xp || []; 
-                formattedTokens = data.tokens || []; 
             }
             if (window.populateLeaderboards) {
-                window.populateLeaderboards(formattedWins, formattedXp, formattedTokens);
+                window.populateLeaderboards(formattedWins, formattedXp);
             }
         });
 
