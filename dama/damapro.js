@@ -2,6 +2,7 @@
 // مخصص لإضافة الإطارات الملكية الشفافة فوق صورة البروفايل ديناميكياً
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. إضافة الستايل (CSS) الخاص بالإطار الملكي إلى الصفحة
     const frameStyle = document.createElement('style');
     frameStyle.innerHTML = `
         /* ========================================== */
@@ -13,7 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
             left: -10.8px !important;       
             width: 100px !important;        
             height: 103px !important;       
-            z-index: 4 !important; /* 🌟 تم خفض الطبقة لتكون أسفل النصوص (5) وشارة المستوى (9999) 🌟 */
+            /* 🌟 قللنا طبقة الإطار إلى 10 ليبقى تحت النصوص والمستوى (999) 🌟 */
+            z-index: 10 !important;         
             pointer-events: none !important; 
             object-fit: contain;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); 
@@ -21,21 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.head.appendChild(frameStyle);
 
-    const profileBadge = document.getElementById('profile-badge');
+    // 2. البحث عن الكبسولة التي تحتوي على صورة البروفايل
+    const avatarCapsule = document.getElementById('badge-avatar');
     
-    if (profileBadge) {
+    if (avatarCapsule) {
         const kingFrame = document.createElement('img');
         kingFrame.src = 'king1.webp';
         kingFrame.alt = 'إطار ملكي';
         kingFrame.className = 'avatar-frame-overlay';
         kingFrame.id = 'dynamic-avatar-frame'; 
 
-        // 🌟 الحل السحري: إدراج الإطار "خلف" جميع النصوص وشارة المستوى في هيكل الـ HTML 🌟
-        const avatarCapsule = profileBadge.querySelector('.profile-avatar-capsule');
-        if (avatarCapsule) {
-            avatarCapsule.insertAdjacentElement('afterend', kingFrame);
-        } else {
-            profileBadge.appendChild(kingFrame);
-        }
+        // 🌟 السحر هنا: ندرج الإطار الملكي "مباشرة بعد" صورة البروفايل الأساسية، 
+        // لكي يكون ترتيبه في كود الـ HTML أسفل صورة البروفايل ولكن "قبل" شارة المستوى والنصوص! 🌟
+        avatarCapsule.insertAdjacentElement('afterend', kingFrame);
     }
 });
