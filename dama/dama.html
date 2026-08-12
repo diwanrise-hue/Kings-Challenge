@@ -254,23 +254,20 @@
             direction: ltr !important; 
             backdrop-filter: none !important; 
             -webkit-backdrop-filter: none !important;
-            /* 🌟 تم إضافة هذا السطر لتصغير الإطار بالكامل بنسبة 15% 🌟 */
+            /* 🌟 التصغير المتكامل للبروفايل بنسبة 15% 🌟 */
             transform: scale(0.85) !important; 
         }
         html[dir="rtl"] #profile-badge.profile-badge-container { 
             left: 15px !important; 
             right: auto !important; 
-            /* 🌟 تثبيت نقطة الارتكاز في الزاوية العلوية اليسرى ليبقى في مكانه 🌟 */
             transform-origin: top left !important; 
         }
         html[dir="ltr"] #profile-badge.profile-badge-container { 
             right: 15px !important; 
             left: auto !important; 
-            /* 🌟 تثبيت نقطة الارتكاز في الزاوية العلوية اليمنى للغة الإنجليزية 🌟 */
             transform-origin: top right !important; 
         }
         #profile-badge.profile-badge-container:hover { 
-            /* 🌟 تعديل تأثير اللمس ليتناسب مع الحجم الجديد (يصغر قليلاً عند الضغط) 🌟 */
             transform: scale(0.82) !important; 
         }
 
@@ -337,7 +334,7 @@
         
         .player-name {
             color: #ffffff;
-            font-size: 13.5px; /* 🌟 تم تكبير حجم خط الاسم 🌟 */
+            font-size: 16px; /* 🌟 زيادة حجم خط الاسم 🌟 */
             font-weight: 800;
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
@@ -349,9 +346,9 @@
             z-index: 5 !important;
             width: 100px !important; 
             height: 10px !important;       
-            font-size: 11px !important; /* 🌟 زيادة الحجم الأساسي 🌟 */
+            font-size: 13px !important; /* 🌟 زيادة الحجم الأساسي للقب 🌟 */
             white-space: nowrap !important;
-            transform: scale(0.85) !important; /* 🌟 زيادة نسبة التكبير للقب 🌟 */
+            transform: scale(0.95) !important; /* 🌟 تكبير نسبة ظهور اللقب 🌟 */
             transform-origin: center center !important;
             display: flex !important;
             justify-content: center !important;
@@ -379,9 +376,9 @@
             z-index: 5 !important;
             width: 100px !important; 
             height: 10px !important;       
-            font-size: 11px !important; /* 🌟 زيادة الحجم الأساسي 🌟 */
+            font-size: 13px !important; /* 🌟 زيادة الحجم الأساسي للرتبة 🌟 */
             white-space: nowrap !important;
-            transform: scale(0.8) !important; /* 🌟 زيادة نسبة التكبير للرتبة 🌟 */
+            transform: scale(0.9) !important; /* 🌟 تكبير نسبة ظهور الرتبة 🌟 */
             transform-origin: center center !important;
             display: flex !important;
             justify-content: center !important;
@@ -391,31 +388,6 @@
             letter-spacing: 0.5px;
             direction: rtl; 
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
-
-        .tokens-text-free {
-            position: absolute !important;
-            top: 95px !important;       
-            left: -4px !important;      
-            z-index: 5 !important;
-            width: 100px !important; 
-            height: 10px !important;       
-            font-size: 10px !important;   
-            white-space: nowrap !important;
-            transform: scale(0.85) !important; 
-            transform-origin: center center !important;
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            gap: 2px !important; 
-            color: #f1c40f; 
-            font-weight: 800; 
-            letter-spacing: 0.5px;
-            direction: ltr; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.9);
-        }
-        .tokens-icon {
-            font-size: 8px; 
         }
 
         .xp-text-free {
@@ -483,6 +455,82 @@
             line-height: 1;
             text-rendering: geometricPrecision; 
             -webkit-font-smoothing: antialiased;
+        }
+
+        /* ========================================== */
+        /* 🪵 إطار الخشب السفلي (النقود وسلسلة الانتصارات) 🪵 */
+        /* ========================================== */
+        .bottom-stats-frame {
+            position: absolute !important;
+            top: 88.8px !important;           
+            left: 54% !important;
+            transform: translateX(-50%) !important;
+            width: 193px !important;
+            height: 22px !important;
+            background-image: url('tape.webp') !important;
+            background-size: 100% 100% !important;
+            background-repeat: no-repeat !important;
+            z-index: 10 !important;
+            
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-around !important;
+            padding: 0 22px !important;      
+            box-sizing: border-box !important;
+            direction: ltr !important;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            color: #ffea79;
+            font-size: 9.5px;
+            font-weight: 800;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+            white-space: nowrap;
+        }
+
+        .stat-icon {
+            font-size: 10px;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
+        }
+
+        .frame-divider {
+            width: 1px;
+            height: 12px;
+            background: linear-gradient(180deg, transparent, #ffd700, transparent);
+            opacity: 0.6;
+        }
+
+        .streak-text-format {
+            display: flex !important;
+            align-items: center !important;
+            gap: 2px !important;
+        }
+
+        .tokens-number-ctrl {
+            position: relative !important;
+            top: 1.2px !important; 
+        }
+
+        .streak-number-ctrl {
+            position: relative !important;
+            top: 1.2px !important; 
+        }
+
+        .streak-text-ctrl {
+            position: relative !important;
+            top: 1px !important; 
+            font-size: 7.5px !important;
+            color: #ffea79 !important;
+            font-weight: 700 !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.9) !important;
+        }
+
+        .streak-fire-ctrl {
+            position: relative !important;
+            top: 0px !important; 
         }
 
         /* ========================================== */
@@ -888,10 +936,6 @@
             </div>
         </div>
 
-        <div class="tokens-text-free" id="profile-stat-tokens-badge-container">
-            <span class="tokens-icon">🪙</span> <span id="profile-stat-tokens-badge">0</span>
-        </div>
-
         <div class="title-text-free" id="profile-stat-title-badge">مبارز</div>
 
         <div class="vertical-divider-free"></div>
@@ -908,6 +952,26 @@
 
         <div class="next-level-badge-container">
             <span class="next-level-badge auto-fit-center" id="badge-next-level">Lv.2</span>
+        </div>
+
+        <!-- 🪵 إطار الخشب الجديد أسفل البروفايل (النقود + الانتصارات) 🪵 -->
+        <div class="bottom-stats-frame" id="profile-stat-tokens-badge-container">
+            <div class="stat-item coins-text-format">
+                <span class="stat-icon">🪙</span>
+                <!-- ⬅️ عنصر التحكم بعدد التوكن -->
+                <span class="tokens-number-ctrl" id="profile-stat-tokens-badge">0</span>
+            </div>
+            
+            <div class="frame-divider"></div>
+
+            <div class="stat-item streak-text-format">
+                <!-- ⬅️ عنصر التحكم بالرقم -->
+                <span class="streak-number-ctrl" id="profile-stat-streak-badge">0</span>
+                <!-- ⬅️ عنصر التحكم بنص (انتصار) -->
+                <span class="streak-text-ctrl">انتصار</span>
+                <!-- ⬅️ عنصر التحكم بالشعلة 🔥 -->
+                <span class="stat-icon streak-fire-ctrl">🔥</span>
+            </div>
         </div>
     </div>
     
