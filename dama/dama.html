@@ -1137,7 +1137,7 @@
                 <span id="menu-bag-text">الحقيبة الممتلكات</span>
             </div>
 
-            <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.postMessage({ type: 'OPEN_RADIO_MODAL' }, '*');">
+            <div class="side-menu-item" onclick="toggleSideMenu(); window.openRadioModal();">
                 <span style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;" data-icon="radioSide"></span> 
                 <span id="menu-radio-text">الراديو</span>
             </div>
@@ -1159,7 +1159,7 @@
             
             <div style="flex-grow: 1;"></div>
             
-            <div class="side-menu-item" onclick="toggleSideMenu(); window.parent.postMessage({ type: 'EXIT_GAME' }, '*');" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
+            <div class="side-menu-item" onclick="toggleSideMenu(); window.exitDamaGame();" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
                 <span style="font-size: 36px; display: flex; align-items: center; justify-content: center; width: 38px; transform: translateY(1px);">🚪</span> 
                 <span id="menu-exit-text">خروج</span>
             </div>
@@ -1653,7 +1653,7 @@
             <input type="hidden" id="creator-target-room-id">
             
             <label class="settings-label" style="margin-top: 15px;">تعديل مبلغ الرهان:</label>
-            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px;" onclick="window.isEditingBet = true; window.openAppModal('bet-selector-modal')">
+            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px;" onclick="window.openBetSelectorForEdit()">
                 <span id="edit-room-bet-display">اختر الرهان الجديد</span><span style="font-size: 14px; color: rgba(255,255,255,0.4);">▼</span>
             </div>
             <input type="hidden" id="edit-room-bet-input" value="0">
@@ -1672,13 +1672,13 @@
             <p style="color: #e0e0e0; font-size: 13px; margin-bottom: 15px; text-align: center;">راهن على اللاعب الذي تتوقع فوزه! (متاح حتى أول حركتين)</p>
 
             <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
-                <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('spectator-bet-color').value = 'white'; document.getElementById('bet-p1-card').style.border='2px solid #34c759'; document.getElementById('bet-p2-card').style.border='2px solid transparent';" id="bet-p1-card" style="border: 2px solid transparent; padding: 5px; border-radius: 12px; transition: 0.3s;">
+                <div style="text-align: center; cursor: pointer;" onclick="window.selectSpectatorBetColor('white')" id="bet-p1-card" style="border: 2px solid transparent; padding: 5px; border-radius: 12px; transition: 0.3s;">
                     <div id="bet-p1-avatar" style="width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
                     <div id="bet-p1-name" style="color: white; margin-top: 5px; font-weight: bold; font-size: 12px;">اللاعب 1</div>
                     <div style="color: #a1a1aa; font-size: 10px;">أبيض ⚪</div>
                 </div>
                 <div style="color: #a1a1aa; font-weight: bold; font-size: 16px;">VS</div>
-                <div style="text-align: center; cursor: pointer;" onclick="document.getElementById('spectator-bet-color').value = 'black'; document.getElementById('bet-p2-card').style.border='2px solid #34c759'; document.getElementById('bet-p1-card').style.border='2px solid transparent';" id="bet-p2-card" style="border: 2px solid transparent; padding: 5px; border-radius: 12px; transition: 0.3s;">
+                <div style="text-align: center; cursor: pointer;" onclick="window.selectSpectatorBetColor('black')" id="bet-p2-card" style="border: 2px solid transparent; padding: 5px; border-radius: 12px; transition: 0.3s;">
                     <div id="bet-p2-avatar" style="width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
                     <div id="bet-p2-name" style="color: white; margin-top: 5px; font-weight: bold; font-size: 12px;">اللاعب 2</div>
                     <div style="color: #a1a1aa; font-size: 10px;">أسود ⚫</div>
