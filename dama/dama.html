@@ -1389,23 +1389,25 @@
         </div>
     </div>
 
+    <!-- 🌟 نافذة لوحة الشرف المعدلة 🌟 -->
     <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 9999999;">
         <div class="settings-card leaderboard-full-screen" dir="auto">
             <button class="modal-close-btn" onclick="window.closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
             <button id="lb-rewards-btn" style="position: absolute; top: 20px; left: 70px; background: rgba(255,215,0,0.15); border: 1px solid #ffd700; border-radius: 12px; padding: 6px 12px; color: #ffd700; font-weight: bold; z-index: 100000; cursor: pointer; box-shadow: none !important;" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
             
             <h3 style="font-size: 26px; margin-top: 10px; margin-bottom: 25px; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8);">🏆 <span id="lb-title-text">لوحة الشرف</span></h3>
+            
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="lb-tab-wins" class="custom-tab-button active" onclick="window.switchLbTab('wins')">الأكثر فوزاً</button>
                 <button id="lb-tab-xp" class="custom-tab-button" onclick="window.switchLbTab('xp')">الأعلى مستوى</button>
-                <button id="lb-tab-tokens" class="custom-tab-button" onclick="window.switchLbTab('tokens')">الأغنى (المال)</button>
             </div>
+            
             <div class="scrollable-content lb-list-container" id="leaderboard-list-wins"></div>
             <div class="scrollable-content lb-list-container" id="leaderboard-list-xp" style="display: none;"></div>
-            <div class="scrollable-content lb-list-container" id="leaderboard-list-tokens" style="display: none;"></div>
         </div>
     </div>
 
+    <!-- 🌟 نافذة الجوائز المعدلة 🌟 -->
     <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 10000000 !important;">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 30px 20px; background: linear-gradient(145deg, #1a1a24, #2b2b35) !important; border: 1.5px solid #a88734 !important; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212,175,55,0.05) !important; max-height: 90vh; overflow-y: auto;">
             <button class="modal-close-btn" onclick="window.closeAppModal('top3-rewards-modal')" style="left:15px; right:auto; background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important;">✕</button>
@@ -1450,11 +1452,6 @@
                 </div>
             </div>
 
-            <div style="background: linear-gradient(135deg, rgba(241,196,15,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(241,196,15,0.3); border-radius: 14px; padding: 10px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #f1c40f, transparent);"></div>
-                <h4 style="color: #f1c40f; margin: 0 0 6px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">💰 نادي الأثرياء <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأغنى)</span></h4>
-                <p style="color: #e0e0e0; font-size: 11px; margin: 0; line-height: 1.5;">شهرة ومجد! سيتم تخليد أسمائكم في لوحة الشرف كأغنى تجار اللعبة طوال الموسم القادم.</p>
-            </div>
         </div>
     </div>
 
