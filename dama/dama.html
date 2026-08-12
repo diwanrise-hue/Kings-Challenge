@@ -10,6 +10,7 @@
     
     <!-- 🌟 تم استدعاء السكربتات المخصصة هنا 🌟 -->
     <script src="dama-scripts.js"></script>
+    <script src="damapro.js"></script> <!-- 🌟 استدعاء ملف الإطارات الملكية الجديد 🌟 -->
 
     <style>
         /* ========================================== */
@@ -89,7 +90,7 @@
         
         .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
         
-        /* 🌟 إعدادات الساحة بعد التعديل لمنع ظهور الخط المربع 🌟 */
+        /* 🌟 إعدادات الساحة 🌟 */
         #board { 
             display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
             width: 95vw; max-width: 420px; aspect-ratio: 1 / 1; 
@@ -686,7 +687,7 @@
         .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .scrollable-content::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
 
-        .modal-close-btn { position: absolute; top: 15px; left: 15px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fce8a1; font-size: 16px; cursor: pointer; transition: all 0.3s ease; z-index: 10; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; padding: 0; }
+        .modal-close-btn { position: absolute; top: 15px; left: 15px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fdf5c9; font-size: 16px; cursor: pointer; transition: all 0.3s ease; z-index: 10; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; padding: 0; }
         .modal-close-btn:hover { background: rgba(255,69,58,0.15) !important; border-color: rgba(255,69,58,0.4) !important; color: #ff453a; transform: scale(1.1); }
         
         .settings-card h3 { color: #fce8a1; margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
@@ -960,8 +961,8 @@
         .bet-option-item:hover { background: rgba(255,255,255,0.05); }
         .bet-option-item:last-child { border-bottom: none; }
         .bet-radio-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #555; margin-left: 15px; position: relative; flex-shrink: 0; transition: all 0.3s; }
-        .bet-option-item.selected .bet-radio-circle { border-color: #3498db; }
-        .bet-option-item.selected .bet-radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #3498db; }
+        .bet-option-item.selected .bet-radio-circle { border-color: #d4af37; }
+        .bet-option-item.selected .bet-radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #d4af37; }
         .bet-option-text { color: white; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; width: 100%; }
 
         /* حركة صعود النوافذ من الأسفل */
