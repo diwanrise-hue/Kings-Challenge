@@ -404,3 +404,39 @@ bgObserver.observe(document.body, { attributes: true, attributeFilter: ['style']
     });
     observer.observe(document.body, { childList: true, subtree: true });
 })();
+
+// ==========================================
+// 6. دوال واجهة المراهنة للمشاهدين
+// ==========================================
+window.selectSpectatorBetColor = function(color) {
+    document.getElementById('spectator-bet-color').value = color;
+    if (color === 'white') {
+        document.getElementById('bet-p1-card').style.border = '2px solid #34c759';
+        document.getElementById('bet-p2-card').style.border = '2px solid transparent';
+    } else {
+        document.getElementById('bet-p2-card').style.border = '2px solid #34c759';
+        document.getElementById('bet-p1-card').style.border = '2px solid transparent';
+    }
+};
+
+// ==========================================
+// 7. دوال التحكم باللعبة والراديو
+// ==========================================
+window.openRadioModal = function() {
+    if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'OPEN_RADIO_MODAL' }, '*');
+    }
+};
+
+window.exitDamaGame = function() {
+    if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
+    }
+};
+
+window.openBetSelectorForEdit = function() {
+    window.isEditingBet = true;
+    if (typeof window.openAppModal === 'function') {
+        window.openAppModal('bet-selector-modal');
+    }
+};
