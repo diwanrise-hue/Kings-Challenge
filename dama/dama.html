@@ -89,12 +89,16 @@
         
         .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
         
+        /* 🌟 إعدادات الساحة بعد التعديل لمنع ظهور الخط المربع 🌟 */
         #board { 
             display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
             width: 95vw; max-width: 420px; aspect-ratio: 1 / 1; 
             background-color: #3e2723;
-            border: 12px solid #5C3A21; border-radius: 8px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.05), inset 0 0 15px rgba(0,0,0,0.9);
+            background-clip: padding-box !important;
+            border: 12px solid transparent !important; 
+            border-radius: 0px !important;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.9) !important;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
             border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
             transition: all 0.5s ease; 
         }
@@ -322,10 +326,14 @@
             background-color: transparent !important;
             border: none !important; 
             padding: 0 !important; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px rgba(212, 175, 55, 0.2) !important; 
-            border-radius: 20px !important;
+            border-radius: 0 !important;
+            box-shadow: none !important; 
+
+            /* 🌟 ظل يتتبع حواف الصورة الشفافة بدقة 🌟 */
+            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.6)) drop-shadow(0 0 5px rgba(212, 175, 55, 0.4)) !important; 
+
             cursor: pointer;
-            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1); 
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), filter 0.2s; 
             direction: ltr !important; 
             backdrop-filter: none !important; 
             -webkit-backdrop-filter: none !important;
@@ -343,14 +351,15 @@
         }
         #profile-badge.profile-badge-container:hover { 
             transform: scale(0.82) !important; 
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)) drop-shadow(0 0 8px rgba(212, 175, 55, 0.6)) !important;
         }
 
         #profile-badge .profile-avatar-capsule { 
             position: absolute !important; 
             top: 19.6px !important;      
             left: 12.4px !important;     
-            width: 54px !important;      
-            height: 54px !important;     
+            width: 53px !important;      
+            height: 53px !important;     
             border-radius: 50% !important; 
             border: none !important; 
             z-index: 3 !important; 
@@ -358,7 +367,19 @@
             align-items: center; 
             justify-content: center; 
             overflow: hidden; 
-            background-color: rgba(0,0,0,0.5);
+            background-color: transparent !important; 
+            
+            /* 🌟 قناع لقص أطراف الصورة ومنع نزيف البكسلات 🌟 */
+            -webkit-mask-image: -webkit-radial-gradient(white, black); 
+            mask-image: radial-gradient(white, black);
+            transform: translateZ(0); 
+        }
+
+        #profile-badge .profile-avatar-capsule img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 50% !important;
         }
 
         #profile-badge .ai-level-badge { 
@@ -544,8 +565,13 @@
             background-image: url('tape.webp') !important;
             background-size: 100% 100% !important;
             background-repeat: no-repeat !important;
-            z-index: 10 !important;
             
+            background-color: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) !important;
+
+            z-index: 10 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: space-around !important;
@@ -583,16 +609,8 @@
             gap: 2px !important;
         }
 
-        .tokens-number-ctrl {
-            position: relative !important;
-            top: 1.2px !important; 
-        }
-
-        .streak-number-ctrl {
-            position: relative !important;
-            top: 1.2px !important; 
-        }
-
+        .tokens-number-ctrl { position: relative !important; top: 1.2px !important; }
+        .streak-number-ctrl { position: relative !important; top: 1.2px !important; }
         .streak-text-ctrl {
             position: relative !important;
             top: 1px !important; 
@@ -601,11 +619,7 @@
             font-weight: 700 !important;
             text-shadow: 0 1px 2px rgba(0,0,0,0.9) !important;
         }
-
-        .streak-fire-ctrl {
-            position: relative !important;
-            top: 0px !important; 
-        }
+        .streak-fire-ctrl { position: relative !important; top: 0px !important; }
 
         /* القائمة الجانبية */
         .side-menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
@@ -809,7 +823,7 @@
         #toast-notification.show { opacity: 1; visibility: visible; bottom: 20px; }
 
         #game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; backdrop-filter: blur(15px) saturate(180%) !important; border-radius: 36px !important; padding: 35px 25px !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;}
-        #game-over-modal h3 { color: #fdf5c9 !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+        #game-over-modal h3 { color: #fce8a1 !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
         
         body.online-mode-active { padding-top: 15px !important; }
         body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn { display: none !important; visibility: hidden !important; pointer-events: none !important; }
@@ -946,8 +960,8 @@
         .bet-option-item:hover { background: rgba(255,255,255,0.05); }
         .bet-option-item:last-child { border-bottom: none; }
         .bet-radio-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #555; margin-left: 15px; position: relative; flex-shrink: 0; transition: all 0.3s; }
-        .bet-option-item.selected .bet-radio-circle { border-color: #d4af37; }
-        .bet-option-item.selected .bet-radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #d4af37; }
+        .bet-option-item.selected .bet-radio-circle { border-color: #3498db; }
+        .bet-option-item.selected .bet-radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #3498db; }
         .bet-option-text { color: white; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; width: 100%; }
 
         /* حركة صعود النوافذ من الأسفل */
@@ -1011,14 +1025,18 @@
         <div class="bottom-stats-frame" id="profile-stat-tokens-badge-container">
             <div class="stat-item coins-text-format">
                 <span class="stat-icon">🪙</span>
+                <!-- ⬅️ عنصر التحكم بعدد التوكن -->
                 <span class="tokens-number-ctrl" id="profile-stat-tokens-badge">0</span>
             </div>
             
             <div class="frame-divider"></div>
 
             <div class="stat-item streak-text-format">
+                <!-- ⬅️ عنصر التحكم بالرقم -->
                 <span class="streak-number-ctrl" id="profile-stat-streak-badge">0</span>
+                <!-- ⬅️ عنصر التحكم بنص (انتصار) -->
                 <span class="streak-text-ctrl">انتصار</span>
+                <!-- ⬅️ عنصر التحكم بالشعلة 🔥 -->
                 <span class="stat-icon streak-fire-ctrl">🔥</span>
             </div>
         </div>
