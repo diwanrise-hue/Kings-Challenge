@@ -223,20 +223,13 @@
         #online-toggle-btn { bottom: 75px !important; left: 15px !important; height: 46px !important; width: 102px !important; z-index: 9998 !important;}
         #store-portal-corner-btn { bottom: 75px !important; right: 15px !important; width: 46px !important; height: 46px !important; font-size: 18px !important; z-index: 9998 !important;}
         
-        /* تلوين محتوى SVGs (الأيقونات) بالذهبي الكريمي، وزر أونلاين بالأزرق الجوهري */
+        /* تلوين محتوى SVGs (الأيقونات) بالذهبي الكريمي - (تم استثناء زر الأونلاين والراديو للحفاظ على صورهما الأصلية) */
         #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
         #store-portal-corner-btn svg, #lucky-spin-portal-btn svg,
-        #custom-diff-btn svg, #hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
+        #custom-diff-btn svg, #hint-btn svg, #undo-btn svg, #mic-toggle-btn svg * {
             fill: #fce8a1 !important;
             stroke: #fce8a1 !important;
             color: #fce8a1 !important;
-        }
-        
-        #online-toggle-btn svg, #online-toggle-btn path, #online-toggle-btn circle { 
-            fill: #00d2ff !important; 
-            stroke: #00d2ff !important; 
-            color: #00d2ff !important; 
-            filter: drop-shadow(0 0 2px rgba(0,210,255,0.6)); 
         }
 
         /* إلغاء الـ Fixed لأزرار لوحة التحكم السفلية لترتيب الفليكس */
@@ -329,7 +322,6 @@
             background-color: transparent !important;
             border: none !important; 
             padding: 0 !important; 
-            /* 🌟 إضافة توهج وإسقاط ظل للبروفايل بأكمله 🌟 */
             box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px rgba(212, 175, 55, 0.2) !important; 
             border-radius: 20px !important;
             cursor: pointer;
@@ -337,7 +329,6 @@
             direction: ltr !important; 
             backdrop-filter: none !important; 
             -webkit-backdrop-filter: none !important;
-            /* 🌟 التصغير المتكامل للبروفايل بنسبة 15% 🌟 */
             transform: scale(0.85) !important; 
         }
         html[dir="rtl"] #profile-badge.profile-badge-container { 
@@ -681,10 +672,10 @@
         .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .scrollable-content::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
 
-        .modal-close-btn { position: absolute; top: 15px; left: 15px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fdf5c9; font-size: 16px; cursor: pointer; transition: all 0.3s ease; z-index: 10; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; padding: 0; }
+        .modal-close-btn { position: absolute; top: 15px; left: 15px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fce8a1; font-size: 16px; cursor: pointer; transition: all 0.3s ease; z-index: 10; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; padding: 0; }
         .modal-close-btn:hover { background: rgba(255,69,58,0.15) !important; border-color: rgba(255,69,58,0.4) !important; color: #ff453a; transform: scale(1.1); }
         
-        .settings-card h3 { color: #fdf5c9; margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 700; }
+        .settings-card h3 { color: #fce8a1; margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
         .settings-label { display: block; color: #a1a1aa; font-size: 13px; font-weight: 500; margin-bottom: 8px; text-align: start; padding: 0 10px; }
         
         .settings-card .online-input, .settings-card select, .custom-bet-trigger { width: 100%; height: 50px; margin-bottom: 15px; padding: 0 20px; border-radius: 50px !important; border: 1px solid rgba(255,255,255,0.1) !important; background: rgba(255, 255, 255, 0.06) !important; color: white; font-weight: 500; font-size: 14px; box-sizing: border-box; text-align: center; appearance: none; }
@@ -732,9 +723,9 @@
         }
 
         .custom-tab-button.active {
-            background: rgba(255, 215, 0, 0.15) !important;
+            background: rgba(212, 175, 55, 0.15) !important;
             color: #ffd700 !important;
-            border: 1px solid rgba(255, 215, 0, 0.4) !important;
+            border: 1px solid rgba(212, 175, 55, 0.4) !important;
             border-radius: 10px !important;
             box-shadow: none !important;
         }
@@ -778,7 +769,7 @@
             box-sizing: border-box;
             position: relative;
         }
-        .store-item-card:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+        .store-item-card:hover { border-color: #d4af37; background: rgba(212, 175, 55, 0.05); }
 
         .store-buy-btn-small { 
             height: 28px !important; 
@@ -797,7 +788,7 @@
         }
 
         .loading-dots-container { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
-        .loading-dot { width: 10px; height: 10px; background-color: #fff; border-radius: 50%; animation: dotFade 1.4s infinite; }
+        .loading-dot { width: 10px; height: 10px; background-color: #fdf5c9; border-radius: 50%; animation: dotFade 1.4s infinite; }
         .loading-dot:nth-child(2) { animation-delay: 0.2s; }
         .loading-dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes dotFade { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
@@ -805,27 +796,26 @@
         .notification-badge { position: absolute; top: -2px; left: -2px; width: 10px; height: 10px; background-color: #ff453a; border-radius: 50%; box-shadow: 0 0 10px #ff453a; animation: badgePulse 1.5s infinite ease-in-out; }
         @keyframes badgePulse { 0% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.8; } }
 
-        #match-players-card { background: rgba(45, 48, 55, 0.6) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important; }
+        #match-players-card { background: rgba(24, 23, 29, 0.8) !important; backdrop-filter: blur(15px); border: 1px solid rgba(212, 175, 55, 0.3) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; }
         .match-players-flex { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 80px; position: relative; }
-        .match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
-        .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ffffff !important; display: flex; align-items: center; justify-content: center; }
-        .match-vs-text { color: #a1a1aa; font-weight: 300; font-size: 16px; text-align: center; }
+        .match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid #d4af37; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
+        .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fdf5c9 !important; display: flex; align-items: center; justify-content: center; }
+        .match-vs-text { color: #d4af37; font-weight: 800; font-size: 16px; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
-        .purchase-preview-box { width: 100px; height: 100px; margin: 20px auto; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .purchase-preview-box { width: 100px; height: 100px; margin: 20px auto; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); }
         .legendary-icon { box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); }
 
-        #toast-notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: rgba(46, 204, 113, 0.95); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 14px; z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.3); backdrop-filter: blur(10px); pointer-events: none; white-space: nowrap; }
+        #toast-notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #2ecc71, #1e8449); border: 1.5px solid #8be8ab; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 14px; z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(10px); pointer-events: none; white-space: nowrap; }
         #toast-notification.show { opacity: 1; visibility: visible; bottom: 20px; }
 
-        #game-over-modal > div { background: rgba(30, 32, 40, 0.75) !important; backdrop-filter: blur(15px) saturate(180%) !important; border-radius: 36px !important; padding: 35px 25px !important; }
-        #game-over-modal div[style*="border"], #game-over-modal div[style*="#f1c40f"] { border: none !important; }
-        #game-over-modal h3 { color: #ffffff !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; }
+        #game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; backdrop-filter: blur(15px) saturate(180%) !important; border-radius: 36px !important; padding: 35px 25px !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;}
+        #game-over-modal h3 { color: #fdf5c9 !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
         
         body.online-mode-active { padding-top: 15px !important; }
         body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn { display: none !important; visibility: hidden !important; pointer-events: none !important; }
         body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
         body.online-mode-active #match-players-card { width: 95vw !important; max-width: 500px !important; flex-direction: row !important; justify-content: space-between !important; padding: 10px 30px !important; margin-bottom: 15px !important; }
-        body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #a1a1aa !important; }
+        body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #d4af37 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         body.online-mode-active .scoreboard { order: 2 !important; }
         body.online-mode-active .game-container { order: 3 !important; }
 
@@ -944,9 +934,9 @@
         .level-btn.easy:hover, .level-btn.easy.active { background: rgba(48, 209, 88, 0.15); border-color: #30d158; color: #30d158; box-shadow: 0 0 15px rgba(48, 209, 88, 0.3); }
         .level-btn.medium:hover, .level-btn.medium.active { background: rgba(245, 166, 35, 0.15); border-color: #f5a623; color: #f5a623; box-shadow: 0 0 15px rgba(245, 166, 35, 0.3); }
         .level-btn.hard:hover, .level-btn.hard.active { background: rgba(255, 69, 58, 0.15); border-color: #ff453a; color: #ff453a; box-shadow: 0 0 15px rgba(255, 69, 58, 0.3); }
-        .level-btn.boss { border: 1px solid rgba(255, 215, 0, 0.4); animation: bossPulse 2s infinite alternate; }
-        .level-btn.boss:hover, .level-btn.boss.active { background: rgba(255, 215, 0, 0.2); border-color: #ffd700; color: #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); transform: scale(1.05); }
-        @keyframes bossPulse { 0% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.2); } 100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); } }
+        .level-btn.boss { border: 1px solid rgba(212, 175, 55, 0.4); animation: bossPulse 2s infinite alternate; }
+        .level-btn.boss:hover, .level-btn.boss.active { background: rgba(212, 175, 55, 0.2); border-color: #ffd700; color: #ffd700; box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); transform: scale(1.05); }
+        @keyframes bossPulse { 0% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); } 100% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); } }
         .level-btn:active { transform: scale(0.95); }
 
         /* ========================================== */
@@ -956,8 +946,8 @@
         .bet-option-item:hover { background: rgba(255,255,255,0.05); }
         .bet-option-item:last-child { border-bottom: none; }
         .bet-radio-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #555; margin-left: 15px; position: relative; flex-shrink: 0; transition: all 0.3s; }
-        .bet-option-item.selected .bet-radio-circle { border-color: #3498db; }
-        .bet-option-item.selected .bet-radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #3498db; }
+        .bet-option-item.selected .bet-radio-circle { border-color: #d4af37; }
+        .bet-option-item.selected .bet-radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #d4af37; }
         .bet-option-text { color: white; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; width: 100%; }
 
         /* حركة صعود النوافذ من الأسفل */
@@ -1021,18 +1011,14 @@
         <div class="bottom-stats-frame" id="profile-stat-tokens-badge-container">
             <div class="stat-item coins-text-format">
                 <span class="stat-icon">🪙</span>
-                <!-- ⬅️ عنصر التحكم بعدد التوكن -->
                 <span class="tokens-number-ctrl" id="profile-stat-tokens-badge">0</span>
             </div>
             
             <div class="frame-divider"></div>
 
             <div class="stat-item streak-text-format">
-                <!-- ⬅️ عنصر التحكم بالرقم -->
                 <span class="streak-number-ctrl" id="profile-stat-streak-badge">0</span>
-                <!-- ⬅️ عنصر التحكم بنص (انتصار) -->
                 <span class="streak-text-ctrl">انتصار</span>
-                <!-- ⬅️ عنصر التحكم بالشعلة 🔥 -->
                 <span class="stat-icon streak-fire-ctrl">🔥</span>
             </div>
         </div>
@@ -1046,7 +1032,7 @@
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
     <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none;" data-icon="bagQuick"></button>
 
-    <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(15,18,25,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 1000000; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
+    <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(24,23,29,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 1000000; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="font-weight: bold; font-size: 14px; color: #34c759;">تحدي جديد ⚔️</span>
         </div>
