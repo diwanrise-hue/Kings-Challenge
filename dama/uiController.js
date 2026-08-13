@@ -119,7 +119,7 @@ export const ui = {
             return;
         }
 
-        const isImage = avatarStr && (avatarStr.startsWith('data:image') || avatarStr.endsWith('.png') || avatarStr.endsWith('.jpg') || avatarStr.endsWith('.webp'));
+        const isImage = avatarStr && (avatarStr.startsWith('data:image') || avatarStr.endsWith('.webp') || avatarStr.endsWith('.jpg') || avatarStr.endsWith('.webp'));
 
         if (isImage || isCustom) {
             const img = document.createElement('img');
@@ -2025,7 +2025,7 @@ ui.onClick('board', e => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    let globalProfile = localStorage.getItem('hub_user_profile'); let initialAvatar = '1000132081.png';
+    let globalProfile = localStorage.getItem('hub_user_profile'); let initialAvatar = '1000132081.webp';
     if (globalProfile) { const parsed = JSON.parse(globalProfile); if (parsed.avatar) initialAvatar = parsed.avatar; }
 
     const storedUser = localStorage.getItem('hub_user_profile');
