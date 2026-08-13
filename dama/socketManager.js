@@ -24,7 +24,7 @@ window.socket = socket;
 
 const fallbackMoveAudio = new Audio('move.mp3');
 
-// 🌟 الدالة الذكية لضمان تطبيق الساحة حتى لو تأخر المتجر في التحميل 🌟
+// 🌟 الدالة الذكية لضمان تطبيق الساحة والإطار والأحجار 🌟
 const applyMatchThemeRobust = (profile, retries = 5) => {
     if (!profile) return;
     
@@ -34,12 +34,19 @@ const applyMatchThemeRobust = (profile, retries = 5) => {
         return;
     }
 
-    // إذا تم تحميل المتجر، طبق الساحة والأحجار فوراً
-    if (window.STORE_ITEMS) {
-        const bgId = profile.equippedBg || 'bg_wood';
-        const pcId = profile.equippedPc || 'pc_original';
-        const bgItem = window.STORE_ITEMS[bgId];
+    // استخراج العناصر من البروفايل (أو وضع الافتراضي)
+    const bgId = profile.equippedBg || 'bg_wood';
+    const pcId = profile.equippedPc || 'pc_original';
+    const frId = profile.equippedFr || 'fr_classic'; 
 
+    // تطبيق خصائص CSS العامة على body لكي تلتقطها ملفات التصميم
+    document.body.setAttribute('data-piece-style', pcId);
+    document.body.setAttribute('data-board-style', bgId); // <== الإطار والساحة
+    document.body.setAttribute('data-frame-style', frId); // <== الإطار والساحة
+
+    // تطبيق ألوان المربعات المخصصة إذا وجدت
+    if (window.STORE_ITEMS) {
+        const bgItem = window.STORE_ITEMS[bgId];
         if (bgItem && bgItem.light && bgItem.dark) {
             document.documentElement.style.setProperty('--light-cell', bgItem.light);
             document.documentElement.style.setProperty('--dark-cell', bgItem.dark);
@@ -47,11 +54,11 @@ const applyMatchThemeRobust = (profile, retries = 5) => {
             document.documentElement.style.setProperty('--light-cell', '#e0c094');
             document.documentElement.style.setProperty('--dark-cell', '#8b5a2b');
         }
-        
-        document.body.setAttribute('data-piece-style', pcId);
-    } else {
-        // محاولة أخيرة باستخدام دالة الواجهة إذا فشل كل شيء
-        if (typeof window.applyTheme === 'function') window.applyTheme(profile);
+    } 
+
+    // 🌟 استدعاء دالة الواجهة الأصلية كإجراء تأكيدي لضمان عمل أي تأثيرات إضافية
+    if (typeof window.applyTheme === 'function') {
+        window.applyTheme(profile);
     }
 };
 
