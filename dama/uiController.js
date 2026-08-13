@@ -4,7 +4,7 @@
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
  * 🌟 (مُحدّث): إصلاح مشكلة عدم تحديث مبلغ الرهان في إعدادات الغرفة (isEditingBet).
  * 🌟 (مُحدّث): تم تجريد الكلاينت من صلاحية إغلاق اللعبة في وضع الأونلاين لمنع الانفصال (Desync) والامتثال الكامل للسيرفر.
- * 🌟 (مُحدّث): تحديث نصوص وتبويبات لوحة الشرف حسب التصميم الجديد (المنصة) وإصلاح الأصفار والمستويات.
+ * 🌟 (مُحدّث): إزالة نقاط XP من لوحة الشرف، وتثبيت الاسم أسفل بطاقة التتويج مع رفع المستوى/الكأس فوقه، واستبدال كلمة فوز بالكأس 🏆.
  */
 
 import { gameState } from './gameState.js'; 
@@ -1245,7 +1245,6 @@ window.switchRoomTab = function(tab) {
     else { document.getElementById('spectate-rooms-list').style.display = 'block'; }
 };
 
-// 🌟 التعديل الخاص بإصلاح تحديث الرهان في إعدادات الغرفة
 window.selectBetAmount = function(value, displayText, element) {
     if (window.isEditingBet) {
         document.getElementById('edit-room-bet-input').value = value; 
@@ -1442,26 +1441,30 @@ window.copyMyId = function() {
 };
 
 window.createLbItemHTML = function(rank, playerObj, type) {
-    // تم الإصلاح لضمان قراءة الفوز أو النقاط دون ظهور الصفر
     let score = playerObj.score || playerObj.wins || 0; 
     let name = playerObj.name; let avatarStr = playerObj.avatar; let playerRankInfo = playerObj.rankInfo;
-    let prefix = type === 'xp' ? '🌟 ' : '';
-    let suffix = type === 'wins' ? ' ' + (window.t ? window.t('igp_wins') : 'فوز') : (type === 'xp' ? ' XP' : '');
+    
+    let displayScore = '';
     
     if (type === 'xp') {
-        let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1; if (level > 200) level = 200;
-        prefix = `<span style="color:#87ceeb; font-weight:800; margin-left:6px; background: rgba(135,206,235,0.15); border: 1px solid rgba(135,206,235,0.3); padding: 2px 6px; border-radius: 6px;">Lv.${level}</span> 🌟 `;
+        let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1; 
+        if (level > 200) level = 200;
+        displayScore = `<span style="color:#87ceeb; font-weight:800; background: rgba(135,206,235,0.15); border: 1px solid rgba(135,206,235,0.3); padding: 2px 8px; border-radius: 6px;">Lv.${level}</span>`;
+    } else {
+        // تم استبدال كلمة فوز بالكأس 🏆 هنا
+        displayScore = `<span style="color:#f5a623; font-weight:800;">${formatCompactNumber(score)} 🏆</span>`;
     }
 
     const div = document.createElement('div'); div.className = 'lb-item';
     let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>` : '';
     const nameEl = document.createElement('div'); nameEl.className = 'lb-name'; nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
+    
     div.innerHTML = `
         <div class="lb-rank">#${rank}</div>
         <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s;" title="عرض الملف الشخصي"></div>
-        <div class="lb-info">
+        <div class="lb-info" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
             <div class="lb-name-container"></div>
-            <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${prefix}${score}${suffix}</div>
+            <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${displayScore}</div>
         </div>
     `;
     div.querySelector('.lb-name-container').replaceWith(nameEl);
@@ -1493,9 +1496,7 @@ function getSecureAvatarUrl(src) {
     return src;
 }
 
-// دالة لمعالجة وتنسيق النقاط بناءً على التبويب النشط
 function getFormattedLeaderboardScore(player, tabType) {
-    // تم الإصلاح لحساب المستوى بدقة وتجنب الصفر لأول 3 لاعبين
     let score = player.score || player.wins || 0;
     
     if (tabType === 'wins') {
@@ -1505,13 +1506,12 @@ function getFormattedLeaderboardScore(player, tabType) {
     if (tabType === 'xp') {
         let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1;
         if (level > 200) level = 200;
-        return `Lv.${level} 🌟 ${formatCompactNumber(score)} XP`;
+        return `Lv.${level}`;
     }
     
     return formatCompactNumber(score);
 }
 
-// دالة حقن ورسم البيانات داخل التصميم الجديد
 window.renderDynamicLeaderboardUI = function(playersList, tabType) {
     const podiumContainer = document.getElementById('leaderboard-podium-container');
     const listContainer = document.getElementById('leaderboard-list-' + tabType); 
@@ -1526,8 +1526,6 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         return;
     }
 
-    // 🌟 1. رسم منصة المراكز الثلاثة الأولى (Podium) 🌟
-    // ترتيب المنصة في الواجهة هو: المركز الثاني (يسار)، الأول (وسط)، الثالث (يمين)
     const podiumOrder = [
         { rank: 2, data: playersList[1] },
         { rank: 1, data: playersList[0] },
@@ -1541,13 +1539,16 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         const card = document.createElement('div');
         card.className = `lb-podium-card rank-${item.rank}`;
         
+        // 🌟 تثبيت الاسم في الأسفل ورفع المستوى والكأس فوقه 🌟
         card.innerHTML = `
             <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
             <div class="lb-podium-avatar avatar-${item.rank}">
                 <img src="${getSecureAvatarUrl(player.avatar)}" onerror="this.src='profile.webp'">
             </div>
-            <div class="lb-podium-name">${player.name || 'Guest'}</div>
-            <div class="lb-podium-score-pill score-${item.rank}">${getFormattedLeaderboardScore(player, tabType)}</div>
+            <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
+                <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
+                <div class="lb-podium-name" style="width: 100%; text-align: center; margin-bottom: 0;">${player.name || 'Guest'}</div>
+            </div>
         `;
         
         card.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(player); };
@@ -1556,7 +1557,6 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         podiumContainer.appendChild(card);
     });
 
-    // 🌟 2. رسم القائمة لبقية اللاعبين (المركز الرابع فما فوق) 🌟
     for (let i = 3; i < playersList.length; i++) {
         listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
     }
@@ -1566,7 +1566,6 @@ window.populateLeaderboards = function(winsData, xpData) {
     document.getElementById('leaderboard-list-wins').innerHTML = '';
     document.getElementById('leaderboard-list-xp').innerHTML = '';
     
-    // تم الإصلاح بقراءة الكلاس الصحيح لأزرار الشرف لمنع التضارب
     const activeTabBtn = document.querySelector('.lb-tab-button.active');
     let activeTabId = 'wins';
     if(activeTabBtn && activeTabBtn.id === 'lb-tab-xp') activeTabId = 'xp';
