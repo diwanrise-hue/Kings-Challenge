@@ -1,7 +1,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * تم حذف الإشعارات المزعجة للاتصال، وتم دمج نظام الإشعارات (Toast) مع واجهة HTML الأصلية.
+ * 🌟 (مُحدّث): إصلاح مشكلة حلقة المزامنة اللانهائية (Infinite Sync Loop).
+ * 🌟 (مُحدّث): تجاهل صدى السيرفر للحركات المحلية لتسريع الأداء.
  */
 
 import { gameState } from './gameState.js'; 
@@ -34,7 +35,6 @@ export const socketManager = {
     hidePingTimer: null, 
 
     _showToast(msg) {
-        // 🌟 استخدام عنصر الإشعار الأنيق الموجود في ملف الـ HTML الأساسي
         let toast = document.getElementById('toast-notification');
         if (toast) {
             toast.innerText = msg;
@@ -438,6 +438,7 @@ export const socketManager = {
             
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
+            gameState.pieceHistories = {}; // 🌟 تصفير سجل تكرار الحركات لتجنب تنبيهات المماطلة الكاذبة
             
             ui.renderBoard(true);
             ui.startTurn();
@@ -628,6 +629,12 @@ export const socketManager = {
 
         socket.on('opponentMove', data => {
             if (!data || !data.from || !data.to) return;
+            
+            // 🌟 إصلاح حلقة المزامنة: تجاهل الصدى القادم من السيرفر لحركتك الخاصة 🌟
+            const profile = this._ensureUserProfile();
+            if (data.guestId === profile.id || data.currentTurn === gameState.myOnlineColor) {
+                return; // هذه حركتنا، لا يجب أن نُنفذها كحركة للخصم.
+            }
             
             let isMultiJumpContinuation = (gameState.currentTurn === data.nextTurn);
             
@@ -1004,7 +1011,7 @@ export const socketManager = {
             const profile = this._ensureUserProfile(); 
             socket.emit('makeMove', { 
                 roomID: String(gameState.onlineRoomID).trim(), 
-                currentTurn: nextTurn,
+                currentTurn: gameState.myOnlineColor, // 🌟 الإصلاح الأساسي: إرسال لون اللاعب الذي تحرك بشكل صريح 🌟
                 nextTurn: nextTurn, 
                 guestId: profile.id, 
                 from: { r: Number(fromR), c: Number(fromC) }, 
