@@ -2,9 +2,8 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): تصحيح مسار صور اللاعبين في لوحة الشرف لمنع خطأ 404.
- * 🌟 (مُحدّث): منع الانضغاط (الصور البيضاوية) بصورة نهائية في قائمة الشرف.
- * 🌟 (مُحدّث): تبديل زر الخيارات بالحقيبة أثناء اللعب ضد البوت.
+ * 🌟 (مُحدّث): إصلاح الخلل الكارثي في المربع الأزرق للاعب الأسود (إصلاح updateVirtualBoardState).
+ * 🌟 (مُحدّث): تصحيح مسار صور اللاعبين ومنع الانضغاط.
  */
 
 import { gameState } from './gameState.js'; 
@@ -328,7 +327,6 @@ export const ui = {
         this.setDisplay('floating-quests-btn', flexState);
         this.setDisplay('custom-diff-btn', inlineState);
         
-        // 🌟 إخفاء القائمة وإظهار الحقيبة عند اللعب
         this.setDisplay('hamburger-menu-btn', active ? 'none' : 'flex');
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
         
@@ -395,20 +393,25 @@ export const ui = {
         }
     },
 
+    // 🌟 الإصلاح הגذري للمشكلة المربعات الزرقاء للون الأسود
     updateVirtualBoardState() {
         const board = this.getEl('board');
         if (!board) return;
         
-        let cellIndex = 0;
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const cell = board.children[cellIndex++];
-                if (cell?.children.length > 0) {
-                    const child = cell.children[0];
-                    const side = child.classList.contains('white') ? 'white' : 'black';
-                    const type = child.classList.contains('dama') ? '-dama' : '';
-                    gameState.virtualBoard[r][c] = `${side}${type}`;
-                } else { gameState.virtualBoard[r][c] = null; }
+        for (let i = 0; i < board.children.length; i++) {
+            const cell = board.children[i];
+            
+            // 💡 الإعتماد على الإحداثيات المنطقية بدلاً من الترتيب المرئي (لأن الرقعة مقلوبة للأسود)
+            const r = parseInt(cell.dataset.row);
+            const c = parseInt(cell.dataset.col);
+            
+            if (cell.children.length > 0) {
+                const child = cell.children[0];
+                const side = child.classList.contains('white') ? 'white' : 'black';
+                const type = child.classList.contains('dama') ? '-dama' : '';
+                gameState.virtualBoard[r][c] = `${side}${type}`;
+            } else { 
+                gameState.virtualBoard[r][c] = null; 
             }
         }
         this.updateScoreboard();
