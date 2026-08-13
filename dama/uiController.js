@@ -283,19 +283,19 @@ export const ui = {
             if(cancelBtn) cancelBtn.style.display = 'block';
             
             let profile = gameState.userProfile || {};
-            if (profile.syncThemeOptOut === undefined && !window.hasPromptedThemeSync) {
+                        if (profile.syncThemeOptOut === undefined && !window.hasPromptedThemeSync) {
                 window.hasPromptedThemeSync = true; 
                 this.showCustomAlert(
                     "هل ترغب في استخدام ساحة اللاعب الأعلى مستوى في المباريات القادمة؟\n(يمكنك تغيير ذلك من الإعدادات لاحقاً)",
                     "مزامنة الساحة 🎨",
                     () => {
                         profile.syncThemeOptOut = false; this.saveAndSyncProfile(profile);
-                        const optCb = document.getElementById('sync-theme-optout'); if(optCb) optCb.checked = false;
+                        const optCb = document.getElementById('sync-theme-optout'); if(optCb) optCb.checked = true; // ✔️ صح يعني موافق
                         if(onComplete) onComplete();
                     }, true, "لا، ساحتي فقط", "نعم، أوافق",
                     () => {
                         profile.syncThemeOptOut = true; this.saveAndSyncProfile(profile);
-                        const optCb = document.getElementById('sync-theme-optout'); if(optCb) optCb.checked = true;
+                        const optCb = document.getElementById('sync-theme-optout'); if(optCb) optCb.checked = false; // ⬜ فارغ يعني غير موافق
                         if (window.applyTheme && gameState.userProfile) window.applyTheme(gameState.userProfile);
                         if(onComplete) onComplete();
                     }
