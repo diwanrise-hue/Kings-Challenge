@@ -1,9 +1,7 @@
-// ملف: socketManager.js
 /**
  * socketManager.js
- * النسخة المتطورة والكاملة: تدعم نظام التحديات المتقدم، استئذان المايك، 
- * ردهة الغرف النشطة (Lobby) مفصولة (للعب وللمراهنات)، مزامنة الساحة، ونظام المشاهدة والرهانات الجانبية.
- * 🌟 (مُحدّث): تصحيح رابط السيرفر المباشر لتجنب أخطاء 404 على جيت هب ولضمان عمل المتجر واللعب الأونلاين.
+ * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
+ * تم حذف الإشعارات المزعجة للاتصال، وتم دمج نظام الإشعارات (Toast) مع واجهة HTML الأصلية.
  */
 
 import { gameState } from './gameState.js'; 
@@ -11,9 +9,8 @@ import { startOnlineHintSystem, restoreOfflineHintSystem } from './main.js';
 import { ui } from './uiController.js';
 import { gameEngine } from './gameEngine.js';
 
-// 🟢 التعديل الجوهري: الربط المباشر مع سيرفر HuggingFace بدلاً من المسار المحلي لمنع خطأ 404
 export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', { 
-    transports: ['websocket', 'polling'], // دمج polling مع websocket لضمان استقرار الاتصال 
+    transports: ['websocket', 'polling'], 
     upgrade: true,            
     reconnection: true,                   
     reconnectionAttempts: Infinity,       
@@ -37,35 +34,17 @@ export const socketManager = {
     hidePingTimer: null, 
 
     _showToast(msg) {
-        let toast = document.getElementById('game-toast-notification');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'game-toast-notification';
-            toast.style.cssText = `
-                position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
-                background: rgba(25, 25, 30, 0.95); color: #fff; padding: 12px 24px;
-                border-radius: 50px; z-index: 10000000; font-family: sans-serif; font-size: 14px;
-                text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-                transition: opacity 0.3s ease, transform 0.3s ease; opacity: 0;
-                pointer-events: none; border: 1px solid rgba(255,255,255,0.1);
-                white-space: nowrap; max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
-            `;
-            document.body.appendChild(toast);
+        // 🌟 استخدام عنصر الإشعار الأنيق الموجود في ملف الـ HTML الأساسي
+        let toast = document.getElementById('toast-notification');
+        if (toast) {
+            toast.innerText = msg;
+            toast.classList.add('show');
+            
+            if (this.toastTimeout) clearTimeout(this.toastTimeout);
+            this.toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
-        
-        toast.textContent = msg;
-        toast.style.display = 'block';
-        requestAnimationFrame(() => {
-            toast.style.opacity = '1';
-            toast.style.transform = 'translate(-50%, -10px)';
-        });
-
-        if (this.toastTimeout) clearTimeout(this.toastTimeout);
-        this.toastTimeout = setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translate(-50%, 0)';
-            setTimeout(() => { toast.style.display = 'none'; }, 300);
-        }, 4000);
     },
 
     _initRealPingIndicator() {
