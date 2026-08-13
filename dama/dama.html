@@ -73,7 +73,6 @@
     </button>
 
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
-    <!-- 🌟 تم إزالة style="display:none;" لحل مشكلة الإطار المنفصل وتضارب الـ CSS 🌟 -->
     <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" data-icon="bagQuick"></button>
 
     <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(24,23,29,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 1000000; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
@@ -555,10 +554,6 @@
             </div>
 
             <button onclick="window.openAppModal('create-room-modal')" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; border: 1.5px solid #85c1e9 !important; border-bottom: 3.5px solid #1f618d !important; height: 55px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important;">+ إنشاء غرفة جديدة</button>
-            
-            <input type="hidden" id="online-room-input">
-            <input type="hidden" id="online-password-input">
-            <button id="online-join-btn" style="display: none;"></button>
         </div>
     </div>
 
