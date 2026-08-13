@@ -295,9 +295,19 @@ function getSecureAvatarUrl(src) {
 }
 
 function getFormattedLeaderboardScore(player, tabType) {
-    if (tabType === 'wins') return formatCompactNumber(player.score || player.wins || 0) + ' 🏆';
-    if (tabType === 'xp') return 'Lv.' + (player.level || 1);
-    return formatCompactNumber(player.score || 0);
+    let score = player.score || player.wins || 0;
+    
+    if (tabType === 'wins') {
+        return formatCompactNumber(score) + ' 🏆';
+    }
+    
+    if (tabType === 'xp') {
+        let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1;
+        if (level > 200) level = 200;
+        return `Lv.${level} 🌟 ${formatCompactNumber(score)} XP`;
+    }
+    
+    return formatCompactNumber(score);
 }
 
 window.renderDynamicLeaderboardUI = function(playersList, tabType) {
@@ -385,7 +395,7 @@ window.populateLeaderboards = function(winsData, xpData) {
     document.getElementById('leaderboard-list-wins').innerHTML = '';
     document.getElementById('leaderboard-list-xp').innerHTML = '';
     
-    const activeTabBtn = document.querySelector('.custom-tab-button.active');
+    const activeTabBtn = document.querySelector('.lb-tab-button.active');
     let activeTabId = 'wins';
     if(activeTabBtn && activeTabBtn.id === 'lb-tab-xp') activeTabId = 'xp';
 
