@@ -676,13 +676,21 @@
             width: 90vw !important; max-width: 600px !important; height: 80vh !important; max-height: 800px !important; padding-top: 35px; display: flex; flex-direction: column;
         }
         
-        .leaderboard-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; border:none !important; padding: 60px 20px 20px 20px !important; background-image: url('leaderboard.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; } 
+        .leaderboard-full-screen { 
+            width: 100vw !important; height: 100dvh !important; max-width: none !important; 
+            max-height: none !important; border-radius: 0 !important; border:none !important; 
+            padding: 20px 15px 15px 15px !important; 
+            background-image: url('leaderboard.webp') !important; background-size: cover !important; 
+            background-position: center !important; background-color: #1a1a24 !important; 
+            display: flex; flex-direction: column; align-items: center;
+        } 
+
         .room-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; border:none !important; padding: 60px 20px 20px 20px !important; background-image: url('room.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; } 
 
         .settings-card::-webkit-scrollbar { display: none; }
         @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
         
-        .scrollable-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 5px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
+        .scrollable-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 5px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; width: 100%;}
         .scrollable-content::-webkit-scrollbar { width: 5px; }
         .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .scrollable-content::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
@@ -706,7 +714,6 @@
         .custom-nav-tabs { 
             display: flex !important; 
             gap: 3px !important; 
-            margin-bottom: 12px !important; 
             background: rgba(15, 18, 25, 0.6) !important; 
             padding: 4px !important; 
             border-radius: 14px !important; 
@@ -714,7 +721,6 @@
             box-shadow: none !important; 
             flex-wrap: nowrap !important; 
             overflow-x: auto !important; 
-            width: 100% !important;
             box-sizing: border-box !important;
         }
         .custom-nav-tabs::-webkit-scrollbar { display: none !important; }
@@ -745,12 +751,12 @@
             box-shadow: none !important;
         }
 
-        .lb-list-container { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; padding-bottom: 20px; }
+        .lb-list-container { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; padding-bottom: 20px; width: 100%; box-sizing: border-box;}
         .lb-item { display: flex; align-items: center; padding: 12px; background: rgba(15, 18, 25, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); margin-bottom: 0px; }
         .lb-rank { font-size: 16px; font-weight: 800; width: 35px; text-align: center; color: #a1a1aa; }
         .lb-avatar { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,0.05); overflow: hidden; margin-left: 12px; margin-right: 5px; position: relative; }
         .lb-info { flex: 1; text-align: right; display: flex; flex-direction: column; }
-        .lb-name { font-size: 15px; font-weight: 700; color: white; display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+        .lb-name { font-size: 15px; font-weight: 700; color: white; display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
         .lb-score { font-size: 13px; font-weight: 600; color: #f5a623; margin-top: 4px; }
 
         /* ========================================== */
@@ -758,53 +764,54 @@
         /* ========================================== */
         #leaderboard-podium-container {
             display: flex; justify-content: center; align-items: flex-end; 
-            gap: 8px; margin: 30px 0 20px 0; width: 100%;
+            gap: 12px; margin: 25px 0 15px 0; width: 100%; box-sizing: border-box;
         }
 
         .lb-podium-card {
             position: relative; border-radius: 16px; text-align: center; 
-            padding: 30px 8px 15px; display: flex; flex-direction: column; 
+            padding: 35px 5px 15px; display: flex; flex-direction: column; 
             align-items: center; justify-content: flex-start;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5); transition: transform 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6); transition: transform 0.3s;
         }
 
         /* 🥇 المركز الأول */
-        .lb-podium-card.rank-1 { width: 38%; height: 165px; background: linear-gradient(180deg, #3a2c00, #1a1500); border: 2px solid #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.3); z-index: 2; }
+        .lb-podium-card.rank-1 { width: 34%; height: 175px; background: linear-gradient(180deg, #2a2000, #120e00); border: 2.5px solid #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.3); z-index: 2; }
         /* 🥈 المركز الثاني */
-        .lb-podium-card.rank-2 { width: 30%; height: 145px; background: linear-gradient(180deg, #0f2c4e, #061121); border: 2px solid #5D9CEC; box-shadow: 0 0 15px rgba(93,156,236,0.3); }
+        .lb-podium-card.rank-2 { width: 30%; height: 155px; background: linear-gradient(180deg, #0a1f38, #040c17); border: 2.5px solid #5D9CEC; box-shadow: 0 0 15px rgba(93,156,236,0.3); margin-bottom: -5px; }
         /* 🥉 المركز الثالث */
-        .lb-podium-card.rank-3 { width: 30%; height: 135px; background: linear-gradient(180deg, #3d1c04, #1c0c01); border: 2px solid #d35400; box-shadow: 0 0 15px rgba(211,84,0,0.3); }
+        .lb-podium-card.rank-3 { width: 30%; height: 145px; background: linear-gradient(180deg, #2e1503, #150901); border: 2.5px solid #d35400; box-shadow: 0 0 15px rgba(211,84,0,0.3); margin-bottom: -10px; }
 
         .lb-podium-badge {
-            position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
-            width: 32px; height: 32px; border-radius: 50%; display: flex; 
+            position: absolute; left: 50%; transform: translateX(-50%);
+            border-radius: 50%; display: flex; 
             align-items: center; justify-content: center; font-weight: 900; 
-            font-size: 16px; color: white; border: 2px solid rgba(255,255,255,0.8);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.6); text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            color: white; border: 2.5px solid rgba(255,255,255,0.9);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.7); text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
-        .lb-podium-badge.badge-1 { background: radial-gradient(circle at top left, #ffe066, #f1c40f, #d4af37); color: #5a4000; border-color: #fff; width: 38px; height: 38px; top: -19px; font-size: 20px;}
-        .lb-podium-badge.badge-2 { background: radial-gradient(circle at top left, #a0c4ff, #5D9CEC, #2980b9); }
-        .lb-podium-badge.badge-3 { background: radial-gradient(circle at top left, #ffb380, #e67e22, #d35400); }
+        .lb-podium-badge.badge-1 { width: 40px; height: 40px; top: -20px; font-size: 20px; background: radial-gradient(circle at top left, #ffe066, #f1c40f, #d4af37); color: #5a4000; border-color: #fff;}
+        .lb-podium-badge.badge-2 { width: 32px; height: 32px; top: -16px; font-size: 16px; background: radial-gradient(circle at top left, #a0c4ff, #5D9CEC, #2980b9); }
+        .lb-podium-badge.badge-3 { width: 32px; height: 32px; top: -16px; font-size: 16px; background: radial-gradient(circle at top left, #ffb380, #e67e22, #d35400); }
 
         .lb-podium-avatar {
-            width: 50px; height: 50px; border-radius: 50%; border: 2px solid transparent; 
+            border-radius: 50%; border: 2.5px solid transparent; 
             display: flex; align-items: center; justify-content: center; overflow: hidden;
-            background: rgba(255,255,255,0.05); margin-bottom: 8px; padding: 2px;
+            background: rgba(255,255,255,0.05); margin-bottom: 10px; padding: 2px;
         }
-        .lb-podium-avatar.avatar-1 { width: 60px; height: 60px; border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.5); }
-        .lb-podium-avatar.avatar-2 { border-color: #5D9CEC; box-shadow: 0 0 10px rgba(93,156,236,0.4); }
-        .lb-podium-avatar.avatar-3 { border-color: #e67e22; box-shadow: 0 0 10px rgba(230,126,34,0.4); }
+        .lb-podium-avatar.avatar-1 { width: 65px; height: 65px; border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.5); }
+        .lb-podium-avatar.avatar-2 { width: 55px; height: 55px; border-color: #5D9CEC; box-shadow: 0 0 10px rgba(93,156,236,0.4); }
+        .lb-podium-avatar.avatar-3 { width: 55px; height: 55px; border-color: #e67e22; box-shadow: 0 0 10px rgba(230,126,34,0.4); }
         .lb-podium-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
-        .lb-podium-name { font-size: 12px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-        .rank-1 .lb-podium-name { font-size: 14px; }
+        .lb-podium-name { font-size: 13px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 95%; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+        .rank-1 .lb-podium-name { font-size: 15px; }
 
         .lb-podium-score-pill {
-            background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 12px; 
-            font-size: 11px; font-weight: 800; margin-top: auto; display: inline-flex; 
-            align-items: center; gap: 4px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 20px; 
+            font-size: 12px; font-weight: 800; margin-top: auto; display: inline-flex; 
+            align-items: center; gap: 4px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1);
         }
-        .score-1 { color: #ffd700; } .score-2 { color: #a0c4ff; } .score-3 { color: #ffb380; }
+        .rank-1 .lb-podium-score-pill { font-size: 13px; padding: 5px 12px; }
+        .score-1 { color: #ffd700; } .score-2 { color: #5D9CEC; } .score-3 { color: #d35400; }
 
         .themes-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 5px 0; }
         .theme-grid-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 10px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -1151,7 +1158,6 @@
     </div>
     
     <div class="game-container">
-        <!-- تم الحفاظ على ساحة الرقعة كما طلبت -->
         <div id="board"></div> 
     </div>
 
@@ -1322,7 +1328,6 @@
             
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
             
-            <!-- 🌟 شريط الشعبية في البروفايل بلون أزرق 🌟 -->
             <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; width: 100%;">
                 <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2);">الرتبة: 🥉 برونزي</div>
                 <div style="color: #00d2ff; font-size: 13px; font-weight: 600; background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 5px;">
@@ -1369,7 +1374,6 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة اختيار وإرسال هدايا الشعبية للخصوم أثناء اللعب 🌟 -->
     <div id="send-gift-modal" class="modal-overlay" style="z-index: 10000020;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('send-gift-modal')">✕</button>
@@ -1377,7 +1381,6 @@
             <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">اختر هدية من حقيبتك لإرسالها إلى المنافس:</p>
             
             <div id="my-gifts-selection-grid" class="store-items-grid" style="max-height: 50vh; overflow-y: auto;">
-                <!-- سيتم ضخ هداياك المتاحة هنا تلقائياً -->
             </div>
         </div>
     </div>
@@ -1404,7 +1407,6 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة متجر لعبة الدامة الملكي المخصص والمستقل 🌟 -->
     <div id="store-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 420px; padding: 25px 15px; position: relative;">
             <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 10;">✕</button>
@@ -1412,7 +1414,6 @@
             <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(255,215,0,0.4);">متجر الدامة 👑</h3>
             <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 12px;">رصيدك الحالي: <span style="color: #f5a623; font-weight: bold;">🪙 <span id="profile-stat-tokens-store">0</span></span></p>
 
-            <!-- شريط التبويبات المخصص للدامة فقط -->
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="dama-tab-bg" class="custom-tab-button active" onclick="window.switchDamaGameStoreTab('bg')">خلفيات 🎨</button>
                 <button id="dama-tab-fr" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('fr')">إطارات 🖼️</button>
@@ -1421,7 +1422,6 @@
                 <button id="dama-tab-pop" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('pop')">شعبية <span style="filter: hue-rotate(210deg);">🔥</span></button>
             </div>
 
-            <!-- شبكة المنتجات المباشرة -->
             <div class="scrollable-content" style="max-height: 52vh; min-height: 250px;">
                 <div id="store-section-bg" class="store-items-grid"></div>
                 <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
@@ -1435,22 +1435,28 @@
     <!-- 🌟 نافذة لوحة الشرف المعدلة 🌟 -->
     <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 9999999;">
         <div class="settings-card leaderboard-full-screen" dir="auto">
-            <button class="modal-close-btn" onclick="window.closeAppModal('leaderboard-modal')" style="left: 20px; right: auto; top: 20px; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
-            <button id="lb-rewards-btn" style="position: absolute; top: 20px; left: 70px; background: rgba(255,215,0,0.15); border: 1px solid #ffd700; border-radius: 12px; padding: 6px 12px; color: #ffd700; font-weight: bold; z-index: 100000; cursor: pointer; box-shadow: none !important;" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
+            <!-- أزرار الإغلاق والجوائز -->
+            <button class="modal-close-btn" onclick="window.closeAppModal('leaderboard-modal')" style="right: 20px; left: auto; top: 20px; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
+            <button id="lb-rewards-btn" style="position: absolute; top: 20px; left: 20px; right: auto; background: rgba(255,215,0,0.15); border: 1px solid #ffd700; border-radius: 12px; padding: 6px 12px; color: #ffd700; font-weight: bold; z-index: 100000; cursor: pointer; box-shadow: none !important;" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
             
-            <div style="text-align: center; margin-top: 10px; margin-bottom: 25px;">
-                <h3 style="font-size: 28px; color: #ffd700; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <span style="color: rgba(255,215,0,0.5);">—</span> <span id="lb-title-text">لوحة الشرف</span> <span style="color: rgba(255,215,0,0.5);">—</span>
-                </h3>
-                <p style="color: #a1a1aa; font-size: 13px; font-weight: 600; margin: 5px 0 0 0;">أفضل لاعبين الموسم</p>
+            <!-- عنوان مزخرف مع التظليل -->
+            <div style="text-align: center; margin-top: 15px; margin-bottom: 10px; display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%;">
+                    <div style="height: 2px; background: linear-gradient(90deg, transparent, #ffd700); flex: 1; max-width: 60px;"></div>
+                    <h3 style="font-size: 26px; color: #ffd700; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8);" id="lb-title-text">لوحة الشرف</h3>
+                    <div style="height: 2px; background: linear-gradient(270deg, transparent, #ffd700); flex: 1; max-width: 60px;"></div>
+                </div>
+                <p style="color: #a1a1aa; font-size: 14px; font-weight: 700; margin: 5px 0 0 0; text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.9);">أفضل لاعبين الموسم</p>
             </div>
             
-            <div class="custom-nav-tabs" style="margin-bottom: 5px;">
+            <!-- التبويبات -->
+            <div class="custom-nav-tabs" style="margin-bottom: 15px; width: 90%; max-width: 400px; align-self: center;">
                 <button id="lb-tab-wins" class="custom-tab-button active" onclick="window.switchLbTab('wins')">فوز</button>
                 <button id="lb-tab-xp" class="custom-tab-button" onclick="window.switchLbTab('xp')">مستوى</button>
             </div>
             
-            <div class="scrollable-content" style="display: flex; flex-direction: column;">
+            <!-- محتوى اللوحة -->
+            <div class="scrollable-content" style="display: flex; flex-direction: column; width: 100%;">
                 <!-- 🏆 منصة أول 3 لاعبين -->
                 <div id="leaderboard-podium-container"></div>
                 
