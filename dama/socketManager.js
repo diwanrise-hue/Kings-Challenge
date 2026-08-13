@@ -1,8 +1,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): إصلاح اختفاء المربع الأزرق وتوافق الإحداثيات مع السيرفر.
- * 🌟 (مُحدّث): إزالة الإشعار المزعج للمزامنة لتعمل بصمت في الخلفية.
+ * 🌟 (مُحدّث): إصلاح مشكلة تجميد اللاعب الأسود (تم إزالة currentTurn من الإرسال).
+ * 🌟 (مُحدّث): إزالة إشعار המزامنة المزعج ليعمل بصمت تام عند التبديل بين المتصفحات.
  */
 
 import { gameState } from './gameState.js'; 
@@ -429,6 +429,7 @@ export const socketManager = {
             this._showDisconnectUI();
         });
 
+        // 🌟 المزامنة التلقائية (تم إزالة الإشعار المزعج نهائياً)
         socket.on('syncGameState', (data) => {
             if (!gameState.isOnlineMode || !data) return;
             
@@ -443,8 +444,6 @@ export const socketManager = {
             
             ui.renderBoard(true);
             ui.startTurn();
-            
-            // تم إزالة الإشعار المزعج للمزامنة لتعمل بصمت تماماً
         });
 
         socket.on('roomCreated', id => {
@@ -629,17 +628,17 @@ export const socketManager = {
             ui.startTurn();
         });
 
-        // 🌟 دالة استقبال حركات الخصم مع الإصلاح الجذري 🌟
+        // 🌟 دالة استقبال الحركة المصلحة (لحل مشكلة اختفاء المربع الأزرق)
         socket.on('opponentMove', data => {
             if (!data || !data.from || !data.to) return;
             
-            // 🌟 1. تحويل الإحداثيات الواردة من السيرفر إلى أرقام فوراً
+            // 1. تحويل الإحداثيات إلى أرقام لتتطابق مع بحث المحرك
             let fromR = Number(data.from.r);
             let fromC = Number(data.from.c);
             let toR = Number(data.to.r);
             let toC = Number(data.to.c);
 
-            // 🌟 2. فلترة الصدى الآمنة بالاعتماد على إحداثيات الحركة 
+            // 2. فلترة الصدى بدقة بالاعتماد على إحداثيات آخر حركة لعبناها
             if (gameState.lastMyMove && 
                 fromR === gameState.lastMyMove.fromR && 
                 fromC === gameState.lastMyMove.fromC &&
@@ -647,18 +646,15 @@ export const socketManager = {
                 toC === gameState.lastMyMove.toC) {
                 
                 gameState.lastMyMove = null; 
-                return; // تجاهل الصدى
+                return; // تجاهل الصدى بأمان تام
             }
             gameState.lastMyMove = null; 
 
-            // 🌟 3. تحديث الرقعة 
             if (data.updatedBoard) {
-                // إذا أرسل السيرفر الرقعة المحدثة، نستخدمها مباشرة
                 gameState.virtualBoard = data.updatedBoard;
                 gameState.movesWithoutProgress = 0; 
                 gameState.pieceHistories = {};
             } else {
-                // استنتاج المسار محلياً باستخدام الإحداثيات المحولة
                 let possibleMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, fromR, fromC);
                 let executedPath = possibleMoves.find(p => p[p.length - 1].toR === toR && p[p.length - 1].toC === toC);
                 
@@ -686,7 +682,6 @@ export const socketManager = {
                         if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(executedPath[0].fromR, executedPath[0].fromC, lastStep.toR, lastStep.toC, gameState.currentTurn);
                     }
                 } else {
-                    // في حال فشل الاستنتاج، نطلب الرقعة من السيرفر بصمت تام
                     if(socket.connected) socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
                 }
             }
@@ -694,7 +689,6 @@ export const socketManager = {
             gameState.currentTurn = data.nextTurn;
             if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
 
-            // 🌟 4. رسم الرقعة والمؤثرات
             ui.renderBoard();
             
             try {
@@ -706,7 +700,7 @@ export const socketManager = {
                 gameState.selectedPiece = null;
             }
             
-            // رسم المربع الأزرق بثبات باستخدام الإحداثيات المحولة
+            // 🌟 رسم المربع الأزرق بثبات باستخدام الإحداثيات المحولة 🌟
             ui.clearHighlights();
             if (typeof ui.highlightMove === 'function') ui.highlightMove({r: fromR, c: fromC}, {r: toR, c: toC});
             
@@ -1030,20 +1024,15 @@ export const socketManager = {
         }
     },
 
+    // 🌟 إرسال الحركة بشكلها النقي والصحيح للسيرفر (إزالة currentTurn ليعمل الأسود بشكل صحيح)
     sendMoveToServer(fromR, fromC, toR, toC, boardState, nextTurn) {
         if (gameState.isOnlineMode && gameState.onlineRoomID && !gameState.isSpectator) {
             const profile = this._ensureUserProfile(); 
             
-            // 🌟 تسجيل الإحداثيات للتعرف عليها عند ارتدادها من السيرفر كصدى
             gameState.lastMyMove = { fromR: Number(fromR), fromC: Number(fromC), toR: Number(toR), toC: Number(toC) };
-
-            // تحديد اللون الحالي بشكل صحيح لتجنب رفض السيرفر للحركة
-            // إذا كان nextTurn هو الأسود، فهذا يعني أن اللاعب الحالي كان الأبيض والعكس صحيح
-            let currentTurnColor = (nextTurn === 'white') ? 'black' : 'white';
             
             socket.emit('makeMove', { 
                 roomID: String(gameState.onlineRoomID).trim(), 
-                currentTurn: currentTurnColor, // إرسال اللون الذي قام بالحركة فعلياً
                 nextTurn: nextTurn, 
                 guestId: profile.id, 
                 from: { r: Number(fromR), c: Number(fromC) }, 
