@@ -1181,7 +1181,19 @@
 
         #game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; backdrop-filter: blur(15px) saturate(180%) !important; border-radius: 36px !important; padding: 35px 25px !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;}
         #game-over-modal h3 { color: #fce8a1 !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        
+             
+             /* 🌟 إخفاء القائمة وإظهار الحقيبة أثناء اللعب ضد البوت بشكل إجباري 🌟 */
+        body.game-active:not(.online-mode-active) #hamburger-menu-btn {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+        body.game-active:not(.online-mode-active) #bag-quick-btn {
+            display: flex !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+
         body.online-mode-active { padding-top: 15px !important; }
         body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn { display: none !important; visibility: hidden !important; pointer-events: none !important; }
         body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
