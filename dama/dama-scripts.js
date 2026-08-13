@@ -463,7 +463,7 @@ function getFormattedLeaderboardScore(player, tabType) {
 // دالة حقن ورسم البيانات داخل التصميم الجديد
 window.renderDynamicLeaderboardUI = function(playersList, tabType) {
     const podiumContainer = document.getElementById('leaderboard-podium-container');
-    const listContainer = document.getElementById('leaderboard-list-container');
+    const listContainer = document.getElementById('leaderboard-list-' + tabType); 
     
     if (!podiumContainer || !listContainer) return;
 
@@ -492,55 +492,68 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         card.className = `lb-podium-card rank-${item.rank}`;
         
         card.innerHTML = `
-            <div class="lb-podium-badge">${item.rank}</div>
-            <div class="lb-podium-avatar">
+            <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
+            <div class="lb-podium-avatar avatar-${item.rank}">
                 <img src="${getSecureAvatarUrl(player.avatar)}" onerror="this.src='profile.webp'">
             </div>
             <div class="lb-podium-name">${player.name || 'Guest'}</div>
-            <div class="lb-podium-score">${getFormattedLeaderboardScore(player, tabType)}</div>
+            <div class="lb-podium-score-pill score-${item.rank}">${getFormattedLeaderboardScore(player, tabType)}</div>
         `;
+        
+        // عند النقر على كرت في المنصة، افتح ملفه الشخصي
+        card.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(player); };
+        card.style.cursor = 'pointer';
+
         podiumContainer.appendChild(card);
     });
 
     // 🌟 2. رسم القائمة لبقية اللاعبين (المركز الرابع فما فوق) 🌟
     for (let i = 3; i < playersList.length; i++) {
-        const player = playersList[i];
-        const rankNum = i + 1;
-        
-        const listItem = document.createElement('div');
-        listItem.className = 'lb-item';
-        
-        listItem.innerHTML = `
-            <div class="lb-player-group">
-                <span class="lb-rank">#${rankNum}</span>
-                <div class="lb-avatar">
-                    <img src="${getSecureAvatarUrl(player.avatar)}" onerror="this.src='profile.webp'">
-                </div>
-                <div class="lb-info">
-                    <span class="lb-name">${player.name || 'Guest'} <span class="lb-badge-icon">🎖️</span></span>
-                </div>
-            </div>
-            <div class="lb-score">${getFormattedLeaderboardScore(player, tabType)}</div>
-        `;
-        listContainer.appendChild(listItem);
+        listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
     }
 };
 
-// تبديل التبويبات وطلب البيانات
-window.switchLbTab = function(tabId) {
-    // تحديث أزرار التبويب
-    document.querySelectorAll('.lb-tab-button').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById('lb-tab-' + tabId);
-    if (activeBtn) activeBtn.classList.add('active');
+// تم دمج وتحديث دالة populateLeaderboards لتستخدم نظام المنصة الجديد
+window.populateLeaderboards = function(winsData, xpData) {
+    // إخفاء رسائل التحميل
+    document.getElementById('leaderboard-list-wins').innerHTML = '';
+    document.getElementById('leaderboard-list-xp').innerHTML = '';
+    
+    // معرفة التبويب النشط حالياً لرسم منصته وقائمته
+    const activeTabBtn = document.querySelector('.custom-tab-button.active');
+    let activeTabId = 'wins';
+    if(activeTabBtn && activeTabBtn.id === 'lb-tab-xp') activeTabId = 'xp';
 
-    // إظهار علامة تحميل مؤقتة أثناء جلب البيانات
-    const listContainer = document.getElementById('leaderboard-list-container');
-    if (listContainer) {
-        listContainer.innerHTML = '<div style="text-align: center; color: #ffd700; padding: 20px; width: 100%;">جاري تحميل السجل... ⏳</div>';
+    // حفظ البيانات في متغيرات عامة لاستخدامها عند التبديل
+    window.lastFetchedWinsData = winsData;
+    window.lastFetchedXpData = xpData;
+
+    // رسم اللوحة للتبويب النشط فقط
+    if(activeTabId === 'wins') {
+        window.renderDynamicLeaderboardUI(winsData, 'wins');
+    } else {
+        window.renderDynamicLeaderboardUI(xpData, 'xp');
     }
+};
 
-    // إرسال طلب للسيرفر لجلب البيانات الخاصة بالتصنيف المحدد
-    if (window.socket && window.socket.connected) {
-        window.socket.emit('requestLeaderboard', { type: tabId });
+// تحديث دالة التبديل بين التبويبات لترسم المنصة بناءً على البيانات المحفوظة
+window.switchLbTab = function(tabId) {
+    document.getElementById('lb-tab-wins').classList.remove('active'); 
+    document.getElementById('lb-tab-xp').classList.remove('active');
+    
+    document.getElementById('leaderboard-list-wins').style.display = 'none'; 
+    document.getElementById('leaderboard-list-xp').style.display = 'none'; 
+    
+    document.getElementById('lb-tab-' + tabId).classList.add('active'); 
+    document.getElementById('leaderboard-list-' + tabId).style.display = 'flex';
+
+    // مسح المنصة مؤقتاً
+    document.getElementById('leaderboard-podium-container').innerHTML = '';
+
+    // رسم البيانات المحفوظة إذا كانت متوفرة
+    if (tabId === 'wins' && window.lastFetchedWinsData) {
+        window.renderDynamicLeaderboardUI(window.lastFetchedWinsData, 'wins');
+    } else if (tabId === 'xp' && window.lastFetchedXpData) {
+        window.renderDynamicLeaderboardUI(window.lastFetchedXpData, 'xp');
     }
 };
