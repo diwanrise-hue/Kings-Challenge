@@ -2,6 +2,7 @@
  * main.js
  * المنسق العام للمشروع (Orchestrator).
  * يربط بين الواجهة (UI)، السيرفر (Socket)، وحالة اللعبة (GameState).
+ * 🌟 (مُحدّث): تطبيق منطق زر الحفظ الصحيح وعكس حالة مربع اختيار الساحة.
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -146,7 +147,6 @@ window.addEventListener('load', async () => {
         const paidBtn = document.getElementById('spin-paid-btn'); if (paidBtn) paidBtn.innerText = "لفة إضافية (200 🪙)";
         
         if (data.success) {
-            // 💡 إبلاغ المهام بأنه تم لف العجلة
             if (window.questsManager) window.questsManager.updateProgress('spin', 1, 'any');
 
             if (typeof ui.animateLuckySpin === 'function') {
@@ -171,14 +171,14 @@ window.addEventListener('load', async () => {
 
         if (gameState.userProfile.syncThemeOptOut !== undefined) {
             const optCb = document.getElementById('sync-theme-optout');
-            if (optCb) optCb.checked = gameState.userProfile.syncThemeOptOut;
+            // 🌟 عكس المنطق هنا ليتوافق مع الواجهة
+            if (optCb) optCb.checked = !gameState.userProfile.syncThemeOptOut;
         }
 
         if (typeof window.applyProfileDataToUI === 'function') window.applyProfileDataToUI(gameState.userProfile);
         if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
         if (profile.nextFreeSpin) updateSpinTimerDisplay(profile.nextFreeSpin);
         
-        // 🌟 إعادة تحديث عناصر الهدايا في الحقيبة عند تحديث البروفايل 🌟
         if (typeof window.renderGiftsInBag === 'function') {
             window.renderGiftsInBag();
         }
@@ -186,19 +186,16 @@ window.addEventListener('load', async () => {
 
     socket.on('gameStart', (data) => { 
         gameState.roomBet = data.roomBet || 0; 
-        window.currentOpponentData = data.opponent; // 🌟 حفظ بيانات الخصم لفتح بروفايله 🌟
+        window.currentOpponentData = data.opponent; 
         window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
     });
 
-    // 🌟 استقبال هدايا الشعبية وإظهار أنيميشن الاحتفال مع الشعلة الزرقاء 🌟
     socket.on('receivePopularityGift', (data) => {
         if (data && data.popValue) {
-            // 1. تحديث البروفايل المحلي
             gameState.userProfile.popularity = (gameState.userProfile.popularity || 0) + data.popValue;
             try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
             if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
             
-            // 2. البحث عن صورة الهدية واسمها من populars.js
             let giftImageHtml = '<div style="font-size: 60px;">🎁</div>';
             let giftName = 'هدية قيمة';
             
@@ -208,7 +205,6 @@ window.addEventListener('load', async () => {
                     giftName = giftObj.nameAr;
                     const style = "width: 140px; height: 140px; object-fit: contain; animation: floatGift 2s ease-in-out infinite; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));";
                     
-                    // 🌟 التعرف على نوع الميديا (صورة أم فيديو)
                     if (giftObj.mediaType === 'video') {
                         giftImageHtml = `<video src="${giftObj.videoPath}" autoplay loop muted playsinline style="${style} border-radius: 12px;"></video>`;
                     } else {
@@ -217,7 +213,6 @@ window.addEventListener('load', async () => {
                 }
             }
 
-            // 3. إنشاء نافذة الاحتفال الفاخرة (شاشة كاملة)
             const celebrationOverlay = document.createElement('div');
             celebrationOverlay.style.cssText = `
                 position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
@@ -248,7 +243,6 @@ window.addEventListener('load', async () => {
             
             document.body.appendChild(celebrationOverlay);
             
-            // 4. إزالة النافذة بعد 4 ثواني ونصف
             setTimeout(() => {
                 celebrationOverlay.style.opacity = '0';
                 celebrationOverlay.style.transition = 'opacity 0.5s ease';
@@ -257,7 +251,6 @@ window.addEventListener('load', async () => {
         }
     });
 
-    // ربط زر إنشاء الغرفة بتهيئة الحقول
     const lobbyCreateBtn = document.querySelector('#online-modal .save-settings-btn');
     if (lobbyCreateBtn) {
         lobbyCreateBtn.onclick = () => {
@@ -311,7 +304,19 @@ ui.onClick('settings-btn', e => {
     if(typeof window.openAppModal === 'function') window.openAppModal('settings-overlay'); 
 });
 
+// 🌟 زر الحفظ المُحدث: يقرأ قيمة المربع ويعكسها للحفظ (صح = موافق = false للـ OptOut)
 ui.onClick('save-settings-btn', () => { 
+    const optCb = document.getElementById('sync-theme-optout');
+    if (optCb && gameState.userProfile) {
+        gameState.userProfile.syncThemeOptOut = !optCb.checked;
+        try {
+            localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
+            if (window.socket && window.socket.connected) {
+                window.socket.emit('syncProfile', gameState.userProfile);
+            }
+        } catch(e) {}
+    }
+    
     saveGameState(); 
     if(typeof window.closeAppModal === 'function') window.closeAppModal('settings-overlay'); 
 });
@@ -563,7 +568,6 @@ ui.onClick('online-close-btn', () => {
     if(typeof window.closeAppModal === 'function') window.closeAppModal('online-modal'); 
 });
 
-// 💡 تعديل توافق المتغيرات لمنع إنشاء غرف متعددة في الواجهة
 ui.onClick('online-create-btn', () => {
     let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
 
