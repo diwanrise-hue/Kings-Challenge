@@ -473,7 +473,7 @@ function getSecureAvatarUrl(src) {
 }
 
 function getFormattedLeaderboardScore(player, tabType) {
-    // 🌟 التعديل: استخدام الكأس فقط لتبويب الفوز
+    // 🌟 التعديل: استخدام الكأس فقط لتبويب الفوز وحل مشكلة الأصفار
     if (tabType === 'wins') return formatCompactNumber(player.score || player.wins || 0) + ' 🏆';
     if (tabType === 'xp') return 'Lv.' + (player.level || 1);
     return formatCompactNumber(player.score || 0);
@@ -495,7 +495,6 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
     }
 
     // 🌟 1. رسم منصة المراكز الثلاثة الأولى (Podium) 🌟
-    // ترتيب المنصة في الواجهة هو: المركز الثاني (يسار)، الأول (وسط)، الثالث (يمين)
     const podiumOrder = [
         { rank: 2, data: playersList[1] },
         { rank: 1, data: playersList[0] },
@@ -509,7 +508,6 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         const card = document.createElement('div');
         card.className = `lb-podium-card rank-${item.rank}`;
         
-        // 🌟 تعديل الـ onerror لسحب مسار الصورة البديلة من GitHub لضمان عدم ظهور إطارات المتجر
         card.innerHTML = `
             <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
             <div class="lb-podium-avatar avatar-${item.rank}">
@@ -534,9 +532,12 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
 };
 
 window.createLbItemHTML = function(rank, playerObj, type) {
-    let score = playerObj.score; let name = playerObj.name; let avatarStr = playerObj.avatar; let playerRankInfo = playerObj.rankInfo;
+    let score = playerObj.score || playerObj.wins || 0; // سحب النقاط بشكل سليم 
+    let name = playerObj.name; 
+    let avatarStr = playerObj.avatar; 
+    let playerRankInfo = playerObj.rankInfo;
+    
     let prefix = type === 'xp' ? '🌟 ' : '';
-    // 🌟 التعديل: استخدام الكأس فقط لتبويب الفوز بدون نص "فوز"
     let suffix = type === 'wins' ? ' 🏆' : (type === 'xp' ? ' XP' : '');
     
     if (type === 'xp') {
@@ -547,14 +548,19 @@ window.createLbItemHTML = function(rank, playerObj, type) {
     const div = document.createElement('div'); div.className = 'lb-item';
     let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>` : '';
     const nameEl = document.createElement('div'); nameEl.className = 'lb-name'; nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
+    
+    // 🌟 التعديل: تجميع الرقم والصورة والاسم معاً في حاوية واحدة (lb-player-group) لترتيبهم بجانب بعضهم
     div.innerHTML = `
-        <div class="lb-rank">#${rank}</div>
-        <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s;" title="عرض الملف الشخصي"></div>
-        <div class="lb-info">
-            <div class="lb-name-container"></div>
-            <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${prefix}${score}${suffix}</div>
+        <div class="lb-player-group">
+            <div class="lb-rank">#${rank}</div>
+            <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s;" title="عرض الملف الشخصي"></div>
+            <div class="lb-info">
+                <div class="lb-name-container"></div>
+            </div>
         </div>
+        <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${prefix}${score}${suffix}</div>
     `;
+    
     div.querySelector('.lb-name-container').replaceWith(nameEl);
     const avatarContainer = div.querySelector('.lb-avatar');
     
@@ -568,7 +574,9 @@ window.createLbItemHTML = function(rank, playerObj, type) {
         const img = document.createElement('img'); img.style.cssText = "width: 100%; height: 100%; border-radius: 50%; object-fit: cover;";
         img.onerror = function() { avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>'; };
         img.src = imgSrc; avatarContainer.appendChild(img);
-    } else { avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>'; }
+    } else { 
+        avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>'; 
+    }
     return div;
 };
 
