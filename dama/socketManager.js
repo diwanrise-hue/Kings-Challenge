@@ -1,8 +1,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): الحل النهائي والأسطوري لمشكلة الصدى والمزامنة اللانهائية.
- * 🌟 (مُحدّث): العودة إلى تنسيق الإرسال الأصلي لضمان قبول السيرفر لحركات الأسود.
+ * 🌟 (مُحدّث): إصلاح اختفاء المربع الأزرق وتوافق الإحداثيات مع السيرفر.
+ * 🌟 (مُحدّث): إزالة الإشعار المزعج للمزامنة لتعمل بصمت في الخلفية.
  */
 
 import { gameState } from './gameState.js'; 
@@ -438,15 +438,13 @@ export const socketManager = {
             
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
-            gameState.pieceHistories = {}; // 🌟 تصفير السجل
-            gameState.lastMyMove = null; // 🌟 تصفير تسجيل حركتنا في المزامنة
+            gameState.pieceHistories = {}; 
+            gameState.lastMyMove = null; 
             
             ui.renderBoard(true);
             ui.startTurn();
             
-            if (!gameState.isSpectator) {
-                this._showToast(gameState.lang === 'ar' ? "تمت مزامنة الرقعة بنجاح 🔄" : "Board synchronized 🔄");
-            }
+            // تم إزالة الإشعار المزعج للمزامنة لتعمل بصمت تماماً
         });
 
         socket.on('roomCreated', id => {
@@ -556,7 +554,7 @@ export const socketManager = {
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
             gameState.pieceHistories = {}; 
-            gameState.lastMyMove = null; // 🌟 تصفير الحركة عند بدء اللعبة
+            gameState.lastMyMove = null; 
 
             if (data.roomID) gameState.onlineRoomID = data.roomID;
 
@@ -631,59 +629,72 @@ export const socketManager = {
             ui.startTurn();
         });
 
+        // 🌟 دالة استقبال حركات الخصم مع الإصلاح الجذري 🌟
         socket.on('opponentMove', data => {
             if (!data || !data.from || !data.to) return;
             
-            // 🌟 الحل النهائي والأسطوري لمشكلة الصدى وتعدد المتصفحات 🌟
-            // نتحقق إذا كانت الحركة القادمة من السيرفر تطابق إحداثيات آخر حركة قمنا بها نحن
+            // 🌟 1. تحويل الإحداثيات الواردة من السيرفر إلى أرقام فوراً
+            let fromR = Number(data.from.r);
+            let fromC = Number(data.from.c);
+            let toR = Number(data.to.r);
+            let toC = Number(data.to.c);
+
+            // 🌟 2. فلترة الصدى الآمنة بالاعتماد على إحداثيات الحركة 
             if (gameState.lastMyMove && 
-                data.from.r === gameState.lastMyMove.fromR && 
-                data.from.c === gameState.lastMyMove.fromC &&
-                data.to.r === gameState.lastMyMove.toR && 
-                data.to.c === gameState.lastMyMove.toC) {
+                fromR === gameState.lastMyMove.fromR && 
+                fromC === gameState.lastMyMove.fromC &&
+                toR === gameState.lastMyMove.toR && 
+                toC === gameState.lastMyMove.toC) {
                 
-                gameState.lastMyMove = null; // مسح الحركة
-                return; // تجاهل الصدى بأمان تام
+                gameState.lastMyMove = null; 
+                return; // تجاهل الصدى
             }
-            gameState.lastMyMove = null; // مسحها في حال كانت حركة فعلية من الخصم
-            
-            let isMultiJumpContinuation = (gameState.currentTurn === data.nextTurn);
-            
-            let possibleMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, data.from.r, data.from.c);
-            let executedPath = possibleMoves.find(p => p[p.length - 1].toR === data.to.r && p[p.length - 1].toC === data.to.c);
-            
-            if (executedPath) {
-                let movingPieceStr = gameState.virtualBoard[executedPath[0].fromR][executedPath[0].fromC];
-                let isCapture = executedPath.some(s => s.midR !== null);
-                
-                gameState.virtualBoard = gameEngine.applyPathToBoard(executedPath, gameState.virtualBoard);
-                
-                let lastStep = executedPath[executedPath.length - 1];
-                let finalPieceStr = gameState.virtualBoard[lastStep.toR][lastStep.toC];
-                let isPromotion = false;
-                
-                if (movingPieceStr && !movingPieceStr.includes('dama') && finalPieceStr && finalPieceStr.includes('dama')) {
-                    isPromotion = true;
-                }
+            gameState.lastMyMove = null; 
 
-                if (isCapture || isPromotion) {
-                    gameState.movesWithoutProgress = 0;
-                    gameState.boardHistoryStr = [];
-                    gameState.pieceHistories = {}; 
-                } else {
-                    gameState.movesWithoutProgress++;
-                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
-                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(executedPath[0].fromR, executedPath[0].fromC, lastStep.toR, lastStep.toC, gameState.currentTurn);
-                }
-
+            // 🌟 3. تحديث الرقعة 
+            if (data.updatedBoard) {
+                // إذا أرسل السيرفر الرقعة المحدثة، نستخدمها مباشرة
+                gameState.virtualBoard = data.updatedBoard;
+                gameState.movesWithoutProgress = 0; 
+                gameState.pieceHistories = {};
             } else {
-                if(socket.connected) socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
-                if(data.updatedBoard) gameState.virtualBoard = data.updatedBoard; 
+                // استنتاج المسار محلياً باستخدام الإحداثيات المحولة
+                let possibleMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, fromR, fromC);
+                let executedPath = possibleMoves.find(p => p[p.length - 1].toR === toR && p[p.length - 1].toC === toC);
+                
+                if (executedPath) {
+                    let movingPieceStr = gameState.virtualBoard[executedPath[0].fromR][executedPath[0].fromC];
+                    let isCapture = executedPath.some(s => s.midR !== null);
+                    
+                    gameState.virtualBoard = gameEngine.applyPathToBoard(executedPath, gameState.virtualBoard);
+                    
+                    let lastStep = executedPath[executedPath.length - 1];
+                    let finalPieceStr = gameState.virtualBoard[lastStep.toR][lastStep.toC];
+                    let isPromotion = false;
+                    
+                    if (movingPieceStr && !movingPieceStr.includes('dama') && finalPieceStr && finalPieceStr.includes('dama')) {
+                        isPromotion = true;
+                    }
+
+                    if (isCapture || isPromotion) {
+                        gameState.movesWithoutProgress = 0;
+                        gameState.boardHistoryStr = [];
+                        gameState.pieceHistories = {}; 
+                    } else {
+                        gameState.movesWithoutProgress++;
+                        gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                        if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(executedPath[0].fromR, executedPath[0].fromC, lastStep.toR, lastStep.toC, gameState.currentTurn);
+                    }
+                } else {
+                    // في حال فشل الاستنتاج، نطلب الرقعة من السيرفر بصمت تام
+                    if(socket.connected) socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
+                }
             }
             
             gameState.currentTurn = data.nextTurn;
             if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
 
+            // 🌟 4. رسم الرقعة والمؤثرات
             ui.renderBoard();
             
             try {
@@ -695,12 +706,14 @@ export const socketManager = {
                 gameState.selectedPiece = null;
             }
             
+            // رسم المربع الأزرق بثبات باستخدام الإحداثيات المحولة
             ui.clearHighlights();
-            if (typeof ui.highlightMove === 'function') ui.highlightMove(data.from, data.to);
+            if (typeof ui.highlightMove === 'function') ui.highlightMove({r: fromR, c: fromC}, {r: toR, c: toC});
             
-            if (isMultiJumpContinuation && data.to) {
+            let isMultiJumpContinuation = (gameState.currentTurn === data.nextTurn);
+            if (isMultiJumpContinuation) {
                 const boardEl = document.getElementById('board');
-                const activeCell = boardEl?.querySelector(`[data-row="${data.to.r}"][data-col="${data.to.c}"]`);
+                const activeCell = boardEl?.querySelector(`[data-row="${toR}"][data-col="${toC}"]`);
                 if (activeCell && activeCell.children.length > 0) activeCell.children[0].classList.add('forced'); 
             }
             
@@ -1021,12 +1034,16 @@ export const socketManager = {
         if (gameState.isOnlineMode && gameState.onlineRoomID && !gameState.isSpectator) {
             const profile = this._ensureUserProfile(); 
             
-            // 🌟 تسجيل إحداثيات حركتنا للتعرف عليها إذا رجعت كصدى من السيرفر
+            // 🌟 تسجيل الإحداثيات للتعرف عليها عند ارتدادها من السيرفر كصدى
             gameState.lastMyMove = { fromR: Number(fromR), fromC: Number(fromC), toR: Number(toR), toC: Number(toC) };
+
+            // تحديد اللون الحالي بشكل صحيح لتجنب رفض السيرفر للحركة
+            // إذا كان nextTurn هو الأسود، فهذا يعني أن اللاعب الحالي كان الأبيض والعكس صحيح
+            let currentTurnColor = (nextTurn === 'white') ? 'black' : 'white';
             
             socket.emit('makeMove', { 
                 roomID: String(gameState.onlineRoomID).trim(), 
-                currentTurn: nextTurn, // 🌟 العودة للكود الأصلي لعدم إغضاب السيرفر ورفض الحركات
+                currentTurn: currentTurnColor, // إرسال اللون الذي قام بالحركة فعلياً
                 nextTurn: nextTurn, 
                 guestId: profile.id, 
                 from: { r: Number(fromR), c: Number(fromC) }, 
@@ -1075,7 +1092,7 @@ export const socketManager = {
         clearInterval(gameState.mmInterval);
         gameState.mmInterval = null;
         gameState.selectedPiece = null; 
-        gameState.lastMyMove = null; // 🌟 تصفير حركة الصدى
+        gameState.lastMyMove = null; 
         
         if (gameState.turnTimerInterval) {
             clearInterval(gameState.turnTimerInterval);
