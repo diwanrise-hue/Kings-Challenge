@@ -334,7 +334,7 @@ ui.onClick('login-guest-btn', () => {
         ...gameState.userProfile, 
         name: t('guest_prefix') + randomNum, 
         id: "GUEST-" + randomNum, 
-        avatar: ui.getVal('login-avatar-select', '1000132081.png'), 
+        avatar: ui.getVal('login-avatar-select', '1000132081.webp'), 
         isCustomAvatar: false,
         inventory: {}
     };
@@ -359,7 +359,7 @@ ui.onClick('login-submit-btn', () => {
         ...gameState.userProfile, 
         name, 
         id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), 
-        avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.png'),
+        avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.webp'),
         inventory: gameState.userProfile.inventory || {}
     };
     
@@ -419,7 +419,7 @@ ui.onClick('logout-btn', () => {
             localStorage.removeItem('hub_user_profile'); 
             localStorage.removeItem('dama_guest_expiry');
             
-            gameState.userProfile = { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0, inventory: {} };
+            gameState.userProfile = { id: "", name: "", avatar: "1000132081.webp", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0, inventory: {} };
             
             if(typeof window.closeAppModal === 'function') window.closeAppModal('profile-modal'); 
             if(typeof window.openAppModal === 'function') window.openAppModal('login-modal');
@@ -504,7 +504,7 @@ if (onlineBtn) {
 
         if (myNameEl) myNameEl.innerText = profile.name || t('badge_you');
         if (myAvatarEl) {
-            let avatarSrc = profile.avatar || "1000132081.png";
+            let avatarSrc = profile.avatar || "1000132081.webp";
             if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
                 let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
                 avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
