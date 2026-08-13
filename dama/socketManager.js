@@ -1,8 +1,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): إصلاح خطأ قراءة الـ XP والمستوى (Lv.1 الوهمي) في دالة _ensureUserProfile.
- * 🌟 (مُحدّث): الحفاظ على خيار مشاركة الساحة syncThemeOptOut من المسح التلقائي.
+ * 🌟 (مُحدّث): حل مشكلة الشاشة المنقسمة (Split-Screen) وعزل الذاكرة الحية لكل نافذة.
+ * 🌟 (مُحدّث): إصلاح عرض المستوى (Lv.1 الوهمي) وتوحيد الساحات بدقة مطلقة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -141,8 +141,26 @@ export const socketManager = {
         if (pingEl) pingEl.style.opacity = '0.95';
     },
 
-    // 🌟 تم الإصلاح الجذري هنا لضمان قراءة المستوى والـ XP بدقة 🌟
     _ensureUserProfile() {
+        // 🌟 الحماية من تداخل البيانات عند فتح متصفحين (Split-Screen) 🌟
+        // نعتمد على الذاكرة الحية (RAM) للنافذة الحالية بدلاً من الذاكرة المشتركة
+        if (gameState.userProfile && gameState.userProfile.id) {
+            try {
+                const stored = localStorage.getItem('hub_user_profile');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    // تحديث القيم فقط إذا كانت تخص نفس الحساب المفتوح في هذه النافذة
+                    if (parsed.id === gameState.userProfile.id) {
+                        gameState.userProfile.xp = Number(parsed.xp) || gameState.userProfile.xp;
+                        gameState.userProfile.syncThemeOptOut = parsed.syncThemeOptOut === true;
+                        gameState.userProfile.equippedBg = parsed.equippedBg || gameState.userProfile.equippedBg;
+                        gameState.userProfile.equippedPc = parsed.equippedPc || gameState.userProfile.equippedPc;
+                    }
+                }
+            } catch(e){}
+            return gameState.userProfile;
+        }
+
         try {
             const stored = localStorage.getItem('hub_user_profile');
             if (stored) {
@@ -150,13 +168,13 @@ export const socketManager = {
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                     if (parsed.id && typeof parsed.id === 'string' && !parsed.id.includes('__proto__')) {
                         gameState.userProfile = {
-                            ...parsed, // 🌟 الحفاظ على جميع البيانات الإضافية في البروفايل
+                            ...parsed, 
                             id: String(parsed.id).trim().toUpperCase(),
                             name: String(parsed.name || 'Guest').trim(),
                             avatar: String(parsed.avatar || '1000132081.png').trim(),
                             isCustomAvatar: !!parsed.isCustomAvatar,
                             tokens: Number(parsed.tokens) || 0,
-                            xp: Number(parsed.xp) || 0, // 🌟 تحويل آمن للأرقام لمنع تصفير الـ XP
+                            xp: Number(parsed.xp) || 0, 
                             gamesPlayed: Number(parsed.gamesPlayed) || 0,
                             wins: Number(parsed.wins) || 0,
                             losses: Number(parsed.losses) || 0,
@@ -164,7 +182,7 @@ export const socketManager = {
                             equippedBg: parsed.equippedBg || 'bg_wood',
                             equippedFr: parsed.equippedFr || 'fr_classic',
                             equippedPc: parsed.equippedPc || 'pc_original',
-                            syncThemeOptOut: parsed.syncThemeOptOut === true, // 🌟 الحفاظ على خيار مشاركة الساحة
+                            syncThemeOptOut: parsed.syncThemeOptOut === true, 
                             purchasedItems: Array.isArray(parsed.purchasedItems) ? parsed.purchasedItems : [],
                             friends: Array.isArray(parsed.friends) ? parsed.friends : [],
                             inventory: parsed.inventory || {}
@@ -620,11 +638,13 @@ export const socketManager = {
             }
             
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
-            const myProfile = this._ensureUserProfile();
+            
+            // 🌟 استخدام הذاكرة الحية لضمان عدم تسرب بيانات الخصم في الشاشة المنقسمة
+            const myProfile = gameState.userProfile || this._ensureUserProfile();
             
             const optout = myProfile.syncThemeOptOut === true;
-            const myXp = myProfile.xp || 0;
-            const oppXp = gameState.currentOpponentXp;
+            const myXp = Number(myProfile.xp) || 0;
+            const oppXp = Number(gameState.currentOpponentXp) || 0;
 
             if (!optout && oppXp > myXp) {
                 this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً!`);
@@ -1012,9 +1032,13 @@ export const socketManager = {
 
         socket.on('profileUpdated', (updatedProfile) => {
             if (!updatedProfile) return;
-            gameState.userProfile = updatedProfile;
-            localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
-            if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
+            
+            // 🌟 تحديث البروفايل بالذاكرة الحية
+            if (gameState.userProfile && gameState.userProfile.id === updatedProfile.id) {
+                gameState.userProfile = { ...gameState.userProfile, ...updatedProfile };
+                localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
+                if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
+            }
         });
 
         socket.on('friendAddedNotification', (data) => {
