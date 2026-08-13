@@ -582,7 +582,7 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast("تم إغلاق المراهنات لهذه المباراة 🔒");
         });
 
-        socket.on('gameStart', data => {
+                socket.on('gameStart', data => {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
             
@@ -609,9 +609,12 @@ export const socketManager = {
 
             if (data.roomID) gameState.onlineRoomID = data.roomID;
 
-            gameState.currentOpponentName = (data.opponent?.name || data.opponentName || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
-            gameState.currentOpponentAvatar = (data.opponent?.avatar || data.opponentAvatar || "1000132081.png");
-            gameState.currentOpponentXp = data.opponent?.xp || 0;
+            // 🌟 1. الاعتماد المطلق على البيانات القادمة من السيرفر للخصم 🌟
+            gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
+            gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.png");
+            // حفظ XP الخصم من السيرفر مباشرة
+            const opponentXpFromServer = Number(data.opponent?.xp) || 0;
+            gameState.currentOpponentXp = opponentXpFromServer;
             
             gameState.isOnlineMode = true;
             startOnlineHintSystem(); 
@@ -639,19 +642,20 @@ export const socketManager = {
             
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
             
-            // 🌟 استخدام הذاكرة الحية لضمان عدم تسرب بيانات الخصم في الشاشة المنقسمة
+            // 🌟 2. استخراج بيانات اللاعب نفسه (من الذاكرة الحية الخاصة بالنافذة) 🌟
             const myProfile = gameState.userProfile || this._ensureUserProfile();
             
-            const optout = myProfile.syncThemeOptOut === true;
+            const isOptOut = myProfile.syncThemeOptOut === true;
             const myXp = Number(myProfile.xp) || 0;
-            const oppXp = Number(gameState.currentOpponentXp) || 0;
+            const oppXp = opponentXpFromServer;
 
-            if (!optout && oppXp > myXp) {
+            // 🌟 3. المقارنة وتطبيق الساحة (الآن البيانات معزولة 100%) 🌟
+            if (!isOptOut && oppXp > myXp) {
                 this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً!`);
-                if (typeof window.applyTheme === 'function') {
+                if (typeof window.applyTheme === 'function' && data.opponent) {
                     window.applyTheme(data.opponent);
                 }
-            } else if (!optout && myXp > oppXp) {
+            } else if (!isOptOut && myXp > oppXp) {
                 this._showToast("✨ تم تطبيق ساحتك على الخصم لأنك الأعلى تصنيفاً!");
                 if (typeof window.applyTheme === 'function') window.applyTheme(myProfile);
             } else {
