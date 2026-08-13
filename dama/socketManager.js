@@ -1,9 +1,9 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): إصلاح اختفاء المربع الأزرق وتوافق الإحداثيات مع السيرفر.
- * 🌟 (مُحدّث): إزالة الإشعار المزعج للمزامنة لتعمل بصمت في الخلفية.
- * 🌟 (مُحدّث): تطبيق منطق قراءة الساحة (optout) من البروفايل مباشرة.
+ * 🌟 (مُحدّث): إصلاح الخلل الذي يمنع تطبيق ساحة الخصم الأعلى مستوى (استخدام applyTheme).
+ * 🌟 (مُحدّث): نظام فلترة الصدى (lastMyMove) والكشف الذكي عن الحركات بعد عودة المتصفح.
+ * 🌟 (مُحدّث): المزامنة الصامتة التامة بدون إشعارات مزعجة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -434,7 +434,6 @@ export const socketManager = {
         socket.on('syncGameState', (data) => {
             if (!gameState.isOnlineMode || !data) return;
             
-            // الخوارزمية الذكية: استنتاج حركة الخصم المفقودة أثناء انطفاء الشاشة 
             let missingFrom = null;
             let missingTo = null;
             
@@ -468,7 +467,7 @@ export const socketManager = {
             
             ui.renderBoard(true);
             
-            // 🌟 رسم المربع الأزرق للحركة المفقودة بعد المزامنة!
+            // 🌟 رسم المربع الأزرق للحركة المفقودة بعد المزامنة بصمت!
             if (missingFrom && missingTo) {
                 ui.clearHighlights();
                 if (typeof ui.highlightMove === 'function') {
@@ -621,25 +620,16 @@ export const socketManager = {
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
             const myProfile = this._ensureUserProfile();
             
-            // 🌟 الإصلاح هنا: نقرأ حالة التفعيل من البروفايل مباشرة بدل التخزين القديم
+            // 🌟 الإصلاح الأساسي: قراءة حالة الإلغاء بدقة لتطبيق الثيم المخصص!
             const optout = myProfile.syncThemeOptOut === true;
             const myXp = myProfile.xp || 0;
             const oppXp = gameState.currentOpponentXp;
 
             if (!optout && oppXp > myXp) {
                 this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً!`);
-                const oppBgId = data.opponent?.equippedBg || 'bg_wood';
-                const oppPcId = data.opponent?.equippedPc || 'pc_original';
-                
-                if (window.STORE_ITEMS) {
-                    const bgItem = window.STORE_ITEMS[oppBgId];
-                    if (bgItem) {
-                        if (bgItem.light && bgItem.dark) {
-                            document.documentElement.style.setProperty('--light-cell', bgItem.light);
-                            document.documentElement.style.setProperty('--dark-cell', bgItem.dark);
-                        }
-                    }
-                    document.body.setAttribute('data-piece-style', oppPcId);
+                // 🌟 تطبيق الثيم باستخدام بيانات الخصم الجاهزة 🌟
+                if (typeof window.applyTheme === 'function') {
+                    window.applyTheme(data.opponent);
                 }
             } else if (!optout && myXp > oppXp) {
                 this._showToast("✨ تم تطبيق ساحتك على الخصم لأنك الأعلى تصنيفاً!");
@@ -670,6 +660,7 @@ export const socketManager = {
             let toR = Number(data.to.r);
             let toC = Number(data.to.c);
 
+            // الفلترة الذكية للإحداثيات لتجاهل الصدى
             if (gameState.lastMyMove && 
                 fromR === gameState.lastMyMove.fromR && 
                 fromC === gameState.lastMyMove.fromC &&
@@ -1058,6 +1049,7 @@ export const socketManager = {
         if (gameState.isOnlineMode && gameState.onlineRoomID && !gameState.isSpectator) {
             const profile = this._ensureUserProfile(); 
             
+            // 🌟 تسجيل الإحداثيات לلتعرف عليها عند الارتداد כصدى
             gameState.lastMyMove = { fromR: Number(fromR), fromC: Number(fromC), toR: Number(toR), toC: Number(toC) };
             
             socket.emit('makeMove', { 
