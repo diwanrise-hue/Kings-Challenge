@@ -2,9 +2,9 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): تم تصحيح مسار صور اللاعبين في لوحة الشرف لمنع خطأ 404.
- * 🌟 (مُحدّث): إزالة نقاط XP من لوحة الشرف، وتثبيت الاسم أسفل بطاقة التتويج مع رفع المستوى/الكأس فوقه.
- * 🌟 (مُحدّث): تنظيف الملف من الدوال المكررة.
+ * 🌟 (مُحدّث): تصحيح مسار صور اللاعبين في لوحة الشرف لمنع خطأ 404.
+ * 🌟 (مُحدّث): منع الانضغاط (الصور البيضاوية) بصورة نهائية في قائمة الشرف.
+ * 🌟 (مُحدّث): تبديل زر الخيارات بالحقيبة أثناء اللعب ضد البوت.
  */
 
 import { gameState } from './gameState.js'; 
@@ -325,10 +325,13 @@ export const ui = {
         this.setDisplay('online-toggle-btn', flexState);
         this.setDisplay('store-portal-corner-btn', flexState);
         this.setDisplay('lucky-spin-portal-btn', flexState); 
-        this.setDisplay('hamburger-menu-btn', flexState);
         this.setDisplay('floating-quests-btn', flexState);
         this.setDisplay('custom-diff-btn', inlineState);
+        
+        // 🌟 إخفاء القائمة وإظهار الحقيبة عند اللعب
+        this.setDisplay('hamburger-menu-btn', active ? 'none' : 'flex');
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
+        
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
         this.setDisplay('gameChatBtn', 'none');
         this.setDisplay('mic-toggle-btn', 'none');
@@ -1440,6 +1443,7 @@ window.copyMyId = function() {
     }
 };
 
+// 🌟 بناء وتكوين المراكز 4 فما دون ومنع الانضغاط 🌟
 window.createLbItemHTML = function(rank, playerObj, type) {
     let score = playerObj.score || playerObj.wins || 0; 
     let name = playerObj.name; let avatarStr = playerObj.avatar; let playerRankInfo = playerObj.rankInfo;
@@ -1451,7 +1455,6 @@ window.createLbItemHTML = function(rank, playerObj, type) {
         if (level > 200) level = 200;
         displayScore = `<span style="color:#87ceeb; font-weight:800; background: rgba(135,206,235,0.15); border: 1px solid rgba(135,206,235,0.3); padding: 2px 8px; border-radius: 6px;">Lv.${level}</span>`;
     } else {
-        // تم استبدال كلمة فوز بالكأس 🏆 هنا
         displayScore = `<span style="color:#f5a623; font-weight:800;">${formatCompactNumber(score)} 🏆</span>`;
     }
 
@@ -1459,9 +1462,10 @@ window.createLbItemHTML = function(rank, playerObj, type) {
     let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>` : '';
     const nameEl = document.createElement('div'); nameEl.className = 'lb-name'; nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
     
+    // 🌟 إضافة flex-shrink و min-width و min-height لمنع ضغط الصورة لتصبح بيضاوية 🌟
     div.innerHTML = `
         <div class="lb-rank">#${rank}</div>
-        <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s;" title="عرض الملف الشخصي"></div>
+        <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px;" title="عرض الملف الشخصي"></div>
         <div class="lb-info" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
             <div class="lb-name-container"></div>
             <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${displayScore}</div>
