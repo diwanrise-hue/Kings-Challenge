@@ -196,15 +196,15 @@
         #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
         #online-toggle-btn, #store-portal-corner-btn, #lucky-spin-portal-btn,
         #custom-diff-btn, #hint-btn, #undo-btn, #dama-radio-toggle, #mic-toggle-btn {
-            background: linear-gradient(145deg, #2a2a35, #15141a) !important; /* فحمي/كحلي داكن */
-            border: 1.5px solid #a88734 !important; /* إطار ذهبي أنيق */
-            border-bottom: 3.5px solid #6b5319 !important; /* شفة البروز 3D */
-            color: #fce8a1 !important; /* نص ذهبي كريمي */
+            background: linear-gradient(145deg, #2a2a35, #15141a) !important;
+            border: 1.5px solid #a88734 !important;
+            border-bottom: 3.5px solid #6b5319 !important;
+            color: #fce8a1 !important;
             box-shadow: 
-                0 6px 12px rgba(0, 0, 0, 0.6), /* ظل خارجي قوي للبروز */
-                inset 0 1px 2px rgba(255, 255, 255, 0.2), /* لمعة علوية رقيقة */
-                inset 0 -1px 3px rgba(0, 0, 0, 0.5), /* تظليل داخلي سفلي */
-                0 0 6px rgba(212, 175, 55, 0.15) !important; /* إضاءة خارجية ذهبية خفيفة جداً */
+                0 6px 12px rgba(0, 0, 0, 0.6),
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 3px rgba(0, 0, 0, 0.5),
+                0 0 6px rgba(212, 175, 55, 0.15) !important;
             border-radius: 14px !important; 
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
@@ -213,13 +213,11 @@
             position: fixed; z-index: 10001; 
         }
 
-        /* توحيد مقاسات الأزرار المربعة */
         #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
         #custom-diff-btn, #hint-btn, #undo-btn, #dama-radio-toggle, #mic-toggle-btn {
             width: 44px !important; height: 44px !important;
         }
 
-        /* تحديد مواضع الأزرار المخصصة التي تم تغيير ستايلها الآن */
         #hamburger-menu-btn, #bag-quick-btn { top: 15px !important; }
         html[dir="rtl"] #hamburger-menu-btn, html[dir="rtl"] #bag-quick-btn { right: 15px !important; left: auto !important; }
         html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px !important; right: auto !important; }
@@ -228,7 +226,6 @@
         #online-toggle-btn { bottom: 75px !important; left: 15px !important; height: 46px !important; width: 102px !important; z-index: 9998 !important;}
         #store-portal-corner-btn { bottom: 75px !important; right: 15px !important; width: 46px !important; height: 46px !important; font-size: 18px !important; z-index: 9998 !important;}
         
-        /* تلوين محتوى SVGs (الأيقونات) بالذهبي الكريمي - (تم استثناء زر الأونلاين والراديو للحفاظ على صورهما الأصلية) */
         #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
         #store-portal-corner-btn svg, #lucky-spin-portal-btn svg,
         #custom-diff-btn svg, #hint-btn svg, #undo-btn svg, #mic-toggle-btn svg * {
@@ -237,21 +234,19 @@
             color: #fce8a1 !important;
         }
 
-        /* إلغاء الـ Fixed لأزرار لوحة التحكم السفلية لترتيب الفليكس */
         .control-panel #custom-diff-btn, .control-panel #hint-btn, .control-panel #undo-btn, .control-panel #dama-radio-toggle, .control-panel #mic-toggle-btn {
             position: relative !important; z-index: auto !important;
         }
         .control-panel #custom-diff-btn { width: 60px !important; }
 
-        /* 🌟 تأثير الضغط الغائر (Inset Emboss) 🌟 */
         #hamburger-menu-btn:active, #bag-quick-btn:active, #floating-quests-btn:active, 
         #online-toggle-btn:active, #store-portal-corner-btn:active, #lucky-spin-portal-btn:active,
         #custom-diff-btn:active, #hint-btn:active, #undo-btn:active, #dama-radio-toggle:active, #mic-toggle-btn:active {
-            transform: translateY(3px) !important; /* النزول للأسفل */
-            border-bottom-width: 1px !important; /* تقليل الشفة لتعطي إحساس الضغط */
+            transform: translateY(3px) !important;
+            border-bottom-width: 1px !important;
             box-shadow: 
-                0 2px 4px rgba(0, 0, 0, 0.8), /* ظل خارجي خفيف */
-                inset 0 3px 6px rgba(0, 0, 0, 0.8) !important; /* ظل داخلي قوي للغور */
+                0 2px 4px rgba(0, 0, 0, 0.8),
+                inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
         }
 
         /* ========================================== */
@@ -263,8 +258,8 @@
             font-size: 16px; 
             font-weight: 800; 
             height: 44px; padding: 0 15px;
-            border: 1.5px solid #8be8ab !important; /* إطار أخضر فاتح للمعة */
-            border-bottom: 3.5px solid #145a32 !important; /* شفة 3D خضراء داكنة */
+            border: 1.5px solid #8be8ab !important; 
+            border-bottom: 3.5px solid #145a32 !important; 
             box-shadow: 
                 0 6px 12px rgba(0, 0, 0, 0.6), 
                 inset 0 2px 3px rgba(255, 255, 255, 0.4), 
@@ -289,7 +284,6 @@
             50% { box-shadow: 0 10px 20px rgba(40, 167, 69, 0.8), inset 0 2px 3px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.4) !important; }
         }
 
-        /* زر البدء في وضع اللعب (يتحول للفحمي الذهبي) */
         body.game-active #reset-btn {
             background: linear-gradient(145deg, #2a2a35, #15141a) !important;
             border: 1.5px solid #a88734 !important;
@@ -308,7 +302,6 @@
         /* ========================================== */
         /* 🌟 نظام البروفايل الجديد المتمركز (أسود/ذهبي) */
         /* ========================================== */
-        
         .auto-fit-center {
             transform-origin: center center !important;
             white-space: nowrap !important;
@@ -329,10 +322,7 @@
             padding: 0 !important; 
             border-radius: 0 !important;
             box-shadow: none !important; 
-
-            /* 🌟 ظل يتتبع حواف الصورة الشفافة بدقة 🌟 */
             filter: drop-shadow(0 8px 10px rgba(0,0,0,0.6)) drop-shadow(0 0 5px rgba(212, 175, 55, 0.4)) !important; 
-
             cursor: pointer;
             transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), filter 0.2s; 
             direction: ltr !important; 
@@ -369,8 +359,6 @@
             justify-content: center; 
             overflow: hidden; 
             background-color: transparent !important; 
-            
-            /* 🌟 قناع لقص أطراف الصورة ومنع نزيف البكسلات 🌟 */
             -webkit-mask-image: -webkit-radial-gradient(white, black); 
             mask-image: radial-gradient(white, black);
             transform: translateZ(0); 
@@ -392,7 +380,7 @@
             display: flex !important; 
             align-items: center !important; 
             justify-content: center !important; 
-            z-index: 25 !important; /* 🌟 تم الرفع هنا ليظهر فوق الإطار الملكي 🌟 */
+            z-index: 25 !important; 
         }
 
         #profile-badge #badge-level { 
@@ -566,12 +554,10 @@
             background-image: url('tape.webp') !important;
             background-size: 100% 100% !important;
             background-repeat: no-repeat !important;
-            
             background-color: transparent !important;
             box-shadow: none !important;
             border-radius: 0 !important;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) !important;
-
             z-index: 10 !important;
             display: flex !important;
             align-items: center !important;
@@ -1331,7 +1317,6 @@
         .bet-option-item.selected .bet-radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #d4af37; }
         .bet-option-text { color: white; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; width: 100%; }
 
-        /* حركة صعود النوافذ من الأسفل */
         @keyframes slideUpBottomSheet {
             from { transform: translateY(100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -1356,7 +1341,6 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <!-- 🌟 النقر يفتح ملفك الشخصي بالاستايل الجديد 🌟 -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) window.openMyProfile()">
         <div class="profile-avatar-capsule" id="badge-avatar"></div>
 
@@ -1388,22 +1372,17 @@
             <span class="next-level-badge auto-fit-center" id="badge-next-level">Lv.2</span>
         </div>
 
-        <!-- 🪵 إطار الخشب الجديد أسفل البروفايل (النقود + الانتصارات) 🪵 -->
         <div class="bottom-stats-frame" id="profile-stat-tokens-badge-container">
             <div class="stat-item coins-text-format">
                 <span class="stat-icon">🪙</span>
-                <!-- ⬅️ عنصر التحكم بعدد التوكن -->
                 <span class="tokens-number-ctrl" id="profile-stat-tokens-badge">0</span>
             </div>
             
             <div class="frame-divider"></div>
 
             <div class="stat-item streak-text-format">
-                <!-- ⬅️ عنصر التحكم بالرقم -->
                 <span class="streak-number-ctrl" id="profile-stat-streak-badge">0</span>
-                <!-- ⬅️ عنصر التحكم بنص (انتصار) -->
                 <span class="streak-text-ctrl">انتصار</span>
-                <!-- ⬅️ عنصر التحكم بالشعلة 🔥 -->
                 <span class="stat-icon streak-fire-ctrl">🔥</span>
             </div>
         </div>
@@ -1474,7 +1453,6 @@
     </div>
     
     <div class="game-container">
-        <!-- تم الحفاظ على ساحة الرقعة كما طلبت -->
         <div id="board"></div> 
     </div>
 
@@ -1645,7 +1623,6 @@
             
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
             
-            <!-- 🌟 شريط الشعبية في البروفايل بلون أزرق 🌟 -->
             <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; width: 100%;">
                 <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2);">الرتبة: 🥉 برونزي</div>
                 <div style="color: #00d2ff; font-size: 13px; font-weight: 600; background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 5px;">
@@ -1692,16 +1669,12 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة اختيار وإرسال هدايا الشعبية للخصوم أثناء اللعب 🌟 -->
     <div id="send-gift-modal" class="modal-overlay" style="z-index: 10000020;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('send-gift-modal')">✕</button>
             <h3 style="color: #00d2ff; margin-bottom: 10px;">إرسال شعبية 🎁</h3>
             <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">اختر هدية من حقيبتك لإرسالها إلى المنافس:</p>
-            
-            <div id="my-gifts-selection-grid" class="store-items-grid" style="max-height: 50vh; overflow-y: auto;">
-                <!-- سيتم ضخ هداياك المتاحة هنا تلقائياً -->
-            </div>
+            <div id="my-gifts-selection-grid" class="store-items-grid" style="max-height: 50vh; overflow-y: auto;"></div>
         </div>
     </div>
 
@@ -1710,9 +1683,7 @@
             <button class="modal-close-btn" onclick="window.closeAppModal('friend-requests-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color: #f5a623; margin-bottom: 10px;">طلبات الصداقة 🔔</h3>
             <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">الطلبات تنتهي صلاحيتها وتُحذف تلقائياً بعد 3 أيام.</p>
-            
-            <div id="friend-requests-container" class="scrollable-content" style="max-height: 40vh; display: flex; flex-direction: column; gap: 10px; padding: 5px;">
-            </div>
+            <div id="friend-requests-container" class="scrollable-content" style="max-height: 40vh; display: flex; flex-direction: column; gap: 10px; padding: 5px;"></div>
         </div>
     </div>
 
@@ -1727,15 +1698,12 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة متجر لعبة الدامة الملكي المخصص والمستقل 🌟 -->
     <div id="store-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 420px; padding: 25px 15px; position: relative;">
             <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 10;">✕</button>
-            
             <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(255,215,0,0.4);">متجر الدامة 👑</h3>
             <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 12px;">رصيدك الحالي: <span style="color: #f5a623; font-weight: bold;">🪙 <span id="profile-stat-tokens-store">0</span></span></p>
 
-            <!-- شريط التبويبات المخصص للدامة فقط -->
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="dama-tab-bg" class="custom-tab-button active" onclick="window.switchDamaGameStoreTab('bg')">خلفيات 🎨</button>
                 <button id="dama-tab-fr" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('fr')">إطارات 🖼️</button>
@@ -1744,7 +1712,6 @@
                 <button id="dama-tab-pop" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('pop')">شعبية <span style="filter: hue-rotate(210deg);">🔥</span></button>
             </div>
 
-            <!-- شبكة المنتجات المباشرة -->
             <div class="scrollable-content" style="max-height: 52vh; min-height: 250px;">
                 <div id="store-section-bg" class="store-items-grid"></div>
                 <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
@@ -1755,14 +1722,12 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة لوحة الشرف المعدلة بالكامل 🌟 -->
+    <!-- 🌟 نافذة لوحة الشرف (مع تبويبي فوز ومستوى) 🌟 -->
     <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 9999999;">
         <div class="leaderboard-full-screen" dir="rtl">
-            <!-- أزرار التحكم العلوية -->
             <button class="lb-rewards-btn" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
             <button class="lb-close-btn" onclick="window.closeAppModal('leaderboard-modal')">✕</button>
             
-            <!-- الهيدر العلوي المصغر -->
             <div class="lb-header-container">
                 <div class="lb-title-row">
                     <span class="lb-decor-line left"></span>
@@ -1772,29 +1737,21 @@
                 <div class="lb-header-subtitle">أفضل اللاعبين هذا الأسبوع</div>
             </div>
 
-            <!-- شريط التبويبات -->
+            <!-- تبويبا فوز ومستوى -->
             <div class="lb-nav-tabs">
-                <button id="lb-tab-wins" class="lb-tab-button active" onclick="window.switchLbTab('wins')">الأكثر فوزاً</button>
-                <button id="lb-tab-xp" class="lb-tab-button" onclick="window.switchLbTab('xp')">الأعلى مستوى</button>
-                <button id="lb-tab-tokens" class="lb-tab-button" onclick="window.switchLbTab('tokens')">الأغنى (المال)</button>
+                <button id="lb-tab-wins" class="lb-tab-button active" onclick="window.switchLbTab('wins')">فوز</button>
+                <button id="lb-tab-xp" class="lb-tab-button" onclick="window.switchLbTab('xp')">مستوى</button>
             </div>
 
-            <!-- حاوية منصة المراكز الثلاثة الأولى (التوب 3) -->
-            <div class="lb-podium-container" id="leaderboard-podium-container">
-                <!-- سيتم توليد وإضافة بطاقات المراكز 1، 2، 3 هنا برمجياً -->
-            </div>
+            <div class="lb-podium-container" id="leaderboard-podium-container"></div>
 
-            <!-- حاويات قائمة باقي المراكز (من 4 فما فوق) -->
             <div class="lb-list-container" id="leaderboard-list-wins"></div>
             <div class="lb-list-container" id="leaderboard-list-xp" style="display: none;"></div>
-            <div class="lb-list-container" id="leaderboard-list-tokens" style="display: none;"></div>
 
-            <!-- النص السفلي -->
             <div class="lb-footer-subtitle">تحديث خلال : 2 يوم 14 ساعة</div>
         </div>
     </div>
 
-    <!-- 🌟 نافذة الجوائز المعدلة 🌟 -->
     <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 10000000 !important;">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 30px 20px; background: linear-gradient(145deg, #1a1a24, #2b2b35) !important; border: 1.5px solid #a88734 !important; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212,175,55,0.05) !important; max-height: 90vh; overflow-y: auto;">
             <button class="modal-close-btn" onclick="window.closeAppModal('top3-rewards-modal')" style="left:15px; right:auto; background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important;">✕</button>
@@ -1838,11 +1795,9 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- 🌟 نافذة الحقيبة 🌟 -->
     <div id="themes-grid-overlay" class="modal-overlay">
         <div class="settings-card" dir="auto">
             <h3 id="themes-grid-title" style="margin-bottom: 15px; font-size: 20px;">المظهر والأزياء</h3>
@@ -2104,7 +2059,6 @@
         <button id="resign-btn" title="الانسحاب" style="display: none;">الانسحاب</button>
     </div>
 
-    <!-- الإسكربتات المصغرة لتشغيل ملفات الموديول -->
     <script src="icons.js"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
