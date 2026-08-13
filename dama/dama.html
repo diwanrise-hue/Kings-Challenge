@@ -676,21 +676,12 @@
             width: 90vw !important; max-width: 600px !important; height: 80vh !important; max-height: 800px !important; padding-top: 35px; display: flex; flex-direction: column;
         }
         
-        .leaderboard-full-screen { 
-            width: 100vw !important; height: 100dvh !important; max-width: none !important; 
-            max-height: none !important; border-radius: 0 !important; border:none !important; 
-            padding: 20px 15px 15px 15px !important; 
-            background-image: url('leaderboard.webp') !important; background-size: cover !important; 
-            background-position: center !important; background-color: #1a1a24 !important; 
-            display: flex; flex-direction: column; align-items: center;
-        } 
-
         .room-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; border:none !important; padding: 60px 20px 20px 20px !important; background-image: url('room.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; } 
 
         .settings-card::-webkit-scrollbar { display: none; }
         @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
         
-        .scrollable-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 5px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; width: 100%;}
+        .scrollable-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 5px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
         .scrollable-content::-webkit-scrollbar { width: 5px; }
         .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .scrollable-content::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
@@ -714,6 +705,7 @@
         .custom-nav-tabs { 
             display: flex !important; 
             gap: 3px !important; 
+            margin-bottom: 12px !important; 
             background: rgba(15, 18, 25, 0.6) !important; 
             padding: 4px !important; 
             border-radius: 14px !important; 
@@ -721,6 +713,7 @@
             box-shadow: none !important; 
             flex-wrap: nowrap !important; 
             overflow-x: auto !important; 
+            width: 100% !important;
             box-sizing: border-box !important;
         }
         .custom-nav-tabs::-webkit-scrollbar { display: none !important; }
@@ -751,67 +744,390 @@
             box-shadow: none !important;
         }
 
-        .lb-list-container { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; padding-bottom: 20px; width: 100%; box-sizing: border-box;}
-        .lb-item { display: flex; align-items: center; padding: 12px; background: rgba(15, 18, 25, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); margin-bottom: 0px; }
-        .lb-rank { font-size: 16px; font-weight: 800; width: 35px; text-align: center; color: #a1a1aa; }
-        .lb-avatar { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,0.05); overflow: hidden; margin-left: 12px; margin-right: 5px; position: relative; }
-        .lb-info { flex: 1; text-align: right; display: flex; flex-direction: column; }
-        .lb-name { font-size: 15px; font-weight: 700; color: white; display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        .lb-score { font-size: 13px; font-weight: 600; color: #f5a623; margin-top: 4px; }
+        /* ========================================== */
+        /* 🏆 التصميم الداخلي الكامل لنافذة لوحة الشرف 🏆 */
+        /* ========================================== */
+        .leaderboard-full-screen { 
+            width: 100vw; 
+            height: 100dvh; 
+            box-sizing: border-box;
+            padding: 15px 16px 15px 16px; 
+            background: #0f1015;
+            background-image: radial-gradient(circle at top, #1a1c29 0%, #08090c 100%); 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+            font-family: 'Tajawal', sans-serif;
+            direction: rtl;
+            color: #ffffff;
+        }
 
-        /* ========================================== */
-        /* 🏆 تصميم منصة أول ثلاثة مراكز (Podium) 🏆 */
-        /* ========================================== */
-        #leaderboard-podium-container {
-            display: flex; justify-content: center; align-items: flex-end; 
-            gap: 12px; margin: 25px 0 15px 0; width: 100%; box-sizing: border-box;
+        .lb-close-btn { 
+            position: absolute; 
+            top: 14px; 
+            left: 16px; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            background: rgba(0, 0, 0, 0.6); 
+            border: 1px solid rgba(255, 215, 0, 0.3); 
+            color: #fce8a1; 
+            font-size: 14px; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 100;
+            transition: all 0.2s ease;
+        }
+
+        .lb-rewards-btn { 
+            position: absolute; 
+            top: 14px; 
+            right: 16px; 
+            background: rgba(255, 215, 0, 0.15); 
+            border: 1px solid #ffd700; 
+            border-radius: 10px; 
+            padding: 4px 10px; 
+            color: #ffd700; 
+            font-weight: bold; 
+            font-size: 12px;
+            z-index: 100; 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.15);
+        }
+
+        .lb-header-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+            margin-bottom: 12px;
+        }
+
+        .lb-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .lb-decor-line {
+            height: 1px;
+            width: 25px;
+            background: linear-gradient(90deg, transparent, #ffd700);
+        }
+
+        .lb-decor-line.right {
+            background: linear-gradient(90deg, #ffd700, transparent);
+        }
+
+        .lb-header-title { 
+            font-size: 20px; 
+            font-weight: 800;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            text-align: center;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+        }
+
+        .lb-header-subtitle {
+            font-size: 10px;
+            font-weight: 500;
+            color: #8e8e93;
+            text-align: center;
+            margin-top: 1px;
+        }
+
+        .lb-nav-tabs { 
+            display: flex; 
+            gap: 6px; 
+            margin-bottom: 24px; 
+            background: rgba(15, 18, 25, 0.7); 
+            padding: 4px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255, 215, 0, 0.2); 
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .lb-tab-button { 
+            flex: 1; 
+            height: 34px; 
+            border-radius: 8px; 
+            background: transparent; 
+            color: #a1a1aa; 
+            font-size: 12px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            border: none; 
+            outline: none; 
+            white-space: nowrap; 
+            transition: all 0.2s ease;
+        }
+
+        .lb-tab-button.active { 
+            background: rgba(212, 175, 55, 0.2); 
+            color: #ffd700; 
+            border: 1px solid rgba(212, 175, 55, 0.5); 
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+        }
+
+        @keyframes floatCard {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-7px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .lb-podium-container {
+            display: flex;
+            direction: ltr;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 10px;
+            margin-bottom: 18px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .lb-podium-card {
-            position: relative; border-radius: 16px; text-align: center; 
-            padding: 35px 5px 15px; display: flex; flex-direction: column; 
-            align-items: center; justify-content: flex-start;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6); transition: transform 0.3s;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 20px;
+            padding: 22px 8px 14px 8px;
+            box-sizing: border-box;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            position: relative;
+            overflow: visible;
+            animation: floatCard 3.8s ease-in-out infinite;
         }
 
-        /* 🥇 المركز الأول */
-        .lb-podium-card.rank-1 { width: 34%; height: 175px; background: linear-gradient(180deg, #2a2000, #120e00); border: 2.5px solid #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.3); z-index: 2; }
-        /* 🥈 المركز الثاني */
-        .lb-podium-card.rank-2 { width: 30%; height: 155px; background: linear-gradient(180deg, #0a1f38, #040c17); border: 2.5px solid #5D9CEC; box-shadow: 0 0 15px rgba(93,156,236,0.3); margin-bottom: -5px; }
-        /* 🥉 المركز الثالث */
-        .lb-podium-card.rank-3 { width: 30%; height: 145px; background: linear-gradient(180deg, #2e1503, #150901); border: 2.5px solid #d35400; box-shadow: 0 0 15px rgba(211,84,0,0.3); margin-bottom: -10px; }
+        .lb-podium-card.rank-1 {
+            background: linear-gradient(180deg, rgba(255, 215, 0, 0.28) 0%, rgba(30, 24, 10, 0.92) 100%);
+            border: 1.5px solid rgba(255, 215, 0, 0.85);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            min-height: 195px;
+            animation-delay: 0s;
+        }
+
+        .lb-podium-card.rank-2 {
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.28) 0%, rgba(10, 22, 45, 0.92) 100%);
+            border: 1.5px solid rgba(59, 130, 246, 0.85);
+            box-shadow: 0 0 18px rgba(59, 130, 246, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            min-height: 175px;
+            animation-delay: 0.7s;
+        }
+
+        .lb-podium-card.rank-3 {
+            background: linear-gradient(180deg, rgba(217, 119, 6, 0.25) 0%, rgba(30, 18, 12, 0.92) 100%);
+            border: 1.5px solid rgba(217, 119, 6, 0.85);
+            box-shadow: 0 0 16px rgba(217, 119, 6, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            min-height: 165px;
+            animation-delay: 1.4s;
+        }
 
         .lb-podium-badge {
-            position: absolute; left: 50%; transform: translateX(-50%);
-            border-radius: 50%; display: flex; 
-            align-items: center; justify-content: center; font-weight: 900; 
-            color: white; border: 2.5px solid rgba(255,255,255,0.9);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.7); text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 15px;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
         }
-        .lb-podium-badge.badge-1 { width: 40px; height: 40px; top: -20px; font-size: 20px; background: radial-gradient(circle at top left, #ffe066, #f1c40f, #d4af37); color: #5a4000; border-color: #fff;}
-        .lb-podium-badge.badge-2 { width: 32px; height: 32px; top: -16px; font-size: 16px; background: radial-gradient(circle at top left, #a0c4ff, #5D9CEC, #2980b9); }
-        .lb-podium-badge.badge-3 { width: 32px; height: 32px; top: -16px; font-size: 16px; background: radial-gradient(circle at top left, #ffb380, #e67e22, #d35400); }
+
+        .rank-1 .lb-podium-badge {
+            background: linear-gradient(135deg, #ffffff 0%, #ffd700 50%, #b8860b 100%);
+            color: #1a1a24;
+            border: 1.5px solid #fff3a8;
+        }
+
+        .rank-2 .lb-podium-badge {
+            background: linear-gradient(135deg, #ffffff 0%, #3b82f6 60%, #1e40af 100%);
+            color: #ffffff;
+            border: 1.5px solid #93c5fd;
+        }
+
+        .rank-3 .lb-podium-badge {
+            background: linear-gradient(135deg, #ffffff 0%, #d97706 60%, #78350f 100%);
+            color: #ffffff;
+            border: 1.5px solid #fde68a;
+        }
 
         .lb-podium-avatar {
-            border-radius: 50%; border: 2.5px solid transparent; 
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-            background: rgba(255,255,255,0.05); margin-bottom: 10px; padding: 2px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 8px;
+            background: #1a1a24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .lb-podium-avatar.avatar-1 { width: 65px; height: 65px; border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.5); }
-        .lb-podium-avatar.avatar-2 { width: 55px; height: 55px; border-color: #5D9CEC; box-shadow: 0 0 10px rgba(93,156,236,0.4); }
-        .lb-podium-avatar.avatar-3 { width: 55px; height: 55px; border-color: #e67e22; box-shadow: 0 0 10px rgba(230,126,34,0.4); }
-        .lb-podium-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
-        .lb-podium-name { font-size: 13px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 95%; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
-        .rank-1 .lb-podium-name { font-size: 15px; }
-
-        .lb-podium-score-pill {
-            background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 20px; 
-            font-size: 12px; font-weight: 800; margin-top: auto; display: inline-flex; 
-            align-items: center; gap: 4px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1);
+        .rank-1 .lb-podium-avatar {
+            width: 66px;
+            height: 66px;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
         }
-        .rank-1 .lb-podium-score-pill { font-size: 13px; padding: 5px 12px; }
-        .score-1 { color: #ffd700; } .score-2 { color: #5D9CEC; } .score-3 { color: #d35400; }
+
+        .rank-2 .lb-podium-avatar {
+            border: 2px solid #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .rank-3 .lb-podium-avatar {
+            border: 2px solid #cd7f32;
+            box-shadow: 0 0 8px rgba(205, 127, 50, 0.3);
+        }
+
+        .lb-podium-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .lb-podium-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90px;
+            direction: rtl;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .lb-podium-score {
+            font-size: 11px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            direction: ltr;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
+        .rank-1 .lb-podium-score { color: #ffd700; }
+        .rank-2 .lb-podium-score { color: #60a5fa; }
+        .rank-3 .lb-podium-score { color: #f59e0b; }
+
+        .lb-list-container { 
+            flex: 1; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            padding-right: 2px;
+        }
+
+        .lb-item { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 10px 14px; 
+            background: rgba(15, 18, 25, 0.75); 
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px); 
+            border-radius: 14px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-sizing: border-box;
+        }
+
+        .lb-player-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lb-rank { 
+            font-size: 13px; 
+            font-weight: 800; 
+            width: 30px; 
+            text-align: center; 
+            color: #a1a1aa; 
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 4px;
+            border-radius: 6px;
+        }
+
+        .lb-avatar { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            border: 2px solid rgba(255, 255, 255, 0.2); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            background: rgba(255, 255, 255, 0.05); 
+            overflow: hidden; 
+        }
+
+        .lb-avatar img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+
+        .lb-info { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+        }
+
+        .lb-name { 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: #ffffff; 
+            display: flex; 
+            align-items: center; 
+            gap: 5px;
+        }
+
+        .lb-badge-icon {
+            font-size: 11px;
+        }
+
+        .lb-score { 
+            font-size: 12px; 
+            font-weight: 800; 
+            color: #f5a623; 
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            direction: ltr;
+        }
+
+        .lb-footer-subtitle {
+            text-align: center;
+            font-size: 11px;
+            color: #8e8e93;
+            margin-top: 8px;
+        }
 
         .themes-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 5px 0; }
         .theme-grid-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 10px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -1158,6 +1474,7 @@
     </div>
     
     <div class="game-container">
+        <!-- تم الحفاظ على ساحة الرقعة كما طلبت -->
         <div id="board"></div> 
     </div>
 
@@ -1328,6 +1645,7 @@
             
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
             
+            <!-- 🌟 شريط الشعبية في البروفايل بلون أزرق 🌟 -->
             <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; width: 100%;">
                 <div id="igp-rank-title" style="color: #f5a623; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2);">الرتبة: 🥉 برونزي</div>
                 <div style="color: #00d2ff; font-size: 13px; font-weight: 600; background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); padding: 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 5px;">
@@ -1374,6 +1692,7 @@
         </div>
     </div>
 
+    <!-- 🌟 نافذة اختيار وإرسال هدايا الشعبية للخصوم أثناء اللعب 🌟 -->
     <div id="send-gift-modal" class="modal-overlay" style="z-index: 10000020;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('send-gift-modal')">✕</button>
@@ -1381,6 +1700,7 @@
             <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">اختر هدية من حقيبتك لإرسالها إلى المنافس:</p>
             
             <div id="my-gifts-selection-grid" class="store-items-grid" style="max-height: 50vh; overflow-y: auto;">
+                <!-- سيتم ضخ هداياك المتاحة هنا تلقائياً -->
             </div>
         </div>
     </div>
@@ -1407,6 +1727,7 @@
         </div>
     </div>
 
+    <!-- 🌟 نافذة متجر لعبة الدامة الملكي المخصص والمستقل 🌟 -->
     <div id="store-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 420px; padding: 25px 15px; position: relative;">
             <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 10;">✕</button>
@@ -1414,6 +1735,7 @@
             <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(255,215,0,0.4);">متجر الدامة 👑</h3>
             <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 12px;">رصيدك الحالي: <span style="color: #f5a623; font-weight: bold;">🪙 <span id="profile-stat-tokens-store">0</span></span></p>
 
+            <!-- شريط التبويبات المخصص للدامة فقط -->
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="dama-tab-bg" class="custom-tab-button active" onclick="window.switchDamaGameStoreTab('bg')">خلفيات 🎨</button>
                 <button id="dama-tab-fr" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('fr')">إطارات 🖼️</button>
@@ -1422,6 +1744,7 @@
                 <button id="dama-tab-pop" class="custom-tab-button" onclick="window.switchDamaGameStoreTab('pop')">شعبية <span style="filter: hue-rotate(210deg);">🔥</span></button>
             </div>
 
+            <!-- شبكة المنتجات المباشرة -->
             <div class="scrollable-content" style="max-height: 52vh; min-height: 250px;">
                 <div id="store-section-bg" class="store-items-grid"></div>
                 <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
@@ -1432,38 +1755,42 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة لوحة الشرف المعدلة 🌟 -->
+    <!-- 🌟 نافذة لوحة الشرف المعدلة بالكامل 🌟 -->
     <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 9999999;">
-        <div class="settings-card leaderboard-full-screen" dir="auto">
-            <!-- أزرار الإغلاق والجوائز -->
-            <button class="modal-close-btn" onclick="window.closeAppModal('leaderboard-modal')" style="right: 20px; left: auto; top: 20px; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
-            <button id="lb-rewards-btn" style="position: absolute; top: 20px; left: 20px; right: auto; background: rgba(255,215,0,0.15); border: 1px solid #ffd700; border-radius: 12px; padding: 6px 12px; color: #ffd700; font-weight: bold; z-index: 100000; cursor: pointer; box-shadow: none !important;" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
+        <div class="leaderboard-full-screen" dir="rtl">
+            <!-- أزرار التحكم العلوية -->
+            <button class="lb-rewards-btn" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
+            <button class="lb-close-btn" onclick="window.closeAppModal('leaderboard-modal')">✕</button>
             
-            <!-- عنوان مزخرف مع التظليل -->
-            <div style="text-align: center; margin-top: 15px; margin-bottom: 10px; display: flex; flex-direction: column; align-items: center; width: 100%;">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%;">
-                    <div style="height: 2px; background: linear-gradient(90deg, transparent, #ffd700); flex: 1; max-width: 60px;"></div>
-                    <h3 style="font-size: 26px; color: #ffd700; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8);" id="lb-title-text">لوحة الشرف</h3>
-                    <div style="height: 2px; background: linear-gradient(270deg, transparent, #ffd700); flex: 1; max-width: 60px;"></div>
+            <!-- الهيدر العلوي المصغر -->
+            <div class="lb-header-container">
+                <div class="lb-title-row">
+                    <span class="lb-decor-line left"></span>
+                    <h3 class="lb-header-title">لوحة الشرف</h3>
+                    <span class="lb-decor-line right"></span>
                 </div>
-                <p style="color: #a1a1aa; font-size: 14px; font-weight: 700; margin: 5px 0 0 0; text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.9);">أفضل لاعبين الموسم</p>
+                <div class="lb-header-subtitle">أفضل اللاعبين هذا الأسبوع</div>
             </div>
-            
-            <!-- التبويبات -->
-            <div class="custom-nav-tabs" style="margin-bottom: 15px; width: 90%; max-width: 400px; align-self: center;">
-                <button id="lb-tab-wins" class="custom-tab-button active" onclick="window.switchLbTab('wins')">فوز</button>
-                <button id="lb-tab-xp" class="custom-tab-button" onclick="window.switchLbTab('xp')">مستوى</button>
+
+            <!-- شريط التبويبات -->
+            <div class="lb-nav-tabs">
+                <button id="lb-tab-wins" class="lb-tab-button active" onclick="window.switchLbTab('wins')">الأكثر فوزاً</button>
+                <button id="lb-tab-xp" class="lb-tab-button" onclick="window.switchLbTab('xp')">الأعلى مستوى</button>
+                <button id="lb-tab-tokens" class="lb-tab-button" onclick="window.switchLbTab('tokens')">الأغنى (المال)</button>
             </div>
-            
-            <!-- محتوى اللوحة -->
-            <div class="scrollable-content" style="display: flex; flex-direction: column; width: 100%;">
-                <!-- 🏆 منصة أول 3 لاعبين -->
-                <div id="leaderboard-podium-container"></div>
-                
-                <!-- 📋 قائمة باقي اللاعبين -->
-                <div class="lb-list-container" id="leaderboard-list-wins"></div>
-                <div class="lb-list-container" id="leaderboard-list-xp" style="display: none;"></div>
+
+            <!-- حاوية منصة المراكز الثلاثة الأولى (التوب 3) -->
+            <div class="lb-podium-container" id="leaderboard-podium-container">
+                <!-- سيتم توليد وإضافة بطاقات المراكز 1، 2، 3 هنا برمجياً -->
             </div>
+
+            <!-- حاويات قائمة باقي المراكز (من 4 فما فوق) -->
+            <div class="lb-list-container" id="leaderboard-list-wins"></div>
+            <div class="lb-list-container" id="leaderboard-list-xp" style="display: none;"></div>
+            <div class="lb-list-container" id="leaderboard-list-tokens" style="display: none;"></div>
+
+            <!-- النص السفلي -->
+            <div class="lb-footer-subtitle">تحديث خلال : 2 يوم 14 ساعة</div>
         </div>
     </div>
 
