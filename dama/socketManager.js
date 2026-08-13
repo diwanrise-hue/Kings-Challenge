@@ -1,8 +1,9 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): إصلاح مشكلة تجميد اللاعب الأسود (تم إزالة currentTurn من الإرسال).
- * 🌟 (مُحدّث): إزالة إشعار המزامنة المزعج ليعمل بصمت تام عند التبديل بين المتصفحات.
+ * 🌟 (مُحدّث): إصلاح اختفاء المربع الأزرق وتوافق الإحداثيات مع السيرفر.
+ * 🌟 (مُحدّث): إزالة الإشعار المزعج للمزامنة لتعمل بصمت في الخلفية.
+ * 🌟 (مُحدّث): تطبيق منطق قراءة الساحة (optout) من البروفايل مباشرة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -429,10 +430,33 @@ export const socketManager = {
             this._showDisconnectUI();
         });
 
-        // 🌟 المزامنة التلقائية (تم إزالة الإشعار المزعج نهائياً)
+        // 🌟 المزامنة التلقائية مع خوارزمية كشف الحركة المفقودة 🌟
         socket.on('syncGameState', (data) => {
             if (!gameState.isOnlineMode || !data) return;
             
+            // الخوارزمية الذكية: استنتاج حركة الخصم المفقودة أثناء انطفاء الشاشة 
+            let missingFrom = null;
+            let missingTo = null;
+            
+            if (gameState.virtualBoard && data.board) {
+                const oppColor = gameState.myOnlineColor === 'white' ? 'black' : 'white';
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        let oldP = gameState.virtualBoard[r][c];
+                        let newP = data.board[r][c];
+                        
+                        if (oldP !== newP) {
+                            if (oldP && oldP.startsWith(oppColor) && (!newP || !newP.startsWith(oppColor))) {
+                                missingFrom = { r, c };
+                            }
+                            if (newP && newP.startsWith(oppColor) && (!oldP || !oldP.startsWith(oppColor))) {
+                                missingTo = { r, c };
+                            }
+                        }
+                    }
+                }
+            }
+
             if (data.board) gameState.virtualBoard = data.board;
             if (data.turn) gameState.currentTurn = data.turn;
             if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
@@ -443,6 +467,15 @@ export const socketManager = {
             gameState.lastMyMove = null; 
             
             ui.renderBoard(true);
+            
+            // 🌟 رسم المربع الأزرق للحركة المفقودة بعد المزامنة!
+            if (missingFrom && missingTo) {
+                ui.clearHighlights();
+                if (typeof ui.highlightMove === 'function') {
+                    ui.highlightMove(missingFrom, missingTo);
+                }
+            }
+
             ui.startTurn();
         });
 
@@ -588,7 +621,8 @@ export const socketManager = {
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
             const myProfile = this._ensureUserProfile();
             
-            const optout = localStorage.getItem('dama_sync_optout') === 'true';
+            // 🌟 الإصلاح هنا: نقرأ حالة التفعيل من البروفايل مباشرة بدل التخزين القديم
+            const optout = myProfile.syncThemeOptOut === true;
             const myXp = myProfile.xp || 0;
             const oppXp = gameState.currentOpponentXp;
 
@@ -628,17 +662,14 @@ export const socketManager = {
             ui.startTurn();
         });
 
-        // 🌟 دالة استقبال الحركة المصلحة (لحل مشكلة اختفاء المربع الأزرق)
         socket.on('opponentMove', data => {
             if (!data || !data.from || !data.to) return;
             
-            // 1. تحويل الإحداثيات إلى أرقام لتتطابق مع بحث المحرك
             let fromR = Number(data.from.r);
             let fromC = Number(data.from.c);
             let toR = Number(data.to.r);
             let toC = Number(data.to.c);
 
-            // 2. فلترة الصدى بدقة بالاعتماد على إحداثيات آخر حركة لعبناها
             if (gameState.lastMyMove && 
                 fromR === gameState.lastMyMove.fromR && 
                 fromC === gameState.lastMyMove.fromC &&
@@ -646,7 +677,7 @@ export const socketManager = {
                 toC === gameState.lastMyMove.toC) {
                 
                 gameState.lastMyMove = null; 
-                return; // تجاهل الصدى بأمان تام
+                return; 
             }
             gameState.lastMyMove = null; 
 
@@ -700,7 +731,6 @@ export const socketManager = {
                 gameState.selectedPiece = null;
             }
             
-            // 🌟 رسم المربع الأزرق بثبات باستخدام الإحداثيات المحولة 🌟
             ui.clearHighlights();
             if (typeof ui.highlightMove === 'function') ui.highlightMove({r: fromR, c: fromC}, {r: toR, c: toC});
             
@@ -1024,7 +1054,6 @@ export const socketManager = {
         }
     },
 
-    // 🌟 إرسال الحركة بشكلها النقي والصحيح للسيرفر (إزالة currentTurn ليعمل الأسود بشكل صحيح)
     sendMoveToServer(fromR, fromC, toR, toC, boardState, nextTurn) {
         if (gameState.isOnlineMode && gameState.onlineRoomID && !gameState.isSpectator) {
             const profile = this._ensureUserProfile(); 
