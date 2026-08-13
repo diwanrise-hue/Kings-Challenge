@@ -1,8 +1,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): إصلاح مشكلة حلقة المزامنة اللانهائية (Infinite Sync Loop).
- * 🌟 (مُحدّث): تجاهل صدى السيرفر للحركات المحلية لتسريع الأداء.
+ * 🌟 (مُحدّث): إصلاح مشكلة حلقة المزامنة والتجميد في المتصفحات المشتركة.
+ * 🌟 (مُحدّث): نظام فلترة الصدى المبني على الرقعة (Board-State Echo Filter).
  */
 
 import { gameState } from './gameState.js'; 
@@ -438,7 +438,7 @@ export const socketManager = {
             
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
-            gameState.pieceHistories = {}; // 🌟 تصفير سجل تكرار الحركات لتجنب تنبيهات المماطلة الكاذبة
+            gameState.pieceHistories = {}; 
             
             ui.renderBoard(true);
             ui.startTurn();
@@ -630,10 +630,11 @@ export const socketManager = {
         socket.on('opponentMove', data => {
             if (!data || !data.from || !data.to) return;
             
-            // 🌟 إصلاح حلقة المزامنة: تجاهل الصدى القادم من السيرفر لحركتك الخاصة 🌟
-            const profile = this._ensureUserProfile();
-            if (data.guestId === profile.id || data.currentTurn === gameState.myOnlineColor) {
-                return; // هذه حركتنا، لا يجب أن نُنفذها كحركة للخصم.
+            // 🌟 الإصلاح الجذري: تجاهل الصدى بالاعتماد على حالة الرقعة الفعلية
+            // إذا كانت الخانة فارغة (تم تحريكها محلياً) أو الحجر يتبع للوننا (نحن من حركه)، فهذا صدى.
+            let pieceAtFrom = gameState.virtualBoard[data.from.r][data.from.c];
+            if (!pieceAtFrom || pieceAtFrom.startsWith(gameState.myOnlineColor)) {
+                return; // تجاهل الصدى بأمان تام
             }
             
             let isMultiJumpContinuation = (gameState.currentTurn === data.nextTurn);
@@ -1011,7 +1012,7 @@ export const socketManager = {
             const profile = this._ensureUserProfile(); 
             socket.emit('makeMove', { 
                 roomID: String(gameState.onlineRoomID).trim(), 
-                currentTurn: gameState.myOnlineColor, // 🌟 الإصلاح الأساسي: إرسال لون اللاعب الذي تحرك بشكل صريح 🌟
+                currentTurn: nextTurn, // 🌟 إرجاعها إلى nextTurn لضمان توافق السيرفر
                 nextTurn: nextTurn, 
                 guestId: profile.id, 
                 from: { r: Number(fromR), c: Number(fromC) }, 
