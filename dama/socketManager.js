@@ -1,9 +1,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): إصلاح الخلل الذي يمنع تطبيق ساحة الخصم الأعلى مستوى (استخدام applyTheme).
- * 🌟 (مُحدّث): نظام فلترة الصدى (lastMyMove) والكشف الذكي عن الحركات بعد عودة المتصفح.
- * 🌟 (مُحدّث): المزامنة الصامتة التامة بدون إشعارات مزعجة.
+ * 🌟 (مُحدّث): إصلاح خطأ قراءة الـ XP والمستوى (Lv.1 الوهمي) في دالة _ensureUserProfile.
+ * 🌟 (مُحدّث): الحفاظ على خيار مشاركة الساحة syncThemeOptOut من المسح التلقائي.
  */
 
 import { gameState } from './gameState.js'; 
@@ -142,6 +141,7 @@ export const socketManager = {
         if (pingEl) pingEl.style.opacity = '0.95';
     },
 
+    // 🌟 تم الإصلاح الجذري هنا لضمان قراءة المستوى والـ XP بدقة 🌟
     _ensureUserProfile() {
         try {
             const stored = localStorage.getItem('hub_user_profile');
@@ -150,12 +150,13 @@ export const socketManager = {
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                     if (parsed.id && typeof parsed.id === 'string' && !parsed.id.includes('__proto__')) {
                         gameState.userProfile = {
+                            ...parsed, // 🌟 الحفاظ على جميع البيانات الإضافية في البروفايل
                             id: String(parsed.id).trim().toUpperCase(),
                             name: String(parsed.name || 'Guest').trim(),
                             avatar: String(parsed.avatar || '1000132081.png').trim(),
                             isCustomAvatar: !!parsed.isCustomAvatar,
-                            tokens: typeof parsed.tokens === 'number' ? parsed.tokens : 0,
-                            xp: typeof parsed.xp === 'number' ? parsed.xp : 0,
+                            tokens: Number(parsed.tokens) || 0,
+                            xp: Number(parsed.xp) || 0, // 🌟 تحويل آمن للأرقام لمنع تصفير الـ XP
                             gamesPlayed: Number(parsed.gamesPlayed) || 0,
                             wins: Number(parsed.wins) || 0,
                             losses: Number(parsed.losses) || 0,
@@ -163,10 +164,12 @@ export const socketManager = {
                             equippedBg: parsed.equippedBg || 'bg_wood',
                             equippedFr: parsed.equippedFr || 'fr_classic',
                             equippedPc: parsed.equippedPc || 'pc_original',
+                            syncThemeOptOut: parsed.syncThemeOptOut === true, // 🌟 الحفاظ على خيار مشاركة الساحة
                             purchasedItems: Array.isArray(parsed.purchasedItems) ? parsed.purchasedItems : [],
                             friends: Array.isArray(parsed.friends) ? parsed.friends : [],
                             inventory: parsed.inventory || {}
                         };
+                        return gameState.userProfile;
                     }
                 }
             }
@@ -187,6 +190,7 @@ export const socketManager = {
                 equippedBg: 'bg_wood',
                 equippedFr: 'fr_classic',
                 equippedPc: 'pc_original',
+                syncThemeOptOut: false,
                 purchasedItems: [],
                 friends: [],
                 inventory: {}
@@ -430,7 +434,6 @@ export const socketManager = {
             this._showDisconnectUI();
         });
 
-        // 🌟 المزامنة التلقائية مع خوارزمية كشف الحركة المفقودة 🌟
         socket.on('syncGameState', (data) => {
             if (!gameState.isOnlineMode || !data) return;
             
@@ -467,7 +470,6 @@ export const socketManager = {
             
             ui.renderBoard(true);
             
-            // 🌟 رسم المربع الأزرق للحركة المفقودة بعد المزامنة بصمت!
             if (missingFrom && missingTo) {
                 ui.clearHighlights();
                 if (typeof ui.highlightMove === 'function') {
@@ -620,14 +622,12 @@ export const socketManager = {
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
             const myProfile = this._ensureUserProfile();
             
-            // 🌟 الإصلاح الأساسي: قراءة حالة الإلغاء بدقة لتطبيق الثيم المخصص!
             const optout = myProfile.syncThemeOptOut === true;
             const myXp = myProfile.xp || 0;
             const oppXp = gameState.currentOpponentXp;
 
             if (!optout && oppXp > myXp) {
                 this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً!`);
-                // 🌟 تطبيق الثيم باستخدام بيانات الخصم الجاهزة 🌟
                 if (typeof window.applyTheme === 'function') {
                     window.applyTheme(data.opponent);
                 }
@@ -660,7 +660,6 @@ export const socketManager = {
             let toR = Number(data.to.r);
             let toC = Number(data.to.c);
 
-            // الفلترة الذكية للإحداثيات لتجاهل الصدى
             if (gameState.lastMyMove && 
                 fromR === gameState.lastMyMove.fromR && 
                 fromC === gameState.lastMyMove.fromC &&
@@ -1049,7 +1048,6 @@ export const socketManager = {
         if (gameState.isOnlineMode && gameState.onlineRoomID && !gameState.isSpectator) {
             const profile = this._ensureUserProfile(); 
             
-            // 🌟 تسجيل الإحداثيات לلتعرف عليها عند الارتداد כصدى
             gameState.lastMyMove = { fromR: Number(fromR), fromC: Number(fromC), toR: Number(toR), toC: Number(toC) };
             
             socket.emit('makeMove', { 
