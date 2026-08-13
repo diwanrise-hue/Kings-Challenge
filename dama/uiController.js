@@ -119,7 +119,7 @@ export const ui = {
             return;
         }
 
-        const isImage = avatarStr && (avatarStr.startsWith('data:image') || avatarStr.endsWith('.webp') || avatarStr.endsWith('.jpg') || avatarStr.endsWith('.webp'));
+        const isImage = avatarStr && (avatarStr.startsWith('data:image') || avatarStr.endsWith('.webp') || avatarStr.endsWith('.jpg') || avatarStr.endsWith('.png'));
 
         if (isImage || isCustom) {
             const img = document.createElement('img');
@@ -1446,7 +1446,9 @@ window.copyMyId = function() {
 // 🌟 بناء وتكوين المراكز 4 فما دون ومنع الانضغاط 🌟
 window.createLbItemHTML = function(rank, playerObj, type) {
     let score = playerObj.score || playerObj.wins || 0; 
-    let name = playerObj.name; let avatarStr = playerObj.avatar; let playerRankInfo = playerObj.rankInfo;
+    let name = playerObj.name; 
+    let avatarStr = playerObj.avatar; 
+    let playerRankInfo = playerObj.rankInfo;
     
     let displayScore = '';
     
@@ -1458,19 +1460,28 @@ window.createLbItemHTML = function(rank, playerObj, type) {
         displayScore = `<span style="color:#f5a623; font-weight:800;">${formatCompactNumber(score)} 🏆</span>`;
     }
 
-    const div = document.createElement('div'); div.className = 'lb-item';
+    const div = document.createElement('div'); 
+    div.className = 'lb-item';
     let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>` : '';
-    const nameEl = document.createElement('div'); nameEl.className = 'lb-name'; nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
+    const nameEl = document.createElement('div'); 
+    nameEl.className = 'lb-name'; 
+    nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
     
-    // 🌟 إضافة flex-shrink و min-width و min-height لمنع ضغط الصورة لتصبح بيضاوية 🌟
+    // 🌟 1. استخدام الدالة الآمنة لاستخراج رابط الصورة (تمنع ظهور 👤 بشكل خاطئ) 🌟
+    let secureImgSrc = getSecureAvatarUrl(avatarStr);
+
+    // 🌟 2. فرض أبعاد صارمة ومنع الانضغاط (aspect-ratio: 1/1) 🌟
     div.innerHTML = `
         <div class="lb-rank">#${rank}</div>
-        <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px;" title="عرض الملف الشخصي"></div>
+        <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px; width: 40px; height: 40px; border-radius: 50%;" title="عرض الملف الشخصي">
+            <img src="${secureImgSrc}" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'font-size: 22px;\\'>👤</span>';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; aspect-ratio: 1/1;">
+        </div>
         <div class="lb-info" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
             <div class="lb-name-container"></div>
             <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${displayScore}</div>
         </div>
     `;
+    
     div.querySelector('.lb-name-container').replaceWith(nameEl);
     const avatarContainer = div.querySelector('.lb-avatar');
     
@@ -1478,13 +1489,6 @@ window.createLbItemHTML = function(rank, playerObj, type) {
     avatarContainer.onmouseover = () => { avatarContainer.style.transform = 'scale(1.1)'; avatarContainer.style.borderColor = '#3498db'; };
     avatarContainer.onmouseout = () => { avatarContainer.style.transform = 'scale(1)'; avatarContainer.style.borderColor = 'rgba(255,255,255,0.1)'; };
 
-    if (avatarStr && avatarStr !== 'null' && avatarStr !== 'undefined') {
-        let imgSrc = avatarStr;
-        if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:image')) { let cleanName = imgSrc.replace(/\.\.\//g, '').replace('Photo/', ''); imgSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
-        const img = document.createElement('img'); img.style.cssText = "width: 100%; height: 100%; border-radius: 50%; object-fit: cover;";
-        img.onerror = function() { avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>'; };
-        img.src = imgSrc; avatarContainer.appendChild(img);
-    } else { avatarContainer.innerHTML = '<span style="font-size: 22px;">👤</span>'; }
     return div;
 };
 
@@ -2044,16 +2048,3 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(defaultProfile); }
     }
 });
-
-window.selectSpectatorBetColor = function(color) {
-    document.getElementById('spectator-bet-color').value = color;
-    if (color === 'white') {
-        document.getElementById('bet-p1-card').style.border = '2px solid #34c759'; document.getElementById('bet-p2-card').style.border = '2px solid transparent';
-    } else {
-        document.getElementById('bet-p2-card').style.border = '2px solid #34c759'; document.getElementById('bet-p1-card').style.border = '2px solid transparent';
-    }
-};
-
-window.openRadioModal = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'OPEN_RADIO_MODAL' }, '*'); };
-window.exitDamaGame = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); };
-window.openBetSelectorForEdit = function() { window.isEditingBet = true; if (typeof window.openAppModal === 'function') window.openAppModal('bet-selector-modal'); };
