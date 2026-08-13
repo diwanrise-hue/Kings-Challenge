@@ -460,9 +460,14 @@ window.openBetSelectorForEdit = function() {
 // ==========================================
 
 function getSecureAvatarUrl(src) {
-    if (!src) return 'profile.webp';
-    if (!src.startsWith('http') && !src.startsWith('data:') && !src.startsWith('../')) {
-        return '../' + src;
+    // إذا لم تكن هناك صورة، نعيد الصورة الافتراضية للضيوف من سيرفر الصور
+    if (!src || src === 'null' || src === 'undefined') {
+        return 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
+    }
+    // إذا كان المسار محلياً، نحوله إلى المسار الصحيح على GitHub
+    if (!src.startsWith('http') && !src.startsWith('data:')) {
+        let cleanName = src.replace(/\.\.\//g, '').replace('Photo/', '');
+        return 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
     }
     return src;
 }
@@ -504,10 +509,11 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         const card = document.createElement('div');
         card.className = `lb-podium-card rank-${item.rank}`;
         
+        // 🌟 تعديل الـ onerror لسحب مسار الصورة البديلة من GitHub لضمان عدم ظهور إطارات المتجر
         card.innerHTML = `
             <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
             <div class="lb-podium-avatar avatar-${item.rank}">
-                <img src="${getSecureAvatarUrl(player.avatar)}" onerror="this.src='profile.webp'">
+                <img src="${getSecureAvatarUrl(player.avatar)}" onerror="this.src='https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp'">
             </div>
             <div class="lb-podium-name">${player.name || 'Guest'}</div>
             <div class="lb-podium-score-pill score-${item.rank}">${getFormattedLeaderboardScore(player, tabType)}</div>
