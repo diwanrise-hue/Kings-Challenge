@@ -2,9 +2,9 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): إصلاح مشكلة عدم تحديث مبلغ الرهان في إعدادات الغرفة (isEditingBet).
- * 🌟 (مُحدّث): تم تجريد الكلاينت من صلاحية إغلاق اللعبة في وضع الأونلاين لمنع الانفصال (Desync) والامتثال الكامل للسيرفر.
- * 🌟 (مُحدّث): إزالة نقاط XP من لوحة الشرف، وتثبيت الاسم أسفل بطاقة التتويج مع رفع المستوى/الكأس فوقه، واستبدال كلمة فوز بالكأس 🏆.
+ * 🌟 (مُحدّث): تم تصحيح مسار صور اللاعبين في لوحة الشرف لمنع خطأ 404.
+ * 🌟 (مُحدّث): إزالة نقاط XP من لوحة الشرف، وتثبيت الاسم أسفل بطاقة التتويج مع رفع المستوى/الكأس فوقه.
+ * 🌟 (مُحدّث): تنظيف الملف من الدوال المكررة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -1489,11 +1489,14 @@ window.createLbItemHTML = function(rank, playerObj, type) {
 // ==========================================
 
 function getSecureAvatarUrl(src) {
-    if (!src) return 'profile.webp';
-    if (!src.startsWith('http') && !src.startsWith('data:') && !src.startsWith('../')) {
-        return '../' + src;
+    if (!src || src === 'null' || src === 'undefined') {
+        return 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
     }
-    return src;
+    if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
+        return src;
+    }
+    let cleanName = src.replace(/\.\.\//g, '').replace('Photo/', '');
+    return 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
 }
 
 function getFormattedLeaderboardScore(player, tabType) {
@@ -1539,11 +1542,11 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         const card = document.createElement('div');
         card.className = `lb-podium-card rank-${item.rank}`;
         
-        // 🌟 تثبيت الاسم في الأسفل ورفع المستوى والكأس فوقه 🌟
+        // 🌟 تثبيت الاسم في الأسفل ورفع المستوى والكأس فوقه بدون كود الطوارئ 🌟
         card.innerHTML = `
             <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
             <div class="lb-podium-avatar avatar-${item.rank}">
-                <img src="${getSecureAvatarUrl(player.avatar)}" onerror="this.src='profile.webp'">
+                <img src="${getSecureAvatarUrl(player.avatar)}">
             </div>
             <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
                 <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
@@ -2037,3 +2040,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(defaultProfile); }
     }
 });
+
+window.selectSpectatorBetColor = function(color) {
+    document.getElementById('spectator-bet-color').value = color;
+    if (color === 'white') {
+        document.getElementById('bet-p1-card').style.border = '2px solid #34c759'; document.getElementById('bet-p2-card').style.border = '2px solid transparent';
+    } else {
+        document.getElementById('bet-p2-card').style.border = '2px solid #34c759'; document.getElementById('bet-p1-card').style.border = '2px solid transparent';
+    }
+};
+
+window.openRadioModal = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'OPEN_RADIO_MODAL' }, '*'); };
+window.exitDamaGame = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); };
+window.openBetSelectorForEdit = function() { window.isEditingBet = true; if (typeof window.openAppModal === 'function') window.openAppModal('bet-selector-modal'); };
