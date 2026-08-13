@@ -1,8 +1,7 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): حل مشكلة الشاشة المنقسمة (Split-Screen) وعزل الذاكرة الحية لكل نافذة.
- * 🌟 (مُحدّث): إصلاح عرض المستوى (Lv.1 الوهمي) وتوحيد الساحات بدقة مطلقة.
+ * 🌟 (مُحدّث): إضافة دالة applyMatchThemeRobust لحل مشكلة "سباق الزمن" وتأخر تحميل المتجر.
  */
 
 import { gameState } from './gameState.js'; 
@@ -24,6 +23,37 @@ export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', {
 window.socket = socket; 
 
 const fallbackMoveAudio = new Audio('move.mp3');
+
+// 🌟 الدالة الذكية لضمان تطبيق الساحة حتى لو تأخر المتجر في التحميل 🌟
+const applyMatchThemeRobust = (profile, retries = 5) => {
+    if (!profile) return;
+    
+    // إذا لم يكتمل تحميل المتجر بعد، انتظر ربع ثانية وحاول مجدداً
+    if (!window.STORE_ITEMS && retries > 0) {
+        setTimeout(() => applyMatchThemeRobust(profile, retries - 1), 250);
+        return;
+    }
+
+    // إذا تم تحميل المتجر، طبق الساحة والأحجار فوراً
+    if (window.STORE_ITEMS) {
+        const bgId = profile.equippedBg || 'bg_wood';
+        const pcId = profile.equippedPc || 'pc_original';
+        const bgItem = window.STORE_ITEMS[bgId];
+
+        if (bgItem && bgItem.light && bgItem.dark) {
+            document.documentElement.style.setProperty('--light-cell', bgItem.light);
+            document.documentElement.style.setProperty('--dark-cell', bgItem.dark);
+        } else if (bgId === 'bg_wood') {
+            document.documentElement.style.setProperty('--light-cell', '#e0c094');
+            document.documentElement.style.setProperty('--dark-cell', '#8b5a2b');
+        }
+        
+        document.body.setAttribute('data-piece-style', pcId);
+    } else {
+        // محاولة أخيرة باستخدام دالة الواجهة إذا فشل كل شيء
+        if (typeof window.applyTheme === 'function') window.applyTheme(profile);
+    }
+};
 
 export const socketManager = {
     isAlertShown: false,
@@ -142,14 +172,11 @@ export const socketManager = {
     },
 
     _ensureUserProfile() {
-        // 🌟 الحماية من تداخل البيانات عند فتح متصفحين (Split-Screen) 🌟
-        // نعتمد على الذاكرة الحية (RAM) للنافذة الحالية بدلاً من الذاكرة المشتركة
         if (gameState.userProfile && gameState.userProfile.id) {
             try {
                 const stored = localStorage.getItem('hub_user_profile');
                 if (stored) {
                     const parsed = JSON.parse(stored);
-                    // تحديث القيم فقط إذا كانت تخص نفس الحساب المفتوح في هذه النافذة
                     if (parsed.id === gameState.userProfile.id) {
                         gameState.userProfile.xp = Number(parsed.xp) || gameState.userProfile.xp;
                         gameState.userProfile.syncThemeOptOut = parsed.syncThemeOptOut === true;
@@ -582,7 +609,7 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast("تم إغلاق المراهنات لهذه المباراة 🔒");
         });
 
-                socket.on('gameStart', data => {
+        socket.on('gameStart', data => {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
             
@@ -609,10 +636,9 @@ export const socketManager = {
 
             if (data.roomID) gameState.onlineRoomID = data.roomID;
 
-            // 🌟 1. الاعتماد المطلق على البيانات القادمة من السيرفر للخصم 🌟
             gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
             gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.png");
-            // حفظ XP الخصم من السيرفر مباشرة
+            
             const opponentXpFromServer = Number(data.opponent?.xp) || 0;
             gameState.currentOpponentXp = opponentXpFromServer;
             
@@ -642,24 +668,21 @@ export const socketManager = {
             
             gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
             
-            // 🌟 2. استخراج بيانات اللاعب نفسه (من الذاكرة الحية الخاصة بالنافذة) 🌟
             const myProfile = gameState.userProfile || this._ensureUserProfile();
             
             const isOptOut = myProfile.syncThemeOptOut === true;
             const myXp = Number(myProfile.xp) || 0;
             const oppXp = opponentXpFromServer;
 
-            // 🌟 3. المقارنة وتطبيق الساحة (الآن البيانات معزولة 100%) 🌟
+            // 🌟 3. استخدام دالة الانتظار الذكية لضمان تطبيق الساحة حتى لو تأخر المتجر 🌟
             if (!isOptOut && oppXp > myXp) {
                 this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً!`);
-                if (typeof window.applyTheme === 'function' && data.opponent) {
-                    window.applyTheme(data.opponent);
-                }
+                applyMatchThemeRobust(data.opponent);
             } else if (!isOptOut && myXp > oppXp) {
                 this._showToast("✨ تم تطبيق ساحتك على الخصم لأنك الأعلى تصنيفاً!");
-                if (typeof window.applyTheme === 'function') window.applyTheme(myProfile);
+                applyMatchThemeRobust(myProfile);
             } else {
-                if (typeof window.applyTheme === 'function') window.applyTheme(myProfile);
+                applyMatchThemeRobust(myProfile);
             }
 
             ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
@@ -1037,7 +1060,6 @@ export const socketManager = {
         socket.on('profileUpdated', (updatedProfile) => {
             if (!updatedProfile) return;
             
-            // 🌟 تحديث البروفايل بالذاكرة الحية
             if (gameState.userProfile && gameState.userProfile.id === updatedProfile.id) {
                 gameState.userProfile = { ...gameState.userProfile, ...updatedProfile };
                 localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
@@ -1215,7 +1237,11 @@ export const socketManager = {
             avatar: profile.avatar, 
             password: roomPassword, 
             guestId: profile.id,
-            betAmount: betAmount 
+            betAmount: betAmount,
+            xp: profile.xp || 0,
+            equippedBg: profile.equippedBg || 'bg_wood',
+            equippedPc: profile.equippedPc || 'pc_original',
+            syncThemeOptOut: profile.syncThemeOptOut === true
         };
 
         if (roomIdInput && targetAction !== 'joinMatchmakingPool') {
