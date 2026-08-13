@@ -4,6 +4,7 @@
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
  * 🌟 (مُحدّث): إصلاح مشكلة عدم تحديث مبلغ الرهان في إعدادات الغرفة (isEditingBet).
  * 🌟 (مُحدّث): تم تجريد الكلاينت من صلاحية إغلاق اللعبة في وضع الأونلاين لمنع الانفصال (Desync) والامتثال الكامل للسيرفر.
+ * 🌟 (مُحدّث): تحديث نصوص وتبويبات لوحة الشرف حسب التصميم الجديد (المنصة).
  */
 
 import { gameState } from './gameState.js'; 
@@ -635,11 +636,9 @@ export const ui = {
 
         this.updateVirtualBoardState();
 
-        // 💡 1. تحديد الاتصال ونوع المباراة
         const isConnected = (typeof socket !== 'undefined' && socket && socket.connected);
         const isBotMatch = !gameState.isOnlineMode;
         
-        // 💡 2. الإعفاء من المماطلة
         const isExemptFromStalling = gameState.isTutorialMode || (isBotMatch && !isConnected);
 
         let myColor = gameState.playerColor;
@@ -676,9 +675,7 @@ export const ui = {
             }
         }
 
-        // 💡 3. معالجة الخسارة والتعادل أولاً لمنع استمرار اللعب
         if (!isExemptFromStalling) {
-            // إذا تجاوز الخصم التكرار
             if (oppRep >= 4) {
                 if (gameState.isOnlineMode) {
                     if (tInd) { tInd.textContent = "بانتظار قرار السيرفر... ⏳"; tInd.style.color = "#f5a623"; }
@@ -695,7 +692,6 @@ export const ui = {
                 return;
             }
             
-            // إذا تجاوزت أنت التكرار
             if (myRep >= 4) {
                 if (gameState.isOnlineMode) return; 
 
@@ -710,7 +706,6 @@ export const ui = {
             }
         }
 
-        // التعادل بقانون الـ 50 حركة
         if (gameState.movesWithoutProgress >= 50 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
             if (gameState.isOnlineMode) return; 
 
@@ -726,7 +721,6 @@ export const ui = {
             return;
         }
 
-        // 💡 4. تسجيل اللوحة للعب الأوفلاين
         if (!gameState.isOnlineMode) {
             if (!gameState.boardHistory) gameState.boardHistory = [];
             let currentBoardStr = JSON.stringify(gameState.virtualBoard);
@@ -806,7 +800,6 @@ export const ui = {
         
         this.startTurnTimer();
         
-        // 💡 5. معالجة التحذير (التكرار الثالث) وعرضه للاعب المعني فقط
         let isBotTurn = (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID);
         let alertShown = false;
 
@@ -820,7 +813,6 @@ export const ui = {
             }
         }
 
-        // تشغيل البوت التلقائي (إذا لم يظهر تنبيه يوقفه)
         if (isBotTurn && !alertShown) {
             tInd.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
             clearTimeout(gameState.aiTimeout);
@@ -1496,17 +1488,90 @@ window.createLbItemHTML = function(rank, playerObj, type) {
     return div;
 };
 
-window.populateLeaderboards = function(winsData, xpData) {
-    const winsList = document.getElementById('leaderboard-list-wins'); 
-    const xpList = document.getElementById('leaderboard-list-xp'); 
-    winsList.innerHTML = ''; xpList.innerHTML = ''; 
-    const emptyText = window.t ? window.t('lb_empty') : 'لا توجد بيانات حالياً';
+// ==========================================
+// 🏆 دوال منصة التتويج الجديدة (Podium) 🏆
+// ==========================================
 
-    const renderList = (container, data, type) => {
-        if (!data || data.length === 0) { container.innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px; font-weight: 600;">${emptyText}</div>`; return; }
-        for (let i = 0; i < data.length; i++) { container.appendChild(window.createLbItemHTML(i + 1, data[i], type)); }
-    };
-    renderList(winsList, winsData, 'wins'); renderList(xpList, xpData, 'xp'); 
+// دالة لمعالجة وتنسيق النقاط بناءً على التبويب النشط
+function getFormattedLeaderboardScore(player, tabType) {
+    if (tabType === 'wins') return formatCompactNumber(player.wins || 0) + ' 🏆';
+    if (tabType === 'xp') return 'Lv.' + (player.level || 1);
+    return formatCompactNumber(player.score || 0);
+}
+
+// دالة حقن ورسم البيانات داخل التصميم الجديد
+window.renderDynamicLeaderboardUI = function(playersList, tabType) {
+    const podiumContainer = document.getElementById('leaderboard-podium-container');
+    const listContainer = document.getElementById('leaderboard-list-' + tabType); 
+    
+    if (!podiumContainer || !listContainer) return;
+
+    podiumContainer.innerHTML = '';
+    listContainer.innerHTML = '';
+
+    if (!playersList || playersList.length === 0) {
+        listContainer.innerHTML = '<p style="text-align: center; color: #a1a1aa; padding: 20px; width: 100%;">لا توجد بيانات حالياً في هذا التصنيف.</p>';
+        return;
+    }
+
+    // 🌟 1. رسم منصة المراكز الثلاثة الأولى (Podium) 🌟
+    // ترتيب المنصة في الواجهة هو: المركز الثاني (يسار)، الأول (وسط)، الثالث (يمين)
+    // لذا نقوم بترتيب المصفوفة برمجياً لتناسب الـ Flexbox: [Rank 2, Rank 1, Rank 3]
+    const podiumOrder = [
+        { rank: 2, data: playersList[1] },
+        { rank: 1, data: playersList[0] },
+        { rank: 3, data: playersList[2] }
+    ];
+
+    podiumOrder.forEach(item => {
+        if (!item.data) return; // في حال كان عدد اللاعبين أقل من 3
+        
+        const player = item.data;
+        const card = document.createElement('div');
+        card.className = `lb-podium-card rank-${item.rank}`;
+        
+        card.innerHTML = `
+            <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
+            <div class="lb-podium-avatar avatar-${item.rank}">
+                <img src="${getSecureAvatarUrl(player.avatar)}" onerror="this.src='profile.webp'">
+            </div>
+            <div class="lb-podium-name">${player.name || 'Guest'}</div>
+            <div class="lb-podium-score-pill score-${item.rank}">${getFormattedLeaderboardScore(player, tabType)}</div>
+        `;
+        
+        // عند النقر على كرت في المنصة، افتح ملفه الشخصي
+        card.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(player); };
+        card.style.cursor = 'pointer';
+
+        podiumContainer.appendChild(card);
+    });
+
+    // 🌟 2. رسم القائمة لبقية اللاعبين (المركز الرابع فما فوق) 🌟
+    for (let i = 3; i < playersList.length; i++) {
+        listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
+    }
+};
+
+window.populateLeaderboards = function(winsData, xpData) {
+    // إخفاء رسائل التحميل
+    document.getElementById('leaderboard-list-wins').innerHTML = '';
+    document.getElementById('leaderboard-list-xp').innerHTML = '';
+    
+    // معرفة التبويب النشط حالياً لرسم منصته وقائمته
+    const activeTabBtn = document.querySelector('.custom-tab-button.active');
+    let activeTabId = 'wins';
+    if(activeTabBtn && activeTabBtn.id === 'lb-tab-xp') activeTabId = 'xp';
+
+    // حفظ البيانات في متغيرات عامة لاستخدامها عند التبديل
+    window.lastFetchedWinsData = winsData;
+    window.lastFetchedXpData = xpData;
+
+    // رسم اللوحة للتبويب النشط فقط
+    if(activeTabId === 'wins') {
+        window.renderDynamicLeaderboardUI(winsData, 'wins');
+    } else {
+        window.renderDynamicLeaderboardUI(xpData, 'xp');
+    }
 };
 
 window.showLeaderboard = function() {
@@ -1515,6 +1580,27 @@ window.showLeaderboard = function() {
     document.getElementById('leaderboard-list-wins').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
     document.getElementById('leaderboard-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
     if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
+};
+
+window.switchLbTab = function(tabId) {
+    document.getElementById('lb-tab-wins').classList.remove('active'); 
+    document.getElementById('lb-tab-xp').classList.remove('active');
+    
+    document.getElementById('leaderboard-list-wins').style.display = 'none'; 
+    document.getElementById('leaderboard-list-xp').style.display = 'none'; 
+    
+    document.getElementById('lb-tab-' + tabId).classList.add('active'); 
+    document.getElementById('leaderboard-list-' + tabId).style.display = 'flex';
+
+    // مسح المنصة مؤقتاً
+    document.getElementById('leaderboard-podium-container').innerHTML = '';
+
+    // رسم البيانات المحفوظة إذا كانت متوفرة
+    if (tabId === 'wins' && window.lastFetchedWinsData) {
+        window.renderDynamicLeaderboardUI(window.lastFetchedWinsData, 'wins');
+    } else if (tabId === 'xp' && window.lastFetchedXpData) {
+        window.renderDynamicLeaderboardUI(window.lastFetchedXpData, 'xp');
+    }
 };
 
 window.showEquipNotification = function(itemType) {
@@ -1575,7 +1661,24 @@ window.currentLang = 'ar';
 window.updateHtmlTexts = function() {
     if (!window.t) return;
     const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.innerText = window.t(key); };
-    setTxt('menu-title-text', 'menu_title'); setTxt('menu-bag-text', 'menu_bag'); setTxt('menu-radio-text', 'menu_radio'); setTxt('menu-room-text', 'menu_room'); setTxt('menu-leaderboard-text', 'menu_leaderboard'); setTxt('menu-settings-text', 'menu_settings'); setTxt('menu-exit-text', 'menu_exit'); setTxt('lb-title-text', 'lb_title'); setTxt('lb-tab-wins', 'lb_wins'); setTxt('tutorial-mode-label', 'tutorial_mode'); setTxt('menu-quests-text', 'menu_quests');
+    setTxt('menu-title-text', 'menu_title'); 
+    setTxt('menu-bag-text', 'menu_bag'); 
+    setTxt('menu-radio-text', 'menu_radio'); 
+    setTxt('menu-room-text', 'menu_room'); 
+    setTxt('menu-leaderboard-text', 'menu_leaderboard'); 
+    setTxt('menu-settings-text', 'menu_settings'); 
+    setTxt('menu-exit-text', 'menu_exit'); 
+    
+    // تم التعديل هنا لتتطابق مع طلبك
+    const lbTitle = document.getElementById('lb-title-text');
+    if(lbTitle) lbTitle.innerText = "لوحة الشرف";
+    const lbWins = document.getElementById('lb-tab-wins');
+    if(lbWins) lbWins.innerText = "فوز";
+    const lbXp = document.getElementById('lb-tab-xp');
+    if(lbXp) lbXp.innerText = "مستوى";
+
+    setTxt('tutorial-mode-label', 'tutorial_mode'); 
+    setTxt('menu-quests-text', 'menu_quests');
     if (document.getElementById('matchmaking-modal').style.display === 'flex') setTxt('mm-status-label', 'searching');
 };
 
