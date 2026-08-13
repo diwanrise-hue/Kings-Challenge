@@ -1,8 +1,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): إصلاح مشكلة حلقة المزامنة والتجميد في المتصفحات المشتركة.
- * 🌟 (مُحدّث): نظام فلترة الصدى المبني على الرقعة (Board-State Echo Filter).
+ * 🌟 (مُحدّث): الحل النهائي والأسطوري لمشكلة الصدى والمزامنة اللانهائية.
+ * 🌟 (مُحدّث): العودة إلى تنسيق الإرسال الأصلي لضمان قبول السيرفر لحركات الأسود.
  */
 
 import { gameState } from './gameState.js'; 
@@ -438,7 +438,8 @@ export const socketManager = {
             
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
-            gameState.pieceHistories = {}; 
+            gameState.pieceHistories = {}; // 🌟 تصفير السجل
+            gameState.lastMyMove = null; // 🌟 تصفير تسجيل حركتنا في المزامنة
             
             ui.renderBoard(true);
             ui.startTurn();
@@ -452,6 +453,7 @@ export const socketManager = {
             gameState.isBotOpponent = false;
             gameState.playerColor = gameState.myOnlineColor = 'white';
             gameState.isSpectator = false;
+            gameState.lastMyMove = null;
             if(id) gameState.onlineRoomID = id;
             this._showToast(gameState.lang === 'ar' ? "تم الإنشاء! بانتظار الخصم" : "Created! Waiting...");
             if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
@@ -461,6 +463,7 @@ export const socketManager = {
             gameState.isBotOpponent = false;
             gameState.playerColor = gameState.myOnlineColor = 'black';
             gameState.isSpectator = false;
+            gameState.lastMyMove = null;
             this._showToast(gameState.lang === 'ar' ? "تم الانضمام!" : "Joined!");
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('online-modal');
@@ -553,6 +556,7 @@ export const socketManager = {
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
             gameState.pieceHistories = {}; 
+            gameState.lastMyMove = null; // 🌟 تصفير الحركة عند بدء اللعبة
 
             if (data.roomID) gameState.onlineRoomID = data.roomID;
 
@@ -630,12 +634,18 @@ export const socketManager = {
         socket.on('opponentMove', data => {
             if (!data || !data.from || !data.to) return;
             
-            // 🌟 الإصلاح الجذري: تجاهل الصدى بالاعتماد على حالة الرقعة الفعلية
-            // إذا كانت الخانة فارغة (تم تحريكها محلياً) أو الحجر يتبع للوننا (نحن من حركه)، فهذا صدى.
-            let pieceAtFrom = gameState.virtualBoard[data.from.r][data.from.c];
-            if (!pieceAtFrom || pieceAtFrom.startsWith(gameState.myOnlineColor)) {
+            // 🌟 الحل النهائي والأسطوري لمشكلة الصدى وتعدد المتصفحات 🌟
+            // نتحقق إذا كانت الحركة القادمة من السيرفر تطابق إحداثيات آخر حركة قمنا بها نحن
+            if (gameState.lastMyMove && 
+                data.from.r === gameState.lastMyMove.fromR && 
+                data.from.c === gameState.lastMyMove.fromC &&
+                data.to.r === gameState.lastMyMove.toR && 
+                data.to.c === gameState.lastMyMove.toC) {
+                
+                gameState.lastMyMove = null; // مسح الحركة
                 return; // تجاهل الصدى بأمان تام
             }
+            gameState.lastMyMove = null; // مسحها في حال كانت حركة فعلية من الخصم
             
             let isMultiJumpContinuation = (gameState.currentTurn === data.nextTurn);
             
@@ -1010,9 +1020,13 @@ export const socketManager = {
     sendMoveToServer(fromR, fromC, toR, toC, boardState, nextTurn) {
         if (gameState.isOnlineMode && gameState.onlineRoomID && !gameState.isSpectator) {
             const profile = this._ensureUserProfile(); 
+            
+            // 🌟 تسجيل إحداثيات حركتنا للتعرف عليها إذا رجعت كصدى من السيرفر
+            gameState.lastMyMove = { fromR: Number(fromR), fromC: Number(fromC), toR: Number(toR), toC: Number(toC) };
+            
             socket.emit('makeMove', { 
                 roomID: String(gameState.onlineRoomID).trim(), 
-                currentTurn: nextTurn, // 🌟 إرجاعها إلى nextTurn لضمان توافق السيرفر
+                currentTurn: nextTurn, // 🌟 العودة للكود الأصلي لعدم إغضاب السيرفر ورفض الحركات
                 nextTurn: nextTurn, 
                 guestId: profile.id, 
                 from: { r: Number(fromR), c: Number(fromC) }, 
@@ -1061,6 +1075,7 @@ export const socketManager = {
         clearInterval(gameState.mmInterval);
         gameState.mmInterval = null;
         gameState.selectedPiece = null; 
+        gameState.lastMyMove = null; // 🌟 تصفير حركة الصدى
         
         if (gameState.turnTimerInterval) {
             clearInterval(gameState.turnTimerInterval);
