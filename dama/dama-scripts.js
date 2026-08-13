@@ -104,7 +104,6 @@ localStorage.setItem = function(key, value) {
             window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
         }
 
-        // تحديث واجهة البروفايل الجديدة برمجياً عند أي تغيير في البيانات
         setTimeout(() => {
             if(typeof window.refreshProfileUIStyles === 'function') {
                 window.refreshProfileUIStyles();
@@ -327,14 +326,18 @@ function syncGlobalBackground() {
             bgUrl = '../' + bg; 
         }
         
-        document.body.style.setProperty('background-image', `url('${bgUrl}')`, 'important');
-        document.body.style.setProperty('background-size', 'cover', 'important');
-        document.body.style.setProperty('background-position', 'center', 'important');
-        document.body.style.setProperty('background-attachment', 'fixed', 'important');
-        document.body.style.setProperty('background-color', 'transparent', 'important');
+        if (document.body) {
+            document.body.style.setProperty('background-image', `url('${bgUrl}')`, 'important');
+            document.body.style.setProperty('background-size', 'cover', 'important');
+            document.body.style.setProperty('background-position', 'center', 'important');
+            document.body.style.setProperty('background-attachment', 'fixed', 'important');
+            document.body.style.setProperty('background-color', 'transparent', 'important');
+        }
     } else {
-        document.body.style.setProperty('background-image', 'none', 'important');
-        document.body.style.setProperty('background-color', '#2c3e50', 'important'); 
+        if (document.body) {
+            document.body.style.setProperty('background-image', 'none', 'important');
+            document.body.style.setProperty('background-color', '#2c3e50', 'important'); 
+        }
     }
 }
 
@@ -351,12 +354,18 @@ const bgObserver = new MutationObserver(() => {
     const bg = localStorage.getItem('custom_app_bg');
     if (bg) {
         let expectedUrl = bg.startsWith('http') || bg.startsWith('data:') || bg.startsWith('../') ? bg : '../' + bg;
-        if (!document.body.style.backgroundImage.includes(expectedUrl)) {
+        if (document.body && !document.body.style.backgroundImage.includes(expectedUrl)) {
             syncGlobalBackground();
         }
     }
 });
-bgObserver.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+
+// 🌟 إصلاح خطأ الـ MutationObserver بتأخير التشغيل 🌟
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.body) {
+        bgObserver.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+    }
+});
 
 // ==========================================
 // 5. إدارة حالة الاتصال وإخفاء البينج (Online/Offline)
@@ -401,7 +410,12 @@ bgObserver.observe(document.body, { attributes: true, attributeFilter: ['style']
             }
         }
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        if (document.body) {
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+    });
 })();
 
 // ==========================================
@@ -444,7 +458,6 @@ window.openBetSelectorForEdit = function() {
 // 8. 🏆 محرك لوحة الشرف (Leaderboard) الديناميكي 🏆
 // ==========================================
 
-// مساعدة للحصول على مسار الصورة بشكل صحيح
 function getSecureAvatarUrl(src) {
     if (!src) return 'profile.webp';
     if (!src.startsWith('http') && !src.startsWith('data:') && !src.startsWith('../')) {
@@ -453,14 +466,13 @@ function getSecureAvatarUrl(src) {
     return src;
 }
 
-// دالة لمعالجة وتنسيق النقاط بناءً على التبويب النشط
 function getFormattedLeaderboardScore(player, tabType) {
     if (tabType === 'wins') return formatCompactNumber(player.wins || 0) + ' 🏆';
     if (tabType === 'xp') return 'Lv.' + (player.level || 1);
     return formatCompactNumber(player.score || 0);
 }
 
-// دالة حقن ورسم البيانات داخل التصميم الجديد
+// دالة رسم منصة أول 3 لاعبين وباقي القائمة
 window.renderDynamicLeaderboardUI = function(playersList, tabType) {
     const podiumContainer = document.getElementById('leaderboard-podium-container');
     const listContainer = document.getElementById('leaderboard-list-' + tabType); 
@@ -475,9 +487,6 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         return;
     }
 
-    // 🌟 1. رسم منصة المراكز الثلاثة الأولى (Podium) 🌟
-    // ترتيب المنصة في الواجهة هو: المركز الثاني (يسار)، الأول (وسط)، الثالث (يمين)
-    // لذا نقوم بترتيب المصفوفة برمجياً لتناسب الـ Flexbox: [Rank 2, Rank 1, Rank 3]
     const podiumOrder = [
         { rank: 2, data: playersList[1] },
         { rank: 1, data: playersList[0] },
@@ -485,7 +494,7 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
     ];
 
     podiumOrder.forEach(item => {
-        if (!item.data) return; // في حال كان عدد اللاعبين أقل من 3
+        if (!item.data) return; 
         
         const player = item.data;
         const card = document.createElement('div');
@@ -500,35 +509,30 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
             <div class="lb-podium-score-pill score-${item.rank}">${getFormattedLeaderboardScore(player, tabType)}</div>
         `;
         
-        // عند النقر على كرت في المنصة، افتح ملفه الشخصي
         card.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(player); };
         card.style.cursor = 'pointer';
 
         podiumContainer.appendChild(card);
     });
 
-    // 🌟 2. رسم القائمة لبقية اللاعبين (المركز الرابع فما فوق) 🌟
     for (let i = 3; i < playersList.length; i++) {
-        listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
+        if(window.createLbItemHTML) {
+            listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
+        }
     }
 };
 
-// تم دمج وتحديث دالة populateLeaderboards لتستخدم نظام المنصة الجديد
 window.populateLeaderboards = function(winsData, xpData) {
-    // إخفاء رسائل التحميل
     document.getElementById('leaderboard-list-wins').innerHTML = '';
     document.getElementById('leaderboard-list-xp').innerHTML = '';
     
-    // معرفة التبويب النشط حالياً لرسم منصته وقائمته
     const activeTabBtn = document.querySelector('.custom-tab-button.active');
     let activeTabId = 'wins';
     if(activeTabBtn && activeTabBtn.id === 'lb-tab-xp') activeTabId = 'xp';
 
-    // حفظ البيانات في متغيرات عامة لاستخدامها عند التبديل
     window.lastFetchedWinsData = winsData;
     window.lastFetchedXpData = xpData;
 
-    // رسم اللوحة للتبويب النشط فقط
     if(activeTabId === 'wins') {
         window.renderDynamicLeaderboardUI(winsData, 'wins');
     } else {
@@ -536,7 +540,14 @@ window.populateLeaderboards = function(winsData, xpData) {
     }
 };
 
-// تحديث دالة التبديل بين التبويبات لترسم المنصة بناءً على البيانات المحفوظة
+window.showLeaderboard = function() {
+    window.openAppModal('leaderboard-modal'); 
+    const loadingText = window.t ? window.t('lb_loading') : 'جاري التحميل...';
+    document.getElementById('leaderboard-list-wins').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
+    document.getElementById('leaderboard-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
+    if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
+};
+
 window.switchLbTab = function(tabId) {
     document.getElementById('lb-tab-wins').classList.remove('active'); 
     document.getElementById('lb-tab-xp').classList.remove('active');
@@ -547,10 +558,8 @@ window.switchLbTab = function(tabId) {
     document.getElementById('lb-tab-' + tabId).classList.add('active'); 
     document.getElementById('leaderboard-list-' + tabId).style.display = 'flex';
 
-    // مسح المنصة مؤقتاً
     document.getElementById('leaderboard-podium-container').innerHTML = '';
 
-    // رسم البيانات المحفوظة إذا كانت متوفرة
     if (tabId === 'wins' && window.lastFetchedWinsData) {
         window.renderDynamicLeaderboardUI(window.lastFetchedWinsData, 'wins');
     } else if (tabId === 'xp' && window.lastFetchedXpData) {
