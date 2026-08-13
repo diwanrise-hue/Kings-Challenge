@@ -211,6 +211,7 @@
             transition: all 0.15s ease !important;
             display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
             position: fixed; z-index: 10001; 
+            box-sizing: border-box !important; /* 🌟 يمنع تفكك الإطار عن الأيقونة 🌟 */
         }
 
         #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
@@ -226,12 +227,16 @@
         #online-toggle-btn { bottom: 75px !important; left: 15px !important; height: 46px !important; width: 102px !important; z-index: 9998 !important;}
         #store-portal-corner-btn { bottom: 75px !important; right: 15px !important; width: 46px !important; height: 46px !important; font-size: 18px !important; z-index: 9998 !important;}
         
+        /* 🌟 تقييد حجم الأيقونات لضمان تناسقها وعدم تمددها خارج الزر 🌟 */
         #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
         #store-portal-corner-btn svg, #lucky-spin-portal-btn svg,
         #custom-diff-btn svg, #hint-btn svg, #undo-btn svg, #mic-toggle-btn svg * {
             fill: #fce8a1 !important;
             stroke: #fce8a1 !important;
             color: #fce8a1 !important;
+            width: 22px !important;
+            height: 22px !important;
+            object-fit: contain;
         }
 
         .control-panel #custom-diff-btn, .control-panel #hint-btn, .control-panel #undo-btn, .control-panel #dama-radio-toggle, .control-panel #mic-toggle-btn {
@@ -1061,7 +1066,6 @@
             border-radius: 6px;
         }
 
-        /* 🌟 تحديث مهم لمنع ضغط الصور البيضاوية 🌟 */
         .lb-avatar { 
             width: 40px; 
             height: 40px; 
@@ -1181,21 +1185,49 @@
 
         #game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; backdrop-filter: blur(15px) saturate(180%) !important; border-radius: 36px !important; padding: 35px 25px !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;}
         #game-over-modal h3 { color: #fce8a1 !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-             
-             /* 🌟 إخفاء القائمة وإظهار الحقيبة أثناء اللعب ضد البوت بشكل إجباري 🌟 */
-        body.game-active:not(.online-mode-active) #hamburger-menu-btn {
+
+        /* 🌟 التحكم الجذري بتبديل أزرار القائمة والحقيبة (لحل مشكلة التداخل والظهور العشوائي) 🌟 */
+        /* 1. في اللوبي (الحالة الطبيعية): القائمة ظاهرة، والحقيبة مخفية ومقتولة تماماً */
+        #bag-quick-btn {
             display: none !important;
+            opacity: 0 !important;
             visibility: hidden !important;
             pointer-events: none !important;
+            z-index: -999 !important;
+        }
+        #hamburger-menu-btn {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            z-index: 10001 !important;
+        }
+
+        /* 2. أثناء اللعب ضد البوت: القائمة تُقتل، وتظهر الحقيبة مكانها بثبات */
+        body.game-active:not(.online-mode-active) #hamburger-menu-btn {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            z-index: -999 !important;
         }
         body.game-active:not(.online-mode-active) #bag-quick-btn {
             display: flex !important;
+            opacity: 1 !important;
             visibility: visible !important;
             pointer-events: auto !important;
+            z-index: 10001 !important;
+        }
+
+        /* 3. ضمان عدم تجاوز الأيقونات لحجم الزر (لحل مشكلة الإطار المنفصل) */
+        #hamburger-menu-btn svg, #bag-quick-btn svg {
+            width: 22px !important;
+            height: 22px !important;
+            object-fit: contain;
         }
 
         body.online-mode-active { padding-top: 15px !important; }
-        body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+        body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #bag-quick-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
         body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
         body.online-mode-active #match-players-card { width: 95vw !important; max-width: 500px !important; flex-direction: row !important; justify-content: space-between !important; padding: 10px 30px !important; margin-bottom: 15px !important; }
         body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #d4af37 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
@@ -1410,7 +1442,8 @@
     </button>
 
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
-    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" style="display: none;" data-icon="bagQuick"></button>
+    <!-- 🌟 تم إزالة style="display:none;" لحل مشكلة الإطار المنفصل وتضارب الـ CSS 🌟 -->
+    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" data-icon="bagQuick"></button>
 
     <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(24,23,29,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 1000000; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
