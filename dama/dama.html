@@ -1061,9 +1061,13 @@
             border-radius: 6px;
         }
 
+        /* 🌟 تحديث مهم لمنع ضغط الصور البيضاوية 🌟 */
         .lb-avatar { 
             width: 40px; 
             height: 40px; 
+            min-width: 40px; 
+            min-height: 40px; 
+            flex-shrink: 0; 
             border-radius: 50%; 
             border: 2px solid rgba(255, 255, 255, 0.2); 
             display: flex; 
