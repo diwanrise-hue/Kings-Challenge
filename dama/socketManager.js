@@ -575,7 +575,7 @@ export const socketManager = {
             this._showToast(msg);
         });
 
-        socket.on('spectatorJoined', (data) => {
+                socket.on('spectatorJoined', (data) => {
             if (!data) return;
             gameState.isBotOpponent = false;
             gameState.isGameOver = false;
@@ -588,23 +588,18 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
 
-            ui.setDisplay('bottom-control-panel', 'none'); 
+            // ✅ التعديل الجذري 1: استدعاء دالة واجهة المشاهدين الصحيحة بدلاً من دالة اللاعبين
+            ui.setupSpectatorUI(data.player1, data.player2, data.isBettingOpen, data.roomID);
 
-            let p1Name = data.player1?.name || "اللاعب 1";
-            let p2Name = data.player2?.name || "اللاعب 2";
-
-            ui.toggleOnlineUILayout(true, p2Name, data.player2?.avatar);
-            ui.setTxt('card-my-name', p1Name);
-            if (data.player1?.avatar) ui.applyAvatar('card-my-avatar', data.player1.avatar, data.player1.avatar.startsWith('data:image'));
-
+            // رسم الرقعة
             ui.renderBoard(true);
+
+            // ✅ التعديل الجذري 2: تشغيل مؤشر الدور لإزالة كلمة "اضغط بدء اللعب"
+            ui.startTurn();
             
-            if (data.isBettingOpen && typeof window.showSpectatorBetModal === 'function') {
-                window.showSpectatorBetModal(data.roomID, data.player1, data.player2);
-            } else {
-                this._showToast(getNotifyMsg('spectating'));
-            }
+            this._showToast(getNotifyMsg('spectating'));
         });
+
 
         socket.on('spectatorCountChanged', (data) => {
             const countEl = document.getElementById('spectator-count-display');
