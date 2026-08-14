@@ -1088,13 +1088,21 @@ export const socketManager = {
             }
         });
 
+        // 🌟 تحديث الملف الشخصي وتنشيط تحريك الخبرة (XP) 🌟
         socket.on('profileUpdated', (updatedProfile) => {
             if (!updatedProfile) return;
             
             if (gameState.userProfile && gameState.userProfile.id === updatedProfile.id) {
                 gameState.userProfile = { ...gameState.userProfile, ...updatedProfile };
                 localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
+                
                 if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
+                
+                // 🌟 الحلقة المفقودة: إجبار الواجهة على تحريك شريط الخبرة وتحديث الأرقام 🌟
+                if (typeof window.refreshProfileUIStyles === 'function') {
+                    // نضعها داخل setTimeout بجزء من الثانية لضمان أن الـ DOM قد تم تحديثه أولاً
+                    setTimeout(() => window.refreshProfileUIStyles(), 150);
+                }
             }
         });
 
