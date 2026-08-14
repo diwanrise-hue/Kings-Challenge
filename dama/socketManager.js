@@ -3,8 +3,8 @@
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
  * 🌟 (مُحدّث): نظام (Auto-Heal) لتدمير الحسابات التالفة بسبب تسرب الـ Socket ID.
  * 🌟 (مُحدّث): فصل نصوص الإشعارات في (ذيل) بأسفل الملف لسهولة التعديل.
- * 🌟 (مُحدّث): إخفاء الإشعار الأخضر المزعج للبحث العشوائي إذا كانت النافذة مفتوحة.
  * 🌟 (مُحدّث): تصحيح واجهة المشاهدين (Spectator Mode) وإظهار عدادات المشاهدين والمراهنين.
+ * 🌟 (مُحدّث): إدارة العداد التنازلي 10 ثواني (Countdown Overlay).
  */
 
 import { gameState } from './gameState.js'; 
@@ -27,7 +27,6 @@ window.socket = socket;
 
 const fallbackMoveAudio = new Audio('move.mp3');
 
-// 🌟 الدالة الذكية لضمان تطبيق الساحة والإطار والأحجار 🌟
 const applyMatchThemeRobust = (profile, retries = 5) => {
     if (!profile) return;
     
@@ -176,7 +175,6 @@ export const socketManager = {
         if (pingEl) pingEl.style.opacity = '0.95';
     },
 
-    // 🌟 نظام العلاج الذاتي (Auto-Heal) للحسابات التالفة 🌟
     _ensureUserProfile() {
         const isValidId = (id) => {
             if (!id || typeof id !== 'string') return false;
@@ -185,7 +183,7 @@ export const socketManager = {
 
         if (gameState.userProfile && gameState.userProfile.id) {
             if (!isValidId(gameState.userProfile.id)) {
-                gameState.userProfile = null; // تدمير الحساب التالف من الذاكرة
+                gameState.userProfile = null; 
             } else {
                 try {
                     const stored = localStorage.getItem('hub_user_profile');
@@ -209,7 +207,6 @@ export const socketManager = {
             if (stored) {
                 const parsed = JSON.parse(stored);
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                    // فحص الآي دي قبل اعتماده
                     if (isValidId(parsed.id)) {
                         gameState.userProfile = {
                             ...parsed, 
@@ -233,7 +230,6 @@ export const socketManager = {
                         };
                         return gameState.userProfile;
                     } else {
-                        // تدمير البيانات التالفة من التخزين المحلي
                         localStorage.removeItem('hub_user_profile');
                         console.warn("⚠️ تم رصد حساب تالف وتم تدميره لحماية اللعبة.");
                     }
@@ -243,7 +239,6 @@ export const socketManager = {
             localStorage.removeItem('hub_user_profile');
         }
         
-        // 🌟 توليد حساب جديد ونظيف
         const randomNum = Math.floor(100000 + Math.random() * 900000);
         gameState.userProfile = { 
             id: 'GUEST-' + randomNum, 
@@ -325,9 +320,50 @@ export const socketManager = {
             'friendAddSuccess', 'friendAddFailed', 'opponentLeftRoom', 'roomClosedByTimeout',
             'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState',
             'activeRoomsList', 'mic-request', 'mic-response', 'spectatorJoined', 'spectatorCountChanged',
-            'spectatorBetsUpdated', 'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData', 'gameOverByServer'
+            'spectatorBetsUpdated', 'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData', 'gameOverByServer',
+            'matchCountdown', 'countdownAborted'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
+
+        // 🌟 مُحدّث: شاشة العداد التنازلي قبل بدء المباراة 🌟
+        socket.on('matchCountdown', (data) => {
+            const overlay = document.getElementById('match-countdown-overlay');
+            const numEl = document.getElementById('match-countdown-number');
+            
+            if (typeof window.closeAppModal === 'function') {
+                window.closeAppModal('online-modal');
+            }
+
+            if (overlay && numEl) {
+                overlay.style.display = 'flex';
+                let timeLeft = data.seconds;
+                numEl.innerText = timeLeft;
+                
+                if (gameState.isSpectator && data.isBettingOpen && typeof window.ui.showSpectatorBetModal === 'function') {
+                    window.ui.showSpectatorBetModal(data.roomID, data.opponent1, data.opponent2);
+                }
+                
+                if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
+                gameState.countdownInterval = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft <= 0) {
+                        clearInterval(gameState.countdownInterval);
+                        overlay.style.display = 'none';
+                    } else {
+                        numEl.innerText = timeLeft;
+                        if(timeLeft <= 3 && typeof ui.playSound === 'function' && ui.sfx.clock) ui.playSound(ui.sfx.clock);
+                    }
+                }, 1000);
+            }
+        });
+
+        // 🌟 مُحدّث: هروب الخصم أثناء العداد التنازلي 🌟
+        socket.on('countdownAborted', () => {
+            if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
+            const overlay = document.getElementById('match-countdown-overlay');
+            if (overlay) overlay.style.display = 'none';
+            this._showToast("تم إلغاء المباراة لأن الخصم هرب!");
+        });
 
         socket.on('leaderboardData', (data) => {
             let formattedWins = [], formattedXp = [];
@@ -576,7 +612,6 @@ export const socketManager = {
             this._showToast(msg);
         });
 
-        // 🌟 مُحدّث: نظام المشاهدة الصحيح وإظهار العدادات 🌟
         socket.on('spectatorJoined', (data) => {
             if (!data) return;
             gameState.isBotOpponent = false;
@@ -590,16 +625,10 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
 
-            // إعداد واجهة المشاهدين وعرض الأزرار والإطارات الصحيحة
             ui.setupSpectatorUI(data.player1, data.player2, data.isBettingOpen, data.roomID);
-
-            // رسم الرقعة
             ui.renderBoard(true);
-
-            // تشغيل مؤشر الدور الصحيح
             ui.startTurn();
 
-            // تحديث عدد المراهنين للمشاهد الجديد
             const bettorsEl = document.getElementById('bettors-count-display');
             if (bettorsEl) bettorsEl.innerText = data.totalBettors || 0;
             
@@ -616,7 +645,6 @@ export const socketManager = {
             else this._showToast(`👁️ المشاهدون الآن: ${data.count}`);
         });
 
-        // 🌟 مُحدّث: مستمع لتحديث عدد المراهنين لحظياً 🌟
         socket.on('spectatorBetsUpdated', (data) => {
             const bettorsEl = document.getElementById('bettors-count-display');
             if (bettorsEl) bettorsEl.innerText = data.totalBettors;
@@ -651,6 +679,11 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
             else ui.setDisplay('custom-alert-modal', 'none');
+
+            // 🌟 إخفاء العداد التنازلي عند بدء المباراة
+            if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
+            const overlay = document.getElementById('match-countdown-overlay');
+            if (overlay) overlay.style.display = 'none';
             
             this.isAlertShown = false; 
 
@@ -823,12 +856,16 @@ export const socketManager = {
 
             gameState.isGameOver = true;
             gameState.isGameActive = false;
-            
+
             if (!gameState.isSpectator) {
                 gameEngine.endGame(gameState.myOnlineColor);
                 this._showToast(getNotifyMsg('oppResignedWin'));
             } else {
                 this._showToast(getNotifyMsg('oppResignedSpec'));
+                const tInd = document.getElementById('turn-indicator');
+                const tCount = document.getElementById('turn-countdown');
+                if (tInd) { tInd.innerText = '🏳️ انسحب أحد اللاعبين'; tInd.style.color = '#ff453a'; }
+                if (tCount) tCount.innerText = 'المباراة انتهت';
             }
         });
 
@@ -852,6 +889,13 @@ export const socketManager = {
                 }
             } else {
                 this._showToast(getNotifyMsg('timeoutSpec'));
+                const tInd = document.getElementById('turn-indicator');
+                const tCount = document.getElementById('turn-countdown');
+                if (tInd) { 
+                    tInd.innerText = winnerColor === 'white' ? '🏆 فاز الأبيض بالوقت' : '🏆 فاز الأسود بالوقت'; 
+                    tInd.style.color = '#30d158'; 
+                }
+                if (tCount) tCount.innerText = 'المباراة انتهت';
             }
         });
 
@@ -910,16 +954,26 @@ export const socketManager = {
                 gameState.turnTimerInterval = null; 
             }
             
-            if (data.winner === 'draw') {
-                this._showToast(gameState.lang === 'ar' ? `انتهت المباراة بالتعادل 🤝 (${data.reason})` : `Draw 🤝 (${data.reason})`);
-            } else if (data.winner === gameState.myOnlineColor) {
-                this._showToast(gameState.lang === 'ar' ? `لقد فزت! 🏆 (${data.reason})` : `You win! 🏆 (${data.reason})`);
+            if (!gameState.isSpectator) {
+                if (data.winner === 'draw') {
+                    this._showToast(gameState.lang === 'ar' ? `انتهت المباراة بالتعادل 🤝 (${data.reason})` : `Draw 🤝 (${data.reason})`);
+                } else if (data.winner === gameState.myOnlineColor) {
+                    this._showToast(gameState.lang === 'ar' ? `لقد فزت! 🏆 (${data.reason})` : `You win! 🏆 (${data.reason})`);
+                } else {
+                    this._showToast(gameState.lang === 'ar' ? `لقد خسرت 😢 (${data.reason})` : `You lose 😢 (${data.reason})`);
+                }
+                if (typeof ui.showOnlineResultsModal === 'function') {
+                    ui.showOnlineResultsModal(data.winner);
+                }
             } else {
-                this._showToast(gameState.lang === 'ar' ? `لقد خسرت 😢 (${data.reason})` : `You lose 😢 (${data.reason})`);
-            }
-            
-            if (typeof ui.showOnlineResultsModal === 'function') {
-                ui.showOnlineResultsModal(data.winner);
+                this._showToast(gameState.lang === 'ar' ? `انتهت المباراة: ${data.reason}` : `Match ended: ${data.reason}`);
+                const tInd = document.getElementById('turn-indicator');
+                const tCount = document.getElementById('turn-countdown');
+                if (tInd) {
+                    if (data.winner === 'draw') { tInd.innerText = '🤝 انتهت بالتعادل'; tInd.style.color = '#f1c40f'; }
+                    else { tInd.innerText = data.winner === 'white' ? '🏆 فاز الأبيض' : '🏆 فاز الأسود'; tInd.style.color = '#30d158'; }
+                }
+                if (tCount) tCount.innerText = 'المباراة انتهت';
             }
         });
 
@@ -1098,7 +1152,6 @@ export const socketManager = {
             }
         });
 
-        // 🌟 تحديث الملف الشخصي وتنشيط تحريك الخبرة (XP) 🌟
         socket.on('profileUpdated', (updatedProfile) => {
             if (!updatedProfile) return;
             
@@ -1108,9 +1161,7 @@ export const socketManager = {
                 
                 if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
                 
-                // 🌟 الحلقة المفقودة: إجبار الواجهة على تحريك شريط الخبرة وتحديث الأرقام 🌟
                 if (typeof window.refreshProfileUIStyles === 'function') {
-                    // نضعها داخل setTimeout بجزء من الثانية لضمان أن الـ DOM قد تم تحديثه أولاً
                     setTimeout(() => window.refreshProfileUIStyles(), 150);
                 }
             }
@@ -1266,7 +1317,8 @@ export const socketManager = {
         }
     },
 
-    handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0) {
+    // 🌟 مُحدّث: إضافة خيار السماح بالمشاهدين 🌟
+    handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0, allowSpectatorBetting = true) {
         let targetAction = action;
 
         if (action === 'startMatchmaking' || action === 'joinMatchmaking' || action === 'joinMatchmakingPool') {
@@ -1287,6 +1339,7 @@ export const socketManager = {
             password: roomPassword, 
             guestId: profile.id,
             betAmount: betAmount,
+            allowSpectatorBetting: allowSpectatorBetting,
             xp: profile.xp || 0,
             equippedBg: profile.equippedBg || 'bg_wood',
             equippedPc: profile.equippedPc || 'pc_original',
