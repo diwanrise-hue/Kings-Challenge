@@ -362,6 +362,8 @@ export const ui = {
         this.setTxt('reset-btn', 'خروج المشاهد 🚪');
         
         this.setDisplay('match-players-card', 'flex');
+        this.setDisplay('spectator-stats-container', 'flex');
+
 
         this.applyAvatar('card-my-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'));
         this.setTxt('card-my-name', p1?.name || 'اللاعب 1');
@@ -1325,7 +1327,6 @@ export const ui = {
 // ==========================================
 // 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
 // ==========================================
-
 window.selectSpectatorBetColor = function(color) {
     const colorInput = document.getElementById('spectator-bet-color');
     const p1Card = document.getElementById('bet-p1-card');
@@ -1333,11 +1334,30 @@ window.selectSpectatorBetColor = function(color) {
     if (!colorInput || !p1Card || !p2Card) return;
 
     colorInput.value = color;
-    p1Card.style.borderColor = color === 'white' ? '#ffd700' : 'transparent';
-    p1Card.style.background = color === 'white' ? 'rgba(255,215,0,0.1)' : 'transparent';
-    
-    p2Card.style.borderColor = color === 'black' ? '#ff453a' : 'transparent';
-    p2Card.style.background = color === 'black' ? 'rgba(255,69,58,0.1)' : 'transparent';
+
+    // تصفير الخصائص للبطاقتين
+    p1Card.style.borderColor = 'transparent';
+    p1Card.style.background = 'transparent';
+    p1Card.style.transform = 'scale(1)';
+    p1Card.style.boxShadow = 'none';
+
+    p2Card.style.borderColor = 'transparent';
+    p2Card.style.background = 'transparent';
+    p2Card.style.transform = 'scale(1)';
+    p2Card.style.boxShadow = 'none';
+
+    // تطبيق الإضاءة الساطعة (Glow) والبروز (Scale) على اللاعب المختار
+    if (color === 'white') {
+        p1Card.style.borderColor = '#ffd700';
+        p1Card.style.background = 'rgba(255, 215, 0, 0.15)';
+        p1Card.style.transform = 'scale(1.1)';
+        p1Card.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2)';
+    } else {
+        p2Card.style.borderColor = '#ff453a';
+        p2Card.style.background = 'rgba(255, 69, 58, 0.15)';
+        p2Card.style.transform = 'scale(1.1)';
+        p2Card.style.boxShadow = '0 0 20px rgba(255, 69, 58, 0.4), inset 0 0 10px rgba(255, 69, 58, 0.2)';
+    }
 };
 
 ui.onClick('spectator-submit-bet-btn', () => {
