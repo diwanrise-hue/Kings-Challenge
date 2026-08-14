@@ -384,22 +384,6 @@ export const ui = {
             p2LvlEl.style.color = "#ff453a";
         }
 
-        const applyVisualFrame = (elementId, frameId) => {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            let frameUrl = '';
-            if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
-                frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
-            }
-            if (frameUrl) {
-                el.style.backgroundImage = `url('${frameUrl}')`;
-                el.style.backgroundSize = '100% 100%';
-                el.style.backgroundPosition = 'center';
-                el.style.backgroundRepeat = 'no-repeat';
-            } else { el.style.backgroundImage = 'none'; }
-        };
-        applyVisualFrame('card-my-frame', p1?.equippedFr || 'fr_classic');
-        applyVisualFrame('card-opp-frame', p2?.equippedFr || 'fr_classic');
 
         const p1Xp = Number(p1?.xp) || 0;
         const p2Xp = Number(p2?.xp) || 0;
@@ -467,29 +451,7 @@ export const ui = {
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             this.setTxt('card-opp-name', oppName);
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
-            
-            const myFrameId = gameState.userProfile.equippedFr || 'fr_classic';
-            const oppFrameId = gameState.currentOpponentFr || 'fr_classic';
-
-            const applyVisualFrame = (elementId, frameId) => {
-                const el = document.getElementById(elementId);
-                if (!el) return;
-                let frameUrl = '';
-                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
-                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
-                }
-                if (frameUrl) {
-                    el.style.backgroundImage = `url('${frameUrl}')`;
-                    el.style.backgroundSize = '100% 100%';
-                    el.style.backgroundPosition = 'center';
-                    el.style.backgroundRepeat = 'no-repeat';
-                } else {
-                    el.style.backgroundImage = 'none';
-                }
-            };
-
-            applyVisualFrame('card-my-frame', myFrameId);
-            applyVisualFrame('card-opp-frame', oppFrameId);
+          
 
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
             let myCardLevel = this.getEl('card-my-level');
