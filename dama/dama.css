@@ -312,7 +312,7 @@ body.game-active #reset-btn:active {
     z-index: 10001; 
     width: 185px !important;       
     height: 100px !important;       
-    background-image: url('dama/Media/front/profile.webp'); 
+    background-image: url('Media/front/profile.webp'); 
     background-size: 100% 100%; 
     background-repeat: no-repeat; 
     background-color: transparent !important;
@@ -406,7 +406,7 @@ html[dir="ltr"] #profile-badge.profile-badge-container {
 .bottom-stats-frame {
     position: absolute !important; top: 88.8px !important; left: 54% !important; transform: translateX(-50%) !important;
     width: 193px !important; height: 22px !important;
-    background-image: url('dama/Media/front/tape.webp') !important; background-size: 100% 100% !important;
+    background-image: url('Media/front/tape.webp') !important; background-size: 100% 100% !important;
     background-repeat: no-repeat !important; background-color: transparent !important;
     box-shadow: none !important; border-radius: 0 !important;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) !important;
@@ -478,7 +478,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     width: 90vw !important; max-width: 600px !important; height: 80vh !important; max-height: 800px !important; padding-top: 35px; display: flex; flex-direction: column;
 }
 
-.room-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; border:none !important; padding: 60px 20px 20px 20px !important; background-image: url('dama/Media/front/room.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; } 
+.room-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; border:none !important; padding: 60px 20px 20px 20px !important; background-image: url('Media/front/room.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; } 
 
 .settings-card::-webkit-scrollbar { display: none; }
 @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
@@ -555,7 +555,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     box-sizing: border-box;
     padding: 15px 16px 15px 16px; 
     background: #0f1015;
-    background-image: url('dama/Media/front/leaderboard.webp');
+    background-image: url('Media/front/leaderboard.webp');
     background-size: cover;
     background-position: center;
     display: flex; 
