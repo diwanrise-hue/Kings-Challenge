@@ -4,6 +4,7 @@
  * 🌟 (مُحدّث): نظام (Auto-Heal) لتدمير الحسابات التالفة بسبب تسرب الـ Socket ID.
  * 🌟 (مُحدّث): فصل نصوص الإشعارات في (ذيل) بأسفل الملف لسهولة التعديل.
  * 🌟 (مُحدّث): إخفاء الإشعار الأخضر المزعج للبحث العشوائي إذا كانت النافذة مفتوحة.
+ * 🌟 (مُحدّث): تصحيح واجهة المشاهدين (Spectator Mode) وإظهار عدادات المشاهدين والمراهنين.
  */
 
 import { gameState } from './gameState.js'; 
@@ -324,7 +325,7 @@ export const socketManager = {
             'friendAddSuccess', 'friendAddFailed', 'opponentLeftRoom', 'roomClosedByTimeout',
             'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState',
             'activeRoomsList', 'mic-request', 'mic-response', 'spectatorJoined', 'spectatorCountChanged',
-            'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData', 'gameOverByServer'
+            'spectatorBetsUpdated', 'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData', 'gameOverByServer'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
@@ -575,7 +576,8 @@ export const socketManager = {
             this._showToast(msg);
         });
 
-                socket.on('spectatorJoined', (data) => {
+        // 🌟 مُحدّث: نظام المشاهدة الصحيح وإظهار العدادات 🌟
+        socket.on('spectatorJoined', (data) => {
             if (!data) return;
             gameState.isBotOpponent = false;
             gameState.isGameOver = false;
@@ -588,23 +590,36 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
 
-            // ✅ التعديل الجذري 1: استدعاء دالة واجهة المشاهدين الصحيحة بدلاً من دالة اللاعبين
+            // إعداد واجهة المشاهدين وعرض الأزرار والإطارات الصحيحة
             ui.setupSpectatorUI(data.player1, data.player2, data.isBettingOpen, data.roomID);
 
             // رسم الرقعة
             ui.renderBoard(true);
 
-            // ✅ التعديل الجذري 2: تشغيل مؤشر الدور لإزالة كلمة "اضغط بدء اللعب"
+            // تشغيل مؤشر الدور الصحيح
             ui.startTurn();
-            
-            this._showToast(getNotifyMsg('spectating'));
-        });
 
+            // تحديث عدد المراهنين للمشاهد الجديد
+            const bettorsEl = document.getElementById('bettors-count-display');
+            if (bettorsEl) bettorsEl.innerText = data.totalBettors || 0;
+            
+            if (data.isBettingOpen && typeof window.ui.showSpectatorBetModal === 'function') {
+                window.ui.showSpectatorBetModal(data.roomID, data.player1, data.player2);
+            } else {
+                this._showToast(getNotifyMsg('spectating'));
+            }
+        });
 
         socket.on('spectatorCountChanged', (data) => {
             const countEl = document.getElementById('spectator-count-display');
             if (countEl) countEl.innerText = data.count;
             else this._showToast(`👁️ المشاهدون الآن: ${data.count}`);
+        });
+
+        // 🌟 مُحدّث: مستمع لتحديث عدد المراهنين لحظياً 🌟
+        socket.on('spectatorBetsUpdated', (data) => {
+            const bettorsEl = document.getElementById('bettors-count-display');
+            if (bettorsEl) bettorsEl.innerText = data.totalBettors;
         });
 
         socket.on('betResult', (data) => {
