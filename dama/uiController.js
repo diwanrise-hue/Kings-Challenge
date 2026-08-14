@@ -1277,6 +1277,11 @@ export const ui = {
                 renderFriendsList(gameState.userProfile.friends);
             }
         }
+
+        // 🌟 التعديل هنا: استدعاء التحديث الشامل للواجهة ووزن الحاويات
+        if (typeof window.refreshProfileUIStyles === 'function') {
+            setTimeout(() => window.refreshProfileUIStyles(), 50);
+        }
     },
 
     initProfileSystem() {
@@ -1872,6 +1877,11 @@ window.applyProfileDataToUI = function(profile) {
     for (let id in textElements) { const el = document.getElementById(id); if (el) { el.innerText = textElements[id]; } }
     forceLockedGlobalAvatar(); if(window.updateInventoryUI) window.updateInventoryUI(); 
     if (typeof window.applyTheme === 'function') { window.applyTheme(profile); }
+
+    // 🌟 التعديل هنا: استدعاء وزن الحاويات بعد حقن النصوص
+    if (typeof window.refreshProfileUIStyles === 'function') {
+        setTimeout(() => window.refreshProfileUIStyles(), 50);
+    }
 };
 
 window.currentLang = 'ar';
