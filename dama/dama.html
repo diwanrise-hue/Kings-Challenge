@@ -117,10 +117,17 @@
             </div>
 
             <!-- علامة VS والرهان -->
-            <div style="display: flex; flex-direction: column; align-items: center;">
-                <span class="match-vs-text" style="font-size: 32px; font-weight: 900; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.6); font-family: 'Outfit', sans-serif; letter-spacing: 2px;">VS</span>
-                <span id="vs-bet-display" style="font-size:14px; color:#30d158; font-weight:bold; text-shadow:0 0 8px rgba(48,209,88,0.5); display: none; margin-top:4px;">💰 0</span>
-            </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <span class="match-vs-text" style="font-size: 32px; font-weight: 900; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.6); font-family: 'Outfit', sans-serif; letter-spacing: 2px;">VS</span>
+    <span id="vs-bet-display" style="font-size:14px; color:#30d158; font-weight:bold; text-shadow:0 0 8px rgba(48,209,88,0.5); display: none; margin-top:4px;">💰 0</span>
+    
+    <!-- حاوية العدادات الثابتة للمشاهدين والمراهنين -->
+    <div id="spectator-stats-container" style="display: none; gap: 8px; margin-top: 8px;">
+        <span title="المشاهدين" style="font-size:12px; color:#a1a1aa; background: rgba(0,0,0,0.6); padding: 3px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">👁️ <span id="spectator-count-display">1</span></span>
+        <span title="المراهنين" style="font-size:12px; color:#f1c40f; background: rgba(0,0,0,0.6); padding: 3px 10px; border-radius: 10px; border: 1px solid rgba(241,196,15,0.2); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">🎯 <span id="bettors-count-display">0</span></span>
+    </div>
+</div>
+
 
             <!-- الخصم -->
             <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center; width: 85px; cursor: pointer;" onclick="window.showOpponentProfile()">
@@ -708,18 +715,23 @@
             <p style="color: #e0e0e0; font-size: 13px; margin-bottom: 15px; text-align: center;">راهن على اللاعب الذي تتوقع فوزه! (متاح حتى أول حركتين)</p>
 
             <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
-                <div style="text-align: center; cursor: pointer;" onclick="window.selectSpectatorBetColor('white')" id="bet-p1-card" style="border: 2px solid transparent; padding: 5px; border-radius: 12px; transition: 0.3s;">
-                    <div id="bet-p1-avatar" style="width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
-                    <div id="bet-p1-name" style="color: white; margin-top: 5px; font-weight: bold; font-size: 12px;">اللاعب 1</div>
-                    <div style="color: #a1a1aa; font-size: 10px;">أبيض ⚪</div>
-                </div>
-                <div style="color: #a1a1aa; font-weight: bold; font-size: 16px;">VS</div>
-                <div style="text-align: center; cursor: pointer;" onclick="window.selectSpectatorBetColor('black')" id="bet-p2-card" style="border: 2px solid transparent; padding: 5px; border-radius: 12px; transition: 0.3s;">
-                    <div id="bet-p2-avatar" style="width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
-                    <div id="bet-p2-name" style="color: white; margin-top: 5px; font-weight: bold; font-size: 12px;">اللاعب 2</div>
-                    <div style="color: #a1a1aa; font-size: 10px;">أسود ⚫</div>
-                </div>
-            </div>
+    <!-- بطاقة اللاعب الأول (أبيض) -->
+    <div onclick="window.selectSpectatorBetColor('white')" id="bet-p1-card" style="text-align: center; cursor: pointer; border: 3px solid transparent; padding: 12px; border-radius: 16px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: transparent;">
+        <div id="bet-p1-avatar" style="width: 55px; height: 55px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
+        <div id="bet-p1-name" style="color: white; margin-top: 8px; font-weight: bold; font-size: 13px;">اللاعب 1</div>
+        <div style="color: #a1a1aa; font-size: 11px; margin-top: 3px;">أبيض ⚪</div>
+    </div>
+    
+    <div style="color: #a1a1aa; font-weight: bold; font-size: 18px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">VS</div>
+    
+    <!-- بطاقة اللاعب الثاني (أسود) -->
+    <div onclick="window.selectSpectatorBetColor('black')" id="bet-p2-card" style="text-align: center; cursor: pointer; border: 3px solid transparent; padding: 12px; border-radius: 16px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: transparent;">
+        <div id="bet-p2-avatar" style="width: 55px; height: 55px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
+        <div id="bet-p2-name" style="color: white; margin-top: 8px; font-weight: bold; font-size: 13px;">اللاعب 2</div>
+        <div style="color: #a1a1aa; font-size: 11px; margin-top: 3px;">أسود ⚫</div>
+    </div>
+</div>
+
 
             <input type="hidden" id="spectator-bet-color" value="">
             <input type="hidden" id="spectator-bet-room-id" value="">
@@ -776,4 +788,4 @@
         });
     </script>
 </body>
-</html>
+                    </html>
