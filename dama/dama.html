@@ -1,4 +1,3 @@
-<!-- ملف: dama.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -21,36 +20,43 @@
     <input type="hidden" id="game-mode" value="ai">
 
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) window.openMyProfile()">
-        <div class="profile-avatar-capsule" id="badge-avatar"></div>
+        
+        <div id="badge-avatar" class="profile-avatar-capsule"></div>
 
-        <div class="ai-level-badge">
-            <span id="badge-level" class="auto-fit-center">Lv.1</span>
+        <!-- ليفل اللاعب -->
+        <div class="text-boundary boundary-level">
+            <span id="badge-level" class="shrink-text">Lv.1</span>
         </div>
 
-        <div class="profile-main-info">
-            <div class="name-row">
-                <span id="badge-username-display-game" class="player-name auto-fit-center">أنت</span>
-            </div>
+        <!-- اسم اللاعب -->
+        <div class="text-boundary boundary-name">
+            <span id="badge-username-display-game" class="player-name shrink-text">أنت</span>
         </div>
 
-        <div class="title-text-free" id="profile-stat-title-badge">مبارز</div>
-
+        <!-- اللقب -->
+        <div class="text-boundary boundary-title">
+            <span id="profile-stat-title-badge" class="title-text-free shrink-text">مبارز</span>
+        </div>
+        
+        <!-- الخط الفاصل -->
         <div class="vertical-divider-free"></div>
-
-        <div class="rank-text-free" id="profile-stat-rank-badge">برونزي</div>
-
-        <div class="xp-text-free" id="xp-text-element">
-            0 / 100 XP
+        
+        <!-- الرتبة -->
+        <div class="text-boundary boundary-rank">
+            <span id="profile-stat-rank-badge" class="rank-text-free shrink-text">برونزي</span>
         </div>
 
+        <!-- نص الخبرة -->
+        <div class="text-boundary boundary-xp">
+            <span id="xp-text-element" class="xp-text-free shrink-text">0 / 100 XP</span>
+        </div>
+        
+        <!-- شريط الخبرة -->
         <div class="xp-wrapper">
             <div class="straight-xp-fill" id="xp-bar-fill"></div>
         </div>
 
-        <div class="next-level-badge-container">
-            <span class="next-level-badge auto-fit-center" id="badge-next-level">Lv.2</span>
-        </div>
-
+        <!-- الإطار الخشبي السفلي -->
         <div class="bottom-stats-frame" id="profile-stat-tokens-badge-container">
             <div class="stat-item coins-text-format">
                 <span class="stat-icon">🪙</span>
