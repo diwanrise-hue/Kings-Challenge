@@ -4,6 +4,7 @@
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
  * 🌟 (مُحدّث): إضافة نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
  * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة.
+ * 🌟 (مُحدّث): إضافة إطارات الملوك (king1, king2, king3) للمراكز الثلاثة الأولى في لوحة الشرف.
  */
 
 import { gameState } from './gameState.js'; 
@@ -1319,7 +1320,7 @@ export const ui = {
 // 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
 // ==========================================
 
-// 🌟 دوال اختيار المراهنات למשاهدين 🌟
+// 🌟 دوال اختيار المراهنات للمشاهدين 🌟
 window.selectSpectatorBetColor = function(color) {
     const colorInput = document.getElementById('spectator-bet-color');
     const p1Card = document.getElementById('bet-p1-card');
@@ -1705,7 +1706,7 @@ function getFormattedLeaderboardScore(player, tabType) {
 window.renderDynamicLeaderboardUI = function(playersList, tabType) {
     const podiumContainer = document.getElementById('leaderboard-podium-container');
     const listContainer = document.getElementById('leaderboard-list-' + tabType); 
-    
+
     if (!podiumContainer || !listContainer) return;
 
     podiumContainer.innerHTML = '';
@@ -1729,10 +1730,18 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         const card = document.createElement('div');
         card.className = `lb-podium-card rank-${item.rank}`;
         
+        // 🌟 إضافة: تحديد كلاس الإطار بناءً على المركز 🌟
+        let frameClass = '';
+        if (item.rank === 1) frameClass = 'king1';
+        else if (item.rank === 2) frameClass = 'king2';
+        else if (item.rank === 3) frameClass = 'king3';
+        
         card.innerHTML = `
             <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
-            <div class="lb-podium-avatar avatar-${item.rank}">
-                <img src="${getSecureAvatarUrl(player.avatar)}">
+            <div class="podium-frame-container ${frameClass}">
+                <div class="lb-podium-avatar avatar-${item.rank}">
+                    <img src="${getSecureAvatarUrl(player.avatar)}">
+                </div>
             </div>
             <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
                 <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
