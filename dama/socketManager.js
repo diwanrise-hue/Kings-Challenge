@@ -1,8 +1,9 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): إضافة دالة applyMatchThemeRobust لحل مشكلة "سباق الزمن" وتأخر تحميل المتجر.
- * 🌟 (مُحدّث): إصلاح خطأ ui.translate الذي كان يمنع ظهور رسالة إعادة اللعب.
+ * 🌟 (مُحدّث): إضافة دالة applyMatchThemeRobust لحل مشكلة المتجر.
+ * 🌟 (مُحدّث): إصلاح خطأ الترجمة لمنع انهيار إعادة اللعب.
+ * 🌟 (مُحدّث): حفظ إطار الخصم لعرضه في بطاقة التحدي.
  */
 
 import { gameState } from './gameState.js'; 
@@ -42,8 +43,8 @@ const applyMatchThemeRobust = (profile, retries = 5) => {
 
     // تطبيق خصائص CSS العامة على body لكي تلتقطها ملفات التصميم
     document.body.setAttribute('data-piece-style', pcId);
-    document.body.setAttribute('data-board-style', bgId); // <== الإطار والساحة
-    document.body.setAttribute('data-frame-style', frId); // <== الإطار والساحة
+    document.body.setAttribute('data-board-style', bgId);
+    document.body.setAttribute('data-frame-style', frId);
 
     // تطبيق ألوان المربعات المخصصة إذا وجدت
     if (window.STORE_ITEMS) {
@@ -57,7 +58,7 @@ const applyMatchThemeRobust = (profile, retries = 5) => {
         }
     } 
 
-    // 🌟 استدعاء دالة الواجهة الأصلية كإجراء تأكيدي لضمان عمل أي تأثيرات إضافية
+    // استدعاء دالة الواجهة الأصلية كإجراء تأكيدي لضمان عمل أي تأثيرات إضافية
     if (typeof window.applyTheme === 'function') {
         window.applyTheme(profile);
     }
@@ -647,6 +648,9 @@ export const socketManager = {
             gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
             gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.png");
             
+            // 🌟 الإضافة الجديدة: التقاط إطار الخصم من السيرفر
+            gameState.currentOpponentFr = (data.opponent?.equippedFr || "fr_classic");
+            
             const opponentXpFromServer = Number(data.opponent?.xp) || 0;
             gameState.currentOpponentXp = opponentXpFromServer;
             
@@ -682,7 +686,6 @@ export const socketManager = {
             const myXp = Number(myProfile.xp) || 0;
             const oppXp = opponentXpFromServer;
 
-            // 🌟 3. استخدام دالة الانتظار الذكية لضمان تطبيق الساحة حتى لو تأخر المتجر 🌟
             if (!isOptOut && oppXp > myXp) {
                 this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً!`);
                 applyMatchThemeRobust(data.opponent);
@@ -827,7 +830,7 @@ export const socketManager = {
             }
         });
 
-        // 🌟 مُحدّث: تم إزالة دالة ui.translate واستخدام gameState.lang 🌟
+        // 🌟 مُحدّث: تم استخدام شرط gameState.lang المباشر 🌟
         socket.on('syncTime', (data) => {
             if (gameState.isOnlineMode && data) {
                 const seconds = data.secondsLeft || 0;
