@@ -825,17 +825,19 @@ export const socketManager = {
                 this._showToast("انتهى وقت أحد اللاعبين وانتهت المباراة.");
             }
         });
+                  
 
-        socket.on('syncTime', (data) => {
+          socket.on('syncTime', (data) => {
             if (gameState.isOnlineMode && data) {
                 const seconds = data.secondsLeft || 0;
                 gameState.turnTimeLeft = seconds;
                 gameState.turnEndTime = Date.now() + (seconds * 1000);
                 
                 if (typeof ui.startTurnTimer === 'function') ui.startTurnTimer();
-                else ui.setTxt('turn-countdown', ui.translate(`⏳ المتبقي للدور: ${seconds} ثانية`, `⏳ Turn Time Left: ${seconds}s`));
+                else ui.setTxt('turn-countdown', gameState.lang === 'ar' ? `⏳ المتبقي للدور: ${seconds} ثانية` : `⏳ Turn Time Left: ${seconds}s`);
             }
         });
+
 
         socket.on('opponentDisconnected', data => {
             if (!gameState.isOnlineMode) return;
@@ -894,7 +896,7 @@ export const socketManager = {
             }
         });
 
-        socket.on('rematchOffer', () => {
+      socket.on('rematchOffer', () => {
             if (this.isAlertShown || gameState.isSpectator) return; 
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
@@ -903,9 +905,15 @@ export const socketManager = {
             this.isAlertShown = true;
 
             if (typeof ui.showCustomAlert === 'function') {
+                // 🌟 الإصلاح هنا: استخدام شرط اللغة المباشر بدلاً من ui.translate الوهمية 🌟
+                const msg = gameState.lang === 'ar' ? "الخصم يطلب إعادة اللعب!" : "Opponent wants a rematch!";
+                const title = gameState.lang === 'ar' ? "إعادة اللعب" : "Rematch";
+                const exitTxt = gameState.lang === 'ar' ? "الخروج" : "Exit";
+                const acceptTxt = gameState.lang === 'ar' ? "قبول" : "Accept";
+
                 ui.showCustomAlert(
-                    ui.translate("الخصم يطلب إعادة اللعب!", "Opponent wants a rematch!"), 
-                    ui.translate("إعادة اللعب", "Rematch"), 
+                    msg, 
+                    title, 
                     () => {
                         this.isAlertShown = false;
                         socket.emit('acceptRematch', { roomID: String(gameState.onlineRoomID).trim() });
@@ -916,8 +924,8 @@ export const socketManager = {
                         if(ind) ind.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
                     }, 
                     true, 
-                    ui.translate("الخروج", "Exit"), 
-                    ui.translate("قبول", "Accept")  
+                    exitTxt, 
+                    acceptTxt  
                 );
 
                 const updateRematchUI = () => {
@@ -940,6 +948,7 @@ export const socketManager = {
                 setTimeout(updateRematchUI, 50); 
             }
         });
+
 
         socket.on('rematchAccepted', () => {
             this.isAlertShown = false;
