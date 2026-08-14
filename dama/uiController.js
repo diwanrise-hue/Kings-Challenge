@@ -2,7 +2,7 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): تطبيق إطارات اللاعبين في بطاقة التحدي (VS Card) وضبط موضع الـ Lv والاسم.
+ * 🌟 (مُحدّث): إزالة إطار الساحة من صور اللاعبين (تصحيح الخطأ).
  * 🌟 (مُحدّث): إصلاح الخلل الكارثي في المربع الأزرق للاعب الأسود (إصلاح updateVirtualBoardState).
  * 🌟 (مُحدّث): تصحيح مسار صور اللاعبين ومنع الانضغاط.
  */
@@ -369,30 +369,6 @@ export const ui = {
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             this.setTxt('card-opp-name', oppName);
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
-            
-            // 🌟 رسم الإطارات حول الصور في VS Card 🌟
-            const myFrameId = gameState.userProfile.equippedFr || 'fr_classic';
-            const oppFrameId = gameState.currentOpponentFr || 'fr_classic';
-
-            const applyVisualFrame = (elementId, frameId) => {
-                const el = document.getElementById(elementId);
-                if (!el) return;
-                let frameUrl = '';
-                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
-                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
-                }
-                if (frameUrl) {
-                    el.style.backgroundImage = `url('${frameUrl}')`;
-                    el.style.backgroundSize = '100% 100%';
-                    el.style.backgroundPosition = 'center';
-                    el.style.backgroundRepeat = 'no-repeat';
-                } else {
-                    el.style.backgroundImage = 'none';
-                }
-            };
-
-            applyVisualFrame('card-my-frame', myFrameId);
-            applyVisualFrame('card-opp-frame', oppFrameId);
 
             // إعداد المستويات
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
@@ -1249,7 +1225,7 @@ window.openAppModal = function(id) {
 window.closeAppModal = function(id) {
     if (id === 'lucky-spin-modal' && window.isSpinning) return; 
     const modal = document.getElementById(id);
-    if (modal) { 
+    if (modal) {
         modal.style.display = 'none'; 
         gameState.modalStack = gameState.modalStack.filter(m => m !== id);
     }
