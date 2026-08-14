@@ -2,9 +2,9 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
+ * 🌟 (مُحدّث): إزالة الخطأ الذي يضع "إطار الساحة" حول صور اللاعبين في بطاقة التحدي.
  * 🌟 (مُحدّث): إضافة نظام حماية تلقائي للصور المعطوبة لمنع ظهور الأيقونة المكسورة.
- * 🌟 (مُحدّث): تطبيق إطارات اللاعبين في بطاقة التحدي (VS Card) وضبط موضع الـ Lv والاسم.
- * 🌟 (مُحدّث): إصلاح الخلل الكارثي في المربع الأزرق للاعب الأسود (إصلاح updateVirtualBoardState).
+ * 🌟 (مُحدّث): إصلاح الخلل الكارثي في المربع الأزرق للاعب الأسود.
  */
 
 import { gameState } from './gameState.js'; 
@@ -95,7 +95,6 @@ export const ui = {
         return el;
     },
 
-    // 🌟 مُحدّث: نظام حماية ذكي لمنع الأيقونات المكسورة 🌟
     applyAvatar(elId, avatarStr, isCustom = false) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -134,9 +133,8 @@ export const ui = {
             const img = document.createElement('img');
             img.src = finalSrc || defaultAvatar;
             
-            // 🛡️ صائد الأخطاء: إذا فشل تحميل الصورة، ضع صورة الملك الافتراضية
             img.onerror = function() {
-                this.onerror = null; // لمنع التكرار اللانهائي
+                this.onerror = null; 
                 this.src = defaultAvatar;
             };
             
@@ -355,6 +353,7 @@ export const ui = {
         else this.setDisplay('undo-btn', 'none');
     },
 
+    // 🌟 تم إزالة كود إطارات الساحة (equippedFr) من هنا لتبقى الصور دائرية ونظيفة
     toggleOnlineUILayout(active, oppName = "", oppAvatar = "❓") {
         const normalState = active ? 'none' : 'inline-block';
         const flexState = active ? 'none' : 'flex';
@@ -385,30 +384,6 @@ export const ui = {
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             this.setTxt('card-opp-name', oppName);
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
-            
-            // رسم الإطارات حول الصور في VS Card
-            const myFrameId = gameState.userProfile.equippedFr || 'fr_classic';
-            const oppFrameId = gameState.currentOpponentFr || 'fr_classic';
-
-            const applyVisualFrame = (elementId, frameId) => {
-                const el = document.getElementById(elementId);
-                if (!el) return;
-                let frameUrl = '';
-                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
-                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
-                }
-                if (frameUrl) {
-                    el.style.backgroundImage = `url('${frameUrl}')`;
-                    el.style.backgroundSize = '100% 100%';
-                    el.style.backgroundPosition = 'center';
-                    el.style.backgroundRepeat = 'no-repeat';
-                } else {
-                    el.style.backgroundImage = 'none';
-                }
-            };
-
-            applyVisualFrame('card-my-frame', myFrameId);
-            applyVisualFrame('card-opp-frame', oppFrameId);
 
             // إعداد المستويات
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
@@ -992,13 +967,11 @@ export const ui = {
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);box-shadow:0 10px 25px rgba(0,0,0,0.2);");
             const av = this.makeEl('div', null, "width:56px;height:56px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:hidden;");
             
-            // 🌟 استخدام النظام الآمن للصور 🌟
             this.applyAvatar(av, avatar, isCustom);
             
             av.style.border = "none";
             avContainer.appendChild(av);
             
-            // 🌟 منع تجاوز النص
             const nameSpan = this.makeEl('span', null, "margin-top:8px;font-size:13px;font-weight:600;color:#ffffff;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;", name);
             
             let statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)';
