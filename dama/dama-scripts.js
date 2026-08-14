@@ -25,7 +25,6 @@ function formatHTMLNumbers(el) {
     }
 }
 
-// دالة التصغير القديمة (محفوظة حتى لا تتأثر أي نوافذ أخرى في اللعبة)
 window.autoFitCenterOnly = function(elementSelector, maxWidth, baseTransform = '') {
     const el = document.querySelector(elementSelector);
     if (!el) return;
@@ -40,16 +39,13 @@ window.autoFitCenterOnly = function(elementSelector, maxWidth, baseTransform = '
     }
 };
 
-// 🌟 الدالة الجديدة والذكية لنظام الحاويات (Text Boundary System) 🌟
 window.applyAutoShrink = function() {
     document.querySelectorAll('.text-boundary').forEach(container => {
         const textEl = container.querySelector('.shrink-text');
         if (!textEl) return;
         
-        // إزالة أي تحجيم سابق لقراءة الحجم الطبيعي بدقة
         textEl.style.removeProperty('transform');
         
-        // قراءة التحجيم الأساسي من الـ CSS (مثل scale(0.75) الخاص باللقب)
         const computedStyle = window.getComputedStyle(textEl);
         let baseScale = 1;
         if (computedStyle.transform !== 'none') {
@@ -61,28 +57,54 @@ window.applyAutoShrink = function() {
         const rawWidth = textEl.scrollWidth;
         const actualWidth = rawWidth * baseScale;
         
-        // التصغير فقط إذا كان النص أكبر من الحاوية
         if (actualWidth > availableWidth && actualWidth > 0) {
             const scaleFactor = availableWidth / actualWidth;
             const finalScale = baseScale * scaleFactor;
             textEl.style.setProperty('transform', `scale(${finalScale})`, 'important');
         } else {
-            // إعادة الحجم الأساسي إذا كان النص مناسباً
             textEl.style.setProperty('transform', `scale(${baseScale})`, 'important');
         }
     });
 };
 
 window.refreshProfileUIStyles = function() {
-    formatHTMLNumbers(document.getElementById('profile-stat-tokens-badge-container'));
-    formatHTMLNumbers(document.getElementById('xp-text-element'));
+    const xpTextEl = document.getElementById('xp-text-element');
+    const xpBarFill = document.getElementById('xp-bar-fill');
     
-    // تشغيل نظام التحجيم التلقائي الجديد للحاويات
+    try {
+        let profileStr = localStorage.getItem('hub_user_profile');
+        if (profileStr) {
+            let p = JSON.parse(profileStr);
+            if (p.xp !== undefined) {
+                let currentXp = parseInt(p.xp) || 0;
+                let level = Math.floor(Math.sqrt(currentXp / 50)) + 1;
+                let xpForCurrentLevel = Math.pow(level - 1, 2) * 50;
+                let xpForNextLevel = Math.pow(level, 2) * 50;
+                
+                let progressXp = currentXp - xpForCurrentLevel;
+                let requiredXp = xpForNextLevel - xpForCurrentLevel;
+                let percent = Math.min(100, Math.max(0, (progressXp / requiredXp) * 100));
+                
+                if (xpTextEl) {
+                    xpTextEl.innerText = `${progressXp} / ${requiredXp} XP`;
+                }
+                
+                if (xpBarFill) {
+                    xpBarFill.style.setProperty('width', percent + '%', 'important');
+                }
+            }
+        }
+    } catch(e) {}
+
+    const tokensContainer = document.getElementById('profile-stat-tokens-badge-container');
+    if (tokensContainer) {
+        formatHTMLNumbers(tokensContainer);
+    }
+    
     if (typeof window.applyAutoShrink === 'function') {
         window.applyAutoShrink();
     }
     
-    // الحفاظ على دالة التحجيم القديمة لبقية الواجهات (باستثناء الحاويات الجديدة)
     window.autoFitCenterOnly('.player-name:not(.shrink-text)', 65, '');        
 };
 
@@ -273,12 +295,12 @@ function syncGlobalBackground() {
             document.body.style.setProperty('background-size', 'cover', 'important');
             document.body.style.setProperty('background-position', 'center', 'important');
             document.body.style.setProperty('background-attachment', 'fixed', 'important');
-            document.body.style.setProperty('background-color', 'transparent', 'important');
+            document.body.style.backgroundColor = 'transparent';
         }
     } else {
         if (document.body) {
             document.body.style.setProperty('background-image', 'none', 'important');
-            document.body.style.setProperty('background-color', '#2c3e50', 'important'); 
+            document.body.style.backgroundColor = '#2c3e50'; 
         }
     }
 }
