@@ -2,9 +2,8 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): إزالة الخطأ الذي يضع "إطار الساحة" حول صور اللاعبين في بطاقة التحدي.
- * 🌟 (مُحدّث): إضافة نظام حماية تلقائي للصور المعطوبة لمنع ظهور الأيقونة المكسورة.
- * 🌟 (مُحدّث): إصلاح الخلل الكارثي في المربع الأزرق للاعب الأسود.
+ * 🌟 (مُحدّث): إضافة نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
+ * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -132,12 +131,7 @@ export const ui = {
         if (isImage || isCustom) {
             const img = document.createElement('img');
             img.src = finalSrc || defaultAvatar;
-            
-            img.onerror = function() {
-                this.onerror = null; 
-                this.src = defaultAvatar;
-            };
-            
+            img.onerror = function() { this.onerror = null; this.src = defaultAvatar; };
             img.style.cssText = "width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;";
             el.appendChild(img);
         } else {
@@ -353,7 +347,105 @@ export const ui = {
         else this.setDisplay('undo-btn', 'none');
     },
 
-    // 🌟 تم إزالة كود إطارات الساحة (equippedFr) من هنا لتبقى الصور دائرية ونظيفة
+    // 🌟 دالة مخصصة لترتيب الواجهة للمشاهدين 🌟
+    setupSpectatorUI(p1, p2, isBettingOpen, roomID) {
+        window.isMatchRunning = true;
+        document.body.classList.add('game-active');
+        document.body.classList.add('online-mode-active');
+        
+        // إخفاء الأزرار غير المطلوبة للمشاهد
+        const hides = ['online-toggle-btn', 'store-portal-corner-btn', 'lucky-spin-portal-btn', 'floating-quests-btn', 'bag-quick-btn', 'custom-diff-btn', 'hint-btn', 'undo-btn', 'resign-btn', 'gameChatBtn', 'mic-toggle-btn'];
+        hides.forEach(id => this.setDisplay(id, 'none'));
+        
+        // إظهار لوحة التحكم وتغيير زر البدء ليكون زر خروج
+        this.setDisplay('bottom-control-panel', 'flex');
+        this.setDisplay('reset-btn', 'inline-block');
+        this.setTxt('reset-btn', 'خروج المشاهد 🚪');
+        
+        this.setDisplay('match-players-card', 'flex');
+
+        // تجهيز اللاعب 1 (الأبيض)
+        this.applyAvatar('card-my-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'));
+        this.setTxt('card-my-name', p1?.name || 'اللاعب 1');
+        let p1LvlInfo = this.calculateLevelInfo(p1?.xp || 0);
+        const p1LvlEl = this.getEl('card-my-level');
+        if(p1LvlEl) {
+            p1LvlEl.textContent = `Lv.${p1LvlInfo.level}`;
+            p1LvlEl.style.background = "rgba(135,206,235,0.2)";
+            p1LvlEl.style.borderColor = "#87ceeb";
+            p1LvlEl.style.color = "#87ceeb";
+        }
+        
+        // تجهيز اللاعب 2 (الأسود)
+        this.applyAvatar('card-opp-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'));
+        this.setTxt('card-opp-name', p2?.name || 'اللاعب 2');
+        let p2LvlInfo = this.calculateLevelInfo(p2?.xp || 0);
+        const p2LvlEl = this.getEl('card-opp-level');
+        if(p2LvlEl) {
+            p2LvlEl.textContent = `Lv.${p2LvlInfo.level}`;
+            p2LvlEl.style.background = "rgba(255,69,58,0.2)";
+            p2LvlEl.style.borderColor = "#ff453a";
+            p2LvlEl.style.color = "#ff453a";
+        }
+
+        // رسم إطارات اللاعبين
+        const applyVisualFrame = (elementId, frameId) => {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            let frameUrl = '';
+            if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
+                frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
+            }
+            if (frameUrl) {
+                el.style.backgroundImage = `url('${frameUrl}')`;
+                el.style.backgroundSize = '100% 100%';
+                el.style.backgroundPosition = 'center';
+                el.style.backgroundRepeat = 'no-repeat';
+            } else { el.style.backgroundImage = 'none'; }
+        };
+        applyVisualFrame('card-my-frame', p1?.equippedFr || 'fr_classic');
+        applyVisualFrame('card-opp-frame', p2?.equippedFr || 'fr_classic');
+
+        // تطبيق ساحة اللاعب الأعلى مستوى
+        const p1Xp = Number(p1?.xp) || 0;
+        const p2Xp = Number(p2?.xp) || 0;
+        let dominantPlayer = p1;
+        if (p2Xp > p1Xp && !(p2?.syncThemeOptOut)) dominantPlayer = p2;
+        else if (p1?.syncThemeOptOut && p2Xp <= p1Xp) dominantPlayer = {equippedBg: 'bg_wood', equippedPc: 'pc_original', equippedFr: 'fr_classic'}; 
+        
+        document.body.setAttribute('data-piece-style', dominantPlayer?.equippedPc || 'pc_original');
+        document.body.setAttribute('data-board-style', dominantPlayer?.equippedBg || 'bg_wood');
+        document.body.setAttribute('data-frame-style', dominantPlayer?.equippedFr || 'fr_classic');
+
+        // 🌟 إظهار زر المراهنة الذكي في المنتصف 🌟
+        const vsBetEl = document.getElementById('vs-bet-display');
+        if (vsBetEl) {
+            vsBetEl.style.display = 'block';
+            if (isBettingOpen) {
+                let safeP1 = JSON.stringify(p1).replace(/"/g, '&quot;');
+                let safeP2 = JSON.stringify(p2).replace(/"/g, '&quot;');
+                vsBetEl.innerHTML = `<button onclick="window.ui.showSpectatorBetModal('${roomID}', ${safeP1}, ${safeP2})" style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; border: none; padding: 4px 16px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 13px; box-shadow: 0 2px 8px rgba(241,196,15,0.6); transition: 0.2s;">🎯 راهن الآن</button>`;
+            } else {
+                vsBetEl.innerHTML = `<span style="color: #a1a1aa; font-size: 11px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 8px;">المراهنات مغلقة 🔒</span>`;
+            }
+        }
+    },
+
+    // 🌟 فتح نافذة المراهنة وتعبئة بيانات اللاعبين 🌟
+    showSpectatorBetModal(roomID, p1, p2) {
+        const modal = document.getElementById('spectator-bet-modal');
+        if (!modal) return;
+        
+        this.applyAvatar('bet-p1-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'));
+        this.setTxt('bet-p1-name', p1?.name || 'اللاعب 1');
+        
+        this.applyAvatar('bet-p2-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'));
+        this.setTxt('bet-p2-name', p2?.name || 'اللاعب 2');
+
+        document.getElementById('spectator-bet-room-id').value = roomID;
+        modal.style.display = 'flex';
+    },
+
     toggleOnlineUILayout(active, oppName = "", oppAvatar = "❓") {
         const normalState = active ? 'none' : 'inline-block';
         const flexState = active ? 'none' : 'flex';
@@ -379,16 +471,42 @@ export const ui = {
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
         if (active && gameState.userProfile) {
-            // رسم الصور بالدالة المحمية الجديدة
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar);
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             this.setTxt('card-opp-name', oppName);
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
+            
+            const myFrameId = gameState.userProfile.equippedFr || 'fr_classic';
+            const oppFrameId = gameState.currentOpponentFr || 'fr_classic';
 
-            // إعداد المستويات
+            const applyVisualFrame = (elementId, frameId) => {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+                let frameUrl = '';
+                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
+                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
+                }
+                if (frameUrl) {
+                    el.style.backgroundImage = `url('${frameUrl}')`;
+                    el.style.backgroundSize = '100% 100%';
+                    el.style.backgroundPosition = 'center';
+                    el.style.backgroundRepeat = 'no-repeat';
+                } else {
+                    el.style.backgroundImage = 'none';
+                }
+            };
+
+            applyVisualFrame('card-my-frame', myFrameId);
+            applyVisualFrame('card-opp-frame', oppFrameId);
+
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
             let myCardLevel = this.getEl('card-my-level');
-            if (myCardLevel) myCardLevel.textContent = `Lv.${myLvlInfo.level}`;
+            if (myCardLevel) {
+                myCardLevel.textContent = `Lv.${myLvlInfo.level}`;
+                myCardLevel.style.background = "rgba(135,206,235,0.2)";
+                myCardLevel.style.borderColor = "#87ceeb";
+                myCardLevel.style.color = "#87ceeb";
+            }
             
             let oppCardLevel = this.getEl('card-opp-level');
             if (oppCardLevel) {
@@ -406,7 +524,6 @@ export const ui = {
                 }
             }
             
-            // إعداد الرهان
             const vsBetEl = document.getElementById('vs-bet-display');
             if (vsBetEl) {
                 if (gameState.roomBet && gameState.roomBet > 0) {
@@ -815,16 +932,26 @@ export const ui = {
 
             if (fList.length > 1) { fList.forEach(item => item.el.classList.add('multi-choice')); }
             
-            if ((gameState.currentTurn === gameState.playerColor || gameState.isOnlineMode) && fList.length === 1) {
+            if ((gameState.currentTurn === gameState.playerColor || gameState.isOnlineMode) && fList.length === 1 && !gameState.isSpectator) {
                 gameState.selectedPiece = fList[0].el; gameState.selectedPiece.classList.add('selected');
                 if (gameState.currentTurn === gameState.playerColor) { document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move')); }
                 this.showValidMovesHighlights(fList[0].r, fList[0].c);
             }
         } else {
-            tInd.style.color = "#f1c40f";
-            if (gameState.isOnlineMode) { tInd.textContent = gameState.currentTurn === gameState.myOnlineColor ? t('turn_yours') : t('turn_opps'); } 
-            else if (gameState.currentTurn === gameState.playerColor) { tInd.textContent = t('turn'); } 
-            else { tInd.textContent = t('aiTurn'); }
+            // 🌟 تعديل ذكي للمشاهد (Spectator) 🌟
+            if (gameState.isSpectator) {
+                tInd.textContent = gameState.currentTurn === 'white' ? "دور الأبيض ⚪" : "دور الأسود ⚫";
+                tInd.style.color = "#a1a1aa";
+            } else if (gameState.isOnlineMode) { 
+                tInd.style.color = "#f1c40f";
+                tInd.textContent = gameState.currentTurn === gameState.myOnlineColor ? t('turn_yours') : t('turn_opps'); 
+            } else if (gameState.currentTurn === gameState.playerColor) { 
+                tInd.style.color = "#f1c40f";
+                tInd.textContent = t('turn'); 
+            } else { 
+                tInd.style.color = "#f1c40f";
+                tInd.textContent = t('aiTurn'); 
+            }
         }
         
         this.startTurnTimer();
@@ -1191,6 +1318,37 @@ export const ui = {
 // ==========================================
 // 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
 // ==========================================
+
+// 🌟 دوال اختيار المراهنات למשاهدين 🌟
+window.selectSpectatorBetColor = function(color) {
+    const colorInput = document.getElementById('spectator-bet-color');
+    const p1Card = document.getElementById('bet-p1-card');
+    const p2Card = document.getElementById('bet-p2-card');
+    if (!colorInput || !p1Card || !p2Card) return;
+
+    colorInput.value = color;
+    p1Card.style.borderColor = color === 'white' ? '#ffd700' : 'transparent';
+    p1Card.style.background = color === 'white' ? 'rgba(255,215,0,0.1)' : 'transparent';
+    
+    p2Card.style.borderColor = color === 'black' ? '#ff453a' : 'transparent';
+    p2Card.style.background = color === 'black' ? 'rgba(255,69,58,0.1)' : 'transparent';
+};
+
+ui.onClick('spectator-submit-bet-btn', () => {
+    const roomID = document.getElementById('spectator-bet-room-id')?.value;
+    const color = document.getElementById('spectator-bet-color')?.value;
+    const amount = document.getElementById('spectator-bet-amount')?.value;
+    
+    if (!color) {
+        ui.showCustomAlert("الرجاء اختيار اللاعب الذي تتوقع فوزه أولاً!");
+        return;
+    }
+    
+    if (window.socketManager && typeof window.socketManager.placeSpectatorBet === 'function') {
+        window.socketManager.placeSpectatorBet(roomID, color, amount);
+        if (typeof window.closeAppModal === 'function') window.closeAppModal('spectator-bet-modal');
+    }
+});
 
 window.openCreatorSettings = function(roomId, currentBet) {
     const roomIdInput = document.getElementById('creator-target-room-id');
@@ -1754,6 +1912,14 @@ function hasPlayerMoved() {
 }
 
 ui.onClick('reset-btn', () => {
+    // 🌟 ميزة خروج المشاهد بضغطة زر بدلاً من نافذة بدء لعبة 🌟
+    if (gameState.isSpectator) {
+        if (window.socketManager && typeof window.socketManager.handleExitGame === 'function') {
+            window.socketManager.handleExitGame();
+        }
+        return;
+    }
+
     if (window.isMatchRunning && !gameState.isOnlineMode && !gameState.isGameOver) {
         if (hasPlayerMoved()) {
             ui.showCustomAlert(
