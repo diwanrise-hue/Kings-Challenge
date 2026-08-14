@@ -2,6 +2,7 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
+ * 🌟 (مُحدّث): تطبيق إطارات اللاعبين في بطاقة التحدي (VS Card) وضبط موضع الـ Lv والاسم.
  * 🌟 (مُحدّث): إصلاح الخلل الكارثي في المربع الأزرق للاعب الأسود (إصلاح updateVirtualBoardState).
  * 🌟 (مُحدّث): تصحيح مسار صور اللاعبين ومنع الانضغاط.
  */
@@ -283,19 +284,19 @@ export const ui = {
             if(cancelBtn) cancelBtn.style.display = 'block';
             
             let profile = gameState.userProfile || {};
-                        if (profile.syncThemeOptOut === undefined && !window.hasPromptedThemeSync) {
+            if (profile.syncThemeOptOut === undefined && !window.hasPromptedThemeSync) {
                 window.hasPromptedThemeSync = true; 
                 this.showCustomAlert(
                     "هل ترغب في استخدام ساحة اللاعب الأعلى مستوى في المباريات القادمة؟\n(يمكنك تغيير ذلك من الإعدادات لاحقاً)",
                     "مزامنة الساحة 🎨",
                     () => {
                         profile.syncThemeOptOut = false; this.saveAndSyncProfile(profile);
-                        const optCb = document.getElementById('sync-theme-optout'); if(optCb) optCb.checked = true; // ✔️ صح يعني موافق
+                        const optCb = document.getElementById('sync-theme-optout'); if(optCb) optCb.checked = true;
                         if(onComplete) onComplete();
                     }, true, "لا، ساحتي فقط", "نعم، أوافق",
                     () => {
                         profile.syncThemeOptOut = true; this.saveAndSyncProfile(profile);
-                        const optCb = document.getElementById('sync-theme-optout'); if(optCb) optCb.checked = false; // ⬜ فارغ يعني غير موافق
+                        const optCb = document.getElementById('sync-theme-optout'); if(optCb) optCb.checked = false;
                         if (window.applyTheme && gameState.userProfile) window.applyTheme(gameState.userProfile);
                         if(onComplete) onComplete();
                     }
@@ -363,11 +364,37 @@ export const ui = {
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
         if (active && gameState.userProfile) {
+            // رسم الصور
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar);
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             this.setTxt('card-opp-name', oppName);
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
             
+            // 🌟 رسم الإطارات حول الصور في VS Card 🌟
+            const myFrameId = gameState.userProfile.equippedFr || 'fr_classic';
+            const oppFrameId = gameState.currentOpponentFr || 'fr_classic';
+
+            const applyVisualFrame = (elementId, frameId) => {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+                let frameUrl = '';
+                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
+                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
+                }
+                if (frameUrl) {
+                    el.style.backgroundImage = `url('${frameUrl}')`;
+                    el.style.backgroundSize = '100% 100%';
+                    el.style.backgroundPosition = 'center';
+                    el.style.backgroundRepeat = 'no-repeat';
+                } else {
+                    el.style.backgroundImage = 'none';
+                }
+            };
+
+            applyVisualFrame('card-my-frame', myFrameId);
+            applyVisualFrame('card-opp-frame', oppFrameId);
+
+            // إعداد المستويات
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
             let myCardLevel = this.getEl('card-my-level');
             if (myCardLevel) myCardLevel.textContent = `Lv.${myLvlInfo.level}`;
@@ -377,31 +404,36 @@ export const ui = {
                 if (gameState.currentOpponentXp !== undefined) {
                     let oppLvlInfo = this.calculateLevelInfo(gameState.currentOpponentXp);
                     oppCardLevel.textContent = `Lv.${oppLvlInfo.level}`;
-                    oppCardLevel.style.background = "#ff453a"; 
+                    oppCardLevel.style.background = "rgba(255,69,58,0.2)"; 
+                    oppCardLevel.style.borderColor = "#ff453a"; 
+                    oppCardLevel.style.color = "#ff453a"; 
                 } else {
                     oppCardLevel.textContent = `Lv.?`;
-                    oppCardLevel.style.background = "#555";
+                    oppCardLevel.style.background = "rgba(161,161,170,0.2)";
+                    oppCardLevel.style.borderColor = "#a1a1aa"; 
+                    oppCardLevel.style.color = "#a1a1aa"; 
                 }
             }
             
-            const vsTextEl = document.querySelector('.match-vs-text');
-            if (vsTextEl) {
+            // إعداد الرهان
+            const vsBetEl = document.getElementById('vs-bet-display');
+            if (vsBetEl) {
                 if (gameState.roomBet && gameState.roomBet > 0) {
-                    vsTextEl.innerHTML = `VS<br><span style="font-size:14px; color:#ffd700; text-shadow:0 0 8px rgba(255, 215, 0, 0.5); display:block; margin-top:2px;">💰 ${gameState.roomBet * 2}</span>`;
-                } else { vsTextEl.innerHTML = `VS`; }
+                    vsBetEl.style.display = 'block';
+                    vsBetEl.innerText = `💰 ${gameState.roomBet * 2}`;
+                } else {
+                    vsBetEl.style.display = 'none';
+                }
             }
         }
     },
 
-    // 🌟 الإصلاح הגذري للمشكلة المربعات الزرقاء للون الأسود
     updateVirtualBoardState() {
         const board = this.getEl('board');
         if (!board) return;
         
         for (let i = 0; i < board.children.length; i++) {
             const cell = board.children[i];
-            
-            // 💡 الإعتماد على الإحداثيات المنطقية بدلاً من الترتيب المرئي (لأن الرقعة مقلوبة للأسود)
             const r = parseInt(cell.dataset.row);
             const c = parseInt(cell.dataset.col);
             
@@ -1217,7 +1249,7 @@ window.openAppModal = function(id) {
 window.closeAppModal = function(id) {
     if (id === 'lucky-spin-modal' && window.isSpinning) return; 
     const modal = document.getElementById(id);
-    if (modal) {
+    if (modal) { 
         modal.style.display = 'none'; 
         gameState.modalStack = gameState.modalStack.filter(m => m !== id);
     }
@@ -1446,7 +1478,6 @@ window.copyMyId = function() {
     }
 };
 
-// 🌟 بناء وتكوين المراكز 4 فما دون ومنع الانضغاط 🌟
 window.createLbItemHTML = function(rank, playerObj, type) {
     let score = playerObj.score || playerObj.wins || 0; 
     let name = playerObj.name; 
@@ -1470,10 +1501,8 @@ window.createLbItemHTML = function(rank, playerObj, type) {
     nameEl.className = 'lb-name'; 
     nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
     
-    // 🌟 1. استخدام الدالة الآمنة لاستخراج رابط الصورة (تمنع ظهور 👤 بشكل خاطئ) 🌟
     let secureImgSrc = getSecureAvatarUrl(avatarStr);
 
-    // 🌟 2. فرض أبعاد صارمة ومنع الانضغاط (aspect-ratio: 1/1) 🌟
     div.innerHTML = `
         <div class="lb-rank">#${rank}</div>
         <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px; width: 40px; height: 40px; border-radius: 50%;" title="عرض الملف الشخصي">
@@ -1494,10 +1523,6 @@ window.createLbItemHTML = function(rank, playerObj, type) {
 
     return div;
 };
-
-// ==========================================
-// 🏆 دوال منصة التتويج الجديدة (Podium) 🏆
-// ==========================================
 
 function getSecureAvatarUrl(src) {
     if (!src || src === 'null' || src === 'undefined') {
@@ -1553,7 +1578,6 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         const card = document.createElement('div');
         card.className = `lb-podium-card rank-${item.rank}`;
         
-        // 🌟 تثبيت الاسم في الأسفل ورفع المستوى والكأس فوقه بدون كود الطوارئ 🌟
         card.innerHTML = `
             <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
             <div class="lb-podium-avatar avatar-${item.rank}">
