@@ -291,19 +291,28 @@ body.game-active #reset-btn:active {
 /* ========================================== */
 /* 🌟 نظام البروفايل الجديد المتمركز (أسود/ذهبي) */
 /* ========================================== */
-.auto-fit-center {
-    transform-origin: center center !important;
+
+.shrink-text {
+    display: inline-block !important; 
     white-space: nowrap !important;
-    display: inline-block !important;
+    transform-origin: center center !important; 
+    transition: transform 0.2s ease !important;
+}
+
+.text-boundary {
+    position: absolute !important;
+    display: flex !important; justify-content: center !important; align-items: center !important;
+    overflow: visible !important; box-sizing: border-box !important;
+    /* تمت إزالة الخطوط المتقطعة والخلفيات الشفافة للإنتاج */
 }
 
 #profile-badge.profile-badge-container { 
     position: fixed !important; 
     top: 1.5px !important; 
     z-index: 10001; 
-    width: 180px !important;       
-    height: 90px !important;       
-    background-image: url('profile.webp'); 
+    width: 185px !important;       
+    height: 100px !important;       
+    background-image: url('dama/Media/front/profile.webp'); 
     background-size: 100% 100%; 
     background-repeat: no-repeat; 
     background-color: transparent !important;
@@ -320,281 +329,99 @@ body.game-active #reset-btn:active {
     transform: scale(0.85) !important; 
 }
 html[dir="rtl"] #profile-badge.profile-badge-container { 
-    left: 15px !important; 
-    right: auto !important; 
-    transform-origin: top left !important; 
+    left: 15px !important; right: auto !important; transform-origin: top left !important; 
 }
 html[dir="ltr"] #profile-badge.profile-badge-container { 
-    right: 15px !important; 
-    left: auto !important; 
-    transform-origin: top right !important; 
+    right: 15px !important; left: auto !important; transform-origin: top right !important; 
 }
 #profile-badge.profile-badge-container:hover { 
     transform: scale(0.82) !important; 
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)) drop-shadow(0 0 8px rgba(212, 175, 55, 0.6)) !important;
 }
 
-#profile-badge .profile-avatar-capsule { 
+#profile-badge #badge-avatar.profile-avatar-capsule { 
     position: absolute !important; 
-    top: 19.6px !important;      
-    left: 12.4px !important;     
-    width: 53px !important;      
-    height: 53px !important;     
+    top: 20.4px !important;      
+    left: 12.9px !important;     
+    width: 55.3px !important;      
+    height: 55.3px !important;     
     border-radius: 50% !important; 
     border: none !important; 
     z-index: 3 !important; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
+    display: flex; align-items: center; justify-content: center; 
     overflow: hidden; 
-    background-color: transparent !important; 
+    background-color: #1a1a24 !important; 
     -webkit-mask-image: -webkit-radial-gradient(white, black); 
     mask-image: radial-gradient(white, black);
     transform: translateZ(0); 
 }
-
-#profile-badge .profile-avatar-capsule img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    border-radius: 50% !important;
+#profile-badge #badge-avatar.profile-avatar-capsule img {
+    width: 100% !important; height: 100% !important; object-fit: cover !important; border-radius: 50% !important;
 }
 
-#profile-badge .ai-level-badge { 
-    position: absolute !important; 
-    bottom: 1.4px !important;    
-    left: 29px !important;     
-    width: 21px !important;
-    height: 11px !important;
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important; 
-    z-index: 25 !important; 
-}
+/* 🌟 حاويات النصوص الدقيقة 🌟 */
+.boundary-level { bottom: 13px !important; right: 2.5px !important; width: 22px !important; height: 12px !important; z-index: 25 !important; }
+.boundary-name { top: 27.6px !important; left: 99px !important; right: 16px !important; height: 18px !important; direction: rtl !important; }
+.boundary-title { top: 60px !important; left: 136px !important; width: 30px !important; height: 10px !important; }
+.boundary-rank { top: 56px !important; left: 82px !important; width: 38px !important; height: 12px !important; }
+.boundary-xp { top: 75.3px !important; left: 110px !important; width: 25px !important; height: 10px !important; z-index: 15 !important; }
 
-#profile-badge #badge-level { 
-    background: transparent !important; 
-    color: #d4af37 !important; 
-    border: none !important; 
-    padding: 0;
-    font-size: 11px;           
-    font-weight: 900; 
-    line-height: 1; 
-    text-shadow: 0 1px 3px rgba(0,0,0,1);
-    letter-spacing: 0.5px;
-    text-rendering: geometricPrecision; 
-    -webkit-font-smoothing: antialiased;
-}
+/* 🌟 خصائص النصوص 🌟 */
+#badge-level { color: #d4af37 !important; font-size: 11px !important; font-weight: 900 !important; text-shadow: 0 1px 3px black !important; line-height: 1 !important; text-rendering: geometricPrecision; -webkit-font-smoothing: antialiased; }
+.player-name { color: #ffffff !important; font-size: 13.5px !important; font-weight: 800 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; }
+.title-text-free { color: #ff9800 !important; font-weight: 700 !important; font-size: 11px !important; transform: scale(0.75) !important; letter-spacing: 0.5px !important; direction: rtl !important; }
+.rank-text-free { color: #ff9800 !important; font-weight: 700 !important; font-size: 11px !important; transform: scale(0.7) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; letter-spacing: 0.5px !important; direction: rtl !important; }
+.xp-text-free { color: #ffffff !important; font-weight: 800 !important; font-size: 10px !important; transform: scale(0.43) !important; text-shadow: 0 1px 2px #000000, 0 0 3px #000000 !important; letter-spacing: 0.5px !important; direction: ltr !important; }
 
-.profile-main-info {
-    position: absolute;
-    top: 29px; 
-    left: 90px;
-    right: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 3;
-}
-
-.name-row {
-    display: flex;
-    justify-content: center; 
-    align-items: center;
-    width: 100%;
-    direction: rtl; 
-}
-
-.player-name {
-    color: #ffffff;
-    font-size: 13.5px; 
-    font-weight: 800;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-}
-
-.title-text-free {
-    position: absolute !important;
-    top: 64px !important;      
-    left: 95px !important;    
-    z-index: 5 !important;
-    width: 100px !important; 
-    height: 10px !important;       
-    font-size: 11px !important; 
-    white-space: nowrap !important;
-    transform: scale(0.75) !important; 
-    transform-origin: center center !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    color: #ff9800; 
-    font-weight: 700; 
-    letter-spacing: 0.5px;
-    direction: rtl; 
-}
-
+/* الخط الفاصل */
 .vertical-divider-free {
-    position: absolute !important;
-    top: 55px !important;      
-    left: 124px !important;    
-    z-index: 5 !important;
-    width: 0.8px !important;     
-    height: 9px !important;    
+    position: absolute !important; 
+    top: 53.00px !important; 
+    left: 129.00px !important;
+    width: 0.80px !important; 
+    height: 11.50px !important; 
     background: rgba(255, 255, 63, 0.57) !important; 
+    z-index: 20 !important;
+    box-shadow: 0 0 2px rgba(255, 255, 0, 0.8) !important;
 }
 
-.rank-text-free {
-    position: absolute !important;
-    top: 64px !important;      
-    left: 55px !important;    
-    z-index: 5 !important;
-    width: 100px !important; 
-    height: 10px !important;       
-    font-size: 11px !important; 
-    white-space: nowrap !important;
-    transform: scale(0.7) !important; 
-    transform-origin: center center !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    color: #ff9800; 
-    font-weight: 700; 
-    letter-spacing: 0.5px;
-    direction: rtl; 
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-}
-
-.xp-text-free {
-    position: absolute !important;
-    top: 74.3px !important;  
-    left: 55px !important;   
-    z-index: 5 !important;
-    width: 100px !important; 
-    height: 10px !important;       
-    font-size: 10px !important;   
-    white-space: nowrap !important;
-    transform: scale(0.43) !important;
-    transform-origin: center center !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    color: #e0e0e0;
-    font-weight: 500; 
-    letter-spacing: 0.5px;
-    direction: ltr; 
-}
-
+/* شريط الخبرة (XP) */
 .xp-wrapper {
-    position: absolute;
-    bottom: 4.11px;
-    left: 61.6px;
-    width: 88px;  
-    height: 4.5px;  
-    z-index: 3;
+    position: absolute !important; bottom: 16.11px !important; left: 68.6px !important;
+    width: 88px !important; height: 5px !important;
+    background: rgba(10, 15, 10, 0.85) !important; 
+    border: 0.5px solid rgba(0, 255, 128, 0.35) !important;
+    border-radius: 4px !important; overflow: hidden !important; direction: ltr !important; z-index: 10 !important;
 }
-
 .straight-xp-fill {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%; 
-    width: 0%; 
-    background: linear-gradient(180deg, #5ae87c 0%, #2ecc71 50%, #1e8449 100%); 
-    border-radius: 2px; 
-    transition: width 0.5s ease-out;
-    box-shadow: 0 0 3px rgba(46, 204, 113, 0.4);
-}
-
-.next-level-badge-container {
-    position: absolute !important;
-    bottom: -0.8px !important;
-    left: 157.6px !important;
-    width: 15.5px !important;
-    height: 10px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    z-index: 3 !important;
-}
-
-.next-level-badge {
-    background: transparent;
-    color: #d4af37;
-    border: none;
-    padding: 0;
-    font-size: 8px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    text-shadow: 0 1px 2px rgba(0,0,0,1);
-    line-height: 1;
-    text-rendering: geometricPrecision; 
-    -webkit-font-smoothing: antialiased;
+    height: 100% !important; width: 0%; 
+    background: linear-gradient(180deg, #a3f78b 0%, #2ecc71 45%, #1b8a47 100%) !important;
+    box-shadow: 0 0 6px #2ecc71 !important;
+    transition: width 0.5s ease-out !important;
 }
 
 /* ========================================== */
 /* 🪵 إطار الخشب السفلي (النقود وسلسلة الانتصارات) 🪵 */
 /* ========================================== */
 .bottom-stats-frame {
-    position: absolute !important;
-    top: 88.8px !important;           
-    left: 54% !important;
-    transform: translateX(-50%) !important;
-    width: 193px !important;
-    height: 22px !important;
-    background-image: url('tape.webp') !important;
-    background-size: 100% 100% !important;
-    background-repeat: no-repeat !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
+    position: absolute !important; top: 88.8px !important; left: 54% !important; transform: translateX(-50%) !important;
+    width: 193px !important; height: 22px !important;
+    background-image: url('dama/Media/front/tape.webp') !important; background-size: 100% 100% !important;
+    background-repeat: no-repeat !important; background-color: transparent !important;
+    box-shadow: none !important; border-radius: 0 !important;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) !important;
     z-index: 10 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-around !important;
-    padding: 0 22px !important;      
-    box-sizing: border-box !important;
-    direction: ltr !important;
+    display: flex !important; align-items: center !important; justify-content: space-around !important;
+    padding: 0 22px !important; box-sizing: border-box !important; direction: ltr !important;
 }
+.stat-item { display: flex !important; align-items: center !important; gap: 3px !important; color: #ffea79 !important; font-size: 9.5px !important; font-weight: 800 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important; white-space: nowrap !important; }
+.stat-icon { font-size: 10px !important; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8)) !important; }
+.frame-divider { width: 1px !important; height: 12px !important; background: linear-gradient(180deg, transparent, #ffd700, transparent) !important; opacity: 0.6 !important; }
 
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    color: #ffea79;
-    font-size: 9.5px;
-    font-weight: 800;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-    white-space: nowrap;
-}
-
-.stat-icon {
-    font-size: 10px;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
-}
-
-.frame-divider {
-    width: 1px;
-    height: 12px;
-    background: linear-gradient(180deg, transparent, #ffd700, transparent);
-    opacity: 0.6;
-}
-
-.streak-text-format {
-    display: flex !important;
-    align-items: center !important;
-    gap: 2px !important;
-}
-
+.streak-text-format { display: flex !important; align-items: center !important; gap: 2px !important; }
 .tokens-number-ctrl { position: relative !important; top: 1.2px !important; }
 .streak-number-ctrl { position: relative !important; top: 1.2px !important; }
-.streak-text-ctrl {
-    position: relative !important;
-    top: 1px !important; 
-    font-size: 7.5px !important;
-    color: #ffea79 !important;
-    font-weight: 700 !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.9) !important;
-}
+.streak-text-ctrl { position: relative !important; top: 1px !important; font-size: 7.5px !important; color: #ffea79 !important; font-weight: 700 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.9) !important; }
 .streak-fire-ctrl { position: relative !important; top: 0px !important; }
 
 /* القائمة الجانبية */
@@ -651,7 +478,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     width: 90vw !important; max-width: 600px !important; height: 80vh !important; max-height: 800px !important; padding-top: 35px; display: flex; flex-direction: column;
 }
 
-.room-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; border:none !important; padding: 60px 20px 20px 20px !important; background-image: url('room.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; } 
+.room-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; border:none !important; padding: 60px 20px 20px 20px !important; background-image: url('dama/Media/front/room.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; } 
 
 .settings-card::-webkit-scrollbar { display: none; }
 @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
@@ -728,7 +555,9 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     box-sizing: border-box;
     padding: 15px 16px 15px 16px; 
     background: #0f1015;
-    background-image: radial-gradient(circle at top, #1a1c29 0%, #08090c 100%); 
+    background-image: url('dama/Media/front/leaderboard.webp');
+    background-size: cover;
+    background-position: center;
     display: flex; 
     flex-direction: column; 
     position: relative;
