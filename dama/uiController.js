@@ -5,6 +5,7 @@
  * 🌟 (مُحدّث): إضافة نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
  * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة.
  * 🌟 (مُحدّث): إضافة الإطارات الملكية لمنصة تتويج تبويب "المستوى" فقط من damapro.js
+ * 🌟 (مُحدّث): فصل إطارات الساحة عن إطارات الصور الشخصية للحفاظ على بنية الكود للمستقبل.
  */
 
 import { gameState } from './gameState.js'; 
@@ -384,6 +385,27 @@ export const ui = {
             p2LvlEl.style.color = "#ff453a";
         }
 
+        // 🌟 تطبيق دالة إطار الصورة الشخصية (مخصصة ومستقلة عن إطار الساحة)
+        const applyVisualFrame = (elementId, frameId) => {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            if (!frameId) {
+                el.style.backgroundImage = 'none';
+                return;
+            }
+            let frameUrl = '';
+            if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
+                frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
+            }
+            if (frameUrl) {
+                el.style.backgroundImage = `url('${frameUrl}')`;
+                el.style.backgroundSize = '100% 100%';
+                el.style.backgroundPosition = 'center';
+                el.style.backgroundRepeat = 'no-repeat';
+            } else { el.style.backgroundImage = 'none'; }
+        };
+        applyVisualFrame('card-my-frame', p1?.equippedAvatarFr || null);
+        applyVisualFrame('card-opp-frame', p2?.equippedAvatarFr || null);
 
         const p1Xp = Number(p1?.xp) || 0;
         const p2Xp = Number(p2?.xp) || 0;
@@ -452,6 +474,33 @@ export const ui = {
             this.setTxt('card-opp-name', oppName);
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
           
+            // 🌟 تطبيق دالة إطار الصورة الشخصية باستخدام المتغير المستقبلي المخصص للصور 🌟
+            const myAvatarFrameId = gameState.userProfile.equippedAvatarFr || null;
+            const oppAvatarFrameId = gameState.currentOpponentAvatarFr || null;
+
+            const applyVisualFrame = (elementId, frameId) => {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+                if (!frameId) {
+                    el.style.backgroundImage = 'none';
+                    return;
+                }
+                let frameUrl = '';
+                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
+                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
+                }
+                if (frameUrl) {
+                    el.style.backgroundImage = `url('${frameUrl}')`;
+                    el.style.backgroundSize = '100% 100%';
+                    el.style.backgroundPosition = 'center';
+                    el.style.backgroundRepeat = 'no-repeat';
+                } else {
+                    el.style.backgroundImage = 'none';
+                }
+            };
+
+            applyVisualFrame('card-my-frame', myAvatarFrameId);
+            applyVisualFrame('card-opp-frame', oppAvatarFrameId);
 
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
             let myCardLevel = this.getEl('card-my-level');
