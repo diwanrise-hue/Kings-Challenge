@@ -2,6 +2,7 @@
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
  * 🌟 (مُحدّث): إضافة دالة applyMatchThemeRobust لحل مشكلة "سباق الزمن" وتأخر تحميل المتجر.
+ * 🌟 (مُحدّث): إصلاح خطأ ui.translate الذي كان يمنع ظهور رسالة إعادة اللعب.
  */
 
 import { gameState } from './gameState.js'; 
@@ -825,9 +826,9 @@ export const socketManager = {
                 this._showToast("انتهى وقت أحد اللاعبين وانتهت المباراة.");
             }
         });
-                  
 
-          socket.on('syncTime', (data) => {
+        // 🌟 مُحدّث: تم إزالة دالة ui.translate واستخدام gameState.lang 🌟
+        socket.on('syncTime', (data) => {
             if (gameState.isOnlineMode && data) {
                 const seconds = data.secondsLeft || 0;
                 gameState.turnTimeLeft = seconds;
@@ -837,7 +838,6 @@ export const socketManager = {
                 else ui.setTxt('turn-countdown', gameState.lang === 'ar' ? `⏳ المتبقي للدور: ${seconds} ثانية` : `⏳ Turn Time Left: ${seconds}s`);
             }
         });
-
 
         socket.on('opponentDisconnected', data => {
             if (!gameState.isOnlineMode) return;
@@ -896,7 +896,8 @@ export const socketManager = {
             }
         });
 
-      socket.on('rematchOffer', () => {
+        // 🌟 مُحدّث: تم إزالة دالة ui.translate واستخدام gameState.lang لتجنب انهيار الكود 🌟
+        socket.on('rematchOffer', () => {
             if (this.isAlertShown || gameState.isSpectator) return; 
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
@@ -905,7 +906,6 @@ export const socketManager = {
             this.isAlertShown = true;
 
             if (typeof ui.showCustomAlert === 'function') {
-                // 🌟 الإصلاح هنا: استخدام شرط اللغة المباشر بدلاً من ui.translate الوهمية 🌟
                 const msg = gameState.lang === 'ar' ? "الخصم يطلب إعادة اللعب!" : "Opponent wants a rematch!";
                 const title = gameState.lang === 'ar' ? "إعادة اللعب" : "Rematch";
                 const exitTxt = gameState.lang === 'ar' ? "الخروج" : "Exit";
@@ -948,7 +948,6 @@ export const socketManager = {
                 setTimeout(updateRematchUI, 50); 
             }
         });
-
 
         socket.on('rematchAccepted', () => {
             this.isAlertShown = false;
