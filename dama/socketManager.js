@@ -1,9 +1,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): إضافة دالة applyMatchThemeRobust لحل مشكلة المتجر.
- * 🌟 (مُحدّث): إصلاح خطأ الترجمة لمنع انهيار إعادة اللعب.
- * 🌟 (مُحدّث): حفظ إطار الخصم لعرضه في بطاقة التحدي.
+ * 🌟 (مُحدّث): فصل نصوص الإشعارات في (ذيل) بأسفل الملف لسهولة التعديل.
+ * 🌟 (مُحدّث): إخفاء الإشعار الأخضر المزعج للبحث العشوائي إذا كانت النافذة مفتوحة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -30,23 +29,19 @@ const fallbackMoveAudio = new Audio('move.mp3');
 const applyMatchThemeRobust = (profile, retries = 5) => {
     if (!profile) return;
     
-    // إذا لم يكتمل تحميل المتجر بعد، انتظر ربع ثانية وحاول مجدداً
     if (!window.STORE_ITEMS && retries > 0) {
         setTimeout(() => applyMatchThemeRobust(profile, retries - 1), 250);
         return;
     }
 
-    // استخراج العناصر من البروفايل (أو وضع الافتراضي)
     const bgId = profile.equippedBg || 'bg_wood';
     const pcId = profile.equippedPc || 'pc_original';
     const frId = profile.equippedFr || 'fr_classic'; 
 
-    // تطبيق خصائص CSS العامة على body لكي تلتقطها ملفات التصميم
     document.body.setAttribute('data-piece-style', pcId);
     document.body.setAttribute('data-board-style', bgId);
     document.body.setAttribute('data-frame-style', frId);
 
-    // تطبيق ألوان المربعات المخصصة إذا وجدت
     if (window.STORE_ITEMS) {
         const bgItem = window.STORE_ITEMS[bgId];
         if (bgItem && bgItem.light && bgItem.dark) {
@@ -58,7 +53,6 @@ const applyMatchThemeRobust = (profile, retries = 5) => {
         }
     } 
 
-    // استدعاء دالة الواجهة الأصلية كإجراء تأكيدي لضمان عمل أي تأثيرات إضافية
     if (typeof window.applyTheme === 'function') {
         window.applyTheme(profile);
     }
@@ -540,7 +534,7 @@ export const socketManager = {
             gameState.isSpectator = false;
             gameState.lastMyMove = null;
             if(id) gameState.onlineRoomID = id;
-            this._showToast(gameState.lang === 'ar' ? "تم الإنشاء! بانتظار الخصم" : "Created! Waiting...");
+            this._showToast(getNotifyMsg('roomCreated'));
             if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
         });
 
@@ -549,14 +543,19 @@ export const socketManager = {
             gameState.playerColor = gameState.myOnlineColor = 'black';
             gameState.isSpectator = false;
             gameState.lastMyMove = null;
-            this._showToast(gameState.lang === 'ar' ? "تم الانضمام!" : "Joined!");
+            this._showToast(getNotifyMsg('roomJoined'));
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('online-modal');
                 window.closeAppModal('create-room-modal');
             }
         });
 
-        socket.on('waitingForOpponent', msg => this._showToast(msg));
+        // 🌟 إخفاء الإشعار الأخضر المزعج إذا كانت نافذة البحث العشوائي مفتوحة 🌟
+        socket.on('waitingForOpponent', msg => {
+            const mmModal = document.getElementById('matchmaking-modal');
+            if (mmModal && (mmModal.style.display === 'flex' || mmModal.style.display === 'block')) return;
+            this._showToast(msg);
+        });
 
         socket.on('spectatorJoined', (data) => {
             if (!data) return;
@@ -585,7 +584,7 @@ export const socketManager = {
             if (data.isBettingOpen && typeof window.showSpectatorBetModal === 'function') {
                 window.showSpectatorBetModal(data.roomID, data.player1, data.player2);
             } else {
-                this._showToast("أنت الآن تشاهد المباراة 👁️");
+                this._showToast(getNotifyMsg('spectating'));
             }
         });
 
@@ -615,7 +614,7 @@ export const socketManager = {
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('spectator-bet-modal');
             }
-            if (gameState.isSpectator) this._showToast("تم إغلاق المراهنات لهذه المباراة 🔒");
+            if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
         socket.on('gameStart', data => {
@@ -647,8 +646,6 @@ export const socketManager = {
 
             gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
             gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.png");
-            
-            // 🌟 الإضافة الجديدة: التقاط إطار الخصم من السيرفر
             gameState.currentOpponentFr = (data.opponent?.equippedFr || "fr_classic");
             
             const opponentXpFromServer = Number(data.opponent?.xp) || 0;
@@ -687,10 +684,10 @@ export const socketManager = {
             const oppXp = opponentXpFromServer;
 
             if (!isOptOut && oppXp > myXp) {
-                this._showToast(`✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً!`);
+                this._showToast(getNotifyMsg('oppHigherTheme'));
                 applyMatchThemeRobust(data.opponent);
             } else if (!isOptOut && myXp > oppXp) {
-                this._showToast("✨ تم تطبيق ساحتك على الخصم لأنك الأعلى تصنيفاً!");
+                this._showToast(getNotifyMsg('myHigherTheme'));
                 applyMatchThemeRobust(myProfile);
             } else {
                 applyMatchThemeRobust(myProfile);
@@ -801,9 +798,9 @@ export const socketManager = {
             
             if (!gameState.isSpectator) {
                 gameEngine.endGame(gameState.myOnlineColor);
-                this._showToast(gameState.lang === 'ar' ? "انسحب الخصم! لقد فزت 🏆" : "Opponent Resigned! You Win 🏆");
+                this._showToast(getNotifyMsg('oppResignedWin'));
             } else {
-                this._showToast("انسحب أحد اللاعبين وانتهت المباراة.");
+                this._showToast(getNotifyMsg('oppResignedSpec'));
             }
         });
 
@@ -819,18 +816,17 @@ export const socketManager = {
             if (!gameState.isSpectator) {
                 gameEngine.endGame(winnerColor);
                 if (winnerColor === 'draw') {
-                    this._showToast(gameState.lang === 'ar' ? "انتهى الوقت بالتعادل 🤝" : "Time out! Draw 🤝");
+                    this._showToast(getNotifyMsg('timeoutDraw'));
                 } else if (winnerColor === gameState.myOnlineColor) {
-                    this._showToast(gameState.lang === 'ar' ? "انتهى وقت الخصم! لقد فزت 🏆" : "Opponent timeout! You Win 🏆");
+                    this._showToast(getNotifyMsg('timeoutWin'));
                 } else {
-                    this._showToast(gameState.lang === 'ar' ? "انتهى وقتك! حظاً موفقاً ⏳" : "Time out! Better luck next time ⏳");
+                    this._showToast(getNotifyMsg('timeoutLoss'));
                 }
             } else {
-                this._showToast("انتهى وقت أحد اللاعبين وانتهت المباراة.");
+                this._showToast(getNotifyMsg('timeoutSpec'));
             }
         });
 
-        // 🌟 مُحدّث: تم استخدام شرط gameState.lang المباشر 🌟
         socket.on('syncTime', (data) => {
             if (gameState.isOnlineMode && data) {
                 const seconds = data.secondsLeft || 0;
@@ -844,7 +840,7 @@ export const socketManager = {
 
         socket.on('opponentDisconnected', data => {
             if (!gameState.isOnlineMode) return;
-            this._showToast((data && data.message) || (gameState.lang === 'ar' ? "انقطع اتصال الخصم" : "Opponent disconnected"));
+            this._showToast((data && data.message) || getNotifyMsg('oppDisconnected'));
             
             if (!gameState.isGameOver && !gameState.isSpectator) {
                 gameState.isGameOver = true;
@@ -857,7 +853,7 @@ export const socketManager = {
 
         socket.on('opponentReconnected', data => {
             if (!gameState.isOnlineMode || !data) return;
-            this._showToast(gameState.lang === 'ar' ? `عاد ${data.name || 'الخصم'} للاتصال!` : `${data.name || 'Opponent'} reconnected!`);
+            this._showToast(getNotifyMsg('oppReconnected', data.name || (gameState.lang === 'ar' ? 'الخصم' : 'Opponent')));
             if (data.avatar && !gameState.isSpectator) {
                 gameState.currentOpponentAvatar = data.avatar;
                 ui.applyAvatar('card-opp-avatar', data.avatar, data.avatar.startsWith('data:image') || data.avatar.endsWith('.png') || data.avatar.endsWith('.jpg'));
@@ -866,13 +862,13 @@ export const socketManager = {
 
         socket.on('playerDisconnected', () => {
             if (!gameState.isOnlineMode) { socket.disconnect(); return; }
-            this._showToast(gameState.lang === 'ar' ? "غادر الخصم الغرفة" : "Opponent left the room");
+            this._showToast(getNotifyMsg('oppLeftRoom'));
             this.handleExitGame();
         });
 
         socket.on('opponentLeftRoom', data => {
             if (!gameState.isOnlineMode) return;
-            this._showToast((data && data.message) || (gameState.lang === 'ar' ? "غادر الخصم المباراة." : "Opponent left the room."));
+            this._showToast((data && data.message) || getNotifyMsg('oppLeftMatch'));
             this.handleExitGame(); 
         });
 
@@ -887,11 +883,11 @@ export const socketManager = {
             }
             
             if (data.winner === 'draw') {
-                this._showToast(`انتهت المباراة بالتعادل 🤝 (${data.reason})`);
+                this._showToast(gameState.lang === 'ar' ? `انتهت المباراة بالتعادل 🤝 (${data.reason})` : `Draw 🤝 (${data.reason})`);
             } else if (data.winner === gameState.myOnlineColor) {
-                this._showToast(`لقد فزت! 🏆 (${data.reason})`);
+                this._showToast(gameState.lang === 'ar' ? `لقد فزت! 🏆 (${data.reason})` : `You win! 🏆 (${data.reason})`);
             } else {
-                this._showToast(`لقد خسرت 😢 (${data.reason})`);
+                this._showToast(gameState.lang === 'ar' ? `لقد خسرت 😢 (${data.reason})` : `You lose 😢 (${data.reason})`);
             }
             
             if (typeof ui.showOnlineResultsModal === 'function') {
@@ -899,7 +895,6 @@ export const socketManager = {
             }
         });
 
-        // 🌟 مُحدّث: تم إزالة دالة ui.translate واستخدام gameState.lang لتجنب انهيار الكود 🌟
         socket.on('rematchOffer', () => {
             if (this.isAlertShown || gameState.isSpectator) return; 
             
@@ -973,7 +968,7 @@ export const socketManager = {
             
             document.getElementById('custom-results-modal-container')?.remove();
 
-            const reasonMsg = data && data.reason ? data.reason : (gameState.lang === 'ar' ? "انتهى وقت الاستجابة لإعادة اللعب." : "Rematch timeout expired.");
+            const reasonMsg = data && data.reason ? data.reason : getNotifyMsg('rematchTimeout');
             this._showToast(reasonMsg);
             
             this.handleExitGame(); 
@@ -1040,10 +1035,10 @@ export const socketManager = {
 
         socket.on('challengeResponse', data => {
             if (data && data.accept) {
-                this._showToast(gameState.lang === 'ar' ? "تم قبول التحدي! جاري الدخول..." : "Accepted! Entering...");
+                this._showToast(getNotifyMsg('challengeAccepted'));
             } else {
                 const responderName = (data && data.responderName) || (gameState.lang === 'ar' ? 'الصديق' : 'Friend');
-                this._showToast(gameState.lang === 'ar' ? `رفض ${responderName} التحدي.` : `${responderName} declined.`);
+                this._showToast(getNotifyMsg('challengeDeclined', responderName));
                 this.handleExitGame(); 
             }
         });
@@ -1067,10 +1062,10 @@ export const socketManager = {
 
         socket.on('mic-response', (data) => {
             if (data.accept) {
-                this._showToast("تم قبول طلب الصوت 🎤");
+                this._showToast(getNotifyMsg('micAccepted'));
                 if (window.voiceChat) window.voiceChat.forceStartCall();
             } else {
-                this._showToast("رفض الخصم طلب المحادثة الصوتية 🔕");
+                this._showToast(getNotifyMsg('micRejected'));
                 if (window.voiceChat) window.voiceChat.updateMicUI(false);
             }
         });
@@ -1206,7 +1201,7 @@ export const socketManager = {
             
             if (typeof ui.showCustomAlert === 'function') {
                 ui.showCustomAlert(
-                    gameState.lang === 'ar' ? "تم إرسال طلبك! بانتظار رد الخصم..." : "Rematch request sent! Waiting...",
+                    getNotifyMsg('rematchSent'),
                     gameState.lang === 'ar' ? "في الانتظار" : "Waiting",
                     null, true  
                 );
@@ -1243,7 +1238,7 @@ export const socketManager = {
         }
 
         if (targetAction !== 'joinMatchmakingPool' && !roomIdInput) {
-            this._showToast(gameState.lang === 'ar' ? "الرجاء إدخال رقم الغرفة!" : "Please enter Room ID!");
+            this._showToast(getNotifyMsg('enterRoomId'));
             return;
         }
         
@@ -1314,7 +1309,7 @@ export const socketManager = {
 
         this._safeEmit('sendChallenge', challengePayload);
         
-        this._showToast("تم إرسال طلب التحدي! بانتظار رد الصديق...");
+        this._showToast(getNotifyMsg('challengeSent'));
     },
 
     sendAddFriend(friendId) {
@@ -1324,5 +1319,73 @@ export const socketManager = {
         this._safeEmit('addFriend', friendPayload);
     }
 };
+
+// ==========================================
+// 📝 ذيل الإشعارات (Notifications Tail)
+// ==========================================
+const notifyTexts = {
+    ar: {
+        roomCreated: "تم الإنشاء! بانتظار الخصم ⏳",
+        roomJoined: "تم الانضمام! ✅",
+        spectating: "أنت الآن تشاهد المباراة 👁️",
+        betClosed: "تم إغلاق المراهنات لهذه المباراة 🔒",
+        oppHigherTheme: "✨ جاري استخدام ساحة الخصم لأنه الأعلى تصنيفاً!",
+        myHigherTheme: "✨ تم تطبيق ساحتك على الخصم لأنك الأعلى تصنيفاً!",
+        oppResignedWin: "انسحب الخصم! لقد فزت 🏆",
+        oppResignedSpec: "انسحب أحد اللاعبين وانتهت المباراة.",
+        timeoutDraw: "انتهى الوقت بالتعادل 🤝",
+        timeoutWin: "انتهى وقت الخصم! لقد فزت 🏆",
+        timeoutLoss: "انتهى وقتك! حظاً موفقاً ⏳",
+        timeoutSpec: "انتهى وقت أحد اللاعبين وانتهت المباراة.",
+        oppDisconnected: "انقطع اتصال الخصم ⚠️",
+        oppReconnected: "عاد {name} للاتصال! 🔄",
+        oppLeftRoom: "غادر الخصم الغرفة 🚪",
+        oppLeftMatch: "غادر الخصم المباراة 🚪",
+        rematchTimeout: "انتهى وقت الاستجابة لإعادة اللعب ⏱️",
+        micAccepted: "تم قبول طلب الصوت 🎤",
+        micRejected: "رفض الخصم طلب المحادثة الصوتية 🔕",
+        enterRoomId: "الرجاء إدخال رقم الغرفة! 🔢",
+        rematchSent: "تم إرسال طلبك! بانتظار رد الخصم... ⏳",
+        challengeSent: "تم إرسال طلب التحدي! بانتظار رد الصديق... ⏳",
+        challengeAccepted: "تم قبول التحدي! جاري الدخول... ⚔️",
+        challengeDeclined: "رفض {name} التحدي ❌"
+    },
+    en: {
+        roomCreated: "Created! Waiting... ⏳",
+        roomJoined: "Joined! ✅",
+        spectating: "You are now spectating 👁️",
+        betClosed: "Betting closed for this match 🔒",
+        oppHigherTheme: "✨ Using opponent's theme (Higher Rank)!",
+        myHigherTheme: "✨ Your theme applied (Higher Rank)!",
+        oppResignedWin: "Opponent Resigned! You Win 🏆",
+        oppResignedSpec: "A player resigned. Match ended.",
+        timeoutDraw: "Time out! Draw 🤝",
+        timeoutWin: "Opponent timeout! You Win 🏆",
+        timeoutLoss: "Time out! Better luck next time ⏳",
+        timeoutSpec: "A player timed out. Match ended.",
+        oppDisconnected: "Opponent disconnected ⚠️",
+        oppReconnected: "{name} reconnected! 🔄",
+        oppLeftRoom: "Opponent left the room 🚪",
+        oppLeftMatch: "Opponent left the match 🚪",
+        rematchTimeout: "Rematch timeout expired ⏱️",
+        micAccepted: "Voice request accepted 🎤",
+        micRejected: "Voice request rejected 🔕",
+        enterRoomId: "Please enter Room ID! 🔢",
+        rematchSent: "Rematch request sent! Waiting... ⏳",
+        challengeSent: "Challenge sent! Waiting for friend... ⏳",
+        challengeAccepted: "Accepted! Entering... ⚔️",
+        challengeDeclined: "{name} declined the challenge ❌"
+    }
+};
+
+function getNotifyMsg(key, dynamicName = '') {
+    const lang = gameState.lang || 'ar';
+    const dictionary = notifyTexts[lang] || notifyTexts['ar'];
+    let text = dictionary[key] || key;
+    if (dynamicName) {
+        text = text.replace('{name}', dynamicName);
+    }
+    return text;
+}
 
 window.socketManager = socketManager;
