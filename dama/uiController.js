@@ -4,7 +4,7 @@
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
  * 🌟 (مُحدّث): إضافة نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
  * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة.
- * 🌟 (مُحدّث): إضافة إطارات الملوك (king1, king2, king3) للمراكز الثلاثة الأولى في لوحة الشرف.
+ * 🌟 (مُحدّث): إضافة الإطارات الملكية لمنصة تتويج تبويب "المستوى" فقط من damapro.js
  */
 
 import { gameState } from './gameState.js'; 
@@ -348,24 +348,20 @@ export const ui = {
         else this.setDisplay('undo-btn', 'none');
     },
 
-    // 🌟 دالة مخصصة لترتيب الواجهة للمشاهدين 🌟
     setupSpectatorUI(p1, p2, isBettingOpen, roomID) {
         window.isMatchRunning = true;
         document.body.classList.add('game-active');
         document.body.classList.add('online-mode-active');
         
-        // إخفاء الأزرار غير المطلوبة للمشاهد
         const hides = ['online-toggle-btn', 'store-portal-corner-btn', 'lucky-spin-portal-btn', 'floating-quests-btn', 'bag-quick-btn', 'custom-diff-btn', 'hint-btn', 'undo-btn', 'resign-btn', 'gameChatBtn', 'mic-toggle-btn'];
         hides.forEach(id => this.setDisplay(id, 'none'));
         
-        // إظهار لوحة التحكم وتغيير زر البدء ليكون زر خروج
         this.setDisplay('bottom-control-panel', 'flex');
         this.setDisplay('reset-btn', 'inline-block');
         this.setTxt('reset-btn', 'خروج المشاهد 🚪');
         
         this.setDisplay('match-players-card', 'flex');
 
-        // تجهيز اللاعب 1 (الأبيض)
         this.applyAvatar('card-my-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'));
         this.setTxt('card-my-name', p1?.name || 'اللاعب 1');
         let p1LvlInfo = this.calculateLevelInfo(p1?.xp || 0);
@@ -377,7 +373,6 @@ export const ui = {
             p1LvlEl.style.color = "#87ceeb";
         }
         
-        // تجهيز اللاعب 2 (الأسود)
         this.applyAvatar('card-opp-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'));
         this.setTxt('card-opp-name', p2?.name || 'اللاعب 2');
         let p2LvlInfo = this.calculateLevelInfo(p2?.xp || 0);
@@ -389,7 +384,6 @@ export const ui = {
             p2LvlEl.style.color = "#ff453a";
         }
 
-        // رسم إطارات اللاعبين
         const applyVisualFrame = (elementId, frameId) => {
             const el = document.getElementById(elementId);
             if (!el) return;
@@ -407,7 +401,6 @@ export const ui = {
         applyVisualFrame('card-my-frame', p1?.equippedFr || 'fr_classic');
         applyVisualFrame('card-opp-frame', p2?.equippedFr || 'fr_classic');
 
-        // تطبيق ساحة اللاعب الأعلى مستوى
         const p1Xp = Number(p1?.xp) || 0;
         const p2Xp = Number(p2?.xp) || 0;
         let dominantPlayer = p1;
@@ -418,7 +411,6 @@ export const ui = {
         document.body.setAttribute('data-board-style', dominantPlayer?.equippedBg || 'bg_wood');
         document.body.setAttribute('data-frame-style', dominantPlayer?.equippedFr || 'fr_classic');
 
-        // 🌟 إظهار زر المراهنة الذكي في المنتصف 🌟
         const vsBetEl = document.getElementById('vs-bet-display');
         if (vsBetEl) {
             vsBetEl.style.display = 'block';
@@ -432,7 +424,6 @@ export const ui = {
         }
     },
 
-    // 🌟 فتح نافذة المراهنة وتعبئة بيانات اللاعبين 🌟
     showSpectatorBetModal(roomID, p1, p2) {
         const modal = document.getElementById('spectator-bet-modal');
         if (!modal) return;
@@ -939,7 +930,6 @@ export const ui = {
                 this.showValidMovesHighlights(fList[0].r, fList[0].c);
             }
         } else {
-            // 🌟 تعديل ذكي للمشاهد (Spectator) 🌟
             if (gameState.isSpectator) {
                 tInd.textContent = gameState.currentTurn === 'white' ? "دور الأبيض ⚪" : "دور الأسود ⚫";
                 tInd.style.color = "#a1a1aa";
@@ -1320,7 +1310,6 @@ export const ui = {
 // 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
 // ==========================================
 
-// 🌟 دوال اختيار المراهنات للمشاهدين 🌟
 window.selectSpectatorBetColor = function(color) {
     const colorInput = document.getElementById('spectator-bet-color');
     const p1Card = document.getElementById('bet-p1-card');
@@ -1706,7 +1695,7 @@ function getFormattedLeaderboardScore(player, tabType) {
 window.renderDynamicLeaderboardUI = function(playersList, tabType) {
     const podiumContainer = document.getElementById('leaderboard-podium-container');
     const listContainer = document.getElementById('leaderboard-list-' + tabType); 
-
+    
     if (!podiumContainer || !listContainer) return;
 
     podiumContainer.innerHTML = '';
@@ -1730,19 +1719,45 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         const card = document.createElement('div');
         card.className = `lb-podium-card rank-${item.rank}`;
         
-        // 🌟 إضافة: تحديد كلاس الإطار بناءً على المركز 🌟
-        let frameClass = '';
-        if (item.rank === 1) frameClass = 'king1';
-        else if (item.rank === 2) frameClass = 'king2';
-        else if (item.rank === 3) frameClass = 'king3';
-        
+        let frameOverlay = '';
+
+        // 🌟 الشرط: التطبيق حصراً في تبويب "مستوى" 🌟
+        if (tabType === 'xp') {
+            
+            // 🌟 الربط المباشر مع ملف damapro.js 🌟
+            const proFrames = {
+                1: window.frameRank1,
+                2: window.frameRank2,
+                3: window.frameRank3 
+            };
+
+            let frameUrl = proFrames[item.rank];
+
+            // بناء طبقة الإطار إذا كان الرابط موجوداً
+            if (frameUrl) {
+                frameOverlay = `
+                    <div style="position: absolute; top: -15%; left: -15%; width: 130%; height: 130%;
+                                background-image: url('${frameUrl}');
+                                background-size: 100% 100%;
+                                background-position: center;
+                                background-repeat: no-repeat;
+                                z-index: 5; pointer-events: none;">
+                    </div>
+                `;
+            }
+        }
+
+        // بناء البطاقة مع فصل حاوية الإطار عن حاوية الصورة لمنع القص
         card.innerHTML = `
             <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
-            <div class="podium-frame-container ${frameClass}">
-                <div class="lb-podium-avatar avatar-${item.rank}">
+            
+            <div style="position: relative; width: ${item.rank === 1 ? '66px' : '56px'}; height: ${item.rank === 1 ? '66px' : '56px'}; margin-bottom: 8px;">
+                <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1;">
                     <img src="${getSecureAvatarUrl(player.avatar)}">
                 </div>
+                ${frameOverlay}
             </div>
+
             <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
                 <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
                 <div class="lb-podium-name" style="width: 100%; text-align: center; margin-bottom: 0;">${player.name || 'Guest'}</div>
@@ -1921,7 +1936,6 @@ function hasPlayerMoved() {
 }
 
 ui.onClick('reset-btn', () => {
-    // 🌟 ميزة خروج المشاهد بضغطة زر بدلاً من نافذة بدء لعبة 🌟
     if (gameState.isSpectator) {
         if (window.socketManager && typeof window.socketManager.handleExitGame === 'function') {
             window.socketManager.handleExitGame();
