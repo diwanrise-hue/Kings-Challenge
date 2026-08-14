@@ -6,9 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 1. تصدير مسارات الإطارات كمتغيرات عامة (Global Variables) 
     // لكي يستطيع ملف uiController.js قراءتها واستخدامها في لوحة الشرف
-    window.frameRank1 = 'dama/Media/register/king1.webp'; // إطار المركز الأول 🥇
-    window.frameRank2 = 'dama/Media/register/king2.webp'; // إطار المركز الثاني 🥈
-    window.frameRank3 = 'dama/Media/register/king3.webp'; // إطار المركز الثالث 🥉
+    window.frameRank1 = 'Media/register/king1.webp'; // إطار المركز الأول 🥇
+    window.frameRank2 = 'Media/register/king2.webp'; // إطار المركز الثاني 🥈
+    window.frameRank3 = 'Media/register/king3.webp'; // إطار المركز الثالث 🥉
 
     /* 
        تم حذف الأكواد السابقة التي كانت تستهدف:
