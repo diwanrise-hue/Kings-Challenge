@@ -1,6 +1,7 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
+ * 🌟 (مُحدّث): نظام (Auto-Heal) لتدمير الحسابات التالفة بسبب تسرب الـ Socket ID.
  * 🌟 (مُحدّث): فصل نصوص الإشعارات في (ذيل) بأسفل الملف لسهولة التعديل.
  * 🌟 (مُحدّث): إخفاء الإشعار الأخضر المزعج للبحث العشوائي إذا كانت النافذة مفتوحة.
  */
@@ -174,21 +175,32 @@ export const socketManager = {
         if (pingEl) pingEl.style.opacity = '0.95';
     },
 
+    // 🌟 نظام العلاج الذاتي (Auto-Heal) للحسابات التالفة 🌟
     _ensureUserProfile() {
+        const isValidId = (id) => {
+            if (!id || typeof id !== 'string') return false;
+            return id.startsWith('GUEST-') || id.startsWith('USER-') || id.startsWith('FB-') || id.startsWith('DAMA-');
+        };
+
         if (gameState.userProfile && gameState.userProfile.id) {
-            try {
-                const stored = localStorage.getItem('hub_user_profile');
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    if (parsed.id === gameState.userProfile.id) {
-                        gameState.userProfile.xp = Number(parsed.xp) || gameState.userProfile.xp;
-                        gameState.userProfile.syncThemeOptOut = parsed.syncThemeOptOut === true;
-                        gameState.userProfile.equippedBg = parsed.equippedBg || gameState.userProfile.equippedBg;
-                        gameState.userProfile.equippedPc = parsed.equippedPc || gameState.userProfile.equippedPc;
+            if (!isValidId(gameState.userProfile.id)) {
+                gameState.userProfile = null; // تدمير الحساب التالف من الذاكرة
+            } else {
+                try {
+                    const stored = localStorage.getItem('hub_user_profile');
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        if (parsed.id === gameState.userProfile.id) {
+                            gameState.userProfile.xp = Number(parsed.xp) || gameState.userProfile.xp;
+                            gameState.userProfile.syncThemeOptOut = parsed.syncThemeOptOut === true;
+                            gameState.userProfile.equippedBg = parsed.equippedBg || gameState.userProfile.equippedBg;
+                            gameState.userProfile.equippedPc = parsed.equippedPc || gameState.userProfile.equippedPc;
+                            gameState.userProfile.equippedFr = parsed.equippedFr || gameState.userProfile.equippedFr;
+                        }
                     }
-                }
-            } catch(e){}
-            return gameState.userProfile;
+                } catch(e){}
+                return gameState.userProfile;
+            }
         }
 
         try {
@@ -196,12 +208,13 @@ export const socketManager = {
             if (stored) {
                 const parsed = JSON.parse(stored);
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                    if (parsed.id && typeof parsed.id === 'string' && !parsed.id.includes('__proto__')) {
+                    // فحص الآي دي قبل اعتماده
+                    if (isValidId(parsed.id)) {
                         gameState.userProfile = {
                             ...parsed, 
                             id: String(parsed.id).trim().toUpperCase(),
                             name: String(parsed.name || 'Guest').trim(),
-                            avatar: String(parsed.avatar || '1000132081.png').trim(),
+                            avatar: String(parsed.avatar || '1000132081.webp').trim(),
                             isCustomAvatar: !!parsed.isCustomAvatar,
                             tokens: Number(parsed.tokens) || 0,
                             xp: Number(parsed.xp) || 0, 
@@ -218,33 +231,39 @@ export const socketManager = {
                             inventory: parsed.inventory || {}
                         };
                         return gameState.userProfile;
+                    } else {
+                        // تدمير البيانات التالفة من التخزين المحلي
+                        localStorage.removeItem('hub_user_profile');
+                        console.warn("⚠️ تم رصد حساب تالف وتم تدميره لحماية اللعبة.");
                     }
                 }
             }
-        } catch (e) {}
-        
-        if (!gameState.userProfile || !gameState.userProfile.id) {
-            gameState.userProfile = { 
-                id: 'GUEST-' + Math.random().toString(36).substring(2, 9).toUpperCase(), 
-                name: 'Guest', 
-                avatar: '1000132081.png',
-                isCustomAvatar: false,
-                tokens: 0,
-                xp: 0,
-                gamesPlayed: 0,
-                wins: 0,
-                losses: 0,
-                hints: 5,
-                equippedBg: 'bg_wood',
-                equippedFr: 'fr_classic',
-                equippedPc: 'pc_original',
-                syncThemeOptOut: false,
-                purchasedItems: [],
-                friends: [],
-                inventory: {}
-            };
-            try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch (e) {}
+        } catch (e) {
+            localStorage.removeItem('hub_user_profile');
         }
+        
+        // 🌟 توليد حساب جديد ونظيف
+        const randomNum = Math.floor(100000 + Math.random() * 900000);
+        gameState.userProfile = { 
+            id: 'GUEST-' + randomNum, 
+            name: 'Guest_' + randomNum, 
+            avatar: '1000132081.webp',
+            isCustomAvatar: false,
+            tokens: 0,
+            xp: 0,
+            gamesPlayed: 0,
+            wins: 0,
+            losses: 0,
+            hints: 5,
+            equippedBg: 'bg_wood',
+            equippedFr: 'fr_classic',
+            equippedPc: 'pc_original',
+            syncThemeOptOut: false,
+            purchasedItems: [],
+            friends: [],
+            inventory: {}
+        };
+        try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch (e) {}
         return gameState.userProfile;
     },
 
@@ -550,7 +569,6 @@ export const socketManager = {
             }
         });
 
-        // 🌟 إخفاء الإشعار الأخضر المزعج إذا كانت نافذة البحث العشوائي مفتوحة 🌟
         socket.on('waitingForOpponent', msg => {
             const mmModal = document.getElementById('matchmaking-modal');
             if (mmModal && (mmModal.style.display === 'flex' || mmModal.style.display === 'block')) return;
