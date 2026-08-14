@@ -570,6 +570,8 @@ ui.onClick('online-close-btn', () => {
 
 ui.onClick('online-create-btn', () => {
     let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
+    // 🌟 قراءة قيمة المربع الجديد
+    let allowSpectatorBetting = document.getElementById('allow-betting-checkbox')?.checked ?? true;
 
     if (gameState.pendingChallengeId) {
         socketManager.sendChallenge(gameState.pendingChallengeId, betAmt);
@@ -585,7 +587,8 @@ ui.onClick('online-create-btn', () => {
         let pwd = document.getElementById('create-room-password-input')?.value;
         let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
 
-        socketManager.handleRoomAction('createRoom', rID, pwd, betAmt);
+        // 🌟 تمرير خيار المراهنة إلى السيرفر
+        socketManager.handleRoomAction('createRoom', rID, pwd, betAmt, allowSpectatorBetting);
         socketManager.showStatusMsg("جاري إنشاء الغرفة...");
         if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
     }
