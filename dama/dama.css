@@ -196,7 +196,7 @@ body {
     transition: all 0.15s ease !important;
     display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
     position: fixed; z-index: 10001; 
-    box-sizing: border-box !important; /* 🌟 يمنع تفكك الإطار عن الأيقونة 🌟 */
+    box-sizing: border-box !important;
 }
 
 #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
@@ -212,7 +212,6 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 #online-toggle-btn { bottom: 75px !important; left: 15px !important; height: 46px !important; width: 102px !important; z-index: 9998 !important;}
 #store-portal-corner-btn { bottom: 75px !important; right: 15px !important; width: 46px !important; height: 46px !important; font-size: 18px !important; z-index: 9998 !important;}
 
-/* 🌟 تقييد حجم الأيقونات لضمان تناسقها وعدم تمددها خارج الزر 🌟 */
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
 #store-portal-corner-btn svg, #lucky-spin-portal-btn svg,
 #custom-diff-btn svg, #hint-btn svg, #undo-btn svg, #mic-toggle-btn svg * {
@@ -948,38 +947,55 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 }
 
 .lb-podium-avatar {
-    width: 56px;
-    height: 56px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     overflow: hidden;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     background: #1a1a24;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.rank-1 .lb-podium-avatar {
-    width: 66px;
-    height: 66px;
-    border: 2px solid #ffd700;
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
-}
-
-.rank-2 .lb-podium-avatar {
-    border: 2px solid #3b82f6;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
-}
-
+.rank-1 .lb-podium-avatar, 
+.rank-2 .lb-podium-avatar, 
 .rank-3 .lb-podium-avatar {
-    border: 2px solid #cd7f32;
-    box-shadow: 0 0 8px rgba(205, 127, 50, 0.3);
+    border: none !important;
+    box-shadow: none !important;
+    width: 100%;
+    height: 100%;
 }
 
 .lb-podium-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.podium-frame-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 5;
+}
+
+.podium-frame-container.king1 {
+    width: 85px; 
+    height: 85px;
+    padding: 12px;
+}
+
+.podium-frame-container.king2,
+.podium-frame-container.king3 {
+    width: 75px; 
+    height: 75px;
+    padding: 10px;
 }
 
 .lb-podium-name {
