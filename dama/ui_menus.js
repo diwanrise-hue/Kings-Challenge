@@ -1,6 +1,6 @@
 // ملف: ui_menus.js
 // مخصص لإدارة القوائم المنبثقة، ملفات اللاعبين، لوحة الشرف، المتجر، والأصدقاء
-// هذا الملف منفصل لتنظيف الكود الأساسي
+// 🌟 (مُحدّث): تم دمج إصلاحات الأداء (requestAnimationFrame) لمنع تشنج الشاشة وهبوط الـ FPS
 
 import { gameState } from './gameState.js';
 import { socket, socketManager } from './socketManager.js';
@@ -128,7 +128,7 @@ window.cleanExpiredRequests = function(profile) {
 
 window.renderFriendsList = function(friendsArr) {
     const listContainer = document.getElementById('igp-friends-list'); if (!listContainer) return;
-    if (!friendsArr || friendsArr.length === 0) { listContainer.innerHTML = 'لا يوجد أصدقاء حالياً'; return; }
+    if (!friendsArr || friendsArr.length === 0) { listContainer.innerHTML = '<p style="text-align:center;color:#a1a1aa;font-size:12px;">لا يوجد أصدقاء حالياً</p>'; return; }
     listContainer.innerHTML = '';
     
     let actualFriends = friendsArr;
@@ -436,16 +436,88 @@ window.forceLockedGlobalAvatar = function() {
 const avatarGuardObserver = new MutationObserver((mutations) => { let shouldProtect = false; for (let mutation of mutations) { if (mutation.type === 'childList') { const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG'); if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; } } } if (shouldProtect) { avatarGuardObserver.disconnect(); window.forceLockedGlobalAvatar(); window.startAvatarGuard(); } });
 window.startAvatarGuard = function() { const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar']; targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } }); };
 
+// 🌟 تحديث مهم: تقنية requestAnimationFrame لضمان سلاسة الأداء (60 FPS)
 window.applyProfileDataToUI = function(profile) {
-    const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
-    const currentId = profile.id || window.getUserIdLocally();
-    const textElements = { 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 'igp-id-display': currentId, 'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 };
+    requestAnimationFrame(() => {
+        const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
+        const currentId = profile.id || window.getUserIdLocally();
+        
+        const textElements = { 
+            'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 
+            'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 
+            'igp-id-display': currentId, 'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 
+            'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 
+        };
+        
+        for (let id in textElements) { 
+            const el = document.getElementById(id); 
+            if (el && el.innerText !== textElements[id]) el.innerText = textElements[id]; 
+        }
+        
+        if(window.forceLockedGlobalAvatar) window.forceLockedGlobalAvatar(); 
+        if(window.updateInventoryUI) window.updateInventoryUI(); 
+        if (typeof window.applyTheme === 'function') window.applyTheme(profile); 
+        
+        if (typeof window.refreshProfileUIStyles === 'function') { 
+            requestAnimationFrame(() => window.refreshProfileUIStyles()); 
+        }
+    });
+};
+
+// 🌟 تحديث مهم: إزالة الحسابات الثقيلة وجدولتها لتسريع الواجهة
+window.updateProfileUI = function() {
+    if (!gameState.userProfile) return;
     
-    for (let id in textElements) { const el = document.getElementById(id); if (el) { el.innerText = textElements[id]; } }
-    if(window.forceLockedGlobalAvatar) window.forceLockedGlobalAvatar(); 
-    if(window.updateInventoryUI) window.updateInventoryUI(); 
-    if (typeof window.applyTheme === 'function') { window.applyTheme(profile); }
-    if (typeof window.refreshProfileUIStyles === 'function') { setTimeout(() => window.refreshProfileUIStyles(), 50); }
+    requestAnimationFrame(() => {
+        if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(gameState.userProfile); }
+        
+        let prof = gameState.userProfile; 
+        let lvlInfo = window.ui ? window.ui.calculateLevelInfo(prof.xp || 0) : {level: 1, percentage: 0, progressXp: 0, requiredXp: 50, rank: 'برونزي', rankIcon: '🥉', title: 'مبتدئ'};
+
+        const badgeLevel = document.getElementById('badge-level'); 
+        const xpProgressPath = document.getElementById('xp-progress-path'); 
+        
+        if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
+        
+        if (xpProgressPath) {
+            const totalLength = 150; // سرعة فائقة بفضل القيمة الثابتة
+            const progress = Math.min(Math.max(lvlInfo.percentage / 100, 0), 1);
+            const newOffset = totalLength - (totalLength * progress);
+            xpProgressPath.style.strokeDasharray = totalLength; 
+            xpProgressPath.style.strokeDashoffset = newOffset;
+        }
+
+        const igpLevel = document.getElementById('igp-level'); const igpRank = document.getElementById('igp-rank-title'); const igpXpFill = document.getElementById('igp-xp-fill'); const igpXpText = document.getElementById('igp-xp-text');
+        if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
+        if (igpRank) igpRank.innerHTML = `الرتبة: ${lvlInfo.rankIcon} ${lvlInfo.rank} | ${lvlInfo.title}`;
+        if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
+        if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
+
+        const hintCounter = document.getElementById('hint-counter');
+        if (hintCounter) {
+            if (gameState.isTutorialMode && !gameState.isOnlineMode) {
+                hintCounter.textContent = "مجاني"; hintCounter.style.fontSize = "8px"; hintCounter.style.padding = "2px 4px";
+            } else if (gameState.userProfile) {
+                if (gameState.userProfile.hints === undefined) gameState.userProfile.hints = 5;
+                hintCounter.textContent = gameState.userProfile.hints; hintCounter.style.fontSize = "11px"; hintCounter.style.padding = "2px 6px";
+            }
+        }
+        
+        const fList = document.getElementById('igp-friends-list'); 
+        if (fList) {
+            if (!gameState.userProfile.friends || gameState.userProfile.friends.length === 0) {
+                fList.innerHTML = '<p style="text-align:center;color:#a1a1aa;font-size:12px;">لا يوجد أصدقاء حالياً</p>'; 
+            } else {
+                let uniqueArr = []; let seen = new Set();
+                (gameState.userProfile.friends || []).forEach(f => {
+                    let fId = typeof f === 'string' ? f.toUpperCase() : (f.id ? f.id.toUpperCase() : null);
+                    if (fId && !seen.has(fId)) { seen.add(fId); uniqueArr.push(f); }
+                });
+                gameState.userProfile.friends = uniqueArr;
+                if(window.renderFriendsList) window.renderFriendsList(gameState.userProfile.friends);
+            }
+        }
+    });
 };
 
 window.currentLang = 'ar';
