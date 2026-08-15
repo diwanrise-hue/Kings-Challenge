@@ -585,40 +585,50 @@ export const ui = {
         this.updateScoreboard();
     },
 
-    updateScoreboard() {
+        updateScoreboard() {
         let whiteCount = 0, blackCount = 0;
         gameState.virtualBoard.forEach(row => { row.forEach(p => { if (p) { if (p.includes('white')) whiteCount++; else blackCount++; } }); });
         
         const isWhite = gameState.playerColor === 'white';
-        const oppRow = this.getEl('opponent-score-row');
+        const oppRow = this.getEl('opponent-score-row'); 
         const myRow = this.getEl('my-score-row');
         
         if (oppRow && myRow) {
-            const oppStonesColor = isWhite ? 'black' : 'white';
-            const myStonesColor = gameState.playerColor;
-
+            const oppStonesColor = isWhite ? 'black' : 'white'; const myStonesColor = gameState.playerColor;
             oppRow.style.background = `var(--opp-score-bg, ${(oppStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)'})`;
             myRow.style.background = `var(--my-score-bg, ${(myStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)'})`;
-            oppRow.style.border = 'var(--opp-score-border, 1px solid rgba(255,255,255,0.1))';
-            myRow.style.border = 'var(--my-score-border, 1px solid rgba(255,255,255,0.1))';
-            oppRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
-            myRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
+            oppRow.style.border = 'var(--opp-score-border, 1px solid rgba(255,255,255,0.1))'; myRow.style.border = 'var(--my-score-border, 1px solid rgba(255,255,255,0.1))';
+            oppRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)'; myRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
         }
 
+        // 🚀 الدالة المُحسّنة: لا تحذف العناصر أبدأً (Zero DOM Destruction)
         const renderScoreDots = (container, count, color) => {
-            if (!container) return; container.innerHTML = '';
+            if (!container) return;
             const activeClass = color === 'white' ? 'white' : 'black';
+            
+            // إذا كانت العناصر غير موجودة، ننشئها مرة واحدة فقط!
+            if (container.children.length === 0) {
+                for (let i = 0; i < 16; i++) {
+                    const dot = document.createElement('div');
+                    container.appendChild(dot);
+                }
+            }
+
+            // نقوم فقط بتحديث الكلاس (class) للعناصر الموجودة، وهذا سريع جداً كالبرق!
             for (let i = 0; i < 16; i++) {
-                const dot = document.createElement('div');
-                if (i < count) dot.className = `piece mini ${activeClass}`;
-                else dot.className = `mini-piece-empty`;
-                container.appendChild(dot);
+                const dot = container.children[i];
+                if (i < count) {
+                    dot.className = `piece mini ${activeClass}`;
+                } else {
+                    dot.className = `mini-piece-empty`;
+                }
             }
         };
         
         renderScoreDots(oppRow, isWhite ? blackCount : whiteCount, isWhite ? 'black' : 'white');
         renderScoreDots(myRow, isWhite ? whiteCount : blackCount, gameState.playerColor);
     },
+
 
     renderBoard(forceRebuild = false) {
         const board = this.getEl('board');
