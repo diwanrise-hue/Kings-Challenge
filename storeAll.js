@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: معالجة الزوايا المشطوفة، دمج منتجات الشعبية، وتطبيق نظام اختصار الأرقام (K, M).
+ * 🌟 التحديث النهائي: دمج نظام الشحن الحقيقي (Google Play) وباقات وشريط الـ VIP
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -376,15 +376,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
 
-            <!-- حاوية محتوى الشحن -->
+            <!-- 🌟 حاوية محتوى الشحن و VIP بالمال الحقيقي 🌟 -->
             <div id="store-topup-content" class="store-tab-content">
-                <div class="store-group-box-dark" style="width: 100%; text-align: center; align-items: center; justify-content: center; border-color: rgba(245,166,35,0.4) !important; background: linear-gradient(180deg, rgba(245,166,35,0.1), rgba(10,12,16,0.95)) !important;">
-                    <span style="font-size: 60px; display: block; margin-bottom: 15px; filter: drop-shadow(0 0 15px rgba(245, 166, 35, 0.5));">💎</span>
-                    <h4 style="color: var(--accent); font-size: 20px; margin-bottom: 10px;" data-i18n="store_topup">شحن الرصيد</h4>
-                    <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 25px; max-width: 80%;">
-                        اشحن رصيدك الآن للمشاركة في البطولات الكبرى والمراهنات الفاخرة.
-                    </p>
-                    <button class="store-buy-btn-small" style="background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(211,84,0,0.2)) !important; border: 1px solid rgba(245,166,35,0.4) !important; color: #f5a623 !important; width: 80%; height: 40px !important; font-size: 14px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
+                <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; display: flex; flex-direction: column; padding: 15px; border-color: rgba(245,166,35,0.4) !important; overflow-y: auto;">
+                    
+                    <!-- 🌟 بطاقة تقدم الـ VIP (VIP Progress Card) 🌟 -->
+                    <div style="background: linear-gradient(135deg, rgba(27, 94, 32, 0.4), rgba(8, 33, 11, 0.9)); border: 1px solid #ffd700; border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span id="current-vip-badge" style="color: #ffd700; font-size: 18px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">VIP 0</span>
+                            <span id="next-vip-badge" style="color: white; font-size: 14px; font-weight: bold;">VIP 1</span>
+                        </div>
+                        
+                        <!-- شريط التقدم -->
+                        <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid rgba(255,215,0,0.3);">
+                            <div id="vip-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #f5a623, #ffd700); box-shadow: 0 0 8px rgba(255,215,0,0.6); transition: width 0.5s ease;"></div>
+                        </div>
+                        
+                        <div style="text-align: center; color: var(--text-secondary); font-size: 11px;">
+                            اشحن بـ <span id="vip-remaining-amount" style="color: #00d2ff; font-weight: bold;">$5</span> للوصول إلى المستوى القادم
+                        </div>
+                    </div>
+
+                    <h4 style="color: white; font-size: 16px; margin-bottom: 15px; text-align: center;">باقات العملات (Tokens)</h4>
+                    
+                    <!-- 🌟 شبكة باقات الشحن بالمال الحقيقي عبر Google Play 🌟 -->
+                    <div class="store-items-grid">
+                        
+                        <!-- باقة 1 -->
+                        <div class="store-item-card" style="border-color: rgba(255,255,255,0.1) !important;">
+                            <span style="font-size: 30px; margin: 5px 0;">🪙</span>
+                            <span style="color: #fff; font-size: 14px; font-weight: bold;">5,000</span>
+                            <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 5px;">+ 99 نقطة VIP</span>
+                            <!-- استدعاء دالة الشراء التي ترتبط بـ index-scripts.js ومنه لجوجل بلاي -->
+                            <button class="store-buy-btn-small" style="background: #2a2a35 !important; border-color: #444 !important; color: #00d2ff !important;" onclick="purchaseRealMoney('package_099', 0.99)">
+                                $0.99
+                            </button>
+                        </div>
+
+                        <!-- باقة 2 -->
+                        <div class="store-item-card" style="border-color: rgba(255,215,0,0.3) !important; background: linear-gradient(to bottom, rgba(255,215,0,0.05), transparent) !important;">
+                            <span style="font-size: 35px; margin: 5px 0;">💰</span>
+                            <span style="color: #ffd700; font-size: 15px; font-weight: bold;">25,000</span>
+                            <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 5px;">+ 499 نقطة VIP</span>
+                            <button class="store-buy-btn-small" style="background: #1b5e20 !important; border-color: #ffd700 !important; color: #ffd700 !important;" onclick="purchaseRealMoney('package_499', 4.99)">
+                                $4.99
+                            </button>
+                        </div>
+
+                        <!-- باقة 3 (الأسطورية) -->
+                        <div class="store-item-card" style="border-color: #ff453a !important; background: linear-gradient(to bottom, rgba(255,69,58,0.05), transparent) !important; position: relative;">
+                            <div style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #ff453a; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: bold;">الأكثر مبيعاً</div>
+                            <span style="font-size: 40px; margin: 5px 0; filter: drop-shadow(0 0 5px rgba(255,69,58,0.5));">💎</span>
+                            <span style="color: #ff453a; font-size: 15px; font-weight: bold;">100,000</span>
+                            <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 5px;">+ 1999 نقطة VIP</span>
+                            <button class="store-buy-btn-small" style="background: #3a0e0c !important; border-color: #ff453a !important; color: #ff453a !important;" onclick="purchaseRealMoney('package_1999', 19.99)">
+                                $19.99
+                            </button>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         `;
@@ -413,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// دوال التنقل
+// دوال التنقل داخل المتجر
 // ==========================================
 window.switchStoreContentTab = function(contentId, btnElement) {
     document.querySelectorAll('.store-tab-content').forEach(el => { el.classList.remove('active-content'); });
@@ -427,6 +477,13 @@ window.switchStoreContentTab = function(contentId, btnElement) {
     if (contentId === 'store-games-content') {
         if (typeof window.switchStoreTabCategory === 'function') {
             window.switchStoreTabCategory('bg');
+        }
+    }
+    
+    // 🌟 تحديث شريط الـ VIP عند الدخول لقسم الشحن
+    if (contentId === 'store-topup-content') {
+        if (typeof window.updateVipProgressBarUI === 'function') {
+            window.updateVipProgressBarUI();
         }
     }
 };
