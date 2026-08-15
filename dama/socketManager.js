@@ -4,7 +4,7 @@
  * 🌟 (مُحدّث): نظام (Auto-Heal) لتدمير الحسابات التالفة بسبب تسرب الـ Socket ID.
  * 🌟 (مُحدّث): فصل نصوص الإشعارات في (ذيل) بأسفل الملف لسهولة التعديل.
  * 🌟 (مُحدّث): تصحيح واجهة المشاهدين (Spectator Mode) وإظهار عدادات المشاهدين والمراهنين.
- * 🌟 (مُحدّث): إدارة العداد التنازلي 10 ثواني (Countdown Overlay).
+ * 🌟 (مُحدّث): إدارة العداد التنازلي 10 ثواني (Countdown Overlay) وإخفاء نافذة الرهان للمراهنين مسبقاً.
  */
 
 import { gameState } from './gameState.js'; 
@@ -325,7 +325,6 @@ export const socketManager = {
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
-        // 🌟 مُحدّث: شاشة العداد التنازلي قبل بدء المباراة 🌟
         socket.on('matchCountdown', (data) => {
             const overlay = document.getElementById('match-countdown-overlay');
             const numEl = document.getElementById('match-countdown-number');
@@ -339,7 +338,7 @@ export const socketManager = {
                 let timeLeft = data.seconds;
                 numEl.innerText = timeLeft;
                 
-                if (gameState.isSpectator && data.isBettingOpen && typeof window.ui.showSpectatorBetModal === 'function') {
+                if (gameState.isSpectator && data.isBettingOpen && !data.hasAlreadyBet && typeof window.ui.showSpectatorBetModal === 'function') {
                     window.ui.showSpectatorBetModal(data.roomID, data.opponent1, data.opponent2);
                 }
                 
@@ -357,7 +356,6 @@ export const socketManager = {
             }
         });
 
-        // 🌟 مُحدّث: هروب الخصم أثناء العداد التنازلي 🌟
         socket.on('countdownAborted', () => {
             if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
             const overlay = document.getElementById('match-countdown-overlay');
@@ -625,14 +623,14 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
 
-            ui.setupSpectatorUI(data.player1, data.player2, data.isBettingOpen, data.roomID);
+            ui.setupSpectatorUI(data.player1, data.player2, data.isBettingOpen, data.roomID, data.hasAlreadyBet);
             ui.renderBoard(true);
             ui.startTurn();
 
             const bettorsEl = document.getElementById('bettors-count-display');
             if (bettorsEl) bettorsEl.innerText = data.totalBettors || 0;
             
-            if (data.isBettingOpen && typeof window.ui.showSpectatorBetModal === 'function') {
+            if (data.isBettingOpen && !data.hasAlreadyBet && typeof window.ui.showSpectatorBetModal === 'function') {
                 window.ui.showSpectatorBetModal(data.roomID, data.player1, data.player2);
             } else {
                 this._showToast(getNotifyMsg('spectating'));
@@ -680,7 +678,6 @@ export const socketManager = {
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
             else ui.setDisplay('custom-alert-modal', 'none');
 
-            // 🌟 إخفاء العداد التنازلي عند بدء المباراة
             if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
             const overlay = document.getElementById('match-countdown-overlay');
             if (overlay) overlay.style.display = 'none';
@@ -1317,7 +1314,6 @@ export const socketManager = {
         }
     },
 
-    // 🌟 مُحدّث: إضافة خيار السماح بالمشاهدين 🌟
     handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0, allowSpectatorBetting = true) {
         let targetAction = action;
 
@@ -1409,9 +1405,6 @@ export const socketManager = {
     }
 };
 
-// ==========================================
-// 📝 ذيل الإشعارات (Notifications Tail)
-// ==========================================
 const notifyTexts = {
     ar: {
         roomCreated: "تم الإنشاء! بانتظار الخصم ⏳",
