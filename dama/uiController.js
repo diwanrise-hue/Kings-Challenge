@@ -2165,14 +2165,15 @@ document.addEventListener('click', (e) => {
 });
 
 // ==========================================
-// 🌟 التنسيقات الإجبارية وأحداث اللوحة
+// 🌟 التنسيقات الإجبارية وأحداث اللوحة (مُحسّنة للأداء 60 FPS)
 // ==========================================
 if (!document.getElementById('forced-overlay-style')) {
     const forcedStyle = document.createElement('style'); forcedStyle.id = 'forced-overlay-style';
     forcedStyle.innerHTML = `
-        .cell:has(.piece.multi-choice) { position: relative !important; border: 2px solid #ff453a !important; animation: dangerPulse 1.2s infinite alternate ease-in-out !important; border-radius: inherit; }
-        @keyframes dangerPulse { 0% { box-shadow: 0 0 8px #ff453a, inset 0 0 15px rgba(255, 69, 58, 0.5); border-color: #ff453a; } 100% { box-shadow: 0 0 20px #ff453a, 0 0 30px #ffd700, inset 0 0 35px rgba(255, 69, 58, 0.8); border-color: #ffd700; } }
-        .cell:has(.piece.multi-choice) .piece { z-index: 2 !important; position: relative !important; transform: scale(1.08) !important; filter: drop-shadow(0 5px 12px rgba(0,0,0,0.8)) !important; transition: transform 0.2s ease, filter 0.2s ease; }
+        .cell:has(.piece.multi-choice) { position: relative !important; border: 2px solid #ff453a !important; border-radius: inherit; }
+        .cell:has(.piece.multi-choice)::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 20px rgba(255, 69, 58, 0.8); border-radius: inherit; pointer-events: none; animation: gpuPulse 1s infinite alternate ease-in-out; will-change: opacity; }
+        @keyframes gpuPulse { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+        .cell:has(.piece.multi-choice) .piece { z-index: 2 !important; position: relative !important; transform: scale(1.08) translateZ(0) !important; will-change: transform; transition: transform 0.2s ease; }
     `;
     document.head.appendChild(forcedStyle);
 }
