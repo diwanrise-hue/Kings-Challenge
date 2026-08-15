@@ -1303,13 +1303,18 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) {} 
     }
 
-    // 1. نرسم الرقعة الأساسية فوراً (مربعات فارغة)
+    // 1. تطبيق الثيم (الساحة الخشبية) مرة واحدة فقط في البداية!
+    if (typeof window.applyTheme === 'function') {
+        window.applyTheme(userObj);
+    }
+
+    // 2. نرسم الرقعة الأساسية فوراً بعد تطبيق الثيم
     ui.drawEmptyBoard();
 
-    // 2. نؤخر تطبيق ثيمات المتجر قليلاً لضمان اتصال المتجر وتحميل الصور (Race Condition Fix)
+    // 3. نحدث بيانات اللاعب بعد نصف ثانية بهدوء
     setTimeout(() => {
         if (typeof window.applyProfileDataToUI === 'function') { 
             window.applyProfileDataToUI(userObj); 
         }
-    }, 500); // ننتظر نصف ثانية
+    }, 500); 
 });
