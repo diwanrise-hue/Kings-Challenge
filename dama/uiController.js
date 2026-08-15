@@ -1,13 +1,8 @@
+// @ts-nocheck
 /**
  * uiController.js
- * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
- * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): إضافة نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
- * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة.
- * 🌟 (مُحدّث): فصل إطارات الساحة عن إطارات الصور الشخصية للحفاظ على بنية الكود للمستقبل.
- * 🌟 (مُحدّث): تحسينات بصرية لزر الرهان، وتطبيق ساحة اللاعب الأعلى مستوى للمشاهدين وتصحيح الأقواس.
- * 🌟 (مُحدّث): تنظيف الشاشة بالكامل عند خروج المشاهد (منع تشنج الواجهة).
- * 🌟 (مُحدّث): إرسال إشارة قوية للسيرفر لإنهاء اللعبة فوراً عند انقطاع الخصم وانتهاء وقته.
+ * إدارة الواجهة الرسومية الأساسية (الرقعة، الأحجار، حركة اللعب)
+ * 🌟 (مُحدّث): تم فصل جميع الدوال الخارجية إلى ملف ui_menus.js للحفاظ على الكود نظيفاً وسريعاً!
  */
 
 import { gameState } from './gameState.js'; 
@@ -17,6 +12,9 @@ import { gameAI } from './gameAI.js';
 import { socket, socketManager } from './socketManager.js';
 import { t } from './i18n.js';
 import { hintSystem } from './hintSystem.js';
+
+// 🌟 الاستدعاء السحري: ربط ملف القوائم بالواجهة الأساسية
+import './ui_menus.js'; 
 
 window.t = t; 
 
@@ -34,23 +32,6 @@ export const sfx = {
 };
 
 window.isMatchRunning = false;
-
-window.setAiLevel = function(level) {
-    document.getElementById('diff-quick-select').value = level;
-    document.getElementById('custom-diff-btn').innerText = 'L' + level;
-    
-    document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
-    let activeBtn = document.getElementById('lvl-btn-' + level);
-    if(activeBtn) activeBtn.classList.add('active');
-    
-    if(typeof window.closeAppModal === 'function') window.closeAppModal('level-select-modal');
-};
-
-function getUserIdLocally() {
-    let guestId = localStorage.getItem('guestId');
-    try { let profile = JSON.parse(localStorage.getItem('hub_user_profile')); return profile ? profile.id : guestId; } 
-    catch(e) { return guestId; } 
-}
 
 // ==========================================
 // 🌟 الكائن الأساسي للتحكم بالواجهة (UI Controller)
@@ -391,23 +372,12 @@ export const ui = {
         const applyVisualFrame = (elementId, frameId) => {
             const el = document.getElementById(elementId);
             if (!el) return;
-            if (!frameId || frameId === 'fr_classic') {
-                el.style.backgroundImage = 'none';
-                return;
-            }
+            if (!frameId || frameId === 'fr_classic') { el.style.backgroundImage = 'none'; return; }
             setTimeout(() => {
                 let frameUrl = '';
-                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
-                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
-                }
-                if (frameUrl) {
-                    el.style.backgroundImage = `url('${frameUrl}')`;
-                    el.style.backgroundSize = '100% 100%';
-                    el.style.backgroundPosition = 'center';
-                    el.style.backgroundRepeat = 'no-repeat';
-                } else { 
-                    el.style.backgroundImage = 'none'; 
-                }
+                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
+                if (frameUrl) { el.style.backgroundImage = `url('${frameUrl}')`; el.style.backgroundSize = '100% 100%'; el.style.backgroundPosition = 'center'; el.style.backgroundRepeat = 'no-repeat'; } 
+                else { el.style.backgroundImage = 'none'; }
             }, 50);
         };
         
@@ -425,24 +395,16 @@ export const ui = {
         }
         
         setTimeout(() => {
-            if (typeof window.applyTheme === 'function') {
-                window.applyTheme(dominantPlayer);
-            } else {
-                document.body.setAttribute('data-piece-style', dominantPlayer?.equippedPc || 'pc_original');
-                document.body.setAttribute('data-board-style', dominantPlayer?.equippedBg || 'bg_wood');
-            }
+            if (typeof window.applyTheme === 'function') { window.applyTheme(dominantPlayer); } 
+            else { document.body.setAttribute('data-piece-style', dominantPlayer?.equippedPc || 'pc_original'); document.body.setAttribute('data-board-style', dominantPlayer?.equippedBg || 'bg_wood'); }
         }, 100);
 
         const vsBetEl = document.getElementById('vs-bet-display');
         if (vsBetEl) {
-            vsBetEl.style.display = 'flex';
-            vsBetEl.style.justifyContent = 'center';
-            vsBetEl.style.alignItems = 'center';
-            vsBetEl.style.minHeight = '32px'; 
+            vsBetEl.style.display = 'flex'; vsBetEl.style.justifyContent = 'center'; vsBetEl.style.alignItems = 'center'; vsBetEl.style.minHeight = '32px'; 
             
             if (isBettingOpen && !hasAlreadyBet) {
-                let safeP1 = JSON.stringify(p1).replace(/"/g, '&quot;');
-                let safeP2 = JSON.stringify(p2).replace(/"/g, '&quot;');
+                let safeP1 = JSON.stringify(p1).replace(/"/g, '&quot;'); let safeP2 = JSON.stringify(p2).replace(/"/g, '&quot;');
                 vsBetEl.innerHTML = `<button onclick="window.ui.showSpectatorBetModal('${roomID}', ${safeP1}, ${safeP2})" style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; border: none; padding: 4px 16px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 13px; box-shadow: 0 2px 8px rgba(241,196,15,0.6); transition: 0.2s; white-space: nowrap;">🎯 راهن الآن</button>`;
             } else if (isBettingOpen && hasAlreadyBet) {
                 vsBetEl.innerHTML = `<div style="background: rgba(0,0,0,0.85); border: 1px solid rgba(48, 209, 88, 0.6); padding: 4px 12px; border-radius: 12px; display: inline-flex; justify-content: center; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.5);"><span style="color: #30d158; font-size: 11px; font-weight: bold; white-space: nowrap; margin: 0;">تم تسجيل رهانك ✅</span></div>`;
@@ -473,12 +435,9 @@ export const ui = {
         window.isMatchRunning = active;
         
         if (active) {
-            document.body.classList.add('game-active');
-            document.body.classList.add('online-mode-active'); 
+            document.body.classList.add('game-active'); document.body.classList.add('online-mode-active'); 
         } else {
-            document.body.classList.remove('game-active');
-            document.body.classList.remove('online-mode-active');
-            window.hasPromptedThemeSync = false; 
+            document.body.classList.remove('game-active'); document.body.classList.remove('online-mode-active'); window.hasPromptedThemeSync = false; 
         }
 
         const displays = {
@@ -486,14 +445,11 @@ export const ui = {
             'store-portal-corner-btn': flexState, 'lucky-spin-portal-btn': flexState, 'hamburger-menu-btn': flexState,
             'floating-quests-btn': flexState, 'bag-quick-btn': 'none', 'resign-btn': onlineState, 
             'undo-btn': 'none', 'match-players-card': active ? 'flex' : 'none',
-            'gameChatBtn': active ? 'flex' : 'none', 'mic-toggle-btn': active ? 'flex' : 'none',
-            'spectator-stats-container': 'none' 
+            'gameChatBtn': active ? 'flex' : 'none', 'mic-toggle-btn': active ? 'flex' : 'none', 'spectator-stats-container': 'none' 
         };
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
-        if (!active) {
-            this.setTxt('reset-btn', 'بدء'); 
-        }
+        if (!active) this.setTxt('reset-btn', 'بدء'); 
         
         if (active && gameState.userProfile) {
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar);
@@ -507,60 +463,33 @@ export const ui = {
             const applyVisualFrame = (elementId, frameId) => {
                 const el = document.getElementById(elementId);
                 if (!el) return;
-                if (!frameId) {
-                    el.style.backgroundImage = 'none';
-                    return;
-                }
+                if (!frameId) { el.style.backgroundImage = 'none'; return; }
                 let frameUrl = '';
-                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
-                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
-                }
-                if (frameUrl) {
-                    el.style.backgroundImage = `url('${frameUrl}')`;
-                    el.style.backgroundSize = '100% 100%';
-                    el.style.backgroundPosition = 'center';
-                    el.style.backgroundRepeat = 'no-repeat';
-                } else {
-                    el.style.backgroundImage = 'none';
-                }
+                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
+                if (frameUrl) { el.style.backgroundImage = `url('${frameUrl}')`; el.style.backgroundSize = '100% 100%'; el.style.backgroundPosition = 'center'; el.style.backgroundRepeat = 'no-repeat'; } 
+                else { el.style.backgroundImage = 'none'; }
             };
 
-            applyVisualFrame('card-my-frame', myAvatarFrameId);
-            applyVisualFrame('card-opp-frame', oppAvatarFrameId);
+            applyVisualFrame('card-my-frame', myAvatarFrameId); applyVisualFrame('card-opp-frame', oppAvatarFrameId);
 
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
             let myCardLevel = this.getEl('card-my-level');
-            if (myCardLevel) {
-                myCardLevel.textContent = `Lv.${myLvlInfo.level}`;
-                myCardLevel.style.background = "rgba(135,206,235,0.2)";
-                myCardLevel.style.borderColor = "#87ceeb";
-                myCardLevel.style.color = "#87ceeb";
-            }
+            if (myCardLevel) { myCardLevel.textContent = `Lv.${myLvlInfo.level}`; myCardLevel.style.background = "rgba(135,206,235,0.2)"; myCardLevel.style.borderColor = "#87ceeb"; myCardLevel.style.color = "#87ceeb"; }
             
             let oppCardLevel = this.getEl('card-opp-level');
             if (oppCardLevel) {
                 if (gameState.currentOpponentXp !== undefined) {
                     let oppLvlInfo = this.calculateLevelInfo(gameState.currentOpponentXp);
-                    oppCardLevel.textContent = `Lv.${oppLvlInfo.level}`;
-                    oppCardLevel.style.background = "rgba(255,69,58,0.2)"; 
-                    oppCardLevel.style.borderColor = "#ff453a"; 
-                    oppCardLevel.style.color = "#ff453a"; 
+                    oppCardLevel.textContent = `Lv.${oppLvlInfo.level}`; oppCardLevel.style.background = "rgba(255,69,58,0.2)"; oppCardLevel.style.borderColor = "#ff453a"; oppCardLevel.style.color = "#ff453a"; 
                 } else {
-                    oppCardLevel.textContent = `Lv.?`;
-                    oppCardLevel.style.background = "rgba(161,161,170,0.2)";
-                    oppCardLevel.style.borderColor = "#a1a1aa"; 
-                    oppCardLevel.style.color = "#a1a1aa"; 
+                    oppCardLevel.textContent = `Lv.?`; oppCardLevel.style.background = "rgba(161,161,170,0.2)"; oppCardLevel.style.borderColor = "#a1a1aa"; oppCardLevel.style.color = "#a1a1aa"; 
                 }
             }
             
             const vsBetEl = document.getElementById('vs-bet-display');
             if (vsBetEl) {
-                if (gameState.roomBet && gameState.roomBet > 0) {
-                    vsBetEl.style.display = 'block';
-                    vsBetEl.innerText = `💰 ${gameState.roomBet * 2}`;
-                } else {
-                    vsBetEl.style.display = 'none';
-                }
+                if (gameState.roomBet && gameState.roomBet > 0) { vsBetEl.style.display = 'block'; vsBetEl.innerText = `💰 ${gameState.roomBet * 2}`; } 
+                else { vsBetEl.style.display = 'none'; }
             }
         }
     },
@@ -568,20 +497,12 @@ export const ui = {
     updateVirtualBoardState() {
         const board = this.getEl('board');
         if (!board) return;
-        
         for (let i = 0; i < board.children.length; i++) {
-            const cell = board.children[i];
-            const r = parseInt(cell.dataset.row);
-            const c = parseInt(cell.dataset.col);
-            
+            const cell = board.children[i]; const r = parseInt(cell.dataset.row); const c = parseInt(cell.dataset.col);
             if (cell.children.length > 0) {
-                const child = cell.children[0];
-                const side = child.classList.contains('white') ? 'white' : 'black';
-                const type = child.classList.contains('dama') ? '-dama' : '';
+                const child = cell.children[0]; const side = child.classList.contains('white') ? 'white' : 'black'; const type = child.classList.contains('dama') ? '-dama' : '';
                 gameState.virtualBoard[r][c] = `${side}${type}`;
-            } else { 
-                gameState.virtualBoard[r][c] = null; 
-            }
+            } else { gameState.virtualBoard[r][c] = null; }
         }
         this.updateScoreboard();
     },
@@ -591,19 +512,14 @@ export const ui = {
         gameState.virtualBoard.forEach(row => { row.forEach(p => { if (p) { if (p.includes('white')) whiteCount++; else blackCount++; } }); });
         
         const isWhite = gameState.playerColor === 'white';
-        const oppRow = this.getEl('opponent-score-row');
-        const myRow = this.getEl('my-score-row');
+        const oppRow = this.getEl('opponent-score-row'); const myRow = this.getEl('my-score-row');
         
         if (oppRow && myRow) {
-            const oppStonesColor = isWhite ? 'black' : 'white';
-            const myStonesColor = gameState.playerColor;
-
+            const oppStonesColor = isWhite ? 'black' : 'white'; const myStonesColor = gameState.playerColor;
             oppRow.style.background = `var(--opp-score-bg, ${(oppStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)'})`;
             myRow.style.background = `var(--my-score-bg, ${(myStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)'})`;
-            oppRow.style.border = 'var(--opp-score-border, 1px solid rgba(255,255,255,0.1))';
-            myRow.style.border = 'var(--my-score-border, 1px solid rgba(255,255,255,0.1))';
-            oppRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
-            myRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
+            oppRow.style.border = 'var(--opp-score-border, 1px solid rgba(255,255,255,0.1))'; myRow.style.border = 'var(--my-score-border, 1px solid rgba(255,255,255,0.1))';
+            oppRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)'; myRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
         }
 
         const renderScoreDots = (container, count, color) => {
@@ -622,9 +538,7 @@ export const ui = {
     },
 
     renderBoard(forceRebuild = false) {
-        const board = this.getEl('board');
-        if (!board) return;
-        
+        const board = this.getEl('board'); if (!board) return;
         const flip = gameState.isOnlineMode && gameState.onlineFlip;
         const needsRebuild = forceRebuild || board.children.length === 0 || board.dataset.flip !== String(flip);
         
@@ -633,11 +547,8 @@ export const ui = {
             const rowLabels = this.getEl('row-labels'); 
             if (rowLabels) {
                 const rev = gameState.isOnlineMode ? gameState.onlineFlip : (gameState.playerColor !== 'white');
-                rowLabels.innerHTML = rev 
-                    ? '<div>8</div><div>7</div><div>6</div><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div>' 
-                    : '<div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div>';
+                rowLabels.innerHTML = rev ? '<div>8</div><div>7</div><div>6</div><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div>' : '<div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div>';
             }
-            
             for (let dr = 0; dr < 8; dr++) {
                 for (let dc = 0; dc < 8; dc++) {
                     const r = flip ? 7 - dr : dr; const c = flip ? 7 - dc : dc;
@@ -660,9 +571,7 @@ export const ui = {
                 let currentPiece = cell.firstElementChild; 
                 
                 if (boardVal) {
-                    const isWhite = boardVal.includes('white');
-                    const isDama = boardVal.includes('dama');
-                    
+                    const isWhite = boardVal.includes('white'); const isDama = boardVal.includes('dama');
                     if (!currentPiece) {
                         currentPiece = document.createElement('div');
                         currentPiece.className = `piece ${isWhite ? 'white' : 'black'} ${isDama ? 'dama' : ''}`.trim();
@@ -670,7 +579,6 @@ export const ui = {
                     } else {
                         if (isWhite) { currentPiece.classList.add('white'); currentPiece.classList.remove('black'); } 
                         else { currentPiece.classList.add('black'); currentPiece.classList.remove('white'); }
-                        
                         if (isDama) currentPiece.classList.add('dama');
                         else currentPiece.classList.remove('dama');
                     }
@@ -714,22 +622,18 @@ export const ui = {
 
     initBoard() {
         this.drawEmptyBoard(); 
-        
-        gameState.botMoveCount = 0; gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
-        gameState.pieceHistories = {};
+        gameState.botMoveCount = 0; gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0; gameState.pieceHistories = {};
 
         const tutorialCheck = document.getElementById('tutorial-mode-checkbox');
         if (!gameState.isOnlineMode && tutorialCheck) { gameState.isTutorialMode = tutorialCheck.checked; } 
         else { gameState.isTutorialMode = false; }
 
         gameState.isGameActive = true; window.isMatchRunning = true; document.body.classList.add('game-active');
-        
         if (!gameState.isOnlineMode) { this.toggleOfflineInMatchUI(true); }
         
         let topC = gameState.playerColor === 'white' ? 'black' : 'white';
         gameState.pieceDirection = {};
-        gameState.pieceDirection[topC] = 1;
-        gameState.pieceDirection[gameState.playerColor] = -1;
+        gameState.pieceDirection[topC] = 1; gameState.pieceDirection[gameState.playerColor] = -1;
         
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
@@ -747,16 +651,13 @@ export const ui = {
         saveGameState(); this.updateProfileUI(); this.startTurn();
     },
 
-    clearHighlights() {
-        document.querySelectorAll('.cell.highlight').forEach(c => c.classList.remove('highlight'));
-    },
+    clearHighlights() { document.querySelectorAll('.cell.highlight').forEach(c => c.classList.remove('highlight')); },
 
     highlightMove(from, to) {
         const board = this.getEl('board'); if (!board) return;
         document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
         const fromCell = board.querySelector(`[data-row="${from.r}"][data-col="${from.c}"]`);
         const toCell = board.querySelector(`[data-row="${to.r}"][data-col="${to.c}"]`);
-        
         if (fromCell) fromCell.classList.add('last-move');
         if (toCell) toCell.classList.add('last-move');
     },
@@ -764,11 +665,7 @@ export const ui = {
     showValidMovesHighlights(r, c) {
         this.clearHighlights();
         const board = this.getEl('board'); if (!board) return;
-        
-        let moves = (gameState.isMultiJumping && gameState.selectedPiece) 
-            ? gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, r, c, gameState.lastJumpDir.dr, gameState.lastJumpDir.dc) 
-            : gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
-            
+        let moves = (gameState.isMultiJumping && gameState.selectedPiece) ? gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, r, c, gameState.lastJumpDir.dr, gameState.lastJumpDir.dc) : gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
         moves.forEach(path => {
             if (path?.length > 0 && path[0].fromR === r && path[0].fromC === c) {
                 let targetCell = board.querySelector(`[data-row="${path[0].toR}"][data-col="${path[0].toC}"]`);
@@ -779,133 +676,95 @@ export const ui = {
 
     startTurnTimer() {
         if (!gameState.isOnlineMode) return;
-        
         sfx.clock.pause(); sfx.clock.currentTime = 0;
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
-        
         let hasPlayedTick = false; 
         
         const updateTimerDisplay = () => {
             if (gameState.turnEndTime) { gameState.turnTimeLeft = Math.max(0, Math.ceil((gameState.turnEndTime - Date.now()) / 1000)); } 
             else { gameState.turnTimeLeft--; }
-
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
             
-            if (gameState.turnTimeLeft <= 10 && gameState.turnTimeLeft > 0 && !hasPlayedTick) {
-                hasPlayedTick = true; this.playSound(sfx.clock);
-            }
-            
+            if (gameState.turnTimeLeft <= 10 && gameState.turnTimeLeft > 0 && !hasPlayedTick) { hasPlayedTick = true; this.playSound(sfx.clock); }
             if (gameState.turnTimeLeft <= 0) {
                 clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
-                sfx.clock.pause(); sfx.clock.currentTime = 0;
-                this.setTxt('turn-countdown', t('syncing') || 'جاري المزامنة مع الخادم...');
-
-                // 🌟 التعديل الجذري لمنع التشنج: اللاعب المتصل يرسل إشارة لإنهاء اللعبة
+                sfx.clock.pause(); sfx.clock.currentTime = 0; this.setTxt('turn-countdown', t('syncing') || 'جاري المزامنة مع الخادم...');
                 if (gameState.isOnlineMode && !gameState.isSpectator && window.socketManager && window.socket && window.socket.connected) {
-                    setTimeout(() => {
-                        if (gameState.isGameActive && gameState.onlineRoomID) {
-                            window.socket.emit('playerTimeout', { roomID: gameState.onlineRoomID });
-                        }
-                    }, 1500); 
+                    setTimeout(() => { if (gameState.isGameActive && gameState.onlineRoomID) window.socket.emit('playerTimeout', { roomID: gameState.onlineRoomID }); }, 1500); 
                 }
             }
         };
 
         if (!gameState.turnEndTime) { gameState.turnTimeLeft = 45; }
-        updateTimerDisplay(); 
-        gameState.turnTimerInterval = setInterval(updateTimerDisplay, 1000);
+        updateTimerDisplay(); gameState.turnTimerInterval = setInterval(updateTimerDisplay, 1000);
     },
 
     startTurn() {
         const tInd = this.getEl('turn-indicator'); if (!tInd) return;
-
         if (gameState.virtualBoard.every(row => row.every(cell => cell === null))) return; 
-
         this.updateVirtualBoardState();
 
         const isConnected = (typeof socket !== 'undefined' && socket && socket.connected);
         const isBotMatch = !gameState.isOnlineMode;
-        
         const isExemptFromStalling = gameState.isTutorialMode || (isBotMatch && !isConnected);
 
         let myColor = gameState.playerColor;
         let oppColor = myColor === 'white' ? 'black' : 'white';
-
         let myRep = 0, oppRep = 0;
+        
         if (typeof gameEngine.checkRepetitionAndStalling === 'function') {
             myRep = gameEngine.checkRepetitionAndStalling(myColor);
             oppRep = gameEngine.checkRepetitionAndStalling(oppColor);
         }
 
-        const idleCounter = document.getElementById('idle-counter');
-        const repCounter = document.getElementById('repetition-counter');
+        const idleCounter = document.getElementById('idle-counter'); const repCounter = document.getElementById('repetition-counter');
 
         if (idleCounter) {
             if (gameState.movesWithoutProgress >= 15 && !isExemptFromStalling) {
-                idleCounter.style.display = 'block';
-                idleCounter.textContent = `${gameState.movesWithoutProgress}/50`; 
+                idleCounter.style.display = 'block'; idleCounter.textContent = `${gameState.movesWithoutProgress}/50`; 
                 idleCounter.style.color = gameState.movesWithoutProgress >= 40 ? '#e74c3c' : '#a1a1aa';
                 idleCounter.style.borderColor = gameState.movesWithoutProgress >= 40 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(255, 255, 255, 0.1)';
-            } else {
-                idleCounter.style.display = 'none';
-            }
+            } else { idleCounter.style.display = 'none'; }
         }
 
         if (repCounter) {
             if (myRep > 1 && !isExemptFromStalling) { 
-                repCounter.style.display = 'block';
-                repCounter.textContent = `تكرار: ${myRep}/3`;
+                repCounter.style.display = 'block'; repCounter.textContent = `تكرار: ${myRep}/3`;
                 repCounter.style.color = myRep === 3 ? '#e74c3c' : '#f5a623';
                 repCounter.style.borderColor = myRep === 3 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(245, 166, 35, 0.3)';
-            } else {
-                repCounter.style.display = 'none';
-            }
+            } else { repCounter.style.display = 'none'; }
         }
 
         if (!isExemptFromStalling) {
             if (oppRep >= 4) {
-                if (gameState.isOnlineMode) {
-                    if (tInd) { tInd.textContent = "بانتظار قرار السيرفر... ⏳"; tInd.style.color = "#f5a623"; }
-                    return;
-                }
-                
+                if (gameState.isOnlineMode) { if (tInd) { tInd.textContent = "بانتظار قرار السيرفر... ⏳"; tInd.style.color = "#f5a623"; } return; }
                 if (gameState.blockGameOverModal) return;
                 if (tInd) { tInd.textContent = "فوز! الخصم كرر حركاته 🚫"; tInd.style.color = "#2ecc71"; }
-                gameState.isGameOver = true;
-                gameState.isGameActive = false;
+                gameState.isGameOver = true; gameState.isGameActive = false;
                 if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
                 if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
-                this.showResultsModal(myColor); 
-                return;
+                this.showResultsModal(myColor); return;
             }
             
             if (myRep >= 4) {
                 if (gameState.isOnlineMode) return; 
-
                 if (gameState.blockGameOverModal) return;
                 if (tInd) { tInd.textContent = "خسارة بسبب التكرار 🚫"; tInd.style.color = "#e74c3c"; }
-                gameState.isGameOver = true;
-                gameState.isGameActive = false;
+                gameState.isGameOver = true; gameState.isGameActive = false;
                 if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
                 if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
-                this.showResultsModal(oppColor); 
-                return;
+                this.showResultsModal(oppColor); return;
             }
         }
 
         if (gameState.movesWithoutProgress >= 50 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
             if (gameState.isOnlineMode) return; 
-
             if (gameState.blockGameOverModal) return;
             if (tInd) { tInd.textContent = "تم إعلان التعادل 🤝"; tInd.style.color = "#f1c40f"; }
-            
-            gameState.isGameOver = true;
-            gameState.isGameActive = false;
+            gameState.isGameOver = true; gameState.isGameActive = false;
             if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
             if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
-            
-            this.showResultsModal('draw'); 
-            return;
+            this.showResultsModal('draw'); return;
         }
 
         if (!gameState.isOnlineMode) {
@@ -923,25 +782,21 @@ export const ui = {
         document.querySelectorAll('.piece.multi-choice').forEach(p => p.classList.remove('multi-choice'));
         
         const isBoardEmpty = gameState.virtualBoard.every(row => row.every(cell => cell === null));
-        
         let currentAvailableMoves = 1; 
         if (!isBoardEmpty) { currentAvailableMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard).length; }
         
         if (!isBoardEmpty && currentAvailableMoves === 0) {
             if (gameState.isOnlineMode) return; 
-
             if (gameState.blockGameOverModal) return; 
             let winnerColor = gameState.currentTurn === 'white' ? 'black' : 'white';
-            tInd.textContent = winnerColor === 'white' ? t('white_wins') : t('black_wins');
-            tInd.style.color = "#2ecc71";
+            tInd.textContent = winnerColor === 'white' ? t('white_wins') : t('black_wins'); tInd.style.color = "#2ecc71";
             this.showResultsModal(winnerColor); return;
         }
         
         let maxJ = 0; let piecesJumps = []; 
         
         if (gameState.isMultiJumping && gameState.selectedPiece) {
-            let cell = gameState.selectedPiece.parentElement;
-            let r = parseInt(cell.dataset.row); let c = parseInt(cell.dataset.col);
+            let cell = gameState.selectedPiece.parentElement; let r = parseInt(cell.dataset.row); let c = parseInt(cell.dataset.col);
             maxJ = gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard);
             piecesJumps.push({ r, c, jumps: maxJ });
         } else {
@@ -956,9 +811,7 @@ export const ui = {
             });
         }
         
-        gameState.requiredJumps = maxJ;
-        gameState.jumpsCount = 0;
-        gameState.isMultiJumping = false;
+        gameState.requiredJumps = maxJ; gameState.jumpsCount = 0; gameState.isMultiJumping = false;
         
         if (gameState.requiredJumps > 0) {
             tInd.textContent = `${t('forced')} ${gameState.requiredJumps}`; tInd.style.color = "#e74c3c";
@@ -980,17 +833,13 @@ export const ui = {
             }
         } else {
             if (gameState.isSpectator) {
-                tInd.textContent = gameState.currentTurn === 'white' ? "دور الأبيض ⚪" : "دور الأسود ⚫";
-                tInd.style.color = "#a1a1aa";
+                tInd.textContent = gameState.currentTurn === 'white' ? "دور الأبيض ⚪" : "دور الأسود ⚫"; tInd.style.color = "#a1a1aa";
             } else if (gameState.isOnlineMode) { 
-                tInd.style.color = "#f1c40f";
-                tInd.textContent = gameState.currentTurn === gameState.myOnlineColor ? t('turn_yours') : t('turn_opps'); 
+                tInd.style.color = "#f1c40f"; tInd.textContent = gameState.currentTurn === gameState.myOnlineColor ? t('turn_yours') : t('turn_opps'); 
             } else if (gameState.currentTurn === gameState.playerColor) { 
-                tInd.style.color = "#f1c40f";
-                tInd.textContent = t('turn'); 
+                tInd.style.color = "#f1c40f"; tInd.textContent = t('turn'); 
             } else { 
-                tInd.style.color = "#f1c40f";
-                tInd.textContent = t('aiTurn'); 
+                tInd.style.color = "#f1c40f"; tInd.textContent = t('aiTurn'); 
             }
         }
         
@@ -1057,13 +906,10 @@ export const ui = {
                 self.playSound(gameState.virtualBoard[step.midR][step.midC]?.includes('dama') ? sfx.kingDied : sfx.piecesDied);
                 let midCell = board.querySelector(`[data-row="${step.midR}"][data-col="${step.midC}"]`);
                 if (midCell) midCell.innerHTML = '';
-                gameState.movesWithoutProgress = 0; 
-                gameState.boardHistoryStr = [];
-                gameState.pieceHistories = {}; 
+                gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = []; gameState.pieceHistories = {}; 
             }
             
             if (tCell && fCell?.children.length > 0) tCell.appendChild(fCell.children[0]);
-            
             self.playSound(sfx.move); stepIdx++; gameState.botMoveCount++;
             
             if (stepIdx >= chosenMove.length) {
@@ -1075,18 +921,14 @@ export const ui = {
                     const isWhitePiece = finalCell.children[0].classList.contains('white');
                     let realPromoRow = gameState.pieceDirection[isWhitePiece ? 'white' : 'black'] === 1 ? 7 : 0;
                     if (last.toR === realPromoRow && !finalCell.children[0].classList.contains('dama')) {
-                        finalCell.children[0].classList.add('dama');
-                        self.playSound(sfx.kingCreated); isPromotion = true;
+                        finalCell.children[0].classList.add('dama'); self.playSound(sfx.kingCreated); isPromotion = true;
                     }
                 }
                 
                 if (isPromotion) { 
-                    gameState.movesWithoutProgress = 0; 
-                    gameState.boardHistoryStr = []; 
-                    gameState.pieceHistories = {}; 
+                    gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = []; gameState.pieceHistories = {}; 
                 } else if (chosenMove.some(s => s.midR === null)) { 
-                    gameState.movesWithoutProgress++; 
-                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard)); 
+                    gameState.movesWithoutProgress++; gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard)); 
                     if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(startRow, startCol, last.toR, last.toC, aiColor);
                 }
 
@@ -1107,13 +949,10 @@ export const ui = {
         sfx.clock.pause(); sfx.clock.currentTime = 0; this.setTxt('turn-countdown', '');
         this.setDisplay('match-players-card', 'none');
 
-        const oldModal = this.getEl('custom-results-modal-container');
-        if (oldModal) oldModal.remove();
-
+        const oldModal = this.getEl('custom-results-modal-container'); if (oldModal) oldModal.remove();
         this.playSound(sfx.win);
         
-        if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal');
-        else this.setDisplay('game-over-modal', 'none');
+        if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal'); else this.setDisplay('game-over-modal', 'none');
 
         const container = this.makeEl('div', 'custom-results-modal-container', "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,18,25,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:999999;font-family:sans-serif;direction:rtl;box-sizing:border-box;padding:20px;");
         container.id = 'custom-results-modal-container';
@@ -1121,8 +960,7 @@ export const ui = {
         const box = this.makeEl('div', null, "background:rgba(45,48,55,0.65);backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:35px 25px;border-radius:32px;width:100%;max-width:320px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);");
         box.appendChild(this.makeEl('h3', null, "margin:0 0 15px 0;color:#87ceeb;font-size:26px;font-weight:700;text-align:center;", t('go_title')));
         
-        const isDraw = winnerColor === 'draw';
-        const iconStr = isDraw ? "🤝" : "🏆";
+        const isDraw = winnerColor === 'draw'; const iconStr = isDraw ? "🤝" : "🏆";
         const trophy = this.makeEl('div', null, "font-size:50px;margin:10px 0 20px 0;text-shadow:0 0 15px rgba(255,215,0,0.4);", iconStr);
         box.appendChild(trophy);
         
@@ -1130,32 +968,19 @@ export const ui = {
         
         const createPlayerBox = (name, avatar, isCustom, isWin, isDrawMatch) => {
             const pBox = this.makeEl('div', null, "display:flex;flex-direction:column;align-items:center;width:45%;");
-            
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);box-shadow:0 10px 25px rgba(0,0,0,0.2);");
             const av = this.makeEl('div', null, "width:56px;height:56px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:hidden;");
-            
-            this.applyAvatar(av, avatar, isCustom);
-            
-            av.style.border = "none";
-            avContainer.appendChild(av);
-            
+            this.applyAvatar(av, avatar, isCustom); av.style.border = "none"; avContainer.appendChild(av);
             const nameSpan = this.makeEl('span', null, "margin-top:8px;font-size:13px;font-weight:600;color:#ffffff;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;", name);
             
-            let statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)';
-            let statusColor = isWin ? '#30d158' : '#ff453a';
-            let statusBorder = isWin ? 'rgba(48,209,88,0.3)' : 'rgba(255,69,58,0.3)';
-            let statusText = isWin ? t('winner') : t('loser');
-
+            let statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)'; let statusColor = isWin ? '#30d158' : '#ff453a'; let statusBorder = isWin ? 'rgba(48,209,88,0.3)' : 'rgba(255,69,58,0.3)'; let statusText = isWin ? t('winner') : t('loser');
             if (isDrawMatch) { statusBg = 'rgba(241, 196, 15, 0.15)'; statusColor = '#f1c40f'; statusBorder = 'rgba(241, 196, 15, 0.3)'; statusText = 'تعادل'; }
-
             const statusSpan = this.makeEl('span', null, `font-size:12px;margin-top:8px;padding:4px 12px;border-radius:50px;font-weight:600;background:${statusBg};color:${statusColor};border:1px solid ${statusBorder};display:inline-block;`, statusText);
             
-            pBox.append(avContainer, nameSpan, statusSpan);
-            return pBox;
+            pBox.append(avContainer, nameSpan, statusSpan); return pBox;
         };
         
         const flex = this.makeEl('div', null, "display:flex;justify-content:center;align-items:center;gap:20px;margin:15px 0;");
-        
         let oppName = gameState.currentOpponentName; let oppAvatar = gameState.currentOpponentAvatar;
         if (!gameState.isOnlineMode) { oppName = t('ai'); oppAvatar = "AI_BOT"; }
 
@@ -1169,42 +994,31 @@ export const ui = {
         
         const btns = this.makeEl('div', null, "display:flex;gap:10px;width:100%;margin-top:25px;");
         const rBtn = this.makeEl('button', 'modal-btn-rematch', "flex:1;background:rgba(135,206,235,0.15);color:#87ceeb;border:1px solid rgba(135,206,235,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(135,206,235,0.3);", t('go_rematch'));
-        rBtn.id = 'modal-btn-rematch';
-        rBtn.onmouseenter = () => rBtn.style.transform = 'scale(0.96)'; rBtn.onmouseleave = () => rBtn.style.transform = 'scale(1)';
+        rBtn.id = 'modal-btn-rematch'; rBtn.onmouseenter = () => rBtn.style.transform = 'scale(0.96)'; rBtn.onmouseleave = () => rBtn.style.transform = 'scale(1)';
         
         this.clickHandlers.set('modal-btn-rematch', () => {
             rBtn.disabled = true; rBtn.style.opacity = '0.6'; rBtn.style.cursor = 'not-allowed'; rBtn.textContent = t('waiting'); 
-            
             if (gameState.isOnlineMode && !gameState.isBotOpponent) {
                 if (socketManager && typeof socketManager.sendRematchRequest === 'function') socketManager.sendRematchRequest();
             } else { setTimeout(() => { container.remove(); this.initBoard(); }, 500); }
         });
         
         const eBtn = this.makeEl('button', 'modal-btn-exit', "flex:1;background:rgba(255,69,58,0.15);color:#ff453a;border:1px solid rgba(255,69,58,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(255,69,58,0.3);", t('exit') || 'خروج');
-        eBtn.id = 'modal-btn-exit';
-        eBtn.onmouseenter = () => eBtn.style.transform = 'scale(0.96)'; eBtn.onmouseleave = () => eBtn.style.transform = 'scale(1)';
+        eBtn.id = 'modal-btn-exit'; eBtn.onmouseenter = () => eBtn.style.transform = 'scale(0.96)'; eBtn.onmouseleave = () => eBtn.style.transform = 'scale(1)';
         
         this.clickHandlers.set('modal-btn-exit', () => {
-            if (gameState.isOnlineMode && !gameState.isBotOpponent && socket?.connected) {
-                socket.emit('leaveRoom', { roomID: gameState.onlineRoomID }); socket.emit('rejectRematch', { roomID: gameState.onlineRoomID });
-            }
+            if (gameState.isOnlineMode && !gameState.isBotOpponent && socket?.connected) { socket.emit('leaveRoom', { roomID: gameState.onlineRoomID }); socket.emit('rejectRematch', { roomID: gameState.onlineRoomID }); }
             container.remove(); 
-            
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal');
-            else this.setDisplay('game-over-modal', 'none'); 
-            
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal'); else this.setDisplay('game-over-modal', 'none'); 
             if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
             if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-            
-            gameState.isOnlineMode = false; gameState.onlineRoomID = null; 
-            this.drawEmptyBoard();
+            gameState.isOnlineMode = false; gameState.onlineRoomID = null; this.drawEmptyBoard();
         });
         
         btns.append(rBtn, eBtn); box.appendChild(btns); container.appendChild(box); document.body.appendChild(container);
 
         if (gameState.userProfile) { 
             const isServerConnected = (typeof socket !== 'undefined' && socket && socket.connected);
-
             if (isServerConnected) {
                 if (!gameState.isOnlineMode && gameState.isTutorialMode) {
                     box.appendChild(this.makeEl('div', 'tutorial-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", t('tutorial_mode') || "وضع تعليمي (بدون جوائز) 🚫🪙"));
@@ -1215,48 +1029,32 @@ export const ui = {
 
                     if (gameState.isOnlineMode) {
                         if (gameState.roomBet && gameState.roomBet > 0) isBetMatch = true;
-
                         if (isMatchmaking) {
-                            if (isDraw) { xpGained = 15; displayReward = isBetMatch ? 0 : 25; } 
-                            else { xpGained = isMeWin ? 50 : 15; displayReward = isBetMatch ? gameState.roomBet : (isMeWin ? 120 : 10); }
+                            if (isDraw) { xpGained = 15; displayReward = isBetMatch ? 0 : 25; } else { xpGained = isMeWin ? 50 : 15; displayReward = isBetMatch ? gameState.roomBet : (isMeWin ? 120 : 10); }
                         } else {
-                            xpGained = 0;
-                            if (isDraw) { displayReward = 0; } 
-                            else { displayReward = isBetMatch ? gameState.roomBet : 0; }
+                            xpGained = 0; if (isDraw) { displayReward = 0; } else { displayReward = isBetMatch ? gameState.roomBet : 0; }
                         }
                     } else {
                         if (isMeWin) {
-                            xpGained = 0; 
-                            if (lvl <= 2) displayReward = 10;
-                            else if (lvl <= 4) displayReward = 15;
-                            else if (lvl <= 6) displayReward = 50;
-                            else if (lvl <= 8) displayReward = 100;
-                            else if (lvl === 9) { displayReward = "100 أو 400"; isBossLevel = true; }
+                            xpGained = 0; if (lvl <= 2) displayReward = 10; else if (lvl <= 4) displayReward = 15; else if (lvl <= 6) displayReward = 50; else if (lvl <= 8) displayReward = 100; else if (lvl === 9) { displayReward = "100 أو 400"; isBossLevel = true; }
                         } else { xpGained = 0; displayReward = 0; }
                     }
 
                     if (displayReward !== 0 || isDraw || (isBetMatch && !isDraw && !isMeWin)) {
                         let rewardText = ""; let alertColor = "#f5a623";
-
                         if (isBetMatch) {
-                            if (isDraw) { rewardText = `🤝 تم استرداد الرهان بأمان`; alertColor = "#f1c40f"; } 
-                            else if (isMeWin) { rewardText = `💰 جائزة الرهان: +${displayReward} 🪙`; alertColor = "#30d158"; } 
-                            else { rewardText = `💸 خسارة الرهان: -${gameState.roomBet} 🪙`; alertColor = "#ff453a"; }
-                        } else if (isBossLevel) { rewardText = `👑 مكافأة الزعيم: +${displayReward} 🪙`; } 
-                        else if (displayReward > 0) { rewardText = `${(t('tokenReward') || 'المكافأة:')} +${displayReward} 🪙`; alertColor = isMeWin ? "#f5a623" : "#87ceeb"; }
-                        
+                            if (isDraw) { rewardText = `🤝 تم استرداد الرهان بأمان`; alertColor = "#f1c40f"; } else if (isMeWin) { rewardText = `💰 جائزة الرهان: +${displayReward} 🪙`; alertColor = "#30d158"; } else { rewardText = `💸 خسارة الرهان: -${gameState.roomBet} 🪙`; alertColor = "#ff453a"; }
+                        } else if (isBossLevel) { rewardText = `👑 مكافأة الزعيم: +${displayReward} 🪙`; } else if (displayReward > 0) { rewardText = `${(t('tokenReward') || 'المكافأة:')} +${displayReward} 🪙`; alertColor = isMeWin ? "#f5a623" : "#87ceeb"; }
                         if (rewardText !== "") { box.appendChild(this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`, rewardText)); }
                     }
 
                     if (xpGained > 0) { box.appendChild(this.makeEl('div', 'xp-reward-alert', "margin-top:8px; color:#34c759; font-weight:800; font-size:15px; text-shadow: 0 0 8px rgba(52, 199, 89, 0.4); animation: modalFadeIn 0.5s ease;", `✨ اكتساب الخبرة: +${xpGained} XP`)); }
-
                     if (!gameState.isOnlineMode && isMeWin) { socket.emit('claimBotReward', { isWin: true, level: lvl }); }
                 }
             } else {
                 const offlineMsg = t('offline_mode') || "أنت تلعب بدون إنترنت (لن يتم حساب الخبرة أو الجوائز)";
                 box.appendChild(this.makeEl('div', 'offline-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", offlineMsg));
             }
-            
             if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
             this.updateProfileUI(); 
         }
@@ -1265,28 +1063,19 @@ export const ui = {
 
     updateProfileUI() {
         if (!gameState.userProfile) return;
-        
-        if (gameState.userProfile) {
-            if (typeof window.applyTheme === 'function' && !window.isMatchRunning) { window.applyTheme(gameState.userProfile); }
-        }
-
+        if (gameState.userProfile) { if (typeof window.applyTheme === 'function' && !window.isMatchRunning) window.applyTheme(gameState.userProfile); }
         if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(gameState.userProfile); }
         
-        let prof = gameState.userProfile;
-        let lvlInfo = this.calculateLevelInfo(prof.xp || 0);
+        let prof = gameState.userProfile; let lvlInfo = this.calculateLevelInfo(prof.xp || 0);
 
-        const badgeLevel = this.getEl('badge-level');
-        const xpProgressPath = this.getEl('xp-progress-path'); 
-
+        const badgeLevel = this.getEl('badge-level'); const xpProgressPath = this.getEl('xp-progress-path'); 
         if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
         
         if (xpProgressPath) {
             const totalLength = xpProgressPath.getTotalLength ? xpProgressPath.getTotalLength() : 150; 
             const progress = Math.min(Math.max(lvlInfo.percentage / 100, 0), 1);
             const newOffset = totalLength - (totalLength * progress);
-            
-            xpProgressPath.style.strokeDasharray = totalLength;
-            xpProgressPath.style.strokeDashoffset = newOffset;
+            xpProgressPath.style.strokeDasharray = totalLength; xpProgressPath.style.strokeDashoffset = newOffset;
         }
 
         const igpLevel = this.getEl('igp-level'); const igpRank = this.getEl('igp-rank-title'); const igpXpFill = this.getEl('igp-xp-fill'); const igpXpText = this.getEl('igp-xp-text');
@@ -1309,27 +1098,18 @@ export const ui = {
         if (fList) {
             fList.innerHTML = '';
             if (!gameState.userProfile.friends || gameState.userProfile.friends.length === 0) {
-                const noFriendsTxt = this.makeEl('p', null, "text-align:center;color:#a1a1aa;font-size:12px;", t('igp_no_friends'));
-                fList.appendChild(noFriendsTxt);
+                const noFriendsTxt = this.makeEl('p', null, "text-align:center;color:#a1a1aa;font-size:12px;", t('igp_no_friends')); fList.appendChild(noFriendsTxt);
             } else {
-                let uniqueArr = [];
-                let seen = new Set();
+                let uniqueArr = []; let seen = new Set();
                 (gameState.userProfile.friends || []).forEach(f => {
                     let fId = typeof f === 'string' ? f.toUpperCase() : (f.id ? f.id.toUpperCase() : null);
-                    if (fId && !seen.has(fId)) {
-                        seen.add(fId);
-                        uniqueArr.push(f);
-                    }
+                    if (fId && !seen.has(fId)) { seen.add(fId); uniqueArr.push(f); }
                 });
                 gameState.userProfile.friends = uniqueArr;
-                
-                renderFriendsList(gameState.userProfile.friends);
+                if(window.renderFriendsList) window.renderFriendsList(gameState.userProfile.friends);
             }
         }
-
-        if (typeof window.refreshProfileUIStyles === 'function') {
-            setTimeout(() => window.refreshProfileUIStyles(), 50);
-        }
+        if (typeof window.refreshProfileUIStyles === 'function') { setTimeout(() => window.refreshProfileUIStyles(), 50); }
     },
 
     initProfileSystem() {
@@ -1338,20 +1118,14 @@ export const ui = {
             try {
                 const parsed = JSON.parse(saved);
                 if (parsed.id) parsed.id = parsed.id.toUpperCase();
-                
                 if (parsed.friends) {
-                    let uniqueArr = [];
-                    let seen = new Set();
+                    let uniqueArr = []; let seen = new Set();
                     parsed.friends.forEach(f => {
                         let fId = typeof f === 'string' ? f.toUpperCase() : (f.id ? f.id.toUpperCase() : null);
-                        if (fId && !seen.has(fId)) {
-                            seen.add(fId);
-                            uniqueArr.push(f);
-                        }
+                        if (fId && !seen.has(fId)) { seen.add(fId); uniqueArr.push(f); }
                     });
                     parsed.friends = uniqueArr;
                 }
-                
                 gameState.userProfile = { ...gameState.userProfile, ...parsed }; 
             } catch(e) {}
         }
@@ -1359,726 +1133,61 @@ export const ui = {
     }
 };
 
-// ==========================================
-// 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
-// ==========================================
-
-window.selectSpectatorBetColor = function(color) {
-    const colorInput = document.getElementById('spectator-bet-color');
-    const p1Card = document.getElementById('bet-p1-card');
-    const p2Card = document.getElementById('bet-p2-card');
-    if (!colorInput || !p1Card || !p2Card) return;
-
-    colorInput.value = color;
-
-    p1Card.style.borderColor = 'transparent';
-    p1Card.style.background = 'transparent';
-    p1Card.style.transform = 'scale(1)';
-    p1Card.style.boxShadow = 'none';
-
-    p2Card.style.borderColor = 'transparent';
-    p2Card.style.background = 'transparent';
-    p2Card.style.transform = 'scale(1)';
-    p2Card.style.boxShadow = 'none';
-
-    if (color === 'white') {
-        p1Card.style.borderColor = '#ffd700';
-        p1Card.style.background = 'rgba(255, 215, 0, 0.15)';
-        p1Card.style.transform = 'scale(1.1)';
-        p1Card.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2)';
-    } else {
-        p2Card.style.borderColor = '#ff453a';
-        p2Card.style.background = 'rgba(255, 69, 58, 0.15)';
-        p2Card.style.transform = 'scale(1.1)';
-        p2Card.style.boxShadow = '0 0 20px rgba(255, 69, 58, 0.4), inset 0 0 10px rgba(255, 69, 58, 0.2)';
-    }
-};
-
-ui.onClick('spectator-submit-bet-btn', () => {
-    const roomID = document.getElementById('spectator-bet-room-id')?.value;
-    const color = document.getElementById('spectator-bet-color')?.value;
-    const amount = document.getElementById('spectator-bet-amount')?.value;
-    
-    if (!color) {
-        ui.showCustomAlert("الرجاء اختيار اللاعب الذي تتوقع فوزه أولاً!");
-        return;
-    }
-    
-    if (window.socketManager && typeof window.socketManager.placeSpectatorBet === 'function') {
-        window.socketManager.placeSpectatorBet(roomID, color, amount);
-        if (typeof window.closeAppModal === 'function') window.closeAppModal('spectator-bet-modal');
-    }
-});
-
-window.openCreatorSettings = function(roomId, currentBet) {
-    const roomIdInput = document.getElementById('creator-target-room-id');
-    const betInput = document.getElementById('edit-room-bet-input');
-    const betDisplay = document.getElementById('edit-room-bet-display');
-    
-    if (roomIdInput) roomIdInput.value = roomId;
-    if (betInput) betInput.value = currentBet;
-    
-    if (betDisplay) {
-        let betText = "بدون رهان (مجاني)";
-        if (currentBet == 50) betText = "50 🪙 (الجائزة الكبرى: 100)";
-        else if (currentBet == 100) betText = "100 🪙 (الجائزة الكبرى: 200)";
-        else if (currentBet == 200) betText = "200 🪙 (الجائزة الكبرى: 400)";
-        else if (currentBet == 500) betText = "500 🪙 (الجائزة الكبرى: 1000)";
-        else if (currentBet == 1000) betText = "1000 🪙 (الجائزة الكبرى: 2000)";
-        betDisplay.innerText = betText;
-    }
-    
-    window.openAppModal('creator-room-settings-modal');
-};
-
-window.deleteMyRoom = function(roomId) {
-    if (typeof ui !== 'undefined' && typeof ui.showCustomAlert === 'function') {
-        ui.showCustomAlert(
-            "هل أنت متأكد من رغبتك في إغلاق وحذف هذه الغرفة نهائياً؟",
-            "حذف الغرفة 🗑️",
-            () => {
-                if (typeof socket !== 'undefined' && socket && socket.connected) {
-                    socket.emit('leaveRoom', { roomID: roomId });
-                }
-            },
-            true, "إلغاء", "نعم، احذفها"
-        );
-    }
-};
-
-window.openAppModal = function(id) {
-    const modal = document.getElementById(id);
-    if (modal) { 
-        modal.style.display = 'flex'; 
-        if (!gameState.modalStack.includes(id)) gameState.modalStack.push(id);
-        if (id === 'online-modal' && window.socket && window.socket.connected) {
-            window.socket.emit('requestActiveRooms');
-        }
-    }
-};
-
-window.closeAppModal = function(id) {
-    if (id === 'lucky-spin-modal' && window.isSpinning) return; 
-    const modal = document.getElementById(id);
-    if (modal) {
-        modal.style.display = 'none'; 
-        gameState.modalStack = gameState.modalStack.filter(m => m !== id);
-    }
-};
-
-window.toggleSideMenu = function() {
-    const overlay = document.getElementById('side-menu-overlay');
-    if (overlay.classList.contains('open')) overlay.classList.remove('open');
-    else overlay.classList.add('open');
-};
-
-window.switchQuestTab = function(tab) {
-    document.getElementById('quest-tab-daily').classList.remove('active');
-    document.getElementById('quest-tab-weekly').classList.remove('active');
-    document.getElementById('quests-list-container-daily').style.display = 'none';
-    document.getElementById('quests-list-container-weekly').style.display = 'none';
-    document.getElementById('quest-tab-' + tab).classList.add('active');
-    document.getElementById('quests-list-container-' + tab).style.display = 'flex';
-    if (window.questsManager) { 
-        window.questsManager.currentTab = tab; 
-        window.questsManager.updateTimerDisplay(); 
-        window.questsManager.renderQuests(tab); 
-    }
-};
-
-window.switchRoomTab = function(tab) {
-    document.getElementById('room-tab-play').classList.remove('active'); document.getElementById('room-tab-bet').classList.remove('active');
-    document.getElementById('active-rooms-list').style.display = 'none'; document.getElementById('spectate-rooms-list').style.display = 'none';
-    document.getElementById('room-tab-' + tab).classList.add('active'); 
-    if (tab === 'play') { document.getElementById('active-rooms-list').style.display = 'block'; } 
-    else { document.getElementById('spectate-rooms-list').style.display = 'block'; }
-};
-
-window.selectBetAmount = function(value, displayText, element) {
-    if (window.isEditingBet) {
-        document.getElementById('edit-room-bet-input').value = value; 
-        document.getElementById('edit-room-bet-display').innerText = displayText;
-    } else {
-        document.getElementById('room-bet-input').value = value; 
-        document.getElementById('custom-bet-display').innerText = displayText;
-    }
-    document.querySelectorAll('.bet-option-item').forEach(el => el.classList.remove('selected'));
-    element.classList.add('selected');
-    setTimeout(() => window.closeAppModal('bet-selector-modal'), 150);
-};
-
-function cleanExpiredRequests(profile) {
-    if (!profile.friendRequests) profile.friendRequests = [];
-    const now = Date.now(); const threeDays = 3 * 24 * 60 * 60 * 1000;
-    profile.friendRequests = profile.friendRequests.filter(req => (now - req.timestamp) < threeDays);
-    return profile;
-}
-
-function renderFriendsList(friendsArr) {
-    const listContainer = document.getElementById('igp-friends-list'); if (!listContainer) return;
-    if (!friendsArr || friendsArr.length === 0) { listContainer.innerHTML = 'لا يوجد أصدقاء حالياً'; return; }
-    listContainer.innerHTML = '';
-    
-    let actualFriends = friendsArr;
-    if (friendsArr.length > 0 && typeof friendsArr[0] === 'string') {
-        let globalProfile = localStorage.getItem('hub_user_profile');
-        if (globalProfile) {
-            let prof = cleanExpiredRequests(JSON.parse(globalProfile));
-            if(prof.friends && prof.friends.length > 0 && typeof prof.friends[0] === 'object') {
-                actualFriends = prof.friends;
-            }
-        }
-    }
-
-    actualFriends.forEach(friend => {
-        let div = document.createElement('div');
-        div.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); padding:8px 10px; border-radius:14px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 10px rgba(0,0,0,0.2);";
-        
-        let friendId = typeof friend === 'string' ? friend : friend.id;
-        let friendName = typeof friend === 'object' && friend.name ? friend.name : 'لاعب';
-        let friendAvatar = typeof friend === 'object' && friend.avatar ? friend.avatar : '../Photo/1000132081.webp';
-        
-        div.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
-                <img src="${friendAvatar}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0;" onerror="this.src='../Photo/1000132081.webp'">
-                <div style="text-align:right; overflow:hidden;">
-                    <div style="font-weight:bold; color:white; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${friendName}</div>
-                    <div style="font-size:9px; color:#a1a1aa; font-family: monospace;">${friendId}</div>
-                </div>
-            </div>
-            <div style="display:flex; gap:4px; flex-shrink: 0;">
-                <button data-action="challenge-friend" data-fid="${friendId}" style="background:linear-gradient(135deg, #34c759, #28a745); border:none; color:#fff; border-radius:8px; padding:6px 8px; cursor:pointer; font-size:11px; font-weight:bold; box-shadow:0 2px 5px rgba(40,167,69,0.3); transition: transform 0.2s; white-space: nowrap;">
-                    تحدي ⚔️
-                </button>
-                <button data-action="remove-friend" data-fid="${friendId}" style="background:rgba(255,69,58,0.15); border:1px solid rgba(255,69,58,0.3); color:#ff453a; border-radius:8px; padding:6px 8px; cursor:pointer; font-size:11px; font-weight:bold; transition: transform 0.2s; white-space: nowrap;">
-                    حذف 🗑️
-                </button>
-            </div>
-        `;
-        listContainer.appendChild(div);
-    });
-}
-
-function renderFriendRequests() {
-    let profStr = localStorage.getItem('hub_user_profile'); if (!profStr) return;
-    let prof = cleanExpiredRequests(JSON.parse(profStr)); localStorage.setItem('hub_user_profile', JSON.stringify(prof));
-    let container = document.getElementById('friend-requests-container'); let badge = document.getElementById('friend-requests-badge');
-    let reqs = prof.friendRequests || [];
-
-    if(badge) { if(reqs.length > 0) { badge.style.display = 'inline-block'; badge.innerText = reqs.length; } else { badge.style.display = 'none'; } }
-    if (!container) return; container.innerHTML = '';
-    
-    if (reqs.length === 0) { container.innerHTML = '<div style="text-align:center; color:#a1a1aa; padding:20px;">لا توجد طلبات صداقة حالياً.</div>'; return; }
-
-    reqs.forEach(req => {
-        let div = document.createElement('div');
-        div.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.05); padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.05);";
-        div.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px;">
-                <img src="${req.avatar || '../Photo/1000132081.webp'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;" onerror="this.src='../Photo/1000132081.webp'">
-                <div style="text-align:right;">
-                    <div style="font-weight:bold; color:white; font-size:14px;">${req.name}</div>
-                    <div style="font-size:10px; color:#a1a1aa;">طلب صداقة</div>
-                </div>
-            </div>
-            <div style="display:flex; gap:6px;">
-                <button onclick="window.acceptFriendReq('${req.id}')" style="background:rgba(48,209,88,0.2); border:1px solid rgba(48,209,88,0.4); color:#30d158; width:34px; height:34px; border-radius:10px; font-size:16px; cursor:pointer;">✓</button>
-                <button onclick="window.rejectFriendReq('${req.id}')" style="background:rgba(255,69,58,0.15); border:1px solid rgba(255,69,58,0.3); color:#ff453a; width:34px; height:34px; border-radius:10px; font-size:16px; cursor:pointer;">✕</button>
-            </div>
-        `;
-        container.appendChild(div);
-    });
-}
-
-window.acceptFriendReq = function(reqId) {
-    let profStr = localStorage.getItem('hub_user_profile'); if(!profStr) return;
-    let prof = JSON.parse(profStr); if(!prof.friends) prof.friends = [];
-    let reqIndex = prof.friendRequests.findIndex(r => r.id === reqId);
-    if(reqIndex !== -1) {
-        let acceptedUser = prof.friendRequests[reqIndex];
-        if(!prof.friends.find(f => (typeof f === 'string' ? f === reqId : f.id === reqId))) { prof.friends.push({ id: acceptedUser.id, name: acceptedUser.name, avatar: acceptedUser.avatar }); }
-        prof.friendRequests.splice(reqIndex, 1); localStorage.setItem('hub_user_profile', JSON.stringify(prof));
-        renderFriendRequests(); renderFriendsList(prof.friends);
-        const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '✅ تمت إضافة الصديق بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-    }
-};
-
-window.rejectFriendReq = function(reqId) {
-    let profStr = localStorage.getItem('hub_user_profile'); if(!profStr) return;
-    let prof = JSON.parse(profStr); prof.friendRequests = prof.friendRequests.filter(r => r.id !== reqId);
-    localStorage.setItem('hub_user_profile', JSON.stringify(prof)); renderFriendRequests();
-};
-
-window.sendFriendRequest = function() {
-    if(!gameState.currentViewedPlayer) return;
-    const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '📨 تم إرسال طلب الصداقة بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-    const btn = document.getElementById('send-friend-req-btn');
-    if(btn) { btn.innerHTML = '✓ تم الإرسال'; btn.style.background = 'rgba(255,255,255,0.1) !important'; btn.style.color = '#a1a1aa !important'; btn.style.borderColor = 'rgba(255,255,255,0.2) !important'; btn.disabled = true; }
-};
-
-window.givePopularity = function() {
-    if(!gameState.currentViewedPlayer) return;
-    const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '🔥 تم منح الشعبية بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-    const valEl = document.getElementById('igp-popularity-val'); if(valEl) valEl.innerText = parseInt(valEl.innerText) + 1;
-    const btn = document.getElementById('give-pop-btn');
-    if(btn) { btn.innerHTML = '🔥 تم المنح'; btn.style.background = 'rgba(255,255,255,0.1) !important'; btn.style.color = '#a1a1aa !important'; btn.style.borderColor = 'rgba(255,255,255,0.2) !important'; btn.disabled = true; }
-};
-
-window.openMyProfile = function() {
-    const xpCont = document.getElementById('igp-xp-container'); const statGrid = document.getElementById('igp-stats-grid'); const lvlBadge = document.getElementById('igp-level');
-    if(xpCont) xpCont.style.display = 'block'; if(statGrid) statGrid.style.display = 'grid'; if(lvlBadge) lvlBadge.style.display = 'block';
-    document.getElementById('own-profile-actions').style.display = 'block'; document.getElementById('other-profile-actions').style.display = 'none';
-    
-    let globalProfile = localStorage.getItem('hub_user_profile');
-    if (globalProfile) {
-        let prof = cleanExpiredRequests(JSON.parse(globalProfile)); localStorage.setItem('hub_user_profile', JSON.stringify(prof)); 
-        window.applyProfileDataToUI(prof);
-        const avatarContainer = document.getElementById('igp-avatar');
-        let imgSrc = prof.avatar || '../Photo/1000132081.webp';
-        if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:image')) { let cleanName = imgSrc.replace(/\.\.\//g, '').replace('Photo/', ''); imgSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
-        avatarContainer.style.backgroundImage = 'none'; avatarContainer.innerHTML = `<img src="${imgSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-        
-        let level = Math.floor(Math.sqrt(Math.max(0, prof.xp || 0) / 50)) + 1;
-        if(lvlBadge) lvlBadge.innerText = `Lv.${level}`;
-        
-        let xpBar = document.getElementById('igp-xp-fill'); let xpText = document.getElementById('igp-xp-text');
-        if(xpBar && xpText) {
-            let currentLevelXp = Math.pow(level - 1, 2) * 50; let nextLevelXp = Math.pow(level, 2) * 50;
-            let progress = ((prof.xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
-            xpBar.style.width = Math.min(100, Math.max(0, progress)) + '%'; xpText.innerText = `${prof.xp || 0} / ${nextLevelXp} XP`;
-        }
-        document.getElementById('igp-popularity-val').innerText = prof.popularity || 0;
-        renderFriendsList(prof.friends); renderFriendRequests();
-    }
-    window.openAppModal('in-game-profile-modal');
-};
-
-window.showPlayerProfileFromLB = function(player) {
-    gameState.currentViewedPlayer = player; 
-    const xpContainer = document.getElementById('igp-xp-container'); const statsGrid = document.getElementById('igp-stats-grid'); const levelBadge = document.getElementById('igp-level');
-    if(xpContainer) xpContainer.style.display = 'none'; if(statsGrid) statsGrid.style.display = 'none'; if(levelBadge) levelBadge.style.display = 'none';
-    document.getElementById('own-profile-actions').style.display = 'none'; document.getElementById('other-profile-actions').style.display = 'flex';
-    
-    const reqBtn = document.getElementById('send-friend-req-btn'); if(reqBtn) { reqBtn.innerHTML = '➕ إرسال طلب صداقة'; reqBtn.style.cssText = "background: rgba(48,209,88,0.15) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.3) !important; margin: 0;"; reqBtn.disabled = false; }
-    const popBtn = document.getElementById('give-pop-btn'); if(popBtn) { popBtn.innerHTML = '🔥 منح شعبية'; popBtn.style.cssText = "background: rgba(255,77,77,0.15) !important; color: #ff4d4d !important; border-color: rgba(255,77,77,0.3) !important; margin: 0;"; popBtn.disabled = false; }
-
-    document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
-    document.getElementById('igp-popularity-val').innerText = player.popularity || Math.floor(Math.random() * 800) + 50;
-
-    const avatarContainer = document.getElementById('igp-avatar');
-    let imgSrc = player.avatar || '../Photo/1000132081.webp';
-    if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:image')) { let cleanName = imgSrc.replace(/\.\.\//g, '').replace('Photo/', ''); imgSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
-    avatarContainer.style.backgroundImage = 'none'; avatarContainer.innerHTML = `<img src="${imgSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-    
-    if (player.rankInfo) { document.getElementById('igp-rank-title').innerText = `الرتبة: ${player.rankInfo.icon} ${player.rankInfo.title}`; } else { document.getElementById('igp-rank-title').innerText = `الرتبة: 🥉 برونزي`; }
-    window.openAppModal('in-game-profile-modal');
-};
-
-function fallbackCopyText(text, callback) {
-    const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px";
-    document.body.appendChild(textArea); textArea.focus(); textArea.select();
-    try { document.execCommand('copy'); if (callback) callback(); } catch (err) {}
-    document.body.removeChild(textArea);
-}
-
-window.copyMyId = function() {
-    const idText = document.getElementById('igp-id-display').innerText;
-    if (idText && idText !== '...') {
-        const showToast = () => { const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '📋 تم نسخ الـ ID بنجاح'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); } };
-        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(idText).then(showToast).catch(() => { fallbackCopyText(idText, showToast); }); } else { fallbackCopyText(idText, showToast); }
-    }
-};
-
-window.createLbItemHTML = function(rank, playerObj, type) {
-    let score = playerObj.score || playerObj.wins || 0; 
-    let name = playerObj.name; 
-    let avatarStr = playerObj.avatar; 
-    let playerRankInfo = playerObj.rankInfo;
-    
-    let displayScore = '';
-    
-    if (type === 'xp') {
-        let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1; 
-        if (level > 200) level = 200;
-        displayScore = `<span style="color:#87ceeb; font-weight:800; background: rgba(135,206,235,0.15); border: 1px solid rgba(135,206,235,0.3); padding: 2px 8px; border-radius: 6px;">Lv.${level}</span>`;
-    } else {
-        displayScore = `<span style="color:#f5a623; font-weight:800;">${formatCompactNumber(score)} 🏆</span>`;
-    }
-
-    const div = document.createElement('div'); 
-    div.className = 'lb-item';
-    let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>` : '';
-    const nameEl = document.createElement('div'); 
-    nameEl.className = 'lb-name'; 
-    nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
-    
-    let secureImgSrc = getSecureAvatarUrl(avatarStr);
-
-    div.innerHTML = `
-        <div class="lb-rank">#${rank}</div>
-        <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px; width: 40px; height: 40px; border-radius: 50%;" title="عرض الملف الشخصي">
-            <img src="${secureImgSrc}" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'font-size: 22px;\\'>👤</span>';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; aspect-ratio: 1/1;">
-        </div>
-        <div class="lb-info" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
-            <div class="lb-name-container"></div>
-            <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${displayScore}</div>
-        </div>
-    `;
-    
-    div.querySelector('.lb-name-container').replaceWith(nameEl);
-    const avatarContainer = div.querySelector('.lb-avatar');
-    
-    avatarContainer.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(playerObj); };
-    avatarContainer.onmouseover = () => { avatarContainer.style.transform = 'scale(1.1)'; avatarContainer.style.borderColor = '#3498db'; };
-    avatarContainer.onmouseout = () => { avatarContainer.style.transform = 'scale(1)'; avatarContainer.style.borderColor = 'rgba(255,255,255,0.1)'; };
-
-    return div;
-};
-
-function getSecureAvatarUrl(src) {
-    if (!src || src === 'null' || src === 'undefined') {
-        return 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
-    }
-    if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
-        return src;
-    }
-    let cleanName = src.replace(/\.\.\//g, '').replace('Photo/', '');
-    return 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
-}
-
-function getFormattedLeaderboardScore(player, tabType) {
-    let score = player.score || player.wins || 0;
-    
-    if (tabType === 'wins') {
-        return formatCompactNumber(score) + ' 🏆';
-    }
-    
-    if (tabType === 'xp') {
-        let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1;
-        if (level > 200) level = 200;
-        return `Lv.${level}`;
-    }
-    
-    return formatCompactNumber(score);
-}
-
-window.renderDynamicLeaderboardUI = function(playersList, tabType) {
-    const podiumContainer = document.getElementById('leaderboard-podium-container');
-    const listContainer = document.getElementById('leaderboard-list-' + tabType); 
-    
-    if (!podiumContainer || !listContainer) return;
-
-    podiumContainer.innerHTML = '';
-    listContainer.innerHTML = '';
-
-    if (!playersList || playersList.length === 0) {
-        listContainer.innerHTML = '<p style="text-align: center; color: #a1a1aa; padding: 20px; width: 100%;">لا توجد بيانات حالياً في هذا التصنيف.</p>';
-        return;
-    }
-
-    const podiumOrder = [
-        { rank: 2, data: playersList[1] },
-        { rank: 1, data: playersList[0] },
-        { rank: 3, data: playersList[2] }
-    ];
-
-    podiumOrder.forEach(item => {
-        if (!item.data) return; 
-        
-        const player = item.data;
-        const card = document.createElement('div');
-        card.className = `lb-podium-card rank-${item.rank}`;
-        
-        let frameOverlay = '';
-
-        if (tabType === 'xp') {
-            const proFrames = {
-                1: window.frameRank1,
-                2: window.frameRank2,
-                3: window.frameRank3 
-            };
-
-            let frameUrl = proFrames[item.rank];
-
-            if (frameUrl) {
-                frameOverlay = `
-                    <div style="position: absolute; top: -15%; left: -15%; width: 130%; height: 130%;
-                                background-image: url('${frameUrl}');
-                                background-size: 100% 100%;
-                                background-position: center;
-                                background-repeat: no-repeat;
-                                z-index: 5; pointer-events: none;">
-                    </div>
-                `;
-            }
-        }
-
-        card.innerHTML = `
-            <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
-            
-            <div style="position: relative; width: ${item.rank === 1 ? '66px' : '56px'}; height: ${item.rank === 1 ? '66px' : '56px'}; margin-bottom: 8px;">
-                <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1;">
-                    <img src="${getSecureAvatarUrl(player.avatar)}">
-                </div>
-                ${frameOverlay}
-            </div>
-
-            <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
-                <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
-                <div class="lb-podium-name" style="width: 100%; text-align: center; margin-bottom: 0;">${player.name || 'Guest'}</div>
-            </div>
-        `;
-        
-        card.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(player); };
-        card.style.cursor = 'pointer';
-
-        podiumContainer.appendChild(card);
-    });
-
-    for (let i = 3; i < playersList.length; i++) {
-        listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
-    }
-};
-
-window.populateLeaderboards = function(winsData, xpData) {
-    document.getElementById('leaderboard-list-wins').innerHTML = '';
-    document.getElementById('leaderboard-list-xp').innerHTML = '';
-    
-    const activeTabBtn = document.querySelector('.lb-tab-button.active');
-    let activeTabId = 'wins';
-    if(activeTabBtn && activeTabBtn.id === 'lb-tab-xp') activeTabId = 'xp';
-
-    window.lastFetchedWinsData = winsData;
-    window.lastFetchedXpData = xpData;
-
-    if(activeTabId === 'wins') {
-        window.renderDynamicLeaderboardUI(winsData, 'wins');
-    } else {
-        window.renderDynamicLeaderboardUI(xpData, 'xp');
-    }
-};
-
-window.showLeaderboard = function() {
-    window.openAppModal('leaderboard-modal'); 
-    const loadingText = window.t ? window.t('lb_loading') : 'جاري التحميل...';
-    document.getElementById('leaderboard-list-wins').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
-    document.getElementById('leaderboard-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
-    if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
-};
-
-window.switchLbTab = function(tabId) {
-    document.getElementById('lb-tab-wins').classList.remove('active'); 
-    document.getElementById('lb-tab-xp').classList.remove('active');
-    
-    document.getElementById('leaderboard-list-wins').style.display = 'none'; 
-    document.getElementById('leaderboard-list-xp').style.display = 'none'; 
-    
-    document.getElementById('lb-tab-' + tabId).classList.add('active'); 
-    document.getElementById('leaderboard-list-' + tabId).style.display = 'flex';
-
-    document.getElementById('leaderboard-podium-container').innerHTML = '';
-
-    if (tabId === 'wins' && window.lastFetchedWinsData) {
-        window.renderDynamicLeaderboardUI(window.lastFetchedWinsData, 'wins');
-    } else if (tabId === 'xp' && window.lastFetchedXpData) {
-        window.renderDynamicLeaderboardUI(window.lastFetchedXpData, 'xp');
-    }
-};
-
-window.showEquipNotification = function(itemType) {
-    const toast = document.getElementById('toast-notification'); if (!toast) return;
-    let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
-    if (itemType === 'bg') msg = window.t ? window.t('toast_bg') : "تم تغيير الساحة بنجاح";
-    else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
-    else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
-    else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
-    toast.innerText = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
-
-    setTimeout(() => {
-        try {
-            let profStr = localStorage.getItem('hub_user_profile');
-            if (profStr) {
-                let prof = JSON.parse(profStr);
-                if (typeof window.applyTheme === 'function') window.applyTheme(prof);
-                if (window.ui && typeof window.ui.renderBoard === 'function') window.ui.renderBoard(true);
-            }
-        } catch(e) {}
-    }, 50);
-};
-
-window.triggerCustomAlertNotification = function(msg) {
-    if (typeof ui.showCustomAlert === 'function') { ui.showCustomAlert(msg); } else {
-        const alertModal = document.getElementById('custom-alert-modal'); const alertMsg = document.getElementById('custom-alert-message'); const alertOk = document.getElementById('custom-alert-ok'); const alertCancel = document.getElementById('custom-alert-cancel');
-        if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.innerText = msg; if(alertCancel) alertCancel.style.display = 'none'; window.openAppModal('custom-alert-modal'); alertOk.onclick = () => window.closeAppModal('custom-alert-modal'); } else { alert(msg); }
-    }
-};
-
-function forceLockedGlobalAvatar() {
-    let globalProfile = localStorage.getItem('hub_user_profile');
-    let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
-    if (globalProfile) { try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); } } catch(e) {} }
-    if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) { let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', ''); avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
-    
-    const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar'];
-    targetAvatars.forEach(id => {
-        const el = document.getElementById(id); if (!el) return;
-        if (isImage) { const existingImg = el.querySelector('img'); if (!existingImg || existingImg.getAttribute('src') !== avatarSrc) { el.style.backgroundImage = 'none'; el.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`; } } else { if (el.textContent !== avatarSrc) { el.innerHTML = ''; el.textContent = avatarSrc; } }
-    });
-}
-
-const avatarGuardObserver = new MutationObserver((mutations) => { let shouldProtect = false; for (let mutation of mutations) { if (mutation.type === 'childList') { const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG'); if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; } } } if (shouldProtect) { avatarGuardObserver.disconnect(); forceLockedGlobalAvatar(); startAvatarGuard(); } });
-function startAvatarGuard() { const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar']; targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } }); }
-
-window.applyProfileDataToUI = function(profile) {
-    const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
-    const currentId = profile.id || getUserIdLocally();
-    const textElements = { 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 'igp-id-display': currentId, 'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 };
-    
-    for (let id in textElements) { const el = document.getElementById(id); if (el) { el.innerText = textElements[id]; } }
-    forceLockedGlobalAvatar(); if(window.updateInventoryUI) window.updateInventoryUI(); 
-    if (typeof window.applyTheme === 'function') { window.applyTheme(profile); }
-
-    if (typeof window.refreshProfileUIStyles === 'function') {
-        setTimeout(() => window.refreshProfileUIStyles(), 50);
-    }
-};
-
-window.currentLang = 'ar';
-window.updateHtmlTexts = function() {
-    if (!window.t) return;
-    const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.innerText = window.t(key); };
-    setTxt('menu-title-text', 'menu_title'); 
-    setTxt('menu-bag-text', 'menu_bag'); 
-    setTxt('menu-radio-text', 'menu_radio'); 
-    setTxt('menu-room-text', 'menu_room'); 
-    setTxt('menu-leaderboard-text', 'menu_leaderboard'); 
-    setTxt('menu-settings-text', 'menu_settings'); 
-    setTxt('menu-exit-text', 'menu_exit'); 
-    
-    const lbTitle = document.getElementById('lb-title-text');
-    if(lbTitle) lbTitle.innerText = "لوحة الشرف";
-    const lbWins = document.getElementById('lb-tab-wins');
-    if(lbWins) lbWins.innerText = "فوز";
-    const lbXp = document.getElementById('lb-tab-xp');
-    if(lbXp) lbXp.innerText = "مستوى";
-
-    setTxt('tutorial-mode-label', 'tutorial_mode'); 
-    setTxt('menu-quests-text', 'menu_quests');
-    if (document.getElementById('matchmaking-modal').style.display === 'flex') setTxt('mm-status-label', 'searching');
-};
-
-window.toggleRadioMusic = function() {
-    const dot = document.getElementById('dama-radio-status'); let isActive = false;
-    if (dot) { isActive = dot.classList.toggle('active'); }
-    if (isActive) { window.parent.postMessage({ type: 'PLAY_RADIO' }, '*'); } else { window.parent.postMessage({ type: 'STOP_RADIO' }, '*'); }
-};
-
-function syncRadioStatusDot() { 
-    const statusDot = document.getElementById('dama-radio-status'); 
-    if (statusDot) { 
-        const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; 
-        if (isPlaying) statusDot.classList.add('active'); else statusDot.classList.remove('active'); 
-    } 
-}
-
-function syncGlobalBackground() {
-    const bg = localStorage.getItem('custom_app_bg'); 
-    if (bg) {
-        let bgUrl = bg; if (!bg.startsWith('http') && !bg.startsWith('data:') && !bg.startsWith('../')) { bgUrl = '../' + bg; }
-        document.body.style.backgroundImage = `url('${bgUrl}')`; document.body.style.backgroundSize = 'cover'; document.body.style.backgroundPosition = 'center'; document.body.style.backgroundAttachment = 'fixed'; document.body.style.backgroundColor = 'transparent';
-    } else { document.body.style.backgroundColor = '#2c3e50'; document.body.style.backgroundImage = 'none'; }
-}
-
-window.addEventListener('storage', (e) => {
-    if (e.key === 'hub_music_enabled') { syncRadioStatusDot(); }
-    if (e.key === 'custom_app_bg') { syncGlobalBackground(); }
-    if (e.key === 'hub_user_profile') { forceLockedGlobalAvatar(); }
-});
+window.ui = ui;
+window.updateUITranslations = () => { if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts(); };
 
 // ==========================================
 // 🌟 دوال التفاعلات للأزرار والاستماع (Event Listeners)
 // ==========================================
 function hasPlayerMoved() {
     if (!gameState.boardHistory) return false;
-    if (gameState.playerColor === 'white') { return gameState.boardHistory.length > 1; } 
-    else { return gameState.boardHistory.length > 2; }
+    if (gameState.playerColor === 'white') return gameState.boardHistory.length > 1; 
+    else return gameState.boardHistory.length > 2;
 }
 
-ui.onClick('reset-btn', () => {
-    if (gameState.isSpectator) {
-        if (window.socketManager && typeof window.socketManager.handleExitGame === 'function') {
-            window.socketManager.handleExitGame();
-        }
-        return;
-    }
+ui.onClick('spectator-submit-bet-btn', () => {
+    const roomID = document.getElementById('spectator-bet-room-id')?.value; const color = document.getElementById('spectator-bet-color')?.value; const amount = document.getElementById('spectator-bet-amount')?.value;
+    if (!color) { ui.showCustomAlert("الرجاء اختيار اللاعب الذي تتوقع فوزه أولاً!"); return; }
+    if (window.socketManager && typeof window.socketManager.placeSpectatorBet === 'function') { window.socketManager.placeSpectatorBet(roomID, color, amount); if (typeof window.closeAppModal === 'function') window.closeAppModal('spectator-bet-modal'); }
+});
 
+ui.onClick('reset-btn', () => {
+    if (gameState.isSpectator) { if (window.socketManager && typeof window.socketManager.handleExitGame === 'function') window.socketManager.handleExitGame(); return; }
     if (window.isMatchRunning && !gameState.isOnlineMode && !gameState.isGameOver) {
         if (hasPlayerMoved()) {
             ui.showCustomAlert(
-                t('new_game_warn'),
-                t('alert_title'),
-                () => { 
-                    if (!gameState.isTutorialMode && gameState.userProfile) {
-                        ui.updateProfileUI();
-                        if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-                    }
-                    ui.drawEmptyBoard();
-                    if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal');
-                },
+                t('new_game_warn'), t('alert_title'),
+                () => { if (!gameState.isTutorialMode && gameState.userProfile) { ui.updateProfileUI(); if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*'); } ui.drawEmptyBoard(); if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal'); },
                 true, t('btn_cancel'), t('resign')
             );
-        } else {
-            if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal');
-        }
-    } else {
-        if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal');
-    }
+        } else { if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal'); }
+    } else { if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal'); }
 });
 
 ui.onClick('resign-btn', () => {
     if (gameState.isOnlineMode) {
-        ui.showCustomAlert(
-            t('resign_confirm'), t('alert_title'),
-            () => { if (socketManager && typeof socketManager.sendSurrender === 'function') { socketManager.sendSurrender(); } },
-            true, t('btn_cancel'), t('alert_ok')
-        );
+        ui.showCustomAlert(t('resign_confirm'), t('alert_title'), () => { if (socketManager && typeof socketManager.sendSurrender === 'function') socketManager.sendSurrender(); }, true, t('btn_cancel'), t('alert_ok'));
     } else {
-        if (!hasPlayerMoved()) {
-            ui.showCustomAlert(t('confirm_exit_msg'), t('confirm_exit_title'), () => { ui.drawEmptyBoard(); }, true, t('btn_cancel'), t('alert_ok'));
-        } else {
-            ui.showCustomAlert(
-                t('resign_loss_confirm'), t('alert_title'),
-                () => { let opponentColor = gameState.playerColor === 'white' ? 'black' : 'white'; ui.showResultsModal(opponentColor); },
-                true, t('btn_cancel'), t('alert_ok')
-            );
-        }
+        if (!hasPlayerMoved()) { ui.showCustomAlert(t('confirm_exit_msg'), t('confirm_exit_title'), () => { ui.drawEmptyBoard(); }, true, t('btn_cancel'), t('alert_ok')); } 
+        else { ui.showCustomAlert(t('resign_loss_confirm'), t('alert_title'), () => { let opponentColor = gameState.playerColor === 'white' ? 'black' : 'white'; ui.showResultsModal(opponentColor); }, true, t('btn_cancel'), t('alert_ok')); }
     }
 });
 
 ui.onClick('undo-btn', () => {
     if (gameState.isOnlineMode || gameState.currentTurn !== gameState.playerColor) return; 
     if (!gameState.boardHistory || gameState.boardHistory.length <= 1) return;
-
     gameState.gameId = Date.now();
     if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-
-    gameState.boardHistory.pop();
-    if (gameState.boardHistoryStr && gameState.boardHistoryStr.length > 0) gameState.boardHistoryStr.pop();
-
+    gameState.boardHistory.pop(); if (gameState.boardHistoryStr && gameState.boardHistoryStr.length > 0) gameState.boardHistoryStr.pop();
     while (gameState.boardHistory.length > 1 && gameState.boardHistory[gameState.boardHistory.length - 1].turn !== gameState.playerColor) {
-        gameState.boardHistory.pop();
-        if (gameState.boardHistoryStr && gameState.boardHistoryStr.length > 0) gameState.boardHistoryStr.pop();
+        gameState.boardHistory.pop(); if (gameState.boardHistoryStr && gameState.boardHistoryStr.length > 0) gameState.boardHistoryStr.pop();
     }
-
     let prevState = gameState.boardHistory[gameState.boardHistory.length - 1];
     if (prevState) {
-        gameState.virtualBoard = prevState.board.map(row => [...row]); 
-        gameState.currentTurn = prevState.turn;
-        
+        gameState.virtualBoard = prevState.board.map(row => [...row]); gameState.currentTurn = prevState.turn;
         ui.clearHighlights(); document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
         if (gameState.selectedPiece) { gameState.selectedPiece.classList.remove('selected'); gameState.selectedPiece = null; }
         gameState.isMultiJumping = false; gameState.jumpsCount = 0; gameState.requiredJumps = 0;
-        
         ui.renderBoard(); ui.playSound(ui.sfx.move); ui.startTurn();
     }
 });
@@ -2086,59 +1195,31 @@ ui.onClick('undo-btn', () => {
 ui.onClick('hint-btn', () => { hintSystem.requestHint(); });
 
 ui.onClick('creator-update-bet-btn', () => {
-    const roomIdEl = document.getElementById('creator-target-room-id');
-    const newBetEl = document.getElementById('edit-room-bet-input');
-    
+    const roomIdEl = document.getElementById('creator-target-room-id'); const newBetEl = document.getElementById('edit-room-bet-input');
     if (roomIdEl && newBetEl && typeof socket !== 'undefined' && socket.connected) {
-        const roomId = roomIdEl.value;
-        const newBet = parseInt(newBetEl.value) || 0;
-        socket.emit('updateRoomBet', { roomID: roomId, newBet: newBet });
-        
-        if (typeof window.closeAppModal === 'function') {
-            window.closeAppModal('creator-room-settings-modal');
-        }
+        socket.emit('updateRoomBet', { roomID: roomIdEl.value, newBet: parseInt(newBetEl.value) || 0 });
+        if (typeof window.closeAppModal === 'function') window.closeAppModal('creator-room-settings-modal');
     }
 });
 
 ui.onClick('creator-cancel-room-btn', () => {
     const roomIdEl = document.getElementById('creator-target-room-id');
-    if (roomIdEl) {
-        window.deleteMyRoom(roomIdEl.value);
-        if (typeof window.closeAppModal === 'function') {
-            window.closeAppModal('creator-room-settings-modal');
-        }
-    }
+    if (roomIdEl) { if (window.deleteMyRoom) window.deleteMyRoom(roomIdEl.value); if (typeof window.closeAppModal === 'function') window.closeAppModal('creator-room-settings-modal'); }
 });
-
-window.ui = ui;
-window.updateUITranslations = () => { if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts(); };
 
 document.addEventListener('click', (e) => {
     let target = e.target;
-    while (target && target !== document) {
-        if (target.id && ui.clickHandlers.has(target.id)) { ui.clickHandlers.get(target.id)(e); return; }
-        target = target.parentNode;
-    }
-
+    while (target && target !== document) { if (target.id && ui.clickHandlers.has(target.id)) { ui.clickHandlers.get(target.id)(e); return; } target = target.parentNode; }
     const actionElement = e.target.closest('[data-action]');
     if (actionElement) {
-        const action = actionElement.dataset.action;
-        const fId = (actionElement.dataset.fid || "").toUpperCase(); 
-
-        if (action === 'challenge-friend') {
-            if (typeof window.challengeFriend === 'function') { window.challengeFriend(fId); } 
-            else { ui.showCustomAlert(t('coming_soon')); }
-        } else if (action === 'remove-friend') {
+        const action = actionElement.dataset.action; const fId = (actionElement.dataset.fid || "").toUpperCase(); 
+        if (action === 'challenge-friend') { if (typeof window.challengeFriend === 'function') window.challengeFriend(fId); else ui.showCustomAlert(t('coming_soon')); } 
+        else if (action === 'remove-friend') {
             let currentFriends = gameState.userProfile.friends || [];
             gameState.userProfile.friends = currentFriends.filter(f => (typeof f === 'string' ? f.toUpperCase() !== fId : f.id.toUpperCase() !== fId)); 
-            
-            let profileToSave = { ...gameState.userProfile };
-            if (gameState.originalHints !== undefined && gameState.originalHints !== null) { profileToSave.hints = gameState.originalHints; }
-            localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
-            ui.updateProfileUI();
-            
-            const toast = document.getElementById('toast-notification'); 
-            if (toast) { toast.innerText = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+            let profileToSave = { ...gameState.userProfile }; if (gameState.originalHints !== undefined && gameState.originalHints !== null) profileToSave.hints = gameState.originalHints;
+            localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); ui.updateProfileUI();
+            const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
         }
     }
 });
@@ -2179,16 +1260,12 @@ ui.onClick('board', e => {
     }
 
     if (gameState.selectedPiece && cell.classList.contains('cell') && cell.children.length === 0) {
-        const fromRow = parseInt(gameState.selectedPiece.parentElement.dataset.row);
-        const fromCol = parseInt(gameState.selectedPiece.parentElement.dataset.col);
+        const fromRow = parseInt(gameState.selectedPiece.parentElement.dataset.row); const fromCol = parseInt(gameState.selectedPiece.parentElement.dataset.col);
         const toRow = parseInt(cell.dataset.row); const toCol = parseInt(cell.dataset.col);
         const rDiff = toRow - fromRow; const cDiff = toCol - fromCol;
-        const isDama = gameState.selectedPiece.classList.contains('dama');
-        const pieceColor = gameState.selectedPiece.classList.contains('white') ? 'white' : 'black';
+        const isDama = gameState.selectedPiece.classList.contains('dama'); const pieceColor = gameState.selectedPiece.classList.contains('white') ? 'white' : 'black';
 
-        if (gameState.moveSequenceStartR === undefined || gameState.moveSequenceStartR === null) {
-            gameState.moveSequenceStartR = fromRow; gameState.moveSequenceStartC = fromCol; gameState.movePath = [{r: fromRow, c: fromCol}];
-        }
+        if (gameState.moveSequenceStartR === undefined || gameState.moveSequenceStartR === null) { gameState.moveSequenceStartR = fromRow; gameState.moveSequenceStartC = fromCol; gameState.movePath = [{r: fromRow, c: fromCol}]; }
 
         if (gameState.requiredJumps > 0) {
             let isValidJump = false, midRow = -1, midCol = -1, currDr = Math.sign(rDiff), currDc = Math.sign(cDiff);
@@ -2207,59 +1284,32 @@ ui.onClick('board', e => {
             }
 
             if (isValidJump) {
-                let tempBoard = gameState.virtualBoard.map(row => [...row]); 
-                let movingPieceStr = tempBoard[fromRow][fromCol];
-
+                let tempBoard = gameState.virtualBoard.map(row => [...row]); let movingPieceStr = tempBoard[fromRow][fromCol];
                 tempBoard[midRow][midCol] = null; tempBoard[toRow][toCol] = movingPieceStr; tempBoard[fromRow][fromCol] = null;
                 gameState.movePath.push({r: toRow, c: toCol}); 
 
                 if (1 + gameEngine.findMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
                     if (typeof ui.playSound === 'function') { ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied); }
-                    
                     gameState.virtualBoard = tempBoard; gameState.jumpsCount++; gameState.lastJumpDir = { dr: currDr, dc: currDc };
-                    if (window.questsManager) { window.questsManager.updateProgress('capture', 1, gameState.isOnlineMode ? 'online' : 'bot'); }
+                    if (window.questsManager) window.questsManager.updateProgress('capture', 1, gameState.isOnlineMode ? 'online' : 'bot');
 
                     let isFinalJump = (gameState.jumpsCount === gameState.requiredJumps);
-
                     if (isFinalJump) {
                         let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
-                        if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
-                            gameState.virtualBoard[toRow][toCol] += '-dama'; 
-                            if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
-                        }
-                        
-                        gameState.movesWithoutProgress = 0; 
-                        gameState.boardHistoryStr = [];
-                        gameState.pieceHistories = {}; 
-                        
+                        if (toRow === promoRow && !movingPieceStr.includes('dama')) { gameState.virtualBoard[toRow][toCol] += '-dama'; if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); }
+                        gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = []; gameState.pieceHistories = {}; 
                         ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
-                        gameState.selectedPiece = null; ui.clearHighlights();
-                        gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
-                        
+                        gameState.selectedPiece = null; ui.clearHighlights(); gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                         ui.renderBoard();
-
-                        if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                            socketManager.sendMoveToServer(
-                                gameState.moveSequenceStartR, gameState.moveSequenceStartC, 
-                                toRow, toCol, gameState.movePath, gameState.currentTurn
-                            );
-                        }
-                        
-                        saveGameState(); ui.startTurn();
-                        gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
+                        if (socketManager && typeof socketManager.sendMoveToServer === 'function') { socketManager.sendMoveToServer(gameState.moveSequenceStartR, gameState.moveSequenceStartC, toRow, toCol, gameState.movePath, gameState.currentTurn); }
+                        saveGameState(); ui.startTurn(); gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
                     } else { 
                         gameState.isMultiJumping = true; ui.renderBoard();
-                        const boardEl = document.getElementById('board');
-                        const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
+                        const boardEl = document.getElementById('board'); const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
                         if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
-
                         if (!gameState.isOnlineMode) {
                             if (!gameState.boardHistory) gameState.boardHistory = [];
-                            gameState.boardHistory.push({ 
-                                board: gameState.virtualBoard.map(row => [...row]), 
-                                turn: gameState.currentTurn,
-                                moves: gameState.movesWithoutProgress
-                            });
+                            gameState.boardHistory.push({ board: gameState.virtualBoard.map(row => [...row]), turn: gameState.currentTurn, moves: gameState.movesWithoutProgress });
                             if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
                         }
                         ui.showValidMovesHighlights(toRow, toCol); 
@@ -2269,45 +1319,21 @@ ui.onClick('board', e => {
         } 
         else {
             if ((isDama && gameEngine.isValidDamaMove(fromRow, fromCol, toRow, toCol)) || (!isDama && ((Math.abs(rDiff) === 1 && cDiff === 0 && (rDiff === gameState.pieceDirection[gameState.currentTurn])) || (rDiff === 0 && Math.abs(cDiff) === 1)))) {
-                
                 let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
-                gameState.virtualBoard[fromRow][fromCol] = null; gameState.virtualBoard[toRow][toCol] = movingPieceStr;
-                gameState.movePath.push({r: toRow, c: toCol}); 
+                gameState.virtualBoard[fromRow][fromCol] = null; gameState.virtualBoard[toRow][toCol] = movingPieceStr; gameState.movePath.push({r: toRow, c: toCol}); 
+                let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0; let isPromotion = false;
+                if (toRow === promoRow && !movingPieceStr.includes('dama')) { gameState.virtualBoard[toRow][toCol] += '-dama'; isPromotion = true; if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); }
                 
-                let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
-                let isPromotion = false;
-                
-                if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
-                    gameState.virtualBoard[toRow][toCol] += '-dama'; isPromotion = true;
-                    if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
-                }
-                
-                if (isPromotion) {
-                    gameState.movesWithoutProgress = 0;
-                    gameState.boardHistoryStr = [];
-                    gameState.pieceHistories = {}; 
-                } else {
-                    gameState.movesWithoutProgress++;
-                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
-                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(fromRow, fromCol, toRow, toCol, gameState.currentTurn); 
-                }
+                if (isPromotion) { gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = []; gameState.pieceHistories = {}; } 
+                else { gameState.movesWithoutProgress++; gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard)); if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(fromRow, fromCol, toRow, toCol, gameState.currentTurn); }
                 
                 if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
                 ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
-                gameState.selectedPiece = null; ui.clearHighlights();
-                gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+                gameState.selectedPiece = null; ui.clearHighlights(); gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                 
                 ui.renderBoard();
-
-                if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                    socketManager.sendMoveToServer(
-                        fromRow, fromCol, 
-                        toRow, toCol, gameState.movePath, gameState.currentTurn
-                    ); 
-                }
-                
-                saveGameState(); ui.startTurn();
-                gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
+                if (socketManager && typeof socketManager.sendMoveToServer === 'function') { socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, gameState.movePath, gameState.currentTurn); }
+                saveGameState(); ui.startTurn(); gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
             }
         }
     }
