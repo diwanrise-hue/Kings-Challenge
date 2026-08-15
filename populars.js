@@ -1,6 +1,6 @@
 /**
  * populars.js
- * يحتوي على 15 هدية شعبية بأسعار واقتصاد متوازن (Economy Balanced)
+ * يحتوي على 16 هدية شعبية بأسعار واقتصاد متوازن (Economy Balanced)
  * يضمن تشجيع اللاعبين على الشراء بفضل البونص التصاعدي.
  */
 
@@ -31,7 +31,7 @@ window.POPULARITY_ITEMS = [
     { id: 'pop_13', nameAr: 'درع الحماية', price: 25000, popValue: 40000, mediaType: 'image', imagePath: GITHUB_POPULARITY_BASE + '13.webp' },
     { id: 'pop_14', nameAr: 'قلادة الياقوت', price: 35000, popValue: 57750, mediaType: 'image', imagePath: GITHUB_POPULARITY_BASE + '14.webp' },
     
-    // --- الهدية المتحركة (فيديو فاخر جداً) ---
+    // --- الهدايا المتحركة (فيديو فاخر جداً) ---
     { 
         id: 'pop_15', 
         nameAr: 'سيارة فيراري (متحركة)', 
@@ -40,5 +40,16 @@ window.POPULARITY_ITEMS = [
         mediaType: 'video', 
         videoPath: 'http://googleusercontent.com/generated_video_content/16012774795876307422',
         imagePath: GITHUB_POPULARITY_BASE + '15.webp' // صورة مصغرة تظهر في المتجر
+    },
+    
+    // --- الهدية الملكية القصوى (مؤثرات بصرية وصوتية) ---
+    { 
+        id: 'pop_16', 
+        nameAr: 'القلعة الأسطورية (متحركة)', 
+        price: 100000, 
+        popValue: 180000, 
+        mediaType: 'video', 
+        videoPath: GITHUB_POPULARITY_BASE + '16.webm', // فيديو webm يحتوي على الشفافية والمؤثرات الصوتية الخاصة
+        imagePath: GITHUB_POPULARITY_BASE + '16.webp'  // الصورة المصغرة التي ستعرض في واجهة المتجر
     }
 ];
