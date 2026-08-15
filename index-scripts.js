@@ -328,6 +328,7 @@ socket.on('connect', () => {
     }
 });
 
+// 🌟 تم تحديث الدالة لتدعم نظام الـ VIP
 window.getSafeProfile = function() {
     const guestName = (typeof translations !== 'undefined') ? translations[currentLang].guest_name : "Guest_";
     const defaultProfile = {
@@ -344,7 +345,9 @@ window.getSafeProfile = function() {
         equippedBg: 'bg_wood',
         equippedFr: 'fr_classic',
         equippedPc: 'pc_original',
-        popularity: 0
+        popularity: 0,
+        vipLevel: 0,   // مستوى الـ VIP الافتراضي
+        vipPoints: 0   // نقاط الـ VIP الافتراضية
     };
 
     try {
@@ -353,6 +356,8 @@ window.getSafeProfile = function() {
         const parsed = JSON.parse(profileRaw);
         if (parsed && typeof parsed === 'object') {
             if (parsed.popularity === undefined) parsed.popularity = 0;
+            if (parsed.vipLevel === undefined) parsed.vipLevel = 0;
+            if (parsed.vipPoints === undefined) parsed.vipPoints = 0;
             return parsed;
         }
     } catch (e) { }
@@ -374,6 +379,11 @@ socket.on('profileUpdated', (updatedProfile) => {
     localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
     syncHubProfile();
     updateHubPopularity(); 
+    
+    // تحديث شريط تقدم VIP إذا تم التحديث
+    if (typeof window.updateVipProgressBarUI === 'function') {
+        window.updateVipProgressBarUI();
+    }
     
     const gameIframe = document.getElementById('game-frame');
     if (gameIframe && gameIframe.contentWindow) {
@@ -670,7 +680,8 @@ window.loginAsGuest = function() {
         id: randomId, name: randomName, avatar: 'Photo/1000132081.webp',
         isCustomAvatar: false,
         tokens: 10000, gamesPlayed: 0, wins: 0, losses: 0, friends: [], popularity: 0,
-        purchasedItems: [], equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedPc: 'pc_original'
+        purchasedItems: [], equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedPc: 'pc_original',
+        vipLevel: 0, vipPoints: 0
     };
 
     try {
@@ -1026,3 +1037,116 @@ window.switchBagGameTab = function(gameId, btnElement) {
     
     if (btnElement) btnElement.classList.add('active');
 };
+
+// ===================================================================
+// 🌟 دوال الشراء بالأموال الحقيقية والـ VIP (Google Play Billing) 🌟
+// ===================================================================
+
+// 1. الدالة التي يضغط عليها اللاعب لشراء باقة
+window.purchaseRealMoney = function(packageId, price) {
+    const profile = getSafeProfile();
+    
+    // منع الزوار المؤقتين من الشراء بمال حقيقي لضمان حفظ حقوقهم
+    if (profile.id === "GUEST-DEFAULT" || profile.id.startsWith('GUEST-')) {
+        showCustomPopup("يرجى إنشاء حساب أو تسجيل الدخول بحساب دائم لحفظ مشترياتك بأمان.");
+        return;
+    }
+
+    // التحقق مما إذا كان اللاعب داخل التطبيق ويوجد جسر اتصال (Android Bridge)
+    if (typeof AndroidBridge !== 'undefined' && typeof AndroidBridge.startGooglePurchase === 'function') {
+        showLoadingPopup("جاري فتح بوابة الدفع الآمنة...");
+        
+        // استدعاء نظام الأندرويد لبدء نافذة جوجل بلاي
+        AndroidBridge.startGooglePurchase(packageId);
+    } else {
+        // إذا كان يلعب من المتصفح العادي
+        showCustomPopup("عذراً، الشراء متاح فقط عبر تطبيق اللعبة الرسمي لضمان أمان الدفع عبر Google Play.");
+    }
+};
+
+// 2. دالة يستدعيها التطبيق (الأندرويد) عند نجاح الدفع
+window.onGooglePurchaseSuccess = function(purchaseToken, packageId) {
+    showLoadingPopup("تم الدفع بنجاح! جاري إضافة الرصيد لحسابك...");
+    
+    const profile = getSafeProfile();
+    
+    // إرسال التوكن السري للسيرفر للتحقق منه وإضافة الموارد
+    if (typeof socket !== 'undefined' && socket.connected) {
+        socket.emit('verify_google_purchase', {
+            userId: profile.id,
+            packageId: packageId,
+            purchaseToken: purchaseToken 
+        });
+    } else {
+        showCustomPopup("حدث خطأ في الاتصال بالسيرفر! يرجى التأكد من الإنترنت أو مراسلة الدعم.");
+    }
+};
+
+// 3. دالة يستدعيها التطبيق (الأندرويد) في حال إلغاء الدفع أو فشله
+window.onGooglePurchaseFailed = function(errorMessage) {
+    document.getElementById('custom-popup-modal').style.display = 'none'; // إخفاء نافذة التحميل
+    showCustomPopup("لم تكتمل عملية الشراء: " + errorMessage);
+};
+
+// 4. استماع رد السيرفر بعد التأكد من الدفع
+socket.on('googlePurchaseVerified', (data) => {
+    document.getElementById('custom-popup-modal').style.display = 'none';
+    
+    // تحديث ملف اللاعب بالرصيد والـ VIP الجديد
+    localStorage.setItem('hub_user_profile', JSON.stringify(data.updatedProfile));
+    syncHubProfile();
+    updateVipProgressBarUI();
+    
+    // إشعار تهنئة
+    showCustomPopup(`تم الشحن بنجاح!\nتم إضافة ${data.addedTokens} 🪙\nوحصلت على ${data.addedVipPoints} نقطة VIP.`);
+});
+
+// 5. دالة تحديث شريط تقدم الـ VIP بصرياً في المتجر
+window.updateVipProgressBarUI = function() {
+    const profile = getSafeProfile();
+    let currentVip = profile.vipLevel || 0;
+    let currentPoints = profile.vipPoints || 0;
+    
+    // حساب النقاط المطلوبة لكل مستوى (كمثال بسيط: 500 للمستوى 1، 2000 للمستوى 2، إلخ)
+    const vipThresholds = [0, 500, 2000, 10000, 50000, 100000]; 
+    let nextVip = currentVip + 1;
+    if (nextVip >= vipThresholds.length) nextVip = vipThresholds.length - 1; // الحد الأقصى
+    
+    let requiredPoints = vipThresholds[nextVip];
+    let prevRequiredPoints = vipThresholds[currentVip];
+    
+    // حساب النسبة المئوية للتقدم
+    let progressPercent = 100;
+    if (currentVip < vipThresholds.length - 1) {
+        let pointsInCurrentLevel = currentPoints - prevRequiredPoints;
+        let pointsNeededForNext = requiredPoints - prevRequiredPoints;
+        progressPercent = Math.min(100, (pointsInCurrentLevel / pointsNeededForNext) * 100);
+    }
+    
+    // تطبيق البيانات على الواجهة إذا كانت موجودة
+    const badgeEl = document.getElementById('current-vip-badge');
+    const nextBadgeEl = document.getElementById('next-vip-badge');
+    const progressBarEl = document.getElementById('vip-progress-bar');
+    const remainingEl = document.getElementById('vip-remaining-amount');
+    
+    if (badgeEl) badgeEl.innerText = `VIP ${currentVip}`;
+    if (nextBadgeEl) nextBadgeEl.innerText = currentVip === nextVip ? "Max VIP" : `VIP ${nextVip}`;
+    if (progressBarEl) progressBarEl.style.width = `${progressPercent}%`;
+    
+    if (remainingEl) {
+        if (currentVip === nextVip) {
+            remainingEl.innerText = "لقد وصلت إلى أقصى مستوى VIP!";
+            remainingEl.style.color = "#ffd700";
+        } else {
+            // كل 100 نقطة تمثل 1 دولار تقريباً في اقتصادنا الافتراضي
+            let remainingPoints = requiredPoints - currentPoints;
+            let remainingDollars = (remainingPoints / 100).toFixed(2);
+            remainingEl.innerText = `$${remainingDollars}`;
+        }
+    }
+};
+
+// تشغيل التحديث عند فتح الصفحة
+window.addEventListener('load', () => {
+    setTimeout(updateVipProgressBarUI, 1000);
+});
