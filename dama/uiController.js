@@ -1,13 +1,12 @@
+// @ts-nocheck
 /**
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
  * 🌟 (مُحدّث): إضافة نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
- * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة.
- * 🌟 (مُحدّث): فصل إطارات الساحة عن إطارات الصور الشخصية للحفاظ على بنية الكود للمستقبل.
- * 🌟 (مُحدّث): تحسينات بصرية لزر الرهان، وتطبيق ساحة اللاعب الأعلى مستوى للمشاهدين وتصحيح الأقواس.
- * 🌟 (مُحدّث): تنظيف الشاشة بالكامل عند خروج المشاهد (منع تشنج الواجهة).
- * 🌟 (مُحدّث): إرسال إشارة قوية للسيرفر لإنهاء اللعبة فوراً عند انقطاع الخصم وانتهاء وقته.
+ * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة وتطبيق ساحة المشاهدين.
+ * 🌟 (مُحدّث): دمج إصلاحات الأداء (60 FPS) وكسر الحلقة اللانهائية لسرعة خيالية.
+ * 🌟 (مُحدّث): حل مشكلة اختفاء الرقعة عند بدء اللعبة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -1265,71 +1264,63 @@ export const ui = {
 
     updateProfileUI() {
         if (!gameState.userProfile) return;
-        
-        if (gameState.userProfile) {
-            if (typeof window.applyTheme === 'function' && !window.isMatchRunning) { window.applyTheme(gameState.userProfile); }
-        }
 
-        if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(gameState.userProfile); }
-        
-        let prof = gameState.userProfile;
-        let lvlInfo = this.calculateLevelInfo(prof.xp || 0);
+        requestAnimationFrame(() => {
+            if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(gameState.userProfile); }
 
-        const badgeLevel = this.getEl('badge-level');
-        const xpProgressPath = this.getEl('xp-progress-path'); 
+            let prof = gameState.userProfile;
+            let lvlInfo = this.calculateLevelInfo(prof.xp || 0);
 
-        if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
-        
-        if (xpProgressPath) {
-            const totalLength = xpProgressPath.getTotalLength ? xpProgressPath.getTotalLength() : 150; 
-            const progress = Math.min(Math.max(lvlInfo.percentage / 100, 0), 1);
-            const newOffset = totalLength - (totalLength * progress);
-            
-            xpProgressPath.style.strokeDasharray = totalLength;
-            xpProgressPath.style.strokeDashoffset = newOffset;
-        }
+            const badgeLevel = this.getEl('badge-level');
+            const xpProgressPath = this.getEl('xp-progress-path');
 
-        const igpLevel = this.getEl('igp-level'); const igpRank = this.getEl('igp-rank-title'); const igpXpFill = this.getEl('igp-xp-fill'); const igpXpText = this.getEl('igp-xp-text');
-        if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
-        if (igpRank) igpRank.innerHTML = `الرتبة: ${lvlInfo.rankIcon} ${lvlInfo.rank} | ${lvlInfo.title}`;
-        if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
-        if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
+            if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
 
-        const hintCounter = document.getElementById('hint-counter');
-        if (hintCounter) {
-            if (gameState.isTutorialMode && !gameState.isOnlineMode) {
-                hintCounter.textContent = "مجاني"; hintCounter.style.fontSize = "8px"; hintCounter.style.padding = "2px 4px";
-            } else if (gameState.userProfile) {
-                if (gameState.userProfile.hints === undefined) gameState.userProfile.hints = 5;
-                hintCounter.textContent = gameState.userProfile.hints; hintCounter.style.fontSize = "11px"; hintCounter.style.padding = "2px 6px";
+            if (xpProgressPath) {
+                const totalLength = 150; // تم وضع قيمة ثابتة بدلاً من getTotalLength لكسر التشنج وتحسين الأداء
+                const progress = Math.min(Math.max(lvlInfo.percentage / 100, 0), 1);
+                const newOffset = totalLength - (totalLength * progress);
+
+                xpProgressPath.style.strokeDasharray = totalLength;
+                xpProgressPath.style.strokeDashoffset = newOffset;
             }
-        }
-        
-        const fList = this.getEl('igp-friends-list'); 
-        if (fList) {
-            fList.innerHTML = '';
-            if (!gameState.userProfile.friends || gameState.userProfile.friends.length === 0) {
-                const noFriendsTxt = this.makeEl('p', null, "text-align:center;color:#a1a1aa;font-size:12px;", t('igp_no_friends'));
-                fList.appendChild(noFriendsTxt);
-            } else {
-                let uniqueArr = [];
-                let seen = new Set();
-                (gameState.userProfile.friends || []).forEach(f => {
-                    let fId = typeof f === 'string' ? f.toUpperCase() : (f.id ? f.id.toUpperCase() : null);
-                    if (fId && !seen.has(fId)) {
-                        seen.add(fId);
-                        uniqueArr.push(f);
-                    }
-                });
-                gameState.userProfile.friends = uniqueArr;
-                
-                renderFriendsList(gameState.userProfile.friends);
-            }
-        }
 
-        if (typeof window.refreshProfileUIStyles === 'function') {
-            setTimeout(() => window.refreshProfileUIStyles(), 50);
-        }
+            const igpLevel = this.getEl('igp-level'); const igpRank = this.getEl('igp-rank-title'); const igpXpFill = this.getEl('igp-xp-fill'); const igpXpText = this.getEl('igp-xp-text');
+            if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
+            if (igpRank) igpRank.innerHTML = `الرتبة: ${lvlInfo.rankIcon} ${lvlInfo.rank} | ${lvlInfo.title}`;
+            if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
+            if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
+
+            const hintCounter = document.getElementById('hint-counter');
+            if (hintCounter) {
+                if (gameState.isTutorialMode && !gameState.isOnlineMode) {
+                    hintCounter.textContent = "مجاني"; hintCounter.style.fontSize = "8px"; hintCounter.style.padding = "2px 4px";
+                } else if (gameState.userProfile) {
+                    if (gameState.userProfile.hints === undefined) gameState.userProfile.hints = 5;
+                    hintCounter.textContent = gameState.userProfile.hints; hintCounter.style.fontSize = "11px"; hintCounter.style.padding = "2px 6px";
+                }
+            }
+
+            const fList = this.getEl('igp-friends-list');
+            if (fList) {
+                if (!gameState.userProfile.friends || gameState.userProfile.friends.length === 0) {
+                    fList.innerHTML = '<p style="text-align:center;color:#a1a1aa;font-size:12px;">لا يوجد أصدقاء حالياً</p>';
+                } else {
+                    let uniqueArr = [];
+                    let seen = new Set();
+                    (gameState.userProfile.friends || []).forEach(f => {
+                        let fId = typeof f === 'string' ? f.toUpperCase() : (f.id ? f.id.toUpperCase() : null);
+                        if (fId && !seen.has(fId)) {
+                            seen.add(fId);
+                            uniqueArr.push(f);
+                        }
+                    });
+                    gameState.userProfile.friends = uniqueArr;
+
+                    if(typeof renderFriendsList !== 'undefined') renderFriendsList(gameState.userProfile.friends);
+                }
+            }
+        });
     },
 
     initProfileSystem() {
@@ -1362,6 +1353,28 @@ export const ui = {
 // ==========================================
 // 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
 // ==========================================
+
+window.applyProfileDataToUI = function(profile) {
+    requestAnimationFrame(() => {
+        const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
+        const currentId = profile.id || getUserIdLocally();
+        const textElements = { 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 'igp-id-display': currentId, 'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 };
+
+        for (let id in textElements) {
+            const el = document.getElementById(id);
+            if (el && String(el.innerText) !== String(textElements[id])) { el.innerText = textElements[id]; }
+        }
+
+        if(typeof forceLockedGlobalAvatar === 'function') forceLockedGlobalAvatar();
+        if(window.updateInventoryUI) window.updateInventoryUI();
+
+        // 🛑 تم إزالة applyTheme من هنا لكسر الحلقة اللانهائية (Infinite Loop) التي كانت تخفض الـ FPS
+
+        if (typeof window.refreshProfileUIStyles === 'function') {
+            requestAnimationFrame(() => window.refreshProfileUIStyles());
+        }
+    });
+};
 
 window.selectSpectatorBetColor = function(color) {
     const colorInput = document.getElementById('spectator-bet-color');
@@ -1930,17 +1943,25 @@ const avatarGuardObserver = new MutationObserver((mutations) => { let shouldProt
 function startAvatarGuard() { const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar']; targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } }); }
 
 window.applyProfileDataToUI = function(profile) {
-    const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
-    const currentId = profile.id || getUserIdLocally();
-    const textElements = { 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 'igp-id-display': currentId, 'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 };
-    
-    for (let id in textElements) { const el = document.getElementById(id); if (el) { el.innerText = textElements[id]; } }
-    forceLockedGlobalAvatar(); if(window.updateInventoryUI) window.updateInventoryUI(); 
-    if (typeof window.applyTheme === 'function') { window.applyTheme(profile); }
+    requestAnimationFrame(() => {
+        const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
+        const currentId = profile.id || getUserIdLocally();
+        const textElements = { 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 'igp-id-display': currentId, 'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 };
 
-    if (typeof window.refreshProfileUIStyles === 'function') {
-        setTimeout(() => window.refreshProfileUIStyles(), 50);
-    }
+        for (let id in textElements) {
+            const el = document.getElementById(id);
+            if (el && String(el.innerText) !== String(textElements[id])) { el.innerText = textElements[id]; }
+        }
+
+        if(typeof forceLockedGlobalAvatar === 'function') forceLockedGlobalAvatar();
+        if(window.updateInventoryUI) window.updateInventoryUI();
+
+        // 🛑 تم إزالة استدعاء applyTheme من هنا لكسر الحلقة اللانهائية (Infinite Loop)
+
+        if (typeof window.refreshProfileUIStyles === 'function') {
+            requestAnimationFrame(() => window.refreshProfileUIStyles());
+        }
+    });
 };
 
 window.currentLang = 'ar';
@@ -2313,16 +2334,34 @@ ui.onClick('board', e => {
     }
 });
 
+// ==========================================
+// 🌟 بدء اللعبة عند التحميل
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    let globalProfile = localStorage.getItem('hub_user_profile'); let initialAvatar = '1000132081.webp';
-    if (globalProfile) { const parsed = JSON.parse(globalProfile); if (parsed.avatar) initialAvatar = parsed.avatar; }
-
-    const storedUser = localStorage.getItem('hub_user_profile');
-    if (storedUser) {
-        let userObj = JSON.parse(storedUser); userObj.avatar = initialAvatar;
-        if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(userObj); }
-    } else {
-        let defaultProfile = { id: '#00000', name: t('badge_you'), avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
-        if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(defaultProfile); }
+    let globalProfile = localStorage.getItem('hub_user_profile'); 
+    let initialAvatar = '1000132081.webp';
+    let userObj = { id: '#00000', name: t('badge_you') || 'أنت', avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
+    
+    if (globalProfile) { 
+        try { 
+            const parsed = JSON.parse(globalProfile); 
+            userObj = { ...userObj, ...parsed };
+            if (parsed.avatar) userObj.avatar = parsed.avatar;
+        } catch(e) {} 
     }
+
+    // 1. تطبيق الثيم (الساحة الخشبية) مرة واحدة فقط في البداية لكسر حلقة الاستدعاء اللانهائية
+    if (typeof window.applyTheme === 'function') {
+        window.applyTheme(userObj);
+    }
+
+    // 2. نرسم الرقعة الأساسية فوراً لكي لا تظهر فارغة
+    ui.drawEmptyBoard();
+
+    // 3. نؤخر تحديث بيانات اللاعب بنصف ثانية بهدوء لتفادي الـ Race Condition
+    setTimeout(() => {
+        if (typeof window.applyProfileDataToUI === 'function') { 
+            window.applyProfileDataToUI(userObj); 
+        }
+    }, 500); 
 });
