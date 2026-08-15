@@ -46,7 +46,7 @@ body {
     box-sizing: border-box;
     background-size: cover;
     background-position: center;
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); /* ✅ تم التخفيف للأداء */
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
@@ -110,8 +110,9 @@ body {
 .piece.dama::before { fill: none; }
 .piece.dama::after { font-size: 80%; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; transition: text-shadow 0.3s, color 0.3s; }
 
-.piece.forced { will-change: transform, box-shadow; border: 2px solid #e74c3c !important; box-shadow: 0 0 18px #e74c3c, inset 0 0 8px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
-.piece.dama.forced { will-change: transform, box-shadow; border: 4px double #e74c3c !important; box-shadow: 0 0 25px #e74c3c, inset 0 0 12px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
+/* ✅ تم إلغاء تأثير box-shadow من will-change هنا لحماية المعالج */
+.piece.forced { will-change: transform; border: 2px solid #e74c3c !important; box-shadow: 0 0 18px #e74c3c, inset 0 0 8px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
+.piece.dama.forced { will-change: transform; border: 4px double #e74c3c !important; box-shadow: 0 0 25px #e74c3c, inset 0 0 12px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
 @keyframes forcedPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 
 /* ========================================== */
@@ -120,8 +121,8 @@ body {
 .control-panel { 
     position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
     width: 100%; 
-    background: rgba(24, 23, 29, 0.85) !important; 
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    background: rgba(24, 23, 29, 0.95) !important; 
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); /* ✅ تم التخفيف */
     border-top: 1px solid rgba(212, 175, 55, 0.2) !important;
     padding: 12px 15px;
     box-sizing: border-box; display: flex; justify-content: center; 
@@ -303,7 +304,6 @@ body.game-active #reset-btn:active {
     position: absolute !important;
     display: flex !important; justify-content: center !important; align-items: center !important;
     overflow: visible !important; box-sizing: border-box !important;
-    /* تمت إزالة الخطوط المتقطعة والخلفيات الشفافة للإنتاج */
 }
 
 #profile-badge.profile-badge-container { 
@@ -425,9 +425,9 @@ html[dir="ltr"] #profile-badge.profile-badge-container {
 .streak-fire-ctrl { position: relative !important; top: 0px !important; }
 
 /* القائمة الجانبية */
-.side-menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+.side-menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; } /* ✅ تم التخفيف */
 .side-menu-overlay.open { opacity: 1; visibility: visible; }
-.side-menu-panel { position: fixed; top: 0; width: 280px; height: 100%; background: rgba(24, 23, 29, 0.95); backdrop-filter: blur(15px); box-shadow: 0 0 30px rgba(0,0,0,0.8); z-index: 10000000; display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; }
+.side-menu-panel { position: fixed; top: 0; width: 280px; height: 100%; background: rgba(24, 23, 29, 0.98); backdrop-filter: blur(5px); box-shadow: 0 0 30px rgba(0,0,0,0.8); z-index: 10000000; display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; } /* ✅ تم التخفيف */
 html[dir="rtl"] .side-menu-panel { right: -280px; left: auto; border-left: 1px solid rgba(212, 175, 55, 0.2); border-right: none; transition: right 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
 html[dir="rtl"] .side-menu-overlay.open .side-menu-panel { right: 0; }
 html[dir="ltr"] .side-menu-panel { left: -280px; right: auto; border-right: 1px solid rgba(212, 175, 55, 0.2); border-left: none; transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
@@ -464,7 +464,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 @keyframes thinkPulse { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
 /* النوافذ الكبيرة */
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; } /* ✅ تم التخفيف */
 .fullscreen-modal-container { padding: 0 !important; }
 
 #custom-alert-modal { z-index: 99999999 !important; }
@@ -709,7 +709,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     border-radius: 20px;
     padding: 22px 8px 14px 8px;
     box-sizing: border-box;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px); /* هذه الوحيدة التي سنبقيها لجمالية المنصة */
     -webkit-backdrop-filter: blur(12px);
     position: relative;
     overflow: visible;
@@ -872,8 +872,8 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     justify-content: space-between;
     padding: 10px 14px; 
     background: rgba(15, 18, 25, 0.75); 
-    backdrop-filter: blur(8px); 
-    -webkit-backdrop-filter: blur(8px); 
+    backdrop-filter: blur(4px); /* ✅ تم التخفيف */
+    -webkit-backdrop-filter: blur(4px); 
     border-radius: 14px; 
     border: 1px solid rgba(255, 255, 255, 0.1); 
     box-sizing: border-box;
@@ -1001,7 +1001,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .notification-badge { position: absolute; top: -2px; left: -2px; width: 10px; height: 10px; background-color: #ff453a; border-radius: 50%; box-shadow: 0 0 10px #ff453a; animation: badgePulse 1.5s infinite ease-in-out; }
 @keyframes badgePulse { 0% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.8; } }
 
-#match-players-card { background: rgba(24, 23, 29, 0.8) !important; backdrop-filter: blur(15px); border: 1px solid rgba(212, 175, 55, 0.3) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; }
+#match-players-card { background: rgba(24, 23, 29, 0.95) !important; backdrop-filter: blur(4px); border: 1px solid rgba(212, 175, 55, 0.3) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; } /* ✅ تم التخفيف */
 .match-players-flex { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 80px; position: relative; }
 .match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid #d4af37; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
 .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fdf5c9 !important; display: flex; align-items: center; justify-content: center; }
@@ -1010,10 +1010,10 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .purchase-preview-box { width: 100px; height: 100px; margin: 20px auto; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); }
 .legendary-icon { box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); }
 
-#toast-notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #2ecc71, #1e8449); border: 1.5px solid #8be8ab; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 14px; z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(10px); pointer-events: none; white-space: nowrap; }
+#toast-notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #2ecc71, #1e8449); border: 1.5px solid #8be8ab; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 14px; z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(4px); pointer-events: none; white-space: nowrap; } /* ✅ تم التخفيف */
 #toast-notification.show { opacity: 1; visibility: visible; bottom: 20px; }
 
-#game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; backdrop-filter: blur(15px) saturate(180%) !important; border-radius: 36px !important; padding: 35px 25px !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;}
+#game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; backdrop-filter: blur(4px) saturate(150%) !important; border-radius: 36px !important; padding: 35px 25px !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;} /* ✅ تم التخفيف */
 #game-over-modal h3 { color: #fce8a1 !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 
 /* 🌟 التحكم الجذري بتبديل أزرار القائمة والحقيبة (لحل مشكلة التداخل والظهور العشوائي) 🌟 */
@@ -1179,9 +1179,35 @@ body.online-mode-active .game-container { order: 3 !important; }
 .level-btn.easy:hover, .level-btn.easy.active { background: rgba(48, 209, 88, 0.15); border-color: #30d158; color: #30d158; box-shadow: 0 0 15px rgba(48, 209, 88, 0.3); }
 .level-btn.medium:hover, .level-btn.medium.active { background: rgba(245, 166, 35, 0.15); border-color: #f5a623; color: #f5a623; box-shadow: 0 0 15px rgba(245, 166, 35, 0.3); }
 .level-btn.hard:hover, .level-btn.hard.active { background: rgba(255, 69, 58, 0.15); border-color: #ff453a; color: #ff453a; box-shadow: 0 0 15px rgba(255, 69, 58, 0.3); }
-.level-btn.boss { border: 1px solid rgba(212, 175, 55, 0.4); animation: bossPulse 2s infinite alternate; }
-.level-btn.boss:hover, .level-btn.boss.active { background: rgba(212, 175, 55, 0.2); border-color: #ffd700; color: #ffd700; box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); transform: scale(1.05); }
-@keyframes bossPulse { 0% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); } 100% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); } }
+
+/* ✅ تم استخدام GPU Acceleration لأنيميشن الزعيم لإيقاف التقطيع */
+.level-btn.boss { 
+    position: relative; 
+    border: 1px solid rgba(212, 175, 55, 0.4); 
+    z-index: 1;
+}
+.level-btn.boss::after {
+    content: ''; 
+    position: absolute; 
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+    opacity: 0.2;
+    animation: bossPulseGpu 2s infinite alternate ease-in-out;
+    pointer-events: none;
+    z-index: -1;
+}
+.level-btn.boss:hover, .level-btn.boss.active { 
+    background: rgba(212, 175, 55, 0.2); 
+    border-color: #ffd700; color: #ffd700; 
+}
+.level-btn.boss:hover::after, .level-btn.boss.active::after { 
+    opacity: 1; transform: scale(1.05); 
+}
+@keyframes bossPulseGpu { 
+    0% { opacity: 0.2; transform: scale(1); } 
+    100% { opacity: 1; transform: scale(1.02); } 
+}
 .level-btn:active { transform: scale(0.95); }
 
 /* ========================================== */
