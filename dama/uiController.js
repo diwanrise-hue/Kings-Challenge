@@ -7,6 +7,7 @@
  * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة وتطبيق ساحة المشاهدين.
  * 🌟 (مُحدّث): دمج إصلاحات الأداء (60 FPS) وكسر الحلقة اللانهائية لسرعة خيالية.
  * 🌟 (مُحدّث): حل مشكلة اختفاء الرقعة عند بدء اللعبة.
+ * 🌟 (مُحدّث الأداء الجذري): استبدال querySelectorAll بـ getElementsByClassName لمنع تشنج الواجهة!
  */
 
 import { gameState } from './gameState.js'; 
@@ -601,12 +602,10 @@ export const ui = {
             oppRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)'; myRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
         }
 
-        // 🚀 الدالة المُحسّنة: لا تحذف العناصر أبدأً (Zero DOM Destruction)
         const renderScoreDots = (container, count, color) => {
             if (!container) return;
             const activeClass = color === 'white' ? 'white' : 'black';
             
-            // إذا كانت العناصر غير موجودة، ننشئها مرة واحدة فقط!
             if (container.children.length === 0) {
                 for (let i = 0; i < 16; i++) {
                     const dot = document.createElement('div');
@@ -614,7 +613,6 @@ export const ui = {
                 }
             }
 
-            // نقوم فقط بتحديث الكلاس (class) للعناصر الموجودة، وهذا سريع جداً كالبرق!
             for (let i = 0; i < 16; i++) {
                 const dot = container.children[i];
                 if (i < count) {
@@ -709,10 +707,17 @@ export const ui = {
         
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
         
+        // التعديل هنا لتسريع التنظيف
         this.clearHighlights();
-        document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
-        document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
-        document.querySelectorAll('.piece.multi-choice').forEach(p => p.classList.remove('multi-choice'));
+        const boardEl = this.getEl('board');
+        if (boardEl) {
+            const lastMoves = boardEl.getElementsByClassName('last-move');
+            while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
+            const forcedPieces = boardEl.getElementsByClassName('forced');
+            while (forcedPieces.length > 0) forcedPieces[0].classList.remove('forced');
+            const multiPieces = boardEl.getElementsByClassName('multi-choice');
+            while (multiPieces.length > 0) multiPieces[0].classList.remove('multi-choice');
+        }
         
         const tInd = this.getEl('turn-indicator');
         if (tInd) { tInd.textContent = t('press_start'); tInd.style.color = "#a1a1aa"; }
@@ -756,13 +761,21 @@ export const ui = {
         saveGameState(); this.updateProfileUI(); this.startTurn();
     },
 
+    // התعديل هنا لتسريع التنظيف
     clearHighlights() {
-        document.querySelectorAll('.cell.highlight').forEach(c => c.classList.remove('highlight'));
+        const board = this.getEl('board');
+        if (!board) return;
+        const highlighted = board.getElementsByClassName('highlight');
+        while (highlighted.length > 0) highlighted[0].classList.remove('highlight');
     },
 
     highlightMove(from, to) {
         const board = this.getEl('board'); if (!board) return;
-        document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
+        
+        // التعديل هنا لتسريع التنظيف
+        const lastMoves = board.getElementsByClassName('last-move');
+        while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
+        
         const fromCell = board.querySelector(`[data-row="${from.r}"][data-col="${from.c}"]`);
         const toCell = board.querySelector(`[data-row="${to.r}"][data-col="${to.c}"]`);
         
@@ -809,7 +822,6 @@ export const ui = {
                 sfx.clock.pause(); sfx.clock.currentTime = 0;
                 this.setTxt('turn-countdown', t('syncing') || 'جاري المزامنة مع الخادم...');
 
-                // 🌟 التعديل الجذري لمنع التشنج: اللاعب المتصل يرسل إشارة لإنهاء اللعبة
                 if (gameState.isOnlineMode && !gameState.isSpectator && window.socketManager && window.socket && window.socket.connected) {
                     setTimeout(() => {
                         if (gameState.isGameActive && gameState.onlineRoomID) {
@@ -928,8 +940,15 @@ export const ui = {
         }
         
         gameState.lastJumpDir = { dr: null, dc: null };
-        document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
-        document.querySelectorAll('.piece.multi-choice').forEach(p => p.classList.remove('multi-choice'));
+        
+        // التعديل هنا لتسريع التنظيف
+        const boardEl = this.getEl('board');
+        if (boardEl) {
+            const forcedPieces = boardEl.getElementsByClassName('forced');
+            while (forcedPieces.length > 0) forcedPieces[0].classList.remove('forced');
+            const multiPieces = boardEl.getElementsByClassName('multi-choice');
+            while (multiPieces.length > 0) multiPieces[0].classList.remove('multi-choice');
+        }
         
         const isBoardEmpty = gameState.virtualBoard.every(row => row.every(cell => cell === null));
         
@@ -984,7 +1003,11 @@ export const ui = {
             
             if ((gameState.currentTurn === gameState.playerColor || gameState.isOnlineMode) && fList.length === 1 && !gameState.isSpectator) {
                 gameState.selectedPiece = fList[0].el; gameState.selectedPiece.classList.add('selected');
-                if (gameState.currentTurn === gameState.playerColor) { document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move')); }
+                if (gameState.currentTurn === gameState.playerColor && boardEl) { 
+                    // التعديل هنا لتسريع التنظيف
+                    const lastMoves = boardEl.getElementsByClassName('last-move');
+                    while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
+                }
                 this.showValidMovesHighlights(fList[0].r, fList[0].c);
             }
         } else {
@@ -1287,7 +1310,7 @@ export const ui = {
             if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
 
             if (xpProgressPath) {
-                const totalLength = 150; // تم وضع قيمة ثابتة بدلاً من getTotalLength لكسر التشنج وتحسين الأداء
+                const totalLength = 150; 
                 const progress = Math.min(Math.max(lvlInfo.percentage / 100, 0), 1);
                 const newOffset = totalLength - (totalLength * progress);
 
@@ -1377,8 +1400,6 @@ window.applyProfileDataToUI = function(profile) {
 
         if(typeof forceLockedGlobalAvatar === 'function') forceLockedGlobalAvatar();
         if(window.updateInventoryUI) window.updateInventoryUI();
-
-        // 🛑 تم إزالة applyTheme من هنا لكسر الحلقة اللانهائية (Infinite Loop) التي كانت تخفض الـ FPS
 
         if (typeof window.refreshProfileUIStyles === 'function') {
             requestAnimationFrame(() => window.refreshProfileUIStyles());
@@ -1952,27 +1973,6 @@ function forceLockedGlobalAvatar() {
 const avatarGuardObserver = new MutationObserver((mutations) => { let shouldProtect = false; for (let mutation of mutations) { if (mutation.type === 'childList') { const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG'); if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; } } } if (shouldProtect) { avatarGuardObserver.disconnect(); forceLockedGlobalAvatar(); startAvatarGuard(); } });
 function startAvatarGuard() { const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar']; targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } }); }
 
-window.applyProfileDataToUI = function(profile) {
-    requestAnimationFrame(() => {
-        const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
-        const currentId = profile.id || getUserIdLocally();
-        const textElements = { 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 'igp-id-display': currentId, 'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 };
-
-        for (let id in textElements) {
-            const el = document.getElementById(id);
-            if (el && String(el.innerText) !== String(textElements[id])) { el.innerText = textElements[id]; }
-        }
-
-        if(typeof forceLockedGlobalAvatar === 'function') forceLockedGlobalAvatar();
-        if(window.updateInventoryUI) window.updateInventoryUI();
-
-        // 🛑 تم إزالة استدعاء applyTheme من هنا لكسر الحلقة اللانهائية (Infinite Loop)
-
-        if (typeof window.refreshProfileUIStyles === 'function') {
-            requestAnimationFrame(() => window.refreshProfileUIStyles());
-        }
-    });
-};
 
 window.currentLang = 'ar';
 window.updateHtmlTexts = function() {
@@ -2106,7 +2106,13 @@ ui.onClick('undo-btn', () => {
         gameState.virtualBoard = prevState.board.map(row => [...row]); 
         gameState.currentTurn = prevState.turn;
         
-        ui.clearHighlights(); document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
+        ui.clearHighlights(); 
+        const boardElUndo = document.getElementById('board');
+        if (boardElUndo) {
+            const lastMoves = boardElUndo.getElementsByClassName('last-move');
+            while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
+        }
+
         if (gameState.selectedPiece) { gameState.selectedPiece.classList.remove('selected'); gameState.selectedPiece = null; }
         gameState.isMultiJumping = false; gameState.jumpsCount = 0; gameState.requiredJumps = 0;
         
@@ -2361,15 +2367,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) {} 
     }
 
-    // 1. تطبيق الثيم (الساحة الخشبية) مرة واحدة فقط في البداية لكسر حلقة الاستدعاء اللانهائية
     if (typeof window.applyTheme === 'function') {
         window.applyTheme(userObj);
     }
 
-    // 2. نرسم الرقعة الأساسية فوراً لكي لا تظهر فارغة
     ui.drawEmptyBoard();
 
-    // 3. نؤخر تحديث بيانات اللاعب بنصف ثانية بهدوء لتفادي الـ Race Condition
     setTimeout(() => {
         if (typeof window.applyProfileDataToUI === 'function') { 
             window.applyProfileDataToUI(userObj); 
