@@ -3,6 +3,7 @@
  * uiController.js
  * إدارة الواجهة الرسومية الأساسية (الرقعة، الأحجار، حركة اللعب)
  * 🌟 (مُحدّث): تم فصل جميع الدوال الخارجية إلى ملف ui_menus.js للحفاظ على الكود نظيفاً وسريعاً!
+ * 🌟 (مُحدّث): تم حل مشكلة اختفاء مربعات الرقعة عند فتح اللعبة لأول مرة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -1351,4 +1352,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let defaultProfile = { id: '#00000', name: t('badge_you'), avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
         if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(defaultProfile); }
     }
+    
+    // 🌟 السطر السحري لحل مشكلة اختفاء مربعات الرقعة عند فتح اللعبة 🌟
+    ui.drawEmptyBoard();
 });
