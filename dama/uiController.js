@@ -3,7 +3,7 @@
  * uiController.js
  * إدارة الواجهة الرسومية الأساسية (الرقعة، الأحجار، حركة اللعب)
  * 🌟 (مُحدّث): تم فصل جميع الدوال الخارجية إلى ملف ui_menus.js للحفاظ على الكود نظيفاً وسريعاً!
- * 🌟 (مُحدّث): تم حل مشكلة اختفاء مربعات الرقعة عند فتح اللعبة لأول مرة.
+ * 🌟 (مُحدّث): تم حل مشكلة السباق الزمني (Race Condition) لضمان تطبيق ثيم المتجر على الرقعة بشكل صحيح.
  */
 
 import { gameState } from './gameState.js'; 
@@ -1057,60 +1057,10 @@ export const ui = {
                 box.appendChild(this.makeEl('div', 'offline-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", offlineMsg));
             }
             if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-            this.updateProfileUI(); 
+            // تم نقل مهام هذه الدالة للتحديث السلس في ui_menus.js
+            if(window.updateProfileUI) window.updateProfileUI(); 
         }
         this.toggleOfflineInMatchUI(false);
-    },
-
-    updateProfileUI() {
-        if (!gameState.userProfile) return;
-        if (gameState.userProfile) { if (typeof window.applyTheme === 'function' && !window.isMatchRunning) window.applyTheme(gameState.userProfile); }
-        if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(gameState.userProfile); }
-        
-        let prof = gameState.userProfile; let lvlInfo = this.calculateLevelInfo(prof.xp || 0);
-
-        const badgeLevel = this.getEl('badge-level'); const xpProgressPath = this.getEl('xp-progress-path'); 
-        if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
-        
-        if (xpProgressPath) {
-            const totalLength = xpProgressPath.getTotalLength ? xpProgressPath.getTotalLength() : 150; 
-            const progress = Math.min(Math.max(lvlInfo.percentage / 100, 0), 1);
-            const newOffset = totalLength - (totalLength * progress);
-            xpProgressPath.style.strokeDasharray = totalLength; xpProgressPath.style.strokeDashoffset = newOffset;
-        }
-
-        const igpLevel = this.getEl('igp-level'); const igpRank = this.getEl('igp-rank-title'); const igpXpFill = this.getEl('igp-xp-fill'); const igpXpText = this.getEl('igp-xp-text');
-        if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
-        if (igpRank) igpRank.innerHTML = `الرتبة: ${lvlInfo.rankIcon} ${lvlInfo.rank} | ${lvlInfo.title}`;
-        if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
-        if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
-
-        const hintCounter = document.getElementById('hint-counter');
-        if (hintCounter) {
-            if (gameState.isTutorialMode && !gameState.isOnlineMode) {
-                hintCounter.textContent = "مجاني"; hintCounter.style.fontSize = "8px"; hintCounter.style.padding = "2px 4px";
-            } else if (gameState.userProfile) {
-                if (gameState.userProfile.hints === undefined) gameState.userProfile.hints = 5;
-                hintCounter.textContent = gameState.userProfile.hints; hintCounter.style.fontSize = "11px"; hintCounter.style.padding = "2px 6px";
-            }
-        }
-        
-        const fList = this.getEl('igp-friends-list'); 
-        if (fList) {
-            fList.innerHTML = '';
-            if (!gameState.userProfile.friends || gameState.userProfile.friends.length === 0) {
-                const noFriendsTxt = this.makeEl('p', null, "text-align:center;color:#a1a1aa;font-size:12px;", t('igp_no_friends')); fList.appendChild(noFriendsTxt);
-            } else {
-                let uniqueArr = []; let seen = new Set();
-                (gameState.userProfile.friends || []).forEach(f => {
-                    let fId = typeof f === 'string' ? f.toUpperCase() : (f.id ? f.id.toUpperCase() : null);
-                    if (fId && !seen.has(fId)) { seen.add(fId); uniqueArr.push(f); }
-                });
-                gameState.userProfile.friends = uniqueArr;
-                if(window.renderFriendsList) window.renderFriendsList(gameState.userProfile.friends);
-            }
-        }
-        if (typeof window.refreshProfileUIStyles === 'function') { setTimeout(() => window.refreshProfileUIStyles(), 50); }
     },
 
     initProfileSystem() {
@@ -1130,7 +1080,7 @@ export const ui = {
                 gameState.userProfile = { ...gameState.userProfile, ...parsed }; 
             } catch(e) {}
         }
-        this.updateProfileUI(); 
+        if(window.updateProfileUI) window.updateProfileUI(); 
     }
 };
 
@@ -1158,7 +1108,7 @@ ui.onClick('reset-btn', () => {
         if (hasPlayerMoved()) {
             ui.showCustomAlert(
                 t('new_game_warn'), t('alert_title'),
-                () => { if (!gameState.isTutorialMode && gameState.userProfile) { ui.updateProfileUI(); if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*'); } ui.drawEmptyBoard(); if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal'); },
+                () => { if (!gameState.isTutorialMode && gameState.userProfile) { if(window.updateProfileUI) window.updateProfileUI(); if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*'); } ui.drawEmptyBoard(); if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal'); },
                 true, t('btn_cancel'), t('resign')
             );
         } else { if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal'); }
@@ -1219,7 +1169,7 @@ document.addEventListener('click', (e) => {
             let currentFriends = gameState.userProfile.friends || [];
             gameState.userProfile.friends = currentFriends.filter(f => (typeof f === 'string' ? f.toUpperCase() !== fId : f.id.toUpperCase() !== fId)); 
             let profileToSave = { ...gameState.userProfile }; if (gameState.originalHints !== undefined && gameState.originalHints !== null) profileToSave.hints = gameState.originalHints;
-            localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); ui.updateProfileUI();
+            localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); if(window.updateProfileUI) window.updateProfileUI();
             const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
         }
     }
@@ -1341,18 +1291,25 @@ ui.onClick('board', e => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    let globalProfile = localStorage.getItem('hub_user_profile'); let initialAvatar = '1000132081.webp';
-    if (globalProfile) { const parsed = JSON.parse(globalProfile); if (parsed.avatar) initialAvatar = parsed.avatar; }
-
-    const storedUser = localStorage.getItem('hub_user_profile');
-    if (storedUser) {
-        let userObj = JSON.parse(storedUser); userObj.avatar = initialAvatar;
-        if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(userObj); }
-    } else {
-        let defaultProfile = { id: '#00000', name: t('badge_you'), avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
-        if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(defaultProfile); }
-    }
+    let globalProfile = localStorage.getItem('hub_user_profile'); 
+    let initialAvatar = '1000132081.webp';
+    let userObj = { id: '#00000', name: t('badge_you') || 'أنت', avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
     
-    // 🌟 السطر السحري لحل مشكلة اختفاء مربعات الرقعة عند فتح اللعبة 🌟
+    if (globalProfile) { 
+        try { 
+            const parsed = JSON.parse(globalProfile); 
+            userObj = { ...userObj, ...parsed };
+            if (parsed.avatar) userObj.avatar = parsed.avatar;
+        } catch(e) {} 
+    }
+
+    // 1. نرسم الرقعة الأساسية فوراً (مربعات فارغة)
     ui.drawEmptyBoard();
+
+    // 2. نؤخر تطبيق ثيمات المتجر قليلاً لضمان اتصال المتجر وتحميل الصور (Race Condition Fix)
+    setTimeout(() => {
+        if (typeof window.applyProfileDataToUI === 'function') { 
+            window.applyProfileDataToUI(userObj); 
+        }
+    }, 500); // ننتظر نصف ثانية
 });
