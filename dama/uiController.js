@@ -5,9 +5,9 @@
  * 🌟 (مُحدّث): إضافة نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
  * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة.
  * 🌟 (مُحدّث): فصل إطارات الساحة عن إطارات الصور الشخصية للحفاظ على بنية الكود للمستقبل.
- * 🌟 (مُحدّث): تحسينات بصرية لزر الرهان، وتطبيق ساحة اللاعب الأعلى مستوى للمشاهدين.
+ * 🌟 (مُحدّث): تحسينات بصرية لزر الرهان، وتطبيق ساحة اللاعب الأعلى مستوى للمشاهدين وتصحيح الأقواس.
  * 🌟 (مُحدّث): تنظيف الشاشة بالكامل عند خروج المشاهد (منع تشنج الواجهة).
- * 🌟 (مُحدّث جديد): إرسال إشارة قوية للسيرفر لإنهاء اللعبة فوراً عند انقطاع الخصم وانتهاء وقته.
+ * 🌟 (مُحدّث): إرسال إشارة قوية للسيرفر لإنهاء اللعبة فوراً عند انقطاع الخصم وانتهاء وقته.
  */
 
 import { gameState } from './gameState.js'; 
@@ -391,48 +391,63 @@ export const ui = {
         const applyVisualFrame = (elementId, frameId) => {
             const el = document.getElementById(elementId);
             if (!el) return;
-            if (!frameId) {
+            if (!frameId || frameId === 'fr_classic') {
                 el.style.backgroundImage = 'none';
                 return;
             }
-            let frameUrl = '';
-            if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
-                frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
-            }
-            if (frameUrl) {
-                el.style.backgroundImage = `url('${frameUrl}')`;
-                el.style.backgroundSize = '100% 100%';
-                el.style.backgroundPosition = 'center';
-                el.style.backgroundRepeat = 'no-repeat';
-            } else { el.style.backgroundImage = 'none'; }
+            setTimeout(() => {
+                let frameUrl = '';
+                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
+                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
+                }
+                if (frameUrl) {
+                    el.style.backgroundImage = `url('${frameUrl}')`;
+                    el.style.backgroundSize = '100% 100%';
+                    el.style.backgroundPosition = 'center';
+                    el.style.backgroundRepeat = 'no-repeat';
+                } else { 
+                    el.style.backgroundImage = 'none'; 
+                }
+            }, 50);
         };
-        applyVisualFrame('card-my-frame', p1?.equippedAvatarFr || null);
-        applyVisualFrame('card-opp-frame', p2?.equippedAvatarFr || null);
+        
+        applyVisualFrame('card-my-frame', p1?.equippedFr || null);
+        applyVisualFrame('card-opp-frame', p2?.equippedFr || null);
 
         const p1Xp = Number(p1?.xp) || 0;
         const p2Xp = Number(p2?.xp) || 0;
         let dominantPlayer = p1;
-        if (p2Xp > p1Xp && !(p2?.syncThemeOptOut)) dominantPlayer = p2;
-        else if (p1?.syncThemeOptOut && p2Xp <= p1Xp) dominantPlayer = {equippedBg: 'bg_wood', equippedPc: 'pc_original', equippedFr: 'fr_classic'}; 
         
-        if (typeof window.applyTheme === 'function') {
-            window.applyTheme(dominantPlayer);
-        } else {
-            document.body.setAttribute('data-piece-style', dominantPlayer?.equippedPc || 'pc_original');
-            document.body.setAttribute('data-board-style', dominantPlayer?.equippedBg || 'bg_wood');
+        if (p2Xp > p1Xp && !(p2?.syncThemeOptOut)) {
+            dominantPlayer = p2;
+        } else if (p1?.syncThemeOptOut && p2Xp <= p1Xp) {
+            dominantPlayer = {equippedBg: 'bg_wood', equippedPc: 'pc_original', equippedFr: 'fr_classic'}; 
         }
+        
+        setTimeout(() => {
+            if (typeof window.applyTheme === 'function') {
+                window.applyTheme(dominantPlayer);
+            } else {
+                document.body.setAttribute('data-piece-style', dominantPlayer?.equippedPc || 'pc_original');
+                document.body.setAttribute('data-board-style', dominantPlayer?.equippedBg || 'bg_wood');
+            }
+        }, 100);
 
         const vsBetEl = document.getElementById('vs-bet-display');
         if (vsBetEl) {
-            vsBetEl.style.display = 'block';
+            vsBetEl.style.display = 'flex';
+            vsBetEl.style.justifyContent = 'center';
+            vsBetEl.style.alignItems = 'center';
+            vsBetEl.style.minHeight = '32px'; 
+            
             if (isBettingOpen && !hasAlreadyBet) {
                 let safeP1 = JSON.stringify(p1).replace(/"/g, '&quot;');
                 let safeP2 = JSON.stringify(p2).replace(/"/g, '&quot;');
-                vsBetEl.innerHTML = `<button onclick="window.ui.showSpectatorBetModal('${roomID}', ${safeP1}, ${safeP2})" style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; border: none; padding: 4px 16px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 13px; box-shadow: 0 2px 8px rgba(241,196,15,0.6); transition: 0.2s;">🎯 راهن الآن</button>`;
+                vsBetEl.innerHTML = `<button onclick="window.ui.showSpectatorBetModal('${roomID}', ${safeP1}, ${safeP2})" style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; border: none; padding: 4px 16px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 13px; box-shadow: 0 2px 8px rgba(241,196,15,0.6); transition: 0.2s; white-space: nowrap;">🎯 راهن الآن</button>`;
             } else if (isBettingOpen && hasAlreadyBet) {
-                vsBetEl.innerHTML = `<span style="color: #30d158; font-size: 12px; background: rgba(0,0,0,0.6); border: 1px solid rgba(48, 209, 88, 0.4); padding: 3px 10px; border-radius: 8px;">تم تسجيل رهانك ✅</span>`;
+                vsBetEl.innerHTML = `<div style="background: rgba(0,0,0,0.85); border: 1px solid rgba(48, 209, 88, 0.6); padding: 4px 12px; border-radius: 12px; display: inline-flex; justify-content: center; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.5);"><span style="color: #30d158; font-size: 11px; font-weight: bold; white-space: nowrap; margin: 0;">تم تسجيل رهانك ✅</span></div>`;
             } else {
-                vsBetEl.innerHTML = `<span style="color: #a1a1aa; font-size: 11px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 8px;">المراهنات مغلقة 🔒</span>`;
+                vsBetEl.innerHTML = `<div style="background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 12px; display: inline-flex; justify-content: center; align-items: center;"><span style="color: #a1a1aa; font-size: 11px; font-weight: bold; white-space: nowrap; margin: 0;">المراهنات مغلقة 🔒</span></div>`;
             }
         }
     },
@@ -774,7 +789,7 @@ export const ui = {
             if (gameState.turnEndTime) { gameState.turnTimeLeft = Math.max(0, Math.ceil((gameState.turnEndTime - Date.now()) / 1000)); } 
             else { gameState.turnTimeLeft--; }
 
-            this.setTxt('turn-countdown', `${t('time_left') || 'المتبقي للدور:'} ${gameState.turnTimeLeft}s`);
+            this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
             
             if (gameState.turnTimeLeft <= 10 && gameState.turnTimeLeft > 0 && !hasPlayedTick) {
                 hasPlayedTick = true; this.playSound(sfx.clock);
