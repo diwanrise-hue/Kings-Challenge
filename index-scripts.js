@@ -716,9 +716,30 @@ window.syncHubProfile = function() {
 
     const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
 
+    // 🌟 التعديل الخاص بوضع إطار Profile1.webp للصورة الشخصية
+    const frameUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile1.webp";
+
     const renderAvatarLocal = (elementId) => {
         const el = document.getElementById(elementId);
-        if (el) el.innerHTML = `<img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
+        if (el) {
+            // إزالة القص والحدود الافتراضية حتى يظهر الإطار بالكامل للخارج
+            el.style.overflow = 'visible';
+            el.style.border = 'none';
+            el.style.background = 'transparent';
+            
+            // ضبط مقاس الإطار ليكون أكبر من الصورة (145% للواجهة الرئيسية، 130% لنافذة البروفايل)
+            const frameScale = elementId === 'hub-profile-avatar' ? '145%' : '130%';
+
+            el.innerHTML = `
+                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                    <!-- الصورة الشخصية -->
+                    <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
+                    
+                    <!-- الإطار الملكي -->
+                    <img src="${frameUrl}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
+                </div>
+            `;
+        }
     };
     
     renderAvatarLocal('hub-profile-avatar');
