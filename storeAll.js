@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث النهائي: دمج نظام الشحن الحقيقي (Google Play) وباقات وشريط الـ VIP
+ * 🌟 التحديث: إضافة تبويب "إطار شخصي" إلى المتجر الرئيسي
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -37,20 +37,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 .store-tab-btn {
                     flex: 1; background: transparent; color: var(--text-secondary);
-                    padding: 6px 5px !important; 
+                    padding: 6px 2px !important; 
                     border-radius: 40px !important; 
-                    font-weight: 700; font-size: 12px !important;
+                    font-weight: 700; font-size: 11.5px !important;
                     cursor: pointer;
-                    display: flex; align-items: center; justify-content: center; gap: 5px !important;
+                    display: flex; align-items: center; justify-content: center; gap: 3px !important;
                     border: 1px solid transparent !important; 
                     position: relative;
+                    white-space: nowrap;
                 }
                 
                 /* 🌟 خط فاصل ذهبي قصير */
                 .store-tab-btn:not(:first-child)::before {
                     content: '';
                     position: absolute;
-                    left: -2.5px;
+                    left: -2px;
                     top: 15%; 
                     height: 70%; 
                     width: 1px;
@@ -91,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 #store-games-content.active-content { display: flex !important; flex-direction: row !important; gap: 0 !important; align-items: flex-start; }
                 #store-popularity-content.active-content { display: block !important; }
                 #store-topup-content.active-content { display: block !important; }
+                #store-profile-frames-content.active-content { display: block !important; }
 
                 /* ======================================================== */
                 /* 🌟 الشريط الجانبي الأيمن 🌟 */
@@ -265,11 +267,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span data-i18n="store_topup">شحن</span>
                 </button>
                 <button class="store-tab-btn" onclick="window.switchStoreContentTab('store-popularity-content', this)">
-                    <span>شعبية</span> <span style="font-size: 15px; filter: hue-rotate(210deg) drop-shadow(0 0 3px rgba(0,210,255,0.6)); margin-right: 5px;">🔥</span>
+                    <span>شعبية</span> <span style="font-size: 13px; filter: hue-rotate(210deg) drop-shadow(0 0 3px rgba(0,210,255,0.6)); margin-right: 3px;">🔥</span>
+                </button>
+                <button class="store-tab-btn" onclick="window.switchStoreContentTab('store-profile-frames-content', this)">
+                    <span>إطار شخصي</span> <span style="font-size: 13px; margin-right: 3px;">🖼️</span>
                 </button>
                 <button class="store-tab-btn active" onclick="window.switchStoreContentTab('store-games-content', this)">
                     <span data-i18n="store_games">الألعاب</span> 
-                    <span style="width: 16px; height: 16px; display: inline-block; margin-right: 4px;">
+                    <span style="width: 14px; height: 14px; display: inline-block; margin-right: 3px;">
                         <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 100%;">
                             <defs>
                                 <linearGradient id="gameBlueStore" x1="8" y1="8" x2="56" y2="56"><stop offset="0%" stop-color="#66F2FF"/><stop offset="35%" stop-color="#19B9FF"/><stop offset="70%" stop-color="#536EFF"/><stop offset="100%" stop-color="#743BFF"/></linearGradient>
@@ -359,20 +364,34 @@ document.addEventListener('DOMContentLoaded', () => {
             <!-- حاوية محتوى الشعبية -->
             <div id="store-popularity-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; padding: 12px; display: flex; flex-direction: column;">
-                    
                     <!-- ترويسة بسيطة لقسم الشعبية -->
                     <div style="text-align: center; margin-bottom: 12px; flex-shrink: 0;">
                         <span style="font-size: 20px; filter: hue-rotate(210deg) drop-shadow(0 0 5px rgba(0, 210, 255, 0.5));">🔥</span>
                         <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;">هدايا شعبية</span>
                     </div>
-                    
                     <!-- منطقة التمرير للمنتجات -->
                     <div class="store-scrollable-area" style="padding-top: 0; flex: 1;">
                         <div id="store-popularity-grid" class="store-items-grid">
                             <!-- سيتم حقن المنتجات هنا عبر الجافاسكربت -->
                         </div>
                     </div>
+                </div>
+            </div>
 
+            <!-- 🌟 حاوية محتوى إطارات البروفايل 🌟 -->
+            <div id="store-profile-frames-content" class="store-tab-content">
+                <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; padding: 12px; display: flex; flex-direction: column;">
+                    <div style="text-align: center; margin-bottom: 12px; flex-shrink: 0;">
+                        <span style="font-size: 20px; filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));">🖼️</span>
+                        <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;">إطارات شخصية</span>
+                    </div>
+                    <div class="store-scrollable-area" style="padding-top: 0; flex: 1;">
+                        <div id="store-profile-frames-grid" class="store-items-grid">
+                            <div style="color: var(--text-secondary); text-align: center; grid-column: 1/-1; padding: 20px; font-size: 14px;">
+                                قريباً سيتم إضافة إطارات ملكية حصرية لتمييز صورتك الشخصية!
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
