@@ -470,15 +470,21 @@ export const ui = {
             window.hasPromptedThemeSync = false; 
         }
 
-        const displays = {
+       const displays = {
             'reset-btn': normalState, 'custom-diff-btn': normalState, 'online-toggle-btn': flexState,
             'store-portal-corner-btn': flexState, 'lucky-spin-portal-btn': flexState, 'hamburger-menu-btn': flexState,
             'floating-quests-btn': flexState, 'bag-quick-btn': 'none', 'resign-btn': onlineState, 
             'undo-btn': 'none', 'match-players-card': active ? 'flex' : 'none',
-            'gameChatBtn': active ? 'flex' : 'none', 'mic-toggle-btn': active ? 'flex' : 'none'
+            'gameChatBtn': active ? 'flex' : 'none', 'mic-toggle-btn': active ? 'flex' : 'none',
+            'spectator-stats-container': 'none' // 👈 السطر الجديد لإخفاء العدادات دائماً عند اللاعبين
         };
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
+        // 👈 الكود الجديد لإعادة اسم الزر لشكله الطبيعي
+        if (!active) {
+            this.setTxt('reset-btn', 'بدء');
+        }
+
         if (active && gameState.userProfile) {
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar);
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
@@ -679,8 +685,13 @@ export const ui = {
         this.toggleOfflineInMatchUI(false); this.toggleOnlineUILayout(false); 
         document.body.classList.remove('game-active');
         
-        if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
+        // 🌟 السطران الجديدان للتأكد من تنظيف آثار المشاهدة تماماً 🌟
+        this.setDisplay('spectator-stats-container', 'none');
+        this.setTxt('reset-btn', 'بدء');
         
+        if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
+//... باقي الدالة كما هي
+
         this.clearHighlights();
         document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
         document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
