@@ -6,6 +6,8 @@
  * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة.
  * 🌟 (مُحدّث): فصل إطارات الساحة عن إطارات الصور الشخصية للحفاظ على بنية الكود للمستقبل.
  * 🌟 (مُحدّث): تحسينات بصرية لزر الرهان، وتطبيق ساحة اللاعب الأعلى مستوى للمشاهدين.
+ * 🌟 (مُحدّث): تنظيف الشاشة بالكامل عند خروج المشاهد (منع تشنج الواجهة).
+ * 🌟 (مُحدّث جديد): إرسال إشارة قوية للسيرفر لإنهاء اللعبة فوراً عند انقطاع الخصم وانتهاء وقته.
  */
 
 import { gameState } from './gameState.js'; 
@@ -349,7 +351,6 @@ export const ui = {
         else this.setDisplay('undo-btn', 'none');
     },
 
-    // 🌟 مُحدّث: إضافة متغير hasAlreadyBet لمعرفة حالة المشاهد
     setupSpectatorUI(p1, p2, isBettingOpen, roomID, hasAlreadyBet = false) {
         window.isMatchRunning = true;
         document.body.classList.add('game-active');
@@ -363,7 +364,7 @@ export const ui = {
         this.setTxt('reset-btn', 'خروج المشاهد 🚪');
         
         this.setDisplay('match-players-card', 'flex');
-        this.setDisplay('spectator-stats-container', 'flex'); // 👈 إظهار العدادات للمشاهد
+        this.setDisplay('spectator-stats-container', 'flex'); 
 
         this.applyAvatar('card-my-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'));
         this.setTxt('card-my-name', p1?.name || 'اللاعب 1');
@@ -387,7 +388,6 @@ export const ui = {
             p2LvlEl.style.color = "#ff453a";
         }
 
-        // تطبيق إطار الصورة الشخصية إن وُجد
         const applyVisualFrame = (elementId, frameId) => {
             const el = document.getElementById(elementId);
             if (!el) return;
@@ -415,7 +415,6 @@ export const ui = {
         if (p2Xp > p1Xp && !(p2?.syncThemeOptOut)) dominantPlayer = p2;
         else if (p1?.syncThemeOptOut && p2Xp <= p1Xp) dominantPlayer = {equippedBg: 'bg_wood', equippedPc: 'pc_original', equippedFr: 'fr_classic'}; 
         
-        // 🌟 استدعاء دالة المتجر لتطبيق الساحة والأحجار للمشاهد بناءً على اللاعب الأقوى
         if (typeof window.applyTheme === 'function') {
             window.applyTheme(dominantPlayer);
         } else {
@@ -427,15 +426,12 @@ export const ui = {
         if (vsBetEl) {
             vsBetEl.style.display = 'block';
             if (isBettingOpen && !hasAlreadyBet) {
-                // متاح ولم يراهن بعد
                 let safeP1 = JSON.stringify(p1).replace(/"/g, '&quot;');
                 let safeP2 = JSON.stringify(p2).replace(/"/g, '&quot;');
                 vsBetEl.innerHTML = `<button onclick="window.ui.showSpectatorBetModal('${roomID}', ${safeP1}, ${safeP2})" style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; border: none; padding: 4px 16px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 13px; box-shadow: 0 2px 8px rgba(241,196,15,0.6); transition: 0.2s;">🎯 راهن الآن</button>`;
             } else if (isBettingOpen && hasAlreadyBet) {
-                // راهن مسبقاً والمراهنات ما زالت مفتوحة للآخرين
                 vsBetEl.innerHTML = `<span style="color: #30d158; font-size: 12px; background: rgba(0,0,0,0.6); border: 1px solid rgba(48, 209, 88, 0.4); padding: 3px 10px; border-radius: 8px;">تم تسجيل رهانك ✅</span>`;
             } else {
-                // المراهنات أُغلقت على الجميع
                 vsBetEl.innerHTML = `<span style="color: #a1a1aa; font-size: 11px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 8px;">المراهنات مغلقة 🔒</span>`;
             }
         }
@@ -470,21 +466,20 @@ export const ui = {
             window.hasPromptedThemeSync = false; 
         }
 
-       const displays = {
+        const displays = {
             'reset-btn': normalState, 'custom-diff-btn': normalState, 'online-toggle-btn': flexState,
             'store-portal-corner-btn': flexState, 'lucky-spin-portal-btn': flexState, 'hamburger-menu-btn': flexState,
             'floating-quests-btn': flexState, 'bag-quick-btn': 'none', 'resign-btn': onlineState, 
             'undo-btn': 'none', 'match-players-card': active ? 'flex' : 'none',
             'gameChatBtn': active ? 'flex' : 'none', 'mic-toggle-btn': active ? 'flex' : 'none',
-            'spectator-stats-container': 'none' // 👈 السطر الجديد لإخفاء العدادات دائماً عند اللاعبين
+            'spectator-stats-container': 'none' 
         };
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
-        // 👈 الكود الجديد لإعادة اسم الزر لشكله الطبيعي
         if (!active) {
-            this.setTxt('reset-btn', 'بدء');
+            this.setTxt('reset-btn', 'بدء'); 
         }
-
+        
         if (active && gameState.userProfile) {
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar);
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
@@ -685,13 +680,11 @@ export const ui = {
         this.toggleOfflineInMatchUI(false); this.toggleOnlineUILayout(false); 
         document.body.classList.remove('game-active');
         
-        // 🌟 السطران الجديدان للتأكد من تنظيف آثار المشاهدة تماماً 🌟
         this.setDisplay('spectator-stats-container', 'none');
         this.setTxt('reset-btn', 'بدء');
         
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
-//... باقي الدالة كما هي
-
+        
         this.clearHighlights();
         document.querySelectorAll('.cell.last-move').forEach(c => c.classList.remove('last-move'));
         document.querySelectorAll('.piece.forced').forEach(p => p.classList.remove('forced'));
@@ -781,7 +774,7 @@ export const ui = {
             if (gameState.turnEndTime) { gameState.turnTimeLeft = Math.max(0, Math.ceil((gameState.turnEndTime - Date.now()) / 1000)); } 
             else { gameState.turnTimeLeft--; }
 
-            this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
+            this.setTxt('turn-countdown', `${t('time_left') || 'المتبقي للدور:'} ${gameState.turnTimeLeft}s`);
             
             if (gameState.turnTimeLeft <= 10 && gameState.turnTimeLeft > 0 && !hasPlayedTick) {
                 hasPlayedTick = true; this.playSound(sfx.clock);
@@ -790,7 +783,16 @@ export const ui = {
             if (gameState.turnTimeLeft <= 0) {
                 clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
                 sfx.clock.pause(); sfx.clock.currentTime = 0;
-                this.setTxt('turn-countdown', t('syncing'));
+                this.setTxt('turn-countdown', t('syncing') || 'جاري المزامنة مع الخادم...');
+
+                // 🌟 التعديل الجذري لمنع التشنج: اللاعب المتصل يرسل إشارة لإنهاء اللعبة
+                if (gameState.isOnlineMode && !gameState.isSpectator && window.socketManager && window.socket && window.socket.connected) {
+                    setTimeout(() => {
+                        if (gameState.isGameActive && gameState.onlineRoomID) {
+                            window.socket.emit('playerTimeout', { roomID: gameState.onlineRoomID });
+                        }
+                    }, 1500); 
+                }
             }
         };
 
