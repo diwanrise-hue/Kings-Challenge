@@ -8,6 +8,7 @@
  * 🌟 (مُحدّث): دمج إصلاحات الأداء (60 FPS) وكسر الحلقة اللانهائية لسرعة خيالية.
  * 🌟 (مُحدّث): حل مشكلة اختفاء الرقعة عند بدء اللعبة.
  * 🌟 (مُحدّث الأداء الجذري): استبدال querySelectorAll بـ getElementsByClassName لمنع تشنج الواجهة!
+ * 🌟 (مُحدّث): إصلاح أبعاد الإطارات الملكية في لوحة الشرف لكي لا تغطي أطراف صورة اللاعب.
  */
 
 import { gameState } from './gameState.js'; 
@@ -707,7 +708,6 @@ export const ui = {
         
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
         
-        // التعديل هنا لتسريع التنظيف
         this.clearHighlights();
         const boardEl = this.getEl('board');
         if (boardEl) {
@@ -761,7 +761,6 @@ export const ui = {
         saveGameState(); this.updateProfileUI(); this.startTurn();
     },
 
-    // התعديل هنا لتسريع التنظيف
     clearHighlights() {
         const board = this.getEl('board');
         if (!board) return;
@@ -772,7 +771,6 @@ export const ui = {
     highlightMove(from, to) {
         const board = this.getEl('board'); if (!board) return;
         
-        // التعديل هنا لتسريع التنظيف
         const lastMoves = board.getElementsByClassName('last-move');
         while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
         
@@ -941,7 +939,6 @@ export const ui = {
         
         gameState.lastJumpDir = { dr: null, dc: null };
         
-        // التعديل هنا لتسريع التنظيف
         const boardEl = this.getEl('board');
         if (boardEl) {
             const forcedPieces = boardEl.getElementsByClassName('forced');
@@ -1004,7 +1001,6 @@ export const ui = {
             if ((gameState.currentTurn === gameState.playerColor || gameState.isOnlineMode) && fList.length === 1 && !gameState.isSpectator) {
                 gameState.selectedPiece = fList[0].el; gameState.selectedPiece.classList.add('selected');
                 if (gameState.currentTurn === gameState.playerColor && boardEl) { 
-                    // التعديل هنا لتسريع التنظيف
                     const lastMoves = boardEl.getElementsByClassName('last-move');
                     while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
                 }
@@ -1845,8 +1841,9 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
             let frameUrl = proFrames[item.rank];
 
             if (frameUrl) {
+                // ✅ تم ضبط المقاسات هنا لكي لا يغطي الإطار أطراف الصورة ويوسع دائرة الإطار
                 frameOverlay = `
-                    <div style="position: absolute; top: -15%; left: -15%; width: 130%; height: 130%;
+                    <div style="position: absolute; top: -22%; left: -22%; width: 144%; height: 144%;
                                 background-image: url('${frameUrl}');
                                 background-size: 100% 100%;
                                 background-position: center;
@@ -1860,7 +1857,7 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         card.innerHTML = `
             <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
             
-            <div style="position: relative; width: ${item.rank === 1 ? '66px' : '56px'}; height: ${item.rank === 1 ? '66px' : '56px'}; margin-bottom: 8px;">
+            <div style="position: relative; width: ${item.rank === 1 ? '72px' : '62px'}; height: ${item.rank === 1 ? '72px' : '62px'}; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;">
                 <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1;">
                     <img src="${getSecureAvatarUrl(player.avatar)}">
                 </div>
