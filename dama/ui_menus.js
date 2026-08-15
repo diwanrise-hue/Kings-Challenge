@@ -436,7 +436,7 @@ window.forceLockedGlobalAvatar = function() {
 const avatarGuardObserver = new MutationObserver((mutations) => { let shouldProtect = false; for (let mutation of mutations) { if (mutation.type === 'childList') { const hasImg = Array.from(mutation.target.children).some(el => el.tagName === 'IMG'); if (!hasImg && mutation.target.textContent !== "👤") { shouldProtect = true; break; } } } if (shouldProtect) { avatarGuardObserver.disconnect(); window.forceLockedGlobalAvatar(); window.startAvatarGuard(); } });
 window.startAvatarGuard = function() { const targets = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar']; targets.forEach(id => { const el = document.getElementById(id); if (el) { avatarGuardObserver.observe(el, { childList: true, attributes: false }); } }); };
 
-// 🌟 تحديث مهم: تقنية requestAnimationFrame لضمان سلاسة الأداء (60 FPS)
+ // 🌟 تم إزالة الاستدعاءات التي تسبب حلقة لا نهائية (Infinite Loop)
 window.applyProfileDataToUI = function(profile) {
     requestAnimationFrame(() => {
         const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
@@ -456,13 +456,11 @@ window.applyProfileDataToUI = function(profile) {
         
         if(window.forceLockedGlobalAvatar) window.forceLockedGlobalAvatar(); 
         if(window.updateInventoryUI) window.updateInventoryUI(); 
-        if (typeof window.applyTheme === 'function') window.applyTheme(profile); 
         
-        if (typeof window.refreshProfileUIStyles === 'function') { 
-            requestAnimationFrame(() => window.refreshProfileUIStyles()); 
-        }
+        // 🛑 تم مسح استدعاء applyTheme و refreshProfileUIStyles من هنا نهائياً لكسر التشنج!
     });
 };
+
 
 // 🌟 تحديث مهم: إزالة الحسابات الثقيلة وجدولتها لتسريع الواجهة
 window.updateProfileUI = function() {
