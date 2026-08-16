@@ -537,7 +537,6 @@ export const STORE_ITEMS = {
 
 window.STORE_ITEMS = STORE_ITEMS;
 
-// 🌟 دالة إضافة عنصر شعبية إلى حقيبة اللاعب وحفظه محلياً ومزامنته 🌟
 window.addPopularityToBag = function(itemId, amount = 1) {
     let profile = storeManager.getProfile();
     if (!profile) return;
@@ -559,7 +558,6 @@ window.addPopularityToBag = function(itemId, amount = 1) {
     storeManager.renderUI();
 };
 
-// 🌟 دالة عرض هدايا الشعبية المملوكة داخل تبويب الهدايا في الحقيبة 🌟
 window.renderGiftsInBag = function() {
     const container = document.getElementById('theme-grid-section-gifts');
     if (!container) return;
@@ -595,6 +593,9 @@ window.renderGiftsInBag = function() {
 
 export const storeManager = {
     
+    // ==========================================
+    // 💡 إصلاح استهلاك الذاكرة الخاص بـ Resize
+    // ==========================================
     startGapKiller() {
         if (window.__gapKillerActive) return;
         window.__gapKillerActive = true;
@@ -620,7 +621,12 @@ export const storeManager = {
         };
 
         applyGapKillerStyles();
-        window.addEventListener('resize', applyGapKillerStyles);
+        
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(applyGapKillerStyles, 150);
+        });
     },
 
     injectLegendaryAnimations() {
@@ -1107,12 +1113,7 @@ window.applyTheme = function(profile) {
     }
 };
 
-// ==========================================
-// 🌟 وظائف الواجهة (التبويبات النظيفة المتوافقة مع التصميم الجديد) 🌟
-// ==========================================
-
 window.switchThemeGridTabCategory = function(category) {
-    // إخفاء كل أقسام الحقيبة (الخاصة بالألعاب والعام) وإزالة التفعيل
     const allTabs = ['bg', 'frames', 'pieces', 'profile-frames', 'gifts'];
     allTabs.forEach(tab => { 
         const btn = document.getElementById('theme-btn-tab-' + tab); 
@@ -1132,5 +1133,3 @@ window.switchThemeGridTabCategory = function(category) {
         }
     }
 };
-
-   
