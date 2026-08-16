@@ -1,3 +1,4 @@
+<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -7,12 +8,10 @@
     <link rel="icon" type="image/png" href="1000127272.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     
-    <!-- 🌟 تم استدعاء ملف التصميم الخارجي هنا 🌟 -->
     <link rel="stylesheet" href="dama.css">
     
-    <!-- 🌟 تم استدعاء السكربتات المخصصة هنا 🌟 -->
     <script src="dama-scripts.js"></script>
-    <script src="damapro.js"></script> <!-- 🌟 استدعاء ملف الإطارات الملكية 🌟 -->
+    <script src="damapro.js"></script> 
 
 </head>
 <body data-piece-style="pc_original">
@@ -101,18 +100,14 @@
     </div>
 
     <div id="status-area">
-        <!-- 🌟 الكود المُحدث لواجهة التحدي (VS Card) 🌟 -->
         <div id="match-players-card" style="display: none; width: 100%; justify-content: center; align-items: center; gap: 30px; padding: 15px 10px; background: linear-gradient(to bottom, rgba(20,22,30,0.95), rgba(10,12,15,0.8)); border-bottom: 2px solid rgba(212,175,55,0.3); border-radius: 0 0 25px 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); position: relative; z-index: 10;">
             
             <!-- اللاعب الخاص بي (أنت) -->
             <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center; width: 85px;">
-                <!-- الإطار والصورة -->
                 <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; position: relative;">
                     <div id="card-my-avatar" class="profile-avatar-capsule" style="width: 70%; height: 70%; border-radius: 50%; overflow: hidden; border: 2px solid #ffd700; background: #1a1a24; display: flex; align-items: center; justify-content: center;"></div>
                 </div>
-                <!-- المستوى -->
                 <div class="level-badge-small" id="card-my-level" style="background: rgba(135,206,235,0.2); border: 1px solid #87ceeb; color: #87ceeb; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 800; margin-top: -6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Lv.1</div>
-                <!-- الاسم -->
                 <span id="card-my-name" class="match-players-name" style="color: white; font-size: 13px; font-weight: 700; margin-top: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">أنت</span>
             </div>
 
@@ -130,13 +125,10 @@
 
             <!-- الخصم -->
             <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center; width: 85px; cursor: pointer;" onclick="window.showOpponentProfile()">
-                <!-- الإطار والصورة -->
                 <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; position: relative;">
                     <div id="card-opp-avatar" class="profile-avatar-capsule" style="width: 70%; height: 70%; border-radius: 50%; overflow: hidden; border: 2px solid #ff453a; background: #1a1a24; display: flex; align-items: center; justify-content: center;">❓</div>
                 </div>
-                <!-- المستوى -->
                 <div class="level-badge-small" id="card-opp-level" style="background: rgba(255,69,58,0.2); border: 1px solid #ff453a; color: #ff453a; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 800; margin-top: -6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Lv.?</div>
-                <!-- الاسم -->
                 <span id="card-opp-name" class="match-players-name" style="color: white; font-size: 13px; font-weight: 700; margin-top: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">الخصم</span>
             </div>
             
@@ -598,7 +590,6 @@
             </div>
             <input type="hidden" id="room-bet-input" value="0">
             
-            <!-- 🌟 الميزة الجديدة: خيار السماح للمشاهدين بالمراهنة -->
             <div style="display: flex; align-items: center; gap: 10px; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; border: 1px solid rgba(212,175,55,0.2);">
                 <input type="checkbox" id="allow-betting-checkbox" checked style="width: 18px; height: 18px; accent-color: #d4af37; cursor: pointer;">
                 <label for="allow-betting-checkbox" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0; line-height: 1.4;">السماح للمشاهدين بدخول الغرفة والمراهنة</label>
@@ -671,14 +662,26 @@
         </div>
     </div>
 
-    <div id="purchase-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 300px;">
-            <h3 id="modal-item-name">اسم المنتج</h3>
-            <div id="modal-item-preview" class="purchase-preview-box" style="flex-direction: column; overflow: hidden;"></div>
-            <p id="modal-item-cost" style="color: #f5a623; font-weight: 700; font-size: 18px; margin-bottom: 25px;">🪙 السعر: 0</p>
+    <!-- 🌟 نافذة الشراء المحدثة مع قائمة منسدلة لقسائم الخصم المتعددة 🌟 -->
+    <div id="purchase-modal" class="modal-overlay" style="z-index: 20000001 !important;">
+        <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('purchase-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 id="modal-item-name" style="color: #ffd700; font-size: 20px;">اسم المنتج</h3>
+            
+            <div id="modal-item-preview" class="purchase-preview-box" style="flex-direction: column; overflow: hidden; height: 120px; width: 120px; margin: 15px auto;"></div>
+            
+            <p id="modal-item-cost" style="color: #f5a623; font-weight: 800; font-size: 18px; margin-bottom: 15px;">🪙 السعر: 0</p>
+            
+            <!-- حاوية اختيار قسيمة الخصم المتعددة -->
+            <div id="discount-selector-container" style="display: none; flex-direction: column; text-align: right; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 16px; border: 1px solid rgba(48, 209, 88, 0.4); margin-bottom: 20px;">
+                <label style="color: #30d158; font-size: 13px; font-weight: bold; margin-bottom: 8px;">استخدم قسيمة خصم (اختياري) 🎫:</label>
+                <select id="discount-ticket-select" class="online-input" style="height: 40px; font-size: 13px; margin-bottom: 0; background: rgba(0,0,0,0.3) !important; border-color: #30d158 !important;">
+                    <!-- سيتم ملؤها برمجياً عبر dama-scripts.js -->
+                </select>
+            </div>
+
             <div style="display: flex; gap: 10px; flex-direction: column;">
-                <button id="confirm-buy-btn" class="save-settings-btn" style="margin: 0; background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border-color: rgba(245, 166, 35, 0.4) !important; box-shadow: none !important;">شراء الآن</button>
-                <button onclick="window.closeAppModal('purchase-modal')" class="save-settings-btn" style="margin: 0; background: transparent !important; box-shadow: none !important;">إلغاء</button>
+                <button id="confirm-buy-btn" class="save-settings-btn" style="margin: 0; background: linear-gradient(135deg, #f5a623, #d35400) !important; color: white !important; border-color: #ffd700 !important; box-shadow: 0 4px 15px rgba(245,166,35,0.4) !important;">شراء الآن</button>
             </div>
         </div>
     </div>
@@ -775,7 +778,6 @@
         <button id="resign-btn" title="الانسحاب" style="display: none;">الانسحاب</button>
     </div>
 
-    <!-- 🌟 شاشة العداد التنازلي قبل بدء المباراة 🌟 -->
     <div id="match-countdown-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(0,0,0,0.85); z-index: 9999999; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px);">
         <div style="font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(241,196,15,0.6));">⚔️</div>
         <h2 style="color: #fce8a1; font-size: 26px; text-shadow: 0 0 15px #f1c40f; margin-bottom: 5px;">تجهّز للمواجهة!</h2>
