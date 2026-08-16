@@ -331,15 +331,6 @@ window.addEventListener('DOMContentLoaded', syncGlobalBackground);
 window.addEventListener('load', syncGlobalBackground);
 window.addEventListener('storage', (e) => { if (e.key === 'custom_app_bg') syncGlobalBackground(); });
 
-const bgObserver = new MutationObserver(() => {
-    const bg = localStorage.getItem('custom_app_bg');
-    if (bg) {
-        let expectedUrl = bg.startsWith('http') || bg.startsWith('data:') || bg.startsWith('../') ? bg : '../' + bg;
-        if (document.body && !document.body.style.backgroundImage.includes(expectedUrl)) syncGlobalBackground();
-    }
-});
-document.addEventListener('DOMContentLoaded', () => { if (document.body) bgObserver.observe(document.body, { attributes: true, attributeFilter: ['style'] }); });
-
 // ==========================================
 // 💡 تم إزالة مراقب التغيرات العشوائي وحل المشكلة
 // ==========================================
