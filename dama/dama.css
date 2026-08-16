@@ -701,6 +701,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     box-sizing: border-box;
 }
 
+/* ✅ الكود المعدل والخفيف على معالج الرسوميات */
 .lb-podium-card {
     flex: 1;
     display: flex;
@@ -709,33 +710,33 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     border-radius: 20px;
     padding: 22px 8px 14px 8px;
     box-sizing: border-box;
-    backdrop-filter: blur(12px); /* هذه الوحيدة التي سنبقيها لجمالية المنصة */
-    -webkit-backdrop-filter: blur(12px);
     position: relative;
     overflow: visible;
+    transform: translateZ(0); /* تفعيل تسريع العتاد GPU */
+    will-change: transform;
     animation: floatCard 3.8s ease-in-out infinite;
 }
 
 .lb-podium-card.rank-1 {
-    background: linear-gradient(180deg, rgba(255, 215, 0, 0.28) 0%, rgba(30, 24, 10, 0.92) 100%);
+    background: linear-gradient(180deg, rgba(45, 35, 15, 0.95) 0%, rgba(20, 16, 8, 0.98) 100%);
     border: 1.5px solid rgba(255, 215, 0, 0.85);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     min-height: 195px;
     animation-delay: 0s;
 }
 
 .lb-podium-card.rank-2 {
-    background: linear-gradient(180deg, rgba(59, 130, 246, 0.28) 0%, rgba(10, 22, 45, 0.92) 100%);
+    background: linear-gradient(180deg, rgba(20, 35, 60, 0.95) 0%, rgba(10, 18, 35, 0.98) 100%);
     border: 1.5px solid rgba(59, 130, 246, 0.85);
-    box-shadow: 0 0 18px rgba(59, 130, 246, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     min-height: 175px;
     animation-delay: 0.7s;
 }
 
 .lb-podium-card.rank-3 {
-    background: linear-gradient(180deg, rgba(217, 119, 6, 0.25) 0%, rgba(30, 18, 12, 0.92) 100%);
+    background: linear-gradient(180deg, rgba(45, 25, 15, 0.95) 0%, rgba(25, 14, 8, 0.98) 100%);
     border: 1.5px solid rgba(217, 119, 6, 0.85);
-    box-shadow: 0 0 16px rgba(217, 119, 6, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     min-height: 165px;
     animation-delay: 1.4s;
 }
