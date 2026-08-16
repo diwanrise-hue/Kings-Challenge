@@ -1144,9 +1144,11 @@ window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
         return;
     }
 
+    // 1. تعيين الاسم والسعر الأساسي
     nameEl.innerText = itemName; 
     costEl.innerText = '🪙 ' + cost; 
 
+    // 2. تجهيز صورة العرض (Preview)
     let itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null; 
     if (!itemData && window.POPULARITY_ITEMS) {
         const popItem = window.POPULARITY_ITEMS.find(p => p.id === itemId);
@@ -1185,12 +1187,92 @@ window.openPurchaseModal = function(itemId, itemName, cost, itemType) {
         previewEl.innerHTML = '🎁'; 
         previewEl.className = 'purchase-preview-box'; 
     }
+
+    // 3. منطق بطاقات الخصم المفقود!
+    window.currentPurchaseItem = { id: itemId, price: cost, type: itemType };
+    
+    // جلب ملف اللاعب للتحقق من التذاكر
+    const profile = storeManager.getProfile() || {};
+    const discountContainer = document.getElementById('discount-selector-container');
+    const discountSelect = document.getElementById('discount-ticket-select');
+    
+    let availableTickets = [];
+    
+    // دعم النظامين (المصفوفة الجديدة والقيمة القديمة)
+    if (Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
+        availableTickets = profile.discountTickets.map(t => typeof t === 'object' ? t.rate : t).filter(r => r > 0);
+    } else if (profile.discountTicket && profile.discountTicket > 0) {
+        availableTickets = [profile.discountTicket];
+    }
+
+    // إظهار صندوق الخصومات فقط إذا توفرت الشروط
+    if (discountContainer && discountSelect) {
+        if (availableTickets.length > 0 && cost > 0 && itemType !== 'popularity') {
+            discountContainer.style.display = 'flex';
+            discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
+            
+            availableTickets.sort((a, b) => b - a); // ترتيب من الأعلى للأقل
+            
+            availableTickets.forEach((rate) => {
+                let opt = document.createElement('option');
+                opt.value = rate;
+                opt.innerText = `خصم ${rate}% 🎫`;
+                discountSelect.appendChild(opt);
+            });
+
+            // تفاعل السعر عند اختيار بطاقة
+            discountSelect.onchange = function() {
+                let selectedRate = parseInt(this.value) || 0;
+                if (selectedRate > 0) {
+                    let discountedPrice = Math.floor(cost * (1 - (selectedRate / 100)));
+                    // إضافة دالة التنسيق إذا كانت متوفرة، أو عرض الرقم مباشرة
+                    let displayCost = typeof formatCompactNumber === 'function' ? formatCompactNumber(cost) : cost;
+                    let displayDiscount = typeof formatCompactNumber === 'function' ? formatCompactNumber(discountedPrice) : discountedPrice;
+                    
+                    costEl.innerHTML = `🪙 السعر: <span style="text-decoration: line-through; color: #a1a1aa; font-size: 15px;">${displayCost}</span> <span style="color: #30d158; margin-right: 5px;">${displayDiscount}</span>`;
+                } else {
+                    let displayCost = typeof formatCompactNumber === 'function' ? formatCompactNumber(cost) : cost;
+                    costEl.innerText = `🪙 السعر: ${displayCost}`;
+                }
+            };
+            
+            discountSelect.value = "0";
+            discountSelect.dispatchEvent(new Event('change'));
+        } else {
+            discountContainer.style.display = 'none';
+        }
+    }
+
+    // 4. زر الشراء وربطه بالسيرفر لدعم التذاكر
+    buyBtn.innerText = "شراء الآن";
+    buyBtn.disabled = false;
     
     buyBtn.onclick = () => { 
-        if (typeof window.closeAppModal === 'function') window.closeAppModal('purchase-modal'); 
-        setTimeout(() => { 
+        let selectedDiscountRate = 0;
+        
+        // قراءة الخصم فقط إذا كانت القائمة ظاهرة
+        if (discountSelect && discountContainer && discountContainer.style.display !== 'none') {
+            selectedDiscountRate = parseInt(discountSelect.value) || 0;
+        }
+
+        buyBtn.innerText = "جاري الشراء...";
+        buyBtn.disabled = true;
+
+        // إرسال الطلب للسيرفر ليقوم بخصم التذكرة الرصيد
+        if (window.socket && window.socket.connected) {
+            window.socket.emit('requestPurchase', { 
+                itemId: itemId,
+                appliedDiscountRate: selectedDiscountRate 
+            });
+        } else {
+            // في حال عدم الاتصال بالسيرفر
             storeManager.buyItem(itemId, itemType);
-        }, 120); 
+        }
+
+        setTimeout(() => { 
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('purchase-modal'); 
+        }, 500); 
     };
+
     if (typeof window.openAppModal === 'function') window.openAppModal('purchase-modal');
 };
