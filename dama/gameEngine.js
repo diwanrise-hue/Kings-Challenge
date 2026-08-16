@@ -2,7 +2,7 @@
  * gameEngine.js (Client-Side)
  * النسخة المطابقة تماماً لمحرك السيرفر (game-logic.js) لضمان التوافق 100%
  * 🌟 (مُحدّث): إصلاح الخلل الذي يمنع ظهور المربعات الزرقاء للحركات العادية (حذف اختصار السيرفر).
- * 🌟 (مُحدّث): نظام تحديد الاتجاه الديناميكي ليعمل الأسود بشكل سليم.
+ * 🌟 (مُحدّث): إصلاح نظام تحديد الاتجاه ليصبح ثابتاً ويمنع شلل الأحجار في نهاية اللعبة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -14,30 +14,19 @@ export const gameEngine = {
 
     getPieceDirection(color, bState) {
         const baseColor = color.split('-')[0];
-        let wSumRow = 0, wCount = 0, bSumRow = 0, bCount = 0;
         
-        if (!bState) bState = gameState.virtualBoard;
+        // 🌟 الإصلاح الجذري: الاعتماد على الاتجاه الثابت الذي تم تحديده عند بدء المباراة
+        // بدلاً من حساب المتوسط الديناميكي الذي ينكسر عندما يهرب حجر واحد خلف خطوط العدو
+        if (gameState.pieceDirection && gameState.pieceDirection[baseColor] !== undefined) {
+            return gameState.pieceDirection[baseColor];
+        }
 
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                let p = bState[r][c];
-                if (p) {
-                    if (p.startsWith('white')) { wSumRow += r; wCount++; }
-                    else if (p.startsWith('black')) { bSumRow += r; bCount++; }
-                }
-            }
+        // في حال لم يكن متوفراً (كحالة احتياطية)، نعتمد على لون اللاعب الأساسي
+        if (gameState.playerColor === 'white') {
+            return baseColor === 'white' ? -1 : 1;
+        } else {
+            return baseColor === 'black' ? -1 : 1;
         }
-        
-        // حساب الاتجاه بناءً على متوسط تواجد الأحجار على الرقعة
-        if (wCount > 0 && bCount > 0) {
-            let wAvg = wSumRow / wCount;
-            let bAvg = bSumRow / bCount;
-            let wDir = wAvg < bAvg ? 1 : -1;
-            let bDir = bAvg < wAvg ? 1 : -1;
-            return baseColor === 'white' ? wDir : bDir;
-        }
-        // القيم الافتراضية
-        return baseColor === 'black' ? 1 : -1;
     },
 
     computeOnlineFlip(color) { 
@@ -172,8 +161,6 @@ export const gameEngine = {
         // إذا كان هناك مسارات أكل إجبارية، نرجعها فقط
         if (maxJumps > 0) return allCapturePaths.filter(p => p.length === maxJumps);
         
-        // 🌟 الإصلاح الأساسي: تم مسح سطر السيرفر الذي كان يعيد مصفوفة فارغة هنا ويمنع رسم المربع الأزرق!
-
         let allSimpleMoves = [];
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
