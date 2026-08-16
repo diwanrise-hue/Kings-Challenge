@@ -1929,7 +1929,6 @@ function forceLockedGlobalAvatar() {
 }
 
 
-
 window.currentLang = 'ar';
 window.updateHtmlTexts = function() {
     if (!window.t) return;
