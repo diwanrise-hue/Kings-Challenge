@@ -6,6 +6,7 @@
  * 🌟 (مُحدّث): تصحيح واجهة المشاهدين (Spectator Mode) وإظهار عدادات المشاهدين والمراهنين.
  * 🌟 (مُحدّث): إدارة العداد التنازلي 10 ثواني (Countdown Overlay) وإخفاء نافذة الرهان للمراهنين مسبقاً.
  * 🌟 (تم الإصلاح): حذف المستمعات المتكررة وتصحيح أحداث الصداقة مع السيرفر.
+ * 🌟 (مُحدّث): إضافة نظام الإشعارات العامة serverNotification.
  */
 
 import { gameState } from './gameState.js'; 
@@ -322,9 +323,14 @@ export const socketManager = {
             'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState',
             'activeRoomsList', 'mic-request', 'mic-response', 'spectatorJoined', 'spectatorCountChanged',
             'spectatorBetsUpdated', 'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData', 'gameOverByServer',
-            'matchCountdown', 'countdownAborted'
+            'matchCountdown', 'countdownAborted', 'serverNotification'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
+
+        // استقبال إشعارات السيرفر الجديدة وعرضها في الواجهة
+        socket.on('serverNotification', (data) => {
+            if (data && data.msg) this._showToast(data.msg);
+        });
 
         socket.on('matchCountdown', (data) => {
             const overlay = document.getElementById('match-countdown-overlay');
