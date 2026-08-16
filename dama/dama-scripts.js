@@ -348,3 +348,50 @@ window.selectSpectatorBetColor = function(color) {
 window.openRadioModal = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'OPEN_RADIO_MODAL' }, '*'); };
 window.exitDamaGame = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); };
 window.openBetSelectorForEdit = function() { window.isEditingBet = true; if (typeof window.openAppModal === 'function') window.openAppModal('bet-selector-modal'); };
+
+// ==========================================
+// ⏱️ عداد نهاية الموسم للوحة الشرف
+// ==========================================
+let seasonTimerInterval = null;
+
+function startSeasonCountdown() {
+    const timerElement = document.getElementById('season-countdown-timer');
+    if (!timerElement) return;
+
+    if (seasonTimerInterval) clearInterval(seasonTimerInterval);
+
+    function updateTimer() {
+        const now = new Date();
+        const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        const diff = nextMonth - now;
+
+        if (diff <= 0) {
+            timerElement.innerText = "تحديث خلال : جاري توزيع الجوائز...";
+            clearInterval(seasonTimerInterval);
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        let timeText = "تحديث خلال : ";
+        if (days > 0) timeText += `${days} يوم و `;
+        
+        const formattedHours = hours < 10 ? `0${hours}` : hours;
+        const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+        const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+
+        timeText += `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+        timerElement.innerText = timeText;
+    }
+
+    updateTimer();
+    seasonTimerInterval = setInterval(updateTimer, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    startSeasonCountdown();
+});
+window.startSeasonCountdown = startSeasonCountdown;
