@@ -1063,7 +1063,7 @@ window.switchBagGameTab = function(gameId, btnElement) {
 // 🌟 دوال الشراء بالأموال الحقيقية والـ VIP (Google Play Billing) 🌟
 // ===================================================================
 
-// 1. الدالة التي يضغط عليها اللاعب لشراء باقة
+// 1. الدالة التي يضغط عليها اللاعب لشراء باقة (تم تفعيل وضع المحاكاة للويب)
 window.purchaseRealMoney = function(packageId, price) {
     const profile = getSafeProfile();
     
@@ -1073,16 +1073,19 @@ window.purchaseRealMoney = function(packageId, price) {
         return;
     }
 
-    // التحقق مما إذا كان اللاعب داخل التطبيق ويوجد جسر اتصال (Android Bridge)
-    if (typeof AndroidBridge !== 'undefined' && typeof AndroidBridge.startGooglePurchase === 'function') {
-        showLoadingPopup("جاري فتح بوابة الدفع الآمنة...");
+    // --- 🌟 وضع المحاكاة (Testing Mode) للويب 🌟 ---
+    // سنقوم بمحاكاة نجاح عملية الدفع لتتمكن من تجربة نظام الـ VIP على المتصفح
+    showLoadingPopup("جاري محاكاة بوابة الدفع (وضع الاختبار)...");
+    
+    setTimeout(() => {
+        // توليد وصل دفع وهمي لاختبار السيرفر
+        const fakeToken = "TEST_TOKEN_" + Math.random().toString(36).substring(2, 15);
         
-        // استدعاء نظام الأندرويد لبدء نافذة جوجل بلاي
-        AndroidBridge.startGooglePurchase(packageId);
-    } else {
-        // إذا كان يلعب من المتصفح العادي
-        showCustomPopup("عذراً، الشراء متاح فقط عبر تطبيق اللعبة الرسمي لضمان أمان الدفع عبر Google Play.");
-    }
+        // استدعاء دالة النجاح وكأن تطبيق الأندرويد هو من استدعاها
+        if (typeof window.onGooglePurchaseSuccess === 'function') {
+            window.onGooglePurchaseSuccess(fakeToken, packageId);
+        }
+    }, 1500); // محاكاة تأخير شاشة الدفع لمدة ثانية ونصف
 };
 
 // 2. دالة يستدعيها التطبيق (الأندرويد) عند نجاح الدفع
