@@ -1403,53 +1403,6 @@ window.applyProfileDataToUI = function(profile) {
     });
 };
 
-window.selectSpectatorBetColor = function(color) {
-    const colorInput = document.getElementById('spectator-bet-color');
-    const p1Card = document.getElementById('bet-p1-card');
-    const p2Card = document.getElementById('bet-p2-card');
-    if (!colorInput || !p1Card || !p2Card) return;
-
-    colorInput.value = color;
-
-    p1Card.style.borderColor = 'transparent';
-    p1Card.style.background = 'transparent';
-    p1Card.style.transform = 'scale(1)';
-    p1Card.style.boxShadow = 'none';
-
-    p2Card.style.borderColor = 'transparent';
-    p2Card.style.background = 'transparent';
-    p2Card.style.transform = 'scale(1)';
-    p2Card.style.boxShadow = 'none';
-
-    if (color === 'white') {
-        p1Card.style.borderColor = '#ffd700';
-        p1Card.style.background = 'rgba(255, 215, 0, 0.15)';
-        p1Card.style.transform = 'scale(1.1)';
-        p1Card.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2)';
-    } else {
-        p2Card.style.borderColor = '#ff453a';
-        p2Card.style.background = 'rgba(255, 69, 58, 0.15)';
-        p2Card.style.transform = 'scale(1.1)';
-        p2Card.style.boxShadow = '0 0 20px rgba(255, 69, 58, 0.4), inset 0 0 10px rgba(255, 69, 58, 0.2)';
-    }
-};
-
-ui.onClick('spectator-submit-bet-btn', () => {
-    const roomID = document.getElementById('spectator-bet-room-id')?.value;
-    const color = document.getElementById('spectator-bet-color')?.value;
-    const amount = document.getElementById('spectator-bet-amount')?.value;
-    
-    if (!color) {
-        ui.showCustomAlert("الرجاء اختيار اللاعب الذي تتوقع فوزه أولاً!");
-        return;
-    }
-    
-    if (window.socketManager && typeof window.socketManager.placeSpectatorBet === 'function') {
-        window.socketManager.placeSpectatorBet(roomID, color, amount);
-        if (typeof window.closeAppModal === 'function') window.closeAppModal('spectator-bet-modal');
-    }
-});
-
 window.openCreatorSettings = function(roomId, currentBet) {
     const roomIdInput = document.getElementById('creator-target-room-id');
     const betInput = document.getElementById('edit-room-bet-input');
@@ -1651,17 +1604,26 @@ window.rejectFriendReq = function(reqId) {
 
 window.sendFriendRequest = function() {
     if(!gameState.currentViewedPlayer) return;
-    const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '📨 تم إرسال طلب الصداقة بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+    
+    if (window.socket && window.socket.connected) {
+        window.socket.emit('sendFriendReq', { targetId: gameState.currentViewedPlayer.id });
+    }
+    
+    const toast = document.getElementById('toast-notification'); 
+    if (toast) { 
+        toast.innerText = '📨 تم إرسال طلب الصداقة بنجاح!'; 
+        toast.classList.add('show'); 
+        setTimeout(() => toast.classList.remove('show'), 2500); 
+    }
+    
     const btn = document.getElementById('send-friend-req-btn');
-    if(btn) { btn.innerHTML = '✓ تم الإرسال'; btn.style.background = 'rgba(255,255,255,0.1) !important'; btn.style.color = '#a1a1aa !important'; btn.style.borderColor = 'rgba(255,255,255,0.2) !important'; btn.disabled = true; }
-};
-
-window.givePopularity = function() {
-    if(!gameState.currentViewedPlayer) return;
-    const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '🔥 تم منح الشعبية بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-    const valEl = document.getElementById('igp-popularity-val'); if(valEl) valEl.innerText = parseInt(valEl.innerText) + 1;
-    const btn = document.getElementById('give-pop-btn');
-    if(btn) { btn.innerHTML = '🔥 تم المنح'; btn.style.background = 'rgba(255,255,255,0.1) !important'; btn.style.color = '#a1a1aa !important'; btn.style.borderColor = 'rgba(255,255,255,0.2) !important'; btn.disabled = true; }
+    if(btn) { 
+        btn.innerHTML = '✓ تم الإرسال'; 
+        btn.style.background = 'rgba(255,255,255,0.1) !important'; 
+        btn.style.color = '#a1a1aa !important'; 
+        btn.style.borderColor = 'rgba(255,255,255,0.2) !important'; 
+        btn.disabled = true; 
+    }
 };
 
 window.openMyProfile = function() {
@@ -1841,7 +1803,6 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
             let frameUrl = proFrames[item.rank];
 
             if (frameUrl) {
-                // ✅ تم ضبط المقاسات هنا لكي لا يغطي الإطار أطراف الصورة ويوسع دائرة الإطار
                 frameOverlay = `
                     <div style="position: absolute; top: -22%; left: -22%; width: 144%; height: 144%;
                                 background-image: url('${frameUrl}');
@@ -2009,17 +1970,8 @@ function syncRadioStatusDot() {
     } 
 }
 
-function syncGlobalBackground() {
-    const bg = localStorage.getItem('custom_app_bg'); 
-    if (bg) {
-        let bgUrl = bg; if (!bg.startsWith('http') && !bg.startsWith('data:') && !bg.startsWith('../')) { bgUrl = '../' + bg; }
-        document.body.style.backgroundImage = `url('${bgUrl}')`; document.body.style.backgroundSize = 'cover'; document.body.style.backgroundPosition = 'center'; document.body.style.backgroundAttachment = 'fixed'; document.body.style.backgroundColor = 'transparent';
-    } else { document.body.style.backgroundColor = '#2c3e50'; document.body.style.backgroundImage = 'none'; }
-}
-
 window.addEventListener('storage', (e) => {
     if (e.key === 'hub_music_enabled') { syncRadioStatusDot(); }
-    if (e.key === 'custom_app_bg') { syncGlobalBackground(); }
     if (e.key === 'hub_user_profile') { forceLockedGlobalAvatar(); }
 });
 
