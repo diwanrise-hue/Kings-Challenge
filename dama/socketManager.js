@@ -5,6 +5,7 @@
  * 🌟 (مُحدّث): فصل نصوص الإشعارات في (ذيل) بأسفل الملف لسهولة التعديل.
  * 🌟 (مُحدّث): تصحيح واجهة المشاهدين (Spectator Mode) وإظهار عدادات المشاهدين والمراهنين.
  * 🌟 (مُحدّث): إدارة العداد التنازلي 10 ثواني (Countdown Overlay) وإخفاء نافذة الرهان للمراهنين مسبقاً.
+ * 🌟 (تم الإصلاح): حذف المستمعات المتكررة وتصحيح أحداث الصداقة مع السيرفر.
  */
 
 import { gameState } from './gameState.js'; 
@@ -316,7 +317,7 @@ export const socketManager = {
             'gameStart', 'opponentMove', 'opponentResigned', 'turnTimeout',
             'opponentDisconnected', 'opponentReconnected', 'playerDisconnected',
             'rematchOffer', 'rematchAccepted', 'error', 'receiveChallenge',
-            'challengeResponse', 'profileUpdated', 'friendAddedNotification',
+            'challengeResponse', 'friendAddedNotification',
             'friendAddSuccess', 'friendAddFailed', 'opponentLeftRoom', 'roomClosedByTimeout',
             'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState',
             'activeRoomsList', 'mic-request', 'mic-response', 'spectatorJoined', 'spectatorCountChanged',
@@ -1149,21 +1150,6 @@ export const socketManager = {
             }
         });
 
-        socket.on('profileUpdated', (updatedProfile) => {
-            if (!updatedProfile) return;
-            
-            if (gameState.userProfile && gameState.userProfile.id === updatedProfile.id) {
-                gameState.userProfile = { ...gameState.userProfile, ...updatedProfile };
-                localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
-                
-                if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
-                
-                if (typeof window.refreshProfileUIStyles === 'function') {
-                    setTimeout(() => window.refreshProfileUIStyles(), 150);
-                }
-            }
-        });
-
         socket.on('friendAddedNotification', (data) => {
             if (data) this._showToast(gameState.lang === 'ar' ? `قام اللاعب (${data.newFriendId}) بإضافتك!` : `Player (${data.newFriendId}) added you!`);
         });
@@ -1400,8 +1386,8 @@ export const socketManager = {
     sendAddFriend(friendId) {
         if (!friendId) return;
         const profile = this._ensureUserProfile();
-        const friendPayload = { requesterId: profile.id, targetId: friendId };
-        this._safeEmit('addFriend', friendPayload);
+        // 🌟 تم تعديل اسم الحدث إلى sendFriendReq ليتطابق مع السيرفر
+        this._safeEmit('sendFriendReq', { targetId: friendId });
     }
 };
 
