@@ -110,16 +110,29 @@ window.refreshProfileUIStyles = function() {
 
 window.addEventListener('load', () => { setTimeout(window.refreshProfileUIStyles, 500); });
 
+// ==========================================
+// 💡 إصلاح تسرب الذاكرة (Memory Leak Fix)
+// ==========================================
 const originalGetItem = localStorage.getItem;
+let cachedProfileStr = null;
+let cachedProfileParsed = null;
+
 localStorage.getItem = function(key) {
     let value = originalGetItem.call(this, key);
     if (key === 'hub_user_profile' && value) {
+        // العودة للذاكرة المؤقتة لمنع الإرهاق
+        if (value === cachedProfileStr && cachedProfileParsed !== null) {
+            return JSON.stringify(cachedProfileParsed);
+        }
+
         try {
             let profile = JSON.parse(value);
             if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
                 profile.avatar = '../' + profile.avatar;
-                return JSON.stringify(profile);
             }
+            cachedProfileStr = value;
+            cachedProfileParsed = profile;
+            return JSON.stringify(profile);
         } catch(e) {}
     }
     return value;
@@ -134,7 +147,11 @@ localStorage.setItem = function(key, value) {
                 profile.avatar = profile.avatar.replace('../', '');
                 value = JSON.stringify(profile);
             }
+            // تحديث الذاكرة المؤقتة لضمان التزامن
+            cachedProfileStr = value;
+            cachedProfileParsed = JSON.parse(value);
         } catch(e) {}
+        
         if(window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
         setTimeout(() => { if(typeof window.refreshProfileUIStyles === 'function') window.refreshProfileUIStyles(); }, 150);
     }
@@ -143,9 +160,15 @@ localStorage.setItem = function(key, value) {
 
 const originalRemoveItem = localStorage.removeItem;
 localStorage.removeItem = function(key) {
-    if (key === 'hub_user_profile') { if(window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*'); }
+    if (key === 'hub_user_profile') { 
+        if(window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*'); 
+        // تفريغ الذاكرة المؤقتة
+        cachedProfileStr = null;
+        cachedProfileParsed = null;
+    }
     originalRemoveItem.call(this, key);
 };
+// ==========================================
 
 window.sendFriendReqById = function() {
     const idInput = document.getElementById('add-friend-id-input');
@@ -317,24 +340,39 @@ const bgObserver = new MutationObserver(() => {
 });
 document.addEventListener('DOMContentLoaded', () => { if (document.body) bgObserver.observe(document.body, { attributes: true, attributeFilter: ['style'] }); });
 
+// ==========================================
+// 💡 تم إزالة مراقب التغيرات العشوائي وحل المشكلة
+// ==========================================
 (function() {
     let hidePingTimer = null;
+    
     function handleOfflineState() {
-        const radar = document.getElementById('mini-disconnect-radar'); if (radar) radar.style.setProperty('display', 'flex', 'important');
-        clearTimeout(hidePingTimer); hidePingTimer = setTimeout(() => { const pingEl = document.getElementById('real-ping-indicator'); if (pingEl) pingEl.style.opacity = '0'; }, 30000);
+        const radar = document.getElementById('mini-disconnect-radar'); 
+        if (radar) radar.style.setProperty('display', 'flex', 'important');
+        
+        clearTimeout(hidePingTimer); 
+        hidePingTimer = setTimeout(() => { 
+            const pingEl = document.getElementById('real-ping-indicator'); 
+            if (pingEl) pingEl.style.opacity = '0'; 
+        }, 30000);
     }
+    
     function handleOnlineState() {
-        const radar = document.getElementById('mini-disconnect-radar'); if (radar) radar.style.setProperty('display', 'none', 'important');
-        clearTimeout(hidePingTimer); const pingEl = document.getElementById('real-ping-indicator'); if (pingEl) pingEl.style.opacity = '0.95'; 
+        const radar = document.getElementById('mini-disconnect-radar'); 
+        if (radar) radar.style.setProperty('display', 'none', 'important');
+        
+        clearTimeout(hidePingTimer); 
+        const pingEl = document.getElementById('real-ping-indicator'); 
+        if (pingEl) pingEl.style.opacity = '0.95'; 
     }
+    
     window.addEventListener('offline', handleOfflineState);
     window.addEventListener('online', handleOnlineState);
-    window.addEventListener('load', () => { if (!navigator.onLine) handleOfflineState(); });
-    const observer = new MutationObserver(() => {
-        if (!navigator.onLine) { const radar = document.getElementById('mini-disconnect-radar'); if (radar && radar.style.display !== 'flex') radar.style.setProperty('display', 'flex', 'important'); }
+    window.addEventListener('load', () => { 
+        if (!navigator.onLine) handleOfflineState(); 
     });
-    document.addEventListener('DOMContentLoaded', () => { if (document.body) observer.observe(document.body, { childList: true, subtree: true }); });
 })();
+// ==========================================
 
 window.selectSpectatorBetColor = function(color) {
     document.getElementById('spectator-bet-color').value = color;
@@ -398,102 +436,132 @@ window.startSeasonCountdown = startSeasonCountdown;
 
 
 // ==========================================
-// 🛒 إدارة نافذة الشراء وقسائم الخصم المتعددة
+// 🛒 إدارة نافذة الشراء وقسائم الخصم المتعددة (المصدر الوحيد للحقيقة)
 // ==========================================
 window.openPurchaseModal = function(itemId, itemName, itemPrice, itemType) {
     document.getElementById('modal-item-name').innerText = itemName;
     const costEl = document.getElementById('modal-item-cost');
     costEl.innerText = `🪙 السعر: ${formatCompactNumber(itemPrice)}`;
     
-    const previewBox = document.getElementById('modal-item-preview');
-    if (previewBox) {
-        // يمكن تخصيص صورة العنصر هنا لاحقاً
-        previewBox.innerHTML = '<span style="font-size: 50px;">🛍️</span>';
+    const previewEl = document.getElementById('modal-item-preview');
+    if (previewEl) {
+        let itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null; 
+        if (!itemData && window.POPULARITY_ITEMS) {
+            const popItem = window.POPULARITY_ITEMS.find(p => p.id === itemId);
+            if (popItem) {
+                itemData = { isImage: true, imagePath: popItem.imagePath, isLegendary: false, type: 'popularity' };
+            }
+        }
+
+        previewEl.innerHTML = ''; 
+        previewEl.style.background = 'rgba(255,255,255,0.05)'; 
+        previewEl.style.backgroundImage = 'none';
+        
+        if(itemData) {
+            previewEl.style.border = itemData.isLegendary ? '1px solid #ffd700' : '1px solid rgba(255,255,255,0.1)'; 
+            previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
+            if (itemData.isImage) { 
+                let imgUrl = itemData.imagePath || itemData.imagePathWhite || ''; 
+                previewEl.style.backgroundImage = `url('${imgUrl}')`; 
+                previewEl.style.backgroundSize = 'contain'; 
+                previewEl.style.backgroundRepeat = 'no-repeat';
+                previewEl.style.backgroundPosition = 'center'; 
+            } else if(itemType === 'pc') { 
+                previewEl.innerHTML = itemData.icon || '💎'; 
+            } else if(itemType === 'score') { 
+                previewEl.innerHTML = `<div style="width: 80%; height: 35px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2);"><div style="flex: 1; background: ${itemData.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div><div style="flex: 1; background: ${itemData.scoreBg1};"></div></div>`; 
+            } else if(itemType === 'bg' || itemType === 'fr') { 
+                if (itemData.cssLight && itemData.cssDark) { 
+                    previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`; 
+                } else if (itemData.cssBoard) { 
+                    previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`; 
+                } else { 
+                    previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`; 
+                } 
+            }
+        } else { 
+            previewEl.innerHTML = '🎁'; 
+            previewEl.className = 'purchase-preview-box'; 
+        }
     }
 
     window.currentPurchaseItem = { id: itemId, price: itemPrice, type: itemType };
     
-    const profile = JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    let profileStr = localStorage.getItem('hub_user_profile');
+    const profile = profileStr ? JSON.parse(profileStr) : {};
     const discountContainer = document.getElementById('discount-selector-container');
     const discountSelect = document.getElementById('discount-ticket-select');
     
-    // 🌟 تجهيز مصفوفة الخصومات المتوفرة لدى اللاعب 🌟
     let availableTickets = [];
     
-    // دعم النظام الجديد (مصفوفة من الكائنات أو الأرقام)
     if (Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
         availableTickets = profile.discountTickets.map(t => typeof t === 'object' ? t.rate : t).filter(r => r > 0);
     } 
-    // دعم النظام القديم (قيمة مفردة) لتفادي الأخطاء
     else if (profile.discountTicket && profile.discountTicket > 0) {
         availableTickets = [profile.discountTicket];
     }
 
-    // إظهار صندوق الخصومات فقط إذا كان السعر أكبر من 0 ولديه تذاكر وليس العنصر هدية شعبية
-    if (availableTickets.length > 0 && itemPrice > 0 && itemType !== 'popularity') {
-        discountContainer.style.display = 'flex';
-        discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
-        
-        // ترتيب التذاكر من الأعلى إلى الأقل
-        availableTickets.sort((a, b) => b - a);
-        
-        availableTickets.forEach((rate) => {
-            let opt = document.createElement('option');
-            opt.value = rate;
-            opt.innerText = `خصم ${rate}% 🎫`;
-            discountSelect.appendChild(opt);
-        });
+    if (discountContainer && discountSelect) {
+        if (availableTickets.length > 0 && itemPrice > 0 && itemType !== 'popularity') {
+            discountContainer.style.display = 'flex';
+            discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
+            
+            availableTickets.sort((a, b) => b - a);
+            
+            availableTickets.forEach((rate) => {
+                let opt = document.createElement('option');
+                opt.value = rate;
+                opt.innerText = `خصم ${rate}% 🎫`;
+                discountSelect.appendChild(opt);
+            });
 
-        // حدث عند تغيير القائمة لتحديث السعر فوراً
-        discountSelect.onchange = function() {
-            let selectedRate = parseInt(this.value) || 0;
-            if (selectedRate > 0) {
-                let discountedPrice = Math.floor(itemPrice * (1 - (selectedRate / 100)));
-                costEl.innerHTML = `🪙 السعر: <span style="text-decoration: line-through; color: #a1a1aa; font-size: 15px;">${formatCompactNumber(itemPrice)}</span> <span style="color: #30d158; margin-right: 5px;">${formatCompactNumber(discountedPrice)}</span>`;
-            } else {
-                costEl.innerText = `🪙 السعر: ${formatCompactNumber(itemPrice)}`;
-            }
-        };
-        
-        // إعادة التعيين للافتراضي (بدون خصم)
-        discountSelect.value = "0";
-        discountSelect.dispatchEvent(new Event('change'));
-    } else {
-        discountContainer.style.display = 'none';
+            discountSelect.onchange = function() {
+                let selectedRate = parseInt(this.value) || 0;
+                if (selectedRate > 0) {
+                    let discountedPrice = Math.floor(itemPrice * (1 - (selectedRate / 100)));
+                    costEl.innerHTML = `🪙 السعر: <span style="text-decoration: line-through; color: #a1a1aa; font-size: 15px;">${formatCompactNumber(itemPrice)}</span> <span style="color: #30d158; margin-right: 5px;">${formatCompactNumber(discountedPrice)}</span>`;
+                } else {
+                    costEl.innerText = `🪙 السعر: ${formatCompactNumber(itemPrice)}`;
+                }
+            };
+            
+            discountSelect.value = "0";
+            discountSelect.dispatchEvent(new Event('change'));
+        } else {
+            discountContainer.style.display = 'none';
+        }
     }
 
     const buyBtn = document.getElementById('confirm-buy-btn');
-    buyBtn.innerText = "شراء الآن";
-    buyBtn.disabled = false;
-
-    window.openAppModal('purchase-modal');
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    const confirmBtn = document.getElementById('confirm-buy-btn');
-    if (confirmBtn) {
-        confirmBtn.addEventListener('click', () => {
+    if (buyBtn) {
+        buyBtn.innerText = "شراء الآن";
+        buyBtn.disabled = false;
+        
+        buyBtn.onclick = () => {
             if (!window.currentPurchaseItem) return;
             
             let selectedDiscountRate = 0;
-            const discountSelect = document.getElementById('discount-ticket-select');
-            
-            // قراءة الخصم المختار من القائمة (فقط إذا كانت القائمة ظاهرة)
-            if (discountSelect && document.getElementById('discount-selector-container').style.display !== 'none') {
+            if (discountSelect && discountContainer && discountContainer.style.display !== 'none') {
                 selectedDiscountRate = parseInt(discountSelect.value) || 0;
             }
             
-            confirmBtn.innerText = "جاري الشراء...";
-            confirmBtn.disabled = true;
+            buyBtn.innerText = "جاري الشراء...";
+            buyBtn.disabled = true;
 
             if (window.socket && window.socket.connected) {
                 window.socket.emit('requestPurchase', { 
                     itemId: window.currentPurchaseItem.id,
                     appliedDiscountRate: selectedDiscountRate 
                 });
+            } else if (window.storeManager) {
+                window.storeManager.buyItem(window.currentPurchaseItem.id, window.currentPurchaseItem.type);
             }
             
-            setTimeout(() => { window.closeAppModal('purchase-modal'); }, 500);
-        });
+            setTimeout(() => { 
+                if (typeof window.closeAppModal === 'function') window.closeAppModal('purchase-modal'); 
+            }, 500);
+        };
     }
-});
+
+    if (typeof window.openAppModal === 'function') window.openAppModal('purchase-modal');
+};
