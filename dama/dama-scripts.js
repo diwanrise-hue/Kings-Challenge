@@ -336,6 +336,15 @@ document.addEventListener('DOMContentLoaded', () => { if (document.body) bgObser
     document.addEventListener('DOMContentLoaded', () => { if (document.body) observer.observe(document.body, { childList: true, subtree: true }); });
 })();
 
+window.selectSpectatorBetColor = function(color) {
+    document.getElementById('spectator-bet-color').value = color;
+    if (color === 'white') {
+        document.getElementById('bet-p1-card').style.border = '2px solid #34c759'; document.getElementById('bet-p2-card').style.border = '2px solid transparent';
+    } else {
+        document.getElementById('bet-p2-card').style.border = '2px solid #34c759'; document.getElementById('bet-p1-card').style.border = '2px solid transparent';
+    }
+};
+
 window.openRadioModal = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'OPEN_RADIO_MODAL' }, '*'); };
 window.exitDamaGame = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); };
 window.openBetSelectorForEdit = function() { window.isEditingBet = true; if (typeof window.openAppModal === 'function') window.openAppModal('bet-selector-modal'); };
@@ -386,3 +395,105 @@ document.addEventListener('DOMContentLoaded', () => {
     startSeasonCountdown();
 });
 window.startSeasonCountdown = startSeasonCountdown;
+
+
+// ==========================================
+// 🛒 إدارة نافذة الشراء وقسائم الخصم المتعددة
+// ==========================================
+window.openPurchaseModal = function(itemId, itemName, itemPrice, itemType) {
+    document.getElementById('modal-item-name').innerText = itemName;
+    const costEl = document.getElementById('modal-item-cost');
+    costEl.innerText = `🪙 السعر: ${formatCompactNumber(itemPrice)}`;
+    
+    const previewBox = document.getElementById('modal-item-preview');
+    if (previewBox) {
+        // يمكن تخصيص صورة العنصر هنا لاحقاً
+        previewBox.innerHTML = '<span style="font-size: 50px;">🛍️</span>';
+    }
+
+    window.currentPurchaseItem = { id: itemId, price: itemPrice, type: itemType };
+    
+    const profile = JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    const discountContainer = document.getElementById('discount-selector-container');
+    const discountSelect = document.getElementById('discount-ticket-select');
+    
+    // 🌟 تجهيز مصفوفة الخصومات المتوفرة لدى اللاعب 🌟
+    let availableTickets = [];
+    
+    // دعم النظام الجديد (مصفوفة من الكائنات أو الأرقام)
+    if (Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
+        availableTickets = profile.discountTickets.map(t => typeof t === 'object' ? t.rate : t).filter(r => r > 0);
+    } 
+    // دعم النظام القديم (قيمة مفردة) لتفادي الأخطاء
+    else if (profile.discountTicket && profile.discountTicket > 0) {
+        availableTickets = [profile.discountTicket];
+    }
+
+    // إظهار صندوق الخصومات فقط إذا كان السعر أكبر من 0 ولديه تذاكر وليس العنصر هدية شعبية
+    if (availableTickets.length > 0 && itemPrice > 0 && itemType !== 'popularity') {
+        discountContainer.style.display = 'flex';
+        discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
+        
+        // ترتيب التذاكر من الأعلى إلى الأقل
+        availableTickets.sort((a, b) => b - a);
+        
+        availableTickets.forEach((rate) => {
+            let opt = document.createElement('option');
+            opt.value = rate;
+            opt.innerText = `خصم ${rate}% 🎫`;
+            discountSelect.appendChild(opt);
+        });
+
+        // حدث عند تغيير القائمة لتحديث السعر فوراً
+        discountSelect.onchange = function() {
+            let selectedRate = parseInt(this.value) || 0;
+            if (selectedRate > 0) {
+                let discountedPrice = Math.floor(itemPrice * (1 - (selectedRate / 100)));
+                costEl.innerHTML = `🪙 السعر: <span style="text-decoration: line-through; color: #a1a1aa; font-size: 15px;">${formatCompactNumber(itemPrice)}</span> <span style="color: #30d158; margin-right: 5px;">${formatCompactNumber(discountedPrice)}</span>`;
+            } else {
+                costEl.innerText = `🪙 السعر: ${formatCompactNumber(itemPrice)}`;
+            }
+        };
+        
+        // إعادة التعيين للافتراضي (بدون خصم)
+        discountSelect.value = "0";
+        discountSelect.dispatchEvent(new Event('change'));
+    } else {
+        discountContainer.style.display = 'none';
+    }
+
+    const buyBtn = document.getElementById('confirm-buy-btn');
+    buyBtn.innerText = "شراء الآن";
+    buyBtn.disabled = false;
+
+    window.openAppModal('purchase-modal');
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const confirmBtn = document.getElementById('confirm-buy-btn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', () => {
+            if (!window.currentPurchaseItem) return;
+            
+            let selectedDiscountRate = 0;
+            const discountSelect = document.getElementById('discount-ticket-select');
+            
+            // قراءة الخصم المختار من القائمة (فقط إذا كانت القائمة ظاهرة)
+            if (discountSelect && document.getElementById('discount-selector-container').style.display !== 'none') {
+                selectedDiscountRate = parseInt(discountSelect.value) || 0;
+            }
+            
+            confirmBtn.innerText = "جاري الشراء...";
+            confirmBtn.disabled = true;
+
+            if (window.socket && window.socket.connected) {
+                window.socket.emit('requestPurchase', { 
+                    itemId: window.currentPurchaseItem.id,
+                    appliedDiscountRate: selectedDiscountRate 
+                });
+            }
+            
+            setTimeout(() => { window.closeAppModal('purchase-modal'); }, 500);
+        });
+    }
+});
