@@ -518,6 +518,35 @@
 
         .bag-game-content { display: none; height: 100%; }
         .bag-game-content.active { display: flex; flex-direction: column; animation: fadeIn 0.3s ease-out; }
+
+        /* 👑 إشعار الدخول الملكي للـ VIP 👑 */
+        .royal-entrance-banner {
+            position: fixed;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            padding: 12px 40px;
+            font-size: 16px;
+            font-weight: 800;
+            text-shadow: 0 2px 4px black;
+            z-index: 9999999;
+            animation: royalSlide 4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            white-space: nowrap;
+            border-radius: 50px;
+        }
+        @keyframes royalSlide {
+            0% { opacity: 0; transform: translate(-50%, -40px) scale(0.8); }
+            10% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+            20% { transform: translate(-50%, 0) scale(1); }
+            85% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -40px); }
+        }
     </style>
 </head>
 <body>
