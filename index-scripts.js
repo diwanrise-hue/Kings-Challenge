@@ -346,8 +346,8 @@ window.getSafeProfile = function() {
         equippedFr: 'fr_classic',
         equippedPc: 'pc_original',
         popularity: 0,
-        vipLevel: 0,   // مستوى الـ VIP الافتراضي
-        vipPoints: 0   // نقاط الـ VIP الافتراضية
+        vipLevel: 0,   
+        vipPoints: 0   
     };
 
     try {
@@ -391,6 +391,38 @@ socket.on('profileUpdated', (updatedProfile) => {
     }
 });
 
+// 👑 استقبال إشعار الدخول الملكي للـ VIP
+socket.on('royalEntrance', (data) => {
+    // منع تكرار الإشعار إذا كان موجوداً
+    if(document.getElementById('vip-entrance-banner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'vip-entrance-banner';
+    banner.className = 'royal-entrance-banner';
+    
+    let roleMsg = data.type === 'spectator' ? 'لمشاهدة المباراة 🍿' : 'إلى الساحة ⚔️';
+    
+    // تصميم مختلف حسب مستوى الـ VIP
+    let badge = data.vipLevel >= 4 ? '💎' : '👑';
+    let color = data.vipLevel >= 4 ? 'rgba(0, 210, 255, 0.8)' : 'rgba(212, 175, 55, 0.8)';
+    let glow = data.vipLevel >= 4 ? 'rgba(0, 210, 255, 0.6)' : 'rgba(255, 215, 0, 0.6)';
+    
+    banner.style.background = `linear-gradient(90deg, transparent, ${color}, transparent)`;
+    banner.style.boxShadow = `0 10px 30px rgba(0,0,0,0.5), 0 0 20px ${glow}`;
+    
+    banner.innerHTML = `
+        <span style="font-size: 26px; filter: drop-shadow(0 0 5px white);">${badge}</span> 
+        دخل الـ VIP <span style="color:#fff; font-weight:900; margin:0 5px; text-shadow: 0 0 5px white;">${data.name}</span> ${roleMsg}
+    `;
+    
+    document.body.appendChild(banner);
+    
+    // إزالة الإشعار بعد 4 ثوانٍ
+    setTimeout(() => {
+        if(banner && banner.parentNode) banner.parentNode.removeChild(banner);
+    }, 4000);
+});
+
 socket.on('auth_failed', (data) => {
     const msg = safeParseAuthMessage(data.message);
     showCustomPopup(data.message);
@@ -398,7 +430,13 @@ socket.on('auth_failed', (data) => {
 
 socket.on('purchaseSuccess', (msg) => {
     document.getElementById('custom-popup-modal').style.display = 'none';
-    showCustomPopup(msg || "تمت عملية الشراء بنجاح!");
+    if(typeof msg === 'string') {
+        showCustomPopup(msg);
+    } else if(msg && msg.message) {
+        showCustomPopup(msg.message);
+    } else {
+        showCustomPopup("تمت عملية الشراء بنجاح!");
+    }
     
     if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
         window.storeManager.renderUI();
@@ -704,7 +742,16 @@ window.syncHubProfile = function() {
     
     if (document.getElementById('profile-stat-tokens-store')) document.getElementById('profile-stat-tokens-store').innerText = tokenVal;
     
-    if (document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = profile.name;
+    // 👑 تمييز الاسم باللون الذهبي للـ VIP في الملف الشخصي
+    const nameEl = document.getElementById('profile-display-name');
+    if (nameEl) {
+        if (profile.vipLevel > 0) {
+            nameEl.innerHTML = `<span style="color:#ffd700; text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);">👑 ${profile.name}</span>`;
+        } else {
+            nameEl.innerText = profile.name;
+        }
+    }
+    
     if (document.getElementById('profile-display-id')) document.getElementById('profile-display-id').innerText = profile.id;
     
     let finalAvatarSrc = profile.avatar || 'Photo/1000132081.webp';
@@ -716,26 +763,20 @@ window.syncHubProfile = function() {
 
     const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
 
-    // 🌟 التعديل الخاص بوضع إطار Profile1.webp للصورة الشخصية
     const frameUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile1.webp";
 
     const renderAvatarLocal = (elementId) => {
         const el = document.getElementById(elementId);
         if (el) {
-            // إزالة القص والحدود الافتراضية حتى يظهر الإطار بالكامل للخارج
             el.style.overflow = 'visible';
             el.style.border = 'none';
             el.style.background = 'transparent';
             
-            // ضبط مقاس الإطار ليكون أكبر من الصورة (145% للواجهة الرئيسية، 130% لنافذة البروفايل)
             const frameScale = elementId === 'hub-profile-avatar' ? '145%' : '130%';
 
             el.innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                    <!-- الصورة الشخصية -->
                     <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
-                    
-                    <!-- الإطار الملكي -->
                     <img src="${frameUrl}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
                 </div>
             `;
