@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث: إضافة تبويب "إطار شخصي" إلى المتجر الرئيسي
+ * 🌟 التحديث: إضافة زر التعجب (!) وباقة 39.99$ والتصميم الشبكي 2x2
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     background: #060907 !important; 
                     padding: 4px !important; 
                     border-radius: 40px !important; 
-                    border: 1px solid #b38d36 !important; 
+                    border: 1px solid var(--accent) !important; 
                     width: 95%; max-width: 450px; 
                     box-shadow: 0 5px 15px rgba(0,0,0,0.6) !important;
                     z-index: 10; 
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     top: 15%; 
                     height: 70%; 
                     width: 1px;
-                    background-color: #b38d36;
+                    background-color: var(--accent);
                     opacity: 0.6;
                     pointer-events: none;
                 }
@@ -68,12 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-tab-btn.active { 
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: white !important; 
-                    border: 1px solid #ffd700 !important; 
+                    border: 1px solid var(--accent) !important; 
                     box-shadow: 
                         inset 0 2px 1px rgba(255, 255, 255, 0.5), 
                         inset 0 -4px 10px rgba(0, 0, 0, 0.9),     
                         0 4px 10px rgba(0, 0, 0, 0.8),            
-                        0 0 8px rgba(255, 215, 0, 0.2) !important; 
+                        0 0 8px rgba(197, 155, 66, 0.2) !important; 
                     border-radius: 40px !important;
                     text-shadow: 0 1px 3px rgba(0,0,0,0.9);
                     z-index: 5;
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .store-side-tab-btn.active {
                     background: #0b120d !important; 
                     color: #fff !important; 
-                    border: 1px solid #b38d36 !important; 
+                    border: 1px solid var(--accent) !important; 
                     border-left: 1px solid #0b120d !important; 
                     box-shadow: 4px 0 10px rgba(0,0,0,0.3) !important;
                     z-index: 5;
@@ -139,12 +139,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     position: absolute;
                     top: 6px; bottom: 6px; left: 4px; right: 6px; 
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-                    border: 1px solid #ffd700 !important; 
+                    border: 1px solid var(--accent) !important; 
                     border-radius: 8px !important;
                     box-shadow: 
                         inset 0 2px 1px rgba(255, 255, 255, 0.5), 
                         inset 0 -4px 10px rgba(0, 0, 0, 0.9), 
-                        0 0 8px rgba(255, 215, 0, 0.2) !important;
+                        0 0 8px rgba(197, 155, 66, 0.2) !important;
                     z-index: 0;
                     pointer-events: none;
                     display: none; 
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     z-index: 2;
                     text-shadow: 0 1px 3px rgba(0,0,0,0.9);
                 }
-                .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1) drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
+                .store-side-tab-btn.active span.emoji-icon { filter: grayscale(0%) opacity(1) drop-shadow(0 0 5px rgba(197, 155, 66, 0.6)); }
 
                 /* ======================================================== */
                 /* 🌟 الصندوق الأيسر الكبير 🌟 */
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     margin-top: 0 !important; 
                     padding: 12px 6px; 
                     background: #0b120d !important; 
-                    border: 1px solid #b38d36 !important; 
+                    border: 1px solid var(--accent) !important; 
                     border-radius: 18px 0 18px 18px !important; 
                     box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
                     display: flex; flex-direction: column; 
@@ -204,12 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 .dama-cat-btn.active { 
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: white !important; 
-                    border: 1px solid #ffd700 !important; 
+                    border: 1px solid var(--accent) !important; 
                     box-shadow: 
                         inset 0 2px 1px rgba(255, 255, 255, 0.5), 
                         inset 0 -4px 10px rgba(0, 0, 0, 0.9),     
                         0 4px 10px rgba(0, 0, 0, 0.8),            
-                        0 0 8px rgba(255, 215, 0, 0.2) !important;
+                        0 0 8px rgba(197, 155, 66, 0.2) !important;
                     text-shadow: 0 1px 3px rgba(0,0,0,0.9);
                     z-index: 5;
                 }
@@ -222,14 +222,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     padding-bottom: 15px; 
                 }
                 .store-scrollable-area::-webkit-scrollbar { width: 3px; }
-                .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(179, 141, 54, 0.5); border-radius: 10px; }
+                .store-scrollable-area::-webkit-scrollbar-thumb { background: rgba(197, 155, 66, 0.5); border-radius: 10px; }
                 
                 /* 🌟 حاوية القسم الواحد */
                 .category-section-container {
                     display: none; 
                     flex-direction: column;
                     background: rgba(255, 255, 255, 0.02); 
-                    border: 1px solid rgba(179, 141, 54, 0.3); 
+                    border: 1px solid rgba(197, 155, 66, 0.3); 
                     border-radius: 12px;
                     padding: 6px; 
                     margin-bottom: 10px;
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 .store-item-card { 
                     background: #080d09 !important; 
-                    border: 1px solid rgba(166, 131, 49, 0.4) !important; 
+                    border: 1px solid rgba(197, 155, 66, 0.4) !important; 
                     border-radius: 10px !important; 
                     padding: 8px 4px !important; 
                     display: flex !important; flex-direction: column !important; align-items: center !important; gap: 5px !important; 
@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div id="store-profile-frames-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; padding: 12px; display: flex; flex-direction: column;">
                     <div style="text-align: center; margin-bottom: 12px; flex-shrink: 0;">
-                        <span style="font-size: 20px; filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));">🖼️</span>
+                        <span style="font-size: 20px; filter: drop-shadow(0 0 5px rgba(197, 155, 66, 0.5));">🖼️</span>
                         <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;">إطارات شخصية</span>
                     </div>
                     <div class="store-scrollable-area" style="padding-top: 0; flex: 1;">
@@ -397,59 +397,71 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- 🌟 حاوية محتوى الشحن و VIP بالمال الحقيقي 🌟 -->
             <div id="store-topup-content" class="store-tab-content">
-                <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; display: flex; flex-direction: column; padding: 15px; border-color: rgba(245,166,35,0.4) !important; overflow-y: auto;">
+                <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; display: flex; flex-direction: column; padding: 15px; border-color: var(--accent) !important; overflow-y: auto;">
                     
                     <!-- 🌟 بطاقة تقدم الـ VIP (VIP Progress Card) 🌟 -->
-                    <div style="background: linear-gradient(135deg, rgba(27, 94, 32, 0.4), rgba(8, 33, 11, 0.9)); border: 1px solid #ffd700; border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                    <div style="background: linear-gradient(135deg, rgba(27, 94, 32, 0.4), rgba(8, 33, 11, 0.9)); border: 1px solid var(--accent); border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <span id="current-vip-badge" style="color: #ffd700; font-size: 18px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">VIP 0</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button onclick="window.openAppModal('vip-info-modal')" style="background: transparent; border: 1px solid var(--accent); color: var(--accent); width: 22px; height: 22px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; cursor: pointer; font-size: 12px; padding: 0;">!</button>
+                                <span id="current-vip-badge" style="color: var(--accent); font-size: 18px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">VIP 0</span>
+                            </div>
                             <span id="next-vip-badge" style="color: white; font-size: 14px; font-weight: bold;">VIP 1</span>
                         </div>
                         
                         <!-- شريط التقدم -->
-                        <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid rgba(255,215,0,0.3);">
-                            <div id="vip-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #f5a623, #ffd700); box-shadow: 0 0 8px rgba(255,215,0,0.6); transition: width 0.5s ease;"></div>
+                        <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.6); border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid rgba(197, 155, 66, 0.3);">
+                            <div id="vip-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #8b5a2b, var(--accent)); box-shadow: 0 0 8px rgba(197, 155, 66, 0.6); transition: width 0.5s ease;"></div>
                         </div>
                         
                         <div style="text-align: center; color: var(--text-secondary); font-size: 11px;">
-                            اشحن بـ <span id="vip-remaining-amount" style="color: #00d2ff; font-weight: bold;">$5</span> للوصول إلى المستوى القادم
+                            اشحن بـ <span id="vip-remaining-amount" style="color: #00d2ff; font-weight: bold;">$5.00</span> للوصول إلى المستوى القادم
                         </div>
                     </div>
 
                     <h4 style="color: white; font-size: 16px; margin-bottom: 15px; text-align: center;">باقات العملات (Tokens)</h4>
                     
-                    <!-- 🌟 شبكة باقات الشحن بالمال الحقيقي عبر Google Play 🌟 -->
-                    <div class="store-items-grid">
+                    <!-- 🌟 شبكة باقات الشحن بالمال الحقيقي عبر Google Play (2x2 Grid) 🌟 -->
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
                         
                         <!-- باقة 1 -->
-                        <div class="store-item-card" style="border-color: rgba(255,255,255,0.1) !important;">
-                            <span style="font-size: 30px; margin: 5px 0;">🪙</span>
-                            <span style="color: #fff; font-size: 14px; font-weight: bold;">5,000</span>
-                            <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 5px;">+ 99 نقطة VIP</span>
-                            <!-- استدعاء دالة الشراء التي ترتبط بـ index-scripts.js ومنه لجوجل بلاي -->
-                            <button class="store-buy-btn-small" style="background: #2a2a35 !important; border-color: #444 !important; color: #00d2ff !important;" onclick="purchaseRealMoney('package_099', 0.99)">
+                        <div class="store-item-card" style="border-color: rgba(255,255,255,0.1) !important; padding: 15px 10px !important;">
+                            <span style="font-size: 35px; margin: 5px 0;">🪙</span>
+                            <span style="color: #fff; font-size: 16px; font-weight: bold;">5,000</span>
+                            <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 10px;">+ 99 نقطة VIP</span>
+                            <button class="store-buy-btn-small" style="background: rgba(255,255,255,0.05) !important; border-color: rgba(0, 210, 255, 0.3) !important; color: #00d2ff !important; height: 32px !important; font-size: 13px !important;" onclick="purchaseRealMoney('package_099', 0.99)">
                                 $0.99
                             </button>
                         </div>
 
                         <!-- باقة 2 -->
-                        <div class="store-item-card" style="border-color: rgba(255,215,0,0.3) !important; background: linear-gradient(to bottom, rgba(255,215,0,0.05), transparent) !important;">
+                        <div class="store-item-card" style="border-color: rgba(197, 155, 66, 0.3) !important; background: linear-gradient(to bottom, rgba(197, 155, 66, 0.05), transparent) !important; padding: 15px 10px !important;">
                             <span style="font-size: 35px; margin: 5px 0;">💰</span>
-                            <span style="color: #ffd700; font-size: 15px; font-weight: bold;">25,000</span>
-                            <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 5px;">+ 499 نقطة VIP</span>
-                            <button class="store-buy-btn-small" style="background: #1b5e20 !important; border-color: #ffd700 !important; color: #ffd700 !important;" onclick="purchaseRealMoney('package_499', 4.99)">
+                            <span style="color: var(--accent); font-size: 16px; font-weight: bold;">25,000</span>
+                            <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 10px;">+ 499 نقطة VIP</span>
+                            <button class="store-buy-btn-small" style="background: rgba(197, 155, 66, 0.1) !important; border-color: var(--accent) !important; color: var(--accent) !important; height: 32px !important; font-size: 13px !important;" onclick="purchaseRealMoney('package_499', 4.99)">
                                 $4.99
                             </button>
                         </div>
 
-                        <!-- باقة 3 (الأسطورية) -->
-                        <div class="store-item-card" style="border-color: #ff453a !important; background: linear-gradient(to bottom, rgba(255,69,58,0.05), transparent) !important; position: relative;">
-                            <div style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #ff453a; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: bold;">الأكثر مبيعاً</div>
-                            <span style="font-size: 40px; margin: 5px 0; filter: drop-shadow(0 0 5px rgba(255,69,58,0.5));">💎</span>
-                            <span style="color: #ff453a; font-size: 15px; font-weight: bold;">100,000</span>
-                            <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 5px;">+ 1999 نقطة VIP</span>
-                            <button class="store-buy-btn-small" style="background: #3a0e0c !important; border-color: #ff453a !important; color: #ff453a !important;" onclick="purchaseRealMoney('package_1999', 19.99)">
+                        <!-- باقة 3 (الأكثر مبيعاً) -->
+                        <div class="store-item-card" style="border-color: #ff453a !important; background: linear-gradient(to bottom, rgba(255,69,58,0.05), transparent) !important; position: relative; padding: 15px 10px !important;">
+                            <div style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #ff453a; color: white; font-size: 9px; padding: 2px 8px; border-radius: 10px; font-weight: bold; white-space: nowrap;">الأكثر مبيعاً</div>
+                            <span style="font-size: 35px; margin: 5px 0; filter: drop-shadow(0 0 5px rgba(255,69,58,0.5));">💎</span>
+                            <span style="color: #ff453a; font-size: 16px; font-weight: bold;">100,000</span>
+                            <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 10px;">+ 1999 نقطة VIP</span>
+                            <button class="store-buy-btn-small" style="background: rgba(255, 69, 58, 0.1) !important; border-color: #ff453a !important; color: #ff453a !important; height: 32px !important; font-size: 13px !important;" onclick="purchaseRealMoney('package_1999', 19.99)">
                                 $19.99
+                            </button>
+                        </div>
+                        
+                        <!-- 👑 الباقة 4: $39.99 (الجديدة) -->
+                        <div class="store-item-card" style="border-color: var(--accent) !important; background: linear-gradient(135deg, rgba(197,155,66,0.1) 0%, transparent 100%) !important; position: relative; box-shadow: inset 0 0 15px rgba(197,155,66,0.1) !important; padding: 15px 10px !important;">
+                            <span style="font-size: 35px; margin: 5px 0; filter: drop-shadow(0 0 5px rgba(197,155,66,0.5));">👑</span>
+                            <span style="color: var(--accent); font-size: 16px; font-weight: bold; text-shadow: 0 0 5px rgba(197,155,66,0.5);">220,000</span>
+                            <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 10px;">+ 3999 نقطة VIP</span>
+                            <button class="store-buy-btn-small" style="background: linear-gradient(to right, rgba(197,155,66,0.3), rgba(197,155,66,0.1)) !important; border-color: var(--accent) !important; color: var(--accent) !important; height: 32px !important; font-size: 13px !important;" onclick="purchaseRealMoney('package_3999', 39.99)">
+                                $39.99
                             </button>
                         </div>
 
