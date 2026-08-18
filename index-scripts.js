@@ -54,7 +54,35 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     const previewEl = document.getElementById('modal-item-preview');
     
     if(nameEl) nameEl.innerText = itemName;
-    if(costEl) costEl.innerText = price; 
+    
+    // 👑 حساب وإظهار خصم الـ VIP التلقائي في واجهة الشراء
+    if(costEl) {
+        const profile = getSafeProfile();
+        let vipLevel = profile.vipLevel || 0;
+        let passiveDiscount = 0;
+        
+        if (vipLevel === 3) passiveDiscount = 5;       
+        else if (vipLevel === 4) passiveDiscount = 10; 
+        else if (vipLevel >= 5) passiveDiscount = 15;  
+        
+        let finalPrice = price;
+        let priceHtml = '';
+        
+        // الخصم التلقائي لا يطبق على الشعبية أو العناصر المجانية
+        if (passiveDiscount > 0 && price > 0 && itemType !== 'popularity') {
+            finalPrice = Math.floor(price * (1 - (passiveDiscount / 100)));
+            priceHtml = `
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <span style="font-size:14px; text-decoration:line-through; color:var(--text-secondary);">${formatCompactNumber(price)}</span>
+                    <span style="color:#34c759;">${formatCompactNumber(finalPrice)} <span style="font-size:12px;">(خصم VIP ${passiveDiscount}%)</span></span>
+                </div>
+            `;
+        } else {
+            priceHtml = formatCompactNumber(price);
+        }
+        
+        costEl.innerHTML = priceHtml; 
+    }
     
     // جلب الأيقونة أو الصورة لتلائم التصميم الجديد
     if (previewEl) {
@@ -114,8 +142,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (typeof socket !== 'undefined' && socket.connected) {
                 showLoadingPopup("جاري معالجة الشراء...");
+                
+                // 💡 التعديل هنا: إرسال guestId بدلاً من userId ليتوافق مع السيرفر الثانوي والمتجر
                 socket.emit('requestPurchase', { 
-                    userId: profile.id, 
+                    guestId: profile.id, 
+                    userId: profile.id,
                     itemId: currentPurchaseItem.id 
                 });
             } else {
@@ -328,7 +359,6 @@ socket.on('connect', () => {
     }
 });
 
-// 🌟 تم تحديث الدالة لتدعم نظام الـ VIP
 window.getSafeProfile = function() {
     const guestName = (typeof translations !== 'undefined') ? translations[currentLang].guest_name : "Guest_";
     const defaultProfile = {
@@ -417,7 +447,6 @@ socket.on('royalEntrance', (data) => {
     
     document.body.appendChild(banner);
     
-    // إزالة الإشعار بعد 4 ثوانٍ
     setTimeout(() => {
         if(banner && banner.parentNode) banner.parentNode.removeChild(banner);
     }, 4000);
@@ -1172,10 +1201,10 @@ window.updateVipProgressBarUI = function() {
     let currentVip = profile.vipLevel || 0;
     let currentPoints = profile.vipPoints || 0;
     
-    // حساب النقاط المطلوبة لكل مستوى (كمثال بسيط: 500 للمستوى 1، 2000 للمستوى 2، إلخ)
+    // حساب النقاط المطلوبة لكل مستوى
     const vipThresholds = [0, 500, 2000, 10000, 50000, 100000]; 
     let nextVip = currentVip + 1;
-    if (nextVip >= vipThresholds.length) nextVip = vipThresholds.length - 1; // الحد الأقصى
+    if (nextVip >= vipThresholds.length) nextVip = vipThresholds.length - 1; 
     
     let requiredPoints = vipThresholds[nextVip];
     let prevRequiredPoints = vipThresholds[currentVip];
@@ -1203,7 +1232,6 @@ window.updateVipProgressBarUI = function() {
             remainingEl.innerText = "لقد وصلت إلى أقصى مستوى VIP!";
             remainingEl.style.color = "#ffd700";
         } else {
-            // كل 100 نقطة تمثل 1 دولار تقريباً في اقتصادنا الافتراضي
             let remainingPoints = requiredPoints - currentPoints;
             let remainingDollars = (remainingPoints / 100).toFixed(2);
             remainingEl.innerText = `$${remainingDollars}`;
