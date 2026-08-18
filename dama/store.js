@@ -1,5 +1,5 @@
 // ==========================================
-// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (إصلاح زر الشراء وخصومات الـ VIP)
+// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (إصلاح خطأ نافذة الشراء وخصومات الـ VIP)
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -1150,37 +1150,35 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     
     if(nameEl) nameEl.innerText = itemName;
 
-    // إعادة تعيين الخصومات
-    if(discountSelect) {
+    // 💡 الإصلاح هنا: تخطي تحديث القسائم إذا لم يكن الحقل موجوداً في الـ HTML لمنع خطأ TypeError
+    if(discountSelect && discountContainer) {
         discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
         discountSelect.value = "0";
-    }
-    if(discountContainer) discountContainer.style.display = 'none';
+        discountContainer.style.display = 'none';
 
-    // إظهار القسائم إذا لم يكن عنصر استهلاكي
-    if (itemType !== 'popularity' && itemType !== 'consumable') {
-        let hasTickets = false;
-        if (profile.discountTickets && Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
-            profile.discountTickets.forEach(ticket => {
-                let val = typeof ticket === 'object' ? ticket.rate : ticket;
-                let title = typeof ticket === 'object' ? ticket.title : `خصم ${val}%`;
+        if (itemType !== 'popularity' && itemType !== 'consumable') {
+            let hasTickets = false;
+            if (profile.discountTickets && Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
+                profile.discountTickets.forEach(ticket => {
+                    let val = typeof ticket === 'object' ? ticket.rate : ticket;
+                    let title = typeof ticket === 'object' ? ticket.title : `خصم ${val}%`;
+                    let opt = document.createElement('option');
+                    opt.value = val;
+                    opt.text = title;
+                    discountSelect.appendChild(opt);
+                });
+                hasTickets = true;
+            } else if (profile.discountTicket && profile.discountTicket > 0) {
                 let opt = document.createElement('option');
-                opt.value = val;
-                opt.text = title;
+                opt.value = profile.discountTicket;
+                opt.text = `خصم ${profile.discountTicket}%`;
                 discountSelect.appendChild(opt);
-            });
-            hasTickets = true;
-        } else if (profile.discountTicket && profile.discountTicket > 0) {
-            let opt = document.createElement('option');
-            opt.value = profile.discountTicket;
-            opt.text = `خصم ${profile.discountTicket}%`;
-            discountSelect.appendChild(opt);
-            hasTickets = true;
+                hasTickets = true;
+            }
+            if (hasTickets) discountContainer.style.display = 'block';
         }
-        if (hasTickets && discountContainer) discountContainer.style.display = 'block';
     }
 
-    // حساب وإظهار خصم الـ VIP التلقائي
     let vipLevel = profile.vipLevel || 0;
     let passiveDiscount = 0;
     if (vipLevel === 3) passiveDiscount = 5;       
@@ -1242,7 +1240,7 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         previewEl.innerHTML = iconHtml;
     }
 
-    // 💡 الإصلاح هنا: ربط الزر في اللحظة التي تفتح فيها النافذة لضمان عمله 100%
+    // 💡 الإصلاح الجذري: ربط زر التأكيد مباشرة وإرسال الطلب للسيرفر
     const confirmBuyBtn = document.getElementById('confirm-buy-btn');
     if (confirmBuyBtn) {
         confirmBuyBtn.onclick = function() {
