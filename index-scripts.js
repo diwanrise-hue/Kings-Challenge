@@ -149,7 +149,17 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
                      iconHtml = '<span style="filter: hue-rotate(210deg);">🔥</span>';
                  }
              }
-        } else if (itemType === 'consumable') {
+        } 
+        else if (itemType === 'profile_frame' && window.PROFILE_FRAMES_ITEMS) {
+             const pfItem = window.PROFILE_FRAMES_ITEMS.find(p => p.id === itemId);
+             if (pfItem) {
+                 iconHtml = `<div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                <img src="https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp" style="position: absolute; width: 60%; height: 60%; border-radius: 50%; opacity: 0.5;">
+                                <img src="${pfItem.imagePath}" style="position: relative; width: 90%; height: 90%; object-fit: contain; z-index: 2;">
+                             </div>`;
+             }
+        }
+        else if (itemType === 'consumable') {
             iconHtml = '💡';
         }
         
@@ -825,7 +835,14 @@ window.syncHubProfile = function() {
 
     const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
 
-    const frameUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile1.webp";
+    // 🌟 جلب رابط الإطار المفعل ديناميكياً
+    let frameUrl = "";
+    if (profile.equippedProfileFrame && window.PROFILE_FRAMES_ITEMS) {
+        const selectedFrame = window.PROFILE_FRAMES_ITEMS.find(f => f.id === profile.equippedProfileFrame);
+        if (selectedFrame) {
+            frameUrl = selectedFrame.imagePath;
+        }
+    }
 
     const renderAvatarLocal = (elementId) => {
         const el = document.getElementById(elementId);
@@ -836,12 +853,20 @@ window.syncHubProfile = function() {
             
             const frameScale = elementId === 'hub-profile-avatar' ? '145%' : '130%';
 
-            el.innerHTML = `
-                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                    <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
-                    <img src="${frameUrl}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
-                </div>
-            `;
+            if (frameUrl !== "") {
+                el.innerHTML = `
+                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
+                        <img src="${frameUrl}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
+                    </div>
+                `;
+            } else {
+                el.innerHTML = `
+                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%; overflow: hidden; border: 1.5px solid var(--accent);">
+                        <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    </div>
+                `;
+            }
         }
     };
     
