@@ -468,6 +468,11 @@ socket.on('profileUpdated', (updatedProfile) => {
         window.updateVipProgressBarUI();
     }
     
+    // 🌟 إجبار تحديث الحقيبة مباشرة عند وصول التحديث من السيرفر
+    if (typeof window.renderProfileFramesInBag === 'function') {
+        window.renderProfileFramesInBag();
+    }
+    
     const gameIframe = document.getElementById('game-frame');
     if (gameIframe && gameIframe.contentWindow) {
         gameIframe.contentWindow.postMessage({ type: 'PROFILE_UPDATED', profile: updatedProfile }, '*');
@@ -520,6 +525,13 @@ socket.on('purchaseSuccess', (msg) => {
     if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
         window.storeManager.renderUI();
     }
+    
+    // 🌟 إجبار تحديث الحقيبة مباشرة بعد نجاح الشراء
+    setTimeout(() => {
+        if (typeof window.renderProfileFramesInBag === 'function') {
+            window.renderProfileFramesInBag();
+        }
+    }, 500);
 });
 
 socket.on('purchaseFailed', (msg) => {
@@ -839,10 +851,12 @@ window.syncHubProfile = function() {
         finalAvatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
     }
 
-    // 🌟 الإطار الافتراضي لجميع اللاعبين
+    const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
+
+    // 🌟 الإطار الأساسي الافتراضي
     let frameUrl = "Photo/Profile1.webp"; 
     
-    // 🌟 إذا اختار اللاعب إطاراً مختلفاً من الحقيبة يتم تفعيله
+    // إذا قام اللاعب بتفعيل إطار آخر من الحقيبة، سيتم استبدال الإطار الأساسي
     if (profile.equippedProfileFrame && window.PROFILE_FRAMES_ITEMS) {
         const selectedFrame = window.PROFILE_FRAMES_ITEMS.find(f => f.id === profile.equippedProfileFrame);
         if (selectedFrame) {
@@ -861,7 +875,7 @@ window.syncHubProfile = function() {
 
             el.innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                    <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='Photo/1000132081.webp';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
+                    <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
                     <img src="${frameUrl}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
                 </div>
             `;
@@ -1132,7 +1146,7 @@ window.addEventListener('message', (event) => {
 });
 
 // ===================================================================
-// 🌟 دوال التنقل وإدارة الحقيبة (تتضمن حل مشكلة الإطارات المشتراة) 🌟
+// 🌟 دوال التنقل وإدارة الحقيبة (معدلة لتكون صارمة وقوية) 🌟
 // ===================================================================
 
 window.switchThemeGridTabCategory = function(category) {
@@ -1146,51 +1160,71 @@ window.switchThemeGridTabCategory = function(category) {
     document.querySelectorAll('[id="theme-btn-tab-' + category + '"]').forEach(activeBtn => activeBtn.classList.add('active'));
     document.querySelectorAll('[id="theme-grid-section-' + category + '"]').forEach(activeSec => activeSec.style.display = 'grid');
 
-    // 🌟 استدعاء دالة رسم الإطارات الشخصية فوراً عند النقر على تبويبها
+    // استدعاء دالة رسم الإطارات الشخصية فوراً عند النقر على تبويبها
     if (category === 'profile-frames' && typeof window.renderProfileFramesInBag === 'function') {
         window.renderProfileFramesInBag();
     }
 };
 
-// 🌟 دالة رسم الإطارات داخل الحقيبة وتفعيلها 🌟
+// 🌟 دالة رسم الإطارات داخل الحقيبة وتفعيلها (قوية وصارمة لمنع فشل الفحص) 🌟
 window.renderProfileFramesInBag = function() {
-    const container = document.getElementById('theme-grid-section-profile-frames');
-    if (!container) return;
-    
-    container.innerHTML = '';
+    // 1. البحث عن جميع الحاويات الممكنة في الواجهة لمنع خطأ التكرار
+    const containers = document.querySelectorAll('#theme-grid-section-profile-frames');
+    if (!containers || containers.length === 0) return;
 
+    // 2. جلب الملف الشخصي والمشتريات
     const profile = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : {};
-    const purchasedItems = profile.purchasedItems || [];
+    let rawPurchased = profile.purchasedItems || [];
+    
+    // 3. تأمين المتغير ليكون مصفوفة سلاسل نصية دائماً
+    let purchasedItems = [];
+    if (Array.isArray(rawPurchased)) {
+        purchasedItems = rawPurchased;
+    } else if (typeof rawPurchased === 'string') {
+        try { purchasedItems = JSON.parse(rawPurchased); } catch(e) { purchasedItems = []; }
+    }
+    if (!Array.isArray(purchasedItems)) purchasedItems = [];
+
     const framesList = window.PROFILE_FRAMES_ITEMS || [];
 
-    let hasFrames = false;
+    // 4. تطبيق الرسم على كل الحاويات الموجودة (في حال كان هناك أكثر من نافذة حقيبة مخفية)
+    containers.forEach(container => {
+        container.innerHTML = '';
+        let hasFrames = false;
 
-    framesList.forEach(frame => {
-        if (purchasedItems.includes(frame.id)) {
-            hasFrames = true;
+        framesList.forEach(frame => {
+            // 5. فحص صارم للمطابقة يتجاهل المسافات الزائدة
+            const isPurchased = purchasedItems.some(item => 
+                String(item).trim() === String(frame.id).trim() || 
+                (item && typeof item === 'object' && String(item.id).trim() === String(frame.id).trim())
+            );
             
-            const isEquipped = profile.equippedProfileFrame === frame.id;
-            const frameCard = document.createElement('div');
-            frameCard.className = `theme-grid-item ${isEquipped ? 'active' : ''}`;
-            
-            frameCard.onclick = () => {
-                window.equipProfileFrame(frame.id);
-            };
+            if (isPurchased) {
+                hasFrames = true;
+                
+                const isEquipped = profile.equippedProfileFrame === frame.id;
+                const frameCard = document.createElement('div');
+                frameCard.className = `theme-grid-item ${isEquipped ? 'active' : ''}`;
+                
+                frameCard.onclick = () => {
+                    window.equipProfileFrame(frame.id);
+                };
 
-            frameCard.innerHTML = `
-                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                    <img src="Photo/1000132081.webp" style="position: absolute; width: 35px; height: 35px; border-radius: 50%; opacity: 0.5;">
-                    <img src="${frame.imagePath}" style="position: relative; width: 50px; height: 50px; object-fit: contain; z-index: 2; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
-                </div>
-                <span class="theme-grid-title" style="margin-top: 8px;">${frame.nameAr}</span>
-            `;
-            container.appendChild(frameCard);
+                frameCard.innerHTML = `
+                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="Photo/1000132081.webp" style="position: absolute; width: 35px; height: 35px; border-radius: 50%; opacity: 0.5;">
+                        <img src="${frame.imagePath}" style="position: relative; width: 50px; height: 50px; object-fit: contain; z-index: 2; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                    </div>
+                    <span class="theme-grid-title" style="margin-top: 8px;">${frame.nameAr}</span>
+                `;
+                container.appendChild(frameCard);
+            }
+        });
+
+        if (!hasFrames) {
+            container.innerHTML = '<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">لا تملك إطارات للبروفايل حالياً</div>';
         }
     });
-
-    if (!hasFrames) {
-        container.innerHTML = '<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">لا تملك إطارات للبروفايل حالياً</div>';
-    }
 };
 
 window.equipProfileFrame = function(frameId) {
