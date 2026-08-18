@@ -543,15 +543,6 @@ window.switchStoreTabCategory = function(category, btnElement) {
     }
 };
 
-// 🌟 تجاوز عرض الحقيبة لتحديث الإطارات الشخصية عند فتحها
-const originalSwitchThemeGridTabCategory = window.switchThemeGridTabCategory;
-window.switchThemeGridTabCategory = function(category) {
-    if(originalSwitchThemeGridTabCategory) originalSwitchThemeGridTabCategory(category);
-    if (category === 'profile-frames' && typeof window.renderProfileFramesInBag === 'function') {
-        window.renderProfileFramesInBag();
-    }
-};
-
 // ==========================================
 // 🌟 دالة مساعدة لاختصار الأرقام
 // ==========================================
