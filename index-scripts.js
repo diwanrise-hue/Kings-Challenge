@@ -38,7 +38,7 @@ window.triggerCustomAlertNotification = function(msg) {
     showCustomPopup(msg);
 };
 
-// 🌟 دالة فتح نافذة تأكيد الشراء (تم تحديثها بالكامل لقراءة الخصومات والقسائم) 🌟
+// 🌟 دالة فتح نافذة تأكيد الشراء (تدعم الآن الشعبية وإطارات البروفايل)
 let currentPurchaseItem = null;
 
 window.openPurchaseModal = function(itemId, itemName, price, itemType) {
@@ -47,66 +47,56 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     const nameEl = document.getElementById('modal-item-name');
     const costEl = document.getElementById('modal-item-cost');
     const previewEl = document.getElementById('modal-item-preview');
-    
-    // 🌟 1. إعدادات مربع الخصم والقسائم
     const discountContainer = document.getElementById('discount-container');
     const discountSelect = document.getElementById('modal-discount-select');
+    
     const profile = getSafeProfile();
     
     if(nameEl) nameEl.innerText = itemName;
 
-    // إعادة تعيين الخصومات
-    if(discountSelect) {
+    if(discountSelect && discountContainer) {
         discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
         discountSelect.value = "0";
-    }
-    if(discountContainer) discountContainer.style.display = 'none';
+        discountContainer.style.display = 'none';
 
-    // إظهار القسائم إذا كان العنصر قابل للخصم (وليس هدية شعبية أو مستهلك)
-    if (itemType !== 'popularity' && itemType !== 'consumable') {
-        let hasTickets = false;
-        
-        // التحقق من قائمة التذاكر المتعددة
-        if (profile.discountTickets && Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
-            profile.discountTickets.forEach(ticket => {
-                let val = typeof ticket === 'object' ? ticket.rate : ticket;
-                let title = typeof ticket === 'object' ? ticket.title : `خصم ${val}%`;
+        // 🌟 إظهار القسائم على كل شيء (ما عدا المستهلكات كالمصابيح)
+        if (itemType !== 'consumable') {
+            let hasTickets = false;
+            if (profile.discountTickets && Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
+                profile.discountTickets.forEach(ticket => {
+                    let val = typeof ticket === 'object' ? ticket.rate : ticket;
+                    let title = typeof ticket === 'object' ? ticket.title : `خصم ${val}%`;
+                    let opt = document.createElement('option');
+                    opt.value = val;
+                    opt.text = title;
+                    discountSelect.appendChild(opt);
+                });
+                hasTickets = true;
+            } else if (profile.discountTicket && profile.discountTicket > 0) {
                 let opt = document.createElement('option');
-                opt.value = val;
-                opt.text = title;
+                opt.value = profile.discountTicket;
+                opt.text = `خصم ${profile.discountTicket}%`;
                 discountSelect.appendChild(opt);
-            });
-            hasTickets = true;
-        } 
-        // التوافق مع التذكرة المفردة القديمة
-        else if (profile.discountTicket && profile.discountTicket > 0) {
-            let opt = document.createElement('option');
-            opt.value = profile.discountTicket;
-            opt.text = `خصم ${profile.discountTicket}%`;
-            discountSelect.appendChild(opt);
-            hasTickets = true;
-        }
-
-        if (hasTickets && discountContainer) {
-            discountContainer.style.display = 'block';
+                hasTickets = true;
+            }
+            if (hasTickets) discountContainer.style.display = 'block';
         }
     }
 
-    // 🌟 2. حساب وعرض السعر مع التحديث المباشر
     let vipLevel = profile.vipLevel || 0;
     let passiveDiscount = 0;
     if (vipLevel === 3) passiveDiscount = 5;       
     else if (vipLevel === 4) passiveDiscount = 10; 
-    else if (vipLevel >= 5) passiveDiscount = 15;
+    else if (vipLevel >= 5) passiveDiscount = 15;  
 
     function updatePriceDisplay() {
         if(!costEl) return;
-        
         let ticketDiscount = (discountSelect && discountContainer && discountContainer.style.display !== 'none') ? (parseInt(discountSelect.value) || 0) : 0;
         let finalPrice = price;
         let priceHtml = '';
         
-        if (passiveDiscount > 0 && price > 0 && itemType !== 'popularity') {
+        // 🌟 تطبيق خصم الـ VIP التلقائي على الشعبية والإطارات
+        if (passiveDiscount > 0 && price > 0) {
             finalPrice = Math.floor(price * (1 - (passiveDiscount / 100)));
             if (ticketDiscount > 0) finalPrice = Math.floor(finalPrice * (1 - (ticketDiscount / 100)));
             
@@ -127,17 +117,12 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         } else {
             priceHtml = `${formatCompactNumber(price)} 🪙`;
         }
-        
         costEl.innerHTML = priceHtml;
     }
 
-    if(discountSelect) {
-        discountSelect.onchange = updatePriceDisplay;
-    }
-
-    updatePriceDisplay(); // تحديث السعر الافتراضي فور الفتح
+    if(discountSelect) discountSelect.onchange = updatePriceDisplay;
+    updatePriceDisplay();
     
-    // 🌟 3. جلب الأيقونة الصحيحة للمنتج
     if (previewEl) {
         let iconHtml = '🎁'; 
         if (window.STORE_ITEMS && window.STORE_ITEMS[itemId]) {
@@ -174,7 +159,6 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     window.openAppModal('purchase-modal');
 };
 
-// 🌟 ربط زر تأكيد الشراء بالسيرفر وإرسال قيمة الخصم 🌟
 document.addEventListener('DOMContentLoaded', () => {
     const confirmBuyBtn = document.getElementById('confirm-buy-btn');
     if (confirmBuyBtn) {
@@ -188,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!currentPurchaseItem) return;
             
-            // قراءة الخصم المختار
             let appliedDiscountRate = 0;
             const discountSelect = document.getElementById('modal-discount-select');
             const discountContainer = document.getElementById('discount-container');
@@ -204,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     guestId: profile.id, 
                     userId: profile.id,
                     itemId: currentPurchaseItem.id,
-                    appliedDiscountRate: appliedDiscountRate // إرسال الخصم للسيرفر 🎫
+                    appliedDiscountRate: appliedDiscountRate 
                 });
             } else {
                 showCustomPopup("السيرفر غير متصل حالياً!");
