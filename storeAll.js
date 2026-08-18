@@ -356,7 +356,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         </p>
                         <button class="store-buy-btn-small" style="width: 70%; margin: 0 auto; height: 35px !important; font-size: 14px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
                     </div>
+
                 </div>
+
             </div>
 
             <!-- حاوية محتوى الشعبية -->
@@ -477,12 +479,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.switchStoreTabCategory('bg', firstBtn); 
             }
             
-            // 🌟 استدعاء الشعبية
+            // 🌟 استدعاء الشعبية والإطارات الشخصية
             if (typeof window.renderPopularityItems === 'function') {
                 window.renderPopularityItems();
             }
 
-            // 👑 التعديل الجديد: استدعاء دالة رسم إطارات البروفايل
             if (typeof window.renderProfileFrames === 'function') {
                 window.renderProfileFrames();
             }
@@ -502,14 +503,12 @@ window.switchStoreContentTab = function(contentId, btnElement) {
     if (targetContent) { targetContent.classList.add('active-content'); }
     if (btnElement) btnElement.classList.add('active');
 
-    // 🌟 فتح الخلفيات تلقائياً عند الدخول لقسم الألعاب في المتجر
     if (contentId === 'store-games-content') {
         if (typeof window.switchStoreTabCategory === 'function') {
             window.switchStoreTabCategory('bg');
         }
     }
     
-    // 🌟 تحديث شريط الـ VIP عند الدخول لقسم الشحن
     if (contentId === 'store-topup-content') {
         if (typeof window.updateVipProgressBarUI === 'function') {
             window.updateVipProgressBarUI();
@@ -527,7 +526,6 @@ window.switchSubStoreTab = function(contentId, btnElement) {
     if (btnElement) btnElement.classList.add('active');
 };
 
-// 🌟 محدثة بـ querySelectorAll لتجنب أي تداخل
 window.switchStoreTabCategory = function(category, btnElement) {
     const tabs = ['bg', 'frames', 'pieces', 'offers'];
     
@@ -545,8 +543,17 @@ window.switchStoreTabCategory = function(category, btnElement) {
     }
 };
 
+// 🌟 تجاوز عرض الحقيبة لتحديث الإطارات الشخصية عند فتحها
+const originalSwitchThemeGridTabCategory = window.switchThemeGridTabCategory;
+window.switchThemeGridTabCategory = function(category) {
+    if(originalSwitchThemeGridTabCategory) originalSwitchThemeGridTabCategory(category);
+    if (category === 'profile-frames' && typeof window.renderProfileFramesInBag === 'function') {
+        window.renderProfileFramesInBag();
+    }
+};
+
 // ==========================================
-// 🌟 دالة مساعدة لاختصار الأرقام (تأمين إضافي) 🌟
+// 🌟 دالة مساعدة لاختصار الأرقام
 // ==========================================
 function localFormatCompactNumber(num) {
     if (typeof window.formatCompactNumber === 'function') {
@@ -558,7 +565,7 @@ function localFormatCompactNumber(num) {
 }
 
 // ==========================================
-// دوال عرض منتجات الشعبية
+// 🌟 دوال عرض منتجات الشعبية
 // ==========================================
 window.renderPopularityItems = function() {
     const grid = document.getElementById('store-popularity-grid');
@@ -571,7 +578,6 @@ window.renderPopularityItems = function() {
             const card = document.createElement('div');
             card.className = 'store-item-card';
             
-            // تم استخدام دالة localFormatCompactNumber لضغط الأرقام الكبيرة
             card.innerHTML = `
                 <div style="height: 60px; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; background: rgba(0,0,0,0.3); border-radius: 8px;">
                     <img src="${item.imagePath}" alt="${item.nameAr}" style="max-width: 80%; max-height: 80%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
@@ -637,12 +643,9 @@ window.renderProfileFrames = function() {
             const card = document.createElement('div');
             card.className = 'store-item-card';
             
-            // تصميم البطاقة الخاصة بالإطار مع وضع صورة شخصية وهمية بالخلفية
             card.innerHTML = `
                 <div style="height: 70px; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; background: rgba(0,0,0,0.4); border-radius: 12px; position: relative;">
-                    <!-- صورة أفاتار وهمية بالخلفية لبيان شكل الإطار -->
                     <img src="https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp" style="position: absolute; width: 45px; height: 45px; border-radius: 50%; opacity: 0.5;">
-                    <!-- صورة الإطار الفعلي -->
                     <img src="${item.imagePath}" alt="${item.nameAr}" style="position: relative; width: 65px; height: 65px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)); z-index: 2;">
                 </div>
                 <span style="color: #fff; font-size: 12px; font-weight: bold; margin-bottom: 8px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.nameAr}</span>
@@ -661,8 +664,69 @@ window.buyProfileFrameItem = function(itemId) {
     const item = window.PROFILE_FRAMES_ITEMS.find(i => i.id === itemId);
     if(item) {
         if (typeof window.openPurchaseModal === 'function') {
-            // نرسل نوع العنصر كـ 'profile_frame' ليتعرف عليه السيرفر
             window.openPurchaseModal(item.id, item.nameAr, item.price, 'profile_frame');
         } 
+    }
+};
+
+// ==========================================
+// 🌟 دوال عرض إطارات البروفايل داخل الحقيبة وتفعيلها 🌟
+// ==========================================
+
+window.renderProfileFramesInBag = function() {
+    const container = document.getElementById('theme-grid-section-profile-frames');
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    const profile = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : (window.storeManager ? window.storeManager.getProfile() : {});
+    const purchasedItems = profile.purchasedItems || [];
+    const framesList = window.PROFILE_FRAMES_ITEMS || [];
+
+    let hasFrames = false;
+
+    framesList.forEach(frame => {
+        if (purchasedItems.includes(frame.id)) {
+            hasFrames = true;
+            
+            const isEquipped = profile.equippedProfileFrame === frame.id;
+            const frameCard = document.createElement('div');
+            frameCard.className = `theme-grid-item ${isEquipped ? 'active' : ''}`;
+            
+            frameCard.onclick = () => {
+                window.equipProfileFrame(frame.id);
+            };
+
+            frameCard.innerHTML = `
+                <div style="height: 50px; width: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
+                    <img src="https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp" style="position: absolute; width: 35px; height: 35px; border-radius: 50%; opacity: 0.5;">
+                    <img src="${frame.imagePath}" style="position: relative; width: 50px; height: 50px; object-fit: contain; z-index: 2; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                </div>
+                <span class="theme-grid-title" style="margin-top: 8px;">${frame.nameAr}</span>
+            `;
+            container.appendChild(frameCard);
+        }
+    });
+
+    if (!hasFrames) {
+        container.innerHTML = '<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">لا تملك إطارات للبروفايل حالياً</div>';
+    }
+};
+
+window.equipProfileFrame = function(frameId) {
+    let profile = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : (window.storeManager ? window.storeManager.getProfile() : {});
+    if (!profile || !profile.id) return;
+
+    profile.equippedProfileFrame = frameId;
+    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+
+    window.renderProfileFramesInBag();
+
+    if (typeof window.syncHubProfile === 'function') {
+        window.syncHubProfile();
+    }
+
+    if (typeof socket !== 'undefined' && socket.connected) {
+        socket.emit('syncProfile', { id: profile.id, equippedProfileFrame: frameId });
     }
 };
