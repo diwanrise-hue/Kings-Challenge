@@ -16,7 +16,9 @@ window.openAppModal = function(modalId) {
         modal.style.display = 'flex';
         
         if (modalId === 'themes-grid-overlay') {
-            if (typeof window.switchThemeGridTabCategory === 'function') {
+            if (typeof window.hubSwitchThemeGridTabCategory === 'function') {
+                window.hubSwitchThemeGridTabCategory('bg');
+            } else if (typeof window.switchThemeGridTabCategory === 'function') {
                 window.switchThemeGridTabCategory('bg');
             }
         }
@@ -469,8 +471,8 @@ socket.on('profileUpdated', (updatedProfile) => {
     }
     
     // 🌟 تحديث إجباري للحقيبة فور وصول التحديث
-    if (typeof window.renderProfileFramesInBag === 'function') {
-        window.renderProfileFramesInBag();
+    if (typeof window.hubRenderProfileFramesInBag === 'function') {
+        window.hubRenderProfileFramesInBag();
     }
     
     const gameIframe = document.getElementById('game-frame');
@@ -528,8 +530,8 @@ socket.on('purchaseSuccess', (msg) => {
     
     // 🌟 إجبار تحديث الحقيبة مباشرة بعد نجاح الشراء
     setTimeout(() => {
-        if (typeof window.renderProfileFramesInBag === 'function') {
-            window.renderProfileFramesInBag();
+        if (typeof window.hubRenderProfileFramesInBag === 'function') {
+            window.hubRenderProfileFramesInBag();
         }
     }, 500);
 });
@@ -853,7 +855,7 @@ window.syncHubProfile = function() {
 
     const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
 
-    // 🌟 الإطار الأساسي الافتراضي
+    // 🌟 الإطار الأساسي الافتراضي لجميع اللاعبين
     let frameUrl = "Photo/Profile1.webp"; 
     
     // إذا قام اللاعب بتفعيل إطار آخر من الحقيبة، سيتم استبدال الإطار الأساسي
@@ -1146,10 +1148,11 @@ window.addEventListener('message', (event) => {
 });
 
 // ===================================================================
-// 🌟 دوال التنقل وإدارة الحقيبة (معدلة لتكون صارمة وقوية) 🌟
+// 🌟 دوال التنقل وإدارة الحقيبة المعزولة للواجهة الرئيسية (تمنع التعارض) 🌟
 // ===================================================================
 
-window.switchThemeGridTabCategory = function(category) {
+// 🌟 عزل اسم الدالة بكلمة hub لمنع استبدالها من ملف store.js
+window.hubSwitchThemeGridTabCategory = function(category) {
     const tabs = ['bg', 'frames', 'pieces', 'profile-frames', 'gifts'];
     
     tabs.forEach(tab => { 
@@ -1160,44 +1163,43 @@ window.switchThemeGridTabCategory = function(category) {
     document.querySelectorAll('[id="theme-btn-tab-' + category + '"]').forEach(activeBtn => activeBtn.classList.add('active'));
     document.querySelectorAll('[id="theme-grid-section-' + category + '"]').forEach(activeSec => activeSec.style.display = 'grid');
 
-    // 🌟 استدعاء دالة رسم الإطارات الشخصية فوراً ومزامنتها مع السيرفر
-    if (category === 'profile-frames' && typeof window.renderProfileFramesInBag === 'function') {
-        window.renderProfileFramesInBag();
-        const p = window.getSafeProfile();
+    // استدعاء دالة رسم الإطارات الشخصية المعزولة
+    if (category === 'profile-frames') {
+        window.hubRenderProfileFramesInBag();
+        const p = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : null;
         if (window.socket && window.socket.connected && p && p.id) {
             window.socket.emit('syncProfile', { id: p.id }); 
         }
     }
 };
 
-// 🌟 دالة رسم الإطارات داخل الحقيبة وتفعيلها (قوية وصارمة لمنع فشل الفحص) 🌟
-window.renderProfileFramesInBag = function() {
-    // 1. البحث عن جميع الحاويات الممكنة في الواجهة لمنع خطأ التكرار
+// 🌟 دالة رسم الإطارات داخل الحقيبة وتفعيلها بشكل صارم وقوي 🌟
+window.hubRenderProfileFramesInBag = function() {
     const containers = document.querySelectorAll('#theme-grid-section-profile-frames');
     if (!containers || containers.length === 0) return;
 
-    // 2. جلب الملف الشخصي والمشتريات
-    const profile = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : {};
-    let rawPurchased = profile.purchasedItems || [];
-    
-    // 3. تأمين المتغير ليكون مصفوفة سلاسل نصية دائماً
-    let purchasedItems = [];
-    if (Array.isArray(rawPurchased)) {
-        purchasedItems = rawPurchased;
-    } else if (typeof rawPurchased === 'string') {
-        try { purchasedItems = JSON.parse(rawPurchased); } catch(e) { purchasedItems = []; }
+    let profileStr = localStorage.getItem('hub_user_profile');
+    let profile = {};
+    if (profileStr) {
+        try { profile = JSON.parse(profileStr); } catch(e){}
     }
-    if (!Array.isArray(purchasedItems)) purchasedItems = [];
 
-    const framesList = window.PROFILE_FRAMES_ITEMS || [];
+    let rawPurchased = profile.purchasedItems || [];
+    let purchasedItems = Array.isArray(rawPurchased) ? rawPurchased : [];
 
-    // 4. تطبيق الرسم على كل الحاويات الموجودة
+    // التاكد من وجود البيانات أو توفير نسخة احتياطية
+    const GITHUB_PROFILE_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/";
+    const framesList = window.PROFILE_FRAMES_ITEMS || [
+        { id: 'pf_ruby', nameAr: 'إطار الياقوت الملكي', imagePath: GITHUB_PROFILE_BASE + 'Profil2.webp' },
+        { id: 'pf_dragon', nameAr: 'إطار التنين الذهبي', imagePath: GITHUB_PROFILE_BASE + 'Profile4.webp' },
+        { id: 'pf_noble', nameAr: 'إطار النبلاء الأسود', imagePath: GITHUB_PROFILE_BASE + 'Profile7.webp' }
+    ];
+
     containers.forEach(container => {
         container.innerHTML = '';
         let hasFrames = false;
 
         framesList.forEach(frame => {
-            // 5. فحص صارم للمطابقة يتجاهل المسافات الزائدة ونوع البيانات
             const isPurchased = purchasedItems.some(item => 
                 String(item).trim() === String(frame.id).trim() || 
                 (item && typeof item === 'object' && String(item.id).trim() === String(frame.id).trim())
@@ -1211,7 +1213,7 @@ window.renderProfileFramesInBag = function() {
                 frameCard.className = `theme-grid-item ${isEquipped ? 'active' : ''}`;
                 
                 frameCard.onclick = () => {
-                    window.equipProfileFrame(frame.id);
+                    window.hubEquipProfileFrame(frame.id);
                 };
 
                 frameCard.innerHTML = `
@@ -1231,21 +1233,25 @@ window.renderProfileFramesInBag = function() {
     });
 };
 
-window.equipProfileFrame = function(frameId) {
-    let profile = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : {};
+window.hubEquipProfileFrame = function(frameId) {
+    let profileStr = localStorage.getItem('hub_user_profile');
+    let profile = {};
+    if (profileStr) {
+        try { profile = JSON.parse(profileStr); } catch(e){}
+    }
     if (!profile || !profile.id) return;
 
     profile.equippedProfileFrame = frameId;
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
 
-    window.renderProfileFramesInBag();
+    window.hubRenderProfileFramesInBag();
 
     if (typeof window.syncHubProfile === 'function') {
         window.syncHubProfile();
     }
 
-    if (typeof socket !== 'undefined' && socket.connected) {
-        socket.emit('syncProfile', { id: profile.id, equippedProfileFrame: frameId });
+    if (typeof window.socket !== 'undefined' && window.socket.connected) {
+        window.socket.emit('syncProfile', { id: profile.id, equippedProfileFrame: frameId });
     }
 };
 
@@ -1260,9 +1266,17 @@ window.switchBagMainTab = function(tabId, btnElement) {
 
     if (tabId === 'general') {
         if (typeof window.renderGiftsInBag === 'function') window.renderGiftsInBag();
-        if (typeof window.switchThemeGridTabCategory === 'function') window.switchThemeGridTabCategory('gifts');
+        if (typeof window.hubSwitchThemeGridTabCategory === 'function') {
+            window.hubSwitchThemeGridTabCategory('gifts');
+        } else if (typeof window.switchThemeGridTabCategory === 'function') {
+            window.switchThemeGridTabCategory('gifts');
+        }
     } else if (tabId === 'games') {
-        if (typeof window.switchThemeGridTabCategory === 'function') window.switchThemeGridTabCategory('bg');
+        if (typeof window.hubSwitchThemeGridTabCategory === 'function') {
+            window.hubSwitchThemeGridTabCategory('bg');
+        } else if (typeof window.switchThemeGridTabCategory === 'function') {
+            window.switchThemeGridTabCategory('bg');
+        }
     }
 };
 
