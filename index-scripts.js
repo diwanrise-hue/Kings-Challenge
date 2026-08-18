@@ -1147,6 +1147,11 @@ window.switchThemeGridTabCategory = function(category) {
     
     document.querySelectorAll('[id="theme-btn-tab-' + category + '"]').forEach(activeBtn => activeBtn.classList.add('active'));
     document.querySelectorAll('[id="theme-grid-section-' + category + '"]').forEach(activeSec => activeSec.style.display = 'grid');
+
+    // 🌟 الإصلاح هنا: استدعاء دالة رسم الإطارات الشخصية فوراً عند النقر على التبويب
+    if (category === 'profile-frames' && typeof window.renderProfileFramesInBag === 'function') {
+        window.renderProfileFramesInBag();
+    }
 };
 
 window.switchBagMainTab = function(tabId, btnElement) {
