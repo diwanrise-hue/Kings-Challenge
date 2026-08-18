@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث: إضافة زر التعجب (!) وباقة 39.99$ والتصميم الشبكي 2x2
+ * 🌟 التحديث: إضافة إطارات البروفايل وتصميم الشحن الجديد (الشبكة وزر التعجب)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -204,12 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 .dama-cat-btn.active { 
                     background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
                     color: white !important; 
-                    border: 1px solid var(--accent) !important; 
+                    border: 1px solid #ffd700 !important; 
                     box-shadow: 
                         inset 0 2px 1px rgba(255, 255, 255, 0.5), 
                         inset 0 -4px 10px rgba(0, 0, 0, 0.9),     
                         0 4px 10px rgba(0, 0, 0, 0.8),            
-                        0 0 8px rgba(197, 155, 66, 0.2) !important;
+                        0 0 8px rgba(255, 215, 0, 0.2) !important;
                     text-shadow: 0 1px 3px rgba(0,0,0,0.9);
                     z-index: 5;
                 }
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     display: none; 
                     flex-direction: column;
                     background: rgba(255, 255, 255, 0.02); 
-                    border: 1px solid rgba(197, 155, 66, 0.3); 
+                    border: 1px solid rgba(179, 141, 54, 0.3); 
                     border-radius: 12px;
                     padding: 6px; 
                     margin-bottom: 10px;
@@ -356,24 +356,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         </p>
                         <button class="store-buy-btn-small" style="width: 70%; margin: 0 auto; height: 35px !important; font-size: 14px !important;" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</button>
                     </div>
-
                 </div>
-
             </div>
 
             <!-- حاوية محتوى الشعبية -->
             <div id="store-popularity-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; padding: 12px; display: flex; flex-direction: column;">
-                    <!-- ترويسة بسيطة لقسم الشعبية -->
                     <div style="text-align: center; margin-bottom: 12px; flex-shrink: 0;">
                         <span style="font-size: 20px; filter: hue-rotate(210deg) drop-shadow(0 0 5px rgba(0, 210, 255, 0.5));">🔥</span>
                         <span style="color: white; font-size: 15px; font-weight: bold; margin-right: 5px;">هدايا شعبية</span>
                     </div>
-                    <!-- منطقة التمرير للمنتجات -->
                     <div class="store-scrollable-area" style="padding-top: 0; flex: 1;">
-                        <div id="store-popularity-grid" class="store-items-grid">
-                            <!-- سيتم حقن المنتجات هنا عبر الجافاسكربت -->
-                        </div>
+                        <div id="store-popularity-grid" class="store-items-grid"></div>
                     </div>
                 </div>
             </div>
@@ -387,9 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="store-scrollable-area" style="padding-top: 0; flex: 1;">
                         <div id="store-profile-frames-grid" class="store-items-grid">
-                            <div style="color: var(--text-secondary); text-align: center; grid-column: 1/-1; padding: 20px; font-size: 14px;">
-                                قريباً سيتم إضافة إطارات ملكية حصرية لتمييز صورتك الشخصية!
-                            </div>
+                            <!-- سيتم حقن إطارات البروفايل هنا برمجياً -->
                         </div>
                     </div>
                 </div>
@@ -399,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div id="store-topup-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; display: flex; flex-direction: column; padding: 15px; border-color: var(--accent) !important; overflow-y: auto;">
                     
-                    <!-- 🌟 بطاقة تقدم الـ VIP (VIP Progress Card) 🌟 -->
+                    <!-- 🌟 بطاقة تقدم الـ VIP (VIP Progress Card) مع زر التعجب (!) -->
                     <div style="background: linear-gradient(135deg, rgba(27, 94, 32, 0.4), rgba(8, 33, 11, 0.9)); border: 1px solid var(--accent); border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -485,8 +477,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.switchStoreTabCategory('bg', firstBtn); 
             }
             
+            // 🌟 استدعاء الشعبية
             if (typeof window.renderPopularityItems === 'function') {
                 window.renderPopularityItems();
+            }
+
+            // 👑 التعديل الجديد: استدعاء دالة رسم إطارات البروفايل
+            if (typeof window.renderProfileFrames === 'function') {
+                window.renderProfileFrames();
             }
             
         }, 300);
@@ -595,17 +593,6 @@ window.renderPopularityItems = function() {
     }
 };
 
-// ==========================================
-// 🌟 دوال التنبيهات والشراء والتفعيل 
-// ==========================================
-window.triggerAlertSoon = function() {
-    if (window.socketManager && typeof window.socketManager._showToast === 'function') {
-        window.socketManager._showToast("⏳ هذه الميزة ستتوفر قريباً!");
-    } else {
-        alert("قريباً!");
-    }
-};
-
 window.buyPopularityItem = function(itemId) {
     const item = window.POPULARITY_ITEMS.find(i => i.id === itemId);
     if(item) {
@@ -614,5 +601,68 @@ window.buyPopularityItem = function(itemId) {
         } else if (window.socketManager && typeof window.socketManager._showToast === 'function') {
             window.socketManager._showToast(`تم طلب شراء ${item.nameAr} بـ ${item.price} 🪙`);
         }
+    }
+};
+
+window.triggerAlertSoon = function() {
+    if (window.socketManager && typeof window.socketManager._showToast === 'function') {
+        window.socketManager._showToast("⏳ هذه الميزة ستتوفر قريباً!");
+    } else {
+        alert("قريباً!");
+    }
+};
+
+// ==========================================
+// 🌟 دوال عرض وشراء إطارات البروفايل الشخصية 🌟
+// ==========================================
+
+const GITHUB_PROFILE_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/";
+
+// 1. قاعدة بيانات إطارات البروفايل (حسب الأسماء المرفوعة)
+window.PROFILE_FRAMES_ITEMS = [
+    { id: 'pf_ruby', nameAr: 'إطار الياقوت الملكي', price: 15000, imagePath: GITHUB_PROFILE_BASE + 'Profil2.webp' },
+    { id: 'pf_dragon', nameAr: 'إطار التنين الذهبي', price: 35000, imagePath: GITHUB_PROFILE_BASE + 'Profile4.webp' },
+    { id: 'pf_noble', nameAr: 'إطار النبلاء الأسود', price: 10000, imagePath: GITHUB_PROFILE_BASE + 'Profile7.webp' }
+];
+
+// 2. دالة رسم الإطارات داخل تبويب "إطار شخصي"
+window.renderProfileFrames = function() {
+    const grid = document.getElementById('store-profile-frames-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = ''; 
+    
+    if (window.PROFILE_FRAMES_ITEMS && window.PROFILE_FRAMES_ITEMS.length > 0) {
+        window.PROFILE_FRAMES_ITEMS.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'store-item-card';
+            
+            // تصميم البطاقة الخاصة بالإطار مع وضع صورة شخصية وهمية بالخلفية
+            card.innerHTML = `
+                <div style="height: 70px; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; background: rgba(0,0,0,0.4); border-radius: 12px; position: relative;">
+                    <!-- صورة أفاتار وهمية بالخلفية لبيان شكل الإطار -->
+                    <img src="https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp" style="position: absolute; width: 45px; height: 45px; border-radius: 50%; opacity: 0.5;">
+                    <!-- صورة الإطار الفعلي -->
+                    <img src="${item.imagePath}" alt="${item.nameAr}" style="position: relative; width: 65px; height: 65px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)); z-index: 2;">
+                </div>
+                <span style="color: #fff; font-size: 12px; font-weight: bold; margin-bottom: 8px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.nameAr}</span>
+                
+                <button class="store-buy-btn-small" style="background: linear-gradient(to right, rgba(197, 155, 66, 0.2), transparent) !important; border: 1px solid var(--accent) !important; color: var(--accent) !important;" onclick="buyProfileFrameItem('${item.id}')">
+                    ${localFormatCompactNumber(item.price)} <span style="font-size: 11px;">🪙</span>
+                </button>
+            `;
+            grid.appendChild(card);
+        });
+    }
+};
+
+// 3. دالة الشراء (التي تفتح نافذة التأكيد)
+window.buyProfileFrameItem = function(itemId) {
+    const item = window.PROFILE_FRAMES_ITEMS.find(i => i.id === itemId);
+    if(item) {
+        if (typeof window.openPurchaseModal === 'function') {
+            // نرسل نوع العنصر كـ 'profile_frame' ليتعرف عليه السيرفر
+            window.openPurchaseModal(item.id, item.nameAr, item.price, 'profile_frame');
+        } 
     }
 };
