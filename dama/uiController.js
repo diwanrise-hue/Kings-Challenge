@@ -3,12 +3,9 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): إضافة نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
- * 🌟 (مُحدّث): منع انضغاط الصور وإصلاح الرقعة وتطبيق ساحة المشاهدين.
+ * 🌟 (مُحدّث): نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
  * 🌟 (مُحدّث): دمج إصلاحات الأداء (60 FPS) وكسر الحلقة اللانهائية لسرعة خيالية.
- * 🌟 (مُحدّث): حل مشكلة اختفاء الرقعة عند بدء اللعبة.
- * 🌟 (مُحدّث الأداء الجذري): استبدال querySelectorAll بـ getElementsByClassName لمنع تشنج الواجهة!
- * 🌟 (مُحدّث): إصلاح أبعاد الإطارات الملكية في لوحة الشرف لكي لا تغطي أطراف صورة اللاعب.
+ * 🌟 (مُحدّث جذري): الإطار الأساسي يظل ثابتاً داخل اللعبة، والإطارات الإضافية تظهر كطبقة فوقه!
  */
 
 import { gameState } from './gameState.js'; 
@@ -20,6 +17,16 @@ import { t } from './i18n.js';
 import { hintSystem } from './hintSystem.js';
 
 window.t = t; 
+
+// ==========================================
+// 🖼️ قاعدة بيانات الإطارات الشخصية داخل اللعبة
+// ==========================================
+const PROFILE_FRAMES_DB = {
+    'pf_ruby': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profil2.webp',
+    'pf_dragon': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile4.webp',
+    'pf_noble': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile7.webp'
+};
+const DEFAULT_FRAME_URL = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000148060.webp';
 
 // ==========================================
 // 🎵 المؤثرات الصوتية
@@ -99,13 +106,15 @@ export const ui = {
         return el;
     },
 
-    applyAvatar(elId, avatarStr, isCustom = false) {
+    // 🌟 التعديل الجذري هنا: تطبيق الإطار الثابت وفوقه الإطار المخصص
+    applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
         
         el.style.backgroundImage = 'none';
         el.innerHTML = '';
-        el.style.border = '1px solid rgba(255,255,255,0.1)';
+        el.style.border = 'none';
+        el.style.backgroundColor = 'transparent';
         
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
@@ -131,17 +140,26 @@ export const ui = {
             finalSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
         }
 
-        const isImage = finalSrc && (finalSrc.startsWith('data:image') || finalSrc.startsWith('http'));
+        let overlayFrameSrc = profileFrameId && PROFILE_FRAMES_DB[profileFrameId] ? PROFILE_FRAMES_DB[profileFrameId] : null;
+        
+        let frameScale = '135%';
+        if (el.id === 'badge-avatar') frameScale = '155%';
+        else if (el.id === 'igp-avatar') frameScale = '140%';
+        else if (el.id === 'mm-my-avatar' || el.id === 'mm-opp-avatar') frameScale = '140%';
+        else if (el.id === 'bet-p1-avatar' || el.id === 'bet-p2-avatar') frameScale = '140%';
 
-        if (isImage || isCustom) {
-            const img = document.createElement('img');
-            img.src = finalSrc || defaultAvatar;
-            img.onerror = function() { this.onerror = null; this.src = defaultAvatar; };
-            img.style.cssText = "width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;";
-            el.appendChild(img);
-        } else {
-            el.textContent = avatarStr || "❓";
+        let innerHTML = `
+            <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                <img src="${finalSrc}" onerror="this.onerror=null; this.src='${defaultAvatar}';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
+                <img src="${DEFAULT_FRAME_URL}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+        `;
+        
+        if (overlayFrameSrc) {
+            innerHTML += `<img src="${overlayFrameSrc}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
         }
+        
+        innerHTML += `</div>`;
+        el.innerHTML = innerHTML;
     },
 
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null, onCancel = null) {
@@ -283,7 +301,7 @@ export const ui = {
 
     animateMatchFound(oppName, oppAvatar, onComplete) {
         this.setTxt('mm-opp-name', oppName);
-        this.applyAvatar('mm-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
+        this.applyAvatar('mm-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'), window.currentOpponentData?.equippedProfileFrame);
         this.setTxt('mm-status-label', t('opp_found'));
         
         const cancelBtn = this.getEl('mm-cancel-btn');
@@ -367,7 +385,7 @@ export const ui = {
         this.setDisplay('match-players-card', 'flex');
         this.setDisplay('spectator-stats-container', 'flex'); 
 
-        this.applyAvatar('card-my-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'));
+        this.applyAvatar('card-my-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'), p1?.equippedProfileFrame);
         this.setTxt('card-my-name', p1?.name || 'اللاعب 1');
         let p1LvlInfo = this.calculateLevelInfo(p1?.xp || 0);
         const p1LvlEl = this.getEl('card-my-level');
@@ -378,7 +396,7 @@ export const ui = {
             p1LvlEl.style.color = "#87ceeb";
         }
         
-        this.applyAvatar('card-opp-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'));
+        this.applyAvatar('card-opp-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'), p2?.equippedProfileFrame);
         this.setTxt('card-opp-name', p2?.name || 'اللاعب 2');
         let p2LvlInfo = this.calculateLevelInfo(p2?.xp || 0);
         const p2LvlEl = this.getEl('card-opp-level');
@@ -457,10 +475,10 @@ export const ui = {
         const modal = document.getElementById('spectator-bet-modal');
         if (!modal) return;
         
-        this.applyAvatar('bet-p1-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'));
+        this.applyAvatar('bet-p1-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'), p1?.equippedProfileFrame);
         this.setTxt('bet-p1-name', p1?.name || 'اللاعب 1');
         
-        this.applyAvatar('bet-p2-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'));
+        this.applyAvatar('bet-p2-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'), p2?.equippedProfileFrame);
         this.setTxt('bet-p2-name', p2?.name || 'اللاعب 2');
 
         document.getElementById('spectator-bet-room-id').value = roomID;
@@ -497,10 +515,10 @@ export const ui = {
         }
         
         if (active && gameState.userProfile) {
-            this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar);
+            this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, gameState.userProfile.equippedProfileFrame);
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             this.setTxt('card-opp-name', oppName);
-            this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'));
+            this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'), window.currentOpponentData?.equippedProfileFrame);
           
             const myAvatarFrameId = gameState.userProfile.equippedAvatarFr || null;
             const oppAvatarFrameId = gameState.currentOpponentAvatarFr || null;
@@ -587,7 +605,7 @@ export const ui = {
         this.updateScoreboard();
     },
 
-        updateScoreboard() {
+    updateScoreboard() {
         let whiteCount = 0, blackCount = 0;
         gameState.virtualBoard.forEach(row => { row.forEach(p => { if (p) { if (p.includes('white')) whiteCount++; else blackCount++; } }); });
         
@@ -627,7 +645,6 @@ export const ui = {
         renderScoreDots(oppRow, isWhite ? blackCount : whiteCount, isWhite ? 'black' : 'white');
         renderScoreDots(myRow, isWhite ? whiteCount : blackCount, gameState.playerColor);
     },
-
 
     renderBoard(forceRebuild = false) {
         const board = this.getEl('board');
@@ -1156,15 +1173,14 @@ export const ui = {
         
         const isMeWin = winnerColor === (gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor);
         
-        const createPlayerBox = (name, avatar, isCustom, isWin, isDrawMatch) => {
+        const createPlayerBox = (name, avatar, isCustom, isWin, isDrawMatch, equippedProfileFrame = null) => {
             const pBox = this.makeEl('div', null, "display:flex;flex-direction:column;align-items:center;width:45%;");
             
-            const avContainer = this.makeEl('div', null, "border-radius:50%;padding:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);box-shadow:0 10px 25px rgba(0,0,0,0.2);");
-            const av = this.makeEl('div', null, "width:56px;height:56px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:hidden;");
+            const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;");
+            const av = this.makeEl('div', null, "width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
             
-            this.applyAvatar(av, avatar, isCustom);
+            this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
             
-            av.style.border = "none";
             avContainer.appendChild(av);
             
             const nameSpan = this.makeEl('span', null, "margin-top:8px;font-size:13px;font-weight:600;color:#ffffff;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;", name);
@@ -1189,8 +1205,8 @@ export const ui = {
 
         if (gameState.userProfile) {
             flex.append(
-                createPlayerBox(gameState.userProfile.name, gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, isMeWin, isDraw), 
-                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin, isDraw)
+                createPlayerBox(gameState.userProfile.name, gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, isMeWin, isDraw, gameState.userProfile.equippedProfileFrame), 
+                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin, isDraw, window.currentOpponentData?.equippedProfileFrame)
             );
         }
         box.appendChild(flex);
@@ -1382,6 +1398,31 @@ export const ui = {
 // ==========================================
 // 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
 // ==========================================
+
+// تحديث الإطارات في الواجهة الرئيسية بشكل سليم
+function forceLockedGlobalAvatar() {
+    let globalProfile = localStorage.getItem('hub_user_profile');
+    let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
+    let equippedProfileFrame = null;
+    
+    if (globalProfile) { 
+        try { 
+            const parsedHub = JSON.parse(globalProfile); 
+            if (parsedHub.avatar) { 
+                avatarSrc = parsedHub.avatar; 
+                isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); 
+            } 
+            equippedProfileFrame = parsedHub.equippedProfileFrame;
+        } catch(e) {} 
+    }
+    
+    const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar'];
+    targetAvatars.forEach(id => {
+        const el = document.getElementById(id); if (!el) return;
+        ui.applyAvatar(el, avatarSrc, isImage, equippedProfileFrame);
+    });
+}
+window.forceLockedGlobalAvatar = forceLockedGlobalAvatar;
 
 window.applyProfileDataToUI = function(profile) {
     requestAnimationFrame(() => {
@@ -1635,10 +1676,8 @@ window.openMyProfile = function() {
     if (globalProfile) {
         let prof = cleanExpiredRequests(JSON.parse(globalProfile)); localStorage.setItem('hub_user_profile', JSON.stringify(prof)); 
         window.applyProfileDataToUI(prof);
-        const avatarContainer = document.getElementById('igp-avatar');
-        let imgSrc = prof.avatar || '../Photo/1000132081.webp';
-        if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:image')) { let cleanName = imgSrc.replace(/\.\.\//g, '').replace('Photo/', ''); imgSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
-        avatarContainer.style.backgroundImage = 'none'; avatarContainer.innerHTML = `<img src="${imgSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        
+        ui.applyAvatar('igp-avatar', prof.avatar, prof.avatar?.startsWith('data:image'), prof.equippedProfileFrame);
         
         let level = Math.floor(Math.sqrt(Math.max(0, prof.xp || 0) / 50)) + 1;
         if(lvlBadge) lvlBadge.innerText = `Lv.${level}`;
@@ -1667,10 +1706,7 @@ window.showPlayerProfileFromLB = function(player) {
     document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
     document.getElementById('igp-popularity-val').innerText = player.popularity || Math.floor(Math.random() * 800) + 50;
 
-    const avatarContainer = document.getElementById('igp-avatar');
-    let imgSrc = player.avatar || '../Photo/1000132081.webp';
-    if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:image')) { let cleanName = imgSrc.replace(/\.\.\//g, '').replace('Photo/', ''); imgSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
-    avatarContainer.style.backgroundImage = 'none'; avatarContainer.innerHTML = `<img src="${imgSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+    ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), player.equippedProfileFrame);
     
     if (player.rankInfo) { document.getElementById('igp-rank-title').innerText = `الرتبة: ${player.rankInfo.icon} ${player.rankInfo.title}`; } else { document.getElementById('igp-rank-title').innerText = `الرتبة: 🥉 برونزي`; }
     window.openAppModal('in-game-profile-modal');
@@ -1715,11 +1751,17 @@ window.createLbItemHTML = function(rank, playerObj, type) {
     nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
     
     let secureImgSrc = getSecureAvatarUrl(avatarStr);
+    
+    let overlayFrameSrc = playerObj.equippedProfileFrame && PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] ? PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] : null;
 
     div.innerHTML = `
         <div class="lb-rank">#${rank}</div>
-        <div class="lb-avatar" style="padding:0; border:2px solid rgba(255,255,255,0.1); display:flex; justify-content:center; align-items:center; overflow:hidden; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px; width: 40px; height: 40px; border-radius: 50%;" title="عرض الملف الشخصي">
-            <img src="${secureImgSrc}" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'font-size: 22px;\\'>👤</span>';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; aspect-ratio: 1/1;">
+        <div class="lb-avatar" style="padding:0; border:none; display:flex; justify-content:center; align-items:center; overflow:visible; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px; width: 40px; height: 40px; border-radius: 50%; background: transparent;" title="عرض الملف الشخصي">
+            <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                <img src="${secureImgSrc}" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'font-size: 22px;\\'>👤</span>';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
+                <img src="${DEFAULT_FRAME_URL}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">` : ''}
+            </div>
         </div>
         <div class="lb-info" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
             <div class="lb-name-container"></div>
@@ -1731,8 +1773,8 @@ window.createLbItemHTML = function(rank, playerObj, type) {
     const avatarContainer = div.querySelector('.lb-avatar');
     
     avatarContainer.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(playerObj); };
-    avatarContainer.onmouseover = () => { avatarContainer.style.transform = 'scale(1.1)'; avatarContainer.style.borderColor = '#3498db'; };
-    avatarContainer.onmouseout = () => { avatarContainer.style.transform = 'scale(1)'; avatarContainer.style.borderColor = 'rgba(255,255,255,0.1)'; };
+    avatarContainer.onmouseover = () => { avatarContainer.style.transform = 'scale(1.1)'; };
+    avatarContainer.onmouseout = () => { avatarContainer.style.transform = 'scale(1)'; };
 
     return div;
 };
@@ -1814,13 +1856,19 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
                 `;
             }
         }
+        
+        let overlayFrameSrc = player.equippedProfileFrame && PROFILE_FRAMES_DB[player.equippedProfileFrame] ? PROFILE_FRAMES_DB[player.equippedProfileFrame] : null;
 
         card.innerHTML = `
             <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
             
             <div style="position: relative; width: ${item.rank === 1 ? '72px' : '62px'}; height: ${item.rank === 1 ? '72px' : '62px'}; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;">
-                <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1;">
-                    <img src="${getSecureAvatarUrl(player.avatar)}">
+                <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1; background: transparent; overflow: visible; border: none; box-shadow: none;">
+                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="${getSecureAvatarUrl(player.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 1;">
+                        <img src="${DEFAULT_FRAME_URL}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 2; pointer-events: none; object-fit: contain;">
+                        ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 3; pointer-events: none; object-fit: contain;">` : ''}
+                    </div>
                 </div>
                 ${frameOverlay}
             </div>
@@ -1914,20 +1962,6 @@ window.triggerCustomAlertNotification = function(msg) {
         if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.innerText = msg; if(alertCancel) alertCancel.style.display = 'none'; window.openAppModal('custom-alert-modal'); alertOk.onclick = () => window.closeAppModal('custom-alert-modal'); } else { alert(msg); }
     }
 };
-
-function forceLockedGlobalAvatar() {
-    let globalProfile = localStorage.getItem('hub_user_profile');
-    let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
-    if (globalProfile) { try { const parsedHub = JSON.parse(globalProfile); if (parsedHub.avatar) { avatarSrc = parsedHub.avatar; isImage = avatarSrc.includes('.') || avatarSrc.startsWith('data:image') || avatarSrc.startsWith('http'); } } catch(e) {} }
-    if (isImage && !avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:image')) { let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', ''); avatarSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName; }
-    
-    const targetAvatars = ['badge-avatar', 'card-my-avatar', 'mm-my-avatar'];
-    targetAvatars.forEach(id => {
-        const el = document.getElementById(id); if (!el) return;
-        if (isImage) { const existingImg = el.querySelector('img'); if (!existingImg || existingImg.getAttribute('src') !== avatarSrc) { el.style.backgroundImage = 'none'; el.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`; } } else { if (el.textContent !== avatarSrc) { el.innerHTML = ''; el.textContent = avatarSrc; } }
-    });
-}
-
 
 window.currentLang = 'ar';
 window.updateHtmlTexts = function() {
