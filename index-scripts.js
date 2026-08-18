@@ -38,7 +38,7 @@ window.triggerCustomAlertNotification = function(msg) {
     showCustomPopup(msg);
 };
 
-// 🌟 دالة فتح نافذة تأكيد الشراء (تدعم الآن الشعبية وإطارات البروفايل)
+// 🌟 دالة فتح نافذة تأكيد الشراء
 let currentPurchaseItem = null;
 
 window.openPurchaseModal = function(itemId, itemName, price, itemType) {
@@ -59,7 +59,6 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         discountSelect.value = "0";
         discountContainer.style.display = 'none';
 
-        // 🌟 إظهار القسائم على كل شيء (ما عدا المستهلكات كالمصابيح)
         if (itemType !== 'consumable') {
             let hasTickets = false;
             if (profile.discountTickets && Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
@@ -95,7 +94,6 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         let finalPrice = price;
         let priceHtml = '';
         
-        // 🌟 تطبيق خصم الـ VIP التلقائي على الشعبية والإطارات
         if (passiveDiscount > 0 && price > 0) {
             finalPrice = Math.floor(price * (1 - (passiveDiscount / 100)));
             if (ticketDiscount > 0) finalPrice = Math.floor(finalPrice * (1 - (ticketDiscount / 100)));
@@ -407,6 +405,7 @@ socket.on('connect', () => {
     }
 });
 
+// 🌟 حماية الذاكرة لضمان عدم مسح ممتلكات اللاعب
 window.getSafeProfile = function() {
     const guestName = (typeof translations !== 'undefined') ? translations[currentLang].guest_name : "Guest_";
     const defaultProfile = {
@@ -425,7 +424,8 @@ window.getSafeProfile = function() {
         equippedPc: 'pc_original',
         popularity: 0,
         vipLevel: 0,   
-        vipPoints: 0   
+        vipPoints: 0,
+        inventory: {}
     };
 
     try {
@@ -436,6 +436,9 @@ window.getSafeProfile = function() {
             if (parsed.popularity === undefined) parsed.popularity = 0;
             if (parsed.vipLevel === undefined) parsed.vipLevel = 0;
             if (parsed.vipPoints === undefined) parsed.vipPoints = 0;
+            // ضمان وجود المصفوفة للحفاظ على المشتريات
+            if (!Array.isArray(parsed.purchasedItems)) parsed.purchasedItems = [];
+            if (!parsed.inventory) parsed.inventory = {};
             return parsed;
         }
     } catch (e) { }
@@ -453,6 +456,7 @@ socket.on('auth_success', (data) => {
     }
 });
 
+// 🌟 تحديث الذاكرة فور تلقي بيانات من السيرفر وإجبار تحديث الحقيبة
 socket.on('profileUpdated', (updatedProfile) => {
     localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
     syncHubProfile();
@@ -465,6 +469,10 @@ socket.on('profileUpdated', (updatedProfile) => {
     const gameIframe = document.getElementById('game-frame');
     if (gameIframe && gameIframe.contentWindow) {
         gameIframe.contentWindow.postMessage({ type: 'PROFILE_UPDATED', profile: updatedProfile }, '*');
+    }
+
+    if (typeof window.renderProfileFramesInBag === 'function') {
+        window.renderProfileFramesInBag();
     }
 });
 
@@ -835,10 +843,9 @@ window.syncHubProfile = function() {
 
     const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
 
-    // 🌟 التعديل الجذري هنا: تعيين الإطار الأساسي الافتراضي لجميع اللاعبين
+    // 🌟 الإطار الأساسي الافتراضي لجميع اللاعبين
     let frameUrl = "Photo/Profile1.webp"; 
     
-    // إذا قام اللاعب بتفعيل إطار آخر من الحقيبة، سيتم استبدال الإطار الأساسي
     if (profile.equippedProfileFrame && window.PROFILE_FRAMES_ITEMS) {
         const selectedFrame = window.PROFILE_FRAMES_ITEMS.find(f => f.id === profile.equippedProfileFrame);
         if (selectedFrame) {
@@ -855,7 +862,6 @@ window.syncHubProfile = function() {
             
             const frameScale = elementId === 'hub-profile-avatar' ? '145%' : '130%';
 
-            // 🌟 دمج الإطار كصورة دائماً فوق الشخصية (سواء الافتراضي أو المشترى)
             el.innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                     <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
@@ -1143,7 +1149,6 @@ window.switchThemeGridTabCategory = function(category) {
     document.querySelectorAll('[id="theme-btn-tab-' + category + '"]').forEach(activeBtn => activeBtn.classList.add('active'));
     document.querySelectorAll('[id="theme-grid-section-' + category + '"]').forEach(activeSec => activeSec.style.display = 'grid');
 
-    // 🌟 الإصلاح هنا: استدعاء دالة رسم الإطارات الشخصية فوراً عند النقر على التبويب
     if (category === 'profile-frames' && typeof window.renderProfileFramesInBag === 'function') {
         window.renderProfileFramesInBag();
     }
