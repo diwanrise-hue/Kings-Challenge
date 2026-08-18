@@ -160,7 +160,7 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
              const pfItem = window.PROFILE_FRAMES_ITEMS.find(p => p.id === itemId);
              if (pfItem) {
                  iconHtml = `<div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                                <img src="https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp" style="position: absolute; width: 60%; height: 60%; border-radius: 50%; opacity: 0.5;">
+                                <img src="Photo/1000132081.webp" style="position: absolute; width: 60%; height: 60%; border-radius: 50%; opacity: 0.5;">
                                 <img src="${pfItem.imagePath}" style="position: relative; width: 90%; height: 90%; object-fit: contain; z-index: 2;">
                              </div>`;
              }
@@ -468,7 +468,7 @@ socket.on('profileUpdated', (updatedProfile) => {
         window.updateVipProgressBarUI();
     }
     
-    // 🌟 إجبار تحديث الحقيبة مباشرة عند وصول التحديث من السيرفر
+    // 🌟 تحديث إجباري للحقيبة فور وصول التحديث
     if (typeof window.renderProfileFramesInBag === 'function') {
         window.renderProfileFramesInBag();
     }
@@ -1160,9 +1160,13 @@ window.switchThemeGridTabCategory = function(category) {
     document.querySelectorAll('[id="theme-btn-tab-' + category + '"]').forEach(activeBtn => activeBtn.classList.add('active'));
     document.querySelectorAll('[id="theme-grid-section-' + category + '"]').forEach(activeSec => activeSec.style.display = 'grid');
 
-    // استدعاء دالة رسم الإطارات الشخصية فوراً عند النقر على تبويبها
+    // 🌟 استدعاء دالة رسم الإطارات الشخصية فوراً ومزامنتها مع السيرفر
     if (category === 'profile-frames' && typeof window.renderProfileFramesInBag === 'function') {
         window.renderProfileFramesInBag();
+        const p = window.getSafeProfile();
+        if (window.socket && window.socket.connected && p && p.id) {
+            window.socket.emit('syncProfile', { id: p.id }); 
+        }
     }
 };
 
@@ -1187,13 +1191,13 @@ window.renderProfileFramesInBag = function() {
 
     const framesList = window.PROFILE_FRAMES_ITEMS || [];
 
-    // 4. تطبيق الرسم على كل الحاويات الموجودة (في حال كان هناك أكثر من نافذة حقيبة مخفية)
+    // 4. تطبيق الرسم على كل الحاويات الموجودة
     containers.forEach(container => {
         container.innerHTML = '';
         let hasFrames = false;
 
         framesList.forEach(frame => {
-            // 5. فحص صارم للمطابقة يتجاهل المسافات الزائدة
+            // 5. فحص صارم للمطابقة يتجاهل المسافات الزائدة ونوع البيانات
             const isPurchased = purchasedItems.some(item => 
                 String(item).trim() === String(frame.id).trim() || 
                 (item && typeof item === 'object' && String(item.id).trim() === String(frame.id).trim())
