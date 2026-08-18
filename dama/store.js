@@ -1,5 +1,5 @@
 // ==========================================
-// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (إصلاح خطأ الـ Syntax وخصومات الـ VIP)
+// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (إصلاح زر الشراء وخصومات الـ VIP)
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -999,7 +999,6 @@ export const storeManager = {
                 const buyBtn = document.createElement('button');
                 buyBtn.className = `store-buy-btn store-buy-btn-small ${legendaryClassBtn}`; buyBtn.innerText = isAr ? 'شراء' : 'Buy';
                 buyBtn.onclick = () => { 
-                    // 👑 تعديل مهم: استدعاء دالة الشراء الخاصة بالنافذة
                     if (window['openPurchaseModal']) { 
                         window['openPurchaseModal'](key, name, item.cost, item.type); 
                     } else { 
@@ -1242,27 +1241,15 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         } 
         previewEl.innerHTML = iconHtml;
     }
-    
-    const purchaseModal = document.getElementById('purchase-modal');
-    if(purchaseModal) purchaseModal.style.display = 'flex';
-};
 
-// ربط زر تأكيد الشراء داخل اللعبة وإرسال قيمة الخصم للسيرفر
-document.addEventListener('DOMContentLoaded', () => {
+    // 💡 الإصلاح هنا: ربط الزر في اللحظة التي تفتح فيها النافذة لضمان عمله 100%
     const confirmBuyBtn = document.getElementById('confirm-buy-btn');
     if (confirmBuyBtn) {
-        // استبدال الزر لإزالة أي أحداث قديمة لمنع تكرار الشراء
-        const newConfirmBtn = confirmBuyBtn.cloneNode(true);
-        confirmBuyBtn.parentNode.replaceChild(newConfirmBtn, confirmBuyBtn);
-        
-        newConfirmBtn.addEventListener('click', () => {
-            const profile = storeManager.getProfile();
+        confirmBuyBtn.onclick = function() {
             if (!profile || !profile.id) return;
             if (!window.currentPurchaseItem) return;
             
             let appliedDiscountRate = 0;
-            const discountSelect = document.getElementById('modal-discount-select');
-            const discountContainer = document.getElementById('discount-container');
             if (discountSelect && discountContainer && discountContainer.style.display !== 'none') {
                 appliedDiscountRate = parseInt(discountSelect.value) || 0;
             }
@@ -1280,7 +1267,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     itemId: window.currentPurchaseItem.id,
                     appliedDiscountRate: appliedDiscountRate
                 });
+            } else {
+                 if (window.socketManager && typeof window.socketManager._showToast === 'function') {
+                    window.socketManager._showToast("السيرفر غير متصل حالياً!");
+                }
             }
-        });
+        };
     }
-});
+    
+    const purchaseModal = document.getElementById('purchase-modal');
+    if(purchaseModal) purchaseModal.style.display = 'flex';
+};
