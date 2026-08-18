@@ -1,6 +1,5 @@
 // ملف: index-scripts.js
 
-// دالة تحويل الأرقام الضخمة إلى K و M 🌟
 function formatCompactNumber(num) {
     if (num >= 1000000) {
         return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -11,20 +10,17 @@ function formatCompactNumber(num) {
     return num;
 }
 
-// 🌟 إدارة فتح وإغلاق النوافذ (المودال) 🌟
 window.openAppModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'flex';
         
-        // 🌟 إجبار الخلفيات على الظهور تلقائياً عند فتح الحقيبة
         if (modalId === 'themes-grid-overlay') {
             if (typeof window.switchThemeGridTabCategory === 'function') {
                 window.switchThemeGridTabCategory('bg');
             }
         }
         
-        // 🌟 إجبار الخلفيات على الظهور تلقائياً عند فتح نافذة المتجر الجانبية
         if (modalId === 'store-modal') {
             if (typeof window.switchStoreTabCategory === 'function') {
                 window.switchStoreTabCategory('bg');
@@ -38,12 +34,11 @@ window.closeAppModal = function(modalId) {
     if (modal) modal.style.display = 'none';
 };
 
-// دالة لتمكين ملفات أخرى من عرض نافذة التنبيه
 window.triggerCustomAlertNotification = function(msg) {
     showCustomPopup(msg);
 };
 
-// 🌟 دالة فتح نافذة تأكيد الشراء بالتصميم الجديد 🌟
+// 🌟 دالة فتح نافذة تأكيد الشراء (تم تحديثها بالكامل لقراءة الخصومات والقسائم) 🌟
 let currentPurchaseItem = null;
 
 window.openPurchaseModal = function(itemId, itemName, price, itemType) {
@@ -53,42 +48,98 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     const costEl = document.getElementById('modal-item-cost');
     const previewEl = document.getElementById('modal-item-preview');
     
-    if(nameEl) nameEl.innerText = itemName;
+    // 🌟 1. إعدادات مربع الخصم والقسائم
+    const discountContainer = document.getElementById('discount-container');
+    const discountSelect = document.getElementById('modal-discount-select');
+    const profile = getSafeProfile();
     
-    // 👑 حساب وإظهار خصم الـ VIP التلقائي في واجهة الشراء
-    if(costEl) {
-        const profile = getSafeProfile();
-        let vipLevel = profile.vipLevel || 0;
-        let passiveDiscount = 0;
+    if(nameEl) nameEl.innerText = itemName;
+
+    // إعادة تعيين الخصومات
+    if(discountSelect) {
+        discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
+        discountSelect.value = "0";
+    }
+    if(discountContainer) discountContainer.style.display = 'none';
+
+    // إظهار القسائم إذا كان العنصر قابل للخصم (وليس هدية شعبية أو مستهلك)
+    if (itemType !== 'popularity' && itemType !== 'consumable') {
+        let hasTickets = false;
         
-        if (vipLevel === 3) passiveDiscount = 5;       
-        else if (vipLevel === 4) passiveDiscount = 10; 
-        else if (vipLevel >= 5) passiveDiscount = 15;  
+        // التحقق من قائمة التذاكر المتعددة
+        if (profile.discountTickets && Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
+            profile.discountTickets.forEach(ticket => {
+                let val = typeof ticket === 'object' ? ticket.rate : ticket;
+                let title = typeof ticket === 'object' ? ticket.title : `خصم ${val}%`;
+                let opt = document.createElement('option');
+                opt.value = val;
+                opt.text = title;
+                discountSelect.appendChild(opt);
+            });
+            hasTickets = true;
+        } 
+        // التوافق مع التذكرة المفردة القديمة
+        else if (profile.discountTicket && profile.discountTicket > 0) {
+            let opt = document.createElement('option');
+            opt.value = profile.discountTicket;
+            opt.text = `خصم ${profile.discountTicket}%`;
+            discountSelect.appendChild(opt);
+            hasTickets = true;
+        }
+
+        if (hasTickets && discountContainer) {
+            discountContainer.style.display = 'block';
+        }
+    }
+
+    // 🌟 2. حساب وعرض السعر مع التحديث المباشر
+    let vipLevel = profile.vipLevel || 0;
+    let passiveDiscount = 0;
+    if (vipLevel === 3) passiveDiscount = 5;       
+    else if (vipLevel === 4) passiveDiscount = 10; 
+    else if (vipLevel >= 5) passiveDiscount = 15;
+
+    function updatePriceDisplay() {
+        if(!costEl) return;
         
+        let ticketDiscount = (discountSelect && discountContainer && discountContainer.style.display !== 'none') ? (parseInt(discountSelect.value) || 0) : 0;
         let finalPrice = price;
         let priceHtml = '';
         
-        // الخصم التلقائي لا يطبق على الشعبية أو العناصر المجانية
         if (passiveDiscount > 0 && price > 0 && itemType !== 'popularity') {
             finalPrice = Math.floor(price * (1 - (passiveDiscount / 100)));
+            if (ticketDiscount > 0) finalPrice = Math.floor(finalPrice * (1 - (ticketDiscount / 100)));
+            
             priceHtml = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:14px; text-decoration:line-through; color:var(--text-secondary);">${formatCompactNumber(price)}</span>
-                    <span style="color:#34c759;">${formatCompactNumber(finalPrice)} <span style="font-size:12px;">(خصم VIP ${passiveDiscount}%)</span></span>
+                    <span style="color:#34c759;">${formatCompactNumber(finalPrice)} 🪙 <span style="font-size:12px;">(مشمول الخصم)</span></span>
+                </div>
+            `;
+        } else if (ticketDiscount > 0 && price > 0) {
+            finalPrice = Math.floor(price * (1 - (ticketDiscount / 100)));
+             priceHtml = `
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <span style="font-size:14px; text-decoration:line-through; color:var(--text-secondary);">${formatCompactNumber(price)}</span>
+                    <span style="color:#34c759;">${formatCompactNumber(finalPrice)} 🪙 <span style="font-size:12px;">(خصم التذكرة)</span></span>
                 </div>
             `;
         } else {
-            priceHtml = formatCompactNumber(price);
+            priceHtml = `${formatCompactNumber(price)} 🪙`;
         }
         
-        costEl.innerHTML = priceHtml; 
+        costEl.innerHTML = priceHtml;
     }
+
+    if(discountSelect) {
+        discountSelect.onchange = updatePriceDisplay;
+    }
+
+    updatePriceDisplay(); // تحديث السعر الافتراضي فور الفتح
     
-    // جلب الأيقونة أو الصورة لتلائم التصميم الجديد
+    // 🌟 3. جلب الأيقونة الصحيحة للمنتج
     if (previewEl) {
         let iconHtml = '🎁'; 
-        
-        // جلب أيقونة المتجر إذا كانت من المتجر العام
         if (window.STORE_ITEMS && window.STORE_ITEMS[itemId]) {
             const item = window.STORE_ITEMS[itemId];
             if (item.isImage) {
@@ -100,7 +151,6 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
                 iconHtml = '💡';
             }
         } 
-        // جلب أيقونة الشعبية
         else if (itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === itemId))) {
              if (window.POPULARITY_ITEMS) {
                  const popItem = window.POPULARITY_ITEMS.find(p => p.id === itemId);
@@ -124,7 +174,7 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     window.openAppModal('purchase-modal');
 };
 
-// 🌟 ربط زر تأكيد الشراء بالسيرفر 🌟
+// 🌟 ربط زر تأكيد الشراء بالسيرفر وإرسال قيمة الخصم 🌟
 document.addEventListener('DOMContentLoaded', () => {
     const confirmBuyBtn = document.getElementById('confirm-buy-btn');
     if (confirmBuyBtn) {
@@ -137,17 +187,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (!currentPurchaseItem) return;
+            
+            // قراءة الخصم المختار
+            let appliedDiscountRate = 0;
+            const discountSelect = document.getElementById('modal-discount-select');
+            const discountContainer = document.getElementById('discount-container');
+            if (discountSelect && discountContainer && discountContainer.style.display !== 'none') {
+                appliedDiscountRate = parseInt(discountSelect.value) || 0;
+            }
 
             window.closeAppModal('purchase-modal');
 
             if (typeof socket !== 'undefined' && socket.connected) {
                 showLoadingPopup("جاري معالجة الشراء...");
-                
-                // 💡 التعديل هنا: إرسال guestId بدلاً من userId ليتوافق مع السيرفر الثانوي والمتجر
                 socket.emit('requestPurchase', { 
                     guestId: profile.id, 
                     userId: profile.id,
-                    itemId: currentPurchaseItem.id 
+                    itemId: currentPurchaseItem.id,
+                    appliedDiscountRate: appliedDiscountRate // إرسال الخصم للسيرفر 🎫
                 });
             } else {
                 showCustomPopup("السيرفر غير متصل حالياً!");
@@ -179,7 +236,6 @@ let currentLang = localStorage.getItem('app_lang') || 'ar';
 if (!langs.includes(currentLang)) currentLang = 'ar';
 let isLoginMode = false; 
 
-// 🌟 دالة التنقل في الشريط السفلي
 window.switchNavTab = function(tabName) {
     document.querySelectorAll('.nav-section-container').forEach(el => {
         el.classList.remove('active-section');
@@ -191,7 +247,6 @@ window.switchNavTab = function(tabName) {
     document.getElementById(`nav-section-${tabName}`).classList.add('active-section');
     event.currentTarget.classList.add('active');
 
-    // إجبار الخلفيات على الظهور تلقائياً عند فتح المتجر من الشريط السفلي
     if (tabName === 'store') {
         if (typeof window.switchStoreTabCategory === 'function') {
             window.switchStoreTabCategory('bg');
@@ -410,7 +465,6 @@ socket.on('profileUpdated', (updatedProfile) => {
     syncHubProfile();
     updateHubPopularity(); 
     
-    // تحديث شريط تقدم VIP إذا تم التحديث
     if (typeof window.updateVipProgressBarUI === 'function') {
         window.updateVipProgressBarUI();
     }
@@ -421,9 +475,7 @@ socket.on('profileUpdated', (updatedProfile) => {
     }
 });
 
-// 👑 استقبال إشعار الدخول الملكي للـ VIP
 socket.on('royalEntrance', (data) => {
-    // منع تكرار الإشعار إذا كان موجوداً
     if(document.getElementById('vip-entrance-banner')) return;
 
     const banner = document.createElement('div');
@@ -432,7 +484,6 @@ socket.on('royalEntrance', (data) => {
     
     let roleMsg = data.type === 'spectator' ? 'لمشاهدة المباراة 🍿' : 'إلى الساحة ⚔️';
     
-    // تصميم مختلف حسب مستوى الـ VIP
     let badge = data.vipLevel >= 4 ? '💎' : '👑';
     let color = data.vipLevel >= 4 ? 'rgba(0, 210, 255, 0.8)' : 'rgba(212, 175, 55, 0.8)';
     let glow = data.vipLevel >= 4 ? 'rgba(0, 210, 255, 0.6)' : 'rgba(255, 215, 0, 0.6)';
@@ -771,7 +822,6 @@ window.syncHubProfile = function() {
     
     if (document.getElementById('profile-stat-tokens-store')) document.getElementById('profile-stat-tokens-store').innerText = tokenVal;
     
-    // 👑 تمييز الاسم باللون الذهبي للـ VIP في الملف الشخصي
     const nameEl = document.getElementById('profile-display-name');
     if (nameEl) {
         if (profile.vipLevel > 0) {
@@ -1079,7 +1129,6 @@ window.addEventListener('message', (event) => {
 // 🌟 دوال التنقل وإدارة الحقيبة 🌟
 // ===================================================================
 
-// 1. دالة التنقل وتحديث التبويبات الفرعية للممتلكات
 window.switchThemeGridTabCategory = function(category) {
     const tabs = ['bg', 'frames', 'pieces', 'profile-frames', 'gifts'];
     
@@ -1092,7 +1141,6 @@ window.switchThemeGridTabCategory = function(category) {
     document.querySelectorAll('[id="theme-grid-section-' + category + '"]').forEach(activeSec => activeSec.style.display = 'grid');
 };
 
-// 2. دالة التنقل بين الأقسام الرئيسية للحقيبة (الألعاب / العام)
 window.switchBagMainTab = function(tabId, btnElement) {
     document.querySelectorAll('.bag-main-tab').forEach(el => el.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
@@ -1104,15 +1152,12 @@ window.switchBagMainTab = function(tabId, btnElement) {
 
     if (tabId === 'general') {
         if (typeof window.renderGiftsInBag === 'function') window.renderGiftsInBag();
-        // إجبار تبويب الهدايا على التفعيل عند الدخول لقسم عام
         if (typeof window.switchThemeGridTabCategory === 'function') window.switchThemeGridTabCategory('gifts');
     } else if (tabId === 'games') {
-        // العودة لخلفيات الألعاب عند الدخول لقسم الألعاب
         if (typeof window.switchThemeGridTabCategory === 'function') window.switchThemeGridTabCategory('bg');
     }
 };
 
-// 3. دالة التنقل بين ألعاب الحقيبة
 window.switchBagGameTab = function(gameId, btnElement) {
     document.querySelectorAll('.bag-game-content').forEach(el => {
         el.classList.remove('active');
@@ -1133,38 +1178,29 @@ window.switchBagGameTab = function(gameId, btnElement) {
 // 🌟 دوال الشراء بالأموال الحقيقية والـ VIP (Google Play Billing) 🌟
 // ===================================================================
 
-// 1. الدالة التي يضغط عليها اللاعب لشراء باقة (تم تفعيل وضع المحاكاة للويب)
 window.purchaseRealMoney = function(packageId, price) {
     const profile = getSafeProfile();
     
-    // منع الزوار المؤقتين من الشراء بمال حقيقي لضمان حفظ حقوقهم
     if (profile.id === "GUEST-DEFAULT" || profile.id.startsWith('GUEST-')) {
         showCustomPopup("يرجى إنشاء حساب أو تسجيل الدخول بحساب دائم لحفظ مشترياتك بأمان.");
         return;
     }
 
-    // --- 🌟 وضع المحاكاة (Testing Mode) للويب 🌟 ---
-    // سنقوم بمحاكاة نجاح عملية الدفع لتتمكن من تجربة نظام الـ VIP على المتصفح
     showLoadingPopup("جاري محاكاة بوابة الدفع (وضع الاختبار)...");
     
     setTimeout(() => {
-        // توليد وصل دفع وهمي لاختبار السيرفر
         const fakeToken = "TEST_TOKEN_" + Math.random().toString(36).substring(2, 15);
-        
-        // استدعاء دالة النجاح وكأن تطبيق الأندرويد هو من استدعاها
         if (typeof window.onGooglePurchaseSuccess === 'function') {
             window.onGooglePurchaseSuccess(fakeToken, packageId);
         }
-    }, 1500); // محاكاة تأخير شاشة الدفع لمدة ثانية ونصف
+    }, 1500); 
 };
 
-// 2. دالة يستدعيها التطبيق (الأندرويد) عند نجاح الدفع
 window.onGooglePurchaseSuccess = function(purchaseToken, packageId) {
     showLoadingPopup("تم الدفع بنجاح! جاري إضافة الرصيد لحسابك...");
     
     const profile = getSafeProfile();
     
-    // إرسال التوكن السري للسيرفر للتحقق منه وإضافة الموارد
     if (typeof socket !== 'undefined' && socket.connected) {
         socket.emit('verify_google_purchase', {
             userId: profile.id,
@@ -1176,32 +1212,26 @@ window.onGooglePurchaseSuccess = function(purchaseToken, packageId) {
     }
 };
 
-// 3. دالة يستدعيها التطبيق (الأندرويد) في حال إلغاء الدفع أو فشله
 window.onGooglePurchaseFailed = function(errorMessage) {
-    document.getElementById('custom-popup-modal').style.display = 'none'; // إخفاء نافذة التحميل
+    document.getElementById('custom-popup-modal').style.display = 'none'; 
     showCustomPopup("لم تكتمل عملية الشراء: " + errorMessage);
 };
 
-// 4. استماع رد السيرفر بعد التأكد من الدفع
 socket.on('googlePurchaseVerified', (data) => {
     document.getElementById('custom-popup-modal').style.display = 'none';
     
-    // تحديث ملف اللاعب بالرصيد والـ VIP الجديد
     localStorage.setItem('hub_user_profile', JSON.stringify(data.updatedProfile));
     syncHubProfile();
     updateVipProgressBarUI();
     
-    // إشعار تهنئة
     showCustomPopup(`تم الشحن بنجاح!\nتم إضافة ${data.addedTokens} 🪙\nوحصلت على ${data.addedVipPoints} نقطة VIP.`);
 });
 
-// 5. دالة تحديث شريط تقدم الـ VIP بصرياً في المتجر
 window.updateVipProgressBarUI = function() {
     const profile = getSafeProfile();
     let currentVip = profile.vipLevel || 0;
     let currentPoints = profile.vipPoints || 0;
     
-    // حساب النقاط المطلوبة لكل مستوى
     const vipThresholds = [0, 500, 2000, 10000, 50000, 100000]; 
     let nextVip = currentVip + 1;
     if (nextVip >= vipThresholds.length) nextVip = vipThresholds.length - 1; 
@@ -1209,7 +1239,6 @@ window.updateVipProgressBarUI = function() {
     let requiredPoints = vipThresholds[nextVip];
     let prevRequiredPoints = vipThresholds[currentVip];
     
-    // حساب النسبة المئوية للتقدم
     let progressPercent = 100;
     if (currentVip < vipThresholds.length - 1) {
         let pointsInCurrentLevel = currentPoints - prevRequiredPoints;
@@ -1217,7 +1246,6 @@ window.updateVipProgressBarUI = function() {
         progressPercent = Math.min(100, (pointsInCurrentLevel / pointsNeededForNext) * 100);
     }
     
-    // تطبيق البيانات على الواجهة إذا كانت موجودة
     const badgeEl = document.getElementById('current-vip-badge');
     const nextBadgeEl = document.getElementById('next-vip-badge');
     const progressBarEl = document.getElementById('vip-progress-bar');
@@ -1239,7 +1267,6 @@ window.updateVipProgressBarUI = function() {
     }
 };
 
-// تشغيل التحديث عند فتح الصفحة
 window.addEventListener('load', () => {
     setTimeout(updateVipProgressBarUI, 1000);
 });
