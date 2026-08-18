@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث: تم تنظيف الملف من أكواد الحقيبة المتعارضة لتعمل من مصدر واحد (index-scripts.js)
+ * 🌟 التحديث: إخفاء إطارات البروفايل من المتجر تلقائياً بمجرد امتلاك اللاعب لها.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -610,18 +610,34 @@ window.triggerAlertSoon = function() {
 };
 
 // ==========================================
-// 🌟 دوال عرض وشراء إطارات البروفايل الشخصية 🌟
+// 🌟 دوال عرض وشراء إطارات البروفايل الشخصية (محدثة للإخفاء بعد الشراء) 🌟
 // ==========================================
 
-// 1. دالة رسم الإطارات داخل تبويب "إطار شخصي"
 window.renderProfileFrames = function() {
     const grid = document.getElementById('store-profile-frames-grid');
     if (!grid) return;
     
     grid.innerHTML = ''; 
     
+    const profile = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : {};
+    let rawPurchased = profile.purchasedItems || [];
+    let purchasedItems = Array.isArray(rawPurchased) ? rawPurchased : [];
+    
     if (window.PROFILE_FRAMES_ITEMS && window.PROFILE_FRAMES_ITEMS.length > 0) {
+        let framesRendered = 0;
+        
         window.PROFILE_FRAMES_ITEMS.forEach(item => {
+            // 🌟 شرط الإخفاء: إذا كان الإطار مملوكاً، قم بتخطيه (عدم عرضه في المتجر)
+            const isPurchased = purchasedItems.some(purchased => 
+                String(purchased).trim() === String(item.id).trim() || 
+                (purchased && typeof purchased === 'object' && String(purchased.id).trim() === String(item.id).trim())
+            );
+
+            if (isPurchased) {
+                return; 
+            }
+            
+            framesRendered++;
             const card = document.createElement('div');
             card.className = 'store-item-card';
             
@@ -638,10 +654,13 @@ window.renderProfileFrames = function() {
             `;
             grid.appendChild(card);
         });
+
+        if (framesRendered === 0) {
+            grid.innerHTML = '<p style="color: var(--text-secondary); text-align: center; grid-column: 1 / -1; margin-top: 20px; font-size: 14px;">لقد حصلت على جميع الإطارات المتوفرة! 🎉</p>';
+        }
     }
 };
 
-// 2. دالة الشراء (التي تفتح نافذة التأكيد)
 window.buyProfileFrameItem = function(itemId) {
     const item = window.PROFILE_FRAMES_ITEMS.find(i => i.id === itemId);
     if(item) {
