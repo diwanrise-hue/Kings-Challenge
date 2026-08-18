@@ -1,5 +1,5 @@
 // ==========================================
-// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (إصلاح تداخل التبويبات وخصومات الـ VIP)
+// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (إصلاح خطأ الـ Syntax وخصومات الـ VIP)
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -999,6 +999,7 @@ export const storeManager = {
                 const buyBtn = document.createElement('button');
                 buyBtn.className = `store-buy-btn store-buy-btn-small ${legendaryClassBtn}`; buyBtn.innerText = isAr ? 'شراء' : 'Buy';
                 buyBtn.onclick = () => { 
+                    // 👑 تعديل مهم: استدعاء دالة الشراء الخاصة بالنافذة
                     if (window['openPurchaseModal']) { 
                         window['openPurchaseModal'](key, name, item.cost, item.type); 
                     } else { 
@@ -1163,7 +1164,7 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         if (profile.discountTickets && Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
             profile.discountTickets.forEach(ticket => {
                 let val = typeof ticket === 'object' ? ticket.rate : ticket;
-                let title = typeof ticket === 'object' ? ticket.title : \`خصم \${val}%\`;
+                let title = typeof ticket === 'object' ? ticket.title : `خصم ${val}%`;
                 let opt = document.createElement('option');
                 opt.value = val;
                 opt.text = title;
@@ -1173,7 +1174,7 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         } else if (profile.discountTicket && profile.discountTicket > 0) {
             let opt = document.createElement('option');
             opt.value = profile.discountTicket;
-            opt.text = \`خصم \${profile.discountTicket}%\`;
+            opt.text = `خصم ${profile.discountTicket}%`;
             discountSelect.appendChild(opt);
             hasTickets = true;
         }
@@ -1188,8 +1189,8 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     else if (vipLevel >= 5) passiveDiscount = 15;  
 
     function formatCompact(num) {
-        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\\.0$/, '') + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\\.0$/, '') + 'K';
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
         return num;
     }
 
@@ -1203,22 +1204,22 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
             finalPrice = Math.floor(price * (1 - (passiveDiscount / 100)));
             if (ticketDiscount > 0) finalPrice = Math.floor(finalPrice * (1 - (ticketDiscount / 100)));
             
-            priceHtml = \`
+            priceHtml = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
-                    <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">\${formatCompact(price)}</span>
-                    <span style="color:#34c759;">\${formatCompact(finalPrice)} 🪙 <span style="font-size:12px;">(مشمول الخصم)</span></span>
+                    <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">${formatCompact(price)}</span>
+                    <span style="color:#34c759;">${formatCompact(finalPrice)} 🪙 <span style="font-size:12px;">(مشمول الخصم)</span></span>
                 </div>
-            \`;
+            `;
         } else if (ticketDiscount > 0 && price > 0) {
             finalPrice = Math.floor(price * (1 - (ticketDiscount / 100)));
-             priceHtml = \`
+             priceHtml = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
-                    <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">\${formatCompact(price)}</span>
-                    <span style="color:#34c759;">\${formatCompact(finalPrice)} 🪙 <span style="font-size:12px;">(خصم التذكرة)</span></span>
+                    <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">${formatCompact(price)}</span>
+                    <span style="color:#34c759;">${formatCompact(finalPrice)} 🪙 <span style="font-size:12px;">(خصم التذكرة)</span></span>
                 </div>
-            \`;
+            `;
         } else {
-            priceHtml = \`\${formatCompact(price)} 🪙\`;
+            priceHtml = `${formatCompact(price)} 🪙`;
         }
         costEl.innerHTML = priceHtml;
     }
@@ -1232,7 +1233,7 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
             const item = STORE_ITEMS[itemId];
             if (item.isImage) {
                 let imgSrc = item.imagePathWhite || item.imagePath;
-                iconHtml = \`<img src="\${imgSrc}" style="max-width: 85%; max-height: 85%; object-fit: contain;">\`;
+                iconHtml = `<img src="${imgSrc}" style="max-width: 85%; max-height: 85%; object-fit: contain;">`;
             } else if (item.icon) {
                 iconHtml = item.icon;
             } else if (itemType === 'consumable') {
