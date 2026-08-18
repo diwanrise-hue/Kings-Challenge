@@ -1,5 +1,5 @@
 // ==========================================
-// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (إصلاح خطأ نافذة الشراء وخصومات الـ VIP)
+// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (دعم شامل للخصومات)
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -1135,7 +1135,7 @@ window.switchThemeGridTabCategory = function(category) {
 };
 
 // ===================================================================
-// 🌟 دالة نافذة الشراء لمتجر الدامة (محدثة لدعم خصم الـ VIP والقسائم) 🌟
+// 🌟 دالة نافذة الشراء لمتجر الدامة (محدثة لترتيب العناصر بشكل سليم)
 // ===================================================================
 window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     window.currentPurchaseItem = { id: itemId, type: itemType, price: price };
@@ -1150,7 +1150,6 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     
     if(nameEl) nameEl.innerText = itemName;
 
-    // 💡 الإصلاح هنا: تخطي تحديث القسائم إذا لم يكن الحقل موجوداً في الـ HTML لمنع خطأ TypeError
     if(discountSelect && discountContainer) {
         discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
         discountSelect.value = "0";
@@ -1240,7 +1239,6 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         previewEl.innerHTML = iconHtml;
     }
 
-    // 💡 الإصلاح الجذري: ربط زر التأكيد مباشرة وإرسال الطلب للسيرفر
     const confirmBuyBtn = document.getElementById('confirm-buy-btn');
     if (confirmBuyBtn) {
         confirmBuyBtn.onclick = function() {
