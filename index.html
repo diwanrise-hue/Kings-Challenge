@@ -15,16 +15,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
-    <script src="radio.js?v=11" defer></script>
+    <script src="radio.js?v=13" defer></script>
     
     <!-- 🌟 ملفات السكربت الخارجية 🌟 -->
-    <script src="translations.js?v=11"></script>
-    <script src="hubIcons.js?v=11" defer></script>
-    <script src="populars.js?v=11" defer></script>
-    <script src="storeAll.js?v=11" defer></script>
+    <script src="translations.js?v=13"></script>
+    <script src="hubIcons.js?v=13" defer></script>
+    <script src="populars.js?v=13" defer></script>
+    <script src="storeAll.js?v=13" defer></script>
     
     <!-- 🌟 ملف السكربت الرئيسي الخاص بالواجهة -->
-    <script src="index-scripts.js?v=11" defer></script>
+    <script src="index-scripts.js?v=13" defer></script>
 
     <style>
         :root {
@@ -35,7 +35,8 @@
             --text-primary: #ffffff;
             --text-secondary: #a1a1aa;
             
-            --accent: #f5a623; 
+            /* 👑 لون ذهبي مزنجر فخم (Antique Gold) */
+            --accent: #c59b42; 
             --danger: #ff453a;
             
             --radius-pill: 50px;
@@ -97,12 +98,12 @@
         .hub-token-badge {
             height: 36px;
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; 
+            border: 0.8px solid rgba(197, 155, 66, 0.6) !important; 
             box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
             border-radius: var(--radius-pill); 
             display: flex; align-items: center; justify-content: center;
             padding: 0 16px !important; 
-            color: #ffd700 !important; 
+            color: var(--accent) !important; 
             font-weight: 700; font-size: 15px; 
             direction: ltr; transition: var(--transition); gap: 6px;
         }
@@ -110,7 +111,7 @@
         .hamburger-btn {
             width: 38px; height: 38px;
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; 
+            border: 0.8px solid rgba(197, 155, 66, 0.6) !important; 
             box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
             border-radius: 11px !important; 
             cursor: pointer; transition: var(--transition); padding: 0; 
@@ -120,7 +121,7 @@
         .radio-hud-btn-fallback {
             width: 38px; height: 38px;
             background: linear-gradient(to bottom, #1b5e20 0%, #08210b 100%) !important; 
-            border: 0.8px solid rgba(255, 215, 0, 0.6) !important; 
+            border: 0.8px solid rgba(197, 155, 66, 0.6) !important; 
             box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.3), inset 0 -4px 10px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6) !important; 
             border-radius: 11px !important; 
             cursor: pointer; transition: var(--transition); padding: 0; 
@@ -130,7 +131,7 @@
         .hamburger-btn:hover, .radio-hud-btn-fallback:hover { transform: scale(1.05); filter: brightness(1.1); }
         .hamburger-btn span {
             display: block; width: 18px; height: 2.5px;
-            background: linear-gradient(to right, #ffd700, #d4af37) !important; 
+            background: linear-gradient(to right, #c59b42, #8b5a2b) !important;
             border-radius: 2px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.8);
             transition: var(--transition);
@@ -190,8 +191,8 @@
             border-radius: var(--radius-card); cursor: pointer; 
             position: relative; overflow: hidden; 
             background: #111;
-            border: 0.8px solid #ffd700 !important; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 10px rgba(255, 215, 0, 0.2) !important; 
+            border: 0.8px solid var(--accent) !important; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 10px rgba(197, 155, 66, 0.2) !important; 
             transition: var(--transition);
             display: flex; align-items: flex-end; justify-content: center;
         }
@@ -217,7 +218,7 @@
             transition: var(--transition);
         }
 
-        .dama-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 20px rgba(255, 215, 0, 0.4) !important; }
+        .dama-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 20px rgba(197, 155, 66, 0.4) !important; }
         .dama-card:hover img.card-bg { transform: scale(1.05); opacity: 1; }
         .dama-card:hover span { color: var(--accent); }
 
@@ -225,12 +226,12 @@
             width: 85%; max-width: 320px; padding: 22px; 
             background: rgba(255,255,255,0.02); color: var(--text-secondary); 
             border-radius: var(--radius-card); text-align: center; 
-            border: 0.8px solid #ffd700 !important; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 10px rgba(255, 215, 0, 0.05) !important;
+            border: 0.8px solid var(--accent) !important; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 10px rgba(197, 155, 66, 0.05) !important;
             cursor: pointer; 
             transition: var(--transition); font-size: 18px; font-weight: 500; 
         }
-        .game-card-soon:hover { background: rgba(255, 215, 0, 0.05); color: #ffd700; box-shadow: 0 15px 30px rgba(0,0,0,0.6), inset 0 0 15px rgba(255, 215, 0, 0.1) !important; }
+        .game-card-soon:hover { background: rgba(197, 155, 66, 0.05); color: var(--accent); box-shadow: 0 15px 30px rgba(0,0,0,0.6), inset 0 0 15px rgba(197, 155, 66, 0.1) !important; }
 
         #game-interface { 
             display: none; width: 100vw; height: 100dvh; background: #000; 
@@ -377,8 +378,8 @@
             flex: 1;
             height: 100%;
             border: none;
-            border-left: 0.8px solid rgba(212, 175, 55, 0.4); 
-            border-top: 0.8px solid rgba(212, 175, 55, 0.6); 
+            border-left: 0.8px solid rgba(197, 155, 66, 0.4); 
+            border-top: 0.8px solid rgba(197, 155, 66, 0.6); 
         }
         
         .nav-item:last-child { border-left: none; } 
@@ -391,7 +392,7 @@
         .nav-item.active {
             color: var(--accent);
             border-top-color: transparent !important; 
-            background: linear-gradient(to top, rgba(255,215,0,0.05), transparent);
+            background: linear-gradient(to top, rgba(197, 155, 66, 0.05), transparent);
         }
 
         .nav-icon {
@@ -417,7 +418,7 @@
 
         .nav-item.active .nav-icon svg {
             color: var(--accent);
-            filter: drop-shadow(0 0 5px rgba(245, 166, 35, 0.6));
+            filter: drop-shadow(0 0 5px rgba(197, 155, 66, 0.6));
         }
 
         .nav-text {
@@ -464,9 +465,9 @@
         }
 
         .theme-grid-item:hover, .theme-grid-item.active { 
-            border-color: #ffd700; 
+            border-color: var(--accent); 
             background: linear-gradient(to bottom, rgba(27, 94, 32, 0.4) 0%, rgba(8, 33, 11, 0.4) 100%);
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2), inset 0 0 8px rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 10px rgba(197, 155, 66, 0.2), inset 0 0 8px rgba(197, 155, 66, 0.1);
         }
 
         .theme-grid-title { 
@@ -500,11 +501,10 @@
             flex: 1; padding: 8px; background: transparent; color: #a1a1aa; border: none; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s;
         }
         .bag-main-tab.active {
-            background: linear-gradient(to bottom, rgba(27, 94, 32, 0.6) 0%, rgba(8, 33, 11, 0.6) 100%); color: #ffd700;
+            background: linear-gradient(to bottom, rgba(27, 94, 32, 0.6) 0%, rgba(8, 33, 11, 0.6) 100%); color: var(--accent);
         }
-        /* الفاصل الذهبي بين الزرين */
-        html[dir="rtl"] .bag-main-tab:first-child { border-left: 1px solid rgba(212, 175, 55, 0.4); }
-        html[dir="ltr"] .bag-main-tab:first-child { border-right: 1px solid rgba(212, 175, 55, 0.4); }
+        html[dir="rtl"] .bag-main-tab:first-child { border-left: 1px solid rgba(197, 155, 66, 0.4); }
+        html[dir="ltr"] .bag-main-tab:first-child { border-right: 1px solid rgba(197, 155, 66, 0.4); }
 
         /* 🌟 الأزرار الجانبية الخاصة بالألعاب 🌟 */
         .bag-side-btn {
@@ -513,8 +513,8 @@
         html[dir="ltr"] .bag-side-btn { border-right: none; border-left: 3px solid transparent; }
         .bag-side-btn span:last-child { font-size: 11px; font-weight: 700; }
         .bag-side-btn:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-primary); }
-        .bag-side-btn.active { background: linear-gradient(to left, rgba(255,215,0,0.1), transparent); border-right: 3px solid #ffd700; color: #ffd700; }
-        html[dir="ltr"] .bag-side-btn.active { background: linear-gradient(to right, rgba(255,215,0,0.1), transparent); border-left: 3px solid #ffd700; border-right: none; }
+        .bag-side-btn.active { background: linear-gradient(to left, rgba(197, 155, 66, 0.1), transparent); border-right: 3px solid var(--accent); color: var(--accent); }
+        html[dir="ltr"] .bag-side-btn.active { background: linear-gradient(to right, rgba(197, 155, 66, 0.1), transparent); border-left: 3px solid var(--accent); border-right: none; }
 
         .bag-game-content { display: none; height: 100%; }
         .bag-game-content.active { display: flex; flex-direction: column; animation: fadeIn 0.3s ease-out; }
@@ -558,6 +558,7 @@
         <h1 data-i18n="app_title">DAMA CHALLENGE</h1>
     </div>
 
+    <!-- الشريط السفلي للتنقل -->
     <div class="bottom-nav-bar" id="bottom-nav-bar">
         <button class="nav-item" onclick="switchNavTab('latest')">
             <span class="nav-icon" id="icon-latest"></span>
@@ -578,14 +579,17 @@
     <div id="game-selector">
         <div class="top-hud">
             <div style="display: flex; gap: 12px; align-items: center;">
+                <!-- زر القائمة الجانبية -->
                 <div class="hamburger-btn" id="hamburger-toggle-btn" onclick="toggleHamburgerMenu()">
                     <span></span><span></span><span></span>
                 </div>
                 
+                <!-- 🎒 زر الحقيبة -->
                 <button id="hub-bag-btn" class="radio-hud-btn-fallback" onclick="window.openAppModal('themes-grid-overlay')" title="حقيبتي">
                     <span id="hud-icon-bag" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.5);"></span>
                 </button>
 
+                <!-- 📻 زر الراديو -->
                 <button id="music-toggle-btn" class="radio-hud-btn-fallback auto-radio-icon" onclick="openRadioModal()">
                     <span id="hud-icon-radio" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.8);"></span>
                 </button>
@@ -598,8 +602,10 @@
             </div>
         </div>
 
+        <!-- 🌟 قسم المتجر -->
         <div id="nav-section-store" class="nav-section-container"></div>
 
+        <!-- قسم الألعاب -->
         <div id="nav-section-games" class="nav-section-container active-section">
             <div class="cards-container">
                 <div class="dama-card" onclick="startGame()">
@@ -612,6 +618,7 @@
             </div>
         </div>
 
+        <!-- قسم الأحدث -->
         <div id="nav-section-latest" class="nav-section-container">
             <h2 style="color:white; margin-bottom: 20px;" data-i18n="nav_latest">الأحدث</h2>
             <div class="game-card-soon" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</div>
@@ -639,6 +646,8 @@
     <div id="game-interface">
         <iframe id="game-frame" src="" allow="fullscreen; microphone" style="width: 100%; height: 100%; border: none; border-radius: 0;"></iframe>
     </div>
+
+    <!-- المودلز الخاصة بالتطبيق -->
     
     <div id="lang-select-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="settings-card" dir="auto" style="max-width: 250px; padding: 25px 20px;">
@@ -723,10 +732,73 @@
         </div>
     </div>
 
+    <!-- نافذة المتجر الجانبية -->
     <div id="store-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="padding: 0; overflow: hidden; position: relative;">
             <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
             <div style="position: absolute; top: 18px; right: 20px; z-index: 100000; color: white;">🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
+        </div>
+    </div>
+
+    <!-- 👑 نافذة معلومات الـ VIP ومميزات المستويات -->
+    <div id="vip-info-modal" class="modal-overlay" style="z-index: 1000008;">
+        <div class="settings-card" dir="auto" style="max-width: 340px; padding: 25px 20px; background: #111115; border: 1px solid var(--accent); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); max-height: 85vh; overflow-y: auto;">
+            <button onclick="window.closeAppModal('vip-info-modal')" class="modal-close-btn" style="top: 15px; left: 15px;">✕</button>
+            <h3 style="color: var(--accent); font-size: 22px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">مميزات مستويات الـ VIP</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px; text-align: right;">
+                <!-- VIP 1 -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px;">
+                    <div style="color: white; font-weight: bold; font-size: 16px; margin-bottom: 5px;">VIP 1 (النبيل)</div>
+                    <ul style="margin: 0; padding-right: 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+                        <li>اسم ذهبي وتاج 👑 في الملف الشخصي.</li>
+                        <li>إشعار دخول ملكي للغرف.</li>
+                        <li><span style="color:#34c759">+10%</span> نقاط خبرة (XP) إضافية.</li>
+                    </ul>
+                </div>
+                
+                <!-- VIP 2 -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px;">
+                    <div style="color: white; font-weight: bold; font-size: 16px; margin-bottom: 5px;">VIP 2 (البارون)</div>
+                    <ul style="margin: 0; padding-right: 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+                        <li>عجلة الحظ كل 12 ساعة (لفتين يومياً).</li>
+                        <li><span style="color:#34c759">+20%</span> نقاط خبرة (XP) إضافية.</li>
+                    </ul>
+                </div>
+
+                <!-- VIP 3 -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(197, 155, 66, 0.3); padding: 12px; border-radius: 12px;">
+                    <div style="color: var(--accent); font-weight: bold; font-size: 16px; margin-bottom: 5px;">VIP 3 (الأمير)</div>
+                    <ul style="margin: 0; padding-right: 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+                        <li><span style="color:#34c759">خصم 5%</span> دائم وتلقائي من المتجر.</li>
+                        <li>عجلة الحظ كل 8 ساعات.</li>
+                        <li><span style="color:#34c759">+35%</span> نقاط خبرة (XP) إضافية.</li>
+                    </ul>
+                </div>
+
+                <!-- VIP 4 -->
+                <div style="background: rgba(0, 210, 255, 0.05); border: 1px solid rgba(0, 210, 255, 0.3); padding: 12px; border-radius: 12px;">
+                    <div style="color: #00d2ff; font-weight: bold; font-size: 16px; margin-bottom: 5px;">VIP 4 (الملك) 💎</div>
+                    <ul style="margin: 0; padding-right: 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+                        <li>دخول ماسي متوهج للغرف 💎.</li>
+                        <li><span style="color:#34c759">خصم 10%</span> دائم وتلقائي من المتجر.</li>
+                        <li>عجلة الحظ كل 6 ساعات.</li>
+                        <li><span style="color:#34c759">+60%</span> نقاط خبرة (XP) إضافية.</li>
+                    </ul>
+                </div>
+
+                <!-- VIP 5 -->
+                <div style="background: linear-gradient(135deg, rgba(197,155,66,0.1), rgba(255,0,0,0.05)); border: 1px solid var(--accent); padding: 12px; border-radius: 12px;">
+                    <div style="color: var(--accent); font-weight: bold; font-size: 16px; margin-bottom: 5px;">VIP 5 (الإمبراطور) 🌟</div>
+                    <ul style="margin: 0; padding-right: 20px; color: #fff; font-size: 13px; line-height: 1.6;">
+                        <li><span style="color:#34c759">خصم 15%</span> دائم وتلقائي من المتجر.</li>
+                        <li>عجلة الحظ كل 4 ساعات (6 لفات يومياً!).</li>
+                        <li><span style="color:#34c759">+100%</span> نقاط خبرة (ضعف الـ XP).</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button onclick="window.closeAppModal('vip-info-modal')" class="btn" style="margin-top: 20px; width: 100%; background: var(--accent); color: #000; border-radius: 20px; font-weight: bold;">فهمت ذلك</button>
         </div>
     </div>
 
@@ -775,7 +847,7 @@
         </div>
     </div>
 
-        <!-- 🌟 نافذة تأكيد الشراء (تم ترتيب العناصر: الصورة ثم السعر ثم الخصم ثم الأزرار) -->
+    <!-- 🌟 نافذة تأكيد الشراء (المرتبة) -->
     <div id="purchase-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 30px 20px; background: #111115; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.9);">
             <h3 id="modal-item-name" style="color: white; font-size: 20px; font-weight: 700; margin-bottom: 20px;">اسم المنتج</h3>
@@ -784,12 +856,10 @@
             
             <div id="modal-item-preview" style="width: 80px; height: 80px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 35px; overflow: hidden;">💡</div>
             
-            <!-- 🌟 السعر أصبح هنا (فوق صندوق الخصم) -->
             <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;">
-                <span id="modal-item-cost" style="color: #ffd700; font-weight: 800; font-size: 22px;">0</span>
+                <span id="modal-item-cost" style="color: var(--accent); font-weight: 800; font-size: 22px;">0</span>
             </div>
 
-            <!-- 🌟 مربع التذاكر والقسائم أصبح هنا (تحت السعر) -->
             <div id="discount-container" style="display: none; width: 100%; margin-bottom: 25px; background: rgba(52, 199, 89, 0.05); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: 16px; padding: 15px;">
                 <label style="color: #34c759; font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">استخدم قسيمة خصم (اختياري) 🎫:</label>
                 <select id="modal-discount-select" class="clean-input" style="height: 40px; font-size: 14px; background: rgba(0,0,0,0.4); border-color: rgba(52, 199, 89, 0.2); color: white;">
@@ -798,25 +868,25 @@
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                <button id="confirm-buy-btn" class="btn" style="width: 100%; background: rgba(255, 215, 0, 0.05); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.4); border-radius: 20px; font-weight: bold; font-size: 15px; height: 48px;">شراء الآن</button>
+                <button id="confirm-buy-btn" class="btn" style="width: 100%; background: rgba(197, 155, 66, 0.05); color: var(--accent); border: 1px solid rgba(197, 155, 66, 0.4); border-radius: 20px; font-weight: bold; font-size: 15px; height: 48px;">شراء الآن</button>
                 <button onclick="window.closeAppModal('purchase-modal')" class="btn" style="width: 100%; background: transparent; color: #e0e0e0; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; font-size: 15px; height: 48px;">إلغاء</button>
             </div>
         </div>
     </div>
-          
-    <!-- 🌟 نافذة الحقيبة (الممتلكات) - التصميم الجديد 🌟 -->
+
+    <!-- 🌟 نافذة الحقيبة -->
     <div id="themes-grid-overlay" class="modal-overlay" style="z-index: 1000006;">
-        <div class="settings-card" dir="auto" style="width: 90vw; height: 90vh; max-width: none; max-height: none; padding: 0; background: #0b120d; border: 1px solid #b38d36; box-shadow: 0 20px 50px rgba(0,0,0,0.9); display: flex; flex-direction: column; overflow: hidden;">
+        <div class="settings-card" dir="auto" style="width: 90vw; height: 90vh; max-width: none; max-height: none; padding: 0; background: #0b120d; border: 1px solid var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.9); display: flex; flex-direction: column; overflow: hidden;">
             
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,215,0,0.2); flex-shrink: 0;">
-                <h3 style="margin: 0; font-size: 22px; color: #ffd700; text-shadow: 0 2px 4px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(197, 155, 66, 0.2); flex-shrink: 0;">
+                <h3 style="margin: 0; font-size: 22px; color: var(--accent); text-shadow: 0 2px 4px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 8px;">
                     حقيبتي
                     <span id="bag-modal-svg-icon" style="width: 28px; height: 28px; display: inline-block;"></span>
                 </h3>
                 <button class="modal-close-btn" style="position: static; margin: 0; background: transparent; border: none; color: #a1a1aa; font-size: 22px; cursor: pointer; padding: 0;" onclick="window.closeAppModal('themes-grid-overlay')">✕</button>
             </div>
             
-            <div style="display: flex; width: 90%; margin: 15px auto 8px auto; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.5); overflow: hidden; flex-shrink: 0;">
+            <div style="display: flex; width: 90%; margin: 15px auto 8px auto; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid rgba(197, 155, 66, 0.5); overflow: hidden; flex-shrink: 0;">
                 <button class="bag-main-tab active" onclick="switchBagMainTab('games', this)" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
                     الألعاب
                     <span style="width: 20px; height: 20px; display: inline-block;">
@@ -846,7 +916,7 @@
             <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0 4px 6px 4px; background: #0b120d;">
                 
                 <div id="bag-view-games" style="display: flex; flex-direction: row; height: 100%; animation: fadeIn 0.3s ease-out;">
-                    <div style="width: 70px; background: rgba(15,20,24,0.6); border-left: 1px solid rgba(255,215,0,0.2); display: flex; flex-direction: column; padding: 10px 0; gap: 8px; flex-shrink: 0; overflow-y: auto; direction: ltr;">
+                    <div style="width: 70px; background: rgba(15,20,24,0.6); border-left: 1px solid rgba(197, 155, 66, 0.2); display: flex; flex-direction: column; padding: 10px 0; gap: 8px; flex-shrink: 0; overflow-y: auto; direction: ltr;">
                         <div style="direction: rtl; display: flex; flex-direction: column; gap: 8px;">
                             <button class="bag-side-btn active" onclick="switchBagGameTab('dama', this)">
                                 <span style="font-size: 24px;">👑</span>
@@ -909,7 +979,6 @@
         </div>
     </div>
 
-    <!-- 🌟 تهيئة المتجر -->
     <script type="module">
         import { storeManager } from './dama/store.js'; 
         document.addEventListener('DOMContentLoaded', () => {
@@ -920,4 +989,4 @@
     </script>
 
 </body>
-    </html>
+</html>
