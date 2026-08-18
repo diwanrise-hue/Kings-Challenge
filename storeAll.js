@@ -1,7 +1,7 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث: إضافة إطارات البروفايل وتصميم الشحن الجديد (الشبكة وزر التعجب)
+ * 🌟 التحديث: تم تنظيف الملف من أكواد الحقيبة المتعارضة لتعمل من مصدر واحد (index-scripts.js)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -613,16 +613,7 @@ window.triggerAlertSoon = function() {
 // 🌟 دوال عرض وشراء إطارات البروفايل الشخصية 🌟
 // ==========================================
 
-const GITHUB_PROFILE_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/";
-
-// 1. قاعدة بيانات إطارات البروفايل (حسب الأسماء المرفوعة)
-window.PROFILE_FRAMES_ITEMS = [
-    { id: 'pf_ruby', nameAr: 'إطار الياقوت الملكي', price: 15000, imagePath: GITHUB_PROFILE_BASE + 'Profil2.webp' },
-    { id: 'pf_dragon', nameAr: 'إطار التنين الذهبي', price: 35000, imagePath: GITHUB_PROFILE_BASE + 'Profile4.webp' },
-    { id: 'pf_noble', nameAr: 'إطار النبلاء الأسود', price: 10000, imagePath: GITHUB_PROFILE_BASE + 'Profile7.webp' }
-];
-
-// 2. دالة رسم الإطارات داخل تبويب "إطار شخصي"
+// 1. دالة رسم الإطارات داخل تبويب "إطار شخصي"
 window.renderProfileFrames = function() {
     const grid = document.getElementById('store-profile-frames-grid');
     if (!grid) return;
@@ -650,74 +641,12 @@ window.renderProfileFrames = function() {
     }
 };
 
-// 3. دالة الشراء (التي تفتح نافذة التأكيد)
+// 2. دالة الشراء (التي تفتح نافذة التأكيد)
 window.buyProfileFrameItem = function(itemId) {
     const item = window.PROFILE_FRAMES_ITEMS.find(i => i.id === itemId);
     if(item) {
         if (typeof window.openPurchaseModal === 'function') {
             window.openPurchaseModal(item.id, item.nameAr, item.price, 'profile_frame');
         } 
-    }
-};
-
-// ==========================================
-// 🌟 دوال عرض إطارات البروفايل داخل الحقيبة وتفعيلها 🌟
-// ==========================================
-
-window.renderProfileFramesInBag = function() {
-    const container = document.getElementById('theme-grid-section-profile-frames');
-    if (!container) return;
-    
-    container.innerHTML = '';
-
-    const profile = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : (window.storeManager ? window.storeManager.getProfile() : {});
-    const purchasedItems = profile.purchasedItems || [];
-    const framesList = window.PROFILE_FRAMES_ITEMS || [];
-
-    let hasFrames = false;
-
-    framesList.forEach(frame => {
-        if (purchasedItems.includes(frame.id)) {
-            hasFrames = true;
-            
-            const isEquipped = profile.equippedProfileFrame === frame.id;
-            const frameCard = document.createElement('div');
-            frameCard.className = `theme-grid-item ${isEquipped ? 'active' : ''}`;
-            
-            frameCard.onclick = () => {
-                window.equipProfileFrame(frame.id);
-            };
-
-            frameCard.innerHTML = `
-                <div style="height: 50px; width: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
-                    <img src="https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp" style="position: absolute; width: 35px; height: 35px; border-radius: 50%; opacity: 0.5;">
-                    <img src="${frame.imagePath}" style="position: relative; width: 50px; height: 50px; object-fit: contain; z-index: 2; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
-                </div>
-                <span class="theme-grid-title" style="margin-top: 8px;">${frame.nameAr}</span>
-            `;
-            container.appendChild(frameCard);
-        }
-    });
-
-    if (!hasFrames) {
-        container.innerHTML = '<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">لا تملك إطارات للبروفايل حالياً</div>';
-    }
-};
-
-window.equipProfileFrame = function(frameId) {
-    let profile = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : (window.storeManager ? window.storeManager.getProfile() : {});
-    if (!profile || !profile.id) return;
-
-    profile.equippedProfileFrame = frameId;
-    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-
-    window.renderProfileFramesInBag();
-
-    if (typeof window.syncHubProfile === 'function') {
-        window.syncHubProfile();
-    }
-
-    if (typeof socket !== 'undefined' && socket.connected) {
-        socket.emit('syncProfile', { id: profile.id, equippedProfileFrame: frameId });
     }
 };
