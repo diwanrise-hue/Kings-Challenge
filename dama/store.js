@@ -1,5 +1,5 @@
 // ==========================================
-// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (إصلاح تداخل التبويبات)
+// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (إصلاح تداخل التبويبات وخصومات الـ VIP)
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -1133,3 +1133,153 @@ window.switchThemeGridTabCategory = function(category) {
         }
     }
 };
+
+// ===================================================================
+// 🌟 دالة نافذة الشراء لمتجر الدامة (محدثة لدعم خصم الـ VIP والقسائم) 🌟
+// ===================================================================
+window.openPurchaseModal = function(itemId, itemName, price, itemType) {
+    window.currentPurchaseItem = { id: itemId, type: itemType, price: price };
+    
+    const nameEl = document.getElementById('modal-item-name');
+    const costEl = document.getElementById('modal-item-cost');
+    const previewEl = document.getElementById('modal-item-preview');
+    const discountContainer = document.getElementById('discount-container');
+    const discountSelect = document.getElementById('modal-discount-select');
+    
+    const profile = storeManager.getProfile();
+    
+    if(nameEl) nameEl.innerText = itemName;
+
+    // إعادة تعيين الخصومات
+    if(discountSelect) {
+        discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
+        discountSelect.value = "0";
+    }
+    if(discountContainer) discountContainer.style.display = 'none';
+
+    // إظهار القسائم إذا لم يكن عنصر استهلاكي
+    if (itemType !== 'popularity' && itemType !== 'consumable') {
+        let hasTickets = false;
+        if (profile.discountTickets && Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
+            profile.discountTickets.forEach(ticket => {
+                let val = typeof ticket === 'object' ? ticket.rate : ticket;
+                let title = typeof ticket === 'object' ? ticket.title : \`خصم \${val}%\`;
+                let opt = document.createElement('option');
+                opt.value = val;
+                opt.text = title;
+                discountSelect.appendChild(opt);
+            });
+            hasTickets = true;
+        } else if (profile.discountTicket && profile.discountTicket > 0) {
+            let opt = document.createElement('option');
+            opt.value = profile.discountTicket;
+            opt.text = \`خصم \${profile.discountTicket}%\`;
+            discountSelect.appendChild(opt);
+            hasTickets = true;
+        }
+        if (hasTickets && discountContainer) discountContainer.style.display = 'block';
+    }
+
+    // حساب وإظهار خصم الـ VIP التلقائي
+    let vipLevel = profile.vipLevel || 0;
+    let passiveDiscount = 0;
+    if (vipLevel === 3) passiveDiscount = 5;       
+    else if (vipLevel === 4) passiveDiscount = 10; 
+    else if (vipLevel >= 5) passiveDiscount = 15;  
+
+    function formatCompact(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\\.0$/, '') + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\\.0$/, '') + 'K';
+        return num;
+    }
+
+    function updatePriceDisplay() {
+        if(!costEl) return;
+        let ticketDiscount = (discountSelect && discountContainer && discountContainer.style.display !== 'none') ? (parseInt(discountSelect.value) || 0) : 0;
+        let finalPrice = price;
+        let priceHtml = '';
+        
+        if (passiveDiscount > 0 && price > 0 && itemType !== 'popularity') {
+            finalPrice = Math.floor(price * (1 - (passiveDiscount / 100)));
+            if (ticketDiscount > 0) finalPrice = Math.floor(finalPrice * (1 - (ticketDiscount / 100)));
+            
+            priceHtml = \`
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">\${formatCompact(price)}</span>
+                    <span style="color:#34c759;">\${formatCompact(finalPrice)} 🪙 <span style="font-size:12px;">(مشمول الخصم)</span></span>
+                </div>
+            \`;
+        } else if (ticketDiscount > 0 && price > 0) {
+            finalPrice = Math.floor(price * (1 - (ticketDiscount / 100)));
+             priceHtml = \`
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">\${formatCompact(price)}</span>
+                    <span style="color:#34c759;">\${formatCompact(finalPrice)} 🪙 <span style="font-size:12px;">(خصم التذكرة)</span></span>
+                </div>
+            \`;
+        } else {
+            priceHtml = \`\${formatCompact(price)} 🪙\`;
+        }
+        costEl.innerHTML = priceHtml;
+    }
+
+    if(discountSelect) discountSelect.onchange = updatePriceDisplay;
+    updatePriceDisplay();
+    
+    if (previewEl) {
+        let iconHtml = '🎁'; 
+        if (STORE_ITEMS[itemId]) {
+            const item = STORE_ITEMS[itemId];
+            if (item.isImage) {
+                let imgSrc = item.imagePathWhite || item.imagePath;
+                iconHtml = \`<img src="\${imgSrc}" style="max-width: 85%; max-height: 85%; object-fit: contain;">\`;
+            } else if (item.icon) {
+                iconHtml = item.icon;
+            } else if (itemType === 'consumable') {
+                iconHtml = '💡';
+            }
+        } 
+        previewEl.innerHTML = iconHtml;
+    }
+    
+    const purchaseModal = document.getElementById('purchase-modal');
+    if(purchaseModal) purchaseModal.style.display = 'flex';
+};
+
+// ربط زر تأكيد الشراء داخل اللعبة وإرسال قيمة الخصم للسيرفر
+document.addEventListener('DOMContentLoaded', () => {
+    const confirmBuyBtn = document.getElementById('confirm-buy-btn');
+    if (confirmBuyBtn) {
+        // استبدال الزر لإزالة أي أحداث قديمة لمنع تكرار الشراء
+        const newConfirmBtn = confirmBuyBtn.cloneNode(true);
+        confirmBuyBtn.parentNode.replaceChild(newConfirmBtn, confirmBuyBtn);
+        
+        newConfirmBtn.addEventListener('click', () => {
+            const profile = storeManager.getProfile();
+            if (!profile || !profile.id) return;
+            if (!window.currentPurchaseItem) return;
+            
+            let appliedDiscountRate = 0;
+            const discountSelect = document.getElementById('modal-discount-select');
+            const discountContainer = document.getElementById('discount-container');
+            if (discountSelect && discountContainer && discountContainer.style.display !== 'none') {
+                appliedDiscountRate = parseInt(discountSelect.value) || 0;
+            }
+
+            const purchaseModal = document.getElementById('purchase-modal');
+            if(purchaseModal) purchaseModal.style.display = 'none';
+
+            if (window['socket'] && window['socket'].connected) {
+                if (window.socketManager && typeof window.socketManager._showToast === 'function') {
+                    window.socketManager._showToast("جاري معالجة الشراء...");
+                }
+                window['socket'].emit('requestPurchase', { 
+                    guestId: profile.id, 
+                    userId: profile.id,
+                    itemId: window.currentPurchaseItem.id,
+                    appliedDiscountRate: appliedDiscountRate
+                });
+            }
+        });
+    }
+});
