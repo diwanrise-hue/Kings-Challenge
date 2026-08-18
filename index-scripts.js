@@ -38,7 +38,15 @@ window.triggerCustomAlertNotification = function(msg) {
     showCustomPopup(msg);
 };
 
-// 🌟 دالة فتح نافذة تأكيد الشراء
+// 🌟 قاعدة بيانات الإطارات محقونة مباشرة لضمان عدم ضياعها
+const GITHUB_PROFILE_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/";
+window.PROFILE_FRAMES_ITEMS = [
+    { id: 'pf_ruby', nameAr: 'إطار الياقوت الملكي', price: 15000, imagePath: GITHUB_PROFILE_BASE + 'Profil2.webp' },
+    { id: 'pf_dragon', nameAr: 'إطار التنين الذهبي', price: 35000, imagePath: GITHUB_PROFILE_BASE + 'Profile4.webp' },
+    { id: 'pf_noble', nameAr: 'إطار النبلاء الأسود', price: 10000, imagePath: GITHUB_PROFILE_BASE + 'Profile7.webp' }
+];
+
+// 🌟 دالة فتح نافذة تأكيد الشراء (تدعم الآن الشعبية وإطارات البروفايل)
 let currentPurchaseItem = null;
 
 window.openPurchaseModal = function(itemId, itemName, price, itemType) {
@@ -405,7 +413,6 @@ socket.on('connect', () => {
     }
 });
 
-// 🌟 حماية الذاكرة لضمان عدم مسح ممتلكات اللاعب
 window.getSafeProfile = function() {
     const guestName = (typeof translations !== 'undefined') ? translations[currentLang].guest_name : "Guest_";
     const defaultProfile = {
@@ -424,8 +431,7 @@ window.getSafeProfile = function() {
         equippedPc: 'pc_original',
         popularity: 0,
         vipLevel: 0,   
-        vipPoints: 0,
-        inventory: {}
+        vipPoints: 0   
     };
 
     try {
@@ -436,9 +442,6 @@ window.getSafeProfile = function() {
             if (parsed.popularity === undefined) parsed.popularity = 0;
             if (parsed.vipLevel === undefined) parsed.vipLevel = 0;
             if (parsed.vipPoints === undefined) parsed.vipPoints = 0;
-            // ضمان وجود المصفوفة للحفاظ على المشتريات
-            if (!Array.isArray(parsed.purchasedItems)) parsed.purchasedItems = [];
-            if (!parsed.inventory) parsed.inventory = {};
             return parsed;
         }
     } catch (e) { }
@@ -456,7 +459,6 @@ socket.on('auth_success', (data) => {
     }
 });
 
-// 🌟 تحديث الذاكرة فور تلقي بيانات من السيرفر وإجبار تحديث الحقيبة
 socket.on('profileUpdated', (updatedProfile) => {
     localStorage.setItem('hub_user_profile', JSON.stringify(updatedProfile));
     syncHubProfile();
@@ -469,10 +471,6 @@ socket.on('profileUpdated', (updatedProfile) => {
     const gameIframe = document.getElementById('game-frame');
     if (gameIframe && gameIframe.contentWindow) {
         gameIframe.contentWindow.postMessage({ type: 'PROFILE_UPDATED', profile: updatedProfile }, '*');
-    }
-
-    if (typeof window.renderProfileFramesInBag === 'function') {
-        window.renderProfileFramesInBag();
     }
 });
 
@@ -841,11 +839,10 @@ window.syncHubProfile = function() {
         finalAvatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
     }
 
-    const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
-
-    // 🌟 الإطار الأساسي الافتراضي لجميع اللاعبين
+    // 🌟 الإطار الافتراضي لجميع اللاعبين
     let frameUrl = "Photo/Profile1.webp"; 
     
+    // 🌟 إذا اختار اللاعب إطاراً مختلفاً من الحقيبة يتم تفعيله
     if (profile.equippedProfileFrame && window.PROFILE_FRAMES_ITEMS) {
         const selectedFrame = window.PROFILE_FRAMES_ITEMS.find(f => f.id === profile.equippedProfileFrame);
         if (selectedFrame) {
@@ -864,7 +861,7 @@ window.syncHubProfile = function() {
 
             el.innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                    <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
+                    <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='Photo/1000132081.webp';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
                     <img src="${frameUrl}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
                 </div>
             `;
@@ -1135,7 +1132,7 @@ window.addEventListener('message', (event) => {
 });
 
 // ===================================================================
-// 🌟 دوال التنقل وإدارة الحقيبة 🌟
+// 🌟 دوال التنقل وإدارة الحقيبة (تتضمن حل مشكلة الإطارات المشتراة) 🌟
 // ===================================================================
 
 window.switchThemeGridTabCategory = function(category) {
@@ -1149,8 +1146,68 @@ window.switchThemeGridTabCategory = function(category) {
     document.querySelectorAll('[id="theme-btn-tab-' + category + '"]').forEach(activeBtn => activeBtn.classList.add('active'));
     document.querySelectorAll('[id="theme-grid-section-' + category + '"]').forEach(activeSec => activeSec.style.display = 'grid');
 
+    // 🌟 استدعاء دالة رسم الإطارات الشخصية فوراً عند النقر على تبويبها
     if (category === 'profile-frames' && typeof window.renderProfileFramesInBag === 'function') {
         window.renderProfileFramesInBag();
+    }
+};
+
+// 🌟 دالة رسم الإطارات داخل الحقيبة وتفعيلها 🌟
+window.renderProfileFramesInBag = function() {
+    const container = document.getElementById('theme-grid-section-profile-frames');
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    const profile = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : {};
+    const purchasedItems = profile.purchasedItems || [];
+    const framesList = window.PROFILE_FRAMES_ITEMS || [];
+
+    let hasFrames = false;
+
+    framesList.forEach(frame => {
+        if (purchasedItems.includes(frame.id)) {
+            hasFrames = true;
+            
+            const isEquipped = profile.equippedProfileFrame === frame.id;
+            const frameCard = document.createElement('div');
+            frameCard.className = `theme-grid-item ${isEquipped ? 'active' : ''}`;
+            
+            frameCard.onclick = () => {
+                window.equipProfileFrame(frame.id);
+            };
+
+            frameCard.innerHTML = `
+                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                    <img src="Photo/1000132081.webp" style="position: absolute; width: 35px; height: 35px; border-radius: 50%; opacity: 0.5;">
+                    <img src="${frame.imagePath}" style="position: relative; width: 50px; height: 50px; object-fit: contain; z-index: 2; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                </div>
+                <span class="theme-grid-title" style="margin-top: 8px;">${frame.nameAr}</span>
+            `;
+            container.appendChild(frameCard);
+        }
+    });
+
+    if (!hasFrames) {
+        container.innerHTML = '<div style="color: rgba(255,255,255,0.4); text-align: center; grid-column: 1/-1; padding: 20px;">لا تملك إطارات للبروفايل حالياً</div>';
+    }
+};
+
+window.equipProfileFrame = function(frameId) {
+    let profile = typeof window.getSafeProfile === 'function' ? window.getSafeProfile() : {};
+    if (!profile || !profile.id) return;
+
+    profile.equippedProfileFrame = frameId;
+    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+
+    window.renderProfileFramesInBag();
+
+    if (typeof window.syncHubProfile === 'function') {
+        window.syncHubProfile();
+    }
+
+    if (typeof socket !== 'undefined' && socket.connected) {
+        socket.emit('syncProfile', { id: profile.id, equippedProfileFrame: frameId });
     }
 };
 
