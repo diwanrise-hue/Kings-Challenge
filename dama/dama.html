@@ -662,7 +662,7 @@
         </div>
     </div>
 
-              <!-- 🌟 نافذة تأكيد الشراء (محدثة لدعم قسائم الخصم) -->
+                  <!-- 🌟 نافذة تأكيد الشراء داخل متجر الدامة (تم ترتيب العناصر) -->
     <div id="purchase-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 30px 20px; background: #111115; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.9);">
             <h3 id="modal-item-name" style="color: white; font-size: 20px; font-weight: 700; margin-bottom: 20px;">اسم المنتج</h3>
@@ -671,16 +671,17 @@
             
             <div id="modal-item-preview" style="width: 80px; height: 80px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 35px; overflow: hidden;">💡</div>
             
-    <!-- 🌟 مربع التذاكر والقسائم (هذا هو الجزء الذي كان مفقوداً) -->
-      <div id="discount-container" style="display: none; width: 100%; margin-bottom: 20px; background: rgba(52, 199, 89, 0.05); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: 16px; padding: 15px;">
+            <!-- 🌟 السعر أصبح هنا (فوق صندوق الخصم) -->
+            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;">
+                <span id="modal-item-cost" style="color: #ffd700; font-weight: 800; font-size: 22px;">0</span>
+            </div>
+
+            <!-- 🌟 مربع التذاكر والقسائم أصبح هنا (تحت السعر) -->
+            <div id="discount-container" style="display: none; width: 100%; margin-bottom: 25px; background: rgba(52, 199, 89, 0.05); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: 16px; padding: 15px;">
                 <label style="color: #34c759; font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">استخدم قسيمة خصم (اختياري) 🎫:</label>
                 <select id="modal-discount-select" class="clean-input" style="height: 40px; font-size: 14px; background: rgba(0,0,0,0.4); border-color: rgba(52, 199, 89, 0.2); color: white;">
                     <option value="0">بدون خصم (حفظ القسائم)</option>
                 </select>
-            </div>
-
-            <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;">
-                <span id="modal-item-cost" style="color: #ffd700; font-weight: 800; font-size: 22px;">0</span>
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
@@ -809,4 +810,4 @@
         });
     </script>
 </body>
-</html>
+                                                                                                  </html>
