@@ -339,7 +339,7 @@ html[dir="ltr"] #profile-badge.profile-badge-container {
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)) drop-shadow(0 0 8px rgba(212, 175, 55, 0.6)) !important;
 }
 
-/* 🌟 تم تعديل الكلاس هنا لإصلاح قص الإطار (overflow: visible) وإزالة القناع 🌟 */
+/* 🌟 تم التعديل الجذري هنا لمنع قص الإطار المضاف */
 #profile-badge #badge-avatar.profile-avatar-capsule { 
     position: absolute !important; 
     top: 20.4px !important;      
@@ -350,11 +350,13 @@ html[dir="ltr"] #profile-badge.profile-badge-container {
     border: none !important; 
     z-index: 3 !important; 
     display: flex; align-items: center; justify-content: center; 
-    overflow: visible !important; /* 🌟 التعديل هنا */
-    background-color: #1a1a24 !important; 
+    overflow: visible !important; /* 🌟 التعديل هنا: منع القص */
+    background-color: transparent !important; /* جعل الخلفية شفافة أفضل */
     transform: translateZ(0); 
 }
-#profile-badge #badge-avatar.profile-avatar-capsule img {
+
+/* 🌟 حصر التصغير والقص الدائري على الصورة الشخصية فقط وتجاهل الإطار المضاف! */
+#profile-badge #badge-avatar.profile-avatar-capsule > div > img:first-child {
     width: 100% !important; height: 100% !important; object-fit: cover !important; border-radius: 50% !important;
 }
 
