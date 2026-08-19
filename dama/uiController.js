@@ -914,7 +914,7 @@ export const ui = {
                 repCounter.style.display = 'block';
                 repCounter.textContent = `تكرار: ${myRep}/3`;
                 repCounter.style.color = myRep === 3 ? '#e74c3c' : '#f5a623';
-                repCounter.style.borderColor = myRep === 3 ? 'rgba(245, 166, 35, 0.3)';
+                repCounter.style.borderColor = myRep === 3 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(245, 166, 35, 0.3)';
             } else {
                 repCounter.style.display = 'none';
             }
