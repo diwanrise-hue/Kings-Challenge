@@ -158,7 +158,7 @@ export const ui = {
         if (el.id === 'badge-avatar') {
             frameZ = '999999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
-                frameScale = '175%'; 
+                frameScale = '177%'; 
                 avatarScale = 'scale(1.16)'; 
                 
                 // 🌟 أدخل الرقم الذي تريده هنا 
@@ -168,7 +168,7 @@ export const ui = {
                 moveLeft = 0;  
                 
             } else {
-                frameScale = '165%'; 
+                frameScale = '168%'; 
                 avatarScale = 'scale(1.05)';
             }
         } 
