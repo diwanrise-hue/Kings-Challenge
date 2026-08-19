@@ -115,7 +115,8 @@ export const ui = {
         el.innerHTML = '';
         el.style.border = 'none';
         el.style.backgroundColor = 'transparent';
-        
+        el.style.overflow = 'visible';
+
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             el.innerHTML = `
@@ -143,7 +144,7 @@ export const ui = {
         let overlayFrameSrc = profileFrameId && PROFILE_FRAMES_DB[profileFrameId] ? PROFILE_FRAMES_DB[profileFrameId] : null;
         
         let frameScale = '135%';
-        if (el.id === 'badge-avatar') frameScale = '250%';
+        if (el.id === 'badge-avatar') frameScale = '185%';
         else if (el.id === 'igp-avatar') frameScale = '140%';
         else if (el.id === 'mm-my-avatar' || el.id === 'mm-opp-avatar') frameScale = '140%';
         else if (el.id === 'bet-p1-avatar' || el.id === 'bet-p2-avatar') frameScale = '140%';
