@@ -151,7 +151,7 @@ export const ui = {
         let moveUp = 0;    // ⬆️ للرفع
         let moveDown = 0;  // ⬇️ للنزول
         let moveRight = 0; // ➡️ لليمين
-        let moveLeft = 0;  // ⬅️ لليسار
+        let moveLeft = 1;  // ⬅️ لليسار
 
         if (el.id === 'badge-avatar') {
             frameZ = '999'; // يجعله فوق كل شيء
@@ -160,7 +160,7 @@ export const ui = {
                 avatarScale = 'scale(1.12)'; 
                 
                 // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
-                moveUp = 0;    
+                moveUp = 5;    
                 moveDown = 4;  
                 moveRight = 0; 
                 moveLeft = 0;  
