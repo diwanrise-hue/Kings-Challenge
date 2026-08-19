@@ -151,7 +151,7 @@ export const ui = {
         let moveUp = 0;    // ⬆️ للرفع
         let moveDown = 0;  // ⬇️ للنزول
         let moveRight = 0; // ➡️ لليمين
-        let moveLeft = 0;  // ⬅️ لليسار
+        let moveLeft = 8;  // ⬅️ لليسار
 
         if (el.id === 'badge-avatar') {
             frameZ = '999'; // يجعله فوق كل شيء
