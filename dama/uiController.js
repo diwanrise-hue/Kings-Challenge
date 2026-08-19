@@ -154,10 +154,10 @@ export const ui = {
         let moveLeft = 0;  // ⬅️ لليسار
 
         if (el.id === 'badge-avatar') {
-            frameZ = '9999'; // يجعله فوق كل شيء
+            frameZ = '999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
                 frameScale = '175%'; 
-                avatarScale = 'scale(1.12)'; 
+                avatarScale = 'scale(1.15)'; 
                 
                 // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
                 moveUp = 1;    
