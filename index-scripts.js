@@ -470,7 +470,6 @@ socket.on('profileUpdated', (updatedProfile) => {
         window.updateVipProgressBarUI();
     }
     
-    // 🌟 تحديث إجباري للحقيبة فور وصول التحديث
     if (typeof window.hubRenderProfileFramesInBag === 'function') {
         window.hubRenderProfileFramesInBag();
     }
@@ -528,7 +527,6 @@ socket.on('purchaseSuccess', (msg) => {
         window.storeManager.renderUI();
     }
     
-    // 🌟 إجبار تحديث الحقيبة مباشرة بعد نجاح الشراء
     setTimeout(() => {
         if (typeof window.hubRenderProfileFramesInBag === 'function') {
             window.hubRenderProfileFramesInBag();
@@ -855,7 +853,8 @@ window.syncHubProfile = function() {
 
     const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
 
-    // 🌟 الإطار الأساسي الافتراضي لجميع اللاعبين
+    // 🌟 الإطار الأساسي الافتراضي لجميع اللاعبين (يظهر لمن لم يشتري إطاراً)
+    // 👇 هنا رابط صورة الإطار الافتراضي (يمكنك تعديل المسار للصورة التي تريدها)
     let frameUrl = "Photo/Profile1.webp"; 
     
     // إذا قام اللاعب بتفعيل إطار آخر من الحقيبة، سيتم استبدال الإطار الأساسي
@@ -869,16 +868,17 @@ window.syncHubProfile = function() {
     const renderAvatarLocal = (elementId) => {
         const el = document.getElementById(elementId);
         if (el) {
-            el.style.overflow = 'visible';
-            el.style.border = 'none';
-            el.style.background = 'transparent';
+            // إضافة important لمنع CSS الخارجي من إخفاء الإطار
+            el.style.setProperty('overflow', 'visible', 'important');
+            el.style.setProperty('border', 'none', 'important');
+            el.style.setProperty('background', 'transparent', 'important');
             
             const frameScale = elementId === 'hub-profile-avatar' ? '145%' : '130%';
 
             el.innerHTML = `
-                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                    <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
-                    <img src="${frameUrl}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
+                <div style="position: relative !important; width: 100% !important; height: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important;">
+                    <img src="${finalAvatarSrc}" onerror="this.onerror=null; this.src='${fallbackImg}';" alt="Avatar" style="width: 100% !important; height: 100% !important; border-radius: 50% !important; object-fit: cover !important; display: block !important; position: relative !important; z-index: 1 !important;">
+                    <img src="${frameUrl}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: ${frameScale} !important; height: ${frameScale} !important; z-index: 2 !important; pointer-events: none !important; object-fit: contain !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) !important; border: none !important; background: transparent !important; border-radius: 0 !important;">
                 </div>
             `;
         }
@@ -1278,22 +1278,6 @@ window.switchBagMainTab = function(tabId, btnElement) {
             window.switchThemeGridTabCategory('bg');
         }
     }
-};
-
-window.switchBagGameTab = function(gameId, btnElement) {
-    document.querySelectorAll('.bag-game-content').forEach(el => {
-        el.classList.remove('active');
-        el.style.display = 'none';
-    });
-    
-    document.querySelectorAll('.bag-game-btn, .bag-side-btn').forEach(el => el.classList.remove('active'));
-
-    document.querySelectorAll('[id="bag-content-' + gameId + '"]').forEach(targetContent => {
-        targetContent.classList.add('active');
-        targetContent.style.display = 'flex';
-    });
-    
-    if (btnElement) btnElement.classList.add('active');
 };
 
 // ===================================================================
