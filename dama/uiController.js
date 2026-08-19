@@ -105,9 +105,7 @@ export const ui = {
         if (textContent) el.textContent = textContent;
         return el;
     },
-
-    // 🌟 دالة رسم صورة اللاعب والإطار مع الحماية القصوى ضد الـ CSS
-        // 🌟 دالة رسم صورة اللاعب والإطار مع الحماية والتكبير المتناسق
+    // 🌟 دالة رسم صورة اللاعب والإطار مع إمكانية الرفع للأعلى والظهور فوق الجميع
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -144,15 +142,17 @@ export const ui = {
 
         let overlayFrameSrc = profileFrameId && PROFILE_FRAMES_DB[profileFrameId] ? PROFILE_FRAMES_DB[profileFrameId] : null;
         
-        // 🌟 المتغيرات الجديدة للتحكم بحجم الإطار والصورة معاً
         let frameScale = '135%';
         let avatarScale = 'scale(1)'; 
+        let frameTopOffset = '-50%'; // المركز الطبيعي
+        let frameZ = '3'; // الطبقة العادية
 
         if (el.id === 'badge-avatar') {
+            frameZ = '999'; // 🌟 جعله يظهر فوق كل شيء في الواجهة
             if (overlayFrameSrc) {
-                // 🌟 المعادلة الذهبية: إطار ضخم (185%) مع صورة مكبرة (112%) للحفاظ على التطابق
-                frameScale = '182%'; 
-                avatarScale = 'scale(1.20)'; 
+                frameScale = '185%'; 
+                avatarScale = 'scale(1.12)'; 
+                frameTopOffset = '-54%'; // 🌟 رفع الإطار للأعلى قليلاً (بدلاً من -50%)
             } else {
                 frameScale = '165%'; 
                 avatarScale = 'scale(1)';
@@ -164,18 +164,18 @@ export const ui = {
 
         let innerHTML = `
             <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                <!-- 🌟 تم إضافة transform: avatarScale للصورة الشخصية لتتوسع وتملأ الفراغ -->
                 <img src="${finalSrc}" onerror="this.onerror=null; this.src='${defaultAvatar}';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1; transform: ${avatarScale} !important;">
         `;
         
-        // 🌟 إدراج الإطار المخصص بظل خفيف وفخم فقط
         if (overlayFrameSrc) {
-            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: ${frameScale} !important; height: ${frameScale} !important; z-index: 3 !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) !important;">`;
+            // 🌟 تم تطبيق frameTopOffset و frameZ في الـ CSS الداخلي
+            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, ${frameTopOffset}) !important; width: ${frameScale} !important; height: ${frameScale} !important; z-index: ${frameZ} !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) !important;">`;
         }
         
         innerHTML += `</div>`;
         el.innerHTML = innerHTML;
     },
+
 
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null, onCancel = null) {
         title = title || t('alert_title');
