@@ -151,7 +151,7 @@ export const ui = {
         if (el.id === 'badge-avatar') {
             if (overlayFrameSrc) {
                 // 🌟 المعادلة الذهبية: إطار ضخم (185%) مع صورة مكبرة (112%) للحفاظ على التطابق
-                frameScale = '178%'; 
+                frameScale = '180%'; 
                 avatarScale = 'scale(1.20)'; 
             } else {
                 frameScale = '165%'; 
