@@ -154,7 +154,7 @@ export const ui = {
                 frameScale = '185%'; 
                 avatarScale = 'scale(1.12)'; 
                 // 🌟 السحر هنا: تقليل النسبة يرفع الإطار للأعلى (كلما قللت الرقم ارتفع أكثر)
-                frameTopPosition = '55%'; 
+                frameTopPosition = '80%'; 
             } else {
                 frameScale = '165%'; 
                 avatarScale = 'scale(1)';
