@@ -157,7 +157,7 @@ export const ui = {
             frameZ = '999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
                 frameScale = '175%'; 
-                avatarScale = 'scale(1.15)'; 
+                avatarScale = 'scale(1.55)'; 
                 
                 // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
                 moveUp = 1;    
