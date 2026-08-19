@@ -156,9 +156,9 @@ export const ui = {
 
         // 1️⃣ الواجهة الرئيسية
         if (el.id === 'badge-avatar') {
-            frameZ = '999'; // يجعله فوق كل شيء
+            frameZ = '999999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
-                frameScale = '175%'; 
+                frameScale = '173%'; 
                 avatarScale = 'scale(1.16)'; 
                 
                 // 🌟 أدخل الرقم الذي تريده هنا 
@@ -169,7 +169,7 @@ export const ui = {
                 
             } else {
                 frameScale = '165%'; 
-                avatarScale = 'scale(1.01)';
+                avatarScale = 'scale(1.04)';
             }
         } 
         // 2️⃣ البطاقات داخل المباراة أثناء اللعب (VS HUD)
