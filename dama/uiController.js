@@ -2374,5 +2374,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof window.applyProfileDataToUI === 'function') { 
             window.applyProfileDataToUI(userObj); 
         }
+        if (typeof syncRadioStatusDot === 'function') syncRadioStatusDot();
     }, 500); 
 });
