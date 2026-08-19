@@ -105,7 +105,8 @@ export const ui = {
         if (textContent) el.textContent = textContent;
         return el;
     },
-    // 🌟 دالة رسم صورة اللاعب والإطار مع إمكانية الرفع للأعلى والظهور فوق الجميع
+   
+    // 🌟 دالة رسم صورة اللاعب والإطار مع التحكم الدقيق بالرفع للأعلى
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -144,15 +145,16 @@ export const ui = {
         
         let frameScale = '135%';
         let avatarScale = 'scale(1)'; 
-        let frameTopOffset = '-50%'; // المركز الطبيعي
-        let frameZ = '3'; // الطبقة العادية
+        let frameTopPosition = '50%'; // 🌟 نقطة التمركز الطبيعية
+        let frameZ = '3'; 
 
         if (el.id === 'badge-avatar') {
-            frameZ = '999'; // 🌟 جعله يظهر فوق كل شيء في الواجهة
+            frameZ = '999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
-                frameScale = '175%'; 
-                avatarScale = 'scale(1.20)'; 
-                frameTopOffset = '-80%'; // 🌟 رفع الإطار للأعلى قليلاً (بدلاً من -50%)
+                frameScale = '185%'; 
+                avatarScale = 'scale(1.12)'; 
+                // 🌟 السحر هنا: تقليل النسبة يرفع الإطار للأعلى (كلما قللت الرقم ارتفع أكثر)
+                frameTopPosition = '40%'; 
             } else {
                 frameScale = '165%'; 
                 avatarScale = 'scale(1)';
@@ -168,8 +170,8 @@ export const ui = {
         `;
         
         if (overlayFrameSrc) {
-            // 🌟 تم تطبيق frameTopOffset و frameZ في الـ CSS الداخلي
-            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, ${frameTopOffset}) !important; width: ${frameScale} !important; height: ${frameScale} !important; z-index: ${frameZ} !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) !important;">`;
+            // 🌟 تم إرجاع translate(-50%, -50%) واستخدام top: ${frameTopPosition} بدلاً منه للرفع والهبوط
+            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: ${frameTopPosition} !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: ${frameScale} !important; height: ${frameScale} !important; z-index: ${frameZ} !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) !important;">`;
         }
         
         innerHTML += `</div>`;
