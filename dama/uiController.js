@@ -2388,3 +2388,25 @@ document.addEventListener('DOMContentLoaded', () => {
         
     }, 500); 
 });
+// ==========================================
+// 🌟 نظام الاستماع لتحديثات الواجهة الرئيسية (تطبيق الساحات والأحجار فوراً)
+// ==========================================
+window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'PROFILE_UPDATED') {
+        const profile = event.data.profile;
+        if (profile) {
+            // تحديث الساحة والحجر والإطار بصرياً
+            if (typeof window.applyTheme === 'function') {
+                window.applyTheme(profile);
+            }
+            // إعادة رسم الرقعة لتطبيق الألوان الجديدة
+            if (window.ui && typeof window.ui.renderBoard === 'function') {
+                window.ui.renderBoard(true);
+            }
+            // تحديث الحقيبة الداخلية إن وجدت
+            if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
+                window.storeManager.renderUI();
+            }
+        }
+    }
+});
