@@ -162,8 +162,8 @@ export const ui = {
                 // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
                 moveUp = 0;    
                 moveDown = 0;  
-                moveRight = 0; 
-                moveLeft = 8;  
+                moveRight = 8; 
+                moveLeft = 0;  
                 
             } else {
                 frameScale = '165%'; 
