@@ -148,7 +148,7 @@ export const ui = {
         let frameZ = '3'; 
 
         // 🎛️ لوحة التحكم بالاتجاهات (بالبكسل - px)
-        let moveUp = 8;    // ⬆️ للرفع
+        let moveUp = 1;    // ⬆️ للرفع
         let moveDown = 0;  // ⬇️ للنزول
         let moveRight = 1; // ➡️ لليمين
         let moveLeft = 0;  // ⬅️ لليسار
@@ -160,7 +160,7 @@ export const ui = {
                 avatarScale = 'scale(1.12)'; 
                 
                 // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
-                moveUp = 8;    
+                moveUp = 1;    
                 moveDown = 0;  
                 moveRight = 1; 
                 moveLeft = 0;  
