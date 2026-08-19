@@ -163,7 +163,7 @@ export const ui = {
                 moveUp = 5;    
                 moveDown = 4;  
                 moveRight = 0; 
-                moveLeft = 0;  
+                moveLeft = 1;  
                 
             } else {
                 frameScale = '165%'; 
