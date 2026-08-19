@@ -470,9 +470,13 @@ socket.on('profileUpdated', (updatedProfile) => {
         window.updateVipProgressBarUI();
     }
     
-    // 🌟 تحديث إجباري للحقيبة فور وصول التحديث
     if (typeof window.hubRenderProfileFramesInBag === 'function') {
         window.hubRenderProfileFramesInBag();
+    }
+
+    // 🌟 الإصلاح الأول: إجبار المتجر والحقيبة على التحديث الفوري للعناصر المشتراة
+    if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
+        window.storeManager.renderUI();
     }
     
     const gameIframe = document.getElementById('game-frame');
@@ -528,7 +532,6 @@ socket.on('purchaseSuccess', (msg) => {
         window.storeManager.renderUI();
     }
     
-    // 🌟 إجبار تحديث الحقيبة مباشرة بعد نجاح الشراء
     setTimeout(() => {
         if (typeof window.hubRenderProfileFramesInBag === 'function') {
             window.hubRenderProfileFramesInBag();
@@ -819,6 +822,35 @@ window.loginAsGuest = function() {
         localStorage.setItem('hub_user_profile', JSON.stringify(guestProfile));
         checkUserAuthentication();
     } catch (err) {}
+};
+
+window.showEquipNotification = function(itemType) {
+    const toast = document.getElementById('toast-notification'); if (!toast) return;
+    let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
+    if (itemType === 'bg') msg = window.t ? window.t('toast_bg') : "تم تغيير الساحة بنجاح";
+    else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
+    else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
+    else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
+    toast.innerText = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
+
+    setTimeout(() => {
+        try {
+            let profStr = localStorage.getItem('hub_user_profile');
+            if (profStr) {
+                let prof = JSON.parse(profStr);
+
+                // تحديث مباشر إذا كنا داخل اللعبة
+                if (typeof window.applyTheme === 'function') window.applyTheme(prof);
+                if (window.ui && typeof window.ui.renderBoard === 'function') window.ui.renderBoard(true);
+
+                // 🌟 الإصلاح الثاني: إرسال أمر التحديث من الواجهة الرئيسية إلى اللعبة الداخلية
+                const gameIframe = document.getElementById('game-frame');
+                if (gameIframe && gameIframe.contentWindow) {
+                    gameIframe.contentWindow.postMessage({ type: 'PROFILE_UPDATED', profile: prof }, '*');
+                }
+            }
+        } catch(e) {}
+    }, 50);
 };
 
 window.syncHubProfile = function() {
