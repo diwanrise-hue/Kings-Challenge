@@ -155,7 +155,7 @@ export const ui = {
         if (el.id === 'badge-avatar') {
             frameZ = '999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
-                frameScale = '185%'; 
+                frameScale = '175%'; 
                 avatarScale = 'scale(1.66)'; 
                 
                 // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
@@ -166,7 +166,7 @@ export const ui = {
                 
             } else {
                 frameScale = '165%'; 
-                avatarScale = 'scale(1)';
+                avatarScale = 'scale(1.10)';
             }
         } 
         else if (el.id === 'igp-avatar') frameScale = '140%';
