@@ -1305,13 +1305,14 @@ body.online-mode-active .game-container { order: 3 !important; }
     border-radius: 50%;
 }
 
-#igp-avatar img, 
-#mm-my-avatar img, 
-#mm-opp-avatar img,
-#card-my-avatar img,
-#card-opp-avatar img,
-#bet-p1-avatar img,
-#bet-p2-avatar img {
+/* 🌟 السحر هنا: (:first-child) تجعل الكود يقص صورة اللاعب فقط ويترك الإطار حراً 🌟 */
+#igp-avatar img:first-child, 
+#mm-my-avatar img:first-child, 
+#mm-opp-avatar img:first-child,
+#card-my-avatar img:first-child,
+#card-opp-avatar img:first-child,
+#bet-p1-avatar img:first-child,
+#bet-p2-avatar img:first-child {
     border-radius: 50% !important;
     object-fit: cover !important;
 }
