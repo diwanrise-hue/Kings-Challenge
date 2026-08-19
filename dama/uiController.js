@@ -152,7 +152,7 @@ export const ui = {
             if (overlayFrameSrc) {
                 frameScale = '175%'; 
                 avatarScale = 'scale(1.20)'; 
-                frameTopOffset = '-50%'; // 🌟 رفع الإطار للأعلى قليلاً (بدلاً من -50%)
+                frameTopOffset = '-52%'; // 🌟 رفع الإطار للأعلى قليلاً (بدلاً من -50%)
             } else {
                 frameScale = '165%'; 
                 avatarScale = 'scale(1)';
