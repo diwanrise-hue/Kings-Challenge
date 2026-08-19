@@ -105,8 +105,7 @@ export const ui = {
         if (textContent) el.textContent = textContent;
         return el;
     },
-   
-        // 🌟 دالة رسم صورة اللاعب والإطار مع لوحة تحكم دقيقة بالاتجاهات الأربعة
+       // 🌟 دالة رسم صورة اللاعب والإطار مع لوحة تحكم دقيقة بالاتجاهات الأربعة
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -143,7 +142,7 @@ export const ui = {
 
         let overlayFrameSrc = profileFrameId && PROFILE_FRAMES_DB[profileFrameId] ? PROFILE_FRAMES_DB[profileFrameId] : null;
         
-        let frameScale = '148%';
+        let frameScale = '135%';
         let avatarScale = 'scale(1)'; 
         let frameZ = '3'; 
 
@@ -156,18 +155,18 @@ export const ui = {
         if (el.id === 'badge-avatar') {
             frameZ = '999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
-                frameScale = '175%'; 
-                avatarScale = 'scale(1.55)'; 
+                frameScale = '185%'; 
+                avatarScale = 'scale(1.12)'; 
                 
                 // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
-                moveUp = 1;    
+                moveUp = 8;    
                 moveDown = 0;  
-                moveRight = 1; 
+                moveRight = 0; 
                 moveLeft = 0;  
                 
             } else {
-                frameScale = '168%'; 
-                avatarScale = 'scale(1.1)';
+                frameScale = '165%'; 
+                avatarScale = 'scale(1)';
             }
         } 
         else if (el.id === 'igp-avatar') frameScale = '140%';
