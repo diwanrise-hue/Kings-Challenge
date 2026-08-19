@@ -811,7 +811,8 @@ export const storeManager = {
         if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(processMsg);
         
         if (window['socket'] && window['socket'].connected) { 
-            window['socket'].emit('requestPurchase', { userId: profile.id, itemId: itemId, cost: item.cost, itemType: itemType || item.type }); 
+            // 🌟 الإصلاح هنا: إرسال guestId و userId لحماية السيرفر
+            window['socket'].emit('requestPurchase', { guestId: profile.id, userId: profile.id, itemId: itemId, cost: item.cost, itemType: itemType || item.type }); 
         } else { 
             if (profile.tokens >= item.cost) {
                 profile.tokens -= item.cost;
@@ -850,7 +851,8 @@ export const storeManager = {
         const item = STORE_ITEMS[itemId];
 
         if (window['socket'] && window['socket'].connected) { 
-            window['socket'].emit('requestEquip', { userId: profile.id, itemId: itemId, itemType: item ? item.type : 'pc' }); 
+            // 🌟 الإصلاح هنا: إرسال guestId و userId لحماية السيرفر
+            window['socket'].emit('requestEquip', { guestId: profile.id, userId: profile.id, itemId: itemId, itemType: item ? item.type : 'pc' }); 
         } else {
             if (!item) return;
             
