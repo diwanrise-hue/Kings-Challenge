@@ -1,12 +1,7 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): نظام (Auto-Heal) لتدمير الحسابات التالفة بسبب تسرب الـ Socket ID.
- * 🌟 (مُحدّث): فصل نصوص الإشعارات في (ذيل) بأسفل الملف لسهولة التعديل.
- * 🌟 (مُحدّث): تصحيح واجهة المشاهدين (Spectator Mode) وإظهار عدادات المشاهدين والمراهنين.
- * 🌟 (مُحدّث): إدارة العداد التنازلي 10 ثواني (Countdown Overlay) وإخفاء نافذة الرهان للمراهنين مسبقاً.
- * 🌟 (تم الإصلاح): حذف المستمعات المتكررة وتصحيح أحداث الصداقة مع السيرفر.
- * 🌟 (مُحدّث): إضافة نظام الإشعارات العامة serverNotification.
+ * 🌟 (مُحدّث): إظهار الإطارات المخصصة في قائمة الغرف المتوفرة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -327,7 +322,6 @@ export const socketManager = {
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
-        // استقبال إشعارات السيرفر الجديدة وعرضها في الواجهة
         socket.on('serverNotification', (data) => {
             if (data && data.msg) this._showToast(data.msg);
         });
@@ -428,11 +422,32 @@ export const socketManager = {
                 const betText = r.betAmount > 0 ? `💰 ${r.betAmount} 🪙` : `🆓 مجاني`;
                 const roomEl = document.createElement('div');
                 
-                let avatarSrc = r.hostAvatar || "1000132081.png";
+                let avatarSrc = r.hostAvatar || "1000132081.webp";
                 if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
                     let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
                     avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
                 }
+
+                // 🌟 قاعدة بيانات الإطارات المصغرة لقائمة الغرف
+                const miniFramesDB = {
+                    'pf_ruby': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profil2.webp',
+                    'pf_dragon': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile4.webp',
+                    'pf_noble': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile7.webp'
+                };
+                
+                let frameHTML = '';
+                // r.equippedProfileFrame أو r.equippedFr حسب ما يحفظه السيرفر
+                let hostFrame = r.equippedProfileFrame || r.equippedFr; 
+                if (hostFrame && miniFramesDB[hostFrame]) {
+                    frameHTML = `<img src="${miniFramesDB[hostFrame]}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));">`;
+                }
+
+                const avatarHTML = `
+                    <div style="position: relative; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: transparent; border: none; flex-shrink: 0;">
+                        <img src="${avatarSrc}" onerror="this.style.display='none';" style="width:100%;height:100%;object-fit:cover; border-radius:50%; position:relative; z-index:1;">
+                        ${frameHTML}
+                    </div>
+                `;
 
                 roomEl.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;";
                 roomEl.onmouseenter = () => roomEl.style.background = 'rgba(255,255,255,0.1)';
@@ -450,9 +465,7 @@ export const socketManager = {
                     
                     roomEl.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid #3498db; background-color: rgba(255,255,255,0.05);">
-                                <img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width:100%;height:100%;object-fit:cover; display:flex; align-items:center; justify-content:center;">
-                            </div>
+                            ${avatarHTML}
                             <div>
                                 <div style="color: white; font-weight: bold; font-size: 14px;">مباراة: ${r.hostName}</div>
                                 <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
@@ -482,9 +495,7 @@ export const socketManager = {
 
                     roomEl.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid #3498db; background-color: rgba(255,255,255,0.05);">
-                                <img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width:100%;height:100%;object-fit:cover; display:flex; align-items:center; justify-content:center;">
-                            </div>
+                            ${avatarHTML}
                             <div>
                                 <div style="color: white; font-weight: bold; font-size: 14px;">${r.hostName}</div>
                                 <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
@@ -710,7 +721,7 @@ export const socketManager = {
             if (data.roomID) gameState.onlineRoomID = data.roomID;
 
             gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
-            gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.png");
+            gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.webp");
             gameState.currentOpponentFr = (data.opponent?.equippedFr || "fr_classic");
             
             const opponentXpFromServer = Number(data.opponent?.xp) || 0;
@@ -1331,6 +1342,7 @@ export const socketManager = {
             xp: profile.xp || 0,
             equippedBg: profile.equippedBg || 'bg_wood',
             equippedPc: profile.equippedPc || 'pc_original',
+            equippedProfileFrame: profile.equippedProfileFrame || null, // 🌟 تم إضافة إرسال الإطار
             syncThemeOptOut: profile.syncThemeOptOut === true
         };
 
@@ -1392,7 +1404,6 @@ export const socketManager = {
     sendAddFriend(friendId) {
         if (!friendId) return;
         const profile = this._ensureUserProfile();
-        // 🌟 تم تعديل اسم الحدث إلى sendFriendReq ليتطابق مع السيرفر
         this._safeEmit('sendFriendReq', { targetId: friendId });
     }
 };
