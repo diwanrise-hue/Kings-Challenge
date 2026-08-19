@@ -150,9 +150,9 @@ export const ui = {
         if (el.id === 'badge-avatar') {
             frameZ = '999'; // 🌟 جعله يظهر فوق كل شيء في الواجهة
             if (overlayFrameSrc) {
-                frameScale = '185%'; 
-                avatarScale = 'scale(1.12)'; 
-                frameTopOffset = '-54%'; // 🌟 رفع الإطار للأعلى قليلاً (بدلاً من -50%)
+                frameScale = '180%'; 
+                avatarScale = 'scale(1.20)'; 
+                frameTopOffset = '-51%'; // 🌟 رفع الإطار للأعلى قليلاً (بدلاً من -50%)
             } else {
                 frameScale = '165%'; 
                 avatarScale = 'scale(1)';
