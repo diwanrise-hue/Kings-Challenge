@@ -166,7 +166,7 @@ export const ui = {
                 moveLeft = 0;  
                 
             } else {
-                frameScale = '165%'; 
+                frameScale = '168%'; 
                 avatarScale = 'scale(1.1)';
             }
         } 
