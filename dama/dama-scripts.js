@@ -427,7 +427,7 @@ window.startSeasonCountdown = startSeasonCountdown;
 
 
 // ==========================================
-// 🛒 إدارة نافذة الشراء وقسائم الخصم المتعددة (المصدر الوحيد للحقيقة)
+// 🛒 إدارة نافذة الشراء وقسائم الخصم المتعددة (المصدر الوحيد للحقيقة للعبة الداخلية)
 // ==========================================
 window.openPurchaseModal = function(itemId, itemName, itemPrice, itemType) {
     document.getElementById('modal-item-name').innerText = itemName;
@@ -540,7 +540,14 @@ window.openPurchaseModal = function(itemId, itemName, itemPrice, itemType) {
             buyBtn.disabled = true;
 
             if (window.socket && window.socket.connected) {
+                // 🌟 الإصلاح السحري هنا: إضافة الهوية الصحيحة لطلب الشراء من اللعبة لكي لا يرفضه السيرفر
+                let safeProfileStr = localStorage.getItem('hub_user_profile');
+                let safeProfile = safeProfileStr ? JSON.parse(safeProfileStr) : null;
+                let validGuestId = (safeProfile && safeProfile.id) ? safeProfile.id : null;
+
                 window.socket.emit('requestPurchase', { 
+                    guestId: validGuestId,
+                    userId: validGuestId,
                     itemId: window.currentPurchaseItem.id,
                     appliedDiscountRate: selectedDiscountRate 
                 });
