@@ -164,11 +164,11 @@ export const ui = {
                 // 🌟 أدخل الرقم الذي تريده هنا 
                 moveUp = 2;    
                 moveDown = 0;  
-                moveRight = 1; 
+                moveRight = 0; 
                 moveLeft = 0;  
                 
             } else {
-                frameScale = '168%'; 
+                frameScale = '170%'; 
                 avatarScale = 'scale(1.05)';
             }
         } 
