@@ -102,7 +102,7 @@ export const ui = {
         return el;
     },
 
-    // 🌟 دالة رسم صورة اللاعب والإطار (نسخة نظيفة وأنيقة بفضل الـ CSS الجديد)
+    // 🌟 دالة رسم صورة اللاعب والإطار
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -527,10 +527,8 @@ export const ui = {
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             this.setTxt('card-opp-name', oppName);
             
-            // 🌟 الإصلاح هنا: قراءة الإطار الدائري للخصم بشكل صحيح
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'), gameState.currentOpponentProfileFrame);
           
-            // 🌟 الإصلاح هنا: قراءة الإطار المربع (إطار المتجر) بشكل صحيح
             const myAvatarFrameId = gameState.userProfile.equippedFr || null;
             const oppAvatarFrameId = gameState.currentOpponentFr || null;
 
@@ -558,7 +556,6 @@ export const ui = {
             applyVisualFrame('card-my-frame', myAvatarFrameId);
             applyVisualFrame('card-opp-frame', oppAvatarFrameId);
 
-            // 🌟 إصلاح المزامنة في المستويات (Lv)
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
             let myCardLevel = this.getEl('card-my-level');
             if (myCardLevel) {
@@ -721,6 +718,9 @@ export const ui = {
         gameState.gameId = Date.now();
         if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
 
+        // 🌟 إرجاع صوت الراديو لطبيعته عند تصفير الرقعة أو الخروج
+        if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
+
         gameState.virtualBoard = Array(8).fill(null).map(() => Array(8).fill(null));
         gameState.isGameActive = false; window.isMatchRunning = false;
         
@@ -832,6 +832,9 @@ export const ui = {
         sfx.clock.pause(); sfx.clock.currentTime = 0;
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
         
+        // 🌟 إرجاع صوت الراديو لطبيعته تحسباً إذا لعب اللاعب قبل انتهاء الوقت
+        if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
+
         let hasPlayedTick = false; 
         
         const updateTimerDisplay = () => {
@@ -841,12 +844,19 @@ export const ui = {
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
             
             if (gameState.turnTimeLeft <= 10 && gameState.turnTimeLeft > 0 && !hasPlayedTick) {
-                hasPlayedTick = true; this.playSound(sfx.clock);
+                hasPlayedTick = true; 
+                // 🌟 إرسال أمر خفض صوت الراديو بنسبة معينة
+                if (window.parent) window.parent.postMessage({ type: 'LOWER_RADIO_VOLUME' }, '*');
+                this.playSound(sfx.clock);
             }
             
             if (gameState.turnTimeLeft <= 0) {
                 clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
                 sfx.clock.pause(); sfx.clock.currentTime = 0;
+                
+                // 🌟 إرجاع صوت الراديو لطبيعته عند انتهاء الوقت
+                if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
+
                 this.setTxt('turn-countdown', t('syncing') || 'جاري المزامنة مع الخادم...');
 
                 if (gameState.isOnlineMode && !gameState.isSpectator && window.socketManager && window.socket && window.socket.connected) {
@@ -1162,6 +1172,10 @@ export const ui = {
     showResultsModal(winnerColor) {
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
         sfx.clock.pause(); sfx.clock.currentTime = 0; this.setTxt('turn-countdown', '');
+        
+        // 🌟 إرجاع صوت الراديو لطبيعته عند انتهاء المباراة وظهور النتيجة
+        if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
+
         this.setDisplay('match-players-card', 'none');
 
         const oldModal = this.getEl('custom-results-modal-container');
@@ -1218,7 +1232,7 @@ export const ui = {
         if (gameState.userProfile) {
             flex.append(
                 createPlayerBox(gameState.userProfile.name, gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, isMeWin, isDraw, gameState.userProfile.equippedProfileFrame), 
-                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin, isDraw, gameState.currentOpponentProfileFrame) // 🌟 تم الإصلاح هنا
+                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin, isDraw, gameState.currentOpponentProfileFrame)
             );
         }
         box.appendChild(flex);
