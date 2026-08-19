@@ -688,7 +688,7 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
-        socket.on('gameStart', data => {
+                socket.on('gameStart', data => {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
             
@@ -719,9 +719,11 @@ export const socketManager = {
 
             if (data.roomID) gameState.onlineRoomID = data.roomID;
 
+            // 🌟 الإصلاح الجذري هنا: استقبال جميع بيانات الخصم بدقة وحفظها
             gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
             gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.webp");
             gameState.currentOpponentFr = (data.opponent?.equippedFr || "fr_classic");
+            gameState.currentOpponentProfileFrame = data.opponent?.equippedProfileFrame || null; 
             
             const opponentXpFromServer = Number(data.opponent?.xp) || 0;
             gameState.currentOpponentXp = opponentXpFromServer;
@@ -781,6 +783,7 @@ export const socketManager = {
             gameState.currentTurn = data.turn || 'white';
             ui.startTurn();
         });
+
 
         socket.on('opponentMove', data => {
             if (!data || !data.from || !data.to) return;
