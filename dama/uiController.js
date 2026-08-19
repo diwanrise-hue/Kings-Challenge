@@ -2353,6 +2353,39 @@ ui.onClick('board', e => {
         }
     }
 });
+// ==========================================
+// 🌟 نظام الاستماع لتحديثات الواجهة الرئيسية (تطبيق الساحات والأحجار والمستوى فوراً)
+// ==========================================
+window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'PROFILE_UPDATED') {
+        const profile = event.data.profile;
+        if (profile) {
+            // 🌟 الإصلاح هنا: حفظ البيانات الجديدة لتحديث المستوى وشريط الخبرة
+            if (!gameState.userProfile) gameState.userProfile = {};
+            Object.assign(gameState.userProfile, profile);
+
+            if (typeof window.applyProfileDataToUI === 'function') {
+                window.applyProfileDataToUI(profile);
+            }
+            if (window.ui && typeof window.ui.updateProfileUI === 'function') {
+                window.ui.updateProfileUI(); // تحديث شارة الـ Lv
+            }
+
+            // تحديث الساحة والحجر والإطار بصرياً
+            if (typeof window.applyTheme === 'function') {
+                window.applyTheme(profile);
+            }
+            // إعادة رسم الرقعة لتطبيق الألوان الجديدة
+            if (window.ui && typeof window.ui.renderBoard === 'function') {
+                window.ui.renderBoard(true);
+            }
+            // تحديث الحقيبة الداخلية إن وجدت
+            if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
+                window.storeManager.renderUI();
+            }
+        }
+    }
+});
 
 // ==========================================
 // 🌟 بدء اللعبة عند التحميل
@@ -2370,6 +2403,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) {} 
     }
 
+    // 🌟 الإصلاح هنا: تمرير البيانات للذاكرة الداخلية عند فتح اللعبة لأول مرة
+    gameState.userProfile = userObj;
+
     if (typeof window.applyTheme === 'function') {
         window.applyTheme(userObj);
     }
@@ -2381,32 +2417,14 @@ document.addEventListener('DOMContentLoaded', () => {
             window.applyProfileDataToUI(userObj); 
         }
         
-        // 🌟 مزامنة نقطة إشعار الراديو فور تشغيل اللعبة
+        // 🌟 إجبار الواجهة على تحديث الـ Lv ليطابق الواجهة الرئيسية
+        if (window.ui && typeof window.ui.updateProfileUI === 'function') {
+            window.ui.updateProfileUI();
+        }
+
         if (typeof window.syncRadioStatusDot === 'function') {
             window.syncRadioStatusDot();
         }
         
     }, 500); 
-});
-// ==========================================
-// 🌟 نظام الاستماع لتحديثات الواجهة الرئيسية (تطبيق الساحات والأحجار فوراً)
-// ==========================================
-window.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'PROFILE_UPDATED') {
-        const profile = event.data.profile;
-        if (profile) {
-            // تحديث الساحة والحجر والإطار بصرياً
-            if (typeof window.applyTheme === 'function') {
-                window.applyTheme(profile);
-            }
-            // إعادة رسم الرقعة لتطبيق الألوان الجديدة
-            if (window.ui && typeof window.ui.renderBoard === 'function') {
-                window.ui.renderBoard(true);
-            }
-            // تحديث الحقيبة الداخلية إن وجدت
-            if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
-                window.storeManager.renderUI();
-            }
-        }
-    }
 });
