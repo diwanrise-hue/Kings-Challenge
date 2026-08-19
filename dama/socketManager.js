@@ -916,16 +916,21 @@ export const socketManager = {
             }
         });
 
-        socket.on('syncTime', (data) => {
+                socket.on('syncTime', (data) => {
             if (gameState.isOnlineMode && data) {
                 const seconds = data.secondsLeft || 0;
                 gameState.turnTimeLeft = seconds;
                 gameState.turnEndTime = Date.now() + (seconds * 1000);
                 
-                if (typeof ui.startTurnTimer === 'function') ui.startTurnTimer();
-                else ui.setTxt('turn-countdown', gameState.lang === 'ar' ? `⏳ المتبقي للدور: ${seconds} ثانية` : `⏳ Turn Time Left: ${seconds}s`);
+                // 🌟 الحل الجذري: نكتفي بتحديث الوقت بصرياً ولا نقوم بإعادة تشغيل دالة العداد 
+                // هذا يمنع تقطع وتداخل صوت التيك توك الخاص بآخر 10 ثواني
+                if (window.ui && typeof window.ui.setTxt === 'function') {
+                    let timeTxt = (window.t && window.t('time_left')) ? window.t('time_left') : 'المتبقي للدور:';
+                    window.ui.setTxt('turn-countdown', `${timeTxt} ${seconds}s`);
+                }
             }
         });
+
 
         socket.on('opponentDisconnected', data => {
             if (!gameState.isOnlineMode) return;
