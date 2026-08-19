@@ -143,7 +143,7 @@ export const ui = {
 
         let overlayFrameSrc = profileFrameId && PROFILE_FRAMES_DB[profileFrameId] ? PROFILE_FRAMES_DB[profileFrameId] : null;
         
-        let frameScale = '145%';
+        let frameScale = '148%';
         let avatarScale = 'scale(1)'; 
         let frameZ = '3'; 
 
