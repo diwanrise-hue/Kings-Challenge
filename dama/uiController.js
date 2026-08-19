@@ -166,7 +166,7 @@ export const ui = {
                 
             } else {
                 frameScale = '165%'; 
-                avatarScale = 'scale(1.01)';
+                avatarScale = 'scale(1.02)';
             }
         } 
         else if (el.id === 'igp-avatar') frameScale = '140%';
