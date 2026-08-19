@@ -154,7 +154,7 @@ export const ui = {
         let moveLeft = 0;  // ⬅️ لليسار
 
         if (el.id === 'badge-avatar') {
-            frameZ = '999'; // يجعله فوق كل شيء
+            frameZ = '9999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
                 frameScale = '175%'; 
                 avatarScale = 'scale(1.12)'; 
