@@ -1,7 +1,6 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): إظهار الإطارات المخصصة في قائمة الغرف المتوفرة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -443,8 +442,8 @@ export const socketManager = {
                 }
 
                 const avatarHTML = `
-                    <div style="position: relative; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: transparent; border: none; flex-shrink: 0;">
-                        <img src="${avatarSrc}" onerror="this.style.display='none';" style="width:100%;height:100%;object-fit:cover; border-radius:50%; position:relative; z-index:1;">
+                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <img src="${avatarSrc}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
                         ${frameHTML}
                     </div>
                 `;
@@ -1342,7 +1341,7 @@ export const socketManager = {
             xp: profile.xp || 0,
             equippedBg: profile.equippedBg || 'bg_wood',
             equippedPc: profile.equippedPc || 'pc_original',
-            equippedProfileFrame: profile.equippedProfileFrame || null, // 🌟 تم إضافة إرسال الإطار
+            equippedProfileFrame: profile.equippedProfileFrame || null,
             syncThemeOptOut: profile.syncThemeOptOut === true
         };
 
