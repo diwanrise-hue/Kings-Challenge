@@ -12,12 +12,13 @@ export const gameEngine = {
         return r >= 0 && r < 8 && c >= 0 && c < 8;
     },
 
-    getPieceDirection(color, bState) {
+    getPieceDirection(color, bState, roomDirectionData = null) {
         const baseColor = color.split('-')[0];
         
         // 🌟 الإصلاح الجذري: الاعتماد على الاتجاه الثابت الذي تم تحديده عند بدء المباراة
-        // بدلاً من حساب المتوسط الديناميكي الذي ينكسر عندما يهرب حجر واحد خلف خطوط العدو
-        if (gameState.pieceDirection && gameState.pieceDirection[baseColor] !== undefined) {
+        if (roomDirectionData && roomDirectionData[baseColor] !== undefined) {
+            return roomDirectionData[baseColor];
+        } else if (gameState.pieceDirection && gameState.pieceDirection[baseColor] !== undefined) {
             return gameState.pieceDirection[baseColor];
         }
 
@@ -33,7 +34,7 @@ export const gameEngine = {
         return color === 'black'; 
     },
 
-    getPieceCapturePaths(r, c, color, bState, dirY, parentDr = null, parentDc = null) {
+    getPieceCapturePaths(r, c, color, bState, dirY, parentDr = null, parentDc = null, roomDirectionData = null) {
         const baseColor = color.split('-')[0];
         const isDama = bState[r][c] && bState[r][c].endsWith('-dama');
 
@@ -68,7 +69,7 @@ export const gameEngine = {
                             bState[r][c] = null;
 
                             const stepObj = { fromR: r, fromC: c, toR: nextR, toC: nextC, midR: enemyPos.r, midC: enemyPos.c };
-                            const subPaths = this.getPieceCapturePaths(nextR, nextC, color, bState, dirY, dr, dc);
+                            const subPaths = this.getPieceCapturePaths(nextR, nextC, color, bState, dirY, dr, dc, roomDirectionData);
 
                             if (subPaths.length > 0) {
                                 for (const sp of subPaths) paths.push([stepObj, ...sp]);
@@ -94,7 +95,7 @@ export const gameEngine = {
                         bState[r][c] = null;
 
                         const stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
-                        const subPaths = this.getPieceCapturePaths(toR, toC, color, bState, dirY, dr, dc);
+                        const subPaths = this.getPieceCapturePaths(toR, toC, color, bState, dirY, dr, dc, roomDirectionData);
 
                         if (subPaths.length > 0) {
                             for (const sp of subPaths) paths.push([stepObj, ...sp]);
@@ -136,10 +137,10 @@ export const gameEngine = {
         return moves;
     },
 
-    generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = null, activeDc = null) {
+    generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = null, activeDc = null, roomDirectionData = null) {
         let allCapturePaths = [], maxJumps = 0;
         const baseColor = color.split('-')[0];
-        const dirY = this.getPieceDirection(baseColor, bState); 
+        const dirY = this.getPieceDirection(baseColor, bState, roomDirectionData); 
 
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
@@ -149,7 +150,7 @@ export const gameEngine = {
                     const initDr = (r === activeR && c === activeC) ? activeDr : null;
                     const initDc = (r === activeR && c === activeC) ? activeDc : null;
 
-                    const paths = this.getPieceCapturePaths(r, c, baseColor, bState, dirY, initDr, initDc);
+                    const paths = this.getPieceCapturePaths(r, c, baseColor, bState, dirY, initDr, initDc, roomDirectionData);
                     for (const p of paths) {
                         if (p.length > maxJumps) maxJumps = p.length;
                         allCapturePaths.push(p);
@@ -158,7 +159,6 @@ export const gameEngine = {
             }
         }
 
-        // إذا كان هناك مسارات أكل إجبارية، نرجعها فقط
         if (maxJumps > 0) return allCapturePaths.filter(p => p.length === maxJumps);
         
         let allSimpleMoves = [];
@@ -166,7 +166,6 @@ export const gameEngine = {
             for (let c = 0; c < 8; c++) {
                 const piece = bState[r][c];
                 if (piece && piece.startsWith(baseColor)) {
-                    // إذا طلبنا حركات لحجر محدد (لرسم المربع الأزرق)، نتجاهل باقي الأحجار
                     if (activeR !== null && activeC !== null && (r !== activeR || c !== activeC)) continue;
                     
                     allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, baseColor, bState, dirY));
@@ -176,17 +175,17 @@ export const gameEngine = {
         return allSimpleMoves;
     },
 
-    findMaxJumps(r, c, color, vBoard, initDr = null, initDc = null) {
+    findMaxJumps(r, c, color, vBoard, initDr = null, initDc = null, roomDirectionData = null) {
         const baseColor = color.split('-')[0];
-        const dirY = this.getPieceDirection(baseColor, vBoard);
-        const paths = this.getPieceCapturePaths(r, c, color, vBoard, dirY, initDr, initDc);
+        const dirY = this.getPieceDirection(baseColor, vBoard, roomDirectionData);
+        const paths = this.getPieceCapturePaths(r, c, color, vBoard, dirY, initDr, initDc, roomDirectionData);
         if (paths.length === 0) return 0;
         let max = 0;
         for (let p of paths) { if (p.length > max) max = p.length; }
         return max;
     },
 
-    applyPathToBoard(path, bState) {
+    applyPathToBoard(path, bState, roomDirectionData = null) {
         let newBoard = bState.map(row => [...row]);
         if (!path || path.length === 0) return newBoard;
 
@@ -201,7 +200,7 @@ export const gameEngine = {
         let fPiece = newBoard[lastStep.toR][lastStep.toC];
 
         if (fPiece && !fPiece.includes('dama')) {
-            const dirY = this.getPieceDirection(fPiece.split('-')[0], newBoard);
+            const dirY = this.getPieceDirection(fPiece.split('-')[0], newBoard, roomDirectionData);
             const promoRow = (dirY === 1) ? 7 : 0;
             if (lastStep.toR === promoRow) newBoard[lastStep.toR][lastStep.toC] += '-dama';
         }
@@ -239,8 +238,8 @@ export const gameEngine = {
         return enemy;
     },
 
-    hasAnyMove(color, bState) {
-        return this.generateAllTurnMoves(color, bState).length > 0;
+    hasAnyMove(color, bState, roomDirectionData = null) {
+        return this.generateAllTurnMoves(color, bState, null, null, null, null, roomDirectionData).length > 0;
     },
 
     trackPieceHistory(fromR, fromC, toR, toC, color) {
