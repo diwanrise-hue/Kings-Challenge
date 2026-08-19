@@ -470,6 +470,7 @@ socket.on('profileUpdated', (updatedProfile) => {
         window.updateVipProgressBarUI();
     }
     
+    // 🌟 تحديث إجباري للحقيبة فور وصول التحديث
     if (typeof window.hubRenderProfileFramesInBag === 'function') {
         window.hubRenderProfileFramesInBag();
     }
@@ -527,6 +528,7 @@ socket.on('purchaseSuccess', (msg) => {
         window.storeManager.renderUI();
     }
     
+    // 🌟 إجبار تحديث الحقيبة مباشرة بعد نجاح الشراء
     setTimeout(() => {
         if (typeof window.hubRenderProfileFramesInBag === 'function') {
             window.hubRenderProfileFramesInBag();
@@ -853,11 +855,12 @@ window.syncHubProfile = function() {
 
     const fallbackImg = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp";
 
-    // 🌟 الإطار الأساسي الافتراضي لجميع اللاعبين (يظهر لمن لم يشتري إطاراً)
-    // 👇 هنا رابط صورة الإطار الافتراضي (يمكنك تعديل المسار للصورة التي تريدها)
+    // 🌟👇 هنا الإطار الأساسي الافتراضي لجميع اللاعبين (يظهر لمن لم يشتري أو يجهز إطاراً) 👇🌟
+    // قم بتغيير مسار الصورة هنا لتغيير الإطار الافتراضي لجميع اللاعبين الجدد 
     let frameUrl = "Photo/Profile1.webp"; 
+    // 🌟👆 ======================================================================= 👆🌟
     
-    // إذا قام اللاعب بتفعيل إطار آخر من الحقيبة، سيتم استبدال الإطار الأساسي
+    // إذا قام اللاعب بتفعيل إطار آخر من الحقيبة، سيتم استبدال الإطار الافتراضي بالإطار الذي اختاره
     if (profile.equippedProfileFrame && window.PROFILE_FRAMES_ITEMS) {
         const selectedFrame = window.PROFILE_FRAMES_ITEMS.find(f => f.id === profile.equippedProfileFrame);
         if (selectedFrame) {
@@ -868,7 +871,6 @@ window.syncHubProfile = function() {
     const renderAvatarLocal = (elementId) => {
         const el = document.getElementById(elementId);
         if (el) {
-            // إضافة important لمنع CSS الخارجي من إخفاء الإطار
             el.style.setProperty('overflow', 'visible', 'important');
             el.style.setProperty('border', 'none', 'important');
             el.style.setProperty('background', 'transparent', 'important');
@@ -1144,6 +1146,16 @@ window.addEventListener('message', (event) => {
         if (typeof stopRadio === 'function') stopRadio();
     } else if (event.data.type === 'OPEN_RADIO_MODAL') {
         if (typeof openRadioModal === 'function') openRadioModal();
+    } else if (event.data.type === 'LOWER_RADIO_VOLUME') {
+        // 🌟 خفض صوت الراديو إلى 15% أثناء عمل العداد لتجنب التداخل والتوقف
+        if (typeof audioInstance !== 'undefined' && audioInstance) {
+            audioInstance.volume = 0.15;
+        }
+    } else if (event.data.type === 'RESTORE_RADIO_VOLUME') {
+        // 🌟 إرجاع صوت الراديو للمستوى الطبيعي الذي حدده اللاعب
+        if (typeof audioInstance !== 'undefined' && audioInstance) {
+            audioInstance.volume = (typeof radioVolume !== 'undefined') ? radioVolume : 0.3;
+        }
     }
 });
 
@@ -1278,6 +1290,22 @@ window.switchBagMainTab = function(tabId, btnElement) {
             window.switchThemeGridTabCategory('bg');
         }
     }
+};
+
+window.switchBagGameTab = function(gameId, btnElement) {
+    document.querySelectorAll('.bag-game-content').forEach(el => {
+        el.classList.remove('active');
+        el.style.display = 'none';
+    });
+    
+    document.querySelectorAll('.bag-game-btn, .bag-side-btn').forEach(el => el.classList.remove('active'));
+
+    document.querySelectorAll('[id="bag-content-' + gameId + '"]').forEach(targetContent => {
+        targetContent.classList.add('active');
+        targetContent.style.display = 'flex';
+    });
+    
+    if (btnElement) btnElement.classList.add('active');
 };
 
 // ===================================================================
