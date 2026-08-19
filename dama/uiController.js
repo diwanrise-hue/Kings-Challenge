@@ -106,7 +106,7 @@ export const ui = {
         return el;
     },
    
-    // 🌟 دالة رسم صورة اللاعب والإطار مع التحكم الدقيق بالرفع للأعلى
+        // 🌟 دالة رسم صورة اللاعب والإطار مع لوحة تحكم دقيقة بالاتجاهات الأربعة
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -145,16 +145,26 @@ export const ui = {
         
         let frameScale = '135%';
         let avatarScale = 'scale(1)'; 
-        let frameTopPosition = '50%'; // 🌟 نقطة التمركز الطبيعية
         let frameZ = '3'; 
+
+        // 🎛️ لوحة التحكم بالاتجاهات (بالبكسل - px)
+        let moveUp = 0;    // ⬆️ للرفع
+        let moveDown = 0;  // ⬇️ للنزول
+        let moveRight = 0; // ➡️ لليمين
+        let moveLeft = 0;  // ⬅️ لليسار
 
         if (el.id === 'badge-avatar') {
             frameZ = '999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
-                frameScale = '185%'; 
+                frameScale = '175%'; 
                 avatarScale = 'scale(1.12)'; 
-                // 🌟 السحر هنا: تقليل النسبة يرفع الإطار للأعلى (كلما قللت الرقم ارتفع أكثر)
-                frameTopPosition = '80%'; 
+                
+                // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
+                moveUp = 8;    
+                moveDown = 0;  
+                moveRight = 0; 
+                moveLeft = 0;  
+                
             } else {
                 frameScale = '165%'; 
                 avatarScale = 'scale(1)';
@@ -170,13 +180,17 @@ export const ui = {
         `;
         
         if (overlayFrameSrc) {
-            // 🌟 تم إرجاع translate(-50%, -50%) واستخدام top: ${frameTopPosition} بدلاً منه للرفع والهبوط
-            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: ${frameTopPosition} !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: ${frameScale} !important; height: ${frameScale} !important; z-index: ${frameZ} !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) !important;">`;
+            // 🌟 حساب الاتجاهات وتطبيقها عبر دالة calc() في CSS
+            let finalX = moveRight - moveLeft;
+            let finalY = moveDown - moveUp;
+
+            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(calc(-50% + ${finalX}px), calc(-50% + ${finalY}px)) !important; width: ${frameScale} !important; height: ${frameScale} !important; z-index: ${frameZ} !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) !important;">`;
         }
         
         innerHTML += `</div>`;
         el.innerHTML = innerHTML;
     },
+
 
 
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null, onCancel = null) {
