@@ -6,6 +6,7 @@
  * 🌟 (مُحدّث): نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
  * 🌟 (مُحدّث): دمج إصلاحات الأداء (60 FPS) وكسر الحلقة اللانهائية لسرعة خيالية.
  * 🌟 (مُحدّث جذري): الإطار الأساسي يظل ثابتاً داخل اللعبة، والإطارات الإضافية تظهر كطبقة فوقه!
+ * 🌟 (تنظيف): تمت إزالة الإطار الافتراضي المكسور بالكامل من المتغيرات وجميع أماكن الاستدعاء.
  */
 
 import { gameState } from './gameState.js'; 
@@ -26,7 +27,7 @@ const PROFILE_FRAMES_DB = {
     'pf_dragon': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile4.webp',
     'pf_noble': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile7.webp'
 };
-const DEFAULT_FRAME_URL = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000148060.webp';
+// تم حذف DEFAULT_FRAME_URL المكسور من هنا
 
 // ==========================================
 // 🎵 المؤثرات الصوتية
@@ -115,8 +116,8 @@ export const ui = {
         el.innerHTML = '';
         el.style.border = 'none';
         el.style.backgroundColor = 'transparent';
-        el.style.overflow = 'visible';
-
+        el.style.overflow = 'visible'; // 🌟 إضافة هذا السطر لمنع قص الإطار
+        
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             el.innerHTML = `
@@ -144,7 +145,7 @@ export const ui = {
         let overlayFrameSrc = profileFrameId && PROFILE_FRAMES_DB[profileFrameId] ? PROFILE_FRAMES_DB[profileFrameId] : null;
         
         let frameScale = '135%';
-        if (el.id === 'badge-avatar') frameScale = '250%';
+        if (el.id === 'badge-avatar') frameScale = '190%'; // 🌟 تكبير الحجم ليتطابق مع الدائرة الذهبية
         else if (el.id === 'igp-avatar') frameScale = '140%';
         else if (el.id === 'mm-my-avatar' || el.id === 'mm-opp-avatar') frameScale = '140%';
         else if (el.id === 'bet-p1-avatar' || el.id === 'bet-p2-avatar') frameScale = '140%';
@@ -152,11 +153,11 @@ export const ui = {
         let innerHTML = `
             <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                 <img src="${finalSrc}" onerror="this.onerror=null; this.src='${defaultAvatar}';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
-                <img src="${DEFAULT_FRAME_URL}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
         `;
         
+        // 🌟 عرض الإطار المخصص فقط وإزالة الإطار الافتراضي القديم المكسور
         if (overlayFrameSrc) {
-            innerHTML += `<img src="${overlayFrameSrc}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
+            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
         }
         
         innerHTML += `</div>`;
@@ -1760,8 +1761,7 @@ window.createLbItemHTML = function(rank, playerObj, type) {
         <div class="lb-avatar" style="padding:0; border:none; display:flex; justify-content:center; align-items:center; overflow:visible; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px; width: 40px; height: 40px; border-radius: 50%; background: transparent;" title="عرض الملف الشخصي">
             <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                 <img src="${secureImgSrc}" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'font-size: 22px;\\'>👤</span>';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
-                <img src="${DEFAULT_FRAME_URL}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 2; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
-                ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">` : ''}
+                ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">` : ''}
             </div>
         </div>
         <div class="lb-info" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
@@ -1867,8 +1867,7 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
                 <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1; background: transparent; overflow: visible; border: none; box-shadow: none;">
                     <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                         <img src="${getSecureAvatarUrl(player.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 1;">
-                        <img src="${DEFAULT_FRAME_URL}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 2; pointer-events: none; object-fit: contain;">
-                        ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 3; pointer-events: none; object-fit: contain;">` : ''}
+                        ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 3; pointer-events: none; object-fit: contain;">` : ''}
                     </div>
                 </div>
                 ${frameOverlay}
