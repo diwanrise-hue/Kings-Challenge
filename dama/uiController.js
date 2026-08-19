@@ -148,7 +148,7 @@ export const ui = {
         let frameZ = '3'; 
 
         // 🎛️ لوحة التحكم بالاتجاهات (بالبكسل - px)
-        let moveUp = 1;    // ⬆️ للرفع
+        let moveUp = 8;    // ⬆️ للرفع
         let moveDown = 0;  // ⬇️ للنزول
         let moveRight = 1; // ➡️ لليمين
         let moveLeft = 0;  // ⬅️ لليسار
