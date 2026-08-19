@@ -503,7 +503,6 @@ export const ui = {
             document.body.classList.add('game-active');
             document.body.classList.add('online-mode-active'); 
             
-            // 🌟 الإصلاح السحري لضمان دقة الـ Lv دائماً عند دخول أي مباراة
             try {
                 let localStr = localStorage.getItem('hub_user_profile');
                 if (localStr) {
@@ -1364,7 +1363,14 @@ export const ui = {
 
             const igpLevel = this.getEl('igp-level'); const igpRank = this.getEl('igp-rank-title'); const igpXpFill = this.getEl('igp-xp-fill'); const igpXpText = this.getEl('igp-xp-text');
             if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
+            
             if (igpRank) igpRank.innerHTML = `الرتبة: ${lvlInfo.rankIcon} ${lvlInfo.rank} | ${lvlInfo.title}`;
+            
+            const badgeRankEl = this.getEl('profile-stat-rank-badge');
+            if (badgeRankEl) {
+                badgeRankEl.innerHTML = `${lvlInfo.rankIcon} ${lvlInfo.rank}`;
+            }
+
             if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
             if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
 
@@ -1459,12 +1465,26 @@ window.applyProfileDataToUI = function(profile) {
     requestAnimationFrame(() => {
         const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
         const currentId = profile.id || getUserIdLocally();
-        const textElements = { 'badge-username-display-game': profile.name, 'card-my-name': profile.name, 'mm-my-name': profile.name, 'profile-stat-tokens-badge': currentTokens, 'profile-stat-tokens-store': currentTokens, 'igp-name': profile.name, 'igp-id-display': currentId, 'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 'igp-wins': profile.wins !== undefined ? profile.wins : 0, 'igp-losses': profile.losses !== undefined ? profile.losses : 0 };
+        const textElements = { 
+            'badge-username-display-game': profile.name, 
+            'card-my-name': profile.name, 
+            'mm-my-name': profile.name, 
+            'profile-stat-tokens-badge': currentTokens, 
+            'profile-stat-tokens-store': currentTokens, 
+            'igp-name': profile.name, 
+            'igp-id-display': currentId, 
+            'igp-games': profile.gamesPlayed !== undefined ? profile.gamesPlayed : (profile.games !== undefined ? profile.games : 0), 
+            'igp-wins': profile.wins !== undefined ? profile.wins : 0, 
+            'igp-losses': profile.losses !== undefined ? profile.losses : 0 
+        };
 
         for (let id in textElements) {
             const el = document.getElementById(id);
             if (el && String(el.innerText) !== String(textElements[id])) { el.innerText = textElements[id]; }
         }
+
+        const currentStreakEl = document.getElementById('profile-stat-streak-badge');
+        if (currentStreakEl) currentStreakEl.innerText = profile.currentStreak || 0;
 
         if(typeof forceLockedGlobalAvatar === 'function') forceLockedGlobalAvatar();
         if(window.updateInventoryUI) window.updateInventoryUI();
@@ -1720,6 +1740,10 @@ window.openMyProfile = function() {
             xpBar.style.width = Math.min(100, Math.max(0, progress)) + '%'; xpText.innerText = `${prof.xp || 0} / ${nextLevelXp} XP`;
         }
         document.getElementById('igp-popularity-val').innerText = prof.popularity || 0;
+        
+        const highestStreakEl = document.getElementById('igp-highest-streak');
+        if (highestStreakEl) highestStreakEl.innerText = prof.highestStreak || 0;
+
         renderFriendsList(prof.friends); renderFriendRequests();
     }
     window.openAppModal('in-game-profile-modal');
@@ -1736,6 +1760,9 @@ window.showPlayerProfileFromLB = function(player) {
 
     document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
     document.getElementById('igp-popularity-val').innerText = player.popularity || Math.floor(Math.random() * 800) + 50;
+
+    const highestStreakEl = document.getElementById('igp-highest-streak');
+    if (highestStreakEl) highestStreakEl.innerText = player.highestStreak || 0;
 
     let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
     ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
@@ -2393,7 +2420,7 @@ window.addEventListener('message', (event) => {
 document.addEventListener('DOMContentLoaded', () => {
     let globalProfile = localStorage.getItem('hub_user_profile'); 
     let initialAvatar = '1000132081.webp';
-    let userObj = { id: '#00000', name: t('badge_you') || 'أنت', avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0 };
+    let userObj = { id: '#00000', name: t('badge_you') || 'أنت', avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0, currentStreak: 0, highestStreak: 0 };
     
     if (globalProfile) { 
         try { 
