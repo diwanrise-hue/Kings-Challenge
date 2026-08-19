@@ -3,11 +3,6 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
- * 🌟 (مُحدّث): دمج إصلاحات الأداء (60 FPS) وكسر الحلقة اللانهائية لسرعة خيالية.
- * 🌟 (مُحدّث جذري): الإطار الأساسي يظل ثابتاً داخل اللعبة، والإطارات الإضافية تظهر كطبقة فوقه!
- * 🌟 (تم الإصلاح): تنظيف الأكواد من الصورة المكسورة، حماية الإطارات من الانكماش داخل الـ CSS وتكبيرها لـ 190%.
- * 🌟 (النسخة النهائية): دمج لوحة التحكم بالاتجاهات وتخصيص المقاسات لكل شاشة بذكاء.
  */
 
 import { gameState } from './gameState.js'; 
@@ -107,7 +102,7 @@ export const ui = {
         return el;
     },
 
-    // 🌟 دالة رسم صورة اللاعب والإطار مع لوحة تحكم دقيقة بالاتجاهات الأربعة وتخصيص الشاشات
+    // 🌟 دالة رسم صورة اللاعب والإطار (نسخة نظيفة وأنيقة بفضل الـ CSS الجديد)
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -148,75 +143,41 @@ export const ui = {
         let avatarScale = 'scale(1)'; 
         let frameZ = '3'; 
 
-        // 🎛️ لوحة التحكم بالاتجاهات (بالبكسل - px)
-        let moveUp = 0;    // ⬆️ للرفع
-        let moveDown = 0;  // ⬇️ للنزول
-        let moveRight = 0; // ➡️ لليمين
-        let moveLeft = 0;  // ⬅️ لليسار
+        let moveUp = 0; let moveDown = 0; let moveRight = 0; let moveLeft = 0;  
 
-        // 1️⃣ الواجهة الرئيسية
         if (el.id === 'badge-avatar') {
-            frameZ = '999999'; // يجعله فوق كل شيء
+            frameZ = '999999'; 
             if (overlayFrameSrc) {
-                frameScale = '176%'; 
-                avatarScale = 'scale(1.16)'; 
-                
-                // 🌟 أدخل الرقم الذي تريده هنا 
-                moveUp = 2;    
-                moveDown = 0;  
-                moveRight = 0; 
-                moveLeft = 0;  
-                
+                frameScale = '176%'; avatarScale = 'scale(1.16)'; moveUp = 2; moveRight = 0; 
             } else {
-                frameScale = '176%'; 
-                avatarScale = 'scale(1.08)';
+                frameScale = '176%'; avatarScale = 'scale(1.08)';
             }
         } 
-        // 2️⃣ البطاقات داخل المباراة أثناء اللعب (VS HUD)
         else if (el.id === 'card-my-avatar' || el.id === 'card-opp-avatar') {
             frameZ = '10';
-            if (overlayFrameSrc) {
-                frameScale = '150%'; 
-                avatarScale = 'scale(1.05)'; 
-            } else {
-                frameScale = '140%'; 
-                avatarScale = 'scale(1)';
-            }
+            if (overlayFrameSrc) { frameScale = '150%'; avatarScale = 'scale(1.05)'; } 
+            else { frameScale = '140%'; avatarScale = 'scale(1)'; }
         }
-        // 3️⃣ نافذة البروفايل الكبيرة
         else if (el.id === 'igp-avatar') {
             frameZ = '10';
-            if (overlayFrameSrc) {
-                frameScale = '155%'; 
-                avatarScale = 'scale(1.05)';
-            } else {
-                frameScale = '140%'; 
-                avatarScale = 'scale(1)';
-            }
+            if (overlayFrameSrc) { frameScale = '155%'; avatarScale = 'scale(1.05)'; } 
+            else { frameScale = '140%'; avatarScale = 'scale(1)'; }
         }
-        // 4️⃣ البقية: شاشة البحث (أونلاين) وصناديق المراهنة
         else {
             frameZ = '5';
-            if (overlayFrameSrc) {
-                frameScale = '140%'; 
-                avatarScale = 'scale(1)'; 
-            } else {
-                frameScale = '135%'; 
-                avatarScale = 'scale(1)';
-            }
+            if (overlayFrameSrc) { frameScale = '140%'; avatarScale = 'scale(1)'; } 
+            else { frameScale = '135%'; avatarScale = 'scale(1)'; }
         }
 
         let innerHTML = `
             <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                <img src="${finalSrc}" onerror="this.onerror=null; this.src='${defaultAvatar}';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1; transform: ${avatarScale} !important;">
+                <img src="${finalSrc}" onerror="this.onerror=null; this.src='${defaultAvatar}';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1; transform: ${avatarScale};">
         `;
         
         if (overlayFrameSrc) {
-            // 🌟 حساب الاتجاهات وتطبيقها عبر دالة calc() في CSS
             let finalX = moveRight - moveLeft;
             let finalY = moveDown - moveUp;
-
-            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(calc(-50% + ${finalX}px), calc(-50% + ${finalY}px)) !important; width: ${frameScale} !important; height: ${frameScale} !important; z-index: ${frameZ} !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) !important;">`;
+            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(calc(-50% + ${finalX}px), calc(-50% + ${finalY}px)); width: ${frameScale}; height: ${frameScale}; z-index: ${frameZ}; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
         }
         
         innerHTML += `</div>`;
@@ -953,7 +914,7 @@ export const ui = {
                 repCounter.style.display = 'block';
                 repCounter.textContent = `تكرار: ${myRep}/3`;
                 repCounter.style.color = myRep === 3 ? '#e74c3c' : '#f5a623';
-                repCounter.style.borderColor = myRep === 3 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(245, 166, 35, 0.3)';
+                repCounter.style.borderColor = myRep === 3 ? 'rgba(245, 166, 35, 0.3)';
             } else {
                 repCounter.style.display = 'none';
             }
@@ -1460,7 +1421,6 @@ export const ui = {
 // 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
 // ==========================================
 
-// تحديث الإطارات في الواجهة الرئيسية بشكل سليم
 function forceLockedGlobalAvatar() {
     let globalProfile = localStorage.getItem('hub_user_profile');
     let avatarSrc = "../Photo/1000132081.webp"; let isImage = true;
@@ -1767,7 +1727,8 @@ window.showPlayerProfileFromLB = function(player) {
     document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
     document.getElementById('igp-popularity-val').innerText = player.popularity || Math.floor(Math.random() * 800) + 50;
 
-    ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), player.equippedProfileFrame);
+    let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
+    ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
     
     if (player.rankInfo) { document.getElementById('igp-rank-title').innerText = `الرتبة: ${player.rankInfo.icon} ${player.rankInfo.title}`; } else { document.getElementById('igp-rank-title').innerText = `الرتبة: 🥉 برونزي`; }
     window.openAppModal('in-game-profile-modal');
@@ -1819,7 +1780,7 @@ window.createLbItemHTML = function(rank, playerObj, type) {
         <div class="lb-avatar" style="padding:0; border:none; display:flex; justify-content:center; align-items:center; overflow:visible; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px; width: 40px; height: 40px; border-radius: 50%; background: transparent;" title="عرض الملف الشخصي">
             <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                 <img src="${secureImgSrc}" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'font-size: 22px;\\'>👤</span>';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
-                ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 140% !important; height: 140% !important; z-index: 3 !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)) !important;">` : ''}
+                ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; border-radius: 0; max-width: none; max-height: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">` : ''}
             </div>
         </div>
         <div class="lb-info" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
@@ -1919,7 +1880,7 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
                 <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1; background: transparent; overflow: visible; border: none; box-shadow: none;">
                     <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                         <img src="${getSecureAvatarUrl(player.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 1;">
-                        ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 135% !important; height: 135% !important; z-index: 3 !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important;">` : ''}
+                        ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 3; pointer-events: none; object-fit: contain; border-radius: 0; max-width: none; max-height: none;">` : ''}
                     </div>
                 </div>
                 ${frameOverlay}
@@ -2411,4 +2372,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 500); 
 });
-
