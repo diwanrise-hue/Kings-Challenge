@@ -150,7 +150,7 @@ export const ui = {
         // 🎛️ لوحة التحكم بالاتجاهات (بالبكسل - px)
         let moveUp = 8;    // ⬆️ للرفع
         let moveDown = 0;  // ⬇️ للنزول
-        let moveRight = 8; // ➡️ لليمين
+        let moveRight = 1; // ➡️ لليمين
         let moveLeft = 0;  // ⬅️ لليسار
 
         if (el.id === 'badge-avatar') {
@@ -162,7 +162,7 @@ export const ui = {
                 // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
                 moveUp = 8;    
                 moveDown = 0;  
-                moveRight = 8; 
+                moveRight = 1; 
                 moveLeft = 0;  
                 
             } else {
