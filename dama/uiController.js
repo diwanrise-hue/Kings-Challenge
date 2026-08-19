@@ -169,7 +169,7 @@ export const ui = {
                 
             } else {
                 frameScale = '176%'; 
-                avatarScale = 'scale(1.06)';
+                avatarScale = 'scale(1.08)';
             }
         } 
         // 2️⃣ البطاقات داخل المباراة أثناء اللعب (VS HUD)
