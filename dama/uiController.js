@@ -6,7 +6,7 @@
  * 🌟 (مُحدّث): نظام (Spectator Mode) لعرض المشاهدات والمراهنات بشكل صحيح!
  * 🌟 (مُحدّث): دمج إصلاحات الأداء (60 FPS) وكسر الحلقة اللانهائية لسرعة خيالية.
  * 🌟 (مُحدّث جذري): الإطار الأساسي يظل ثابتاً داخل اللعبة، والإطارات الإضافية تظهر كطبقة فوقه!
- * 🌟 (تنظيف): تمت إزالة الإطار الافتراضي المكسور بالكامل من المتغيرات وجميع أماكن الاستدعاء.
+ * 🌟 (تم الإصلاح): تنظيف الأكواد من الصورة المكسورة، حماية الإطارات من الانكماش داخل الـ CSS وتكبيرها لـ 190%.
  */
 
 import { gameState } from './gameState.js'; 
@@ -27,7 +27,6 @@ const PROFILE_FRAMES_DB = {
     'pf_dragon': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile4.webp',
     'pf_noble': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile7.webp'
 };
-// تم حذف DEFAULT_FRAME_URL المكسور من هنا
 
 // ==========================================
 // 🎵 المؤثرات الصوتية
@@ -107,7 +106,7 @@ export const ui = {
         return el;
     },
 
-    // 🌟 التعديل الجذري هنا: تطبيق الإطار الثابت وفوقه الإطار المخصص
+    // 🌟 دالة رسم صورة اللاعب والإطار مع الحماية القصوى ضد الـ CSS
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -116,7 +115,7 @@ export const ui = {
         el.innerHTML = '';
         el.style.border = 'none';
         el.style.backgroundColor = 'transparent';
-        el.style.overflow = 'visible'; // 🌟 إضافة هذا السطر لمنع قص الإطار
+        el.style.overflow = 'visible'; 
         
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
@@ -145,7 +144,7 @@ export const ui = {
         let overlayFrameSrc = profileFrameId && PROFILE_FRAMES_DB[profileFrameId] ? PROFILE_FRAMES_DB[profileFrameId] : null;
         
         let frameScale = '135%';
-        if (el.id === 'badge-avatar') frameScale = '190%'; // 🌟 تكبير الحجم ليتطابق مع الدائرة الذهبية
+        if (el.id === 'badge-avatar') frameScale = '190%'; 
         else if (el.id === 'igp-avatar') frameScale = '140%';
         else if (el.id === 'mm-my-avatar' || el.id === 'mm-opp-avatar') frameScale = '140%';
         else if (el.id === 'bet-p1-avatar' || el.id === 'bet-p2-avatar') frameScale = '140%';
@@ -155,9 +154,9 @@ export const ui = {
                 <img src="${finalSrc}" onerror="this.onerror=null; this.src='${defaultAvatar}';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
         `;
         
-        // 🌟 عرض الإطار المخصص فقط وإزالة الإطار الافتراضي القديم المكسور
+        // 🌟 عرض الإطار المخصص فقط مع الحماية القصوى !important لمنعه من التقوقع 
         if (overlayFrameSrc) {
-            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${frameScale}; height: ${frameScale}; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
+            innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: ${frameScale} !important; height: ${frameScale} !important; z-index: 3 !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) !important;">`;
         }
         
         innerHTML += `</div>`;
@@ -1753,7 +1752,6 @@ window.createLbItemHTML = function(rank, playerObj, type) {
     nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
     
     let secureImgSrc = getSecureAvatarUrl(avatarStr);
-    
     let overlayFrameSrc = playerObj.equippedProfileFrame && PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] ? PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] : null;
 
     div.innerHTML = `
@@ -1761,7 +1759,7 @@ window.createLbItemHTML = function(rank, playerObj, type) {
         <div class="lb-avatar" style="padding:0; border:none; display:flex; justify-content:center; align-items:center; overflow:visible; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px; width: 40px; height: 40px; border-radius: 50%; background: transparent;" title="عرض الملف الشخصي">
             <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                 <img src="${secureImgSrc}" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'font-size: 22px;\\'>👤</span>';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
-                ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">` : ''}
+                ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 140% !important; height: 140% !important; z-index: 3 !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)) !important;">` : ''}
             </div>
         </div>
         <div class="lb-info" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
@@ -1837,14 +1835,8 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         let frameOverlay = '';
 
         if (tabType === 'xp') {
-            const proFrames = {
-                1: window.frameRank1,
-                2: window.frameRank2,
-                3: window.frameRank3 
-            };
-
+            const proFrames = { 1: window.frameRank1, 2: window.frameRank2, 3: window.frameRank3 };
             let frameUrl = proFrames[item.rank];
-
             if (frameUrl) {
                 frameOverlay = `
                     <div style="position: absolute; top: -22%; left: -22%; width: 144%; height: 144%;
@@ -1867,7 +1859,7 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
                 <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1; background: transparent; overflow: visible; border: none; box-shadow: none;">
                     <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                         <img src="${getSecureAvatarUrl(player.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 1;">
-                        ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 3; pointer-events: none; object-fit: contain;">` : ''}
+                        ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 135% !important; height: 135% !important; z-index: 3 !important; pointer-events: none !important; object-fit: contain !important; border-radius: 0 !important; max-width: none !important; max-height: none !important;">` : ''}
                     </div>
                 </div>
                 ${frameOverlay}
