@@ -160,9 +160,9 @@ export const ui = {
                 avatarScale = 'scale(1.12)'; 
                 
                 // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
-                moveUp = 1;    
+                moveUp = 2;    
                 moveDown = 0;  
-                moveRight = 1; 
+                moveRight = 2; 
                 moveLeft = 0;  
                 
             } else {
