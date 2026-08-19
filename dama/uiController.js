@@ -502,6 +502,17 @@ export const ui = {
         if (active) {
             document.body.classList.add('game-active');
             document.body.classList.add('online-mode-active'); 
+            
+            // 🌟 الإصلاح السحري لضمان دقة الـ Lv دائماً عند دخول أي مباراة
+            try {
+                let localStr = localStorage.getItem('hub_user_profile');
+                if (localStr) {
+                    let parsedLocal = JSON.parse(localStr);
+                    if (!gameState.userProfile) gameState.userProfile = {};
+                    Object.assign(gameState.userProfile, parsedLocal);
+                }
+            } catch(e) {}
+            
         } else {
             document.body.classList.remove('game-active');
             document.body.classList.remove('online-mode-active');
@@ -718,7 +729,6 @@ export const ui = {
         gameState.gameId = Date.now();
         if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
 
-        // 🌟 إرجاع صوت الراديو لطبيعته عند تصفير الرقعة أو الخروج
         if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
 
         gameState.virtualBoard = Array(8).fill(null).map(() => Array(8).fill(null));
@@ -832,7 +842,6 @@ export const ui = {
         sfx.clock.pause(); sfx.clock.currentTime = 0;
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
         
-        // 🌟 إرجاع صوت الراديو لطبيعته تحسباً إذا لعب اللاعب قبل انتهاء الوقت
         if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
 
         let hasPlayedTick = false; 
@@ -845,7 +854,6 @@ export const ui = {
             
             if (gameState.turnTimeLeft <= 10 && gameState.turnTimeLeft > 0 && !hasPlayedTick) {
                 hasPlayedTick = true; 
-                // 🌟 إرسال أمر خفض صوت الراديو بنسبة معينة
                 if (window.parent) window.parent.postMessage({ type: 'LOWER_RADIO_VOLUME' }, '*');
                 this.playSound(sfx.clock);
             }
@@ -854,7 +862,6 @@ export const ui = {
                 clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
                 sfx.clock.pause(); sfx.clock.currentTime = 0;
                 
-                // 🌟 إرجاع صوت الراديو لطبيعته عند انتهاء الوقت
                 if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
 
                 this.setTxt('turn-countdown', t('syncing') || 'جاري المزامنة مع الخادم...');
@@ -1173,7 +1180,6 @@ export const ui = {
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
         sfx.clock.pause(); sfx.clock.currentTime = 0; this.setTxt('turn-countdown', '');
         
-        // 🌟 إرجاع صوت الراديو لطبيعته عند انتهاء المباراة وظهور النتيجة
         if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
 
         this.setDisplay('match-players-card', 'none');
@@ -1232,7 +1238,7 @@ export const ui = {
         if (gameState.userProfile) {
             flex.append(
                 createPlayerBox(gameState.userProfile.name, gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, isMeWin, isDraw, gameState.userProfile.equippedProfileFrame), 
-                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin, isDraw, gameState.currentOpponentProfileFrame)
+                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin, isDraw, gameState.currentOpponentProfileFrame) 
             );
         }
         box.appendChild(flex);
@@ -2010,16 +2016,16 @@ window.toggleRadioMusic = function() {
     if (isActive) { window.parent.postMessage({ type: 'PLAY_RADIO' }, '*'); } else { window.parent.postMessage({ type: 'STOP_RADIO' }, '*'); }
 };
 
-function syncRadioStatusDot() { 
+window.syncRadioStatusDot = function() { 
     const statusDot = document.getElementById('dama-radio-status'); 
     if (statusDot) { 
         const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; 
         if (isPlaying) statusDot.classList.add('active'); else statusDot.classList.remove('active'); 
     } 
-}
+};
 
 window.addEventListener('storage', (e) => {
-    if (e.key === 'hub_music_enabled') { syncRadioStatusDot(); }
+    if (e.key === 'hub_music_enabled') { window.syncRadioStatusDot(); }
     if (e.key === 'hub_user_profile') { forceLockedGlobalAvatar(); }
 });
 
@@ -2374,6 +2380,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof window.applyProfileDataToUI === 'function') { 
             window.applyProfileDataToUI(userObj); 
         }
-        if (typeof syncRadioStatusDot === 'function') syncRadioStatusDot();
+        
+        // 🌟 مزامنة نقطة إشعار الراديو فور تشغيل اللعبة
+        if (typeof window.syncRadioStatusDot === 'function') {
+            window.syncRadioStatusDot();
+        }
+        
     }, 500); 
 });
