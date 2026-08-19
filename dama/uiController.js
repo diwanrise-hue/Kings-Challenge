@@ -156,7 +156,7 @@ export const ui = {
             frameZ = '999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
                 frameScale = '175%'; 
-                avatarScale = 'scale(1.66)'; 
+                avatarScale = 'scale(1.17)'; 
                 
                 // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
                 moveUp = 2;    
@@ -166,7 +166,7 @@ export const ui = {
                 
             } else {
                 frameScale = '165%'; 
-                avatarScale = 'scale(1.10)';
+                avatarScale = 'scale(1.03)';
             }
         } 
         else if (el.id === 'igp-avatar') frameScale = '140%';
