@@ -1005,7 +1005,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 
 #match-players-card { background: rgba(24, 23, 29, 0.95) !important; backdrop-filter: blur(4px); border: 1px solid rgba(212, 175, 55, 0.3) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; } /* ✅ تم التخفيف */
 .match-players-flex { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 80px; position: relative; }
-.match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid #d4af37; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: hidden; background-color: rgba(255,255,255,0.05); }
+.match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid #d4af37; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: visible; background-color: rgba(255,255,255,0.05); }
 .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fdf5c9 !important; display: flex; align-items: center; justify-content: center; }
 .match-vs-text { color: #d4af37; font-weight: 800; font-size: 16px; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
@@ -1285,4 +1285,33 @@ body.online-mode-active .game-container { order: 3 !important; }
     display: flex;
     align-items: center;
     gap: 3px;
+}
+
+/* =========================================
+   ✨ إصلاح إطارات البروفايل والصور الدائرية
+   ========================================= */
+
+#igp-avatar, 
+#mm-my-avatar, 
+#mm-opp-avatar,
+#badge-avatar,
+#card-my-avatar,
+#card-opp-avatar,
+#bet-p1-avatar,
+#bet-p2-avatar {
+    background-color: transparent !important;
+    border: none !important;
+    overflow: visible !important;
+    border-radius: 50%;
+}
+
+#igp-avatar img, 
+#mm-my-avatar img, 
+#mm-opp-avatar img,
+#card-my-avatar img,
+#card-opp-avatar img,
+#bet-p1-avatar img,
+#bet-p2-avatar img {
+    border-radius: 50% !important;
+    object-fit: cover !important;
 }
