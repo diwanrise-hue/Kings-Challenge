@@ -493,20 +493,6 @@ export const ui = {
         }
     },
 
-    showSpectatorBetModal(roomID, p1, p2) {
-        const modal = document.getElementById('spectator-bet-modal');
-        if (!modal) return;
-        
-        this.applyAvatar('bet-p1-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'), p1?.equippedProfileFrame);
-        this.setTxt('bet-p1-name', p1?.name || 'اللاعب 1');
-        
-        this.applyAvatar('bet-p2-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'), p2?.equippedProfileFrame);
-        this.setTxt('bet-p2-name', p2?.name || 'اللاعب 2');
-
-        document.getElementById('spectator-bet-room-id').value = roomID;
-        modal.style.display = 'flex';
-    },
-
     toggleOnlineUILayout(active, oppName = "", oppAvatar = "❓") {
         const normalState = active ? 'none' : 'inline-block';
         const flexState = active ? 'none' : 'flex';
@@ -540,10 +526,13 @@ export const ui = {
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, gameState.userProfile.equippedProfileFrame);
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             this.setTxt('card-opp-name', oppName);
-            this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'), window.currentOpponentData?.equippedProfileFrame);
+            
+            // 🌟 الإصلاح هنا: قراءة الإطار الدائري للخصم بشكل صحيح
+            this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'), gameState.currentOpponentProfileFrame);
           
-            const myAvatarFrameId = gameState.userProfile.equippedAvatarFr || null;
-            const oppAvatarFrameId = gameState.currentOpponentAvatarFr || null;
+            // 🌟 الإصلاح هنا: قراءة الإطار المربع (إطار المتجر) بشكل صحيح
+            const myAvatarFrameId = gameState.userProfile.equippedFr || null;
+            const oppAvatarFrameId = gameState.currentOpponentFr || null;
 
             const applyVisualFrame = (elementId, frameId) => {
                 const el = document.getElementById(elementId);
@@ -569,6 +558,7 @@ export const ui = {
             applyVisualFrame('card-my-frame', myAvatarFrameId);
             applyVisualFrame('card-opp-frame', oppAvatarFrameId);
 
+            // 🌟 إصلاح المزامنة في المستويات (Lv)
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
             let myCardLevel = this.getEl('card-my-level');
             if (myCardLevel) {
@@ -1228,7 +1218,7 @@ export const ui = {
         if (gameState.userProfile) {
             flex.append(
                 createPlayerBox(gameState.userProfile.name, gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, isMeWin, isDraw, gameState.userProfile.equippedProfileFrame), 
-                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin, isDraw, window.currentOpponentData?.equippedProfileFrame)
+                createPlayerBox(oppName || t('mm_opp'), oppAvatar, oppAvatar?.startsWith('data:image'), !isMeWin, isDraw, gameState.currentOpponentProfileFrame) // 🌟 تم الإصلاح هنا
             );
         }
         box.appendChild(flex);
