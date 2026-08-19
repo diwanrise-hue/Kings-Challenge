@@ -7,6 +7,7 @@
  * 🌟 (مُحدّث): دمج إصلاحات الأداء (60 FPS) وكسر الحلقة اللانهائية لسرعة خيالية.
  * 🌟 (مُحدّث جذري): الإطار الأساسي يظل ثابتاً داخل اللعبة، والإطارات الإضافية تظهر كطبقة فوقه!
  * 🌟 (تم الإصلاح): تنظيف الأكواد من الصورة المكسورة، حماية الإطارات من الانكماش داخل الـ CSS وتكبيرها لـ 190%.
+ * 🌟 (النسخة النهائية): دمج لوحة التحكم بالاتجاهات وتخصيص المقاسات لكل شاشة بذكاء.
  */
 
 import { gameState } from './gameState.js'; 
@@ -105,7 +106,8 @@ export const ui = {
         if (textContent) el.textContent = textContent;
         return el;
     },
-       // 🌟 دالة رسم صورة اللاعب والإطار مع لوحة تحكم دقيقة بالاتجاهات الأربعة
+
+    // 🌟 دالة رسم صورة اللاعب والإطار مع لوحة تحكم دقيقة بالاتجاهات الأربعة وتخصيص الشاشات
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -152,13 +154,14 @@ export const ui = {
         let moveRight = 0; // ➡️ لليمين
         let moveLeft = 0;  // ⬅️ لليسار
 
+        // 1️⃣ الواجهة الرئيسية
         if (el.id === 'badge-avatar') {
             frameZ = '999'; // يجعله فوق كل شيء
             if (overlayFrameSrc) {
                 frameScale = '175%'; 
                 avatarScale = 'scale(1.16)'; 
                 
-                // 🌟 أدخل الرقم الذي تريده هنا (مثلاً: اكتب 8 لرفعه 8 بكسل)
+                // 🌟 أدخل الرقم الذي تريده هنا 
                 moveUp = 2;    
                 moveDown = 0;  
                 moveRight = 1; 
@@ -166,12 +169,42 @@ export const ui = {
                 
             } else {
                 frameScale = '165%'; 
-                avatarScale = 'scale(1.02)';
+                avatarScale = 'scale(1.01)';
             }
         } 
-        else if (el.id === 'igp-avatar') frameScale = '140%';
-        else if (el.id === 'mm-my-avatar' || el.id === 'mm-opp-avatar') frameScale = '140%';
-        else if (el.id === 'bet-p1-avatar' || el.id === 'bet-p2-avatar') frameScale = '140%';
+        // 2️⃣ البطاقات داخل المباراة أثناء اللعب (VS HUD)
+        else if (el.id === 'card-my-avatar' || el.id === 'card-opp-avatar') {
+            frameZ = '10';
+            if (overlayFrameSrc) {
+                frameScale = '150%'; 
+                avatarScale = 'scale(1.05)'; 
+            } else {
+                frameScale = '140%'; 
+                avatarScale = 'scale(1)';
+            }
+        }
+        // 3️⃣ نافذة البروفايل الكبيرة
+        else if (el.id === 'igp-avatar') {
+            frameZ = '10';
+            if (overlayFrameSrc) {
+                frameScale = '155%'; 
+                avatarScale = 'scale(1.05)';
+            } else {
+                frameScale = '140%'; 
+                avatarScale = 'scale(1)';
+            }
+        }
+        // 4️⃣ البقية: شاشة البحث (أونلاين) وصناديق المراهنة
+        else {
+            frameZ = '5';
+            if (overlayFrameSrc) {
+                frameScale = '140%'; 
+                avatarScale = 'scale(1)'; 
+            } else {
+                frameScale = '135%'; 
+                avatarScale = 'scale(1)';
+            }
+        }
 
         let innerHTML = `
             <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
@@ -189,8 +222,6 @@ export const ui = {
         innerHTML += `</div>`;
         el.innerHTML = innerHTML;
     },
-
-
 
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null, onCancel = null) {
         title = title || t('alert_title');
