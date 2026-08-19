@@ -152,7 +152,7 @@ export const ui = {
             if (overlayFrameSrc) {
                 // 🌟 المعادلة الذهبية: إطار ضخم (185%) مع صورة مكبرة (112%) للحفاظ على التطابق
                 frameScale = '185%'; 
-                avatarScale = 'scale(1.12)'; 
+                avatarScale = 'scale(1.25)'; 
             } else {
                 frameScale = '165%'; 
                 avatarScale = 'scale(1)';
