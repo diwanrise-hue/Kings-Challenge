@@ -1776,7 +1776,8 @@ window.showPlayerProfileFromLB = function(player) {
     const popBtn = document.getElementById('give-pop-btn'); if(popBtn) { popBtn.innerHTML = '🔥 منح شعبية'; popBtn.style.cssText = "background: rgba(255,77,77,0.15) !important; color: #ff4d4d !important; border-color: rgba(255,77,77,0.3) !important; margin: 0;"; popBtn.disabled = false; }
 
     document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
-    document.getElementById('igp-popularity-val').innerText = player.popularity || Math.floor(Math.random() * 800) + 50;
+    document.getElementById('igp-popularity-val').innerText = player.popularity !== undefined ? player.popularity : 0;
+
 
     const highestStreakEl = document.getElementById('igp-highest-streak');
     if (highestStreakEl) highestStreakEl.innerText = player.highestStreak || 0;
