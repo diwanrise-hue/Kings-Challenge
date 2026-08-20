@@ -233,11 +233,11 @@ export const ui = {
         let requiredXp = xpForNextLevel - xpForCurrentLevel;
         let percentage = level === 200 ? 100 : Math.min(100, Math.max(0, (progressXp / requiredXp) * 100));
 
-        let title = t('title_beginner') || "مبتدئ";
-        if (level >= 100) title = t('title_grandmaster') || "جراند ماستر";
-        else if (level >= 50) title = t('title_master') || "معلم الدامة";
-        else if (level >= 30) title = t('title_expert') || "خبير";
-        else if (level >= 10) title = t('title_duelist') || "مبارز";
+        let title =  "مبتدئ";
+        if (level >= 100) title = "جراند ماستر";
+        else if (level >= 50) title =  "معلم الدامة";
+        else if (level >= 30) title =  "خبير";
+        else if (level >= 10) title =  "مبارز";
 
         let rank = "برونزي"; let rankIcon = "🥉";
         
