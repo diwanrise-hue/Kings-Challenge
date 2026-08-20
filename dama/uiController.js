@@ -68,7 +68,19 @@ export const ui = {
     
     setTxt(id, txt) {
         const el = this.getEl(id);
-        if (el) el.textContent = txt;
+        if (el) {
+            // 🌟 الحارس السحري: حماية زر "ضد البوت" من التدمير
+            if (id === 'reset-btn') {
+                const mainTextSpan = el.querySelector('#reset-btn-txt') || el.querySelector('.btn-main-text');
+                if (mainTextSpan) {
+                    mainTextSpan.textContent = txt;
+                } else {
+                    el.textContent = txt;
+                }
+            } else {
+                el.textContent = txt;
+            }
+        }
     },
     
     setDisplay(id, displayState) {
@@ -381,9 +393,7 @@ export const ui = {
         const flexState = active ? 'none' : 'flex';
         const inlineState = active ? 'none' : 'inline-block';
         
-        // 🌟 الـ CSS سيتولى إخفاء أزرار الأونلاين أثناء اللعب
-        // this.setDisplay('online-toggle-btn', flexState);
-        
+        this.setDisplay('online-toggle-btn', flexState);
         this.setDisplay('store-portal-corner-btn', flexState);
         this.setDisplay('lucky-spin-portal-btn', flexState); 
         this.setDisplay('floating-quests-btn', flexState);
@@ -410,7 +420,9 @@ export const ui = {
         
         this.setDisplay('bottom-control-panel', 'flex');
         this.setDisplay('reset-btn', 'inline-block');
-        this.setTxt('reset-btn', 'خروج المشاهد 🚪');
+        
+        // 🌟 التوجيه الجديد للنص
+        this.setTxt('reset-btn-txt', 'خروج المشاهد 🚪');
         
         this.setDisplay('match-players-card', 'flex');
         this.setDisplay('spectator-stats-container', 'flex'); 
@@ -535,9 +547,8 @@ export const ui = {
             window.hasPromptedThemeSync = false; 
         }
 
-        // 🌟 التعديل السحري: إزالة 'reset-btn' و 'online-toggle-btn' من تحكم الجافاسكربت
         const displays = {
-            'custom-diff-btn': normalState, 
+            'reset-btn': normalState, 'custom-diff-btn': normalState, 'online-toggle-btn': flexState,
             'store-portal-corner-btn': flexState, 'lucky-spin-portal-btn': flexState, 'hamburger-menu-btn': flexState,
             'floating-quests-btn': flexState, 'bag-quick-btn': 'none', 'resign-btn': onlineState, 
             'undo-btn': 'none', 'match-players-card': active ? 'flex' : 'none',
@@ -546,7 +557,10 @@ export const ui = {
         };
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
-        // 🌟 ملغي لمنع تخريب تصميم زر بدء: if (!active) { this.setTxt('reset-btn', 'بدء'); }
+        if (!active) {
+            // 🌟 التوجيه الجديد للنص
+            this.setTxt('reset-btn-txt', 'بدء'); 
+        }
         
         if (active && gameState.userProfile) {
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, gameState.userProfile.equippedProfileFrame);
@@ -769,7 +783,9 @@ export const ui = {
         document.body.classList.remove('game-active');
         
         this.setDisplay('spectator-stats-container', 'none');
-        // this.setTxt('reset-btn', 'بدء'); // 🌟 ملغي لمنع تخريب تصميم زر بدء
+        
+        // 🌟 التوجيه الجديد للنص
+        this.setTxt('reset-btn-txt', 'بدء');
         
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
         
@@ -2547,7 +2563,6 @@ window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'PROFILE_UPDATED') {
         const profile = event.data.profile;
         if (profile) {
-            // 🌟 الإصلاح هنا: حفظ البيانات الجديدة لتحديث المستوى وشريط الخبرة
             if (!gameState.userProfile) gameState.userProfile = {};
             Object.assign(gameState.userProfile, profile);
 
@@ -2555,18 +2570,15 @@ window.addEventListener('message', (event) => {
                 window.applyProfileDataToUI(profile);
             }
             if (window.ui && typeof window.ui.updateProfileUI === 'function') {
-                window.ui.updateProfileUI(); // تحديث شارة الـ Lv
+                window.ui.updateProfileUI(); 
             }
 
-            // تحديث الساحة والحجر والإطار بصرياً
             if (typeof window.applyTheme === 'function') {
                 window.applyTheme(profile);
             }
-            // إعادة رسم الرقعة لتطبيق الألوان الجديدة
             if (window.ui && typeof window.ui.renderBoard === 'function') {
                 window.ui.renderBoard(true);
             }
-            // تحديث الحقيبة الداخلية إن وجدت
             if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
                 window.storeManager.renderUI();
             }
@@ -2590,7 +2602,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) {} 
     }
 
-    // 🌟 الإصلاح هنا: تمرير البيانات للذاكرة الداخلية عند فتح اللعبة لأول مرة
     gameState.userProfile = userObj;
 
     if (typeof window.applyTheme === 'function') {
@@ -2604,7 +2615,6 @@ document.addEventListener('DOMContentLoaded', () => {
             window.applyProfileDataToUI(userObj); 
         }
         
-        // 🌟 إجبار الواجهة على تحديث الـ Lv ليطابق الواجهة الرئيسية
         if (window.ui && typeof window.ui.updateProfileUI === 'function') {
             window.ui.updateProfileUI();
         }
