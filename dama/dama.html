@@ -1,4 +1,3 @@
-<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -22,40 +21,32 @@
         
         <div id="badge-avatar" class="profile-avatar-capsule"></div>
 
-        <!-- ليفل اللاعب -->
         <div class="text-boundary boundary-level">
             <span id="badge-level" class="shrink-text">Lv.1</span>
         </div>
 
-        <!-- اسم اللاعب -->
         <div class="text-boundary boundary-name">
             <span id="badge-username-display-game" class="player-name shrink-text">أنت</span>
         </div>
 
-        <!-- اللقب -->
         <div class="text-boundary boundary-title">
             <span id="profile-stat-title-badge" class="title-text-free shrink-text">مبارز</span>
         </div>
         
-        <!-- الخط الفاصل -->
         <div class="vertical-divider-free"></div>
         
-        <!-- الرتبة -->
         <div class="text-boundary boundary-rank">
             <span id="profile-stat-rank-badge" class="rank-text-free shrink-text">برونزي</span>
         </div>
 
-        <!-- نص الخبرة -->
         <div class="text-boundary boundary-xp">
             <span id="xp-text-element" class="xp-text-free shrink-text">0 / 100 XP</span>
         </div>
         
-        <!-- شريط الخبرة -->
         <div class="xp-wrapper">
             <div class="straight-xp-fill" id="xp-bar-fill"></div>
         </div>
 
-        <!-- الإطار الخشبي السفلي -->
         <div class="bottom-stats-frame" id="profile-stat-tokens-badge-container">
             <div class="stat-item coins-text-format">
                 <span class="stat-icon">🪙</span>
@@ -102,14 +93,12 @@
     <div id="status-area">
         <div id="match-players-card" style="display: none; width: 100%; justify-content: center; align-items: center; gap: 30px; padding: 15px 10px; background: linear-gradient(to bottom, rgba(20,22,30,0.95), rgba(10,12,15,0.8)); border-bottom: 2px solid rgba(212,175,55,0.3); border-radius: 0 0 25px 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); position: relative; z-index: 10;">
             
-            <!-- اللاعب الخاص بي (أنت) -->
             <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center; width: 85px;">
                 <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; position: relative;">
                     <div id="card-my-avatar" class="profile-avatar-capsule" style="width: 70%; height: 70%; border-radius: 50%; overflow: visible; border: 2px solid #ffd700; background: #1a1a24; display: flex; align-items: center; justify-content: center;"></div>
                 </div>
                 <div class="level-badge-small" id="card-my-level" style="background: rgba(135,206,235,0.2); border: 1px solid #87ceeb; color: #87ceeb; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 800; margin-top: -6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Lv.1</div>
                 <span id="card-my-name" class="match-players-name" style="color: white; font-size: 13px; font-weight: 700; margin-top: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">أنت</span>
-                <!-- 🌟 زر الإهداء الجديد (أنت) 🌟 -->
                 <button id="match-gift-btn-p1" onclick="window.openGiftPanel(window.matchPlayer1Id)" style="display:none; background: rgba(0, 210, 255, 0.15); border: 1px solid rgba(0, 210, 255, 0.3); color: #00d2ff; border-radius: 10px; padding: 4px 12px; font-size: 11px; font-weight: bold; margin-top: 6px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">
                     <span style="position: relative; display: inline-block; width: 16px; height: 16px; vertical-align: -3px; margin-left: 2px;">
                         <span style="font-size: 15px; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); z-index: 1;">🎁</span>
@@ -119,26 +108,22 @@
                 </button>
             </div>
 
-            <!-- علامة VS والرهان -->
             <div style="display: flex; flex-direction: column; align-items: center;">
                 <span class="match-vs-text" style="font-size: 32px; font-weight: 900; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.6); font-family: 'Outfit', sans-serif; letter-spacing: 2px;">VS</span>
                 <span id="vs-bet-display" style="font-size:14px; color:#30d158; font-weight:bold; text-shadow:0 0 8px rgba(48,209,88,0.5); display: none; margin-top:4px;">💰 0</span>
                 
-                <!-- حاوية العدادات الثابتة للمشاهدين والمراهنين -->
                 <div id="spectator-stats-container" style="display: none; gap: 8px; margin-top: 8px;">
                     <span title="المشاهدين" style="font-size:12px; color:#a1a1aa; background: rgba(0,0,0,0.6); padding: 3px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">👁️ <span id="spectator-count-display">1</span></span>
                     <span title="المراهنين" style="font-size:12px; color:#f1c40f; background: rgba(0,0,0,0.6); padding: 3px 10px; border-radius: 10px; border: 1px solid rgba(241,196,15,0.2); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">🎯 <span id="bettors-count-display">0</span></span>
                 </div>
             </div>
 
-            <!-- الخصم -->
             <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center; width: 85px;">
                 <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;" onclick="window.showOpponentProfile()">
                     <div id="card-opp-avatar" class="profile-avatar-capsule" style="width: 70%; height: 70%; border-radius: 50%; overflow: visible; border: 2px solid #ff453a; background: #1a1a24; display: flex; align-items: center; justify-content: center;">❓</div>
                 </div>
                 <div class="level-badge-small" id="card-opp-level" style="background: rgba(255,69,58,0.2); border: 1px solid #ff453a; color: #ff453a; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 800; margin-top: -6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Lv.?</div>
                 <span id="card-opp-name" class="match-players-name" style="color: white; font-size: 13px; font-weight: 700; margin-top: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">الخصم</span>
-                <!-- 🌟 زر الإهداء الجديد (الخصم) 🌟 -->
                 <button id="match-gift-btn-p2" onclick="window.openGiftPanel(window.matchPlayer2Id)" style="display:none; background: rgba(0, 210, 255, 0.15); border: 1px solid rgba(0, 210, 255, 0.3); color: #00d2ff; border-radius: 10px; padding: 4px 12px; font-size: 11px; font-weight: bold; margin-top: 6px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">
                     <span style="position: relative; display: inline-block; width: 16px; height: 16px; vertical-align: -3px; margin-left: 2px;">
                         <span style="font-size: 15px; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); z-index: 1;">🎁</span>
@@ -192,7 +177,6 @@
                 <span id="menu-quests-text">المهام اليومية</span>
             </div>
 
-            <!-- 🌟 زر المتجر الجديد داخل القائمة الجانبية 🌟 -->
             <div class="side-menu-item" id="store-portal-corner-btn" onclick="toggleSideMenu(); openAppModal('store-modal')" style="background: rgba(212, 175, 55, 0.1); border-color: #d4af37;">
                 <span style="font-size: 24px; width: 34px; text-align: center; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); margin-top: -4px;">👑</span>
                 <span id="menu-store-text" style="color: #ffd700; font-weight: bold;">المتجر الملكي</span>
@@ -254,7 +238,6 @@
 
     <div id="toast-notification">✨ تم التغيير بنجاح</div>
 
-    <!-- 🌟 زر الأونلاين الفخم الجديد 🌟 -->
     <button id="online-toggle-btn" class="premium-game-btn btn-green" title="البحث العشوائي">
         <div class="online-glow-dot"></div>
         <span class="btn-icon">👥</span>
@@ -350,20 +333,15 @@
             
             <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; width: 100%; flex-wrap: wrap;">
                 
-                <!-- 🌟 حاوية الرتبة واللقب المنفصلة 🌟 -->
                 <div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(0,0,0,0.6)); padding: 12px 25px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 150px;">
                     
-                    <!-- الرتبة (صورة مكبرة + نص) -->
                     <div id="igp-rank-display" style="color: #ffd700; font-size: 22px; font-weight: 900; text-shadow: 0 2px 5px rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <!-- حيلة الـ CSS لإجبار الصورة على التكبير داخل البروفايل فقط -->
                         <style>#igp-rank-display img { height: 40px !important; width: auto !important; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.9)) !important; transform: scale(1.1); }</style>
                         🥉 <span>برونزي</span>
                     </div>
 
-                    <!-- خط فاصل أنيق -->
                     <div style="width: 100%; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);"></div>
 
-                    <!-- اللقب -->
                     <div id="igp-title-display" style="color: #e0e0e0; font-size: 15px; font-weight: 700; letter-spacing: 0.5px;">
                         اللقب: مبتدئ
                     </div>
@@ -382,7 +360,6 @@
                 <span>ID: <span id="igp-id-display" style="color: white; font-weight: bold;">...</span></span><span data-icon="copyId"></span>
             </div>
             
-            <!-- 🌟 شبكة الإحصائيات (تتضمن السلسلة) -->
             <div id="igp-stats-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; padding: 15px 5px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2); width: 100%; box-sizing: border-box;">
                 <div style="display: flex; flex-direction: column; align-items: center;">
                     <span id="igp-games" style="color: white; font-size: 20px; font-weight: 700;">0</span>
@@ -786,7 +763,6 @@
             <p style="color: #e0e0e0; font-size: 13px; margin-bottom: 15px; text-align: center;">راهن على اللاعب الذي تتوقع فوزه! (متاح حتى أول حركتين)</p>
 
             <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
-                <!-- بطاقة اللاعب الأول (أبيض) -->
                 <div onclick="window.selectSpectatorBetColor('white')" id="bet-p1-card" style="text-align: center; cursor: pointer; border: 3px solid transparent; padding: 12px; border-radius: 16px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: transparent;">
                     <div id="bet-p1-avatar" style="width: 55px; height: 55px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
                     <div id="bet-p1-name" style="color: white; margin-top: 8px; font-weight: bold; font-size: 13px;">اللاعب 1</div>
@@ -795,7 +771,6 @@
                 
                 <div style="color: #a1a1aa; font-weight: bold; font-size: 18px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">VS</div>
                 
-                <!-- بطاقة اللاعب الثاني (أسود) -->
                 <div onclick="window.selectSpectatorBetColor('black')" id="bet-p2-card" style="text-align: center; cursor: pointer; border: 3px solid transparent; padding: 12px; border-radius: 16px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: transparent;">
                     <div id="bet-p2-avatar" style="width: 55px; height: 55px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); margin: 0 auto; background-size: cover; background-position: center; background-color: rgba(255,255,255,0.05);"></div>
                     <div id="bet-p2-name" style="color: white; margin-top: 8px; font-weight: bold; font-size: 13px;">اللاعب 2</div>
@@ -819,11 +794,10 @@
     </div>
     
     <div class="control-panel" id="bottom-control-panel">
-        <!-- 🌟 زر اللعب ضد البوت الفخم الجديد 🌟 -->
         <button id="reset-btn" class="premium-game-btn btn-brown" title="لعب ضد البوت">
             <span class="btn-icon">🤖</span>
             <div class="btn-text-col">
-                <span class="btn-main-text">ضد البوت</span>
+                <span id="reset-btn-txt" class="btn-main-text">ضد البوت</span>
                 <span class="btn-sub-text">لعب أوفلاين</span>
             </div>
         </button>
