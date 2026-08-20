@@ -221,7 +221,7 @@ export const ui = {
         });
     },
 
-    calculateLevelInfo(xpStr) {
+   calculateLevelInfo(xpStr) {
         let currentXp = parseInt(xpStr) || 0;
         let level = Math.floor(Math.sqrt(currentXp / 50)) + 1;
         if (level > 200) level = 200; 
@@ -255,7 +255,7 @@ export const ui = {
         else if (currentXp >= 500) { rank = "فضي"; rankIcon = "🥈"; }
 
         return { level, title, rank, rankIcon, progressXp, requiredXp, percentage };
-
+    },
 
     showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
