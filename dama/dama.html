@@ -248,11 +248,17 @@
 
     <div id="toast-notification">✨ تم التغيير بنجاح</div>
 
-    <button id="online-toggle-btn" title="البحث العشوائي">
+        <!-- 🌟 زر الأونلاين الفخم الجديد 🌟 -->
+    <button id="online-toggle-btn" class="premium-game-btn btn-green" title="البحث العشوائي">
+        <div class="online-glow-dot"></div>
+        <span class="btn-icon">👥</span>
+        <div class="btn-text-col">
+            <span class="btn-main-text">أونلاين</span>
+            <span class="btn-sub-text">البحث عن لاعب</span>
+        </div>
         <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
-        <span data-icon="globe"></span>
-        <span style="font-size: 13px; font-weight: 600;">اونلاين</span>
     </button>
+
 
     <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" title="المتجر الملكي" data-icon="storePortal"></button>
 
@@ -810,8 +816,15 @@
     </div>
     
     <div class="control-panel" id="bottom-control-panel">
-        <button id="reset-btn" title="Reset">بدء</button>
-        
+                <!-- 🌟 زر اللعب ضد البوت الفخم الجديد 🌟 -->
+        <button id="reset-btn" class="premium-game-btn btn-brown" title="لعب ضد البوت">
+            <span class="btn-icon">🤖</span>
+            <div class="btn-text-col">
+                <span class="btn-main-text">ضد البوت</span>
+                <span class="btn-sub-text">لعب أوفلاين</span>
+            </div>
+        </button>
+
         <input type="hidden" id="diff-quick-select" value="3">
         <button id="custom-diff-btn" title="تغيير مستوى الصعوبة" onclick="window.openAppModal('level-select-modal')">L3</button>
 
