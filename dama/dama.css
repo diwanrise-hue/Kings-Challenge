@@ -242,8 +242,8 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important;            /* تقليل المسافة بين الأيقونة والنص */
-    padding: 8px 12px !important;   /* تصغير الحجم الداخلي للزر */
+    gap: 8px !important;
+    padding: 8px 12px !important;
     border-radius: 35px !important;
     border: 2.5px solid #2a1f14 !important; 
     position: relative !important;
@@ -282,7 +282,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 /* تنسيقات الأيقونة والنصوص مصغرة */
 .premium-game-btn .btn-icon-svg {
     display: flex !important; align-items: center !important; justify-content: center !important;
-    width: 32px !important; height: 32px !important; /* تصغير الأيقونة */
+    width: 32px !important; height: 32px !important;
     filter: drop-shadow(0 2px 3px rgba(0,0,0,0.7)) !important;
     z-index: 2 !important;
 }
@@ -295,7 +295,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 
 .premium-game-btn .btn-main-text {
     color: #ffffff !important;
-    font-size: 19px !important; /* تصغير النص الأساسي */
+    font-size: 19px !important;
     font-weight: 900 !important;
     text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
     line-height: 1 !important;
@@ -303,7 +303,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 
 .premium-game-btn .btn-sub-text {
     color: #f1c40f !important; 
-    font-size: 11px !important; /* تصغير النص الفرعي */
+    font-size: 11px !important;
     font-weight: 700 !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;
 }
@@ -327,51 +327,74 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 /* 🌟 توزيع الأزرار في القائمة الرئيسية جنباً إلى جنب 🌟 */
 /* ========================================== */
 
-/* زر الأونلاين (على يمين الشاشة) */
-#online-toggle-btn.premium-game-btn { 
-    position: fixed !important; 
-    bottom: 85px !important; 
-    left: calc(50% + 5px) !important; /* الإزاحة لليمين */
-    transform: none !important;
-    width: calc(45vw - 5px) !important;
-    max-width: 175px !important;
-    z-index: 9998 !important;
+#main-lobby-buttons {
+    position: fixed;
+    bottom: 85px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    z-index: 9998;
+    pointer-events: none;
 }
 
-/* زر البوت (على يسار الشاشة) */
-#reset-btn.premium-game-btn {
-    position: fixed !important; 
-    bottom: 85px !important; 
-    right: calc(50% + 5px) !important; /* الإزاحة لليسار */
-    transform: none !important;
-    width: calc(45vw - 5px) !important;
-    max-width: 175px !important;
-    z-index: 9998 !important;
+#main-lobby-buttons > button {
+    pointer-events: auto;
+    flex: 1;
+    max-width: 175px;
+    width: 45vw;
 }
 
 #online-toggle-btn.premium-game-btn:active,
-#reset-btn.premium-game-btn:active {
-    transform: scale(0.95) !important; /* منع الزر من القفز عند الضغط */
+#main-lobby-buttons #reset-btn.premium-game-btn:active {
+    transform: scale(0.95) !important;
+}
+
+/* إخفاء الأزرار الكبيرة في القائمة عند بدء اللعبة */
+body.game-active #main-lobby-buttons {
+    display: none !important;
+}
+body.online-mode-active #main-lobby-buttons {
+    display: none !important;
 }
 
 /* ========================================== */
-/* 🌟 عودة زر (ضد البوت) إلى الشريط السفلي عند بدء اللعب 🌟 */
+/* 🌟 عودة زر (بدء) إلى الشريط السفلي باللون الأبيض 🌟 */
 /* ========================================== */
-body.game-active #reset-btn.premium-game-btn {
+
+/* نخفي زر البوت الموجود في الشريط السفلي عندما نكون في اللوبي الأساسي */
+#bottom-control-panel #reset-btn.premium-game-btn {
+    display: none !important; 
+}
+
+/* إظهاره وتغيير شكله ليصبح زر "بدء" فقط عندما نلعب ضد البوت */
+body.game-active:not(.online-mode-active) #bottom-control-panel #reset-btn.premium-game-btn {
+    display: flex !important;
     position: relative !important;
-    bottom: auto !important; left: auto !important; right: auto !important;
     width: auto !important; max-width: none !important;
-    padding: 0 15px !important;
+    padding: 0 20px !important;
     height: 44px !important;
     border-radius: 14px !important;
     background: linear-gradient(145deg, #2a2a35, #15141a) !important;
     border: 1.5px solid #a88734 !important;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15) !important;
+    color: #ffffff !important; 
+    font-size: 15px !important;
+    font-weight: 800 !important;
 }
-body.game-active #reset-btn::after { display: none !important; }
-body.game-active #reset-btn .btn-main-text { color: #fce8a1 !important; font-size: 16px !important; font-weight: 800 !important; text-shadow: none !important; }
-body.game-active #reset-btn .btn-sub-text { display: none !important; }
-body.game-active #reset-btn .btn-icon-svg { display: none !important; }
+
+body.game-active #bottom-control-panel #reset-btn::after { display: none !important; }
+body.game-active #bottom-control-panel #reset-btn .btn-main-text { 
+    color: #ffffff !important; 
+    font-size: 15px !important; 
+    font-weight: 800 !important; 
+    text-shadow: none !important; 
+    margin: 0 !important;
+}
+body.game-active #bottom-control-panel #reset-btn .btn-sub-text { display: none !important; }
+body.game-active #bottom-control-panel #reset-btn .btn-icon-svg { display: none !important; }
 
 
 /* ========================================== */
@@ -1397,3 +1420,159 @@ body.online-mode-active .game-container { order: 3 !important; }
     border-radius: 50% !important;
     object-fit: cover !important;
 }
+
+/* ========================================== */
+/* 🌟 تصميم الأزرار الزجاجية الفخمة (أونلاين وبوت) 🌟 */
+/* ========================================== */
+.premium-game-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
+    border-radius: 35px !important;
+    border: 2.5px solid #2a1f14 !important;
+    position: relative !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    transition: transform 0.15s cubic-bezier(0.25, 1, 0.5, 1), filter 0.2s !important;
+    text-decoration: none !important;
+    outline: none !important;
+    font-family: 'Tajawal', sans-serif !important;
+    box-sizing: border-box !important;
+}
+
+.premium-game-btn::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; left: 0 !important; right: 0 !important;
+    height: 45% !important;
+    background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.02) 100%) !important;
+    border-radius: 35px 35px 0 0 !important;
+    pointer-events: none !important;
+}
+
+.btn-green {
+    background: linear-gradient(180deg, #0f5c2b 0%, #063617 100%) !important;
+    box-shadow: inset 0 0 0 2px #e6c27a, inset 0 0 6px rgba(0,0,0,0.8), 0 6px 15px rgba(0, 0, 0, 0.6) !important;
+}
+
+.btn-brown {
+    background: linear-gradient(180deg, #3d2410 0%, #1a0e04 100%) !important;
+    box-shadow: inset 0 0 0 2px #e6c27a, inset 0 0 6px rgba(0,0,0,0.8), 0 6px 15px rgba(0, 0, 0, 0.6) !important;
+}
+
+.premium-game-btn .btn-icon-svg {
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    width: 32px !important; height: 32px !important;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.7)) !important;
+    z-index: 2 !important;
+}
+
+.premium-game-btn .btn-text-col {
+    display: flex !important; flex-direction: column !important;
+    align-items: center !important; justify-content: center !important;
+    margin: 0 !important; z-index: 2 !important;
+}
+
+.premium-game-btn .btn-main-text {
+    color: #ffffff !important;
+    font-size: 19px !important;
+    font-weight: 900 !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
+    line-height: 1 !important;
+}
+
+.premium-game-btn .btn-sub-text {
+    color: #f1c40f !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;
+}
+
+.online-glow-dot {
+    position: absolute !important; top: 8px !important; right: 12px !important; left: auto !important;
+    width: 12px !important; height: 12px !important;
+    background-color: #4ade80 !important; border-radius: 50% !important;
+    box-shadow: 0 0 8px #4ade80, inset 0 2px 3px rgba(255,255,255,0.8) !important;
+    border: 1px solid #14532d !important;
+    animation: pulseGlowOnline 2s infinite alternate !important;
+    z-index: 5 !important;
+}
+@keyframes pulseGlowOnline {
+    0% { opacity: 0.8; box-shadow: 0 0 5px #4ade80; }
+    100% { opacity: 1; box-shadow: 0 0 15px #4ade80, 0 0 25px #4ade80; }
+}
+
+/* ========================================== */
+/* 🌟 توزيع الأزرار في القائمة الرئيسية جنباً إلى جنب 🌟 */
+/* ========================================== */
+
+#main-lobby-buttons {
+    position: fixed;
+    bottom: 85px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    z-index: 9998;
+    pointer-events: none;
+}
+
+#main-lobby-buttons > button {
+    pointer-events: auto;
+    flex: 1;
+    max-width: 175px;
+    width: 45vw;
+}
+
+#online-toggle-btn.premium-game-btn:active,
+#main-lobby-buttons #reset-btn.premium-game-btn:active {
+    transform: scale(0.95) !important;
+}
+
+/* إخفاء الأزرار الكبيرة في القائمة عند بدء اللعبة */
+body.game-active #main-lobby-buttons {
+    display: none !important;
+}
+body.online-mode-active #main-lobby-buttons {
+    display: none !important;
+}
+
+/* ========================================== */
+/* 🌟 عودة زر (بدء) إلى الشريط السفلي باللون الأبيض 🌟 */
+/* ========================================== */
+
+/* نخفي زر البوت الموجود في الشريط السفلي عندما نكون في اللوبي الأساسي */
+#bottom-control-panel #reset-btn.premium-game-btn {
+    display: none !important; 
+}
+
+/* إظهاره وتغيير شكله ليصبح زر "بدء" فقط عندما نلعب ضد البوت */
+body.game-active:not(.online-mode-active) #bottom-control-panel #reset-btn.premium-game-btn {
+    display: flex !important;
+    position: relative !important;
+    width: auto !important; max-width: none !important;
+    padding: 0 20px !important;
+    height: 44px !important;
+    border-radius: 14px !important;
+    background: linear-gradient(145deg, #2a2a35, #15141a) !important;
+    border: 1.5px solid #a88734 !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15) !important;
+    color: #ffffff !important; 
+    font-size: 15px !important;
+    font-weight: 800 !important;
+}
+
+body.game-active #bottom-control-panel #reset-btn::after { display: none !important; }
+body.game-active #bottom-control-panel #reset-btn .btn-main-text { 
+    color: #ffffff !important; 
+    font-size: 15px !important; 
+    font-weight: 800 !important; 
+    text-shadow: none !important; 
+    margin: 0 !important;
+}
+body.game-active #bottom-control-panel #reset-btn .btn-sub-text { display: none !important; }
+body.game-active #bottom-control-panel #reset-btn .btn-icon-svg { display: none !important; }
