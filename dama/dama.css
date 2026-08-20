@@ -168,7 +168,7 @@ body {
 }
 
 /* ========================================== */
-/* 🌟 الأزرار الفخمة ثلاثية الأبعاد 🌟 */
+/* 🌟 الأزرار الفخمة والمكونات الثلاثية الأبعاد 🌟 */
 /* ========================================== */
 
 #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
@@ -230,12 +230,15 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 /* ========================================== */
 /* 🌟 تصميم الأزرار الزجاجية الفخمة (أونلاين وبوت) 🌟 */
 /* ========================================== */
+
+/* 1. التنسيق الأساسي في شاشة اللوبي */
 .premium-game-btn {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    flex-direction: row-reverse !important; /* 🌟 التعديل هنا: يضع الأيقونة على اليسار والنص على اليمين */
     gap: 12px !important;
-    padding: 10px 15px !important;
+    padding: 10px 18px !important;
     border-radius: 35px !important;
     border: 2px solid #d4af37 !important;
     box-shadow: 
@@ -271,7 +274,8 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 .premium-game-btn .btn-text-col {
     display: flex !important;
     flex-direction: column !important;
-    align-items: flex-start !important;
+    align-items: flex-start !important; /* 🌟 محاذاة النص لليمين لأنه في بيئة RTL */
+    text-align: right !important;
     margin: 0 !important;
 }
 
@@ -306,13 +310,13 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     100% { opacity: 1; box-shadow: 0 0 15px #34c759; }
 }
 
-/* 🌟 السحر هنا: وضع الزرين جنباً إلى جنب في الشاشة الرئيسية 🌟 */
+/* 2. وضع الزرين جنباً إلى جنب في الشاشة الرئيسية (اللوبي) */
 body:not(.game-active) #online-toggle-btn.premium-game-btn,
 body:not(.game-active) #reset-btn.premium-game-btn {
     position: fixed !important;
     bottom: 85px !important; 
     z-index: 9998 !important;
-    width: calc(50vw - 20px) !important; /* يأخذان نصف الشاشة بالتساوي */
+    width: calc(50vw - 20px) !important; 
     max-width: 220px !important;
 }
 
@@ -326,17 +330,30 @@ body:not(.game-active) #reset-btn.premium-game-btn {
     left: auto !important;
     right: 10px !important;
     transform: none !important;
-    display: flex !important; /* إجبار ظهوره في الشاشة الرئيسية */
+    display: flex !important; 
 }
 
-/* 🌟 إعادة زر البدء لحجمه الصغير داخل شريط التحكم أثناء اللعب 🌟 */
+/* ========================================== */
+/* 🌟 السحر النهائي: سلوك الأزرار أثناء اللعب (game-active) 🌟 */
+/* ========================================== */
+
+/* 1. إخفاء زر أونلاين تماماً بمجرد بدء أي مباراة */
+body.game-active #online-toggle-btn.premium-game-btn {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* 2. ترحيل وتغيير شكل زر بدء (ضد البوت) ليصبح متناسقاً في الشريط السفلي */
 body.game-active #reset-btn {
     position: relative !important;
     right: auto !important;
     left: auto !important;
     bottom: auto !important;
-    background: linear-gradient(145deg, #2a2a35, #15141a) !important;
-    border: 1.5px solid #a88734 !important;
+    background: linear-gradient(145deg, #2a2a35, #15141a) !important; /* لون داكن كاللوحة السفلية */
+    border: 1.5px solid #a88734 !important; /* إطار ذهبي */
+    border-bottom: 3.5px solid #6b5319 !important; /* بروز سفلي ذهبي */
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15) !important;
     padding: 0 15px !important;
     width: auto !important;
@@ -345,16 +362,16 @@ body.game-active #reset-btn {
     border-radius: 14px !important;
     height: 44px !important;
     display: inline-flex !important;
+    color: #ffffff !important; /* 🌟 لون النص أبيض ناصع كما طلبت */
+    font-size: 16px !important;
+    font-weight: bold !important;
+    text-shadow: none !important;
 }
 
-body.game-active #reset-btn .btn-main-text { 
-    color: #fce8a1 !important; 
-    font-size: 16px !important; 
-    font-weight: 800 !important; 
-}
-body.game-active #reset-btn .btn-sub-text,
-body.game-active #reset-btn .btn-icon { 
-    display: none !important; 
+/* 3. إخفاء النصوص المزدوجة والأيقونة الخاصة باللوبي أثناء المباراة */
+body.game-active #reset-btn .btn-text-col,
+body.game-active #reset-btn .btn-icon {
+    display: none !important;
 }
 
 
