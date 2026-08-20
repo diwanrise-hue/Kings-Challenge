@@ -1,4 +1,4 @@
-/* ========================================== */
+/* dama.css */
 /* المتغيرات الأساسية والهيكل العام الثابت    */
 /* ========================================== */
 :root { 
@@ -110,9 +110,25 @@ body {
 .piece.dama::before { fill: none; }
 .piece.dama::after { font-size: 80%; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; transition: text-shadow 0.3s, color 0.3s; }
 
-.piece.forced { will-change: transform; border: 2px solid #e74c3c !important; box-shadow: 0 0 18px #e74c3c, inset 0 0 8px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
-.piece.dama.forced { will-change: transform; border: 4px double #e74c3c !important; box-shadow: 0 0 25px #e74c3c, inset 0 0 12px #e74c3c !important; animation: forcedPulse 1.2s infinite ease-in-out; }
-@keyframes forcedPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+/* 🌟 التحسينات الجديدة لأداء GPU للقطع الإجبارية 🌟 */
+.piece.forced { 
+    border: 2px solid #e74c3c !important; 
+    box-shadow: 0 0 15px #e74c3c !important; 
+    animation: forcedPulseGpu 1.2s infinite ease-in-out; 
+    will-change: transform;
+    transform: translateZ(0); 
+}
+.piece.dama.forced { 
+    border: 3px double #e74c3c !important; 
+    box-shadow: 0 0 20px #e74c3c !important; 
+    animation: forcedPulseGpu 1.2s infinite ease-in-out; 
+    will-change: transform;
+    transform: translateZ(0);
+}
+@keyframes forcedPulseGpu { 
+    0%, 100% { transform: scale(1) translateZ(0); } 
+    50% { transform: scale(1.08) translateZ(0); } 
+}
 
 /* ========================================== */
 /* الشريط السفلي و الأزرار المربعة            */
@@ -144,14 +160,20 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 3px 6px rgba(0,0,0,0.8) !important;
 }
 
-@keyframes magicGlow {
-    0% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; transform: scale(1); }
-    30% { box-shadow: 0 0 25px #f39c12, inset 0 0 15px #f39c12; transform: scale(1.15) rotate(-5deg); background: rgba(241, 196, 15, 0.3) !important; border-color: #f39c12 !important; }
-    70% { box-shadow: 0 0 20px #f1c40f, inset 0 0 10px #f1c40f; transform: scale(1.1) rotate(5deg); background: rgba(241, 196, 15, 0.2) !important; }
-    100% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; transform: scale(1); }
+/* 🌟 التحسينات الجديدة لأداء GPU لزر التلميح السحري 🌟 */
+@keyframes magicGlowGpu {
+    0% { transform: scale(1); opacity: 1; }
+    30% { transform: scale(1.15) rotate(-5deg); opacity: 0.8; }
+    70% { transform: scale(1.1) rotate(5deg); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
 }
-.lamp-active { animation: magicGlow 0.8s ease-in-out; }
+.lamp-active { 
+    animation: magicGlowGpu 0.8s ease-in-out; 
+    box-shadow: 0 0 15px #f1c40f !important; 
+    will-change: transform, opacity;
+}
 
+/* 🌟 التحسينات الجديدة لأداء GPU لزر الراديو 🌟 */
 .radio-status-dot {
     position: absolute; top: -2px; right: -2px; width: 12px; height: 12px;
     border-radius: 50%; border: 2px solid #282a32; background-color: transparent;
@@ -159,12 +181,14 @@ body {
 }
 .radio-status-dot.active {
     opacity: 1; visibility: visible; background-color: #30d158; border-color: #18171D;
-    box-shadow: 0 0 8px rgba(48, 209, 88, 0.6); animation: radioPulse 1.5s infinite ease-in-out;
+    box-shadow: 0 0 8px rgba(48, 209, 88, 0.6); 
+    animation: radioPulseGpu 1.5s infinite ease-in-out;
+    will-change: transform;
 }
-@keyframes radioPulse {
-    0% { transform: scale(0.95); box-shadow: 0 0 5px rgba(48, 209, 88, 0.5); }
-    50% { transform: scale(1.15); box-shadow: 0 0 12px rgba(48, 209, 88, 0.8); }
-    100% { transform: scale(0.95); box-shadow: 0 0 5px rgba(48, 209, 88, 0.5); }
+@keyframes radioPulseGpu {
+    0% { transform: scale(0.95); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(0.95); }
 }
 
 /* ========================================== */
@@ -239,7 +263,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     flex-direction: row-reverse !important; 
     gap: 12px !important;
     padding: 10px 18px !important;
-    border-radius: 16px !important; 
+    border-radius: 16px !important; /* 🌟 مستطيل بزوايا مستديرة أنيقة */
     border: 2px solid #d4af37 !important;
     box-shadow: 
         inset 0 6px 10px rgba(255, 255, 255, 0.2),
@@ -293,6 +317,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     font-weight: 700 !important;
 }
 
+/* 🌟 التحسينات الجديدة لأداء GPU للنقطة الخضراء 🌟 */
 .online-glow-dot {
     position: relative !important;
     top: auto !important;
@@ -302,78 +327,16 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     background-color: #34c759 !important;
     border-radius: 50% !important;
     box-shadow: 0 0 10px #34c759, inset 0 2px 4px rgba(255,255,255,0.6) !important;
-    animation: pulseGlow 2s infinite alternate !important;
+    animation: pulseGlowGpu 2s infinite alternate ease-in-out !important;
     flex-shrink: 0 !important;
     margin-top: 3px !important;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
-@keyframes pulseGlow {
-    0% { opacity: 0.7; box-shadow: 0 0 5px #34c759; }
-    100% { opacity: 1; box-shadow: 0 0 15px #34c759; }
-}
-
-/* 2. وضع الزرين جنباً إلى جنب في الشاشة الرئيسية (اللوبي) */
-body:not(.game-active) #online-toggle-btn.premium-game-btn,
-body:not(.game-active) #reset-btn.premium-game-btn {
-    position: fixed !important;
-    bottom: 85px !important; 
-    z-index: 9998 !important;
-    width: calc(50vw - 20px) !important; 
-    max-width: 220px !important;
-}
-
-body:not(.game-active) #online-toggle-btn.premium-game-btn {
-    right: auto !important;
-    left: 10px !important;
-    transform: none !important;
-}
-
-body:not(.game-active) #reset-btn.premium-game-btn {
-    left: auto !important;
-    right: 10px !important;
-    transform: none !important;
-    display: flex !important; 
-}
-
-/* ========================================== */
-/* 🌟 السحر النهائي: سلوك الأزرار أثناء اللعب (game-active) 🌟 */
-/* ========================================== */
-
-body.game-active button#online-toggle-btn.premium-game-btn {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-body.game-active button#reset-btn.premium-game-btn {
-    position: relative !important;
-    right: auto !important;
-    left: auto !important;
-    bottom: auto !important;
-    width: auto !important;
-    min-width: 85px !important;
-    max-width: unset !important;
-    border-radius: 14px !important; 
-    height: 44px !important;
-    padding: 0 12px !important;
-    display: inline-flex !important;
-}
-
-body.game-active button#reset-btn.premium-game-btn .btn-main-text { 
-    color: #ffffff !important; 
-    font-size: 14px !important; 
-    font-weight: bold !important; 
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
-}
-
-body.game-active button#reset-btn.premium-game-btn .btn-icon {
-    font-size: 22px !important; 
-}
-
-body.game-active button#reset-btn.premium-game-btn .btn-sub-text {
-    font-size: 9px !important; 
-    color: #fce8a1 !important;
+@keyframes pulseGlowGpu {
+    0% { transform: scale(0.85); opacity: 0.8; }
+    100% { transform: scale(1.15); opacity: 1; }
 }
 
 /* ========================================== */
