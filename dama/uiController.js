@@ -1370,6 +1370,11 @@ export const ui = {
             if (badgeRankEl) {
                 badgeRankEl.innerHTML = `${lvlInfo.rankIcon} ${lvlInfo.rank}`;
             }
+            // 🌟 إصلاح اللقب: تحديث اللقب في الشاشة الرئيسية بناءً على المستوى
+            const badgeTitleEl = this.getEl('profile-stat-title-badge');
+            if (badgeTitleEl) {
+                badgeTitleEl.textContent = lvlInfo.title;
+            }
 
             if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
             if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
