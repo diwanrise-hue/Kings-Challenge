@@ -168,7 +168,7 @@ body {
 }
 
 /* ========================================== */
-/* 🌟 الأزرار الفخمة والمكونات الثلاثية الأبعاد 🌟 */
+/* 🌟 الأزرار الفخمة والمكونات ثلاثية الأبعاد 🌟 */
 /* ========================================== */
 
 #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
@@ -236,10 +236,10 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    flex-direction: row-reverse !important; /* 🌟 التعديل هنا: يضع الأيقونة على اليسار والنص على اليمين */
+    flex-direction: row-reverse !important; 
     gap: 12px !important;
     padding: 10px 18px !important;
-    border-radius: 35px !important;
+    border-radius: 16px !important; 
     border: 2px solid #d4af37 !important;
     box-shadow: 
         inset 0 6px 10px rgba(255, 255, 255, 0.2),
@@ -274,7 +274,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 .premium-game-btn .btn-text-col {
     display: flex !important;
     flex-direction: column !important;
-    align-items: flex-start !important; /* 🌟 محاذاة النص لليمين لأنه في بيئة RTL */
+    align-items: flex-start !important; 
     text-align: right !important;
     margin: 0 !important;
 }
@@ -294,15 +294,17 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 }
 
 .online-glow-dot {
-    position: absolute !important;
-    top: 15px !important;
-    left: 20px !important;
-    width: 14px !important;
-    height: 14px !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 13px !important;
+    height: 13px !important;
     background-color: #34c759 !important;
     border-radius: 50% !important;
     box-shadow: 0 0 10px #34c759, inset 0 2px 4px rgba(255,255,255,0.6) !important;
     animation: pulseGlow 2s infinite alternate !important;
+    flex-shrink: 0 !important;
+    margin-top: 3px !important;
 }
 
 @keyframes pulseGlow {
@@ -337,43 +339,42 @@ body:not(.game-active) #reset-btn.premium-game-btn {
 /* 🌟 السحر النهائي: سلوك الأزرار أثناء اللعب (game-active) 🌟 */
 /* ========================================== */
 
-/* 1. إخفاء زر أونلاين تماماً بمجرد بدء أي مباراة */
-body.game-active #online-toggle-btn.premium-game-btn {
+body.game-active button#online-toggle-btn.premium-game-btn {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
     pointer-events: none !important;
 }
 
-/* 2. ترحيل وتغيير شكل زر بدء (ضد البوت) ليصبح متناسقاً في الشريط السفلي */
-body.game-active #reset-btn {
+body.game-active button#reset-btn.premium-game-btn {
     position: relative !important;
     right: auto !important;
     left: auto !important;
     bottom: auto !important;
-    background: linear-gradient(145deg, #2a2a35, #15141a) !important; /* لون داكن كاللوحة السفلية */
-    border: 1.5px solid #a88734 !important; /* إطار ذهبي */
-    border-bottom: 3.5px solid #6b5319 !important; /* بروز سفلي ذهبي */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15) !important;
-    padding: 0 15px !important;
     width: auto !important;
-    min-width: unset !important;
+    min-width: 85px !important;
     max-width: unset !important;
-    border-radius: 14px !important;
+    border-radius: 14px !important; 
     height: 44px !important;
+    padding: 0 12px !important;
     display: inline-flex !important;
-    color: #ffffff !important; /* 🌟 لون النص أبيض ناصع كما طلبت */
-    font-size: 16px !important;
-    font-weight: bold !important;
-    text-shadow: none !important;
 }
 
-/* 3. إخفاء النصوص المزدوجة والأيقونة الخاصة باللوبي أثناء المباراة */
-body.game-active #reset-btn .btn-text-col,
-body.game-active #reset-btn .btn-icon {
-    display: none !important;
+body.game-active button#reset-btn.premium-game-btn .btn-main-text { 
+    color: #ffffff !important; 
+    font-size: 14px !important; 
+    font-weight: bold !important; 
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
 }
 
+body.game-active button#reset-btn.premium-game-btn .btn-icon {
+    font-size: 22px !important; 
+}
+
+body.game-active button#reset-btn.premium-game-btn .btn-sub-text {
+    font-size: 9px !important; 
+    color: #fce8a1 !important;
+}
 
 /* ========================================== */
 /* 🌟 نظام البروفايل الجديد المتمركز (أسود/ذهبي) */
@@ -1386,4 +1387,67 @@ body.online-mode-active .game-container { order: 3 !important; }
 #bet-p2-avatar img:first-child {
     border-radius: 50% !important;
     object-fit: cover !important;
+}
+
+/* ========================================== */
+/* 🌟 السحر النهائي: سلوك الأزرار أثناء اللعب (game-active) 🌟 */
+/* ========================================== */
+
+/* 1. وضع الزرين جنباً إلى جنب في الشاشة الرئيسية (اللوبي) */
+body:not(.game-active) button#online-toggle-btn.premium-game-btn,
+body:not(.game-active) button#reset-btn.premium-game-btn {
+    position: fixed !important;
+    bottom: 85px !important; 
+    z-index: 9998 !important;
+    width: calc(50vw - 20px) !important; 
+    max-width: 220px !important;
+}
+
+body:not(.game-active) button#online-toggle-btn.premium-game-btn {
+    right: auto !important;
+    left: 10px !important;
+    transform: none !important;
+}
+
+body:not(.game-active) button#reset-btn.premium-game-btn {
+    left: auto !important;
+    right: 10px !important;
+    transform: none !important;
+    display: flex !important; 
+}
+
+/* 2. إخفاء زر أونلاين تماماً بمجرد بدء أي مباراة (أوفلاين أو أونلاين) */
+body.game-active button#online-toggle-btn.premium-game-btn {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* 3. ترحيل وتغيير شكل زر بدء (ضد البوت) ليصبح متناسقاً في الشريط السفلي */
+body.game-active button#reset-btn.premium-game-btn {
+    position: relative !important;
+    right: auto !important;
+    left: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    min-width: 85px !important;
+    max-width: unset !important;
+    border-radius: 14px !important; 
+    height: 44px !important;
+    padding: 0 12px !important;
+    display: inline-flex !important;
+}
+
+/* 4. جعل النص أبيض ناصع وإخفاء النصوص المزدوجة والأيقونة الخاصة باللوبي أثناء المباراة */
+body.game-active button#reset-btn.premium-game-btn .btn-main-text { 
+    color: #ffffff !important; 
+    font-size: 14px !important; 
+    font-weight: bold !important; 
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
+}
+
+body.game-active button#reset-btn.premium-game-btn .btn-sub-text,
+body.game-active button#reset-btn.premium-game-btn .btn-icon {
+    display: none !important; 
 }
