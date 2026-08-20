@@ -1,3 +1,4 @@
+<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -191,6 +192,12 @@
                 <span id="menu-quests-text">المهام اليومية</span>
             </div>
 
+            <!-- 🌟 زر المتجر الجديد داخل القائمة الجانبية 🌟 -->
+            <div class="side-menu-item" id="store-portal-corner-btn" onclick="toggleSideMenu(); openAppModal('store-modal')" style="background: rgba(212, 175, 55, 0.1); border-color: #d4af37;">
+                <span style="font-size: 24px; width: 34px; text-align: center; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); margin-top: -4px;">👑</span>
+                <span id="menu-store-text" style="color: #ffd700; font-weight: bold;">المتجر الملكي</span>
+            </div>
+
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
                 <span data-icon="bagSide"></span>
                 <span id="menu-bag-text">الحقيبة الممتلكات</span>
@@ -247,31 +254,16 @@
 
     <div id="toast-notification">✨ تم التغيير بنجاح</div>
 
-    <!-- 🌟 أزرار اللوبي العائمة (تظهر قبل بدء اللعبة) 🌟 -->
-    
-    <!-- 1. زر الأونلاين -->
+    <!-- 🌟 زر الأونلاين الفخم الجديد 🌟 -->
     <button id="online-toggle-btn" class="premium-game-btn btn-green" title="البحث العشوائي">
         <div class="online-glow-dot"></div>
-        <div class="btn-icon-svg" data-icon="globeBtn"></div>
+        <span class="btn-icon">👥</span>
         <div class="btn-text-col">
             <span class="btn-main-text">أونلاين</span>
             <span class="btn-sub-text">البحث عن لاعب</span>
         </div>
         <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
     </button>
-
-    <!-- 2. زر ضد البوت (الخاص باللوبي فقط) -->
-    <button id="lobby-bot-btn" class="premium-game-btn btn-brown" title="لعب ضد البوت" onclick="document.getElementById('reset-btn').click()">
-        <div class="btn-icon-svg" data-icon="robotBtn"></div>
-        <div class="btn-text-col">
-            <span class="btn-main-text">ضد البوت</span>
-            <span class="btn-sub-text">لعب أوفلاين</span>
-        </div>
-    </button>
-    <!-- 🌟 نهاية أزرار اللوبي 🌟 -->
-
-
-    <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" title="المتجر الملكي" data-icon="storePortal"></button>
 
     <div id="level-select-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 340px; padding: 30px 20px;">
@@ -551,7 +543,7 @@
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #ffd700;">
                         <span style="font-size: 16px; margin-left: 8px;">🥇</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold;">20,000 🪙 + خصم المتجر 35%</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold;">20,000 🪙 + خص المتجر 35%</div>
                     </div>
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #c0c0c0;">
                         <span style="font-size: 16px; margin-left: 8px;">🥈</span>
@@ -825,31 +817,16 @@
             <button id="spectator-submit-bet-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #f5a623, #d35400) !important; color: white !important; border: 1.5px solid #ffca28 !important; border-bottom: 3.5px solid #a85400 !important; box-shadow: none !important;">تأكيد الرهان 💰</button>
         </div>
     </div>
-
-    <!-- 🌟 أزرار اللوبي العائمة (تظهر قبل بدء اللعبة فقط) 🌟 -->
-    <!-- 1. زر الأونلاين -->
-    <button id="online-toggle-btn" class="premium-game-btn btn-green" title="البحث العشوائي">
-        <div class="online-glow-dot"></div>
-        <div class="btn-icon-svg" data-icon="globeBtn"></div>
-        <div class="btn-text-col">
-            <span class="btn-main-text">أونلاين</span>
-            <span class="btn-sub-text">البحث عن لاعب</span>
-        </div>
-        <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
-    </button>
-
-    <!-- 2. زر ضد البوت (الخاص باللوبي فقط) -->
-    <button id="lobby-bot-btn" class="premium-game-btn btn-brown" title="لعب ضد البوت" onclick="document.getElementById('reset-btn').click()">
-        <div class="btn-icon-svg" data-icon="robotBtn"></div>
-        <div class="btn-text-col">
-            <span class="btn-main-text">ضد البوت</span>
-            <span class="btn-sub-text">لعب أوفلاين</span>
-        </div>
-    </button>
-    <!-- 🌟 نهاية أزرار اللوبي 🌟 -->
-
-
+    
     <div class="control-panel" id="bottom-control-panel">
+        <!-- 🌟 زر اللعب ضد البوت الفخم الجديد 🌟 -->
+        <button id="reset-btn" class="premium-game-btn btn-brown" title="لعب ضد البوت">
+            <span class="btn-icon">🤖</span>
+            <div class="btn-text-col">
+                <span class="btn-main-text">ضد البوت</span>
+                <span class="btn-sub-text">لعب أوفلاين</span>
+            </div>
+        </button>
         
         <input type="hidden" id="diff-quick-select" value="3">
         <button id="custom-diff-btn" title="تغيير مستوى الصعوبة" onclick="window.openAppModal('level-select-modal')">L3</button>
@@ -866,10 +843,6 @@
         
         <button id="mic-toggle-btn" title="المحادثة الصوتية" style="display: none;"></button>
         <button id="resign-btn" title="الانسحاب" style="display: none;">الانسحاب</button>
-        
-        <!-- 🌟 زر بدء الفعلي المخفي في اللوبي ويظهر أثناء اللعب 🌟 -->
-        <button id="reset-btn" class="in-game-start-btn">بدء</button>
-        
     </div>
 
     <div id="match-countdown-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(0,0,0,0.85); z-index: 9999999; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px);">
