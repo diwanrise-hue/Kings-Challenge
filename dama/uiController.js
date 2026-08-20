@@ -381,7 +381,9 @@ export const ui = {
         const flexState = active ? 'none' : 'flex';
         const inlineState = active ? 'none' : 'inline-block';
         
-        this.setDisplay('online-toggle-btn', flexState);
+        // 🌟 الـ CSS سيتولى إخفاء أزرار الأونلاين أثناء اللعب
+        // this.setDisplay('online-toggle-btn', flexState);
+        
         this.setDisplay('store-portal-corner-btn', flexState);
         this.setDisplay('lucky-spin-portal-btn', flexState); 
         this.setDisplay('floating-quests-btn', flexState);
@@ -533,8 +535,9 @@ export const ui = {
             window.hasPromptedThemeSync = false; 
         }
 
+        // 🌟 التعديل السحري: إزالة 'reset-btn' و 'online-toggle-btn' من تحكم الجافاسكربت
         const displays = {
-            'reset-btn': normalState, 'custom-diff-btn': normalState, 'online-toggle-btn': flexState,
+            'custom-diff-btn': normalState, 
             'store-portal-corner-btn': flexState, 'lucky-spin-portal-btn': flexState, 'hamburger-menu-btn': flexState,
             'floating-quests-btn': flexState, 'bag-quick-btn': 'none', 'resign-btn': onlineState, 
             'undo-btn': 'none', 'match-players-card': active ? 'flex' : 'none',
@@ -543,9 +546,7 @@ export const ui = {
         };
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
-        if (!active) {
-            this.setTxt('reset-btn', 'بدء'); 
-        }
+        // 🌟 ملغي لمنع تخريب تصميم زر بدء: if (!active) { this.setTxt('reset-btn', 'بدء'); }
         
         if (active && gameState.userProfile) {
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, gameState.userProfile.equippedProfileFrame);
@@ -768,7 +769,7 @@ export const ui = {
         document.body.classList.remove('game-active');
         
         this.setDisplay('spectator-stats-container', 'none');
-        this.setTxt('reset-btn', 'بدء');
+        // this.setTxt('reset-btn', 'بدء'); // 🌟 ملغي لمنع تخريب تصميم زر بدء
         
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
         
@@ -1871,7 +1872,6 @@ window.givePopularity = function(directTargetId) {
     if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
 };
 
-// 🌟🌟🌟 الإصلاح السحري: استخدام Server Callback 🌟🌟🌟
 window.confirmSendGift = function(giftId, fallbackPopValue) {
     let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
@@ -1879,23 +1879,18 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     let targetId = window.targetGiftReceiverId;
     if (!targetId) return;
 
-    // خصم الهدية من الحقيبة محلياً (شكلياً حتى يتزامن مع السيرفر)
     profile.inventory[giftId] -= 1;
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
 
-    // إغلاق النوافذ
     if (typeof window.closeAppModal === 'function') { 
         window.closeAppModal('send-gift-modal'); 
     }
 
-    // إرسال طلب للسيرفر مع انتظار الرد (Callback)
     if (window.socket && window.socket.connected) {
         window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: fallbackPopValue, targetOpponentId: targetId }, (response) => {
             if (response && response.success) {
-                // تحديث الرقم في الواجهة مباشرة مع تأثير بصري
                 const popDisplay = document.getElementById('igp-popularity-val');
                 
-                // تحديث الذاكرة
                 if (gameState.currentViewedPlayer && gameState.currentViewedPlayer.id === targetId) {
                     gameState.currentViewedPlayer.popularity = response.newTotalPopularity;
                 }
@@ -1905,7 +1900,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
 
                 if (popDisplay) {
                     popDisplay.innerText = response.newTotalPopularity;
-                    // تأثير بصري جميل (تكبير وتوهج)
                     popDisplay.style.transition = 'all 0.3s ease';
                     popDisplay.style.transform = 'scale(1.5)';
                     popDisplay.style.color = '#fff';
