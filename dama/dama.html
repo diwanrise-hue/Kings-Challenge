@@ -247,40 +247,10 @@
 
     <div id="toast-notification">✨ تم التغيير بنجاح</div>
 
-    <!-- 🌟 زر الأونلاين الفخم (مع أيقونة الكرة الأرضية) 🌟 -->
+    <!-- 🌟 زر الأونلاين الفخم المطابق للصورة 🌟 -->
     <button id="online-toggle-btn" class="premium-game-btn btn-green" title="البحث العشوائي">
         <div class="online-glow-dot"></div>
-        <div class="btn-icon-svg">
-            <svg viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.2); transform-origin: center;">
-                <defs>
-                    <radialGradient id="oceanBlueBtn" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="45%" stop-color="#0284c7"/><stop offset="80%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
-                    <linearGradient id="landGradBtn" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
-                    <radialGradient id="atmosphereGlowBtn" cx="50%" cy="50%" r="50%"><stop offset="70%" stop-color="#38bdf8" stop-opacity="0"/><stop offset="92%" stop-color="#38bdf8" stop-opacity="0.5"/><stop offset="100%" stop-color="#0284c7" stop-opacity="0.9"/></radialGradient>
-                    <linearGradient id="glossHighlightBtn" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
-                    <clipPath id="globeClipBtn"><circle cx="50" cy="50" r="36"/></clipPath>
-                </defs>
-                <circle cx="50" cy="50" r="36" fill="url(#oceanBlueBtn)"/>
-                <g clip-path="url(#globeClipBtn)">
-                    <g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3">
-                        <line x1="10" y1="50" x2="90" y2="50"/>
-                        <ellipse cx="50" cy="50" rx="36" ry="18"/>
-                        <ellipse cx="50" cy="50" rx="36" ry="30"/>
-                        <line x1="50" y1="10" x2="50" y2="90"/>
-                        <ellipse cx="50" cy="50" rx="18" ry="36"/>
-                        <ellipse cx="50" cy="50" rx="30" ry="36"/>
-                    </g>
-                    <g fill="url(#landGradBtn)" stroke="#0284c7" stroke-width="0.3" opacity="0.92">
-                        <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
-                        <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
-                        <path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/>
-                        <circle cx="72" cy="68" r="3"/>
-                        <circle cx="38" cy="23" r="1.8"/>
-                        <circle cx="62" cy="58" r="1.5"/>
-                    </g>
-                </g>
-                <circle cx="50" cy="50" r="36" fill="url(#atmosphereGlowBtn)"/><path d="M 20 32 A 34 34 0 0 1 80 32 A 36 36 0 0 0 20 32 Z" fill="url(#glossHighlightBtn)"/>
-            </svg>
-        </div>
+        <div class="btn-icon-svg" data-icon="globeBtn"></div>
         <div class="btn-text-col">
             <span class="btn-main-text">أونلاين</span>
             <span class="btn-sub-text">البحث عن لاعب</span>
@@ -845,19 +815,7 @@
     </div>
     
     <div class="control-panel" id="bottom-control-panel">
-        <!-- 🌟 زر اللعب ضد البوت المطابق للصورة 🌟 -->
-        <button id="reset-btn" class="premium-game-btn btn-brown" title="لعب ضد البوت">
-            <div class="btn-icon-svg">
-                <svg viewBox="0 0 24 24" fill="#f1c40f" width="34" height="34">
-                    <path d="M19 8h-1V6c0-1.1-.9-2-2-2h-3V2h-2v2H8C6.9 4 6 4.9 6 6v2H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h1v1c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2v-1h1c1.1 0 2-.9 2-2v-6c0-1.1-.9-2-2-2zM9 11.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5S11.33 13 10.5 13 9 12.33 9 11.5zm6 4.5h-6v-1.5h6V16zm0-3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-                </svg>
-            </div>
-            <div class="btn-text-col">
-                <span class="btn-main-text">ضد البوت</span>
-                <span class="btn-sub-text">لعب أوفلاين</span>
-            </div>
-        </button>
-
+        
         <input type="hidden" id="diff-quick-select" value="3">
         <button id="custom-diff-btn" title="تغيير مستوى الصعوبة" onclick="window.openAppModal('level-select-modal')">L3</button>
 
@@ -873,6 +831,16 @@
         
         <button id="mic-toggle-btn" title="المحادثة الصوتية" style="display: none;"></button>
         <button id="resign-btn" title="الانسحاب" style="display: none;">الانسحاب</button>
+        
+        <!-- 🌟 زر اللعب ضد البوت المطابق للصورة 🌟 -->
+        <button id="reset-btn" class="premium-game-btn btn-brown" title="لعب ضد البوت">
+            <div class="btn-icon-svg" data-icon="robotBtn"></div>
+            <div class="btn-text-col">
+                <span class="btn-main-text">ضد البوت</span>
+                <span class="btn-sub-text">لعب أوفلاين</span>
+            </div>
+        </button>
+        
     </div>
 
     <div id="match-countdown-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(0,0,0,0.85); z-index: 9999999; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px);">
