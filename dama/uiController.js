@@ -497,6 +497,16 @@ export const ui = {
                 vsBetEl.innerHTML = `<div style="background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 12px; display: inline-flex; justify-content: center; align-items: center;"><span style="color: #a1a1aa; font-size: 11px; font-weight: bold; white-space: nowrap; margin: 0;">المراهنات مغلقة 🔒</span></div>`;
             }
         }
+
+        // 🌟 إعداد أزرار الإهداء للمشاهد 
+        window.matchPlayer1Id = p1?.guestId;
+        window.matchPlayer2Id = p2?.guestId;
+
+        const giftBtn1 = document.getElementById('match-gift-btn-p1');
+        if (giftBtn1) giftBtn1.style.display = 'inline-block';
+        
+        const giftBtn2 = document.getElementById('match-gift-btn-p2');
+        if (giftBtn2) giftBtn2.style.display = 'inline-block';
     },
 
     toggleOnlineUILayout(active, oppName = "", oppAvatar = "❓") {
@@ -605,6 +615,18 @@ export const ui = {
                 } else {
                     vsBetEl.style.display = 'none';
                 }
+            }
+
+            // 🌟 إعداد أزرار الإهداء للاعب 
+            window.matchPlayer1Id = gameState.userProfile.id;
+            window.matchPlayer2Id = window.currentOpponentId;
+            
+            const giftBtn1 = document.getElementById('match-gift-btn-p1');
+            if (giftBtn1) giftBtn1.style.display = 'none'; // لا يمكنك إهداء نفسك
+            
+            const giftBtn2 = document.getElementById('match-gift-btn-p2');
+            if (giftBtn2) {
+                giftBtn2.style.display = active && !gameState.isBotOpponent ? 'inline-block' : 'none';
             }
         }
     },
@@ -1778,7 +1800,6 @@ window.showPlayerProfileFromLB = function(player) {
     document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
     document.getElementById('igp-popularity-val').innerText = player.popularity !== undefined ? player.popularity : 0;
 
-
     const highestStreakEl = document.getElementById('igp-highest-streak');
     if (highestStreakEl) highestStreakEl.innerText = player.highestStreak || 0;
 
@@ -1805,6 +1826,88 @@ window.showPlayerProfileFromLB = function(player) {
     }
     
     window.openAppModal('in-game-profile-modal');
+};
+
+window.openGiftPanel = function(targetId) {
+    if (!targetId) return;
+    window.targetGiftReceiverId = targetId;
+    window.givePopularity(targetId);
+};
+
+window.givePopularity = function(directTargetId) {
+    if (directTargetId) window.targetGiftReceiverId = directTargetId;
+    if (!window.targetGiftReceiverId) {
+        window.targetGiftReceiverId = window.challengeTargetFriendId || window.currentOpponentId || (gameState.currentViewedPlayer ? gameState.currentViewedPlayer.id : null);
+    }
+
+    const profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    const inventory = profile.inventory || {};
+    const grid = document.getElementById('my-gifts-selection-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    let availableCount = 0;
+
+    const formatNum = (num) => {
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+        return num;
+    };
+
+    (window.POPULARITY_ITEMS || []).forEach(gift => {
+        const count = inventory[gift.id] || 0;
+        if (count > 0) {
+            availableCount++;
+            const itemEl = document.createElement('div'); itemEl.className = 'store-item-card'; itemEl.style.padding = '8px'; itemEl.style.display = 'flex'; itemEl.style.flexDirection = 'column'; itemEl.style.alignItems = 'center'; itemEl.style.gap = '5px';
+            itemEl.innerHTML = `
+                <img src="${gift.imagePath}" style="width: 40px; height: 40px; object-fit: contain;">
+                <span style="color: white; font-size: 11px; font-weight: bold; text-align: center;">${gift.nameAr}</span>
+                <div style="color: #00d2ff; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 3px; filter: drop-shadow(0 0 2px rgba(0, 210, 255, 0.4));">
+                    +${formatNum(gift.popValue)} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
+                </div>
+                <span style="color: #f5a623; font-size: 10px;">لديك: x${count}</span>
+                <button class="store-buy-btn-small" onclick="window.confirmSendGift('${gift.id}', ${gift.popValue || gift.price || 10})" style="width: 100%; height: 26px; font-size: 11px; margin-top: auto; background: rgba(0, 210, 255, 0.15); border: 1px solid rgba(0, 210, 255, 0.3); color: #00d2ff; transition: 0.3s;">إرسال 🚀</button>
+            `;
+            grid.appendChild(itemEl);
+        }
+    });
+
+    if (availableCount === 0) grid.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; grid-column: span 3; padding: 15px;">حقيبتك فارغة من الهدايا! اذهب للمتجر لشراء الشعبية.</p>';
+    if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
+};
+
+window.confirmSendGift = function(giftId, popValue) {
+    let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
+    
+    let targetId = window.targetGiftReceiverId;
+    if (!targetId) return;
+
+    profile.inventory[giftId] -= 1;
+    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+
+    if (window.socket && window.socket.connected) {
+        window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: popValue, targetOpponentId: targetId });
+    }
+    
+    if (typeof window.closeAppModal === 'function') { 
+        window.closeAppModal('send-gift-modal'); 
+        window.closeAppModal('in-game-profile-modal'); 
+    }
+    
+    const toast = document.getElementById('toast-notification');
+    const formatNum = (num) => {
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+        return num;
+    };
+    
+    if (toast) { 
+        toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${formatNum(popValue)} شعبية)`; 
+        toast.classList.add('show'); 
+        setTimeout(() => toast.classList.remove('show'), 2500); 
+    }
+    
+    window.targetGiftReceiverId = null; 
 };
 
 function fallbackCopyText(text, callback) {
