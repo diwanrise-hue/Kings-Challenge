@@ -102,7 +102,6 @@ export const ui = {
         return el;
     },
 
-    // 🌟 دالة رسم صورة اللاعب والإطار
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -221,7 +220,7 @@ export const ui = {
         });
     },
 
-   calculateLevelInfo(xpStr) {
+    calculateLevelInfo(xpStr) {
         let currentXp = parseInt(xpStr) || 0;
         let level = Math.floor(Math.sqrt(currentXp / 50)) + 1;
         if (level > 200) level = 200; 
@@ -1360,6 +1359,12 @@ export const ui = {
 
             if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
 
+            // 🌟 إصلاح اللقب: تحديث اللقب في الشاشة الرئيسية بناءً على المستوى
+            const badgeTitleEl = this.getEl('profile-stat-title-badge');
+            if (badgeTitleEl) {
+                badgeTitleEl.textContent = lvlInfo.title;
+            }
+
             if (xpProgressPath) {
                 const totalLength = 150; 
                 const progress = Math.min(Math.max(lvlInfo.percentage / 100, 0), 1);
@@ -1377,11 +1382,6 @@ export const ui = {
             const badgeRankEl = this.getEl('profile-stat-rank-badge');
             if (badgeRankEl) {
                 badgeRankEl.innerHTML = `${lvlInfo.rankIcon} ${lvlInfo.rank}`;
-            }
-            // 🌟 إصلاح اللقب: تحديث اللقب في الشاشة الرئيسية بناءً على المستوى
-            const badgeTitleEl = this.getEl('profile-stat-title-badge');
-            if (badgeTitleEl) {
-                badgeTitleEl.textContent = lvlInfo.title;
             }
 
             if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
@@ -1780,7 +1780,13 @@ window.showPlayerProfileFromLB = function(player) {
     let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
     ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
     
-    if (player.rankInfo) { document.getElementById('igp-rank-title').innerText = `الرتبة: ${player.rankInfo.icon} ${player.rankInfo.title}`; } else { document.getElementById('igp-rank-title').innerText = `الرتبة: 🥉 برونزي`; }
+    // 🌟 إصلاح خطأ innerText إلى innerHTML لكي تظهر صورة الماسي والأسطوري بشكل سليم 🌟
+    if (player.rankInfo) { 
+        document.getElementById('igp-rank-title').innerHTML = `الرتبة: ${player.rankInfo.icon} ${player.rankInfo.title}`; 
+    } else { 
+        document.getElementById('igp-rank-title').innerHTML = `الرتبة: 🥉 برونزي`; 
+    }
+    
     window.openAppModal('in-game-profile-modal');
 };
 
