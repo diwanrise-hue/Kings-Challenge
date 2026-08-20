@@ -42,7 +42,7 @@ export const translations = {
         online_pass: "كلمة السر (اختياري):",
         mm_opp: "الخصم",
         mm_status: "جاري البحث عن خصم...",
-        searching: "جاري البحث عن خصم...", // تم إضافة هذا المفتاح لحل مشكلة نافذة البحث
+        searching: "جاري البحث عن خصم...", 
         igp_friends: "الأصدقاء",
         igp_no_friends: "لا يوجد أصدقاء حالياً",
         theme_bg_0: "الخشب الفاخر",
@@ -55,7 +55,7 @@ export const translations = {
         confirm_exit_title: "تأكيد الخروج",
         alert_store: "إشعار المتجر",
         alert_no_store: "نظام الشراء غير متاح حالياً، يرجى الاتصال بالإنترنت أولاً.",
-        online_btn: "اونلاين",
+        online_btn: "أونلاين",
         ph_room: "مثال: 12345",
         ph_pass: "اتركها فارغة للعام",
         add_friend_placeholder: "معرف الصديق (ID)",
@@ -67,6 +67,8 @@ export const translations = {
         turn_opps: "دور منافسك",
         tokenReward: "مكافأة الفوز 🪙",
         start: "بدء",
+        vs_bot: "ضد البوت",
+        offline_play: "لعب أوفلاين",
         resign: "الانسحاب",
         undo: "تراجع",
         exit: "خروج",
@@ -129,7 +131,6 @@ export const translations = {
         connecting: "جاري الاتصال...",
         must_capture: "يجب أسر أكبر عدد ممكن.",
 
-        // --- نصوص القائمة الجانبية ولوحة الشرف والإضافات الجديدة ---
         menu_title: "القائمة",
         menu_bag: "الحقيبة الممتلكات",
         menu_radio: "الراديو",
@@ -207,6 +208,8 @@ export const translations = {
         turn_opps: "نۆبەی بەرامبەرە",
         tokenReward: "پاداشتی بردنەوە 🪙",
         start: "دەستپێکردن",
+        vs_bot: "دژی بۆت",
+        offline_play: "یاری ئۆفلاین",
         resign: "پاشەکشە",
         undo: "گەڕانەوە",
         exit: "دەرچوون",
@@ -269,7 +272,6 @@ export const translations = {
         connecting: "پەیوەندیکردن...",
         must_capture: "دەبێت زۆرترین پارچە بخۆیت.",
 
-        // --- نصوص القائمة الجانبية ولوحة الشرف والإضافات الجديدة ---
         menu_title: "پێڕست",
         menu_bag: "جانتا و کەلوپەل",
         menu_radio: "ڕادیۆ",
@@ -347,6 +349,8 @@ export const translations = {
         turn_opps: "Opponent's Turn",
         tokenReward: "Win Reward 🪙",
         start: "Start",
+        vs_bot: "Vs Bot",
+        offline_play: "Offline Play",
         resign: "Resign",
         undo: "Undo",
         exit: "Exit",
@@ -409,7 +413,6 @@ export const translations = {
         connecting: "Connecting...",
         must_capture: "Must capture max pieces.",
 
-        // --- نصوص القائمة الجانبية ولوحة الشرف والإضافات الجديدة ---
         menu_title: "Menu",
         menu_bag: "Inventory",
         menu_radio: "Radio",
@@ -445,27 +448,39 @@ export function setDamaLanguage(langCode) {
     }
 }
 
+// 🌟 الحل الجذري والذكي لتحديث النصوص دون تدمير الأزرار وتصميمها
 export function updateDamaUIElements() {
-    const map = {
-        'reset-btn': 'start',
-        'resign-btn': 'resign',
-        'online-toggle-btn': 'online_btn',
-        'store-portal-corner-btn': 'store_title'
-    };
+    const elOnline = document.getElementById('online-toggle-btn');
+    if (elOnline) {
+        const mainText = elOnline.querySelector('.btn-main-text');
+        if (mainText) mainText.innerText = t('online_btn');
+    }
 
-    for (let id in map) {
-        const el = document.getElementById(id);
-        if (el) {
-            if (id === 'online-toggle-btn') {
-                const span = el.querySelector('span:last-child');
-                if (span) span.innerText = t('online_btn');
-            } else if (id === 'reset-btn') {
-                el.innerText = t('start');
-            } else if (id === 'resign-btn') {
-                el.innerText = t('resign');
+    const elReset = document.getElementById('reset-btn');
+    if (elReset) {
+        const mainText = elReset.querySelector('#reset-btn-txt') || elReset.querySelector('.btn-main-text');
+        const subText = elReset.querySelector('.btn-sub-text');
+        
+        if (mainText) {
+            if (window.isMatchRunning) {
+                mainText.innerText = t('start');
+            } else {
+                mainText.innerText = t('vs_bot');
             }
+        } else {
+            elReset.innerText = t('start'); 
+        }
+        
+        if (subText) {
+            subText.innerText = t('offline_play');
         }
     }
+
+    const elResign = document.getElementById('resign-btn');
+    if (elResign) elResign.innerText = t('resign');
+    
+    const elStore = document.getElementById('menu-store-text');
+    if (elStore) elStore.innerText = t('store_title');
 }
 
 window.addEventListener('message', (event) => {
