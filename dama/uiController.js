@@ -498,7 +498,6 @@ export const ui = {
             }
         }
 
-        // 🌟 إعداد أزرار الإهداء للمشاهد 
         window.matchPlayer1Id = p1?.guestId;
         window.matchPlayer2Id = p2?.guestId;
 
@@ -617,12 +616,11 @@ export const ui = {
                 }
             }
 
-            // 🌟 إعداد أزرار الإهداء للاعب 
             window.matchPlayer1Id = gameState.userProfile.id;
             window.matchPlayer2Id = window.currentOpponentId;
             
             const giftBtn1 = document.getElementById('match-gift-btn-p1');
-            if (giftBtn1) giftBtn1.style.display = 'none'; // لا يمكنك إهداء نفسك
+            if (giftBtn1) giftBtn1.style.display = 'none'; 
             
             const giftBtn2 = document.getElementById('match-gift-btn-p2');
             if (giftBtn2) {
@@ -1380,7 +1378,6 @@ export const ui = {
 
             if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
 
-            // 🌟 إصلاح اللقب: تحديث اللقب في الشاشة الرئيسية بناءً على المستوى
             const badgeTitleEl = this.getEl('profile-stat-title-badge');
             if (badgeTitleEl) {
                 badgeTitleEl.textContent = lvlInfo.title;
@@ -1398,7 +1395,6 @@ export const ui = {
             const igpLevel = this.getEl('igp-level'); const igpXpFill = this.getEl('igp-xp-fill'); const igpXpText = this.getEl('igp-xp-text');
             if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
             
-            // 🌟 إرسال البيانات للبروفايل المنفصل الجديد 🌟
             const igpRankDisplay = this.getEl('igp-rank-display');
             const igpTitleDisplay = this.getEl('igp-title-display');
             
@@ -1875,36 +1871,67 @@ window.givePopularity = function(directTargetId) {
     if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
 };
 
-window.confirmSendGift = function(giftId, popValue) {
+// 🌟🌟🌟 الإصلاح السحري: استخدام Server Callback 🌟🌟🌟
+window.confirmSendGift = function(giftId, fallbackPopValue) {
     let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
     
     let targetId = window.targetGiftReceiverId;
     if (!targetId) return;
 
+    // خصم الهدية من الحقيبة محلياً (شكلياً حتى يتزامن مع السيرفر)
     profile.inventory[giftId] -= 1;
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
 
-    if (window.socket && window.socket.connected) {
-        window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: popValue, targetOpponentId: targetId });
-    }
-    
+    // إغلاق النوافذ
     if (typeof window.closeAppModal === 'function') { 
         window.closeAppModal('send-gift-modal'); 
-        window.closeAppModal('in-game-profile-modal'); 
     }
-    
-    const toast = document.getElementById('toast-notification');
-    const formatNum = (num) => {
-        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-        return num;
-    };
-    
-    if (toast) { 
-        toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${formatNum(popValue)} شعبية)`; 
-        toast.classList.add('show'); 
-        setTimeout(() => toast.classList.remove('show'), 2500); 
+
+    // إرسال طلب للسيرفر مع انتظار الرد (Callback)
+    if (window.socket && window.socket.connected) {
+        window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: fallbackPopValue, targetOpponentId: targetId }, (response) => {
+            if (response && response.success) {
+                // تحديث الرقم في الواجهة مباشرة مع تأثير بصري
+                const popDisplay = document.getElementById('igp-popularity-val');
+                
+                // تحديث الذاكرة
+                if (gameState.currentViewedPlayer && gameState.currentViewedPlayer.id === targetId) {
+                    gameState.currentViewedPlayer.popularity = response.newTotalPopularity;
+                }
+                if (window.currentOpponentData && window.currentOpponentData.id === targetId) {
+                    window.currentOpponentData.popularity = response.newTotalPopularity;
+                }
+
+                if (popDisplay) {
+                    popDisplay.innerText = response.newTotalPopularity;
+                    // تأثير بصري جميل (تكبير وتوهج)
+                    popDisplay.style.transition = 'all 0.3s ease';
+                    popDisplay.style.transform = 'scale(1.5)';
+                    popDisplay.style.color = '#fff';
+                    popDisplay.style.textShadow = '0 0 15px #00d2ff';
+                    
+                    setTimeout(() => {
+                        popDisplay.style.transform = 'scale(1)';
+                        popDisplay.style.color = '';
+                        popDisplay.style.textShadow = '';
+                    }, 400);
+                }
+
+                const toast = document.getElementById('toast-notification');
+                const formatNum = (num) => {
+                    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+                    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+                    return num;
+                };
+                
+                if (toast) { 
+                    toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${formatNum(response.popValue)} شعبية)`; 
+                    toast.classList.add('show'); 
+                    setTimeout(() => toast.classList.remove('show'), 2500); 
+                }
+            }
+        });
     }
     
     window.targetGiftReceiverId = null; 
