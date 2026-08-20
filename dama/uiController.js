@@ -241,13 +241,21 @@ export const ui = {
         else if (level >= 10) title = t('title_duelist') || "مبارز";
 
         let rank = "برونزي"; let rankIcon = "🥉";
-        if (currentXp >= 5000) { rank = "أسطوري"; rankIcon = "👑"; }
-        else if (currentXp >= 2500) { rank = "ماسي"; rankIcon = "💎"; }
+        
+        // 🌟 دمج الصور المخصصة للرتب العليا بدلاً من الإيموجي
+        if (currentXp >= 5000) { 
+            rank = "أسطوري"; 
+            rankIcon = `<img src="Media/front/اسطوري.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
+        }
+        else if (currentXp >= 2500) { 
+            rank = "ماسي"; 
+            rankIcon = `<img src="Media/front/ماسي.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
+        }
         else if (currentXp >= 1200) { rank = "ذهبي"; rankIcon = "🥇"; }
         else if (currentXp >= 500) { rank = "فضي"; rankIcon = "🥈"; }
 
         return { level, title, rank, rankIcon, progressXp, requiredXp, percentage };
-    },
+
 
     showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
