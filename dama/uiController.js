@@ -233,15 +233,14 @@ export const ui = {
         let requiredXp = xpForNextLevel - xpForCurrentLevel;
         let percentage = level === 200 ? 100 : Math.min(100, Math.max(0, (progressXp / requiredXp) * 100));
 
-        let title =  "مبتدئ";
+        let title = "مبتدئ";
         if (level >= 100) title = "جراند ماستر";
-        else if (level >= 50) title =  "معلم الدامة";
-        else if (level >= 30) title =  "خبير";
-        else if (level >= 10) title =  "مبارز";
+        else if (level >= 50) title = "معلم الدامة";
+        else if (level >= 30) title = "خبير";
+        else if (level >= 10) title = "مبارز";
 
         let rank = "برونزي"; let rankIcon = "🥉";
         
-        // 🌟 دمج الصور المخصصة للرتب العليا بدلاً من الإيموجي
         if (currentXp >= 5000) { 
             rank = "أسطوري"; 
             rankIcon = `<img src="Media/front/اسطوري.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
@@ -1374,10 +1373,15 @@ export const ui = {
                 xpProgressPath.style.strokeDashoffset = newOffset;
             }
 
-            const igpLevel = this.getEl('igp-level'); const igpRank = this.getEl('igp-rank-title'); const igpXpFill = this.getEl('igp-xp-fill'); const igpXpText = this.getEl('igp-xp-text');
+            const igpLevel = this.getEl('igp-level'); const igpXpFill = this.getEl('igp-xp-fill'); const igpXpText = this.getEl('igp-xp-text');
             if (igpLevel) igpLevel.textContent = `Lv.${lvlInfo.level}`;
             
-            if (igpRank) igpRank.innerHTML = `الرتبة: ${lvlInfo.rankIcon} ${lvlInfo.rank} | ${lvlInfo.title}`;
+            // 🌟 إرسال البيانات للبروفايل المنفصل الجديد 🌟
+            const igpRankDisplay = this.getEl('igp-rank-display');
+            const igpTitleDisplay = this.getEl('igp-title-display');
+            
+            if (igpRankDisplay) igpRankDisplay.innerHTML = `${lvlInfo.rankIcon} <span>${lvlInfo.rank}</span>`;
+            if (igpTitleDisplay) igpTitleDisplay.textContent = `اللقب: ${lvlInfo.title}`;
             
             const badgeRankEl = this.getEl('profile-stat-rank-badge');
             if (badgeRankEl) {
@@ -1780,11 +1784,23 @@ window.showPlayerProfileFromLB = function(player) {
     let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
     ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
     
-    // 🌟 إصلاح خطأ innerText إلى innerHTML لكي تظهر صورة الماسي والأسطوري بشكل سليم 🌟
+    const oppRankDisplay = document.getElementById('igp-rank-display');
+    const oppTitleDisplay = document.getElementById('igp-title-display');
+    
     if (player.rankInfo) { 
-        document.getElementById('igp-rank-title').innerHTML = `الرتبة: ${player.rankInfo.icon} ${player.rankInfo.title}`; 
+        if (oppRankDisplay) oppRankDisplay.innerHTML = `${player.rankInfo.icon} <span>${player.rankInfo.title}</span>`; 
+        
+        let oppLevel = Math.floor(Math.sqrt(Math.max(0, player.score || 0) / 50)) + 1;
+        let oppTitleText = "مبتدئ";
+        if (oppLevel >= 100) oppTitleText = "جراند ماستر";
+        else if (oppLevel >= 50) oppTitleText = "معلم الدامة";
+        else if (oppLevel >= 30) oppTitleText = "خبير";
+        else if (oppLevel >= 10) oppTitleText = "مبارز";
+        
+        if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: ${oppTitleText}`;
     } else { 
-        document.getElementById('igp-rank-title').innerHTML = `الرتبة: 🥉 برونزي`; 
+        if (oppRankDisplay) oppRankDisplay.innerHTML = `🥉 <span>برونزي</span>`; 
+        if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: مبتدئ`;
     }
     
     window.openAppModal('in-game-profile-modal');
