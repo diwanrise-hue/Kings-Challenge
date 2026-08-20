@@ -175,8 +175,132 @@ body {
 }
 
 /* ========================================== */
-/* 🌟 الأزرار الفخمة ثلاثية الأبعاد 🌟 */
+/* 🌟 تصميم الأزرار الزجاجية الفخمة (أونلاين وبوت) 🌟 */
 /* ========================================== */
+.premium-game-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    padding: 12px 30px !important;
+    border-radius: 40px !important; 
+    border: 3px solid #2a1f14 !important; 
+    position: relative !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), filter 0.2s !important;
+    text-decoration: none !important;
+    outline: none !important;
+    max-width: 240px !important;
+    font-family: 'Tajawal', sans-serif !important;
+    box-sizing: border-box !important;
+}
+
+.premium-game-btn::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 45% !important;
+    background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.02) 100%) !important;
+    border-radius: 40px 40px 0 0 !important;
+    pointer-events: none !important;
+}
+
+.premium-game-btn:active {
+    transform: scale(0.94) !important;
+    filter: brightness(0.9) !important;
+}
+
+.btn-green { 
+    background: linear-gradient(180deg, #0f5c2b 0%, #063617 100%) !important; 
+    box-shadow: inset 0 0 0 2.5px #e6c27a, inset 0 0 8px rgba(0,0,0,0.8), 0 8px 20px rgba(0, 0, 0, 0.6) !important; 
+}
+
+.btn-brown { 
+    background: linear-gradient(180deg, #3d2410 0%, #1a0e04 100%) !important; 
+    box-shadow: inset 0 0 0 2.5px #e6c27a, inset 0 0 8px rgba(0,0,0,0.8), 0 8px 20px rgba(0, 0, 0, 0.6) !important;
+}
+
+.premium-game-btn .btn-icon-svg {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.7)) !important;
+    z-index: 2 !important;
+}
+
+.premium-game-btn .btn-text-col {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important; 
+    justify-content: center !important;
+    margin: 0 !important;
+    z-index: 2 !important;
+}
+
+.premium-game-btn .btn-main-text {
+    color: #ffffff !important;
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
+    line-height: 1.1 !important;
+    letter-spacing: 0.5px !important;
+}
+
+.premium-game-btn .btn-sub-text {
+    color: #f1c40f !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;
+}
+
+.online-glow-dot {
+    position: absolute !important;
+    top: 10px !important;
+    right: 15px !important; 
+    left: auto !important;
+    width: 14px !important;
+    height: 14px !important;
+    background-color: #4ade80 !important;
+    border-radius: 50% !important;
+    box-shadow: 0 0 10px #4ade80, inset 0 2px 4px rgba(255,255,255,0.8) !important;
+    border: 1px solid #14532d !important;
+    animation: pulseGlowOnline 2s infinite alternate !important;
+    z-index: 5 !important;
+}
+
+@keyframes pulseGlowOnline {
+    0% { opacity: 0.8; box-shadow: 0 0 5px #4ade80; }
+    100% { opacity: 1; box-shadow: 0 0 15px #4ade80, 0 0 25px #4ade80; }
+}
+
+#online-toggle-btn.premium-game-btn { 
+    position: fixed !important; 
+    bottom: 85px !important; 
+    left: 50% !important; 
+    transform: translateX(-50%) !important; 
+    z-index: 9998 !important;
+}
+#online-toggle-btn.premium-game-btn:active {
+    transform: translateX(-50%) scale(0.94) !important;
+}
+
+body.game-active #reset-btn {
+    background: linear-gradient(145deg, #2a2a35, #15141a) !important;
+    border: 1.5px solid #a88734 !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15) !important;
+    padding: 0 15px !important;
+    min-width: unset !important;
+    max-width: unset !important;
+    border-radius: 14px !important;
+    height: 44px !important;
+}
+body.game-active #reset-btn::after { display: none !important; } 
+body.game-active #reset-btn .btn-main-text { color: #fce8a1 !important; font-size: 16px !important; font-weight: 800 !important; text-shadow: none !important;}
+body.game-active #reset-btn .btn-sub-text { display: none !important; }
+body.game-active #reset-btn .btn-icon-svg { display: none !important; }
 
 #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
 #store-portal-corner-btn, #lucky-spin-portal-btn,
@@ -234,111 +358,6 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     border-bottom-width: 1px !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
 }
-
-/* ========================================== */
-/* 🌟 تصميم الأزرار الزجاجية الفخمة (أونلاين وبوت) 🌟 */
-/* ========================================== */
-.premium-game-btn {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 15px !important;
-    padding: 10px 25px !important;
-    border-radius: 35px !important;
-    border: 2px solid #d4af37 !important;
-    box-shadow: 
-        inset 0 6px 10px rgba(255, 255, 255, 0.2),
-        inset 0 -6px 10px rgba(0, 0, 0, 0.4),
-        0 5px 15px rgba(0, 0, 0, 0.6) !important;
-    cursor: pointer !important;
-    position: relative !important;
-    overflow: hidden !important;
-    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
-    text-decoration: none !important;
-    outline: none !important;
-    flex: 1; /* للسماح للزر بالتقلص على الشاشات الصغيرة */
-    max-width: 220px !important;
-    font-family: 'Tajawal', sans-serif !important;
-}
-
-.premium-game-btn:active {
-    transform: scale(0.95) !important;
-}
-
-.btn-green { background: linear-gradient(180deg, #11693b 0%, #053f1f 100%) !important; }
-.btn-brown { background: linear-gradient(180deg, #382211 0%, #170b04 100%) !important; }
-
-.premium-game-btn .btn-icon {
-    font-size: 32px !important;
-    color: #f5a623 !important;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) !important;
-    margin: 0 !important;
-}
-
-.premium-game-btn .btn-text-col {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    margin: 0 !important;
-}
-
-.premium-game-btn .btn-main-text {
-    color: #ffffff !important;
-    font-size: 24px !important;
-    font-weight: 900 !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
-    line-height: 1.1 !important;
-}
-
-.premium-game-btn .btn-sub-text {
-    color: #f5a623 !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-}
-
-.online-glow-dot {
-    position: absolute !important;
-    top: 15px !important;
-    left: 20px !important;
-    width: 14px !important;
-    height: 14px !important;
-    background-color: #34c759 !important;
-    border-radius: 50% !important;
-    box-shadow: 0 0 10px #34c759, inset 0 2px 4px rgba(255,255,255,0.6) !important;
-    animation: pulseGlow 2s infinite alternate !important;
-}
-
-@keyframes pulseGlow {
-    0% { opacity: 0.7; box-shadow: 0 0 5px #34c759; }
-    100% { opacity: 1; box-shadow: 0 0 15px #34c759; }
-}
-
-/* موقع زر الأونلاين الجديد */
-#online-toggle-btn.premium-game-btn { 
-    position: fixed !important; 
-    bottom: 85px !important; 
-    left: 50% !important; 
-    transform: translateX(-50%) !important; 
-    z-index: 9998 !important;
-}
-#online-toggle-btn.premium-game-btn:active {
-    transform: translateX(-50%) scale(0.95) !important;
-}
-
-/* شكل الزر أثناء اللعب (أوفلاين) ليتماشى مع باقي الأزرار */
-body.game-active #reset-btn {
-    background: linear-gradient(145deg, #2a2a35, #15141a) !important;
-    border: 1.5px solid #a88734 !important;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15) !important;
-    padding: 0 15px !important;
-    min-width: unset !important;
-    max-width: unset !important;
-    border-radius: 14px !important;
-    height: 44px !important;
-}
-body.game-active #reset-btn .btn-main-text { color: #fce8a1 !important; font-size: 16px !important; font-weight: 800 !important; }
-body.game-active #reset-btn .btn-sub-text { display: none !important; }
-body.game-active #reset-btn .btn-icon { display: none !important; }
 
 /* ========================================== */
 /* 🌟 نظام البروفايل الجديد المتمركز (أسود/ذهبي) */
