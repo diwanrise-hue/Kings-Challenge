@@ -247,7 +247,9 @@
 
     <div id="toast-notification">✨ تم التغيير بنجاح</div>
 
-    <!-- 🌟 زر الأونلاين الفخم المطابق للصورة 🌟 -->
+    <!-- 🌟 أزرار اللوبي العائمة (تظهر قبل بدء اللعبة) 🌟 -->
+    
+    <!-- 1. زر الأونلاين -->
     <button id="online-toggle-btn" class="premium-game-btn btn-green" title="البحث العشوائي">
         <div class="online-glow-dot"></div>
         <div class="btn-icon-svg" data-icon="globeBtn"></div>
@@ -257,6 +259,16 @@
         </div>
         <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
     </button>
+
+    <!-- 2. زر ضد البوت (الخاص باللوبي فقط) -->
+    <button id="lobby-bot-btn" class="premium-game-btn btn-brown" title="لعب ضد البوت" onclick="document.getElementById('reset-btn').click()">
+        <div class="btn-icon-svg" data-icon="robotBtn"></div>
+        <div class="btn-text-col">
+            <span class="btn-main-text">ضد البوت</span>
+            <span class="btn-sub-text">لعب أوفلاين</span>
+        </div>
+    </button>
+    <!-- 🌟 نهاية أزرار اللوبي 🌟 -->
 
 
     <button id="store-portal-corner-btn" onclick="openAppModal('store-modal')" title="المتجر الملكي" data-icon="storePortal"></button>
@@ -814,31 +826,29 @@
         </div>
     </div>
 
-    <!-- 🌟 الأزرار الرئيسية المزدوجة (أونلاين وبوت) 🌟 -->
-    <div id="main-lobby-buttons">
-        
-        <!-- زر ضد البوت -->
-        <button id="reset-btn" class="premium-game-btn btn-brown" title="لعب ضد البوت">
-            <div class="btn-icon-svg" data-icon="robotBtn"></div>
-            <div class="btn-text-col">
-                <span class="btn-main-text">ضد البوت</span>
-                <span class="btn-sub-text">لعب أوفلاين</span>
-            </div>
-        </button>
+    <!-- 🌟 أزرار اللوبي العائمة (تظهر قبل بدء اللعبة فقط) 🌟 -->
+    <!-- 1. زر الأونلاين -->
+    <button id="online-toggle-btn" class="premium-game-btn btn-green" title="البحث العشوائي">
+        <div class="online-glow-dot"></div>
+        <div class="btn-icon-svg" data-icon="globeBtn"></div>
+        <div class="btn-text-col">
+            <span class="btn-main-text">أونلاين</span>
+            <span class="btn-sub-text">البحث عن لاعب</span>
+        </div>
+        <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
+    </button>
 
-        <!-- زر الأونلاين -->
-        <button id="online-toggle-btn" class="premium-game-btn btn-green" title="البحث العشوائي">
-            <div class="online-glow-dot"></div>
-            <div class="btn-icon-svg" data-icon="globeBtn"></div>
-            <div class="btn-text-col">
-                <span class="btn-main-text">أونلاين</span>
-                <span class="btn-sub-text">البحث عن لاعب</span>
-            </div>
-            <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
-        </button>
-        
-    </div>
-    
+    <!-- 2. زر ضد البوت (الخاص باللوبي فقط) -->
+    <button id="lobby-bot-btn" class="premium-game-btn btn-brown" title="لعب ضد البوت" onclick="document.getElementById('reset-btn').click()">
+        <div class="btn-icon-svg" data-icon="robotBtn"></div>
+        <div class="btn-text-col">
+            <span class="btn-main-text">ضد البوت</span>
+            <span class="btn-sub-text">لعب أوفلاين</span>
+        </div>
+    </button>
+    <!-- 🌟 نهاية أزرار اللوبي 🌟 -->
+
+
     <div class="control-panel" id="bottom-control-panel">
         
         <input type="hidden" id="diff-quick-select" value="3">
@@ -856,6 +866,9 @@
         
         <button id="mic-toggle-btn" title="المحادثة الصوتية" style="display: none;"></button>
         <button id="resign-btn" title="الانسحاب" style="display: none;">الانسحاب</button>
+        
+        <!-- 🌟 زر بدء الفعلي المخفي في اللوبي ويظهر أثناء اللعب 🌟 -->
+        <button id="reset-btn" class="in-game-start-btn">بدء</button>
         
     </div>
 
