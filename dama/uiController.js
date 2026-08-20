@@ -393,7 +393,6 @@ export const ui = {
         const flexState = active ? 'none' : 'flex';
         const inlineState = active ? 'none' : 'inline-block';
         
-        this.setDisplay('online-toggle-btn', flexState);
         this.setDisplay('store-portal-corner-btn', flexState);
         this.setDisplay('lucky-spin-portal-btn', flexState); 
         this.setDisplay('floating-quests-btn', flexState);
@@ -415,13 +414,12 @@ export const ui = {
         document.body.classList.add('game-active');
         document.body.classList.add('online-mode-active');
         
-        const hides = ['online-toggle-btn', 'store-portal-corner-btn', 'lucky-spin-portal-btn', 'floating-quests-btn', 'bag-quick-btn', 'custom-diff-btn', 'hint-btn', 'undo-btn', 'resign-btn', 'gameChatBtn', 'mic-toggle-btn'];
+        const hides = ['store-portal-corner-btn', 'lucky-spin-portal-btn', 'floating-quests-btn', 'bag-quick-btn', 'custom-diff-btn', 'hint-btn', 'undo-btn', 'resign-btn', 'gameChatBtn', 'mic-toggle-btn'];
         hides.forEach(id => this.setDisplay(id, 'none'));
         
         this.setDisplay('bottom-control-panel', 'flex');
-        this.setDisplay('reset-btn', 'inline-block');
+        this.setDisplay('reset-btn', 'inline-flex');
         
-        // 🌟 التوجيه الجديد للنص
         this.setTxt('reset-btn-txt', 'خروج المشاهد 🚪');
         
         this.setDisplay('match-players-card', 'flex');
@@ -548,7 +546,7 @@ export const ui = {
         }
 
         const displays = {
-            'reset-btn': normalState, 'custom-diff-btn': normalState, 'online-toggle-btn': flexState,
+            'custom-diff-btn': normalState, 
             'store-portal-corner-btn': flexState, 'lucky-spin-portal-btn': flexState, 'hamburger-menu-btn': flexState,
             'floating-quests-btn': flexState, 'bag-quick-btn': 'none', 'resign-btn': onlineState, 
             'undo-btn': 'none', 'match-players-card': active ? 'flex' : 'none',
@@ -558,8 +556,7 @@ export const ui = {
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
         if (!active) {
-            // 🌟 التوجيه الجديد للنص
-            this.setTxt('reset-btn-txt', 'بدء'); 
+            this.setTxt('reset-btn-txt', 'ضد البوت'); 
         }
         
         if (active && gameState.userProfile) {
@@ -784,8 +781,7 @@ export const ui = {
         
         this.setDisplay('spectator-stats-container', 'none');
         
-        // 🌟 التوجيه الجديد للنص
-        this.setTxt('reset-btn-txt', 'بدء');
+        this.setTxt('reset-btn-txt', 'ضد البوت');
         
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
         
@@ -809,6 +805,9 @@ export const ui = {
 
     initBoard() {
         this.drawEmptyBoard(); 
+        
+        // 🌟 تغيير النص إلى بدء فقط عند بدء اللعب الفعلي
+        this.setTxt('reset-btn-txt', 'بدء');
         
         gameState.botMoveCount = 0; gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
         gameState.pieceHistories = {};
