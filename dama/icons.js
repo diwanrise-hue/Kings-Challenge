@@ -20,7 +20,6 @@ const SVGIcons = {
             <style>.anim-luxury { transform-origin: 60px 60px; animation: luxuryFloat 4s ease-in-out infinite; } @keyframes luxuryFloat { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-7px) rotate(-1deg); } }</style>
         </defs>
         <g class="anim-luxury">
-            <circle cx="60" cy="60" r="54" fill="url(#bagGlow)"/>
             <ellipse cx="60" cy="108" rx="34" ry="4" fill="#000000" opacity="0.22"/>
             <g filter="url(#bagShadow)">
                 <path d="M 44 32 C 44 18 76 18 76 32" fill="none" stroke="url(#bagGold)" stroke-width="4.5" stroke-linecap="round"/>
@@ -379,7 +378,6 @@ const SVGIcons = {
             <line x1="72.5" y1="62" x2="74" y2="60.5" stroke="#1c1917" stroke-width="0.8" />
             <rect x="22" y="79" width="10" height="3" rx="1.5" fill="#292524" />
             <rect x="68" y="79" width="10" height="3" rx="1.5" fill="#292524" />
-            <path d="M 14 35 C 14 30.5 17.5 27 22 27 L 78 27 C 82.5 27 86 30.5 86 35 L 86 39 L 14 39 Z" fill="#ffffff" opacity="0.18" />
         </g>
     </svg>`,
 
