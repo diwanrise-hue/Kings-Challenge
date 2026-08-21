@@ -2252,8 +2252,14 @@ window.updateHtmlTexts = function() {
 
     setTxt('tutorial-mode-label', 'tutorial_mode'); 
     setTxt('menu-quests-text', 'menu_quests');
-    if (document.getElementById('matchmaking-modal').style.display === 'flex') setTxt('mm-status-label', 'searching');
+    
+    // 🌟 الحل الجذري لمنع خطأ null هنا
+    const mmModal = document.getElementById('matchmaking-modal');
+    if (mmModal && mmModal.style.display === 'flex') {
+        setTxt('mm-status-label', 'searching');
+    }
 };
+
 
 window.toggleRadioMusic = function() {
     const dot = document.getElementById('dama-radio-status'); let isActive = false;
@@ -2667,3 +2673,4 @@ document.addEventListener('DOMContentLoaded', () => {
         
     }, 500); 
 });
+    
