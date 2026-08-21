@@ -8,14 +8,13 @@ const SVGIcons = {
     // 2. أيقونة نسخ الـ ID
     copyId: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`,
 
-    // 3. حقيبة الأزياء السريعة (العلوية)
+    // 3. حقيبة الأزياء السريعة (العلوية) - تم إزالة الهالة المضيئة تماماً
     bagQuick: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3);">
         <defs>
             <linearGradient id="bagGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="25%" stop-color="#f59e0b"/><stop offset="50%" stop-color="#d97706"/><stop offset="75%" stop-color="#b45309"/><stop offset="100%" stop-color="#78350f"/></linearGradient>
             <linearGradient id="bagBody" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#334155"/><stop offset="40%" stop-color="#1e293b"/><stop offset="85%" stop-color="#0f172a"/><stop offset="100%" stop-color="#020617"/></linearGradient>
             <linearGradient id="bagIvory" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="70%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fde68a"/></linearGradient>
             <linearGradient id="bagRuby" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="50%" stop-color="#dc2626"/><stop offset="100%" stop-color="#991b1b"/></linearGradient>
-            <radialGradient id="bagGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
             <filter id="bagShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.35"/></filter>
             <style>.anim-luxury { transform-origin: 60px 60px; animation: luxuryFloat 4s ease-in-out infinite; } @keyframes luxuryFloat { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-7px) rotate(-1deg); } }</style>
         </defs>
@@ -75,7 +74,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 4. الغرف الخاصة (تم إضافة حركة نبض لعلامة الزائد الأخضر)
+    // 4. الغرف الخاصة (حركة نبض لعلامة الزائد الأخضر)
     door: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
         <defs>
             <linearGradient id="doorGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8d6e63"/><stop offset="100%" stop-color="#5d4037"/></linearGradient>
@@ -84,8 +83,6 @@ const SVGIcons = {
             <style>
                 .anim-door { transform-origin: 50px 50px; animation: floatDoor 3s ease-in-out infinite; } 
                 @keyframes floatDoor { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-                
-                /* 🌟 حركة نبض علامة الزائد 🌟 */
                 @keyframes pulsePlusSign { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
                 .anim-plus { animation: pulsePlusSign 1.2s ease-in-out infinite; transform-origin: 12px 12px; }
             </style>
@@ -98,7 +95,7 @@ const SVGIcons = {
             <rect x="31" y="58" width="38" height="22" rx="2" fill="rgba(0,0,0,0.15)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
             <circle cx="65" cy="55" r="3.5" fill="url(#handleGrad)" filter="url(#doorShadow)"/>
             <g transform="translate(62, 12)" filter="url(#doorShadow)">
-                <g class="anim-plus"> <!-- 🌟 تطبيق حركة النبض هنا 🌟 -->
+                <g class="anim-plus">
                     <circle cx="12" cy="12" r="12" fill="#22c55e"/>
                     <path d="M 12 6 L 12 18 M 6 12 L 18 12" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
                 </g>
@@ -170,18 +167,16 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 6. حقيبة الأزياء الجانبية
+    // 6. حقيبة الأزياء الجانبية - تم إزالة الهالة المضيئة تماماً
     bagSide: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
         <defs>
             <linearGradient id="bagGoldSide" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="25%" stop-color="#f59e0b"/><stop offset="50%" stop-color="#d97706"/><stop offset="75%" stop-color="#b45309"/><stop offset="100%" stop-color="#78350f"/></linearGradient>
             <linearGradient id="bagBodySide" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#334155"/><stop offset="40%" stop-color="#1e293b"/><stop offset="85%" stop-color="#0f172a"/><stop offset="100%" stop-color="#020617"/></linearGradient>
             <linearGradient id="bagIvorySide" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="70%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fde68a"/></linearGradient>
             <linearGradient id="bagRubySide" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="50%" stop-color="#dc2626"/><stop offset="100%" stop-color="#991b1b"/></linearGradient>
-            <radialGradient id="bagGlowSide" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
             <filter id="bagShadowSide" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.35"/></filter>
         </defs>
         <g class="anim-luxury">
-            <circle cx="60" cy="60" r="54" fill="url(#bagGlowSide)"/>
             <ellipse cx="60" cy="108" rx="34" ry="4" fill="#000000" opacity="0.22"/>
             <g filter="url(#bagShadowSide)">
                 <path d="M 44 32 C 44 18 76 18 76 32" fill="none" stroke="url(#bagGoldSide)" stroke-width="4.5" stroke-linecap="round"/>
@@ -343,8 +338,8 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-        // 11. زر الراديو (تم إزالة الطبقة البيضاء وتكبير الحجم بأسلوب نظيف)
-    radioBtn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" width="32" height="32" style="transform: scale(1.25);">
+    // 11. زر الراديو - (تم تكبيره إلى 36px وإزالة اللمعة البيضاء نهائياً)
+    radioBtn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" width="36" height="36" style="transform: scale(1.25);">
         <defs>
             <style>@keyframes floatAnimRadioBtn { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } } .anim-f-radio-btn { animation: floatAnimRadioBtn 3.5s ease-in-out infinite; }</style>
             <filter id="mainShadowRadioBtn" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.25"/></filter>
@@ -378,12 +373,11 @@ const SVGIcons = {
             <line x1="72.5" y1="62" x2="74" y2="60.5" stroke="#1c1917" stroke-width="0.8" />
             <rect x="22" y="79" width="10" height="3" rx="1.5" fill="#292524" />
             <rect x="68" y="79" width="10" height="3" rx="1.5" fill="#292524" />
-            <!-- تم إزالة سطر الطبقة البيضاء من هنا نهائياً -->
         </g>
     </svg>`,
 
-    // 12. أيقونة الراديو للقائمة الجانبية (بدون الطبقة البيضاء أيضاً)
-    radioSide: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" width="32" height="32" style="transform: scale(1.3);">
+    // 12. أيقونة الراديو للقائمة الجانبية - (تم تكبيره إلى 36px وإزالة اللمعة البيضاء نهائياً)
+    radioSide: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" width="36" height="36" style="transform: scale(1.3);">
         <defs>
             <style>@keyframes floatAnimRadioSide { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } } .anim-f-radio-side { animation: floatAnimRadioSide 3.5s ease-in-out infinite; }</style>
             <filter id="mainShadowRadioSide" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.25"/></filter>
@@ -417,10 +411,8 @@ const SVGIcons = {
             <line x1="72.5" y1="62" x2="74" y2="60.5" stroke="#1c1917" stroke-width="0.8" />
             <rect x="22" y="79" width="10" height="3" rx="1.5" fill="#292524" />
             <rect x="68" y="79" width="10" height="3" rx="1.5" fill="#292524" />
-            <!-- تم إزالة سطر الطبقة البيضاء من هنا نهائياً -->
         </g>
     </svg>`,
-
 
     // 13. أيقونة الرادار لفقدان الاتصال
     disconnectIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.9));">
