@@ -318,7 +318,7 @@ const SVGIcons = {
     </svg>`,
 
     // 10. زر المصباح
-    bulb: `<svg viewBox="0 0 100 100" width="32" height="32" style="vertical-align: middle; display: inline-block; transform: scale(1.2);">
+    bulb: `<svg viewBox="0 0 100 100" width="32" height="32" style="vertical-align: middle; display: inline-block; transform: scale(1.55);">
         <defs>
             <filter id="bulbGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
             <radialGradient id="glassBodyGrad" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="#fef08a"/><stop offset="70%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></radialGradient>
