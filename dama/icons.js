@@ -590,56 +590,136 @@ const SVGIcons = {
         </svg>
     </svg>`,
 
-    // 17. أيقونة الروبوت الفخم 🤖 (مُحسنة للمربعات والدوائر - لا يتم قصها أبدًا)
-    robotBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.15); transform-origin: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8));">
+       // 17. أيقونة الروبوت الفخم 🤖 (يطفو ويرمش رمشتين كل 5 ثوانٍ + إضاءة نيون للعيون المغلقة والابتسامة)
+    robotBtn: `<svg viewBox="0 0 800 600" width="100%" height="100%" style="transform: scale(1.4); transform-origin: center; filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5)) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.9));">
         <defs>
             <style>
-                @keyframes floatAliveSmall { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-                @keyframes blinkDoubleSmall { 0%, 4%, 8%, 100% { transform: scaleY(1); } 2%, 6% { transform: scaleY(0.1); } }
-                .bot-alive-small { animation: floatAliveSmall 3.5s ease-in-out infinite; transform-origin: center; }
-                .bot-eyes-small { animation: blinkDoubleSmall 5s infinite; transform-origin: 50px 45px; }
+                @keyframes floatAlive { 
+                    0%, 100% { transform: translateY(0); } 
+                    50% { transform: translateY(-20px); } 
+                }
+                /* حركة رمشتين متتاليتين كل 5 ثواني للعين المفتوحة */
+                @keyframes blinkOpen {
+                    0%, 90%, 94%, 98%, 100% { opacity: 1; }
+                    92%, 96% { opacity: 0; }
+                }
+                /* حركة رمشتين متتاليتين كل 5 ثواني للعين المغلقة (الخط المضيء) */
+                @keyframes blinkClosed {
+                    0%, 90%, 94%, 98%, 100% { opacity: 0; }
+                    92%, 96% { opacity: 1; }
+                }
+                
+                .bot-alive { animation: floatAlive 4s ease-in-out infinite; transform-origin: center; }
+                .bot-eye-open { animation: blinkOpen 5s infinite; }
+                .bot-eye-closed { animation: blinkClosed 5s infinite; }
             </style>
             
-            <linearGradient id="botGoldNew" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#fef08a"/><stop offset="40%" stop-color="#d97706"/><stop offset="100%" stop-color="#78350f"/>
-            </linearGradient>
-            <linearGradient id="botDarkNew" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#334155"/><stop offset="50%" stop-color="#1e293b"/><stop offset="100%" stop-color="#020617"/>
-            </linearGradient>
-            <radialGradient id="eyeGlowNew" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#00ffff"/><stop offset="100%" stop-color="#0033cc"/>
+            <radialGradient id="botBacklightGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)"/>
+                <stop offset="40%" stop-color="rgba(255, 215, 0, 0.25)"/>
+                <stop offset="100%" stop-color="transparent"/>
             </radialGradient>
+
+            <linearGradient id="botGoldV" x1="0" y1="100" x2="0" y2="500" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#f9df88"/><stop offset="15%" stop-color="#c59539"/><stop offset="30%" stop-color="#fdf3b0"/><stop offset="65%" stop-color="#875a18"/><stop offset="90%" stop-color="#e4b143"/><stop offset="100%" stop-color="#6b450f"/>
+            </linearGradient>
+            <linearGradient id="botGoldH" x1="100" y1="0" x2="700" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#f9df88"/><stop offset="15%" stop-color="#c59539"/><stop offset="30%" stop-color="#fdf3b0"/><stop offset="65%" stop-color="#875a18"/><stop offset="90%" stop-color="#e4b143"/><stop offset="100%" stop-color="#6b450f"/>
+            </linearGradient>
+            <linearGradient id="botDarkMetal" x1="0" y1="140" x2="0" y2="540" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#3a3d46"/><stop offset="50%" stop-color="#1e2025"/><stop offset="100%" stop-color="#0c0d10"/>
+            </linearGradient>
+            <linearGradient id="botDarkMetalEar" x1="0" y1="250" x2="0" y2="350" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#3a3d46"/><stop offset="50%" stop-color="#1e2025"/><stop offset="100%" stop-color="#0c0d10"/>
+            </linearGradient>
+            <radialGradient id="botFaceGrad" cx="400" cy="340" r="400" fx="400" fy="200" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#262931"/><stop offset="100%" stop-color="#08090b"/>
+            </radialGradient>
+            <radialGradient id="botEyeGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff"/><stop offset="20%" stop-color="#00ffff"/><stop offset="60%" stop-color="#0066ff"/><stop offset="90%" stop-color="#001a4d"/><stop offset="100%" stop-color="#00081a"/>
+            </radialGradient>
+            
+            <filter id="botEyeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.8"/>
+            </filter>
+            <filter id="botNeonBlurBase" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="10" result="blur1" />
+                <feGaussianBlur stdDeviation="4" result="blur2" />
+                <feMerge>
+                    <feMergeNode in="blur1" />
+                    <feMergeNode in="blur2" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
         </defs>
 
-        <g class="bot-alive-small">
-            <!-- الهالة الخلفية -->
-            <circle cx="50" cy="50" r="45" fill="#d97706" opacity="0.15" filter="blur(4px)"/>
-            
+        <g class="bot-alive">
+            <!-- إضاءة خلفية -->
+            <circle cx="400" cy="300" r="380" fill="url(#botBacklightGlow)" />
+
             <!-- الأذنين -->
-            <rect x="10" y="38" width="14" height="24" rx="4" fill="url(#botDarkNew)" stroke="url(#botGoldNew)" stroke-width="1.5"/>
-            <rect x="76" y="38" width="14" height="24" rx="4" fill="url(#botDarkNew)" stroke="url(#botGoldNew)" stroke-width="1.5"/>
-            
+            <rect x="40" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
+            <rect x="35" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
+            <rect x="45" y="285" width="30" height="8" fill="url(#botGoldV)" />
+            <rect x="45" y="305" width="30" height="8" fill="url(#botGoldV)" />
+            <rect x="45" y="325" width="30" height="8" fill="url(#botGoldV)" />
+
+            <rect x="700" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
+            <rect x="715" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
+            <rect x="725" y="285" width="30" height="8" fill="url(#botGoldV)" />
+            <rect x="725" y="305" width="30" height="8" fill="url(#botGoldV)" />
+            <rect x="725" y="325" width="30" height="8" fill="url(#botGoldV)" />
+
+            <!-- الهوائي العلوي -->
+            <rect x="392" y="70" width="16" height="80" fill="url(#botGoldV)" />
+            <path d="M 340 150 Q 400 95 460 150 Z" fill="url(#botGoldV)" />
+            <ellipse cx="400" cy="150" rx="60" ry="12" fill="url(#botGoldH)" />
+            <circle cx="400" cy="55" r="32" fill="url(#botGoldH)" />
+            <circle cx="400" cy="55" r="22" fill="url(#botEyeGlow)" />
+            <ellipse cx="400" cy="42" rx="12" ry="5" fill="rgba(255,255,255,0.8)" />
+
             <!-- الرأس الأساسي -->
-            <rect x="18" y="16" width="64" height="68" rx="20" fill="url(#botDarkNew)" stroke="url(#botGoldNew)" stroke-width="2.5"/>
+            <rect x="70" y="140" width="660" height="400" rx="180" fill="url(#botDarkMetal)" />
+            <rect x="95" y="165" width="610" height="350" rx="155" fill="url(#botGoldV)" />
+            <rect x="115" y="185" width="570" height="310" rx="135" fill="#050608" />
+            <rect x="120" y="190" width="560" height="300" rx="130" fill="url(#botFaceGrad)" />
+
+            <!-- قاعدة العيون الدائمة (الحلقة الذهبية والخلفية السوداء) -->
+            <circle cx="275" cy="330" r="80" fill="url(#botGoldH)" filter="url(#botEyeShadow)" />
+            <circle cx="275" cy="330" r="70" fill="#030406" />
             
-            <!-- الهوائي (الأنتنا) -->
-            <line x1="50" y1="16" x2="50" y2="4" stroke="url(#botGoldNew)" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="50" cy="4" r="4" fill="#00ffff" filter="drop-shadow(0 0 3px #00ffff)"/>
-            
-            <!-- الشاشة الزجاجية للوجه -->
-            <rect x="26" y="30" width="48" height="40" rx="10" fill="#050608" stroke="#475569" stroke-width="1"/>
-            
-            <!-- العيون المتحركة -->
-            <g class="bot-eyes-small">
-                <rect x="32" y="42" width="14" height="6" rx="3" fill="url(#eyeGlowNew)" filter="drop-shadow(0 0 4px #00ffff)"/>
-                <rect x="54" y="42" width="14" height="6" rx="3" fill="url(#eyeGlowNew)" filter="drop-shadow(0 0 4px #00ffff)"/>
+            <circle cx="525" cy="330" r="80" fill="url(#botGoldH)" filter="url(#botEyeShadow)" />
+            <circle cx="525" cy="330" r="70" fill="#030406" />
+
+            <!-- مجموعة العين المفتوحة (تختفي عند الرمش) -->
+            <g class="bot-eye-open">
+                <!-- يسار -->
+                <circle cx="275" cy="330" r="62" fill="url(#botEyeGlow)" />
+                <path d="M 216 310 A 62 62 0 0 1 334 310 C 315 310 235 310 220 312 Z" fill="rgba(255,255,255,0.4)" />
+                <g transform="translate(250, 305) rotate(45)"><ellipse rx="12" ry="8" fill="rgba(255,255,255,0.85)" /></g>
+
+                <!-- يمين -->
+                <circle cx="525" cy="330" r="62" fill="url(#botEyeGlow)" />
+                <path d="M 466 310 A 62 62 0 0 1 584 310 C 565 310 485 310 470 312 Z" fill="rgba(255,255,255,0.4)" />
+                <g transform="translate(500, 305) rotate(45)"><ellipse rx="12" ry="8" fill="rgba(255,255,255,0.85)" /></g>
             </g>
-            
-            <!-- الفم المضيء -->
-            <path d="M 38 60 Q 50 64 62 60" fill="none" stroke="#00ffff" stroke-width="2.5" stroke-linecap="round" opacity="0.8" filter="drop-shadow(0 0 3px #00ffff)"/>
+
+            <!-- مجموعة العين المغلقة - الخط المضيء (تظهر فقط عند الرمش) -->
+            <g class="bot-eye-closed" style="opacity: 0;">
+                <!-- يسار -->
+                <path d="M 225 330 Q 275 350 325 330" fill="none" stroke="#00f3ff" stroke-width="8" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
+                <path d="M 225 330 Q 275 350 325 330" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+                
+                <!-- يمين -->
+                <path d="M 475 330 Q 525 350 575 330" fill="none" stroke="#00f3ff" stroke-width="8" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
+                <path d="M 475 330 Q 525 350 575 330" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+            </g>
+
+            <!-- الابتسامة المضيئة -->
+            <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#00f3ff" stroke-width="12" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
+            <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
         </g>
     </svg>`
-};
 
 window.SVGIcons = SVGIcons;
 
