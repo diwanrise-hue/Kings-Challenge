@@ -123,46 +123,12 @@ export const ui = {
         el.style.border = 'none';
         el.style.backgroundColor = 'transparent';
         el.style.overflow = 'visible'; 
-        
-        if (avatarStr === "AI_BOT") {
-            el.classList.add('modern-bot-avatar');
-            // سحب كود الـ SVG المتحرك مباشرة من ملف icons.js
-            const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
-            
-            if (botSvg) {
-                // 🌟 حل جذري وآمن 100% لمنع اختفاء الإطار الذهبي للبوت
-                let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
-                
-                let safeSvg = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
-                    return 'id="' + p1 + uniqueSuffix + '"';
-                }).replace(/url\(#([^)]+)\)/g, function(match, p1) {
-                    return 'url(#' + p1 + uniqueSuffix + ')';
-                });
-
-                el.innerHTML = `
-                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.65); position: relative; z-index: 10;">
-                        ${safeSvg}
-                    </div>
-                `;
-            } else {
-                // بديل احتياطي 
-                el.innerHTML = `<span style="font-size: 35px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🤖</span>`;
-            }
-            return;
-        }
-
-        const defaultAvatar = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
-        let finalSrc = avatarStr;
-
-        if (avatarStr && !avatarStr.startsWith('http') && !avatarStr.startsWith('data:image')) {
-            let cleanName = avatarStr.replace(/\.\.\//g, '').replace('Photo/', '');
-            finalSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
-        }
 
         let overlayFrameSrc = profileFrameId && PROFILE_FRAMES_DB[profileFrameId] ? PROFILE_FRAMES_DB[profileFrameId] : null;
         
         let frameScale = '135%';
         let avatarScale = 'scale(1)'; 
+        let botScale = 'scale(1.4)'; // 🌟 الحجم الافتراضي للبوت
         let frameZ = '3'; 
 
         let moveUp = 0; let moveDown = 0; let moveRight = 0; let moveLeft = 0;  
@@ -174,21 +140,72 @@ export const ui = {
             } else {
                 frameScale = '176%'; avatarScale = 'scale(1.08)';
             }
+            botScale = 'scale(1.5)';
         } 
         else if (el.id === 'card-my-avatar' || el.id === 'card-opp-avatar') {
             frameZ = '10';
             if (overlayFrameSrc) { frameScale = '150%'; avatarScale = 'scale(1.05)'; } 
             else { frameScale = '140%'; avatarScale = 'scale(1)'; }
+            botScale = 'scale(1.35)';
         }
         else if (el.id === 'igp-avatar') {
             frameZ = '10';
             if (overlayFrameSrc) { frameScale = '155%'; avatarScale = 'scale(1.05)'; } 
             else { frameScale = '140%'; avatarScale = 'scale(1)'; }
+            botScale = 'scale(1.4)';
+        }
+        // 🌟 الشرط الخاص بنافذة النتائج لتصغير البوت ليتناسب مع الإطار الدائري 🌟
+        else if (el.classList.contains('result-avatar')) {
+            frameZ = '10';
+            frameScale = '140%'; avatarScale = 'scale(1)';
+            botScale = 'scale(1.15)'; 
         }
         else {
             frameZ = '5';
             if (overlayFrameSrc) { frameScale = '140%'; avatarScale = 'scale(1)'; } 
             else { frameScale = '135%'; avatarScale = 'scale(1)'; }
+            botScale = 'scale(1.2)';
+        }
+
+        // 🤖 بناء شكل البوت بالإطار الدائري الذهبي
+        if (avatarStr === "AI_BOT") {
+            el.classList.add('modern-bot-avatar');
+            const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
+            let botContent = `<span style="font-size: 35px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🤖</span>`;
+            
+            if (botSvg) {
+                let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
+                botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
+                    return 'id="' + p1 + uniqueSuffix + '"';
+                }).replace(/url\(#([^)]+)\)/g, function(match, p1) {
+                    return 'url(#' + p1 + uniqueSuffix + ')';
+                });
+            }
+            
+            // تغليف البوت بإطار دائري مشابه لإطار اللاعب
+            let innerHTML = `
+                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1a1a24; border-radius: 50%; border: 1.5px solid #d4af37; overflow: hidden; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 10;">
+                        ${botContent}
+                    </div>
+                </div>
+            `;
+
+            if (overlayFrameSrc) {
+                let finalX = moveRight - moveLeft; let finalY = moveDown - moveUp;
+                innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(calc(-50% + ${finalX}px), calc(-50% + ${finalY}px)); width: ${frameScale}; height: ${frameScale}; z-index: ${frameZ}; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
+            }
+
+            el.innerHTML = innerHTML;
+            return;
+        }
+
+        const defaultAvatar = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
+        let finalSrc = avatarStr;
+
+        if (avatarStr && !avatarStr.startsWith('http') && !avatarStr.startsWith('data:image')) {
+            let cleanName = avatarStr.replace(/\.\.\//g, '').replace('Photo/', '');
+            finalSrc = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
         }
 
         let innerHTML = `
@@ -415,6 +432,9 @@ export const ui = {
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
         this.setDisplay('gameChatBtn', 'none');
         this.setDisplay('mic-toggle-btn', 'none');
+        
+        // 🌟 إخفاء زر الإهداء دائماً في الأوفلاين والشاشة الرئيسية
+        this.setDisplay('match-gift-btn-p2', 'none'); 
         
         if (active && gameState.isTutorialMode) this.setDisplay('undo-btn', 'inline-block');
         else this.setDisplay('undo-btn', 'none');
@@ -785,6 +805,9 @@ export const ui = {
         document.body.classList.remove('game-active');
         
         this.setDisplay('spectator-stats-container', 'none');
+        
+        // 🌟 إخفاء زر الإهداء عند تفريغ الرقعة أو الخروج
+        this.setDisplay('match-gift-btn-p2', 'none');
         
         this.setTxt('reset-btn-txt', 'ضد البوت');
         
@@ -1237,6 +1260,9 @@ export const ui = {
         
         if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal');
         else this.setDisplay('game-over-modal', 'none');
+        
+        // 🌟 إخفاء زر الهدايا عند إظهار نافذة النتائج لمنع ظهوره بالواجهة الرئيسية
+        this.setDisplay('match-gift-btn-p2', 'none');
 
         const container = this.makeEl('div', 'custom-results-modal-container', "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,18,25,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:999999;font-family:sans-serif;direction:rtl;box-sizing:border-box;padding:20px;");
         container.id = 'custom-results-modal-container';
@@ -1255,7 +1281,9 @@ export const ui = {
             const pBox = this.makeEl('div', null, "display:flex;flex-direction:column;align-items:center;width:45%;");
             
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;");
-            const av = this.makeEl('div', null, "width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
+            
+            // 🌟 إضافة كلاس 'result-avatar' للتحكم في حجم البوت وإطاره
+            const av = this.makeEl('div', 'result-avatar', "width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
             
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
             
@@ -1279,7 +1307,8 @@ export const ui = {
         const flex = this.makeEl('div', null, "display:flex;justify-content:center;align-items:center;gap:20px;margin:15px 0;");
         
         let oppName = gameState.currentOpponentName; let oppAvatar = gameState.currentOpponentAvatar;
-        if (!gameState.isOnlineMode) { oppName = t('ai'); oppAvatar = "AI_BOT"; }
+        // 🌟 تغيير الاسم من الذكاء الاصطناعي إلى "بوت"
+        if (!gameState.isOnlineMode) { oppName = "بوت"; oppAvatar = "AI_BOT"; }
 
         if (gameState.userProfile) {
             flex.append(
