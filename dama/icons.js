@@ -527,7 +527,7 @@ const SVGIcons = {
             <clipPath id="globeClipCombo"><circle cx="50" cy="50" r="36"/></clipPath>
         </defs>
         
-        <g transform="translate(50, 50) scale(1.55) translate(-50, -50)">
+        <g transform="translate(50, 50) scale(1.25) translate(-50, -50)">
             <circle cx="50" cy="50" r="36" fill="url(#oceanBlueCombo)"/>
             <g clip-path="url(#globeClipCombo)">
                 <g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3">
