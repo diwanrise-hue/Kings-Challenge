@@ -132,7 +132,7 @@ export const ui = {
             if (botSvg) {
                 // وضع البوت وتوسيطه مع تكبير بسيط ليتناسب مع الإطار الدائري
                 el.innerHTML = `
-                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.65); position: relative; z-index: 10;">
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.1); position: relative; z-index: 10;">
                         ${botSvg}
                     </div>
                 `;
