@@ -172,7 +172,7 @@
         <div id="board"></div> 
     </div>
 
-    <!-- 🌟 تم إزالة الغرفة الخاصة من القائمة الجانبية هنا 🌟 -->
+    <!-- 🌟 القائمة الجانبية (بدون زر الغرفة) 🌟 -->
     <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
         <div class="side-menu-panel">
             <div class="side-menu-header">
@@ -828,7 +828,8 @@
         <button id="room-portal-btn" title="الغرف الخاصة" onclick="window.openAppModal('online-modal')">
             <span data-icon="door" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 6px;"></span>
             <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: right; line-height: 1.2;">
-                <span style="color: #ffffff; font-size: 15px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">الغرف</span>
+                <!-- 🌟 تم تكبير حجم الخط إلى 18px 🌟 -->
+                <span style="color: #ffffff; font-size: 18px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">الغرف</span>
                 <span style="color: #f5a623; font-size: 9px; font-weight: 700;">المشاهدة والمراهنات</span>
             </div>
         </button>
