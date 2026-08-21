@@ -196,7 +196,7 @@ body {
 /* ========================================== */
 
 #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
-#lucky-spin-portal-btn,
+#lucky-spin-portal-btn, #room-portal-btn,
 #custom-diff-btn, #hint-btn, #undo-btn, #dama-radio-toggle, #mic-toggle-btn {
     background: linear-gradient(145deg, #2a2a35, #15141a) !important;
     border: 1.5px solid #a88734 !important;
@@ -217,7 +217,7 @@ body {
 }
 
 #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
-#custom-diff-btn, #hint-btn, #undo-btn, #dama-radio-toggle, #mic-toggle-btn {
+#room-portal-btn, #custom-diff-btn, #hint-btn, #undo-btn, #dama-radio-toggle, #mic-toggle-btn {
     width: 44px !important; height: 44px !important;
 }
 
@@ -228,7 +228,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 #floating-quests-btn { top: 100px !important; left: 25px !important; }
 
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
-#lucky-spin-portal-btn svg,
+#lucky-spin-portal-btn svg, #room-portal-btn svg,
 #custom-diff-btn svg, #hint-btn svg, #undo-btn svg, #mic-toggle-btn svg * {
     fill: #fce8a1 !important;
     stroke: #fce8a1 !important;
@@ -238,13 +238,13 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     object-fit: contain;
 }
 
-.control-panel #custom-diff-btn, .control-panel #hint-btn, .control-panel #undo-btn, .control-panel #dama-radio-toggle, .control-panel #mic-toggle-btn {
+.control-panel #room-portal-btn, .control-panel #custom-diff-btn, .control-panel #hint-btn, .control-panel #undo-btn, .control-panel #dama-radio-toggle, .control-panel #mic-toggle-btn {
     position: relative !important; z-index: auto !important;
 }
 .control-panel #custom-diff-btn { width: 60px !important; }
 
 #hamburger-menu-btn:active, #bag-quick-btn:active, #floating-quests-btn:active, 
-#lucky-spin-portal-btn:active,
+#lucky-spin-portal-btn:active, #room-portal-btn:active,
 #custom-diff-btn:active, #hint-btn:active, #undo-btn:active, #dama-radio-toggle:active, #mic-toggle-btn:active {
     transform: translateY(3px) !important;
     border-bottom-width: 1px !important;
@@ -1103,7 +1103,7 @@ body.game-active:not(.online-mode-active) #bag-quick-btn {
 }
 
 body.online-mode-active { padding-top: 15px !important; }
-body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #bag-quick-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
+body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #bag-quick-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn, body.online-mode-active #room-portal-btn { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
 body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
 body.online-mode-active #match-players-card { width: 95vw !important; max-width: 500px !important; flex-direction: row !important; justify-content: space-between !important; padding: 10px 30px !important; margin-bottom: 15px !important; }
 body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #d4af37 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
