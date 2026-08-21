@@ -288,27 +288,38 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     justify-content: center !important;
     flex-direction: row-reverse !important; 
     gap: 12px !important;
-    border-radius: 16px !important; /* 🌟 مستطيل بزوايا مستديرة أنيقة */
-    border: 2px solid #d4af37 !important;
-    box-shadow: 
-        inset 0 6px 10px rgba(255, 255, 255, 0.2),
-        inset 0 -6px 10px rgba(0, 0, 0, 0.4),
-        0 5px 15px rgba(0, 0, 0, 0.6) !important;
+    
+    /* 🌟 توحيد التصميم: لون أسود فحمي مع إطار ذهبي 3D 🌟 */
+    border-radius: 14px !important; 
+    background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
+    border: 1.5px solid #a88734 !important; 
+    border-bottom: 3.5px solid #6b5319 !important; 
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15) !important;
+    color: #fce8a1 !important;
+    
     cursor: pointer !important;
     position: relative !important;
-    overflow: hidden !important;
-    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    
+    /* 🌟 السر هنا: تغيير القص للسماح للكرة الأرضية بالظهور بشكل دائري 100% 🌟 */
+    overflow: visible !important; 
+    
+    transition: all 0.15s ease !important;
     text-decoration: none !important;
     outline: none !important;
     font-family: 'Tajawal', sans-serif !important;
 }
 
+/* حركة الضغط لتتطابق مع باقي الأزرار */
 .premium-game-btn:active {
-    transform: scale(0.95) !important;
+    transform: translateY(3px) !important;
+    border-bottom-width: 1px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
 }
 
-.btn-green { background: linear-gradient(180deg, #11693b 0%, #053f1f 100%) !important; }
-.btn-brown { background: linear-gradient(180deg, #382211 0%, #170b04 100%) !important; }
+/* إزالة الألوان الخضراء والبنية السابقة لضمان بقاء اللون الفحمي */
+.btn-green, .btn-brown { 
+    background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
+}
 
 .premium-game-btn .btn-icon {
     font-size: 28px !important;
@@ -318,9 +329,9 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 38px !important;    /* 🌟 توحيد مساحة الأيقونة للزرين */
+    width: 38px !important;    
     height: 38px !important;
-    flex-shrink: 0 !important; /* منع الأيقونة من الانضغاط */
+    flex-shrink: 0 !important; 
 }
 
 .premium-game-btn .btn-text-col {
@@ -329,16 +340,16 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     align-items: flex-start !important; 
     text-align: right !important;
     margin: 0 !important;
-    overflow: hidden !important; /* منع النص من الخروج عن الزر */
+    overflow: visible !important; 
 }
 
 .premium-game-btn .btn-main-text {
     color: #ffffff !important;
-    font-size: 18px !important; /* تصغير طفيف ليتناسب مع الشاشات الصغيرة */
+    font-size: 18px !important; 
     font-weight: 900 !important;
     text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
     line-height: 1.1 !important;
-    white-space: nowrap !important; /* منع النص من النزول لسطرين */
+    white-space: nowrap !important; 
 }
 
 .premium-game-btn .btn-sub-text {
@@ -348,17 +359,18 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     white-space: nowrap !important;
 }
 
-/* 🌟 التحسينات الجديدة لأداء GPU للنقطة الخضراء (أونلاين) 🌟 */
+/* 🌟 النقطة الخضراء (أونلاين) 🌟 */
 .online-glow-dot {
-    position: absolute !important; /* فصل النقطة عن تدفق النص */
-    top: 10px !important;          /* رفعها للركن العلوي */
-    left: 10px !important;         /* وضعها في أقصى اليسار */
+    position: absolute !important; 
+    top: -2px !important;          
+    left: -2px !important;         
     right: auto !important;
-    width: 12px !important;        /* تصغير الحجم قليلاً ليتناسب مع الزاوية */
+    width: 12px !important;        
     height: 12px !important;
-    margin: 0 !important;          /* إزالة أي مسافات سابقة */
+    margin: 0 !important;          
     background-color: #34c759 !important;
     border-radius: 50% !important;
+    border: 2px solid #282a32;
     box-shadow: 0 0 10px #34c759, inset 0 2px 4px rgba(255,255,255,0.6) !important;
     animation: pulseGlowGpu 2s infinite alternate ease-in-out !important;
     will-change: transform, opacity;
@@ -369,6 +381,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     0% { transform: scale(0.85); opacity: 0.8; }
     100% { transform: scale(1.15); opacity: 1; }
 }
+
 
 /* ========================================== */
 /* 🌟 نظام البروفايل الجديد المتمركز (أسود/ذهبي) */
