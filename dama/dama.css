@@ -161,12 +161,15 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 3px 6px rgba(0,0,0,0.8) !important;
 }
 
-/* أيقونة الرتبة المنفصلة في شريط البروفايل */
+/* 🌟 إخفاء النص وتوسيط الشارة بدلاً منه 🌟 */
+.boundary-rank { 
+    display: none !important; 
+}
 .boundary-rank-icon { 
-    top: 56px !important; 
-    left: 115px !important; 
-    width: 7px !important; 
-    height: 7px !important; 
+    top: 50px !important; 
+    left: 95px !important; 
+    width: 28px !important; 
+    height: 28px !important; 
     z-index: 25 !important; 
 }
 .rank-icon-free { 
@@ -176,7 +179,7 @@ body {
     width: 100%; height: 100%; 
 }
 .rank-icon-free img { 
-    height: 22px !important; 
+    height: 26px !important; 
     width: auto !important; 
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); 
 }
@@ -269,7 +272,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     box-sizing: border-box !important;
     position: relative !important; /* هام جداً ليتناسق مع المصباح والراديو */
     width: auto !important;
-    min-width: 170px !important;
+    min-width: 170px !important; /* 🌟 تم زيادة العرض هنا 🌟 */
     height: 60px !important; 
     margin-top: -8px !important;
     margin-bottom: -8px !important;
@@ -284,7 +287,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     object-fit: contain;
 }
 
-/* تقييد حجم أيقونات الأزرار المربعة فقط */
+/* تقييد حجم أيقونات الأزرار المربعة فقط (تم استثناء زر الراديو ليكبر بشكل طبيعي) */
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
 #hint-btn svg, #undo-btn svg,  #mic-toggle-btn svg * {
     width: 22px !important;
@@ -470,13 +473,11 @@ html[dir="ltr"] #profile-badge.profile-badge-container {
 .boundary-level { bottom: 11.4px !important; right: 2.5px !important; width: 22px !important; height: 12px !important; z-index: 25 !important; }
 .boundary-name { top: 27.6px !important; left: 99px !important; right: 16px !important; height: 18px !important; direction: rtl !important; }
 .boundary-title { top: 60px !important; left: 138px !important; width: 30px !important; height: 10px !important; }
-.boundary-rank { top: 58px !important; left: 78.8px !important; width: 38px !important; height: 12px !important; }
 .boundary-xp { top: 77.8px !important; left: 110px !important; width: 25px !important; height: 10px !important; z-index: 15 !important; }
 
 #badge-level { color: #d4af37 !important; font-size: 11px !important; font-weight: 900 !important; text-shadow: 0 1px 3px black !important; line-height: 1 !important; text-rendering: geometricPrecision; -webkit-font-smoothing: antialiased; }
 .player-name { color: #ffffff !important; font-size: 13.5px !important; font-weight: 800 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; }
 .title-text-free { color: #ff9800 !important; font-weight: 700 !important; font-size: 11px !important; transform: scale(0.75) !important; letter-spacing: 0.5px !important; direction: rtl !important; }
-.rank-text-free { color: #ff9800 !important; font-weight: 700 !important; font-size: 11px !important; transform: scale(0.7) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; letter-spacing: 0.5px !important; direction: rtl !important; }
 .xp-text-free { color: #ffffff !important; font-weight: 800 !important; font-size: 10px !important; transform: scale(0.43) !important; text-shadow: 0 1px 2px #000000, 0 0 3px #000000 !important; letter-spacing: 0.5px !important; direction: ltr !important; }
 
 .vertical-divider-free {
@@ -1463,4 +1464,9 @@ body.game-active button#reset-btn.premium-game-btn .btn-main-text {
 body.game-active button#reset-btn.premium-game-btn .btn-sub-text,
 body.game-active button#reset-btn.premium-game-btn .btn-icon {
     display: none !important; 
+}
+
+/* إخفاء زر ضد البوت تماماً في وضع الأونلاين */
+body.online-mode-active button#reset-btn.premium-game-btn {
+    display: none !important;
 }
