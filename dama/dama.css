@@ -230,11 +230,11 @@ body {
     box-sizing: border-box !important;
     width: auto !important;
     min-width: 130px !important;
+    
+    /* 🌟 زيادة الارتفاع لـ 60px مع موازنة الشريط بالهوامش السلبية 🌟 */
     height: 60px !important; 
     margin-top: -8px !important;
     margin-bottom: -8px !important;
-    position: relative !important; 
-    z-index: auto !important;
 }
 
 #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
@@ -257,13 +257,16 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     object-fit: contain;
 }
 
-/* تقييد حجم أيقونات الأزرار المربعة فقط */
+/* تقييد حجم أيقونات الأزرار المربعة */
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
 #custom-diff-btn svg, #hint-btn svg, #undo-btn svg, #mic-toggle-btn svg * {
     width: 22px !important;
     height: 22px !important;
 }
 
+.control-panel #room-portal-btn, .control-panel #custom-diff-btn, .control-panel #hint-btn, .control-panel #undo-btn, .control-panel #dama-radio-toggle, .control-panel #mic-toggle-btn {
+    position: relative !important; z-index: auto !important;
+}
 .control-panel #custom-diff-btn { width: 60px !important; }
 
 #hamburger-menu-btn:active, #bag-quick-btn:active, #floating-quests-btn:active, 
