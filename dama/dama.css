@@ -269,7 +269,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     box-sizing: border-box !important;
     position: relative !important; /* هام جداً ليتناسق مع المصباح والراديو */
     width: auto !important;
-    min-width: 130px !important;
+    min-width: 170px !important;
     height: 60px !important; 
     margin-top: -8px !important;
     margin-bottom: -8px !important;
