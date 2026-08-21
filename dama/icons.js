@@ -76,20 +76,13 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 4. الغرف الخاصة (تم إضافة حركة نبض لعلامة الزائد الأخضر)
+    // 4. الغرف الخاصة
     door: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
         <defs>
             <linearGradient id="doorGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8d6e63"/><stop offset="100%" stop-color="#5d4037"/></linearGradient>
             <radialGradient id="handleGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#ca8a04"/></radialGradient>
             <filter id="doorShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#000" flood-opacity="0.3"/></filter>
-            <style>
-                .anim-door { transform-origin: 50px 50px; animation: floatDoor 3s ease-in-out infinite; } 
-                @keyframes floatDoor { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-                
-                /* 🌟 حركة نبض علامة الزائد 🌟 */
-                @keyframes pulsePlusSign { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-                .anim-plus { animation: pulsePlusSign 1.2s ease-in-out infinite; transform-origin: 12px 12px; }
-            </style>
+            <style>.anim-door { transform-origin: 50px 50px; animation: floatDoor 3s ease-in-out infinite; } @keyframes floatDoor { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }</style>
         </defs>
         <g class="anim-door">
             <ellipse cx="50" cy="88" rx="24" ry="3.5" fill="#000" opacity="0.2"/>
@@ -99,14 +92,12 @@ const SVGIcons = {
             <rect x="31" y="58" width="38" height="22" rx="2" fill="rgba(0,0,0,0.15)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
             <circle cx="65" cy="55" r="3.5" fill="url(#handleGrad)" filter="url(#doorShadow)"/>
             <g transform="translate(62, 12)" filter="url(#doorShadow)">
-                <g class="anim-plus"> <!-- 🌟 تطبيق حركة النبض هنا 🌟 -->
-                    <circle cx="12" cy="12" r="12" fill="#22c55e"/>
-                    <path d="M 12 6 L 12 18 M 6 12 L 18 12" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-                </g>
+                <circle cx="12" cy="12" r="12" fill="#22c55e"/>
+                <path d="M 12 6 L 12 18 M 6 12 L 18 12" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
             </g>
         </g>
     </svg>`,
-    
+
     // 5. كأس الشرف (الترتيب)
     medal: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
         <defs>
@@ -318,7 +309,7 @@ const SVGIcons = {
     </svg>`,
 
     // 10. زر المصباح
-    bulb: `<svg viewBox="0 0 100 100" width="32" height="32" style="vertical-align: middle; display: inline-block; transform: scale(1.55);">
+    bulb: `<svg viewBox="0 0 100 100" width="32" height="32" style="vertical-align: middle; display: inline-block; transform: scale(1.2);">
         <defs>
             <filter id="bulbGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
             <radialGradient id="glassBodyGrad" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="#fef08a"/><stop offset="70%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></radialGradient>
@@ -526,27 +517,19 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍 (بدوران أفقي واقعي)
-    globeBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.3); transform-origin: center; overflow: visible;">
+    // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍 (مكبرة والأشخاص في الركن السفلي)
+    globeBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.3); transform-origin: center;">
         <defs>
             <radialGradient id="oceanBlueCombo" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="45%" stop-color="#0284c7"/><stop offset="80%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
             <linearGradient id="landGradCombo" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
             <radialGradient id="atmosphereGlowCombo" cx="50%" cy="50%" r="50%"><stop offset="70%" stop-color="#38bdf8" stop-opacity="0"/><stop offset="92%" stop-color="#38bdf8" stop-opacity="0.5"/><stop offset="100%" stop-color="#0284c7" stop-opacity="0.9"/></radialGradient>
             <linearGradient id="glossHighlightCombo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
             <clipPath id="globeClipCombo"><circle cx="50" cy="50" r="36"/></clipPath>
-            <style>
-                /* 🌟 حركة دوران أفقي (بانوراما) للكرة الأرضية 🌟 */
-                @keyframes panGlobeMap { 0% { transform: translateX(0); } 100% { transform: translateX(-75px); } }
-                .anim-globe-pan { animation: panGlobeMap 12s linear infinite; }
-            </style>
         </defs>
         
-        <g transform="translate(50, 50) scale(1.30) translate(-50, -50)">
-            <!-- المحيط (ثابت) -->
+        <g transform="translate(50, 50) scale(1.55) translate(-50, -50)">
             <circle cx="50" cy="50" r="36" fill="url(#oceanBlueCombo)"/>
-            
             <g clip-path="url(#globeClipCombo)">
-                <!-- الشبكة والإحداثيات (ثابتة لتعطي عمقاً 3D) -->
                 <g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3">
                     <line x1="10" y1="50" x2="90" y2="50"/>
                     <ellipse cx="50" cy="50" rx="36" ry="18"/>
@@ -555,88 +538,99 @@ const SVGIcons = {
                     <ellipse cx="50" cy="50" rx="18" ry="36"/>
                     <ellipse cx="50" cy="50" rx="30" ry="36"/>
                 </g>
-                
-                <!-- 🌟 الخريطة تتحرك أفقياً لعمل وهم الدوران 🌟 -->
-                <g class="anim-globe-pan">
-                    <!-- النسخة الأولى من القارات -->
-                    <g fill="url(#landGradCombo)" stroke="#0284c7" stroke-width="0.3" opacity="0.92">
-                        <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
-                        <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
-                        <path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/>
-                        <circle cx="72" cy="68" r="3"/>
-                        <circle cx="38" cy="23" r="1.8"/>
-                        <circle cx="62" cy="58" r="1.5"/>
-                    </g>
-                    <!-- النسخة الثانية مكررة ومزاحة لليمين 75 بيكسل لعمل حلقة لا نهائية -->
-                    <g fill="url(#landGradCombo)" stroke="#0284c7" stroke-width="0.3" opacity="0.92" transform="translate(75, 0)">
-                        <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
-                        <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
-                        <path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/>
-                        <circle cx="72" cy="68" r="3"/>
-                        <circle cx="38" cy="23" r="1.8"/>
-                        <circle cx="62" cy="58" r="1.5"/>
-                    </g>
+                <g fill="url(#landGradCombo)" stroke="#0284c7" stroke-width="0.3" opacity="0.92">
+                    <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
+                    <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
+                    <path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/>
+                    <circle cx="72" cy="68" r="3"/>
+                    <circle cx="38" cy="23" r="1.8"/>
+                    <circle cx="62" cy="58" r="1.5"/>
                 </g>
             </g>
-            
-            <!-- الغلاف الجوي واللمعة الزجاجية (ثابتة) -->
             <circle cx="50" cy="50" r="36" fill="url(#atmosphereGlowCombo)"/>
             <path d="M 20 32 A 34 34 0 0 1 80 32 A 36 36 0 0 0 20 32 Z" fill="url(#glossHighlightCombo)"/>
         </g>
 
-        <!-- الأشخاص الذهبيون (ثابتون ولا يدورون مع الكرة) -->
         <svg x="40" y="38" width="60" height="60" viewBox="0 0 24 24" fill="#ffd700">
             <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" stroke="#1a1a24" stroke-width="0.8" style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.9));"/>
         </svg>
     </svg>`,
 
-    // 17. أيقونة الروبوت الفخم 🤖 (مُحسنة للمربعات والدوائر - لا يتم قصها أبدًا)
-    robotBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.15); transform-origin: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8));">
+    // 17. أيقونة الروبوت الفخم 🤖 (ينبض ويرمش + هالة مضيئة خلفية وظل قوي لكسر تداخل الألوان)
+    robotBtn: `<svg viewBox="0 0 800 600" width="100%" height="100%" style="transform: scale(1.4); transform-origin: center; filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5)) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.9));">
         <defs>
             <style>
-                @keyframes floatAliveSmall { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-                @keyframes blinkDoubleSmall { 0%, 4%, 8%, 100% { transform: scaleY(1); } 2%, 6% { transform: scaleY(0.1); } }
-                .bot-alive-small { animation: floatAliveSmall 3.5s ease-in-out infinite; transform-origin: center; }
-                .bot-eyes-small { animation: blinkDoubleSmall 5s infinite; transform-origin: 50px 45px; }
+                @keyframes floatAlive { 
+                    0%, 100% { transform: translateY(0); } 
+                    50% { transform: translateY(-20px); } 
+                }
+                @keyframes blinkDouble {
+                    0%, 4%, 8%, 100% { transform: scaleY(1); }
+                    2%, 6% { transform: scaleY(0.1); }
+                }
+                .bot-alive { animation: floatAlive 4s ease-in-out infinite; transform-origin: center; }
+                .bot-eyes { animation: blinkDouble 5s infinite; transform-origin: 400px 330px; }
             </style>
             
-            <linearGradient id="botGoldNew" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#fef08a"/><stop offset="40%" stop-color="#d97706"/><stop offset="100%" stop-color="#78350f"/>
-            </linearGradient>
-            <linearGradient id="botDarkNew" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#334155"/><stop offset="50%" stop-color="#1e293b"/><stop offset="100%" stop-color="#020617"/>
-            </linearGradient>
-            <radialGradient id="eyeGlowNew" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#00ffff"/><stop offset="100%" stop-color="#0033cc"/>
+            <radialGradient id="botBacklightGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)"/>
+                <stop offset="40%" stop-color="rgba(255, 215, 0, 0.25)"/>
+                <stop offset="100%" stop-color="transparent"/>
             </radialGradient>
+
+            <linearGradient id="botGoldV" x1="0" y1="100" x2="0" y2="500" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f9df88"/><stop offset="15%" stop-color="#c59539"/><stop offset="30%" stop-color="#fdf3b0"/><stop offset="65%" stop-color="#875a18"/><stop offset="90%" stop-color="#e4b143"/><stop offset="100%" stop-color="#6b450f"/></linearGradient>
+            <linearGradient id="botGoldH" x1="100" y1="0" x2="700" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f9df88"/><stop offset="15%" stop-color="#c59539"/><stop offset="30%" stop-color="#fdf3b0"/><stop offset="65%" stop-color="#875a18"/><stop offset="90%" stop-color="#e4b143"/><stop offset="100%" stop-color="#6b450f"/></linearGradient>
+            <linearGradient id="botDarkMetal" x1="0" y1="140" x2="0" y2="540" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#3a3d46"/><stop offset="50%" stop-color="#1e2025"/><stop offset="100%" stop-color="#0c0d10"/></linearGradient>
+            <linearGradient id="botDarkMetalEar" x1="0" y1="250" x2="0" y2="350" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#3a3d46"/><stop offset="50%" stop-color="#1e2025"/><stop offset="100%" stop-color="#0c0d10"/></linearGradient>
+            <radialGradient id="botFaceGrad" cx="400" cy="340" r="400" fx="400" fy="200" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#262931"/><stop offset="100%" stop-color="#08090b"/></radialGradient>
+            <radialGradient id="botEyeGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff"/><stop offset="20%" stop-color="#00ffff"/><stop offset="60%" stop-color="#0066ff"/><stop offset="90%" stop-color="#001a4d"/><stop offset="100%" stop-color="#00081a"/></radialGradient>
+            <filter id="botEyeShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.8"/></filter>
+            <filter id="botNeonBlurBase" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="15" result="blur1" /><feGaussianBlur stdDeviation="5" result="blur2" /><feMerge><feMergeNode in="blur1" /><feMergeNode in="blur2" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
         </defs>
 
-        <g class="bot-alive-small">
-            <!-- الهالة الخلفية -->
-            <circle cx="50" cy="50" r="45" fill="#d97706" opacity="0.15" filter="blur(4px)"/>
-            
-            <!-- الأذنين -->
-            <rect x="10" y="38" width="14" height="24" rx="4" fill="url(#botDarkNew)" stroke="url(#botGoldNew)" stroke-width="1.5"/>
-            <rect x="76" y="38" width="14" height="24" rx="4" fill="url(#botDarkNew)" stroke="url(#botGoldNew)" stroke-width="1.5"/>
-            
-            <!-- الرأس الأساسي -->
-            <rect x="18" y="16" width="64" height="68" rx="20" fill="url(#botDarkNew)" stroke="url(#botGoldNew)" stroke-width="2.5"/>
-            
-            <!-- الهوائي (الأنتنا) -->
-            <line x1="50" y1="16" x2="50" y2="4" stroke="url(#botGoldNew)" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="50" cy="4" r="4" fill="#00ffff" filter="drop-shadow(0 0 3px #00ffff)"/>
-            
-            <!-- الشاشة الزجاجية للوجه -->
-            <rect x="26" y="30" width="48" height="40" rx="10" fill="#050608" stroke="#475569" stroke-width="1"/>
-            
-            <!-- العيون المتحركة -->
-            <g class="bot-eyes-small">
-                <rect x="32" y="42" width="14" height="6" rx="3" fill="url(#eyeGlowNew)" filter="drop-shadow(0 0 4px #00ffff)"/>
-                <rect x="54" y="42" width="14" height="6" rx="3" fill="url(#eyeGlowNew)" filter="drop-shadow(0 0 4px #00ffff)"/>
+        <g class="bot-alive">
+            <circle cx="400" cy="300" r="380" fill="url(#botBacklightGlow)" />
+
+            <rect x="40" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
+            <rect x="35" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
+            <rect x="45" y="285" width="30" height="8" fill="url(#botGoldV)" />
+            <rect x="45" y="305" width="30" height="8" fill="url(#botGoldV)" />
+            <rect x="45" y="325" width="30" height="8" fill="url(#botGoldV)" />
+
+            <rect x="700" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
+            <rect x="715" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
+            <rect x="725" y="285" width="30" height="8" fill="url(#botGoldV)" />
+            <rect x="725" y="305" width="30" height="8" fill="url(#botGoldV)" />
+            <rect x="725" y="325" width="30" height="8" fill="url(#botGoldV)" />
+
+            <rect x="392" y="70" width="16" height="80" fill="url(#botGoldV)" />
+            <path d="M 340 150 Q 400 95 460 150 Z" fill="url(#botGoldV)" />
+            <ellipse cx="400" cy="150" rx="60" ry="12" fill="url(#botGoldH)" />
+            <circle cx="400" cy="55" r="32" fill="url(#botGoldH)" />
+            <circle cx="400" cy="55" r="22" fill="url(#botEyeGlow)" />
+            <ellipse cx="400" cy="42" rx="12" ry="5" fill="rgba(255,255,255,0.8)" />
+
+            <rect x="70" y="140" width="660" height="400" rx="180" fill="url(#botDarkMetal)" />
+            <rect x="95" y="165" width="610" height="350" rx="155" fill="url(#botGoldV)" />
+            <rect x="115" y="185" width="570" height="310" rx="135" fill="#050608" />
+            <rect x="120" y="190" width="560" height="300" rx="130" fill="url(#botFaceGrad)" />
+
+            <g class="bot-eyes">
+                <circle cx="275" cy="330" r="80" fill="url(#botGoldH)" filter="url(#botEyeShadow)" />
+                <circle cx="275" cy="330" r="70" fill="#030406" />
+                <circle cx="275" cy="330" r="62" fill="url(#botEyeGlow)" />
+                <path d="M 216 310 A 62 62 0 0 1 334 310 C 315 310 235 310 220 312 Z" fill="rgba(255,255,255,0.4)" />
+                <g transform="translate(250, 305) rotate(45)"><ellipse rx="12" ry="8" fill="rgba(255,255,255,0.85)" /></g>
+
+                <circle cx="525" cy="330" r="80" fill="url(#botGoldH)" filter="url(#botEyeShadow)" />
+                <circle cx="525" cy="330" r="70" fill="#030406" />
+                <circle cx="525" cy="330" r="62" fill="url(#botEyeGlow)" />
+                <path d="M 466 310 A 62 62 0 0 1 584 310 C 565 310 485 310 470 312 Z" fill="rgba(255,255,255,0.4)" />
+                <g transform="translate(500, 305) rotate(45)"><ellipse rx="12" ry="8" fill="rgba(255,255,255,0.85)" /></g>
             </g>
-            
-            <!-- الفم المضيء -->
-            <path d="M 38 60 Q 50 64 62 60" fill="none" stroke="#00ffff" stroke-width="2.5" stroke-linecap="round" opacity="0.8" filter="drop-shadow(0 0 3px #00ffff)"/>
+
+            <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#00f3ff" stroke-width="12" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
+            <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
         </g>
     </svg>`
 };
