@@ -216,7 +216,7 @@ body {
     box-sizing: border-box !important;
 }
 
-/* 🌟 تنسيق زر الغرف الجديد (عريض وأزرق فخم) 🌟 */
+/* 🌟 تنسيق زر الغرف الجديد (عريض وأزرق فخم - بارتفاع 44px ليطابق الشريط) 🌟 */
 #room-portal-btn {
     background: linear-gradient(145deg, #1d4ed8, #0f172a) !important;
     border: 1.5px solid #60a5fa !important;
@@ -226,11 +226,11 @@ body {
     border-radius: 14px !important; 
     transition: all 0.15s ease !important;
     display: flex; align-items: center; justify-content: flex-start !important; cursor: pointer; 
-    padding: 4px 12px !important; /* 🌟 موازنة المساحة الداخلية */
+    padding: 0 8px !important; 
     box-sizing: border-box !important;
     width: auto !important;
-    min-width: 140px !important;
-    height: 56px !important; /* 🌟 تم زيادة الارتفاع ليكون أضخم وأبرز في الشريط */
+    min-width: 130px !important;
+    height: 44px !important; /* 🌟 تم إرجاع الارتفاع لـ 44 بيكسل لكي لا يؤثر على ارتفاع الشريط السفلي أبداً */
 }
 
 #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
