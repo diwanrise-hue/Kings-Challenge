@@ -555,9 +555,8 @@ const SVGIcons = {
             <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" stroke="#1a1a24" stroke-width="0.8" style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.9));"/>
         </svg>
     </svg>`,
-
-    // 17. أيقونة الروبوت الفخم 🤖 (ينبض ويرمش مرتين كل 5 ثوانٍ)
-    robotBtn: `<svg viewBox="0 0 800 600" width="100%" height="100%" style="transform: scale(1.4); transform-origin: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
+    // 17. أيقونة الروبوت الفخم 🤖 (ينبض ويرمش + هالة مضيئة خلفية وظل قوي لكسر تداخل الألوان)
+    robotBtn: `<svg viewBox="0 0 800 600" width="100%" height="100%" style="transform: scale(1.4); transform-origin: center; filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5)) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.9));">
         <defs>
             <style>
                 @keyframes floatAlive { 
@@ -571,21 +570,35 @@ const SVGIcons = {
                 .bot-alive { animation: floatAlive 4s ease-in-out infinite; transform-origin: center; }
                 .bot-eyes { animation: blinkDouble 5s infinite; transform-origin: 400px 330px; }
             </style>
+            
+            <!-- 🌟 الهالة المضيئة لعزل البوت عن الزر البني 🌟 -->
+            <radialGradient id="botBacklightGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)"/>
+                <stop offset="40%" stop-color="rgba(255, 215, 0, 0.25)"/>
+                <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+
             <!-- تدرجات الذهب (عمودي وأفقي) -->
             <linearGradient id="botGoldV" x1="0" y1="100" x2="0" y2="500" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f9df88"/><stop offset="15%" stop-color="#c59539"/><stop offset="30%" stop-color="#fdf3b0"/><stop offset="65%" stop-color="#875a18"/><stop offset="90%" stop-color="#e4b143"/><stop offset="100%" stop-color="#6b450f"/></linearGradient>
             <linearGradient id="botGoldH" x1="100" y1="0" x2="700" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f9df88"/><stop offset="15%" stop-color="#c59539"/><stop offset="30%" stop-color="#fdf3b0"/><stop offset="65%" stop-color="#875a18"/><stop offset="90%" stop-color="#e4b143"/><stop offset="100%" stop-color="#6b450f"/></linearGradient>
-            <!-- تدرجات المعدن الداكن (الهيكل والأذن) -->
+            
+            <!-- تدرجات المعدن الداكن -->
             <linearGradient id="botDarkMetal" x1="0" y1="140" x2="0" y2="540" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#3a3d46"/><stop offset="50%" stop-color="#1e2025"/><stop offset="100%" stop-color="#0c0d10"/></linearGradient>
             <linearGradient id="botDarkMetalEar" x1="0" y1="250" x2="0" y2="350" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#3a3d46"/><stop offset="50%" stop-color="#1e2025"/><stop offset="100%" stop-color="#0c0d10"/></linearGradient>
+            
             <!-- إضاءة الوجه والعيون -->
             <radialGradient id="botFaceGrad" cx="400" cy="340" r="400" fx="400" fy="200" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#262931"/><stop offset="100%" stop-color="#08090b"/></radialGradient>
             <radialGradient id="botEyeGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff"/><stop offset="20%" stop-color="#00ffff"/><stop offset="60%" stop-color="#0066ff"/><stop offset="90%" stop-color="#001a4d"/><stop offset="100%" stop-color="#00081a"/></radialGradient>
+            
             <!-- الفلاتر -->
             <filter id="botEyeShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.8"/></filter>
             <filter id="botNeonBlurBase" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="15" result="blur1" /><feGaussianBlur stdDeviation="5" result="blur2" /><feMerge><feMergeNode in="blur1" /><feMergeNode in="blur2" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
         </defs>
 
         <g class="bot-alive">
+            <!-- 🌟 طبقة الهالة المضيئة التي تفصل البوت عن الخلفية 🌟 -->
+            <circle cx="400" cy="300" r="380" fill="url(#botBacklightGlow)" />
+
             <rect x="40" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
             <rect x="35" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
             <rect x="45" y="285" width="30" height="8" fill="url(#botGoldV)" />
@@ -628,7 +641,7 @@ const SVGIcons = {
             <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
         </g>
     </svg>`
-};
+
 
 window.SVGIcons = SVGIcons;
 
