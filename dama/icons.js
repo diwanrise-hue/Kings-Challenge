@@ -343,8 +343,8 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 11. زر الراديو
-    radioBtn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" style="width: 100%; height: 100%; transform: scale(1.25);">
+        // 11. زر الراديو (تم إزالة الطبقة البيضاء وتكبير الحجم بأسلوب نظيف)
+    radioBtn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" width="32" height="32" style="transform: scale(1.25);">
         <defs>
             <style>@keyframes floatAnimRadioBtn { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } } .anim-f-radio-btn { animation: floatAnimRadioBtn 3.5s ease-in-out infinite; }</style>
             <filter id="mainShadowRadioBtn" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.25"/></filter>
@@ -378,11 +378,12 @@ const SVGIcons = {
             <line x1="72.5" y1="62" x2="74" y2="60.5" stroke="#1c1917" stroke-width="0.8" />
             <rect x="22" y="79" width="10" height="3" rx="1.5" fill="#292524" />
             <rect x="68" y="79" width="10" height="3" rx="1.5" fill="#292524" />
+            <!-- تم إزالة سطر الطبقة البيضاء من هنا نهائياً -->
         </g>
     </svg>`,
 
-    // 12. أيقونة الراديو للقائمة الجانبية
-    radioSide: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" style="width: 100%; height: 100%; transform: scale(1.3);">
+    // 12. أيقونة الراديو للقائمة الجانبية (بدون الطبقة البيضاء أيضاً)
+    radioSide: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" width="32" height="32" style="transform: scale(1.3);">
         <defs>
             <style>@keyframes floatAnimRadioSide { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } } .anim-f-radio-side { animation: floatAnimRadioSide 3.5s ease-in-out infinite; }</style>
             <filter id="mainShadowRadioSide" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.25"/></filter>
@@ -416,8 +417,10 @@ const SVGIcons = {
             <line x1="72.5" y1="62" x2="74" y2="60.5" stroke="#1c1917" stroke-width="0.8" />
             <rect x="22" y="79" width="10" height="3" rx="1.5" fill="#292524" />
             <rect x="68" y="79" width="10" height="3" rx="1.5" fill="#292524" />
-             </g>
+            <!-- تم إزالة سطر الطبقة البيضاء من هنا نهائياً -->
+        </g>
     </svg>`,
+
 
     // 13. أيقونة الرادار لفقدان الاتصال
     disconnectIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.9));">
