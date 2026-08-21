@@ -644,10 +644,21 @@ const SVGIcons = {
 window.SVGIcons = SVGIcons;
 
 window.injectAllSVGIcons = function() {
-    document.querySelectorAll('[data-icon]').forEach(el => {
+    document.querySelectorAll('[data-icon]').forEach(function(el, index) {
         const iconName = el.getAttribute('data-icon');
-        if (SVGIcons[iconName]) {
-            el.innerHTML = SVGIcons[iconName];
+        if (window.SVGIcons && window.SVGIcons[iconName]) {
+            let svgStr = window.SVGIcons[iconName];
+
+            // 🌟 حل جذري وآمن 100% لجميع المتصفحات لمنع تعارض وتلف الأيقونات
+            let uniqueSuffix = '_icon_' + Date.now() + '_' + index;
+            
+            svgStr = svgStr.replace(/id="([^"]+)"/g, function(match, p1) {
+                return 'id="' + p1 + uniqueSuffix + '"';
+            }).replace(/url\(#([^)]+)\)/g, function(match, p1) {
+                return 'url(#' + p1 + uniqueSuffix + ')';
+            });
+
+            el.innerHTML = svgStr;
         }
     });
 };
