@@ -526,7 +526,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-          // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍 (تم إضافة دوران بطيء ومستمر للكرة الأرضية)
+              // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍 (تم إضافة دوران أفقي واقعي للكرة الأرضية)
     globeBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.3); transform-origin: center; overflow: visible;">
         <defs>
             <radialGradient id="oceanBlueCombo" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="45%" stop-color="#0284c7"/><stop offset="80%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
@@ -535,25 +535,40 @@ const SVGIcons = {
             <linearGradient id="glossHighlightCombo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
             <clipPath id="globeClipCombo"><circle cx="50" cy="50" r="36"/></clipPath>
             <style>
-                /* 🌟 حركة الدوران البطيء للكرة الأرضية 🌟 */
-                @keyframes spinGlobeMap { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-                .anim-globe-spin { animation: spinGlobeMap 30s linear infinite; transform-origin: 50px 50px; }
+                /* 🌟 حركة دوران أفقي (بانوراما) للكرة الأرضية 🌟 */
+                @keyframes panGlobeMap { 0% { transform: translateX(0); } 100% { transform: translateX(-75px); } }
+                .anim-globe-pan { animation: panGlobeMap 12s linear infinite; }
             </style>
         </defs>
         
-        <g transform="translate(50, 50) scale(1.35) translate(-50, -50)">
+        <g transform="translate(50, 50) scale(1.30) translate(-50, -50)">
+            <!-- المحيط (ثابت) -->
             <circle cx="50" cy="50" r="36" fill="url(#oceanBlueCombo)"/>
+            
             <g clip-path="url(#globeClipCombo)">
-                <g class="anim-globe-spin"> <!-- 🌟 تطبيق حركة الدوران على الخريطة فقط 🌟 -->
-                    <g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3">
-                        <line x1="10" y1="50" x2="90" y2="50"/>
-                        <ellipse cx="50" cy="50" rx="36" ry="18"/>
-                        <ellipse cx="50" cy="50" rx="36" ry="30"/>
-                        <line x1="50" y1="10" x2="50" y2="90"/>
-                        <ellipse cx="50" cy="50" rx="18" ry="36"/>
-                        <ellipse cx="50" cy="50" rx="30" ry="36"/>
-                    </g>
+                <!-- الشبكة والإحداثيات (ثابتة لتعطي عمقاً 3D) -->
+                <g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3">
+                    <line x1="10" y1="50" x2="90" y2="50"/>
+                    <ellipse cx="50" cy="50" rx="36" ry="18"/>
+                    <ellipse cx="50" cy="50" rx="36" ry="30"/>
+                    <line x1="50" y1="10" x2="50" y2="90"/>
+                    <ellipse cx="50" cy="50" rx="18" ry="36"/>
+                    <ellipse cx="50" cy="50" rx="30" ry="36"/>
+                </g>
+                
+                <!-- 🌟 الخريطة تتحرك أفقياً لعمل وهم الدوران 🌟 -->
+                <g class="anim-globe-pan">
+                    <!-- النسخة الأولى من القارات -->
                     <g fill="url(#landGradCombo)" stroke="#0284c7" stroke-width="0.3" opacity="0.92">
+                        <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
+                        <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
+                        <path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/>
+                        <circle cx="72" cy="68" r="3"/>
+                        <circle cx="38" cy="23" r="1.8"/>
+                        <circle cx="62" cy="58" r="1.5"/>
+                    </g>
+                    <!-- النسخة الثانية مكررة ومزاحة لليمين 75 بيكسل لعمل حلقة لا نهائية (Loop) -->
+                    <g fill="url(#landGradCombo)" stroke="#0284c7" stroke-width="0.3" opacity="0.92" transform="translate(75, 0)">
                         <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
                         <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
                         <path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/>
@@ -563,6 +578,8 @@ const SVGIcons = {
                     </g>
                 </g>
             </g>
+            
+            <!-- الغلاف الجوي واللمعة الزجاجية (ثابتة) -->
             <circle cx="50" cy="50" r="36" fill="url(#atmosphereGlowCombo)"/>
             <path d="M 20 32 A 34 34 0 0 1 80 32 A 36 36 0 0 0 20 32 Z" fill="url(#glossHighlightCombo)"/>
         </g>
