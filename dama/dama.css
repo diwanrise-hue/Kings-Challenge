@@ -291,8 +291,12 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     color: #f5a623 !important;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) !important;
     margin: 0 !important;
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 38px !important;    /* 🌟 توحيد مساحة الأيقونة للزرين */
+    height: 38px !important;
+    flex-shrink: 0 !important; /* منع الأيقونة من الانضغاط */
 }
 
 .premium-game-btn .btn-text-col {
@@ -301,37 +305,40 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     align-items: flex-start !important; 
     text-align: right !important;
     margin: 0 !important;
+    overflow: hidden !important; /* منع النص من الخروج عن الزر */
 }
 
 .premium-game-btn .btn-main-text {
     color: #ffffff !important;
-    font-size: 20px !important;
+    font-size: 18px !important; /* تصغير طفيف ليتناسب مع الشاشات الصغيرة */
     font-weight: 900 !important;
     text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
     line-height: 1.1 !important;
+    white-space: nowrap !important; /* منع النص من النزول لسطرين */
 }
 
 .premium-game-btn .btn-sub-text {
     color: #f5a623 !important;
-    font-size: 11px !important;
+    font-size: 10px !important;
     font-weight: 700 !important;
+    white-space: nowrap !important;
 }
 
-/* 🌟 التحسينات الجديدة لأداء GPU للنقطة الخضراء 🌟 */
+/* 🌟 التحسينات الجديدة لأداء GPU للنقطة الخضراء (أونلاين) 🌟 */
 .online-glow-dot {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    width: 13px !important;
-    height: 13px !important;
+    position: absolute !important; /* فصل النقطة عن تدفق النص */
+    top: 10px !important;          /* رفعها للركن العلوي */
+    left: 10px !important;         /* وضعها في أقصى اليسار */
+    right: auto !important;
+    width: 12px !important;        /* تصغير الحجم قليلاً ليتناسب مع الزاوية */
+    height: 12px !important;
+    margin: 0 !important;          /* إزالة أي مسافات سابقة */
     background-color: #34c759 !important;
     border-radius: 50% !important;
     box-shadow: 0 0 10px #34c759, inset 0 2px 4px rgba(255,255,255,0.6) !important;
     animation: pulseGlowGpu 2s infinite alternate ease-in-out !important;
-    flex-shrink: 0 !important;
-    margin-top: 3px !important;
     will-change: transform, opacity;
-    transform: translateZ(0);
+    z-index: 10 !important;
 }
 
 @keyframes pulseGlowGpu {
@@ -1362,8 +1369,11 @@ body:not(.game-active) button#reset-btn.premium-game-btn {
     position: fixed !important;
     bottom: 85px !important; 
     z-index: 9998 !important;
-    width: calc(50vw - 20px) !important; 
-    max-width: 220px !important;
+    width: calc(50vw - 15px) !important; 
+    max-width: 180px !important;   /* تحديد أقصى عرض ليكونان متطابقين تماماً */
+    height: 66px !important;       /* 🌟 إجبار الزرين على نفس الارتفاع 🌟 */
+    padding: 8px 10px !important;  /* توحيد الحشو الداخلي */
+    box-sizing: border-box !important;
 }
 
 body:not(.game-active) button#online-toggle-btn.premium-game-btn {
