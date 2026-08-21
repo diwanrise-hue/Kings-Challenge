@@ -649,7 +649,7 @@ export const ui = {
             
             const giftBtn2 = document.getElementById('match-gift-btn-p2');
             if (giftBtn2) {
-                giftBtn2.style.display = active && !gameState.isBotOpponent ? 'inline-block' : 'none';
+                giftBtn2.style.display = active && !gameState.isBotOpponent ? 'flex' : 'none';
             }
         }
     },
