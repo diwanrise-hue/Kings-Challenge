@@ -145,19 +145,40 @@ body {
     z-index: 9999; box-shadow: 0 -10px 30px rgba(0,0,0,0.4) !important; 
 }
 
+/* زر الانسحاب (بدون الطبقة الحمراء) */
 #resign-btn { 
-    background: linear-gradient(145deg, #4a1919, #290d0d) !important; 
-    color: #ff6b6b !important; 
+    background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
+    color: #ff6b6b !important; /* أبقينا النص أحمر ليدل على الخطر */
     height: 44px; padding: 0 15px; border-radius: 14px !important; 
-    font-weight: bold; border: 1.5px solid #8c2a2a !important; 
-    border-bottom: 3.5px solid #4a1919 !important;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.1), inset 0 -1px 3px rgba(0,0,0,0.5) !important;
+    font-weight: bold; border: 1.5px solid #a88734 !important; 
+    border-bottom: 3.5px solid #6b5319 !important;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.2), inset 0 -1px 3px rgba(0,0,0,0.5) !important;
     transition: all 0.15s ease !important;
 }
 #resign-btn:active { 
     transform: translateY(3px) !important;
     border-bottom-width: 1px !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 3px 6px rgba(0,0,0,0.8) !important;
+}
+
+/* أيقونة الرتبة المنفصلة في شريط البروفايل */
+.boundary-rank-icon { 
+    top: 51px !important; 
+    left: 63px !important; 
+    width: 24px !important; 
+    height: 24px !important; 
+    z-index: 25 !important; 
+}
+.rank-icon-free { 
+    font-size: 20px !important; 
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); 
+    display: flex; align-items: center; justify-content: center; 
+    width: 100%; height: 100%; 
+}
+.rank-icon-free img { 
+    height: 22px !important; 
+    width: auto !important; 
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); 
 }
 
 /* 🌟 التحسينات الجديدة لأداء GPU لزر التلميح السحري 🌟 */
