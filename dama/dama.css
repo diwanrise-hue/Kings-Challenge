@@ -168,8 +168,8 @@ body {
 .boundary-rank-icon { 
     top: 50px !important; 
     left: 95px !important; 
-    width: 28px !important; 
-    height: 28px !important; 
+    width: 20px !important; 
+    height: 20px !important; 
     z-index: 25 !important; 
 }
 .rank-icon-free { 
