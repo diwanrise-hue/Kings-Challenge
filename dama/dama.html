@@ -417,7 +417,7 @@
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('send-gift-modal')">✕</button>
             <h3 style="color: #00d2ff; margin-bottom: 10px;">إرسال شعبية 🎁</h3>
-            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">اختر هدية من حقيبتك لإرسالها إلى المنافس:</p>
+            <p id="gift-modal-desc" style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">اختر هدية من حقيبتك لإرسالها:</p>
             <div id="my-gifts-selection-grid" class="store-items-grid" style="max-height: 50vh; overflow-y: auto;"></div>
         </div>
     </div>
@@ -686,96 +686,6 @@
         </div>
     </div>
 
-    <div id="matchmaking-modal" class="modal-overlay">
-        <div class="settings-card" dir="auto" style="max-width: 350px;">
-            <h3 id="matchmaking-title">البحث</h3>
-            <div style="display: flex; justify-content: space-around; align-items: center; margin: 30px 0;">
-                <div style="text-align: center;"><div id="mm-my-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: visible; background-color: rgba(255,255,255,0.05);"></div><div id="mm-my-name" style="color: white; margin-top: 10px; font-weight: 500; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">أنت</div></div>
-                <div style="text-align: center;"><div id="mm-opp-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: rgba(255,255,255,0.02);">❓</div><div id="mm-opp-name" style="color: #a1a1aa; margin-top: 10px; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">الخصم</div></div>
-            </div>
-            <div style="margin: 20px 0;">
-                <div id="mm-status-label" class="settings-label" style="text-align: center;">جاري البحث عن خصم...</div>
-                <div class="loading-dots-container"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
-                <div id="mm-timer" style="color: white; font-weight: 600; font-size: 18px; margin-top: 15px;">00:00</div>
-            </div>
-            <button id="mm-cancel-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; box-shadow: none !important;">إلغاء البحث</button>
-        </div>
-    </div>
-
-    <div id="settings-overlay" class="modal-overlay">
-        <div class="settings-card" dir="auto">
-            <button class="modal-close-btn" onclick="window.closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
-            <h3 id="set-title">الإعدادات</h3>
-            <div class="audio-controls"><label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label><input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7"></div>
-            
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; background: rgba(255,255,255,0.04); padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                <label for="sync-theme-optout" style="color: #e0e0e0; font-size: 13px; font-weight: 500; text-align: right; line-height: 1.4;">استخدام شكل الساحة للاعب الأعلى مستوى (أونلاين)</label>
-                <input type="checkbox" id="sync-theme-optout" style="width: 18px; height: 18px; accent-color: #f5a623; margin-right: 10px;">
-            </div>
-
-            <button id="save-settings-btn" class="save-settings-btn" style="margin-top: 25px; box-shadow: none !important;">حفظ</button>
-        </div>
-    </div>
-
-    <div id="purchase-modal" class="modal-overlay" style="z-index: 1000005;">
-        <div class="settings-card" dir="auto" style="max-width: 320px; padding: 30px 20px; background: #111115; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.9);">
-            <h3 id="modal-item-name" style="color: white; font-size: 20px; font-weight: 700; margin-bottom: 20px;">اسم المنتج</h3>
-            
-            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 20px;"></div>
-            
-            <div id="modal-item-preview" style="width: 80px; height: 80px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 35px; overflow: hidden;">💡</div>
-            
-            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;">
-                <span id="modal-item-cost" style="color: #ffd700; font-weight: 800; font-size: 22px;">0</span>
-            </div>
-
-            <div id="discount-container" style="display: none; width: 100%; margin-bottom: 25px; background: rgba(52, 199, 89, 0.05); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: 16px; padding: 15px;">
-                <label style="color: #34c759; font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">استخدم قسيمة خصم (اختياري) 🎫:</label>
-                <select id="modal-discount-select" class="clean-input" style="height: 40px; font-size: 14px; background: rgba(0,0,0,0.4); border-color: rgba(52, 199, 89, 0.2); color: white;">
-                    <option value="0">بدون خصم (حفظ القسائم)</option>
-                </select>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                <button id="confirm-buy-btn" class="btn" style="width: 100%; background: rgba(255, 215, 0, 0.05); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.4); border-radius: 20px; font-weight: bold; font-size: 15px; height: 48px;">شراء الآن</button>
-                <button onclick="document.getElementById('purchase-modal').style.display = 'none'" class="btn" style="width: 100%; background: transparent; color: #e0e0e0; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; font-size: 15px; height: 48px;">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="custom-password-modal" class="modal-overlay" style="z-index: 1000005;">
-        <div class="settings-card" dir="auto" style="max-width: 300px;">
-            <button class="modal-close-btn" onclick="window.closeAppModal('custom-password-modal')" style="left:15px; right:auto;">✕</button>
-            <h3 style="color: #f1c40f; margin-bottom: 10px;">غرفة محمية 🔒</h3>
-            <p style="color: #e0e0e0; font-size: 14px; margin-bottom: 20px; text-align: center;">الرجاء إدخال كلمة السر الخاصة بهذه الغرفة:</p>
-            
-            <input type="password" id="custom-room-pwd-input" class="online-input" placeholder="كلمة السر..." style="text-align: center; font-size: 18px; letter-spacing: 2px;">
-            <input type="hidden" id="custom-target-room-id">
-            
-            <button id="custom-join-confirm-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; margin-top: 15px; border: 1.5px solid #85c1e9 !important; border-bottom: 3.5px solid #1f618d !important; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important;">دخول الغرفة</button>
-        </div>
-    </div>
-
-    <div id="creator-room-settings-modal" class="modal-overlay" style="z-index: 1000005;">
-        <div class="settings-card" dir="auto" style="max-width: 300px;">
-            <button class="modal-close-btn" onclick="window.closeAppModal('creator-room-settings-modal')" style="left:15px; right:auto;">✕</button>
-            <h3 style="color: #87ceeb; margin-bottom: 10px;">إدارة غرفتي ⚙️</h3>
-            
-            <input type="hidden" id="creator-target-room-id">
-            
-            <label class="settings-label" style="margin-top: 15px;">تعديل مبلغ الرهان:</label>
-            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px;" onclick="window.openBetSelectorForEdit()">
-                <span id="edit-room-bet-display">اختر الرهان الجديد</span><span style="font-size: 14px; color: rgba(255,255,255,0.4);">▼</span>
-            </div>
-            <input type="hidden" id="edit-room-bet-input" value="0">
-            
-            <div style="display: flex; gap: 10px; flex-direction: column;">
-                <button id="creator-update-bet-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.2) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.4) !important; margin: 0; box-shadow: none !important;">تحديث الرهان 🔄</button>
-                <button id="creator-cancel-room-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; border-color: rgba(255, 69, 58, 0.4) !important; margin: 0; box-shadow: none !important;">إغلاق وحذف الغرفة 🗑️</button>
-            </div>
-        </div>
-    </div>
-
     <div id="spectator-bet-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('spectator-bet-modal')" style="left:15px; right:auto;">✕</button>
@@ -831,7 +741,6 @@
         <button id="room-portal-btn" title="الغرف الخاصة" onclick="window.openAppModal('online-modal')">
             <span data-icon="door" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 6px;"></span>
             <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: right; line-height: 1.2;">
-                <!-- تم تكبير الخط إلى 18px -->
                 <span style="color: #ffffff; font-size: 18px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">الغرف</span>
                 <span style="color: #f5a623; font-size: 9px; font-weight: 700;">المشاهدة والمراهنات</span>
             </div>
