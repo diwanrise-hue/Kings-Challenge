@@ -526,7 +526,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍 (بدوران أفقي واقعي)
+    // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍 (بدوران أفقي واقعي للكرة الأرضية)
     globeBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.3); transform-origin: center; overflow: visible;">
         <defs>
             <radialGradient id="oceanBlueCombo" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="45%" stop-color="#0284c7"/><stop offset="80%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
@@ -567,7 +567,7 @@ const SVGIcons = {
                         <circle cx="38" cy="23" r="1.8"/>
                         <circle cx="62" cy="58" r="1.5"/>
                     </g>
-                    <!-- النسخة الثانية مكررة ومزاحة لليمين 75 بيكسل لعمل حلقة لا نهائية -->
+                    <!-- النسخة الثانية مكررة ومزاحة لليمين 75 بيكسل لعمل حلقة لا نهائية (Loop) -->
                     <g fill="url(#landGradCombo)" stroke="#0284c7" stroke-width="0.3" opacity="0.92" transform="translate(75, 0)">
                         <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
                         <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
@@ -590,7 +590,7 @@ const SVGIcons = {
         </svg>
     </svg>`,
 
-       // 17. أيقونة الروبوت الفخم 🤖 (يطفو ويرمش رمشتين كل 5 ثوانٍ + إضاءة نيون للعيون المغلقة والابتسامة)
+    // 17. أيقونة الروبوت الفخم 🤖 (يطفو ويرمش رمشتين كل 5 ثوانٍ + إضاءة نيون للعيون المغلقة والابتسامة)
     robotBtn: `<svg viewBox="0 0 800 600" width="100%" height="100%" style="transform: scale(1.4); transform-origin: center; filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5)) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.9));">
         <defs>
             <style>
@@ -720,6 +720,7 @@ const SVGIcons = {
             <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
         </g>
     </svg>`
+};
 
 window.SVGIcons = SVGIcons;
 
