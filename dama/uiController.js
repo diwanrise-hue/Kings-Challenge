@@ -124,16 +124,21 @@ export const ui = {
         el.style.backgroundColor = 'transparent';
         el.style.overflow = 'visible'; 
         
-        if (avatarStr === "AI_BOT") {
+          if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             // سحب كود الـ SVG المتحرك مباشرة من ملف icons.js
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
             
             if (botSvg) {
+                // 🌟 الحل: توليد ID فريد لمنع تعارض الألوان (Gradients) مع الزر السفلي
+                let uniqueSuffix = '_bot_' + Math.random().toString(36).substr(2, 9);
+                let safeSvg = botSvg.replace(/id="([^"]+)"/g, `id="$1${uniqueSuffix}"`)
+                                    .replace(/url\(#([^)]+)\)/g, `url(#$1${uniqueSuffix})`);
+
                 // وضع البوت وتوسيطه مع تكبير بسيط ليتناسب مع الإطار الدائري
                 el.innerHTML = `
-                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.1); position: relative; z-index: 10;">
-                        ${botSvg}
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.65); position: relative; z-index: 10;">
+                        ${safeSvg}
                     </div>
                 `;
             } else {
@@ -142,6 +147,7 @@ export const ui = {
             }
             return;
         }
+
 
 
         const defaultAvatar = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
