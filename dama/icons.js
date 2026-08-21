@@ -638,16 +638,17 @@ const SVGIcons = {
 window.SVGIcons = SVGIcons;
 
 window.injectAllSVGIcons = function() {
-    document.querySelectorAll('[data-icon]').forEach(el => {
+    document.querySelectorAll('[data-icon]').forEach((el, index) => {
         const iconName = el.getAttribute('data-icon');
         if (SVGIcons[iconName]) {
-            el.innerHTML = SVGIcons[iconName];
+            let svgStr = SVGIcons[iconName];
+            
+            // 🌟 الحل: منع تعارض الألوان عند تكرار نفس الأيقونة في أكثر من مكان
+            let uniqueSuffix = '_icon_' + Date.now() + '_' + index;
+            svgStr = svgStr.replace(/id="([^"]+)"/g, `id="$1${uniqueSuffix}"`)
+                           .replace(/url\(#([^)]+)\)/g, `url(#$1${uniqueSuffix})`);
+                           
+            el.innerHTML = svgStr;
         }
     });
 };
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', window.injectAllSVGIcons);
-} else {
-    window.injectAllSVGIcons();
-}
