@@ -195,28 +195,46 @@ body {
 /* 🌟 الأزرار الفخمة والمكونات ثلاثية الأبعاد 🌟 */
 /* ========================================== */
 
-#hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
-#lucky-spin-portal-btn,
-#custom-diff-btn, #hint-btn, #undo-btn, #dama-radio-toggle, #mic-toggle-btn {
+/* 1. الأزرار العائمة (الهامبرغر، الحقيبة، المهام) */
+#hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn {
     background: linear-gradient(145deg, #2a2a35, #15141a) !important;
     border: 1.5px solid #a88734 !important;
     border-bottom: 3.5px solid #6b5319 !important;
     color: #fce8a1 !important;
-    box-shadow: 
-        0 6px 12px rgba(0, 0, 0, 0.6),
-        inset 0 1px 2px rgba(255, 255, 255, 0.2),
-        inset 0 -1px 3px rgba(0, 0, 0, 0.5),
-        0 0 6px rgba(212, 175, 55, 0.15) !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15) !important;
     border-radius: 14px !important; 
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
     transition: all 0.15s ease !important;
     display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
-    position: fixed; z-index: 10001; 
+    position: fixed !important; 
+    z-index: 10001 !important; 
     box-sizing: border-box !important;
+    width: 44px !important; 
+    height: 44px !important;
 }
 
-/* 🌟 تنسيق زر الغرف الجديد (عريض وأزرق فخم - 60px مع هوامش سلبية) 🌟 */
+#hamburger-menu-btn, #bag-quick-btn { top: 15px !important; }
+html[dir="rtl"] #hamburger-menu-btn, html[dir="rtl"] #bag-quick-btn { right: 15px !important; left: auto !important; }
+html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px !important; right: auto !important; }
+#floating-quests-btn { top: 100px !important; left: 25px !important; }
+
+/* 2. أزرار الشريط السفلي (المصباح، التراجع، الراديو، المايك) */
+#hint-btn, #undo-btn, #dama-radio-toggle, #mic-toggle-btn {
+    background: linear-gradient(145deg, #2a2a35, #15141a) !important;
+    border: 1.5px solid #a88734 !important;
+    border-bottom: 3.5px solid #6b5319 !important;
+    color: #fce8a1 !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5) !important;
+    border-radius: 14px !important; 
+    transition: all 0.15s ease !important;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+    position: relative !important; /* هام جداً لمنع التكدس مع الـ Flexbox */
+    z-index: 10 !important;
+    box-sizing: border-box !important;
+    width: 44px !important; 
+    height: 44px !important;
+}
+
+/* 3. تنسيق زر الغرف الجديد (عريض وأزرق فخم) */
 #room-portal-btn {
     background: linear-gradient(145deg, #1d4ed8, #0f172a) !important;
     border: 1.5px solid #60a5fa !important;
@@ -228,50 +246,33 @@ body {
     display: flex; align-items: center; justify-content: flex-start !important; cursor: pointer; 
     padding: 0 8px !important; 
     box-sizing: border-box !important;
+    position: relative !important; /* هام جداً ليتناسق مع المصباح والراديو */
     width: auto !important;
     min-width: 130px !important;
-    
-    /* 🌟 زيادة الارتفاع لـ 60px مع موازنة الشريط بالهوامش السلبية 🌟 */
     height: 60px !important; 
     margin-top: -8px !important;
     margin-bottom: -8px !important;
 }
 
-#hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn, 
-#custom-diff-btn, #hint-btn, #undo-btn, #dama-radio-toggle, #mic-toggle-btn {
-    width: 44px !important; height: 44px !important;
-}
-
-#hamburger-menu-btn, #bag-quick-btn { top: 15px !important; }
-html[dir="rtl"] #hamburger-menu-btn, html[dir="rtl"] #bag-quick-btn { right: 15px !important; left: auto !important; }
-html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px !important; right: auto !important; }
-
-#floating-quests-btn { top: 100px !important; left: 25px !important; }
-
+/* ضبط أحجام جميع أيقونات الأزرار (SVG) */
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
-#lucky-spin-portal-btn svg, #room-portal-btn svg,
-#custom-diff-btn svg, #hint-btn svg, #undo-btn svg, #mic-toggle-btn svg * {
+#room-portal-btn svg, #hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
     fill: #fce8a1 !important;
     stroke: #fce8a1 !important;
     color: #fce8a1 !important;
     object-fit: contain;
 }
 
-/* تقييد حجم أيقونات الأزرار المربعة */
+/* تقييد حجم أيقونات الأزرار المربعة فقط */
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
-#custom-diff-btn svg, #hint-btn svg, #undo-btn svg, #mic-toggle-btn svg * {
+#hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
     width: 22px !important;
     height: 22px !important;
 }
 
-.control-panel #room-portal-btn, .control-panel #custom-diff-btn, .control-panel #hint-btn, .control-panel #undo-btn, .control-panel #dama-radio-toggle, .control-panel #mic-toggle-btn {
-    position: relative !important; z-index: auto !important;
-}
-.control-panel #custom-diff-btn { width: 60px !important; }
-
+/* تأثير الضغط على كل الأزرار المذكورة */
 #hamburger-menu-btn:active, #bag-quick-btn:active, #floating-quests-btn:active, 
-#lucky-spin-portal-btn:active, #room-portal-btn:active,
-#custom-diff-btn:active, #hint-btn:active, #undo-btn:active, #dama-radio-toggle:active, #mic-toggle-btn:active {
+#room-portal-btn:active, #hint-btn:active, #undo-btn:active, #dama-radio-toggle:active, #mic-toggle-btn:active {
     transform: translateY(3px) !important;
     border-bottom-width: 1px !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
@@ -287,9 +288,8 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     align-items: center !important;
     justify-content: center !important;
     flex-direction: row-reverse !important; 
-    gap: 12px !important;
+    gap: 22px !important; /* 🌟 تم التوسعة بين الأيقونة والنص 🌟 */
     
-    /* 🌟 توحيد التصميم: لون أسود فحمي مع إطار ذهبي 3D 🌟 */
     border-radius: 14px !important; 
     background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
     border: 1.5px solid #a88734 !important; 
@@ -299,24 +299,19 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     
     cursor: pointer !important;
     position: relative !important;
-    
-    /* 🌟 السر هنا: تغيير القص للسماح للكرة الأرضية بالظهور بشكل دائري 100% 🌟 */
     overflow: visible !important; 
-    
     transition: all 0.15s ease !important;
     text-decoration: none !important;
     outline: none !important;
     font-family: 'Tajawal', sans-serif !important;
 }
 
-/* حركة الضغط لتتطابق مع باقي الأزرار */
 .premium-game-btn:active {
     transform: translateY(3px) !important;
     border-bottom-width: 1px !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
 }
 
-/* إزالة الألوان الخضراء والبنية السابقة لضمان بقاء اللون الفحمي */
 .btn-green, .btn-brown { 
     background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
 }
@@ -359,7 +354,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     white-space: nowrap !important;
 }
 
-/* 🌟 النقطة الخضراء (أونلاين) 🌟 */
+/* 🌟 التحسينات الجديدة لأداء GPU للنقطة الخضراء (أونلاين) 🌟 */
 .online-glow-dot {
     position: absolute !important; 
     top: -2px !important;          
@@ -381,7 +376,6 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     0% { transform: scale(0.85); opacity: 0.8; }
     100% { transform: scale(1.15); opacity: 1; }
 }
-
 
 /* ========================================== */
 /* 🌟 نظام البروفايل الجديد المتمركز (أسود/ذهبي) */
@@ -441,7 +435,7 @@ html[dir="ltr"] #profile-badge.profile-badge-container {
     height: 55.3px !important;     
     border-radius: 50% !important; 
     border: none !important; 
-    z-index: 30 !important; /* 🌟 تم الرفع إلى 30 لكي يغطي على الشريط السفلي تماماً */
+    z-index: 30 !important; /* 🌟 الإطار فوق الشريط السفلي */
     display: flex; align-items: center; justify-content: center; 
     overflow: visible !important;
     background-color: transparent !important;
@@ -1110,13 +1104,6 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     pointer-events: none !important;
     z-index: -999 !important;
 }
-#hamburger-menu-btn {
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    z-index: 10001 !important;
-}
 
 body.game-active:not(.online-mode-active) #hamburger-menu-btn,
 body.game-active:not(.online-mode-active) #room-portal-btn {
@@ -1399,12 +1386,12 @@ body.online-mode-active .game-container { order: 3 !important; }
 body:not(.game-active) button#online-toggle-btn.premium-game-btn,
 body:not(.game-active) button#reset-btn.premium-game-btn {
     position: fixed !important;
-    bottom: 85px !important; 
+    bottom: 74px !important; 
     z-index: 9998 !important;
     width: calc(50vw - 15px) !important; 
-    max-width: 180px !important;   /* تحديد أقصى عرض ليكونان متطابقين تماماً */
-    height: 66px !important;       /* 🌟 إجبار الزرين على نفس الارتفاع 🌟 */
-    padding: 8px 10px !important;  /* توحيد الحشو الداخلي */
+    max-width: 180px !important;   
+    height: 66px !important;       
+    padding: 8px 10px !important;  
     box-sizing: border-box !important;
 }
 
