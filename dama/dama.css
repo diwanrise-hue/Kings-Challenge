@@ -286,7 +286,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 
 /* تقييد حجم أيقونات الأزرار المربعة فقط */
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
-#hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
+#hint-btn svg, #undo-btn svg,  #mic-toggle-btn svg * {
     width: 22px !important;
     height: 22px !important;
 }
