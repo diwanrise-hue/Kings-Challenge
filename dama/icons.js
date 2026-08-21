@@ -416,8 +416,7 @@ const SVGIcons = {
             <line x1="72.5" y1="62" x2="74" y2="60.5" stroke="#1c1917" stroke-width="0.8" />
             <rect x="22" y="79" width="10" height="3" rx="1.5" fill="#292524" />
             <rect x="68" y="79" width="10" height="3" rx="1.5" fill="#292524" />
-            <path d="M 14 35 C 14 30.5 17.5 27 22 27 L 78 27 C 82.5 27 86 30.5 86 35 L 86 39 L 14 39 Z" fill="#ffffff" opacity="0.18" />
-        </g>
+             </g>
     </svg>`,
 
     // 13. أيقونة الرادار لفقدان الاتصال
@@ -539,7 +538,7 @@ const SVGIcons = {
             </style>
         </defs>
         
-        <g transform="translate(50, 50) scale(1.30) translate(-50, -50)">
+        <g transform="translate(50, 50) scale(1.20) translate(-50, -50)">
             <!-- المحيط (ثابت) -->
             <circle cx="50" cy="50" r="36" fill="url(#oceanBlueCombo)"/>
             
