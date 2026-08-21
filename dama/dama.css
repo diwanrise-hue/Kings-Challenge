@@ -470,7 +470,7 @@ html[dir="ltr"] #profile-badge.profile-badge-container {
 .boundary-level { bottom: 11.4px !important; right: 2.5px !important; width: 22px !important; height: 12px !important; z-index: 25 !important; }
 .boundary-name { top: 27.6px !important; left: 99px !important; right: 16px !important; height: 18px !important; direction: rtl !important; }
 .boundary-title { top: 60px !important; left: 138px !important; width: 30px !important; height: 10px !important; }
-.boundary-rank { top: 58px !important; left: 89.8px !important; width: 38px !important; height: 12px !important; }
+.boundary-rank { top: 58px !important; left: 78.8px !important; width: 38px !important; height: 12px !important; }
 .boundary-xp { top: 77.8px !important; left: 110px !important; width: 25px !important; height: 10px !important; z-index: 15 !important; }
 
 #badge-level { color: #d4af37 !important; font-size: 11px !important; font-weight: 900 !important; text-shadow: 0 1px 3px black !important; line-height: 1 !important; text-rendering: geometricPrecision; -webkit-font-smoothing: antialiased; }
