@@ -124,21 +124,28 @@ export const ui = {
         el.style.backgroundColor = 'transparent';
         el.style.overflow = 'visible'; 
         
-        if (avatarStr === "AI_BOT") {
+                if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
-            el.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-                    <circle cx="12" cy="5" r="2"></circle>
-                    <path d="M12 7v4"></path>
-                    <line x1="8" y1="16" x2="8" y2="16.01"></line>
-                    <line x1="16" y1="16" x2="16" y2="16.01"></line>
-                    <path d="M2 14h1"></path>
-                    <path d="M21 14h1"></path>
-                </svg>
-            `;
+            // استنساخ البوت المتحرك من الزر السفلي ليعمل بشكل مطابق تماماً
+            const robotIconTemplate = document.querySelector('[data-icon="robotBtn"]');
+            if (robotIconTemplate && robotIconTemplate.innerHTML.trim() !== '') {
+                el.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(1.6); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">${robotIconTemplate.innerHTML}</div>`;
+            } else {
+                el.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fce8a1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width: 70%; height: 70%;">
+                        <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                        <circle cx="12" cy="5" r="2"></circle>
+                        <path d="M12 7v4"></path>
+                        <line x1="8" y1="16" x2="8" y2="16.01"></line>
+                        <line x1="16" y1="16" x2="16" y2="16.01"></line>
+                        <path d="M2 14h1"></path>
+                        <path d="M21 14h1"></path>
+                    </svg>
+                `;
+            }
             return;
         }
+
 
         const defaultAvatar = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
         let finalSrc = avatarStr;
@@ -1418,9 +1425,18 @@ export const ui = {
             if (igpTitleDisplay) igpTitleDisplay.textContent = `اللقب: ${lvlInfo.title}`;
             
             const badgeRankEl = this.getEl('profile-stat-rank-badge');
+            const badgeRankIconEl = this.getEl('profile-stat-rank-icon-badge');
+            
+            // وضع النص لوحده في مكانه
             if (badgeRankEl) {
-                badgeRankEl.innerHTML = `${lvlInfo.rankIcon} ${lvlInfo.rank}`;
+                badgeRankEl.innerHTML = `${lvlInfo.rank}`;
             }
+            
+            // وضع الأيقونة لوحدها في مكانها المكبر
+            if (badgeRankIconEl) {
+                badgeRankIconEl.innerHTML = lvlInfo.rankIcon;
+            }
+
 
             if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
             if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
