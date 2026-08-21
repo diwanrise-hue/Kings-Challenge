@@ -518,7 +518,7 @@ const SVGIcons = {
     </svg>`,
 
        // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍 (دائرية بالكامل)
-    globeBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.3); transform-origin: center; overflow: visible;">
+    globeBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.0); transform-origin: center; overflow: visible;">
         <defs>
             <radialGradient id="oceanBlueCombo" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="45%" stop-color="#0284c7"/><stop offset="80%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
             <linearGradient id="landGradCombo" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
