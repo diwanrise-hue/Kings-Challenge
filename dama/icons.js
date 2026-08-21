@@ -76,13 +76,20 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 4. الغرف الخاصة
+        // 4. الغرف الخاصة (تم إضافة حركة نبض لعلامة الزائد الأخضر)
     door: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
         <defs>
             <linearGradient id="doorGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8d6e63"/><stop offset="100%" stop-color="#5d4037"/></linearGradient>
             <radialGradient id="handleGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#ca8a04"/></radialGradient>
             <filter id="doorShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#000" flood-opacity="0.3"/></filter>
-            <style>.anim-door { transform-origin: 50px 50px; animation: floatDoor 3s ease-in-out infinite; } @keyframes floatDoor { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }</style>
+            <style>
+                .anim-door { transform-origin: 50px 50px; animation: floatDoor 3s ease-in-out infinite; } 
+                @keyframes floatDoor { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+                
+                /* 🌟 حركة نبض علامة الزائد 🌟 */
+                @keyframes pulsePlusSign { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+                .anim-plus { animation: pulsePlusSign 1.2s ease-in-out infinite; transform-origin: 12px 12px; }
+            </style>
         </defs>
         <g class="anim-door">
             <ellipse cx="50" cy="88" rx="24" ry="3.5" fill="#000" opacity="0.2"/>
@@ -92,12 +99,14 @@ const SVGIcons = {
             <rect x="31" y="58" width="38" height="22" rx="2" fill="rgba(0,0,0,0.15)" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
             <circle cx="65" cy="55" r="3.5" fill="url(#handleGrad)" filter="url(#doorShadow)"/>
             <g transform="translate(62, 12)" filter="url(#doorShadow)">
-                <circle cx="12" cy="12" r="12" fill="#22c55e"/>
-                <path d="M 12 6 L 12 18 M 6 12 L 18 12" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+                <g class="anim-plus"> <!-- 🌟 تطبيق حركة النبض هنا 🌟 -->
+                    <circle cx="12" cy="12" r="12" fill="#22c55e"/>
+                    <path d="M 12 6 L 12 18 M 6 12 L 18 12" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+                </g>
             </g>
         </g>
     </svg>`,
-
+    
     // 5. كأس الشرف (الترتيب)
     medal: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
         <defs>
@@ -517,45 +526,52 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-       // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍 (دائرية بالكامل)
-    globeBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.0); transform-origin: center; overflow: visible;">
+          // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍 (تم إضافة دوران بطيء ومستمر للكرة الأرضية)
+    globeBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.3); transform-origin: center; overflow: visible;">
         <defs>
             <radialGradient id="oceanBlueCombo" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="45%" stop-color="#0284c7"/><stop offset="80%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
             <linearGradient id="landGradCombo" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
             <radialGradient id="atmosphereGlowCombo" cx="50%" cy="50%" r="50%"><stop offset="70%" stop-color="#38bdf8" stop-opacity="0"/><stop offset="92%" stop-color="#38bdf8" stop-opacity="0.5"/><stop offset="100%" stop-color="#0284c7" stop-opacity="0.9"/></radialGradient>
             <linearGradient id="glossHighlightCombo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
             <clipPath id="globeClipCombo"><circle cx="50" cy="50" r="36"/></clipPath>
+            <style>
+                /* 🌟 حركة الدوران البطيء للكرة الأرضية 🌟 */
+                @keyframes spinGlobeMap { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                .anim-globe-spin { animation: spinGlobeMap 30s linear infinite; transform-origin: 50px 50px; }
+            </style>
         </defs>
         
-        <g transform="translate(50, 50) scale(1.25) translate(-50, -50)">
+        <g transform="translate(50, 50) scale(1.55) translate(-50, -50)">
             <circle cx="50" cy="50" r="36" fill="url(#oceanBlueCombo)"/>
             <g clip-path="url(#globeClipCombo)">
-                <g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3">
-                    <line x1="10" y1="50" x2="90" y2="50"/>
-                    <ellipse cx="50" cy="50" rx="36" ry="18"/>
-                    <ellipse cx="50" cy="50" rx="36" ry="30"/>
-                    <line x1="50" y1="10" x2="50" y2="90"/>
-                    <ellipse cx="50" cy="50" rx="18" ry="36"/>
-                    <ellipse cx="50" cy="50" rx="30" ry="36"/>
-                </g>
-                <g fill="url(#landGradCombo)" stroke="#0284c7" stroke-width="0.3" opacity="0.92">
-                    <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
-                    <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
-                    <path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/>
-                    <circle cx="72" cy="68" r="3"/>
-                    <circle cx="38" cy="23" r="1.8"/>
-                    <circle cx="62" cy="58" r="1.5"/>
+                <g class="anim-globe-spin"> <!-- 🌟 تطبيق حركة الدوران على الخريطة فقط 🌟 -->
+                    <g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3">
+                        <line x1="10" y1="50" x2="90" y2="50"/>
+                        <ellipse cx="50" cy="50" rx="36" ry="18"/>
+                        <ellipse cx="50" cy="50" rx="36" ry="30"/>
+                        <line x1="50" y1="10" x2="50" y2="90"/>
+                        <ellipse cx="50" cy="50" rx="18" ry="36"/>
+                        <ellipse cx="50" cy="50" rx="30" ry="36"/>
+                    </g>
+                    <g fill="url(#landGradCombo)" stroke="#0284c7" stroke-width="0.3" opacity="0.92">
+                        <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
+                        <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
+                        <path d="M 60 20 C 68 18, 78 22, 76 30 C 74 38, 68 36, 65 42 C 62 48, 72 46, 75 52 C 78 58, 72 65, 68 62 C 64 58, 62 50, 58 42 C 56 34, 55 24, 60 20 Z"/>
+                        <circle cx="72" cy="68" r="3"/>
+                        <circle cx="38" cy="23" r="1.8"/>
+                        <circle cx="62" cy="58" r="1.5"/>
+                    </g>
                 </g>
             </g>
             <circle cx="50" cy="50" r="36" fill="url(#atmosphereGlowCombo)"/>
             <path d="M 20 32 A 34 34 0 0 1 80 32 A 36 36 0 0 0 20 32 Z" fill="url(#glossHighlightCombo)"/>
         </g>
 
+        <!-- الأشخاص الذهبيون (ثابتون ولا يدورون مع الكرة) -->
         <svg x="40" y="38" width="60" height="60" viewBox="0 0 24 24" fill="#ffd700">
             <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" stroke="#1a1a24" stroke-width="0.8" style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.9));"/>
         </svg>
     </svg>`,
-
 
     // 17. أيقونة الروبوت الفخم 🤖 (ينبض ويرمش + هالة مضيئة خلفية وظل قوي لكسر تداخل الألوان)
     robotBtn: `<svg viewBox="0 0 800 600" width="100%" height="100%" style="transform: scale(1.4); transform-origin: center; filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5)) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.9));">
