@@ -8,7 +8,7 @@ const SVGIcons = {
     // 2. أيقونة نسخ الـ ID
     copyId: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`,
 
-    // 3. حقيبة الأزياء السريعة (العلوية) - ذات المعرفات العادية
+    // 3. حقيبة الأزياء السريعة (العلوية)
     bagQuick: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3);">
         <defs>
             <linearGradient id="bagGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="25%" stop-color="#f59e0b"/><stop offset="50%" stop-color="#d97706"/><stop offset="75%" stop-color="#b45309"/><stop offset="100%" stop-color="#78350f"/></linearGradient>
@@ -76,7 +76,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 4. الغرف الخاصة (روم)
+    // 4. الغرف الخاصة
     door: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
         <defs>
             <linearGradient id="doorGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8d6e63"/><stop offset="100%" stop-color="#5d4037"/></linearGradient>
@@ -250,7 +250,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 8. زر الأونلاين (الكرة الأرضية) - مكرر لكننا نستخدم globeBtn أدناه
+    // 8. زر الأونلاين (الكرة الأرضية)
     globe: `<svg viewBox="0 0 100 100" width="28" height="28" style="vertical-align: middle; display: inline-block; transform: scale(1.4); transform-origin: center; margin-left: 5px;">
         <defs>
             <radialGradient id="oceanBlueBtn" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="45%" stop-color="#0284c7"/><stop offset="80%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
@@ -413,7 +413,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 13. أيقونة الرادار لفقدان الاتصال (بدون إنترنت)
+    // 13. أيقونة الرادار لفقدان الاتصال
     disconnectIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.9));">
         <line x1="2" y1="2" x2="22" y2="22" />
         <path d="M8.5 16.5a5 5 0 0 1 7 0" />
@@ -422,7 +422,7 @@ const SVGIcons = {
         <circle cx="12" cy="20" r="1.5" fill="#ffffff" stroke="none" />
     </svg>`,
 
-    // 14. أيقونة عجلة الحظ الملونة (Lucky Spin) 🌟
+    // 14. أيقونة عجلة الحظ الملونة 🌟
     luckySpin: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" style="vertical-align: middle; display: inline-block;">
         <defs>
             <linearGradient id="spin-gold" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -446,7 +446,7 @@ const SVGIcons = {
         <path d="M12 0 L14.5 4.5 L9.5 4.5 Z" fill="url(#spin-gold)" filter="url(#spin-glow)" stroke="#8B6508" stroke-width="0.5" />
     </svg>`,
 
-    // 15. أيقونة المهام اليومية (مخطوطة ملكية) 📜✨
+    // 15. أيقونة المهام اليومية (مخطوطة ملكية)
     dailyQuests: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34" style="vertical-align: middle; display: inline-block; transform: scale(1.3); transform-origin: center;">
         <defs>
             <linearGradient id="scrollPaper" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -517,7 +517,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍
+    // 16. أيقونة الكرة الأرضية لزر الأونلاين
     globeBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.3); transform-origin: center;">
         <defs>
             <radialGradient id="oceanBlueBtn" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="45%" stop-color="#0284c7"/><stop offset="80%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
@@ -548,9 +548,93 @@ const SVGIcons = {
         <circle cx="50" cy="50" r="36" fill="url(#atmosphereGlowBtn)"/><path d="M 20 32 A 34 34 0 0 1 80 32 A 36 36 0 0 0 20 32 Z" fill="url(#glossHighlightBtn)"/>
     </svg>`,
 
-    // 17. أيقونة الروبوت لزر الأوفلاين 🤖
-    robotBtn: `<svg viewBox="0 0 24 24" fill="#f1c40f" width="100%" height="100%" style="transform: scale(1.1); transform-origin: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
-        <path d="M19 8h-1V6c0-1.1-.9-2-2-2h-3V2h-2v2H8C6.9 4 6 4.9 6 6v2H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h1v1c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2v-1h1c1.1 0 2-.9 2-2v-6c0-1.1-.9-2-2-2zM9 11.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5S11.33 13 10.5 13 9 12.33 9 11.5zm6 4.5h-6v-1.5h6V16zm0-3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+    // 17. أيقونة الروبوت الفخم المضيء لزر الأوفلاين 🤖 (تم تحويلها من كود الـ Canvas)
+    robotBtn: `<svg viewBox="0 0 800 600" width="100%" height="100%" style="transform: scale(1.4); transform-origin: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
+        <defs>
+            <!-- تدرجات الذهب (عمودي وأفقي) -->
+            <linearGradient id="botGoldV" x1="0" y1="100" x2="0" y2="500" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#f9df88"/><stop offset="15%" stop-color="#c59539"/><stop offset="30%" stop-color="#fdf3b0"/><stop offset="65%" stop-color="#875a18"/><stop offset="90%" stop-color="#e4b143"/><stop offset="100%" stop-color="#6b450f"/>
+            </linearGradient>
+            <linearGradient id="botGoldH" x1="100" y1="0" x2="700" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#f9df88"/><stop offset="15%" stop-color="#c59539"/><stop offset="30%" stop-color="#fdf3b0"/><stop offset="65%" stop-color="#875a18"/><stop offset="90%" stop-color="#e4b143"/><stop offset="100%" stop-color="#6b450f"/>
+            </linearGradient>
+            
+            <!-- تدرجات المعدن الداكن (الهيكل والأذن) -->
+            <linearGradient id="botDarkMetal" x1="0" y1="140" x2="0" y2="540" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#3a3d46"/><stop offset="50%" stop-color="#1e2025"/><stop offset="100%" stop-color="#0c0d10"/>
+            </linearGradient>
+            <linearGradient id="botDarkMetalEar" x1="0" y1="250" x2="0" y2="350" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#3a3d46"/><stop offset="50%" stop-color="#1e2025"/><stop offset="100%" stop-color="#0c0d10"/>
+            </linearGradient>
+            
+            <!-- إضاءة الوجه والعيون -->
+            <radialGradient id="botFaceGrad" cx="400" cy="340" r="400" fx="400" fy="200" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#262931"/><stop offset="100%" stop-color="#08090b"/>
+            </radialGradient>
+            <radialGradient id="botEyeGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff"/><stop offset="20%" stop-color="#00ffff"/><stop offset="60%" stop-color="#0066ff"/><stop offset="90%" stop-color="#001a4d"/><stop offset="100%" stop-color="#00081a"/>
+            </radialGradient>
+            
+            <!-- الفلاتر (ظلال ونعومة لابتسامة النيون) -->
+            <filter id="botEyeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.8"/>
+            </filter>
+            <filter id="botNeonBlurBase" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="15" result="blur1" />
+                <feGaussianBlur stdDeviation="5" result="blur2" />
+                <feMerge>
+                    <feMergeNode in="blur1" />
+                    <feMergeNode in="blur2" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
+        </defs>
+
+        <!-- الأذنين (اليسرى) -->
+        <rect x="40" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
+        <rect x="35" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
+        <rect x="45" y="285" width="30" height="8" fill="url(#botGoldV)" />
+        <rect x="45" y="305" width="30" height="8" fill="url(#botGoldV)" />
+        <rect x="45" y="325" width="30" height="8" fill="url(#botGoldV)" />
+
+        <!-- الأذنين (اليمنى) -->
+        <rect x="700" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
+        <rect x="715" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
+        <rect x="725" y="285" width="30" height="8" fill="url(#botGoldV)" />
+        <rect x="725" y="305" width="30" height="8" fill="url(#botGoldV)" />
+        <rect x="725" y="325" width="30" height="8" fill="url(#botGoldV)" />
+
+        <!-- الهوائي -->
+        <rect x="392" y="70" width="16" height="80" fill="url(#botGoldV)" />
+        <path d="M 340 150 Q 400 95 460 150 Z" fill="url(#botGoldV)" />
+        <ellipse cx="400" cy="150" rx="60" ry="12" fill="url(#botGoldH)" />
+        <circle cx="400" cy="55" r="32" fill="url(#botGoldH)" />
+        <circle cx="400" cy="55" r="22" fill="url(#botEyeGlow)" />
+        <ellipse cx="400" cy="42" rx="12" ry="5" fill="rgba(255,255,255,0.8)" />
+
+        <!-- الرأس الأساسي -->
+        <rect x="70" y="140" width="660" height="400" rx="180" fill="url(#botDarkMetal)" />
+        <rect x="95" y="165" width="610" height="350" rx="155" fill="url(#botGoldV)" />
+        <rect x="115" y="185" width="570" height="310" rx="135" fill="#050608" />
+        <rect x="120" y="190" width="560" height="300" rx="130" fill="url(#botFaceGrad)" />
+
+        <!-- العين اليسرى -->
+        <circle cx="275" cy="330" r="80" fill="url(#botGoldH)" filter="url(#botEyeShadow)" />
+        <circle cx="275" cy="330" r="70" fill="#030406" />
+        <circle cx="275" cy="330" r="62" fill="url(#botEyeGlow)" />
+        <path d="M 216 310 A 62 62 0 0 1 334 310 C 315 310 235 310 220 312 Z" fill="rgba(255,255,255,0.4)" />
+        <g transform="translate(250, 305) rotate(45)"><ellipse rx="12" ry="8" fill="rgba(255,255,255,0.85)" /></g>
+
+        <!-- العين اليمنى -->
+        <circle cx="525" cy="330" r="80" fill="url(#botGoldH)" filter="url(#botEyeShadow)" />
+        <circle cx="525" cy="330" r="70" fill="#030406" />
+        <circle cx="525" cy="330" r="62" fill="url(#botEyeGlow)" />
+        <path d="M 466 310 A 62 62 0 0 1 584 310 C 565 310 485 310 470 312 Z" fill="rgba(255,255,255,0.4)" />
+        <g transform="translate(500, 305) rotate(45)"><ellipse rx="12" ry="8" fill="rgba(255,255,255,0.85)" /></g>
+
+        <!-- الابتسامة المضيئة (Neon Smile) -->
+        <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#00f3ff" stroke-width="12" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
+        <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
     </svg>`
 };
 
