@@ -164,7 +164,7 @@ body {
 /* أيقونة الرتبة المنفصلة في شريط البروفايل */
 .boundary-rank-icon { 
     top: 56px !important; 
-    left: 120px !important; 
+    left: 115px !important; 
     width: 7px !important; 
     height: 7px !important; 
     z-index: 25 !important; 
