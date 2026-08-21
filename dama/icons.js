@@ -541,7 +541,7 @@ const SVGIcons = {
             </style>
         </defs>
         
-        <g transform="translate(50, 50) scale(1.55) translate(-50, -50)">
+        <g transform="translate(50, 50) scale(1.35) translate(-50, -50)">
             <circle cx="50" cy="50" r="36" fill="url(#oceanBlueCombo)"/>
             <g clip-path="url(#globeClipCombo)">
                 <g class="anim-globe-spin"> <!-- 🌟 تطبيق حركة الدوران على الخريطة فقط 🌟 -->
