@@ -124,7 +124,7 @@ export const ui = {
         el.style.backgroundColor = 'transparent';
         el.style.overflow = 'visible'; 
         
-              if (avatarStr === "AI_BOT") {
+        if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             // سحب كود الـ SVG المتحرك مباشرة من ملف icons.js
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
@@ -150,8 +150,6 @@ export const ui = {
             }
             return;
         }
-
-
 
         const defaultAvatar = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
         let finalSrc = avatarStr;
@@ -526,11 +524,8 @@ export const ui = {
         window.matchPlayer1Id = p1?.guestId;
         window.matchPlayer2Id = p2?.guestId;
 
-        const giftBtn1 = document.getElementById('match-gift-btn-p1');
-        if (giftBtn1) giftBtn1.style.display = 'inline-block';
-        
         const giftBtn2 = document.getElementById('match-gift-btn-p2');
-        if (giftBtn2) giftBtn2.style.display = 'inline-block';
+        if (giftBtn2) giftBtn2.style.display = 'flex';
     },
 
     toggleOnlineUILayout(active, oppName = "", oppAvatar = "❓") {
@@ -643,9 +638,6 @@ export const ui = {
 
             window.matchPlayer1Id = gameState.userProfile.id;
             window.matchPlayer2Id = window.currentOpponentId;
-            
-            const giftBtn1 = document.getElementById('match-gift-btn-p1');
-            if (giftBtn1) giftBtn1.style.display = 'none'; 
             
             const giftBtn2 = document.getElementById('match-gift-btn-p2');
             if (giftBtn2) {
