@@ -3,6 +3,7 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
+ * 🌟 (مُحدّث): توافق كامل مع نظام السيرفر الجديد، ترقيع دالة إرسال الهدايا للعمل بنظام Callback الآمن.
  */
 
 import { gameState } from './gameState.js'; 
@@ -69,7 +70,6 @@ export const ui = {
     setTxt(id, txt) {
         const el = this.getEl(id);
         if (el) {
-            // 🌟 الحارس السحري: حماية زر "ضد البوت" من التدمير
             if (id === 'reset-btn') {
                 const mainTextSpan = el.querySelector('#reset-btn-txt') || el.querySelector('.btn-main-text');
                 if (mainTextSpan) {
@@ -128,7 +128,7 @@ export const ui = {
         
         let frameScale = '135%';
         let avatarScale = 'scale(1)'; 
-        let botScale = 'scale(1.4)'; // 🌟 الحجم الافتراضي للبوت
+        let botScale = 'scale(1.4)'; 
         let frameZ = '3'; 
 
         let moveUp = 0; let moveDown = 0; let moveRight = 0; let moveLeft = 0;  
@@ -154,7 +154,6 @@ export const ui = {
             else { frameScale = '140%'; avatarScale = 'scale(1)'; }
             botScale = 'scale(1.4)';
         }
-        // 🌟 الشرط الخاص بنافذة النتائج لتصغير البوت ليتناسب مع الإطار الدائري 🌟
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
@@ -167,7 +166,6 @@ export const ui = {
             botScale = 'scale(1.2)';
         }
 
-        // 🤖 بناء شكل البوت بالإطار الدائري الذهبي
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
@@ -182,7 +180,6 @@ export const ui = {
                 });
             }
             
-            // تغليف البوت بإطار دائري مشابه لإطار اللاعب
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1a1a24; border-radius: 50%; border: 1.5px solid #d4af37; overflow: hidden; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 10;">
@@ -433,7 +430,6 @@ export const ui = {
         this.setDisplay('gameChatBtn', 'none');
         this.setDisplay('mic-toggle-btn', 'none');
         
-        // 🌟 إخفاء زر الإهداء دائماً في الأوفلاين والشاشة الرئيسية
         this.setDisplay('match-gift-btn-p2', 'none'); 
         
         if (active && gameState.isTutorialMode) this.setDisplay('undo-btn', 'inline-block');
@@ -805,8 +801,6 @@ export const ui = {
         document.body.classList.remove('game-active');
         
         this.setDisplay('spectator-stats-container', 'none');
-        
-        // 🌟 إخفاء زر الإهداء عند تفريغ الرقعة أو الخروج
         this.setDisplay('match-gift-btn-p2', 'none');
         
         this.setTxt('reset-btn-txt', 'ضد البوت');
@@ -834,7 +828,6 @@ export const ui = {
     initBoard() {
         this.drawEmptyBoard(); 
         
-        // 🌟 تغيير النص إلى بدء فقط عند بدء اللعب الفعلي
         this.setTxt('reset-btn-txt', 'بدء');
         
         gameState.botMoveCount = 0; gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
@@ -1261,7 +1254,6 @@ export const ui = {
         if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal');
         else this.setDisplay('game-over-modal', 'none');
         
-        // 🌟 إخفاء زر الهدايا عند إظهار نافذة النتائج لمنع ظهوره بالواجهة الرئيسية
         this.setDisplay('match-gift-btn-p2', 'none');
 
         const container = this.makeEl('div', 'custom-results-modal-container', "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,18,25,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:999999;font-family:sans-serif;direction:rtl;box-sizing:border-box;padding:20px;");
@@ -1282,7 +1274,6 @@ export const ui = {
             
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;");
             
-            // 🌟 إضافة كلاس 'result-avatar' للتحكم في حجم البوت وإطاره
             const av = this.makeEl('div', 'result-avatar', "width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
             
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
@@ -1307,7 +1298,6 @@ export const ui = {
         const flex = this.makeEl('div', null, "display:flex;justify-content:center;align-items:center;gap:20px;margin:15px 0;");
         
         let oppName = gameState.currentOpponentName; let oppAvatar = gameState.currentOpponentAvatar;
-        // 🌟 تغيير الاسم من الذكاء الاصطناعي إلى "بوت"
         if (!gameState.isOnlineMode) { oppName = "بوت"; oppAvatar = "AI_BOT"; }
 
         if (gameState.userProfile) {
@@ -1454,16 +1444,12 @@ export const ui = {
             const badgeRankEl = this.getEl('profile-stat-rank-badge');
             const badgeRankIconEl = this.getEl('profile-stat-rank-icon-badge');
             
-            // وضع النص لوحده في مكانه
             if (badgeRankEl) {
                 badgeRankEl.innerHTML = `${lvlInfo.rank}`;
             }
-            
-            // وضع الأيقونة لوحدها في مكانها المكبر
             if (badgeRankIconEl) {
                 badgeRankIconEl.innerHTML = lvlInfo.rankIcon;
             }
-
 
             if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
             if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
@@ -1930,6 +1916,7 @@ window.givePopularity = function(directTargetId) {
     if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
 };
 
+// 🌟 الترقيع الأمني الأهم (إرسال الهدية بنظام Callback الموثق مع السيرفر)
 window.confirmSendGift = function(giftId, fallbackPopValue) {
     let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
@@ -1937,6 +1924,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     let targetId = window.targetGiftReceiverId;
     if (!targetId) return;
 
+    // خصم وهمي سريع لتجاوب الواجهة الأمامية
     profile.inventory[giftId] -= 1;
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
 
@@ -1982,8 +1970,30 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     toast.classList.add('show'); 
                     setTimeout(() => toast.classList.remove('show'), 2500); 
                 }
+            } else {
+                // فشل الإرسال لأي سبب (غش، مشكلة بالسيرفر)، يتم إرجاع الهدية لحقيبة اللاعب
+                profile.inventory[giftId] += 1;
+                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                
+                const toast = document.getElementById('toast-notification');
+                if (toast) {
+                    toast.innerText = `❌ فشل إرسال الهدية، يرجى المحاولة لاحقاً.`;
+                    toast.classList.add('show');
+                    setTimeout(() => toast.classList.remove('show'), 2500);
+                }
             }
         });
+    } else {
+        // لا يوجد اتصال، أرجع الهدية
+        profile.inventory[giftId] += 1;
+        localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+        
+        const toast = document.getElementById('toast-notification');
+        if (toast) {
+            toast.innerText = `❌ السيرفر غير متصل، لا يمكن الإرسال.`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
     }
     
     window.targetGiftReceiverId = null; 
