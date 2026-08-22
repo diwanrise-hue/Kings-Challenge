@@ -1,6 +1,7 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
+ * 🌟 (مُحدّث): توافق 100% مع أمان السيرفر الجديد، ونظام الـ Callback للعمليات الحساسة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -427,7 +428,6 @@ export const socketManager = {
                     avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
                 }
 
-                // 🌟 قاعدة بيانات الإطارات المصغرة لقائمة الغرف
                 const miniFramesDB = {
                     'pf_ruby': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profil2.webp',
                     'pf_dragon': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile4.webp',
@@ -435,7 +435,6 @@ export const socketManager = {
                 };
                 
                 let frameHTML = '';
-                // r.equippedProfileFrame أو r.equippedFr حسب ما يحفظه السيرفر
                 let hostFrame = r.equippedProfileFrame || r.equippedFr; 
                 if (hostFrame && miniFramesDB[hostFrame]) {
                     frameHTML = `<img src="${miniFramesDB[hostFrame]}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));">`;
@@ -688,7 +687,7 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
-                socket.on('gameStart', data => {
+        socket.on('gameStart', data => {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
             
@@ -719,7 +718,6 @@ export const socketManager = {
 
             if (data.roomID) gameState.onlineRoomID = data.roomID;
 
-            // 🌟 الإصلاح الجذري هنا: استقبال جميع بيانات الخصم بدقة وحفظها
             gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
             gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.webp");
             gameState.currentOpponentFr = (data.opponent?.equippedFr || "fr_classic");
@@ -916,14 +914,12 @@ export const socketManager = {
             }
         });
 
-                socket.on('syncTime', (data) => {
+        socket.on('syncTime', (data) => {
             if (gameState.isOnlineMode && data) {
                 const seconds = data.secondsLeft || 0;
                 gameState.turnTimeLeft = seconds;
                 gameState.turnEndTime = Date.now() + (seconds * 1000);
                 
-                // 🌟 الحل الجذري: نكتفي بتحديث الوقت بصرياً ولا نقوم بإعادة تشغيل دالة العداد 
-                // هذا يمنع تقطع وتداخل صوت التيك توك الخاص بآخر 10 ثواني
                 if (window.ui && typeof window.ui.setTxt === 'function') {
                     let timeTxt = (window.t && window.t('time_left')) ? window.t('time_left') : 'المتبقي للدور:';
                     window.ui.setTxt('turn-countdown', `${timeTxt} ${seconds}s`);
