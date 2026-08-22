@@ -1,7 +1,7 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): توافق 100% مع أمان السيرفر الجديد، ونظام الـ Callback للعمليات الحساسة.
+ * 🌟 (مُحدّث): تم ترقيع نظام إعادة الاتصال لمنع الخروج الوهمي من الغرف أثناء العداد التنازلي.
  */
 
 import { gameState } from './gameState.js'; 
@@ -525,7 +525,8 @@ export const socketManager = {
             
             socket.emit('requestActiveRooms');
 
-            if (gameState.isOnlineMode && gameState.onlineRoomID) {
+            // 🌟 الإصلاح الأمني لضمان الدخول التلقائي للغرفة حتى لو لم تبدأ المباراة بعد
+            if (gameState.onlineRoomID) {
                 socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
                 this.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
