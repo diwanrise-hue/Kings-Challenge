@@ -1,5 +1,5 @@
 // ==========================================
-// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (دعم شامل للخصومات)
+// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (متوافق 100% مع السيرفر)
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -378,6 +378,8 @@ export const STORE_ITEMS = {
         damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135424.webp', 
         damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135420.webp'
     },
+
+    // 🛡️ تم إزالة العنصر المكرر pc_death_skSkull من هنا لتطابق قاعدة بيانات السيرفر
 
     'pc_oak_leaf': { 
         type: 'pc', cost: 5000, isLegendary: true, nameAr: 'طاقم البلوط والتاج الملكي الأسطوري', nameEn: 'Royal Oak Leaf & Crown Set',
@@ -811,7 +813,7 @@ export const storeManager = {
         if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(processMsg);
         
         if (window['socket'] && window['socket'].connected) { 
-            // 🌟 الإصلاح هنا: إرسال guestId و userId لحماية السيرفر
+            // 🌟 استخدام userId للحماية المطابقة للسيرفر
             window['socket'].emit('requestPurchase', { guestId: profile.id, userId: profile.id, itemId: itemId, cost: item.cost, itemType: itemType || item.type }); 
         } else { 
             if (profile.tokens >= item.cost) {
@@ -851,7 +853,7 @@ export const storeManager = {
         const item = STORE_ITEMS[itemId];
 
         if (window['socket'] && window['socket'].connected) { 
-            // 🌟 الإصلاح هنا: إرسال guestId و userId لحماية السيرفر
+            // 🌟 استخدام userId للحماية
             window['socket'].emit('requestEquip', { guestId: profile.id, userId: profile.id, itemId: itemId, itemType: item ? item.type : 'pc' }); 
         } else {
             if (!item) return;
