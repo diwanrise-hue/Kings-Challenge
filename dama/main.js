@@ -2,7 +2,7 @@
  * main.js
  * المنسق العام للمشروع (Orchestrator).
  * يربط بين الواجهة (UI)، السيرفر (Socket)، وحالة اللعبة (GameState).
- * 🌟 (مُحدّث): تطبيق منطق زر الحفظ الصحيح وعكس حالة مربع اختيار الساحة ليتوافق مع السيرفر.
+ * 🌟 (مُحدّث): إصلاح عرض الرقعة فوراً عند إنشاء الغرفة لمنع الحذف الخاطئ لها.
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -54,21 +54,10 @@ socket.on('connect', () => {
     }, 300);
 });
 
-// ==========================================
-// التخزين المحلي
-// ==========================================
-export function saveGameState() {
-    // تم التخلص من نظام الحفظ التلقائي للوحة بناءً على التحديثات
-    // لضمان التوافق وعدم حدوث مشاكل عند رفع الكود من GitHub
-}
+export function saveGameState() { }
 
-export async function loadGameState() {
-    return false;
-}
+export async function loadGameState() { return false; }
 
-// ==========================================
-// دوال التلميحات وعجلة الحظ
-// ==========================================
 export function startOnlineHintSystem() {
     if (gameState.originalHints === null) { 
         gameState.originalHints = gameState.userProfile.hints !== undefined ? gameState.userProfile.hints : 5; 
@@ -117,9 +106,6 @@ export function updateSpinTimerDisplay(nextFreeTime) {
     if (nextFreeTime && nextFreeTime > Date.now()) { spinTimerInterval = setInterval(tick, 1000); }
 }
 
-// ==========================================
-// 🚀 تهيئة اللعبة الأساسية (Initialization)
-// ==========================================
 window.addEventListener('load', async () => {
     if (typeof ui.initProfileSystem === 'function') ui.initProfileSystem();
     if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard();
@@ -169,7 +155,6 @@ window.addEventListener('load', async () => {
         gameState.userProfile = { ...gameState.userProfile, ...profile };
         try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
 
-        // 🌟 تطبيق المنطق الصحيح لزر המزامنة ليتوافق مع السيرفر
         if (gameState.userProfile.syncThemeOptOut !== undefined) {
             const optCb = document.getElementById('sync-theme-optout');
             if (optCb) optCb.checked = !gameState.userProfile.syncThemeOptOut;
@@ -271,10 +256,6 @@ window.addEventListener('load', async () => {
     }
 });
 
-// ==========================================
-// 🕹️ إدارة تفاعلات الأزرار والروابط (Event Handlers)
-// ==========================================
-
 ui.onClick('diff-quick-select', saveGameState);
 
 ui.onClick('start-white-btn', () => { 
@@ -304,11 +285,9 @@ ui.onClick('settings-btn', e => {
     if(typeof window.openAppModal === 'function') window.openAppModal('settings-overlay'); 
 });
 
-// 🌟 زر الحفظ المُحدث: يقرأ قيمة المربع ويعكسها للحفظ 
 ui.onClick('save-settings-btn', () => { 
     const optCb = document.getElementById('sync-theme-optout');
     if (optCb && gameState.userProfile) {
-        // إذا كان المربع محدداً (صح) فهذا يعني أنه "موافق" على استخدام الساحة (أي العكس لـ OptOut)
         gameState.userProfile.syncThemeOptOut = !optCb.checked;
         try {
             localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
@@ -333,7 +312,6 @@ ui.onClick('lang-select-modal', e => {
     if (window.updateHtmlTexts) window.updateHtmlTexts();
 });
 
-// -- تسجيل الدخول وإدارة الأصدقاء --
 ui.onClick('login-guest-btn', () => {
     const randomNum = 10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000);
     gameState.userProfile = { 
@@ -439,7 +417,6 @@ ui.onClick('switch-account-btn', () => {
     if(typeof window.openAppModal === 'function') window.openAppModal('login-modal'); 
 });
 
-// -- عجلة الحظ --
 ui.onClick('spin-free-btn', () => {
     if (window.isSpinning) return;
     if (socket && socket.connected) {
@@ -471,7 +448,6 @@ ui.onClick('spin-paid-btn', () => {
     }
 });
 
-// -- التوفيق العشوائي والغرف --
 const onlineBtn = document.getElementById('online-toggle-btn');
 if (onlineBtn) {
     onlineBtn.addEventListener('click', (e) => {
