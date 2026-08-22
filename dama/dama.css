@@ -1470,3 +1470,39 @@ body.game-active button#reset-btn.premium-game-btn .btn-icon {
 body.online-mode-active button#reset-btn.premium-game-btn {
     display: none !important;
 }
+/* =========================================
+   🛡️ إصلاح وتقييد حجم شارات الرتب (الحدود الصارمة)
+   ========================================= */
+
+/* 1. تثبيت حجم الحاوية الرئيسية للشارة في اللوبي */
+.boundary-rank-icon { 
+    width: 24px !important;  /* العرض الثابت للحاوية */
+    height: 24px !important; /* الارتفاع الثابت للحاوية */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* 2. تقييد أي صورة رتبة (في اللوبي، البروفايل، ولوحة الشرف) */
+.rank-icon-free img, 
+.rank-icon-small img,
+#igp-rank-display img { 
+    max-width: 100% !important;   /* يمنع خروج الصورة عن العرض */
+    max-height: 100% !important;  /* يمنع خروج الصورة عن الارتفاع */
+    width: auto !important;       
+    height: auto !important;      
+    object-fit: contain !important; /* 🌟 السحر هنا: يجبر الصورة على الاحتواء داخل المربع */
+    transform: scale(1) !important; /* إلغاء أي تكبير عشوائي سابق يكسر الحدود */
+    flex-shrink: 0 !important;    /* يمنع انضغاط العنصر إذا صغرت الشاشة */
+}
+
+/* 3. تعديل خاص بنافذة البروفايل الداخلي لإعطائه مساحة أكبر قليلاً ومقيدة */
+#igp-rank-display {
+    min-height: 35px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+#igp-rank-display img {
+    max-height: 32px !important; /* حد أقصى خاص بنافذة البروفايل */
+}
