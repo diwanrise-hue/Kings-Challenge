@@ -3,7 +3,7 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): توافق كامل مع نظام السيرفر الجديد، ترقيع دالة إرسال الهدايا للعمل بنظام Callback الآمن.
+ * 🌟 (مُحدّث): تم ترقيع نظام الهدايا لمنع إرسالها للشخص الخطأ، إصلاح أزرار الرهان، وتحسين الصور.
  */
 
 import { gameState } from './gameState.js'; 
@@ -15,6 +15,13 @@ import { t } from './i18n.js';
 import { hintSystem } from './hintSystem.js';
 
 window.t = t; 
+
+// 🌟 إضافة الدالة محلياً لضمان عدم حدوث خطأ ReferenceError
+function formatCompactNumber(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return num;
+}
 
 // ==========================================
 // 🖼️ قاعدة بيانات الإطارات الشخصية داخل اللعبة
@@ -118,6 +125,8 @@ export const ui = {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
         
+        // 🌟 إصلاح كلاس البوت المتراكم
+        el.classList.remove('modern-bot-avatar');
         el.style.backgroundImage = 'none';
         el.innerHTML = '';
         el.style.border = 'none';
@@ -1254,6 +1263,7 @@ export const ui = {
         if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal');
         else this.setDisplay('game-over-modal', 'none');
         
+        // 🌟 إخفاء زر الهدايا عند إظهار نافذة النتائج لمنع ظهوره بالواجهة الرئيسية
         this.setDisplay('match-gift-btn-p2', 'none');
 
         const container = this.makeEl('div', 'custom-results-modal-container', "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,18,25,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:999999;font-family:sans-serif;direction:rtl;box-sizing:border-box;padding:20px;");
@@ -1274,6 +1284,7 @@ export const ui = {
             
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;");
             
+            // 🌟 إضافة كلاس 'result-avatar' للتحكم في حجم البوت وإطاره
             const av = this.makeEl('div', 'result-avatar', "width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
             
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
@@ -1298,6 +1309,7 @@ export const ui = {
         const flex = this.makeEl('div', null, "display:flex;justify-content:center;align-items:center;gap:20px;margin:15px 0;");
         
         let oppName = gameState.currentOpponentName; let oppAvatar = gameState.currentOpponentAvatar;
+        // 🌟 تغيير الاسم من الذكاء الاصطناعي إلى "بوت"
         if (!gameState.isOnlineMode) { oppName = "بوت"; oppAvatar = "AI_BOT"; }
 
         if (gameState.userProfile) {
@@ -1444,12 +1456,16 @@ export const ui = {
             const badgeRankEl = this.getEl('profile-stat-rank-badge');
             const badgeRankIconEl = this.getEl('profile-stat-rank-icon-badge');
             
+            // وضع النص لوحده في مكانه
             if (badgeRankEl) {
                 badgeRankEl.innerHTML = `${lvlInfo.rank}`;
             }
+            
+            // وضع الأيقونة لوحدها في مكانها المكبر
             if (badgeRankIconEl) {
                 badgeRankIconEl.innerHTML = lvlInfo.rankIcon;
             }
+
 
             if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
             if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
@@ -1667,9 +1683,23 @@ window.selectBetAmount = function(value, displayText, element) {
         document.getElementById('room-bet-input').value = value; 
         document.getElementById('custom-bet-display').innerText = displayText;
     }
-    document.querySelectorAll('.bet-option-item').forEach(el => el.classList.remove('selected'));
+    // 🌟 حصر التحديد فقط على خيارات النافذة المفتوحة
+    element.closest('.settings-card').querySelectorAll('.bet-option-item').forEach(el => el.classList.remove('selected'));
     element.classList.add('selected');
     setTimeout(() => window.closeAppModal('bet-selector-modal'), 150);
+};
+
+window.confirmChallenge = function(betAmount, element) {
+    // 🌟 حصر التحديد على نافذة التحدي فقط
+    element.closest('.settings-card').querySelectorAll('.bet-option-item').forEach(el => el.classList.remove('selected'));
+    element.classList.add('selected'); 
+    setTimeout(() => {
+        window.closeAppModal('challenge-bet-modal');
+        if (window.challengeTargetFriendId && window.socketManager) {
+            window.socketManager.sendChallenge(window.challengeTargetFriendId, parseInt(betAmount));
+            window.challengeTargetFriendId = null; 
+        }
+    }, 250);
 };
 
 function cleanExpiredRequests(profile) {
@@ -1876,10 +1906,8 @@ window.openGiftPanel = function(targetId) {
 };
 
 window.givePopularity = function(directTargetId) {
-    if (directTargetId) window.targetGiftReceiverId = directTargetId;
-    if (!window.targetGiftReceiverId) {
-        window.targetGiftReceiverId = window.challengeTargetFriendId || window.currentOpponentId || (gameState.currentViewedPlayer ? gameState.currentViewedPlayer.id : null);
-    }
+    // 🌟 حماية جديدة: تصفير الهدف دائماً للتأكد أنه الخصم الحالي وليس شخصاً من القائمة
+    window.targetGiftReceiverId = directTargetId || window.currentOpponentId || (gameState.currentViewedPlayer ? gameState.currentViewedPlayer.id : null);
 
     const profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     const inventory = profile.inventory || {};
@@ -1916,7 +1944,7 @@ window.givePopularity = function(directTargetId) {
     if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
 };
 
-// 🌟 الترقيع الأمني الأهم (إرسال الهدية بنظام Callback الموثق مع السيرفر)
+// 🌟 الترقيع الأمني الأهم (إرسال الهدية بنظام Callback الموثق مع السيرفر واسترجاعها عند الفشل)
 window.confirmSendGift = function(giftId, fallbackPopValue) {
     let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
@@ -2607,73 +2635,4 @@ ui.onClick('board', e => {
             }
         }
     }
-});
-// ==========================================
-// 🌟 نظام الاستماع لتحديثات الواجهة الرئيسية (تطبيق الساحات والأحجار والمستوى فوراً)
-// ==========================================
-window.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'PROFILE_UPDATED') {
-        const profile = event.data.profile;
-        if (profile) {
-            if (!gameState.userProfile) gameState.userProfile = {};
-            Object.assign(gameState.userProfile, profile);
-
-            if (typeof window.applyProfileDataToUI === 'function') {
-                window.applyProfileDataToUI(profile);
-            }
-            if (window.ui && typeof window.ui.updateProfileUI === 'function') {
-                window.ui.updateProfileUI(); 
-            }
-
-            if (typeof window.applyTheme === 'function') {
-                window.applyTheme(profile);
-            }
-            if (window.ui && typeof window.ui.renderBoard === 'function') {
-                window.ui.renderBoard(true);
-            }
-            if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
-                window.storeManager.renderUI();
-            }
-        }
-    }
-});
-
-// ==========================================
-// 🌟 بدء اللعبة عند التحميل
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    let globalProfile = localStorage.getItem('hub_user_profile'); 
-    let initialAvatar = '1000132081.webp';
-    let userObj = { id: '#00000', name: t('badge_you') || 'أنت', avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0, currentStreak: 0, highestStreak: 0 };
-    
-    if (globalProfile) { 
-        try { 
-            const parsed = JSON.parse(globalProfile); 
-            userObj = { ...userObj, ...parsed };
-            if (parsed.avatar) userObj.avatar = parsed.avatar;
-        } catch(e) {} 
-    }
-
-    gameState.userProfile = userObj;
-
-    if (typeof window.applyTheme === 'function') {
-        window.applyTheme(userObj);
-    }
-
-    ui.drawEmptyBoard();
-
-    setTimeout(() => {
-        if (typeof window.applyProfileDataToUI === 'function') { 
-            window.applyProfileDataToUI(userObj); 
-        }
-        
-        if (window.ui && typeof window.ui.updateProfileUI === 'function') {
-            window.ui.updateProfileUI();
-        }
-
-        if (typeof window.syncRadioStatusDot === 'function') {
-            window.syncRadioStatusDot();
-        }
-        
-    }, 500); 
 });
