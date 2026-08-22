@@ -2,7 +2,7 @@
  * main.js
  * المنسق العام للمشروع (Orchestrator).
  * يربط بين الواجهة (UI)، السيرفر (Socket)، وحالة اللعبة (GameState).
- * 🌟 (مُحدّث): تطبيق منطق زر الحفظ الصحيح وعكس حالة مربع اختيار الساحة.
+ * 🌟 (مُحدّث): تطبيق منطق زر الحفظ الصحيح وعكس حالة مربع اختيار الساحة ليتوافق مع السيرفر.
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -169,9 +169,9 @@ window.addEventListener('load', async () => {
         gameState.userProfile = { ...gameState.userProfile, ...profile };
         try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
 
+        // 🌟 تطبيق المنطق الصحيح لزر המزامنة ليتوافق مع السيرفر
         if (gameState.userProfile.syncThemeOptOut !== undefined) {
             const optCb = document.getElementById('sync-theme-optout');
-            // 🌟 عكس المنطق هنا ليتوافق مع الواجهة
             if (optCb) optCb.checked = !gameState.userProfile.syncThemeOptOut;
         }
 
@@ -304,10 +304,11 @@ ui.onClick('settings-btn', e => {
     if(typeof window.openAppModal === 'function') window.openAppModal('settings-overlay'); 
 });
 
-// 🌟 زر الحفظ المُحدث: يقرأ قيمة المربع ويعكسها للحفظ (صح = موافق = false للـ OptOut)
+// 🌟 زر الحفظ المُحدث: يقرأ قيمة المربع ويعكسها للحفظ 
 ui.onClick('save-settings-btn', () => { 
     const optCb = document.getElementById('sync-theme-optout');
     if (optCb && gameState.userProfile) {
+        // إذا كان المربع محدداً (صح) فهذا يعني أنه "موافق" على استخدام الساحة (أي العكس لـ OptOut)
         gameState.userProfile.syncThemeOptOut = !optCb.checked;
         try {
             localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
@@ -570,7 +571,6 @@ ui.onClick('online-close-btn', () => {
 
 ui.onClick('online-create-btn', () => {
     let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
-    // 🌟 قراءة قيمة المربع الجديد
     let allowSpectatorBetting = document.getElementById('allow-betting-checkbox')?.checked ?? true;
 
     if (gameState.pendingChallengeId) {
@@ -587,7 +587,6 @@ ui.onClick('online-create-btn', () => {
         let pwd = document.getElementById('create-room-password-input')?.value;
         let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
 
-        // 🌟 تمرير خيار المراهنة إلى السيرفر
         socketManager.handleRoomAction('createRoom', rID, pwd, betAmt, allowSpectatorBetting);
         socketManager.showStatusMsg("جاري إنشاء الغرفة...");
         if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
