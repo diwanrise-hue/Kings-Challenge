@@ -1,7 +1,7 @@
 /**
  * gameEngine.js (Client-Side)
  * النسخة المطابقة تماماً لمحرك السيرفر (game-logic.js) لضمان التوافق 100%
- * 🌟 (مُحدّث): إصلاح الخلل الذي يمنع ظهور المربعات الزرقاء للحركات العادية (حذف اختصار السيرفر).
+ * 🌟 (مُحدّث): إصلاح الخلل الذي يمنع ظهور المربعات الزرقاء للحركات العادية.
  * 🌟 (مُحدّث): إصلاح نظام تحديد الاتجاه ليصبح ثابتاً ويمنع شلل الأحجار في نهاية اللعبة.
  */
 
@@ -15,7 +15,7 @@ export const gameEngine = {
     getPieceDirection(color, bState, roomDirectionData = null) {
         const baseColor = color.split('-')[0];
         
-        // 🌟 الإصلاح الجذري: الاعتماد على الاتجاه الثابت الذي تم تحديده عند بدء المباراة
+        // الاعتماد على الاتجاه الثابت الذي تم تحديده عند بدء المباراة لمنع الانعكاس
         if (roomDirectionData && roomDirectionData[baseColor] !== undefined) {
             return roomDirectionData[baseColor];
         } else if (gameState.pieceDirection && gameState.pieceDirection[baseColor] !== undefined) {
