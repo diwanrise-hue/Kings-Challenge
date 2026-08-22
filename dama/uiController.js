@@ -3,7 +3,8 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): تم ترقيع نظام الهدايا لمنع إرسالها للشخص الخطأ، إصلاح أزرار الرهان، وتحسين الصور.
+ * 🌟 (مُحدّث): توافق كامل مع نظام السيرفر الجديد، ترقيع دالة إرسال الهدايا للعمل بنظام Callback الآمن.
+ * 🌟 (مُحدّث): إصلاح الخلل البصري في أزرار الرهان وتراكم كلاس البوت.
  */
 
 import { gameState } from './gameState.js'; 
@@ -125,7 +126,7 @@ export const ui = {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
         
-        // 🌟 إصلاح كلاس البوت المتراكم
+        // 🌟 إصلاح كلاس البوت المتراكم الذي كان يشوه إطار اللاعب الحقيقي
         el.classList.remove('modern-bot-avatar');
         el.style.backgroundImage = 'none';
         el.innerHTML = '';
@@ -1263,7 +1264,6 @@ export const ui = {
         if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal');
         else this.setDisplay('game-over-modal', 'none');
         
-        // 🌟 إخفاء زر الهدايا عند إظهار نافذة النتائج لمنع ظهوره بالواجهة الرئيسية
         this.setDisplay('match-gift-btn-p2', 'none');
 
         const container = this.makeEl('div', 'custom-results-modal-container', "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,18,25,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:999999;font-family:sans-serif;direction:rtl;box-sizing:border-box;padding:20px;");
@@ -1284,7 +1284,6 @@ export const ui = {
             
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;");
             
-            // 🌟 إضافة كلاس 'result-avatar' للتحكم في حجم البوت وإطاره
             const av = this.makeEl('div', 'result-avatar', "width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
             
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
@@ -1309,7 +1308,6 @@ export const ui = {
         const flex = this.makeEl('div', null, "display:flex;justify-content:center;align-items:center;gap:20px;margin:15px 0;");
         
         let oppName = gameState.currentOpponentName; let oppAvatar = gameState.currentOpponentAvatar;
-        // 🌟 تغيير الاسم من الذكاء الاصطناعي إلى "بوت"
         if (!gameState.isOnlineMode) { oppName = "بوت"; oppAvatar = "AI_BOT"; }
 
         if (gameState.userProfile) {
@@ -1456,16 +1454,12 @@ export const ui = {
             const badgeRankEl = this.getEl('profile-stat-rank-badge');
             const badgeRankIconEl = this.getEl('profile-stat-rank-icon-badge');
             
-            // وضع النص لوحده في مكانه
             if (badgeRankEl) {
                 badgeRankEl.innerHTML = `${lvlInfo.rank}`;
             }
-            
-            // وضع الأيقونة لوحدها في مكانها المكبر
             if (badgeRankIconEl) {
                 badgeRankIconEl.innerHTML = lvlInfo.rankIcon;
             }
-
 
             if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
             if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
