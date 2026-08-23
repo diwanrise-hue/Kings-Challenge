@@ -1952,6 +1952,7 @@ window.givePopularity = function(directTargetId) {
     if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
 };
 
+
 window.confirmSendGift = function(giftId, fallbackPopValue) {
     let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
@@ -1963,13 +1964,12 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     profile.inventory[giftId] -= 1;
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
 
-    // 2. إغلاق نافذة الهدايا فقط (ونترك البروفايل مفتوحاً لكي نرى زيادة الرقم)
+    // 2. إغلاق نافذة الهدايا فقط
     if (typeof window.closeAppModal === 'function') { 
         window.closeAppModal('send-gift-modal'); 
     }
 
     if (window.socket && window.socket.connected) {
-        // 3. إرسال guestId بقوة للسيرفر لمنعه من الرفض
         window.socket.emit('sendPopularityGift', { 
             giftId: giftId, 
             popValue: fallbackPopValue, 
@@ -1986,7 +1986,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     window.currentOpponentData.popularity = response.newTotalPopularity;
                 }
 
-                // 4. تحديث الرقم في الشاشة فوراً مع تأثير حماسي
+                // 4. تحديث الرقم في الشاشة فوراً
                 const popDisplay = document.getElementById('igp-popularity-val');
                 if (popDisplay) {
                     let formatNum = (num) => {
@@ -2014,7 +2014,106 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     setTimeout(() => toast.classList.remove('show'), 2500); 
                 }
 
-                // 5. الأنيميشن الجبار (بمستوى طبقات z-index عالي ليظهر فوق كل شيء)
+                // 5. الأنيميشن الجبار (مفصول حسب نوع الهدية)
+                let giftObj = null;
+                if (window.POPULARITY_ITEMS) {
+                    giftObj = window.POPULARITY_ITEMS.find(item => item.id === giftId);
+                }
+                if (giftObj) {
+                    const isVideoGift = giftObj.mediaType === 'video';
+                    const animDuration = isVideoGift ? 5000 : 2800; // 🌟 5 ثواني للفيديو، 2.8 للصور
+                    
+                    const senderOverlay = document.createElement('div');
+                    senderOverlay.style.cssText = `
+                        position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
+                        pointer-events: none; z-index: 10000050; 
+                        display: flex; flex-direction: column; align-items: center; justify-content: center;
+                    `;
+                    
+                    let mediaHtml = '';
+                    if (isVideoGift) {
+                        // 🌟 تكبير حجم الفيديو ليكون فخماً في الوسط
+                        mediaHtml = `<video id="gift-media-el" src="${giftObj.videoPath}" autoplay loop muted playsinline style="width: 260px; height: 260px; object-fit: contain; will-change: transform, opacity;"></video>`;
+                    } else {
+                        mediaHtml = `<img id="gift-media-el" src="${giftObj.imagePath}" style="width: 180px; height: 180px; object-fit: contain; will-change: transform, opacity;">`;
+                    }
+
+                    senderOverlay.innerHTML = `
+                        <div id="gift-anim-container" style="display: flex; flex-direction: column; align-items: center; opacity: 0; will-change: transform, opacity;">
+                            ${mediaHtml}
+                            <div style="margin-top: 15px; color: #ffd700; font-weight: 900; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.6); padding: 6px 20px; border-radius: 25px; border: 1px solid rgba(255,215,0,0.5);">
+                                تم الإرسال 🚀
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(senderOverlay);
+                    
+                    const mediaEl = document.getElementById('gift-media-el');
+                    const animContainer = document.getElementById('gift-anim-container');
+                    let animationStarted = false;
+
+                    const startAnimation = () => {
+                        if (animationStarted || !animContainer) return;
+                        animationStarted = true;
+                        
+                        let keyframes = [];
+                        
+                        if (isVideoGift) {
+                            // 🌟 الأنيميشن الخاص بالفيديو: يظهر في الوسط، يبقى مكانه، ثم يختفي
+                            keyframes = [
+                                { transform: 'scale(0.5)', opacity: 0, offset: 0 },
+                                { transform: 'scale(1.1)', opacity: 1, offset: 0.1 },
+                                { transform: 'scale(1)', opacity: 1, offset: 0.15 },
+                                { transform: 'scale(1)', opacity: 1, offset: 0.9 }, // يبقى في المنتصف حتى 90% من الوقت
+                                { transform: 'scale(1.2)', opacity: 0, offset: 1 } // يتضخم قليلاً ويختفي
+                            ];
+                        } else {
+                            // 🌟 الأنيميشن العادي للصور: يطير للأعلى
+                            keyframes = [
+                                { transform: 'scale(0.2) translateY(100px)', opacity: 0, offset: 0 },
+                                { transform: 'scale(1.2) translateY(-20px)', opacity: 1, offset: 0.15 },
+                                { transform: 'scale(1) translateY(0)', opacity: 1, offset: 0.25 },
+                                { transform: 'scale(1.05) translateY(-5px)', opacity: 1, offset: 0.75 },
+                                { transform: 'scale(1.5) translateY(-250px)', opacity: 0, offset: 1 }
+                            ];
+                        }
+
+                        animContainer.animate(keyframes, {
+                            duration: animDuration,
+                            easing: isVideoGift ? 'ease-in-out' : 'cubic-bezier(0.25, 1, 0.5, 1)',
+                            fill: 'forwards'
+                        });
+                        
+                        setTimeout(() => senderOverlay.remove(), animDuration);
+                    };
+
+                    if (isVideoGift) {
+                        mediaEl.onloadeddata = startAnimation;
+                        mediaEl.onerror = startAnimation; 
+                        setTimeout(() => { if(!animationStarted && senderOverlay.parentNode) startAnimation(); }, 800);
+                    } else {
+                        if (mediaEl.complete) { startAnimation(); } 
+                        else { mediaEl.onload = startAnimation; mediaEl.onerror = startAnimation; }
+                    }
+                }
+            } else {
+                const toast = document.getElementById('toast-notification');
+                if (toast) { 
+                    toast.innerText = `❌ فشل الإرسال (السيرفر رفض العملية)`; 
+                    toast.classList.add('show'); 
+                    toast.style.borderColor = "#ff453a";
+                    setTimeout(() => { toast.classList.remove('show'); toast.style.borderColor = ""; }, 2500); 
+                }
+                profile.inventory[giftId] = (profile.inventory[giftId] || 0) + 1;
+                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+            }
+        });
+    }
+    window.targetGiftReceiverId = null; 
+};
+
+
+              // 5. الأنيميشن الجبار (بمستوى طبقات z-index عالي ليظهر فوق كل شيء)
                 let giftObj = null;
                 if (window.POPULARITY_ITEMS) {
                     giftObj = window.POPULARITY_ITEMS.find(item => item.id === giftId);
