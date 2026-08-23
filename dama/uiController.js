@@ -70,7 +70,6 @@ export const ui = {
     setTxt(id, txt) {
         const el = this.getEl(id);
         if (el) {
-            // 🌟 الحارس السحري: حماية زر "ضد البوت" من التدمير
             if (id === 'reset-btn') {
                 const mainTextSpan = el.querySelector('#reset-btn-txt') || el.querySelector('.btn-main-text');
                 if (mainTextSpan) {
@@ -1763,19 +1762,38 @@ window.acceptFriendReq = function(reqId) {
     let profStr = localStorage.getItem('hub_user_profile'); if(!profStr) return;
     let prof = JSON.parse(profStr); if(!prof.friends) prof.friends = [];
     let reqIndex = prof.friendRequests.findIndex(r => r.id === reqId);
+    
     if(reqIndex !== -1) {
         let acceptedUser = prof.friendRequests[reqIndex];
-        if(!prof.friends.find(f => (typeof f === 'string' ? f === reqId : f.id === reqId))) { prof.friends.push({ id: acceptedUser.id, name: acceptedUser.name, avatar: acceptedUser.avatar }); }
-        prof.friendRequests.splice(reqIndex, 1); localStorage.setItem('hub_user_profile', JSON.stringify(prof));
+        if(!prof.friends.find(f => (typeof f === 'string' ? f === reqId : f.id === reqId))) { 
+            prof.friends.push({ id: acceptedUser.id, name: acceptedUser.name, avatar: acceptedUser.avatar }); 
+        }
+        prof.friendRequests.splice(reqIndex, 1); 
+        localStorage.setItem('hub_user_profile', JSON.stringify(prof));
         renderFriendRequests(); renderFriendsList(prof.friends);
-        const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '✅ تمت إضافة الصديق بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+        
+        // 🌟 الإصلاح: إرسال القبول للسيرفر ومزامنة الملف
+        if (window.socket && window.socket.connected) {
+            window.socket.emit('acceptFriendReq', { targetId: reqId });
+            window.socket.emit('syncProfile', { id: prof.id, friends: prof.friends, friendRequests: prof.friendRequests });
+        }
+
+        const toast = document.getElementById('toast-notification'); 
+        if (toast) { toast.innerText = '✅ تمت إضافة الصديق بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
     }
 };
 
 window.rejectFriendReq = function(reqId) {
     let profStr = localStorage.getItem('hub_user_profile'); if(!profStr) return;
-    let prof = JSON.parse(profStr); prof.friendRequests = prof.friendRequests.filter(r => r.id !== reqId);
-    localStorage.setItem('hub_user_profile', JSON.stringify(prof)); renderFriendRequests();
+    let prof = JSON.parse(profStr); 
+    prof.friendRequests = prof.friendRequests.filter(r => r.id !== reqId);
+    localStorage.setItem('hub_user_profile', JSON.stringify(prof)); 
+    renderFriendRequests();
+
+    // 🌟 الإصلاح: إخبار السيرفر بمسح الطلب المرفوض من قاعدة البيانات
+    if (window.socket && window.socket.connected) {
+        window.socket.emit('syncProfile', { id: prof.id, friendRequests: prof.friendRequests });
+    }
 };
 
 window.sendFriendRequest = function() {
@@ -1831,7 +1849,6 @@ window.openMyProfile = function() {
             return num;
         };
         document.getElementById('igp-popularity-val').innerText = formatPop(prof.popularity || 0);
-        // 🌟 نهاية الإصلاح
 
         const highestStreakEl = document.getElementById('igp-highest-streak');
         if (highestStreakEl) highestStreakEl.innerText = prof.highestStreak || 0;
@@ -1859,7 +1876,6 @@ window.showPlayerProfileFromLB = function(player) {
         return num;
     };
     document.getElementById('igp-popularity-val').innerText = formatPop(player.popularity !== undefined ? player.popularity : 0);
-    // 🌟 نهاية الإصلاح
 
     const highestStreakEl = document.getElementById('igp-highest-streak');
     if (highestStreakEl) highestStreakEl.innerText = player.highestStreak || 0;
@@ -2077,7 +2093,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     }
     window.targetGiftReceiverId = null; 
 };
-
 
 function fallbackCopyText(text, callback) {
     const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px";
@@ -2511,6 +2526,11 @@ document.addEventListener('click', (e) => {
             if (gameState.originalHints !== undefined && gameState.originalHints !== null) { profileToSave.hints = gameState.originalHints; }
             localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
             ui.updateProfileUI();
+
+            // 🌟 الإصلاح: مزامنة قائمة الأصدقاء الجديدة (بدون الصديق المحذوف) مع السيرفر
+            if (window.socket && window.socket.connected) {
+                window.socket.emit('syncProfile', { id: profileToSave.id, friends: profileToSave.friends });
+            }
             
             const toast = document.getElementById('toast-notification'); 
             if (toast) { toast.innerText = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
