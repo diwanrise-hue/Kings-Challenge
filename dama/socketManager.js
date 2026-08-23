@@ -1568,3 +1568,23 @@ const notifyTexts = {
 };
 
 window.socketManager = socketManager;
+
+const notifyTexts = {
+    ar: {
+        // ... (نصوص اللغة العربية الموجودة لديك)
+    },
+    en: {
+        // ... (نصوص اللغة الإنجليزية الموجودة لديك)
+    }
+};
+
+// 🌟 قم بإضافة هذه الدالة المفقودة هنا 🌟
+function getNotifyMsg(key, param = '') {
+    const lang = (gameState && gameState.lang) ? gameState.lang : 'ar';
+    const msgs = notifyTexts[lang] || notifyTexts['ar'];
+    let msg = msgs[key] || '';
+    if (param) msg = msg.replace('{name}', param);
+    return msg;
+}
+
+window.socketManager = socketManager;
