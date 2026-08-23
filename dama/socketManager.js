@@ -4,6 +4,7 @@
  * تم ضبط نظام الغرف ليعمل في الخلفية بسلاسة (Background Hosting).
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد (3D Pedestal).
  * 🌟 (مُحدّث): تم إصلاح دالة getNotifyMsg ومنع تكرار notifyTexts.
+ * 🚀 (مُحدّث جديد): إضافة الذاكرة الدائمة (localStorage) لإجبار الهاتف على العودة للرقعة بعد إغلاق المتصفح!
  */
 
 import { gameState } from './gameState.js'; 
@@ -600,6 +601,13 @@ export const socketManager = {
             
             socket.emit('requestActiveRooms');
 
+            // 🌟 الحل الجذري للعودة بعد إغلاق المتصفح (قراءة الغرفة المحفوظة) 🌟
+            let savedRoomId = localStorage.getItem('dama_active_room_id');
+            if (savedRoomId) {
+                gameState.onlineRoomID = savedRoomId;
+                gameState.isOnlineMode = true;
+            }
+
             if (gameState.isOnlineMode && gameState.onlineRoomID) {
                 socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
                 this.handleRoomAction('joinRoom', gameState.onlineRoomID);
@@ -678,7 +686,10 @@ export const socketManager = {
             gameState.playerColor = gameState.myOnlineColor = 'white';
             gameState.isSpectator = false;
             gameState.lastMyMove = null;
-            if(id) gameState.onlineRoomID = id;
+            if(id) {
+                gameState.onlineRoomID = id;
+                localStorage.setItem('dama_active_room_id', id); // 🌟 حفظ للعودة
+            }
 
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('create-room-modal');
@@ -719,7 +730,12 @@ export const socketManager = {
             gameState.isGameActive = true;
             gameState.isOnlineMode = true;
             gameState.isSpectator = true; 
-            gameState.onlineRoomID = data.roomID;
+            
+            if (data.roomID) {
+                gameState.onlineRoomID = data.roomID;
+                localStorage.setItem('dama_active_room_id', data.roomID); // 🌟 حفظ للعودة
+            }
+            
             gameState.virtualBoard = data.board;
             gameState.currentTurn = data.turn || 'white';
             
@@ -811,7 +827,10 @@ export const socketManager = {
             gameState.pieceHistories = {}; 
             gameState.lastMyMove = null; 
 
-            if (data.roomID) gameState.onlineRoomID = data.roomID;
+            if (data.roomID) {
+                gameState.onlineRoomID = data.roomID;
+                localStorage.setItem('dama_active_room_id', data.roomID); // 🌟 حفظ للعودة
+            }
 
             gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
             gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.webp");
@@ -871,7 +890,6 @@ export const socketManager = {
             gameState.currentTurn = data.turn || 'white';
             ui.startTurn();
         });
-
 
         socket.on('opponentMove', data => {
             if (!data || !data.from || !data.to) return;
@@ -961,6 +979,7 @@ export const socketManager = {
 
             gameState.isGameOver = true;
             gameState.isGameActive = false;
+            localStorage.removeItem('dama_active_room_id'); // 🌟 تنظيف الذاكرة
 
             if (!gameState.isSpectator) {
                 gameEngine.endGame(gameState.myOnlineColor);
@@ -980,6 +999,7 @@ export const socketManager = {
 
             gameState.isGameOver = true;
             gameState.isGameActive = false;
+            localStorage.removeItem('dama_active_room_id'); // 🌟 تنظيف الذاكرة
 
             const winnerColor = (data && data.winner) ? data.winner : gameState.myOnlineColor;
             
@@ -1024,6 +1044,7 @@ export const socketManager = {
             if (!gameState.isGameOver && !gameState.isSpectator) {
                 gameState.isGameOver = true;
                 gameState.isGameActive = false;
+                localStorage.removeItem('dama_active_room_id'); // 🌟 تنظيف الذاكرة
                 if (typeof ui.showOnlineResultsModal === 'function') {
                     ui.showOnlineResultsModal(gameState.myOnlineColor); 
                 }
@@ -1055,6 +1076,7 @@ export const socketManager = {
             if (gameState.isGameOver) return;
             gameState.isGameOver = true;
             gameState.isGameActive = false;
+            localStorage.removeItem('dama_active_room_id'); // 🌟 تنظيف الذاكرة
             
             if (gameState.turnTimerInterval) { 
                 clearInterval(gameState.turnTimerInterval); 
@@ -1353,6 +1375,7 @@ export const socketManager = {
             window.applyTheme(gameState.userProfile);
         }
         
+        // 🌟 الإصلاح الأساسي: التأكد من تفريغ جميع المتغيرات المتعلقة بالأونلاين
         gameState.isOnlineMode = false;
         gameState.isGameActive = false;
         gameState.isGameOver = false;
@@ -1363,6 +1386,8 @@ export const socketManager = {
         gameState.currentOpponentXp = 0;
         window.myCurrentRoomId = null; 
         gameState.myCurrentRoomId = null; 
+        
+        localStorage.removeItem('dama_active_room_id'); // 🌟 تنظيف الذاكرة
         
         if (typeof gameState.inMatch !== 'undefined') gameState.inMatch = false;
         
