@@ -1823,8 +1823,16 @@ window.openMyProfile = function() {
             let progress = ((prof.xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
             xpBar.style.width = Math.min(100, Math.max(0, progress)) + '%'; xpText.innerText = `${prof.xp || 0} / ${nextLevelXp} XP`;
         }
-        document.getElementById('igp-popularity-val').innerText = prof.popularity || 0;
         
+        // 🌟 الإصلاح: توحيد عرض الشعبية بتنسيق 4K و 1M
+        const formatPop = (num) => {
+            if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+            return num;
+        };
+        document.getElementById('igp-popularity-val').innerText = formatPop(prof.popularity || 0);
+        // 🌟 نهاية الإصلاح
+
         const highestStreakEl = document.getElementById('igp-highest-streak');
         if (highestStreakEl) highestStreakEl.innerText = prof.highestStreak || 0;
 
@@ -1833,6 +1841,7 @@ window.openMyProfile = function() {
     window.openAppModal('in-game-profile-modal');
 };
 
+
 window.showPlayerProfileFromLB = function(player) {
     gameState.currentViewedPlayer = player; 
     const xpContainer = document.getElementById('igp-xp-container'); const statsGrid = document.getElementById('igp-stats-grid'); const levelBadge = document.getElementById('igp-level');
@@ -1840,10 +1849,18 @@ window.showPlayerProfileFromLB = function(player) {
     document.getElementById('own-profile-actions').style.display = 'none'; document.getElementById('other-profile-actions').style.display = 'flex';
     
     const reqBtn = document.getElementById('send-friend-req-btn'); if(reqBtn) { reqBtn.innerHTML = '➕ إرسال طلب صداقة'; reqBtn.style.cssText = "background: rgba(48,209,88,0.15) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.3) !important; margin: 0;"; reqBtn.disabled = false; }
-    const popBtn = document.getElementById('give-pop-btn'); if(popBtn) { popBtn.innerHTML = '🔥 منح شعبية'; popBtn.style.cssText = "background: rgba(255,77,77,0.15) !important; color: #ff4d4d !important; border-color: rgba(255,77,77,0.3) !important; margin: 0;"; popBtn.disabled = false; }
+    const popBtn = document.getElementById('give-pop-btn'); if(popBtn) { popBtn.innerHTML = '🔥 منح شعبية'; popBtn.style.cssText = "background: rgba(0, 210, 255, 0.15) !important; color: #00d2ff !important; border-color: rgba(0, 210, 255, 0.3) !important; margin: 0;"; popBtn.disabled = false; }
 
     document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
-    document.getElementById('igp-popularity-val').innerText = player.popularity !== undefined ? player.popularity : 0;
+    
+    // 🌟 الإصلاح: توحيد عرض الشعبية للخصوم بتنسيق 4K و 1M
+    const formatPop = (num) => {
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+        return num;
+    };
+    document.getElementById('igp-popularity-val').innerText = formatPop(player.popularity !== undefined ? player.popularity : 0);
+    // 🌟 نهاية الإصلاح
 
     const highestStreakEl = document.getElementById('igp-highest-streak');
     if (highestStreakEl) highestStreakEl.innerText = player.highestStreak || 0;
@@ -1872,6 +1889,54 @@ window.showPlayerProfileFromLB = function(player) {
     
     window.openAppModal('in-game-profile-modal');
 };
+window.showPlayerProfileFromLB = function(player) {
+    gameState.currentViewedPlayer = player; 
+    const xpContainer = document.getElementById('igp-xp-container'); const statsGrid = document.getElementById('igp-stats-grid'); const levelBadge = document.getElementById('igp-level');
+    if(xpContainer) xpContainer.style.display = 'none'; if(statsGrid) statsGrid.style.display = 'none'; if(levelBadge) levelBadge.style.display = 'none';
+    document.getElementById('own-profile-actions').style.display = 'none'; document.getElementById('other-profile-actions').style.display = 'flex';
+    
+    const reqBtn = document.getElementById('send-friend-req-btn'); if(reqBtn) { reqBtn.innerHTML = '➕ إرسال طلب صداقة'; reqBtn.style.cssText = "background: rgba(48,209,88,0.15) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.3) !important; margin: 0;"; reqBtn.disabled = false; }
+    const popBtn = document.getElementById('give-pop-btn'); if(popBtn) { popBtn.innerHTML = '🔥 منح شعبية'; popBtn.style.cssText = "background: rgba(0, 210, 255, 0.15) !important; color: #00d2ff !important; border-color: rgba(0, 210, 255, 0.3) !important; margin: 0;"; popBtn.disabled = false; }
+
+    document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
+    
+    // 🌟 الإصلاح: توحيد عرض الشعبية للخصوم بتنسيق 4K و 1M
+    const formatPop = (num) => {
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+        return num;
+    };
+    document.getElementById('igp-popularity-val').innerText = formatPop(player.popularity !== undefined ? player.popularity : 0);
+    // 🌟 نهاية الإصلاح
+
+    const highestStreakEl = document.getElementById('igp-highest-streak');
+    if (highestStreakEl) highestStreakEl.innerText = player.highestStreak || 0;
+
+    let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
+    ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
+    
+    const oppRankDisplay = document.getElementById('igp-rank-display');
+    const oppTitleDisplay = document.getElementById('igp-title-display');
+    
+    if (player.rankInfo) { 
+        if (oppRankDisplay) oppRankDisplay.innerHTML = `${player.rankInfo.icon} <span>${player.rankInfo.title}</span>`; 
+        
+        let oppLevel = Math.floor(Math.sqrt(Math.max(0, player.score || 0) / 50)) + 1;
+        let oppTitleText = "مبتدئ";
+        if (oppLevel >= 100) oppTitleText = "جراند ماستر";
+        else if (oppLevel >= 50) oppTitleText = "معلم الدامة";
+        else if (oppLevel >= 30) oppTitleText = "خبير";
+        else if (oppLevel >= 10) oppTitleText = "مبارز";
+        
+        if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: ${oppTitleText}`;
+    } else { 
+        if (oppRankDisplay) oppRankDisplay.innerHTML = `🥉 <span>برونزي</span>`; 
+        if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: مبتدئ`;
+    }
+    
+    window.openAppModal('in-game-profile-modal');
+};
+
 
 window.openGiftPanel = function(targetId) {
     if (!targetId) return;
