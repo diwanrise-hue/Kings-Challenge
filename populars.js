@@ -1,10 +1,12 @@
 /**
  * populars.js
  * يحتوي على 16 هدية شعبية بأسعار واقتصاد متوازن (Economy Balanced)
- * يضمن تشجيع اللاعبين على الشراء بفضل البونص التصاعدي.
+ * تم ربط الهدايا الفاخرة (13, 14, 15, 16) بملفات الفيديو (webm) لتظهر بحركة خرافية عند الإرسال!
  */
 
 const GITHUB_POPULARITY_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/assets/popularity/";
+// 🌟 مسار مجلد الفيديوهات الجديد الذي أريتني إياه في الصورة
+const GITHUB_VIDEO_BASE = GITHUB_POPULARITY_BASE + "popularvideo/";
 
 window.POPULARITY_ITEMS = [
     // --- الفئة العادية (مجاملات يومية) ---
@@ -27,29 +29,43 @@ window.POPULARITY_ITEMS = [
     { id: 'pop_11', nameAr: 'صندوق موسيقى', price: 10000, popValue: 15000, mediaType: 'image', imagePath: GITHUB_POPULARITY_BASE + '11.webp' },
     { id: 'pop_12', nameAr: 'سيف المحارب', price: 15000, popValue: 23250, mediaType: 'image', imagePath: GITHUB_POPULARITY_BASE + '12.webp' },
 
-    // --- الفئة الماسية والأسطورية (VIP) ---
-    { id: 'pop_13', nameAr: 'درع الحماية', price: 25000, popValue: 40000, mediaType: 'image', imagePath: GITHUB_POPULARITY_BASE + '13.webp' },
-    { id: 'pop_14', nameAr: 'قلادة الياقوت', price: 35000, popValue: 57750, mediaType: 'image', imagePath: GITHUB_POPULARITY_BASE + '14.webp' },
-    
-    // --- الهدايا المتحركة (فيديو فاخر جداً) ---
+    // ========================================================
+    // 🌟 الفئة الماسية والأسطورية (VIP) - أصبحت متحركة (فيديو) 🌟
+    // ========================================================
+    { 
+        id: 'pop_13', 
+        nameAr: 'درع الحماية (متحرك)', 
+        price: 25000, 
+        popValue: 40000, 
+        mediaType: 'video', 
+        videoPath: GITHUB_VIDEO_BASE + '13.webm', // الفيديو المتحرك للأنيميشن
+        imagePath: GITHUB_POPULARITY_BASE + '13.webp' // الصورة الثابتة للمتجر
+    },
+    { 
+        id: 'pop_14', 
+        nameAr: 'قلادة الياقوت (متحركة)', 
+        price: 35000, 
+        popValue: 57750, 
+        mediaType: 'video', 
+        videoPath: GITHUB_VIDEO_BASE + '14.webm', 
+        imagePath: GITHUB_POPULARITY_BASE + '14.webp' 
+    },
     { 
         id: 'pop_15', 
         nameAr: 'سيارة فيراري (متحركة)', 
         price: 50000, 
         popValue: 85000, 
         mediaType: 'video', 
-        videoPath: 'http://googleusercontent.com/generated_video_content/16012774795876307422',
-        imagePath: GITHUB_POPULARITY_BASE + '15.webp' // صورة مصغرة تظهر في المتجر
+        videoPath: GITHUB_VIDEO_BASE + '15.webm', 
+        imagePath: GITHUB_POPULARITY_BASE + '15.webp' 
     },
-    
-    // --- الهدية الملكية القصوى (مؤثرات بصرية وصوتية) ---
     { 
         id: 'pop_16', 
         nameAr: 'القلعة الأسطورية (متحركة)', 
         price: 100000, 
         popValue: 180000, 
         mediaType: 'video', 
-        videoPath: GITHUB_POPULARITY_BASE + '16.webm', // فيديو webm يحتوي على الشفافية والمؤثرات الصوتية الخاصة
-        imagePath: GITHUB_POPULARITY_BASE + '16.webp'  // الصورة المصغرة التي ستعرض في واجهة المتجر
+        videoPath: GITHUB_VIDEO_BASE + '16.webm', 
+        imagePath: GITHUB_POPULARITY_BASE + '16.webp' 
     }
 ];
