@@ -1977,12 +1977,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     setTimeout(() => toast.classList.remove('show'), 2500); 
                 }
 
-                // ========================================================
-                // 🌟 3. الإضافة الجديدة: عرض الهدية وسط الشاشة للمُرسل 🌟
-                // ========================================================
-                let giftObj = null;
 
-              
 window.confirmSendGift = function(giftId, fallbackPopValue) {
     let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
@@ -2003,7 +1998,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
         window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: fallbackPopValue, targetOpponentId: targetId }, (response) => {
             if (response && response.success) {
                 
-                // 🌟 إصلاح الخلل: التحديث باستخدام guestId بدلاً من id
+                // تحديث الشعبية
                 if (gameState.currentViewedPlayer && (gameState.currentViewedPlayer.id === targetId || gameState.currentViewedPlayer.guestId === targetId)) {
                     gameState.currentViewedPlayer.popularity = response.newTotalPopularity;
                 }
@@ -2011,7 +2006,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     window.currentOpponentData.popularity = response.newTotalPopularity;
                 }
 
-                // تحديث الرقم في الشاشة فوراً
+                // تحديث الرقم في الشاشة
                 const popDisplay = document.getElementById('igp-popularity-val');
                 if (popDisplay) {
                     popDisplay.innerText = response.newTotalPopularity;
@@ -2033,14 +2028,13 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     setTimeout(() => toast.classList.remove('show'), 2500); 
                 }
 
-                // 🌟 التأثير البصري: عرض الهدية وسط الشاشة للمُرسل 🌟
+                // التأثير البصري: عرض الهدية وسط الشاشة
                 let giftObj = null;
                 if (window.POPULARITY_ITEMS) {
                     giftObj = window.POPULARITY_ITEMS.find(item => item.id === giftId);
                 }
                 if (giftObj) {
                     const senderOverlay = document.createElement('div');
-                    // pointer-events: none يمنع قفل اللعب لتستمر باللعب أثناء طيران الهدية
                     senderOverlay.style.cssText = `
                         position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
                         pointer-events: none; z-index: 9999999;
@@ -2073,7 +2067,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     `;
                     document.body.appendChild(senderOverlay);
                     
-                    // إزالة الأنيميشن بعد 2.8 ثانية
                     setTimeout(() => senderOverlay.remove(), 2800);
                 }
             }
