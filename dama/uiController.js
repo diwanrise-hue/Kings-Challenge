@@ -1948,6 +1948,7 @@ window.givePopularity = function(directTargetId) {
     if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
 };
 
+
 window.confirmSendGift = function(giftId, fallbackPopValue) {
     let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
@@ -2012,24 +2013,28 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                 }
                 if (giftObj) {
                     const isVideoGift = giftObj.mediaType === 'video';
-                    const animDuration = isVideoGift ? 5000 : 2800; 
+                    // 🌟 التعديل هنا: 10 ثواني (10000 ملي ثانية) للفيديو، و 2.8 ثانية للصور العادية
+                    const animDuration = isVideoGift ? 10000 : 2800; 
                     
                     const senderOverlay = document.createElement('div');
                     senderOverlay.style.cssText = `
                         position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
                         pointer-events: none; z-index: 10000050; 
                         display: flex; flex-direction: column; align-items: center; justify-content: center;
+                        background: rgba(0, 0, 0, 0.4);
+                        opacity: 0; 
+                        transition: opacity 0.5s ease;
                     `;
                     
                     let mediaHtml = '';
                     if (isVideoGift) {
-                        mediaHtml = `<video id="gift-media-el" src="${giftObj.videoPath}" autoplay loop muted playsinline style="width: 260px; height: 260px; object-fit: contain; will-change: transform, opacity;"></video>`;
+                        mediaHtml = `<video id="gift-media-el" src="${giftObj.videoPath}" autoplay loop muted playsinline preload="auto" style="width: 280px; height: 280px; object-fit: contain; will-change: transform, opacity;"></video>`;
                     } else {
                         mediaHtml = `<img id="gift-media-el" src="${giftObj.imagePath}" style="width: 180px; height: 180px; object-fit: contain; will-change: transform, opacity;">`;
                     }
 
                     senderOverlay.innerHTML = `
-                        <div id="gift-anim-container" style="display: flex; flex-direction: column; align-items: center; opacity: 0; will-change: transform, opacity;">
+                        <div id="gift-anim-container" style="display: flex; flex-direction: column; align-items: center; opacity: 1; will-change: transform, opacity;">
                             ${mediaHtml}
                             <div style="margin-top: 15px; color: #ffd700; font-weight: 900; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.6); padding: 6px 20px; border-radius: 25px; border: 1px solid rgba(255,215,0,0.5);">
                                 تم الإرسال 🚀
@@ -2038,6 +2043,10 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     `;
                     document.body.appendChild(senderOverlay);
                     
+                    requestAnimationFrame(() => {
+                        senderOverlay.style.opacity = '1';
+                    });
+
                     const mediaEl = document.getElementById('gift-media-el');
                     const animContainer = document.getElementById('gift-anim-container');
                     let animationStarted = false;
@@ -2050,11 +2059,10 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                         
                         if (isVideoGift) {
                             keyframes = [
-                                { transform: 'scale(0.5)', opacity: 0, offset: 0 },
-                                { transform: 'scale(1.1)', opacity: 1, offset: 0.1 },
-                                { transform: 'scale(1)', opacity: 1, offset: 0.15 },
-                                { transform: 'scale(1)', opacity: 1, offset: 0.9 }, 
-                                { transform: 'scale(1.2)', opacity: 0, offset: 1 } 
+                                { transform: 'scale(0.8)', opacity: 0, offset: 0 },       // البداية
+                                { transform: 'scale(1)', opacity: 1, offset: 0.1 },        // يظهر بالكامل بعد 1 ثانية
+                                { transform: 'scale(1)', opacity: 1, offset: 0.9 },        // يبقى ثابتاً حتى الثانية رقم 9
+                                { transform: 'scale(1.1)', opacity: 0, offset: 1 }         // يختفي تدريجياً في الثانية الـ 10
                             ];
                         } else {
                             keyframes = [
@@ -2072,13 +2080,20 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                             fill: 'forwards'
                         });
                         
-                        setTimeout(() => senderOverlay.remove(), animDuration);
+                        setTimeout(() => {
+                            senderOverlay.style.opacity = '0';
+                            setTimeout(() => senderOverlay.remove(), 500); 
+                        }, animDuration - 500);
                     };
 
                     if (isVideoGift) {
-                        mediaEl.onloadeddata = startAnimation;
-                        mediaEl.onerror = startAnimation; 
-                        setTimeout(() => { if(!animationStarted && senderOverlay.parentNode) startAnimation(); }, 800);
+                        if (mediaEl.readyState >= 3) { 
+                            startAnimation();
+                        } else {
+                            mediaEl.addEventListener('canplay', startAnimation);
+                            mediaEl.onerror = startAnimation; 
+                            setTimeout(() => { if(!animationStarted && senderOverlay.parentNode) startAnimation(); }, 1500);
+                        }
                     } else {
                         if (mediaEl.complete) { startAnimation(); } 
                         else { mediaEl.onload = startAnimation; mediaEl.onerror = startAnimation; }
@@ -2099,6 +2114,8 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     }
     window.targetGiftReceiverId = null; 
 };
+
+
 
 function fallbackCopyText(text, callback) {
     const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px";
