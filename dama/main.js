@@ -191,7 +191,7 @@ window.addEventListener('load', async () => {
                     const style = "width: 140px; height: 140px; object-fit: contain; animation: floatGift 2s ease-in-out infinite; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));";
                     
                     if (giftObj.mediaType === 'video') {
-                        giftImageHtml = `<video src="${giftObj.videoPath}" autoplay loop muted playsinline style="${style} border-radius: 12px;"></video>`;
+                        giftImageHtml = `<video src="${giftObj.videoPath}" autoplay loop  playsinline style="${style} border-radius: 12px;"></video>`;
                     } else {
                         giftImageHtml = `<img src="${giftObj.imagePath}" style="${style}">`;
                     }
