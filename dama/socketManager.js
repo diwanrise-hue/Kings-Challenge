@@ -3,6 +3,7 @@
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
  * تم ضبط نظام الغرف ليعمل في الخلفية بسلاسة (Background Hosting).
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد (3D Pedestal).
+ * 🌟 (مُحدّث): إضافة دالة getNotifyMsg لحل مشكلة عدم دخول اللعبة بعد الـ 10 ثواني.
  */
 
 import { gameState } from './gameState.js'; 
@@ -403,7 +404,6 @@ export const socketManager = {
             const myRoom = rooms.find(r => r.hostId === currentUserId);
             if (myRoom) window.myCurrentRoomId = myRoom.id;
 
-            // 🌟 تحديث حالة الزر الأزرق أسفل القائمة
             const createBtn = document.querySelector('#online-modal .save-settings-btn');
             if (createBtn) {
                 if (myRoom) {
@@ -431,7 +431,6 @@ export const socketManager = {
                 return 0;
             });
 
-            // 🌟 إضافة CSS المنصة برمجياً 🌟
             if (!document.getElementById('wait-platform-style')) {
                 const style = document.createElement('style');
                 style.id = 'wait-platform-style';
@@ -489,7 +488,6 @@ export const socketManager = {
                 const isCreator = (r.hostId === currentUserId);
                 let actionBtnHTML = '';
 
-                // 🌟 تصميم منصة الانتظار الفخمة لغرفتك
                 if (!r.isFull && isCreator) {
                     roomEl.className = 'creator-platform';
                     
@@ -503,12 +501,10 @@ export const socketManager = {
                     roomEl.innerHTML = `
                         <div class="platform-3d-base"></div>
                         <div class="platform-content">
-                            <!-- الصورة الطافية -->
                             <div class="platform-avatar-float">
                                 ${platformAvatarHTML}
                             </div>
                             
-                            <!-- شارة الانتظار -->
                             <div style="text-align: center; background: rgba(0,0,0,0.75); padding: 6px 18px; border-radius: 25px; border: 1px solid rgba(212,175,55,0.4); backdrop-filter: blur(6px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
                                 <div style="color: #ffd700; font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 6px; justify-content: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
                                     <span style="animation: pulseHourglass 1.5s infinite;">⏳</span> بانتظار الخصم...
@@ -518,7 +514,6 @@ export const socketManager = {
                                 </div>
                             </div>
                             
-                            <!-- الأزرار الدائرية تحت المنصة -->
                             <div style="display: flex; gap: 15px; margin-top: 8px;">
                                 <button onclick="window.openCreatorSettings('${r.id}', ${r.betAmount})" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); border-radius: 50%; width: 42px; height: 42px; color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); transition: 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(255,255,255,0.1)'" title="إعدادات الغرفة">⚙️</button>
                                 <button onclick="window.deleteMyRoom('${r.id}')" style="background: rgba(255,69,58,0.15); border: 1px solid rgba(255,69,58,0.35); border-radius: 50%; width: 42px; height: 42px; color: #ff453a; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); transition: 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.background='rgba(255,69,58,0.25)'" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(255,69,58,0.15)'" title="إغلاق وحذف الغرفة">✕</button>
@@ -529,7 +524,6 @@ export const socketManager = {
                     playListContainer.appendChild(roomEl);
                     playCount++;
                 } 
-                // 🌟 تصميم الغرف العادية للاعبين الآخرين
                 else {
                     const avatarHTML = `
                         <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -1548,43 +1542,4 @@ const notifyTexts = {
         myHigherTheme: "✨ Your theme applied (Higher Rank)!",
         oppResignedWin: "Opponent Resigned! You Win 🏆",
         oppResignedSpec: "A player resigned. Match ended.",
-        timeoutDraw: "Time out! Draw 🤝",
-        timeoutWin: "Opponent timeout! You Win 🏆",
-        timeoutLoss: "Time out! Better luck next time ⏳",
-        timeoutSpec: "A player timed out. Match ended.",
-        oppDisconnected: "Opponent disconnected ⚠️",
-        oppReconnected: "{name} reconnected! 🔄",
-        oppLeftRoom: "Opponent left the room 🚪",
-        oppLeftMatch: "Opponent left the match 🚪",
-        rematchTimeout: "Rematch timeout expired ⏱️",
-        micAccepted: "Voice request accepted 🎤",
-        micRejected: "Voice request rejected 🔕",
-        enterRoomId: "Please enter Room ID! 🔢",
-        rematchSent: "Rematch request sent! Waiting... ⏳",
-        challengeSent: "Challenge sent! Waiting for friend... ⏳",
-        challengeAccepted: "Accepted! Entering... ⚔️",
-        challengeDeclined: "{name} declined the challenge ❌"
-    }
-};
-
-window.socketManager = socketManager;
-
-const notifyTexts = {
-    ar: {
-        // ... (نصوص اللغة العربية الموجودة لديك)
-    },
-    en: {
-        // ... (نصوص اللغة الإنجليزية الموجودة لديك)
-    }
-};
-
-// 🌟 قم بإضافة هذه الدالة المفقودة هنا 🌟
-function getNotifyMsg(key, param = '') {
-    const lang = (gameState && gameState.lang) ? gameState.lang : 'ar';
-    const msgs = notifyTexts[lang] || notifyTexts['ar'];
-    let msg = msgs[key] || '';
-    if (param) msg = msg.replace('{name}', param);
-    return msg;
-}
-
-window.socketManager = socketManager;
+        timeout
