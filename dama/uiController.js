@@ -2013,7 +2013,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                 }
                 if (giftObj) {
                     const isVideoGift = giftObj.mediaType === 'video';
-                    // 🌟 التعديل هنا: 10 ثواني (10000 ملي ثانية) للفيديو، و 2.8 ثانية للصور العادية
                     const animDuration = isVideoGift ? 10000 : 2800; 
                     
                     const senderOverlay = document.createElement('div');
@@ -2028,7 +2027,10 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     
                     let mediaHtml = '';
                     if (isVideoGift) {
-                        mediaHtml = `<video id="gift-media-el" src="${giftObj.videoPath}" autoplay loop muted playsinline preload="auto" style="width: 280px; height: 280px; object-fit: contain; will-change: transform, opacity;"></video>`;
+                        // 🌟 التعديلات هنا 🌟:
+                        // 1. إزالة كلمة 'muted' لكي يعمل الصوت بحرية.
+                        // 2. إضافة 'poster' ووضع صورة الهدية كغلاف مؤقت لتفادي أي وميض أو تقطيع.
+                        mediaHtml = `<video id="gift-media-el" src="${giftObj.videoPath}" poster="${giftObj.imagePath}" autoplay loop playsinline preload="auto" style="width: 280px; height: 280px; object-fit: contain; will-change: transform, opacity;"></video>`;
                     } else {
                         mediaHtml = `<img id="gift-media-el" src="${giftObj.imagePath}" style="width: 180px; height: 180px; object-fit: contain; will-change: transform, opacity;">`;
                     }
@@ -2055,14 +2057,23 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                         if (animationStarted || !animContainer) return;
                         animationStarted = true;
                         
+                        // 🌟 فرض تشغيل الصوت برمجياً (تجنباً لقيود بعض المتصفحات)
+                        if (isVideoGift && mediaEl) {
+                            mediaEl.volume = 1.0;
+                            let playPromise = mediaEl.play();
+                            if (playPromise !== undefined) {
+                                playPromise.catch(e => console.log("الصوت يعمل تلقائياً بفضل تفاعل اللاعب مسبقاً"));
+                            }
+                        }
+
                         let keyframes = [];
                         
                         if (isVideoGift) {
                             keyframes = [
-                                { transform: 'scale(0.8)', opacity: 0, offset: 0 },       // البداية
-                                { transform: 'scale(1)', opacity: 1, offset: 0.1 },        // يظهر بالكامل بعد 1 ثانية
-                                { transform: 'scale(1)', opacity: 1, offset: 0.9 },        // يبقى ثابتاً حتى الثانية رقم 9
-                                { transform: 'scale(1.1)', opacity: 0, offset: 1 }         // يختفي تدريجياً في الثانية الـ 10
+                                { transform: 'scale(0.8)', opacity: 0, offset: 0 },       
+                                { transform: 'scale(1)', opacity: 1, offset: 0.1 },        
+                                { transform: 'scale(1)', opacity: 1, offset: 0.9 },        
+                                { transform: 'scale(1.1)', opacity: 0, offset: 1 }         
                             ];
                         } else {
                             keyframes = [
