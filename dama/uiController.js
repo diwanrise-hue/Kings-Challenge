@@ -1981,13 +1981,66 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                 // 🌟 3. الإضافة الجديدة: عرض الهدية وسط الشاشة للمُرسل 🌟
                 // ========================================================
                 let giftObj = null;
+
+              
+window.confirmSendGift = function(giftId, fallbackPopValue) {
+    let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
+    
+    let targetId = window.targetGiftReceiverId;
+    if (!targetId) return;
+
+    // خصم الهدية من الحقيبة محلياً
+    profile.inventory[giftId] -= 1;
+    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+
+    if (typeof window.closeAppModal === 'function') { 
+        window.closeAppModal('send-gift-modal'); 
+        window.closeAppModal('in-game-profile-modal'); 
+    }
+
+    if (window.socket && window.socket.connected) {
+        window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: fallbackPopValue, targetOpponentId: targetId }, (response) => {
+            if (response && response.success) {
+                
+                // 🌟 إصلاح الخلل: التحديث باستخدام guestId بدلاً من id
+                if (gameState.currentViewedPlayer && (gameState.currentViewedPlayer.id === targetId || gameState.currentViewedPlayer.guestId === targetId)) {
+                    gameState.currentViewedPlayer.popularity = response.newTotalPopularity;
+                }
+                if (window.currentOpponentData && (window.currentOpponentData.guestId === targetId || window.currentOpponentData.id === targetId)) {
+                    window.currentOpponentData.popularity = response.newTotalPopularity;
+                }
+
+                // تحديث الرقم في الشاشة فوراً
+                const popDisplay = document.getElementById('igp-popularity-val');
+                if (popDisplay) {
+                    popDisplay.innerText = response.newTotalPopularity;
+                    popDisplay.style.transition = 'all 0.3s ease';
+                    popDisplay.style.transform = 'scale(1.5)';
+                    popDisplay.style.color = '#fff';
+                    popDisplay.style.textShadow = '0 0 15px #00d2ff';
+                    setTimeout(() => {
+                        popDisplay.style.transform = 'scale(1)';
+                        popDisplay.style.color = '';
+                        popDisplay.style.textShadow = '';
+                    }, 400);
+                }
+
+                const toast = document.getElementById('toast-notification');
+                if (toast) { 
+                    toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${response.popValue} شعبية)`; 
+                    toast.classList.add('show'); 
+                    setTimeout(() => toast.classList.remove('show'), 2500); 
+                }
+
+                // 🌟 التأثير البصري: عرض الهدية وسط الشاشة للمُرسل 🌟
+                let giftObj = null;
                 if (window.POPULARITY_ITEMS) {
                     giftObj = window.POPULARITY_ITEMS.find(item => item.id === giftId);
                 }
-                
                 if (giftObj) {
                     const senderOverlay = document.createElement('div');
-                    // استخدام pointer-events: none لكي لا تمنع اللاعب من اللعب أثناء الأنيميشن
+                    // pointer-events: none يمنع قفل اللعب لتستمر باللعب أثناء طيران الهدية
                     senderOverlay.style.cssText = `
                         position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
                         pointer-events: none; z-index: 9999999;
@@ -2018,18 +2071,17 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                             </div>
                         </div>
                     `;
-                    
                     document.body.appendChild(senderOverlay);
                     
-                    // إزالة العنصر من الشاشة بعد انتهاء الحركة (2.8 ثانية)
+                    // إزالة الأنيميشن بعد 2.8 ثانية
                     setTimeout(() => senderOverlay.remove(), 2800);
                 }
             }
         });
     }
-    
     window.targetGiftReceiverId = null; 
 };
+
 
 
 function fallbackCopyText(text, callback) {
