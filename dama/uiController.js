@@ -1927,7 +1927,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     let targetId = window.targetGiftReceiverId;
     if (!targetId) return;
 
-    // خصم الهدية من الحقيبة محلياً
     profile.inventory[giftId] -= 1;
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
 
@@ -1940,7 +1939,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
         window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: fallbackPopValue, targetOpponentId: targetId }, (response) => {
             if (response && response.success) {
                 
-                // تحديث الشعبية
                 if (gameState.currentViewedPlayer && (gameState.currentViewedPlayer.id === targetId || gameState.currentViewedPlayer.guestId === targetId)) {
                     gameState.currentViewedPlayer.popularity = response.newTotalPopularity;
                 }
@@ -1948,7 +1946,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     window.currentOpponentData.popularity = response.newTotalPopularity;
                 }
 
-                // تحديث الرقم في الشاشة
                 const popDisplay = document.getElementById('igp-popularity-val');
                 if (popDisplay) {
                     popDisplay.innerText = response.newTotalPopularity;
@@ -1971,7 +1968,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                 }
 
                 // ========================================================
-                // 🌟 التأثير البصري المحسن (بدون تقطيع مع انتظار التحميل) 🌟
+                // 🌟 نظام Web Animations API (بدون تقطيع و Reflow) 🌟
                 // ========================================================
                 let giftObj = null;
                 if (window.POPULARITY_ITEMS) {
@@ -1987,23 +1984,14 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     
                     let mediaHtml = '';
                     if (giftObj.mediaType === 'video') {
-                        // استخدام will-change لتسريع الأداء وإزالة drop-shadow
                         mediaHtml = `<video id="gift-media-el" src="${giftObj.videoPath}" autoplay loop muted playsinline style="width: 180px; height: 180px; object-fit: contain; will-change: transform, opacity;"></video>`;
                     } else {
                         mediaHtml = `<img id="gift-media-el" src="${giftObj.imagePath}" style="width: 180px; height: 180px; object-fit: contain; will-change: transform, opacity;">`;
                     }
 
+                    // قمنا بإزالة <style> لتخفيف الضغط على المعالج
                     senderOverlay.innerHTML = `
-                        <style>
-                            @keyframes senderGiftPopFly {
-                                0% { transform: scale(0.2) translateY(100px); opacity: 0; }
-                                15% { transform: scale(1.2) translateY(-20px); opacity: 1; }
-                                25% { transform: scale(1) translateY(0); opacity: 1; }
-                                75% { transform: scale(1.05) translateY(-5px); opacity: 1; }
-                                100% { transform: scale(1.5) translateY(-250px); opacity: 0; }
-                            }
-                        </style>
-                        <div id="gift-anim-container" style="display: none; flex-direction: column; align-items: center; will-change: transform, opacity;">
+                        <div id="gift-anim-container" style="display: flex; flex-direction: column; align-items: center; opacity: 0; will-change: transform, opacity;">
                             ${mediaHtml}
                             <div style="margin-top: 15px; color: #ffd700; font-weight: 900; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.6); padding: 6px 20px; border-radius: 25px; border: 1px solid rgba(255,215,0,0.5);">
                                 تم الإرسال 🚀
@@ -2012,27 +2000,41 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     `;
                     document.body.appendChild(senderOverlay);
                     
-                    // 🌟 الانتظار حتى تحميل الصورة/الفيديو ثم بدء الحركة
                     const mediaEl = document.getElementById('gift-media-el');
                     const animContainer = document.getElementById('gift-anim-container');
                     
+                    let animationStarted = false;
+
+                    // دالة تشغيل الأنيميشن الخفيف على الكرت
                     const startAnimation = () => {
-                        animContainer.style.display = 'flex';
-                        animContainer.style.animation = 'senderGiftPopFly 2.8s cubic-bezier(0.25, 1, 0.5, 1) forwards';
+                        if (animationStarted || !animContainer) return;
+                        animationStarted = true;
+                        
+                        animContainer.animate([
+                            { transform: 'scale(0.2) translateY(100px)', opacity: 0, offset: 0 },
+                            { transform: 'scale(1.2) translateY(-20px)', opacity: 1, offset: 0.15 },
+                            { transform: 'scale(1) translateY(0)', opacity: 1, offset: 0.25 },
+                            { transform: 'scale(1.05) translateY(-5px)', opacity: 1, offset: 0.75 },
+                            { transform: 'scale(1.5) translateY(-250px)', opacity: 0, offset: 1 }
+                        ], {
+                            duration: 2800,
+                            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                            fill: 'forwards'
+                        });
+                        
                         setTimeout(() => senderOverlay.remove(), 2800);
                     };
 
                     if (giftObj.mediaType === 'video') {
                         mediaEl.onloadeddata = startAnimation;
-                        mediaEl.onerror = startAnimation;
-                        // حماية إضافية: إذا طال التحميل أكثر من ثانية، شغل الحركة بأي حال
-                        setTimeout(() => { if(animContainer.style.display === 'none') startAnimation(); }, 1000);
+                        mediaEl.onerror = startAnimation; 
+                        setTimeout(() => { if(!animationStarted && senderOverlay.parentNode) startAnimation(); }, 800);
                     } else {
                         if (mediaEl.complete) {
                             startAnimation();
                         } else {
                             mediaEl.onload = startAnimation;
-                            mediaEl.onerror = startAnimation;
+                            mediaEl.onerror = startAnimation; // إذا كانت الصورة 404 ستطير رسالة "تم الإرسال" بدون توقف
                         }
                     }
                 }
