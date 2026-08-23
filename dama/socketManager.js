@@ -1359,6 +1359,7 @@ export const socketManager = {
             window.applyTheme(gameState.userProfile);
         }
         
+        // 🌟 الإصلاح الأساسي: التأكد من تفريغ جميع المتغيرات المتعلقة بالأونلاين
         gameState.isOnlineMode = false;
         gameState.isGameActive = false;
         gameState.isGameOver = false;
@@ -1367,6 +1368,9 @@ export const socketManager = {
         gameState.currentOpponentName = null;
         gameState.currentOpponentAvatar = null;
         gameState.currentOpponentXp = 0;
+        window.myCurrentRoomId = null; // تأكيد إزالة الـ ID الخاص بالغرفة النشطة
+        gameState.myCurrentRoomId = null; 
+        
         if (typeof gameState.inMatch !== 'undefined') gameState.inMatch = false;
         
         this._hideDisconnectUI();
@@ -1379,6 +1383,7 @@ export const socketManager = {
         if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
     },
 
+  
     sendRematchRequest() {
         if (gameState.onlineRoomID && !this.isAlertShown && !gameState.isSpectator) { 
             this.isAlertShown = true;
