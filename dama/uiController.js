@@ -1927,64 +1927,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     let targetId = window.targetGiftReceiverId;
     if (!targetId) return;
 
-    // خصم الهدية من الحقيبة
-    profile.inventory[giftId] -= 1;
-    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-
-    if (typeof window.closeAppModal === 'function') { 
-        window.closeAppModal('send-gift-modal'); 
-        window.closeAppModal('in-game-profile-modal'); // إغلاق البروفايل أيضاً ليرى اللاعب الأنيميشن بوضوح
-    }
-
-    if (window.socket && window.socket.connected) {
-        window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: fallbackPopValue, targetOpponentId: targetId }, (response) => {
-            if (response && response.success) {
-                // 1. تحديث الشعبية للخصم في الواجهة إذا كان معروضاً
-                const popDisplay = document.getElementById('igp-popularity-val');
-                
-                if (gameState.currentViewedPlayer && gameState.currentViewedPlayer.id === targetId) {
-                    gameState.currentViewedPlayer.popularity = response.newTotalPopularity;
-                }
-                if (window.currentOpponentData && window.currentOpponentData.id === targetId) {
-                    window.currentOpponentData.popularity = response.newTotalPopularity;
-                }
-
-                if (popDisplay) {
-                    popDisplay.innerText = response.newTotalPopularity;
-                    popDisplay.style.transition = 'all 0.3s ease';
-                    popDisplay.style.transform = 'scale(1.5)';
-                    popDisplay.style.color = '#fff';
-                    popDisplay.style.textShadow = '0 0 15px #00d2ff';
-                    
-                    setTimeout(() => {
-                        popDisplay.style.transform = 'scale(1)';
-                        popDisplay.style.color = '';
-                        popDisplay.style.textShadow = '';
-                    }, 400);
-                }
-
-                // 2. إظهار الإشعار الجانبي (Toast)
-                const toast = document.getElementById('toast-notification');
-                const formatNum = (num) => {
-                    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-                    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-                    return num;
-                };
-                
-                if (toast) { 
-                    toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${formatNum(response.popValue)} شعبية)`; 
-                    toast.classList.add('show'); 
-                    setTimeout(() => toast.classList.remove('show'), 2500); 
-                }
-
-
-window.confirmSendGift = function(giftId, fallbackPopValue) {
-    let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-    if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
-    
-    let targetId = window.targetGiftReceiverId;
-    if (!targetId) return;
-
     // خصم الهدية من الحقيبة محلياً
     profile.inventory[giftId] -= 1;
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
@@ -2074,7 +2016,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     }
     window.targetGiftReceiverId = null; 
 };
-
 
 
 function fallbackCopyText(text, callback) {
