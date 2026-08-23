@@ -1539,4 +1539,32 @@ const notifyTexts = {
         oppHigherTheme: "✨ Using opponent's theme (Higher Rank)!",
         myHigherTheme: "✨ Your theme applied (Higher Rank)!",
         oppResignedWin: "Opponent Resigned! You Win 🏆",
-        oppResignedSpec: "A player resigned.
+        oppResignedSpec: "A player resigned. Match ended.",
+        timeoutDraw: "Time out! Draw 🤝",
+        timeoutWin: "Opponent timeout! You Win 🏆",
+        timeoutLoss: "Time out! Better luck next time ⏳",
+        timeoutSpec: "A player timed out. Match ended.",
+        oppDisconnected: "Opponent disconnected ⚠️",
+        oppReconnected: "{name} reconnected! 🔄",
+        oppLeftRoom: "Opponent left the room 🚪",
+        oppLeftMatch: "Opponent left the match 🚪",
+        rematchTimeout: "Rematch timeout expired ⏱️",
+        micAccepted: "Voice request accepted 🎤",
+        micRejected: "Voice request rejected 🔕",
+        enterRoomId: "Please enter Room ID! 🔢",
+        rematchSent: "Rematch request sent! Waiting... ⏳",
+        challengeSent: "Challenge sent! Waiting for friend... ⏳",
+        challengeAccepted: "Accepted! Entering... ⚔️",
+        challengeDeclined: "{name} declined the challenge ❌"
+    }
+};
+
+function getNotifyMsg(key, param = '') {
+    const lang = (gameState && gameState.lang) ? gameState.lang : 'ar';
+    const msgs = notifyTexts[lang] || notifyTexts['ar'];
+    let msg = msgs[key] || '';
+    if (param) msg = msg.replace('{name}', param);
+    return msg;
+}
+
+window.socketManager = socketManager;
