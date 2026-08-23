@@ -1,7 +1,7 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * 🌟 (مُحدّث): تم ترقيع نظام إعادة الاتصال لمنع الخروج الوهمي من الغرف أثناء العداد التنازلي.
+ * تم ضبط نظام الغرف ليعمل في الخلفية بسلاسة (Background Hosting).
  */
 
 import { gameState } from './gameState.js'; 
@@ -228,7 +228,6 @@ export const socketManager = {
                         return gameState.userProfile;
                     } else {
                         localStorage.removeItem('hub_user_profile');
-                        console.warn("⚠️ تم رصد حساب تالف وتم تدميره لحماية اللعبة.");
                     }
                 }
             }
@@ -400,14 +399,28 @@ export const socketManager = {
             let playCount = 0;
             let spectateCount = 0;
 
+            const myRoom = rooms.find(r => r.hostId === currentUserId);
+            if (myRoom) window.myCurrentRoomId = myRoom.id;
+
+            // 🌟 تحديث حالة الزر الأزرق أسفل القائمة بناءً على وجود غرفة للاعب
+            const createBtn = document.querySelector('#online-modal .save-settings-btn');
+            if (createBtn) {
+                if (myRoom) {
+                    createBtn.innerHTML = 'تم الإنشاء.. بانتظار الخصم ⏳';
+                    createBtn.style.opacity = '0.7';
+                    createBtn.style.pointerEvents = 'none';
+                } else {
+                    createBtn.innerHTML = '+ إنشاء غرفة جديدة';
+                    createBtn.style.opacity = '1';
+                    createBtn.style.pointerEvents = 'auto';
+                }
+            }
+
             if (!rooms || rooms.length === 0) {
                 playListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>';
                 if (spectateListContainer) spectateListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>';
                 return;
             }
-
-            const myRoom = rooms.find(r => r.hostId === currentUserId);
-            if (myRoom) window.myCurrentRoomId = myRoom.id;
             
             rooms.sort((a, b) => {
                 const isAMine = (a.hostId === currentUserId);
@@ -525,8 +538,7 @@ export const socketManager = {
             
             socket.emit('requestActiveRooms');
 
-            // 🌟 الإصلاح الأمني لضمان الدخول التلقائي للغرفة حتى لو لم تبدأ المباراة بعد
-            if (gameState.onlineRoomID) {
+            if (gameState.isOnlineMode && gameState.onlineRoomID) {
                 socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
                 this.handleRoomAction('joinRoom', gameState.onlineRoomID);
             }
@@ -605,8 +617,22 @@ export const socketManager = {
             gameState.isSpectator = false;
             gameState.lastMyMove = null;
             if(id) gameState.onlineRoomID = id;
+
+            // 🌟 1. إغلاق نافذة إعدادات الإنشاء فقط
+            if (typeof window.closeAppModal === 'function') {
+                window.closeAppModal('create-room-modal');
+            }
+
+            // 🌟 2. عرض إشعار بأن الغرفة أنشئت بنجاح
             this._showToast(getNotifyMsg('roomCreated'));
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
+
+            // 🌟 3. تعديل الزر أسفل القائمة
+            const createBtn = document.querySelector('#online-modal .save-settings-btn');
+            if (createBtn) {
+                createBtn.innerHTML = 'تم الإنشاء.. بانتظار الخصم ⏳';
+                createBtn.style.opacity = '0.7';
+                createBtn.style.pointerEvents = 'none';
+            }
         });
 
         socket.on('roomJoined', () => {
@@ -692,8 +718,18 @@ export const socketManager = {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
             
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
-            else ui.setDisplay('custom-alert-modal', 'none');
+            // 🌟 إغلاق كافة النوافذ الجانبية بمجرد دخول الخصم
+            if (typeof window.closeAppModal === 'function') {
+                window.closeAppModal('online-modal');
+                window.closeAppModal('create-room-modal');
+                window.closeAppModal('matchmaking-modal');
+                window.closeAppModal('custom-alert-modal');
+            } else {
+                ui.setDisplay('online-modal', 'none');
+                ui.setDisplay('create-room-modal', 'none');
+                ui.setDisplay('matchmaking-modal', 'none');
+                ui.setDisplay('custom-alert-modal', 'none');
+            }
 
             if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
             const overlay = document.getElementById('match-countdown-overlay');
@@ -772,11 +808,6 @@ export const socketManager = {
             ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
             ui.setDisplay('bottom-control-panel', 'flex'); 
 
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('online-modal');
-                window.closeAppModal('create-room-modal');
-                window.closeAppModal('matchmaking-modal');
-            }
             ui.renderBoard(true);
 
             gameState.currentTurn = data.turn || 'white';
@@ -927,7 +958,6 @@ export const socketManager = {
                 }
             }
         });
-
 
         socket.on('opponentDisconnected', data => {
             if (!gameState.isOnlineMode) return;
@@ -1328,7 +1358,8 @@ export const socketManager = {
             targetAction = 'joinMatchmakingPool';
         }
 
-        if (targetAction !== 'joinMatchmakingPool' && !roomIdInput) {
+        // 🌟 الإصلاح هنا: السماح بإنشاء الغرفة بدون إدخال ID مسبق
+        if (targetAction !== 'joinMatchmakingPool' && targetAction !== 'createRoom' && !roomIdInput) {
             this._showToast(getNotifyMsg('enterRoomId'));
             return;
         }
