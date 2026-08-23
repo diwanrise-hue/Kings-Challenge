@@ -1927,18 +1927,26 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     let targetId = window.targetGiftReceiverId;
     if (!targetId) return;
 
+    // 1. خصم الهدية من الحقيبة محلياً
     profile.inventory[giftId] -= 1;
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
 
+    // 2. إغلاق نافذة الهدايا فقط (ونترك البروفايل مفتوحاً لكي نرى زيادة الرقم)
     if (typeof window.closeAppModal === 'function') { 
         window.closeAppModal('send-gift-modal'); 
-        window.closeAppModal('in-game-profile-modal'); 
     }
 
     if (window.socket && window.socket.connected) {
-        window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: fallbackPopValue, targetOpponentId: targetId }, (response) => {
+        // 3. إرسال guestId بقوة للسيرفر لمنعه من الرفض
+        window.socket.emit('sendPopularityGift', { 
+            giftId: giftId, 
+            popValue: fallbackPopValue, 
+            targetOpponentId: targetId,
+            guestId: profile.id 
+        }, (response) => {
             if (response && response.success) {
                 
+                // تحديث بيانات الخصم محلياً
                 if (gameState.currentViewedPlayer && (gameState.currentViewedPlayer.id === targetId || gameState.currentViewedPlayer.guestId === targetId)) {
                     gameState.currentViewedPlayer.popularity = response.newTotalPopularity;
                 }
@@ -1946,9 +1954,16 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     window.currentOpponentData.popularity = response.newTotalPopularity;
                 }
 
+                // 4. تحديث الرقم في الشاشة فوراً مع تأثير حماسي
                 const popDisplay = document.getElementById('igp-popularity-val');
                 if (popDisplay) {
-                    popDisplay.innerText = response.newTotalPopularity;
+                    let formatNum = (num) => {
+                        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+                        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+                        return num;
+                    };
+                    
+                    popDisplay.innerText = formatNum(response.newTotalPopularity);
                     popDisplay.style.transition = 'all 0.3s ease';
                     popDisplay.style.transform = 'scale(1.5)';
                     popDisplay.style.color = '#fff';
@@ -1967,18 +1982,17 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     setTimeout(() => toast.classList.remove('show'), 2500); 
                 }
 
-                // ========================================================
-                // 🌟 نظام Web Animations API (بدون تقطيع و Reflow) 🌟
-                // ========================================================
+                // 5. الأنيميشن الجبار (بمستوى طبقات z-index عالي ليظهر فوق كل شيء)
                 let giftObj = null;
                 if (window.POPULARITY_ITEMS) {
                     giftObj = window.POPULARITY_ITEMS.find(item => item.id === giftId);
                 }
                 if (giftObj) {
                     const senderOverlay = document.createElement('div');
+                    // z-index: 10000050 ليكون فوق نافذة البروفايل
                     senderOverlay.style.cssText = `
                         position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
-                        pointer-events: none; z-index: 9999999;
+                        pointer-events: none; z-index: 10000050; 
                         display: flex; flex-direction: column; align-items: center; justify-content: center;
                     `;
                     
@@ -1989,7 +2003,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                         mediaHtml = `<img id="gift-media-el" src="${giftObj.imagePath}" style="width: 180px; height: 180px; object-fit: contain; will-change: transform, opacity;">`;
                     }
 
-                    // قمنا بإزالة <style> لتخفيف الضغط على المعالج
                     senderOverlay.innerHTML = `
                         <div id="gift-anim-container" style="display: flex; flex-direction: column; align-items: center; opacity: 0; will-change: transform, opacity;">
                             ${mediaHtml}
@@ -2002,10 +2015,8 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     
                     const mediaEl = document.getElementById('gift-media-el');
                     const animContainer = document.getElementById('gift-anim-container');
-                    
                     let animationStarted = false;
 
-                    // دالة تشغيل الأنيميشن الخفيف على الكرت
                     const startAnimation = () => {
                         if (animationStarted || !animContainer) return;
                         animationStarted = true;
@@ -2030,14 +2041,21 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                         mediaEl.onerror = startAnimation; 
                         setTimeout(() => { if(!animationStarted && senderOverlay.parentNode) startAnimation(); }, 800);
                     } else {
-                        if (mediaEl.complete) {
-                            startAnimation();
-                        } else {
-                            mediaEl.onload = startAnimation;
-                            mediaEl.onerror = startAnimation; // إذا كانت الصورة 404 ستطير رسالة "تم الإرسال" بدون توقف
-                        }
+                        if (mediaEl.complete) { startAnimation(); } 
+                        else { mediaEl.onload = startAnimation; mediaEl.onerror = startAnimation; }
                     }
                 }
+            } else {
+                // 6. في حال رفض السيرفر لأي سبب، نعيد الهدية للاعب ونخبره
+                const toast = document.getElementById('toast-notification');
+                if (toast) { 
+                    toast.innerText = `❌ فشل الإرسال (السيرفر رفض العملية)`; 
+                    toast.classList.add('show'); 
+                    toast.style.borderColor = "#ff453a";
+                    setTimeout(() => { toast.classList.remove('show'); toast.style.borderColor = ""; }, 2500); 
+                }
+                profile.inventory[giftId] = (profile.inventory[giftId] || 0) + 1;
+                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
             }
         });
     }
