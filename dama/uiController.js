@@ -1927,16 +1927,19 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     let targetId = window.targetGiftReceiverId;
     if (!targetId) return;
 
+    // خصم الهدية من الحقيبة
     profile.inventory[giftId] -= 1;
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
 
     if (typeof window.closeAppModal === 'function') { 
         window.closeAppModal('send-gift-modal'); 
+        window.closeAppModal('in-game-profile-modal'); // إغلاق البروفايل أيضاً ليرى اللاعب الأنيميشن بوضوح
     }
 
     if (window.socket && window.socket.connected) {
         window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: fallbackPopValue, targetOpponentId: targetId }, (response) => {
             if (response && response.success) {
+                // 1. تحديث الشعبية للخصم في الواجهة إذا كان معروضاً
                 const popDisplay = document.getElementById('igp-popularity-val');
                 
                 if (gameState.currentViewedPlayer && gameState.currentViewedPlayer.id === targetId) {
@@ -1960,6 +1963,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     }, 400);
                 }
 
+                // 2. إظهار الإشعار الجانبي (Toast)
                 const toast = document.getElementById('toast-notification');
                 const formatNum = (num) => {
                     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -1972,12 +1976,61 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     toast.classList.add('show'); 
                     setTimeout(() => toast.classList.remove('show'), 2500); 
                 }
+
+                // ========================================================
+                // 🌟 3. الإضافة الجديدة: عرض الهدية وسط الشاشة للمُرسل 🌟
+                // ========================================================
+                let giftObj = null;
+                if (window.POPULARITY_ITEMS) {
+                    giftObj = window.POPULARITY_ITEMS.find(item => item.id === giftId);
+                }
+                
+                if (giftObj) {
+                    const senderOverlay = document.createElement('div');
+                    // استخدام pointer-events: none لكي لا تمنع اللاعب من اللعب أثناء الأنيميشن
+                    senderOverlay.style.cssText = `
+                        position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
+                        pointer-events: none; z-index: 9999999;
+                        display: flex; flex-direction: column; align-items: center; justify-content: center;
+                    `;
+                    
+                    let giftHtml = '';
+                    if (giftObj.mediaType === 'video') {
+                        giftHtml = `<video src="${giftObj.videoPath}" autoplay loop muted playsinline style="width: 180px; height: 180px; object-fit: contain; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.8));"></video>`;
+                    } else {
+                        giftHtml = `<img src="${giftObj.imagePath}" style="width: 180px; height: 180px; object-fit: contain; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.8));">`;
+                    }
+
+                    senderOverlay.innerHTML = `
+                        <style>
+                            @keyframes senderGiftPopFly {
+                                0% { transform: scale(0.2) translateY(100px); opacity: 0; }
+                                15% { transform: scale(1.2) translateY(-20px); opacity: 1; }
+                                25% { transform: scale(1) translateY(0); opacity: 1; }
+                                75% { transform: scale(1.05) translateY(-5px); opacity: 1; }
+                                100% { transform: scale(1.5) translateY(-250px); opacity: 0; }
+                            }
+                        </style>
+                        <div style="animation: senderGiftPopFly 2.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; display: flex; flex-direction: column; align-items: center;">
+                            ${giftHtml}
+                            <div style="margin-top: 15px; color: #ffd700; font-weight: 900; font-size: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.9); background: rgba(0,0,0,0.6); padding: 6px 20px; border-radius: 25px; border: 1px solid rgba(255,215,0,0.5);">
+                                تم الإرسال 🚀
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(senderOverlay);
+                    
+                    // إزالة العنصر من الشاشة بعد انتهاء الحركة (2.8 ثانية)
+                    setTimeout(() => senderOverlay.remove(), 2800);
+                }
             }
         });
     }
     
     window.targetGiftReceiverId = null; 
 };
+
 
 function fallbackCopyText(text, callback) {
     const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px";
