@@ -3,7 +3,7 @@
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
  * تم ضبط نظام الغرف ليعمل في الخلفية بسلاسة (Background Hosting).
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد (3D Pedestal).
- * 🌟 (مُحدّث): إضافة دالة getNotifyMsg لحل مشكلة عدم دخول اللعبة بعد الـ 10 ثواني.
+ * 🌟 (مُحدّث): تم إصلاح دالة getNotifyMsg ومنع تكرار notifyTexts.
  */
 
 import { gameState } from './gameState.js'; 
@@ -1353,7 +1353,6 @@ export const socketManager = {
             window.applyTheme(gameState.userProfile);
         }
         
-        // 🌟 الإصلاح الأساسي: التأكد من تفريغ جميع المتغيرات المتعلقة بالأونلاين
         gameState.isOnlineMode = false;
         gameState.isGameActive = false;
         gameState.isGameOver = false;
@@ -1362,7 +1361,7 @@ export const socketManager = {
         gameState.currentOpponentName = null;
         gameState.currentOpponentAvatar = null;
         gameState.currentOpponentXp = 0;
-        window.myCurrentRoomId = null; // تأكيد إزالة الـ ID الخاص بالغرفة النشطة
+        window.myCurrentRoomId = null; 
         gameState.myCurrentRoomId = null; 
         
         if (typeof gameState.inMatch !== 'undefined') gameState.inMatch = false;
@@ -1421,7 +1420,6 @@ export const socketManager = {
             targetAction = 'joinMatchmakingPool';
         }
 
-        // 🌟 الإصلاح: السماح بإنشاء الغرفة بدون إدخال ID مسبق
         if (targetAction !== 'joinMatchmakingPool' && targetAction !== 'createRoom' && !roomIdInput) {
             this._showToast(getNotifyMsg('enterRoomId'));
             return;
@@ -1541,5 +1539,4 @@ const notifyTexts = {
         oppHigherTheme: "✨ Using opponent's theme (Higher Rank)!",
         myHigherTheme: "✨ Your theme applied (Higher Rank)!",
         oppResignedWin: "Opponent Resigned! You Win 🏆",
-        oppResignedSpec: "A player resigned. Match ended.",
-        timeout
+        oppResignedSpec: "A player resigned.
