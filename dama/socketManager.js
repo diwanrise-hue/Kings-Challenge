@@ -2,6 +2,7 @@
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
  * تم ضبط نظام الغرف ليعمل في الخلفية بسلاسة (Background Hosting).
+ * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد (3D Pedestal).
  */
 
 import { gameState } from './gameState.js'; 
@@ -402,12 +403,12 @@ export const socketManager = {
             const myRoom = rooms.find(r => r.hostId === currentUserId);
             if (myRoom) window.myCurrentRoomId = myRoom.id;
 
-            // 🌟 تحديث حالة الزر الأزرق أسفل القائمة بناءً على وجود غرفة للاعب
+            // 🌟 تحديث حالة الزر الأزرق أسفل القائمة
             const createBtn = document.querySelector('#online-modal .save-settings-btn');
             if (createBtn) {
                 if (myRoom) {
                     createBtn.innerHTML = 'تم الإنشاء.. بانتظار الخصم ⏳';
-                    createBtn.style.opacity = '0.7';
+                    createBtn.style.opacity = '0.5';
                     createBtn.style.pointerEvents = 'none';
                 } else {
                     createBtn.innerHTML = '+ إنشاء غرفة جديدة';
@@ -429,6 +430,38 @@ export const socketManager = {
                 if (!isAMine && isBMine) return 1;
                 return 0;
             });
+
+            // 🌟 إضافة CSS المنصة برمجياً 🌟
+            if (!document.getElementById('wait-platform-style')) {
+                const style = document.createElement('style');
+                style.id = 'wait-platform-style';
+                style.innerHTML = `
+                    .creator-platform {
+                        position: relative; width: 100%; padding: 20px 10px 25px 10px;
+                        margin-bottom: 25px; display: flex; justify-content: center; align-items: center;
+                        background: transparent;
+                    }
+                    .platform-3d-base {
+                        position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+                        width: 220px; height: 60px;
+                        background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.3) 0%, rgba(212, 175, 55, 0.05) 50%, transparent 80%);
+                        border-radius: 50%; border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+                        box-shadow: 0 15px 25px rgba(0,0,0,0.8), inset 0 -5px 15px rgba(212, 175, 55, 0.2);
+                        z-index: 1; pointer-events: none;
+                    }
+                    .platform-content {
+                        position: relative; z-index: 2; display: flex; flex-direction: column;
+                        align-items: center; gap: 12px; width: 100%;
+                    }
+                    .platform-avatar-float {
+                        animation: floatAvatar 3.5s ease-in-out infinite;
+                        filter: drop-shadow(0 15px 10px rgba(0,0,0,0.6));
+                    }
+                    @keyframes floatAvatar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+                    @keyframes pulseHourglass { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.9); } }
+                `;
+                document.head.appendChild(style);
+            }
 
             rooms.forEach(r => {
                 const isPrivate = r.hasPassword ? '🔒 محمية' : '🔓 عامة';
@@ -453,70 +486,105 @@ export const socketManager = {
                     frameHTML = `<img src="${miniFramesDB[hostFrame]}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));">`;
                 }
 
-                const avatarHTML = `
-                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <img src="${avatarSrc}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
-                        ${frameHTML}
-                    </div>
-                `;
-
-                roomEl.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;";
-                roomEl.onmouseenter = () => roomEl.style.background = 'rgba(255,255,255,0.1)';
-                roomEl.onmouseleave = () => roomEl.style.background = 'rgba(255,255,255,0.05)';
-                
                 const isCreator = (r.hostId === currentUserId);
                 let actionBtnHTML = '';
 
-                if (r.isFull) {
-                    if (r.isBettingOpen) {
-                        actionBtnHTML = `<button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(241,196,15,0.2); border: 1px solid rgba(241,196,15,0.4); border-radius: 12px; padding: 6px 16px; color: #f1c40f; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">رهان ومشاهدة 👁️ (${r.spectatorsCount || 0})</button>`;
-                    } else {
-                        actionBtnHTML = `<button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.2); border: 1px solid rgba(155,89,182,0.4); border-radius: 12px; padding: 6px 16px; color: #9b59b6; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">مشاهدة فقط 👁️ (${r.spectatorsCount || 0})</button>`;
-                    }
+                // 🌟 تصميم منصة الانتظار الفخمة لغرفتك
+                if (!r.isFull && isCreator) {
+                    roomEl.className = 'creator-platform';
                     
+                    const platformAvatarHTML = `
+                        <div style="position: relative; width: 68px; height: 68px; display: flex; align-items: center; justify-content: center;">
+                            <img src="${avatarSrc}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1; border: 2px solid rgba(212,175,55,0.5);">
+                            ${frameHTML}
+                        </div>
+                    `;
+
                     roomEl.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            ${avatarHTML}
-                            <div>
-                                <div style="color: white; font-weight: bold; font-size: 14px;">مباراة: ${r.hostName}</div>
-                                <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
+                        <div class="platform-3d-base"></div>
+                        <div class="platform-content">
+                            <!-- الصورة الطافية -->
+                            <div class="platform-avatar-float">
+                                ${platformAvatarHTML}
+                            </div>
+                            
+                            <!-- شارة الانتظار -->
+                            <div style="text-align: center; background: rgba(0,0,0,0.75); padding: 6px 18px; border-radius: 25px; border: 1px solid rgba(212,175,55,0.4); backdrop-filter: blur(6px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                                <div style="color: #ffd700; font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 6px; justify-content: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+                                    <span style="animation: pulseHourglass 1.5s infinite;">⏳</span> بانتظار الخصم...
+                                </div>
+                                <div style="color: #a1a1aa; font-size: 11px; margin-top: 4px; font-weight: 600;">
+                                    ${isPrivate} | ${betText}
+                                </div>
+                            </div>
+                            
+                            <!-- الأزرار الدائرية تحت المنصة -->
+                            <div style="display: flex; gap: 15px; margin-top: 8px;">
+                                <button onclick="window.openCreatorSettings('${r.id}', ${r.betAmount})" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); border-radius: 50%; width: 42px; height: 42px; color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); transition: 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(255,255,255,0.1)'" title="إعدادات الغرفة">⚙️</button>
+                                <button onclick="window.deleteMyRoom('${r.id}')" style="background: rgba(255,69,58,0.15); border: 1px solid rgba(255,69,58,0.35); border-radius: 50%; width: 42px; height: 42px; color: #ff453a; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); transition: 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.background='rgba(255,69,58,0.25)'" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(255,69,58,0.15)'" title="إغلاق وحذف الغرفة">✕</button>
                             </div>
                         </div>
-                        ${actionBtnHTML}
                     `;
                     
-                    if (spectateListContainer) {
-                        spectateListContainer.appendChild(roomEl);
-                        spectateCount++;
-                    }
-                } else {
-                    if (isCreator) {
-                        actionBtnHTML = `
-                        <div style="display: flex; gap: 8px;">
-                            <button onclick="window.deleteMyRoom('${r.id}')" style="background: rgba(255,69,58,0.15); border: 1px solid rgba(255,69,58,0.3); border-radius: 12px; padding: 6px 14px; color: #ff453a; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,69,58,0.25)'" onmouseout="this.style.background='rgba(255,69,58,0.15)'" title="إغلاق وحذف الغرفة">✕</button>
-                            <button onclick="window.openCreatorSettings('${r.id}', ${r.betAmount})" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 6px 14px; color: #fff; cursor: pointer; font-size: 18px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" title="إعدادات الغرفة">⚙️</button>
-                        </div>`;
+                    playListContainer.appendChild(roomEl);
+                    playCount++;
+                } 
+                // 🌟 تصميم الغرف العادية للاعبين الآخرين
+                else {
+                    const avatarHTML = `
+                        <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <img src="${avatarSrc}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
+                            ${frameHTML}
+                        </div>
+                    `;
+
+                    roomEl.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;";
+                    roomEl.onmouseenter = () => roomEl.style.background = 'rgba(255,255,255,0.1)';
+                    roomEl.onmouseleave = () => roomEl.style.background = 'rgba(255,255,255,0.05)';
+                    
+                    if (r.isFull) {
+                        if (r.isBettingOpen) {
+                            actionBtnHTML = `<button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(241,196,15,0.2); border: 1px solid rgba(241,196,15,0.4); border-radius: 12px; padding: 6px 16px; color: #f1c40f; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">رهان ومشاهدة 👁️ (${r.spectatorsCount || 0})</button>`;
+                        } else {
+                            actionBtnHTML = `<button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.2); border: 1px solid rgba(155,89,182,0.4); border-radius: 12px; padding: 6px 16px; color: #9b59b6; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">مشاهدة فقط 👁️ (${r.spectatorsCount || 0})</button>`;
+                        }
+                        
+                        roomEl.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                ${avatarHTML}
+                                <div>
+                                    <div style="color: white; font-weight: bold; font-size: 14px;">مباراة: ${r.hostName}</div>
+                                    <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
+                                </div>
+                            </div>
+                            ${actionBtnHTML}
+                        `;
+                        
+                        if (spectateListContainer) {
+                            spectateListContainer.appendChild(roomEl);
+                            spectateCount++;
+                        }
                     } else {
                         if (r.hasPassword) {
                             actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(52,152,219,0.2); border: 1px solid rgba(52,152,219,0.4); border-radius: 12px; padding: 6px 16px; color: #3498db; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">دخول 🔒</button>`;
                         } else {
                             actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(48,209,88,0.2); border: 1px solid rgba(48,209,88,0.4); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit;">دخول</button>`;
                         }
-                    }
 
-                    roomEl.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            ${avatarHTML}
-                            <div>
-                                <div style="color: white; font-weight: bold; font-size: 14px;">${r.hostName}</div>
-                                <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
+                        roomEl.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                ${avatarHTML}
+                                <div>
+                                    <div style="color: white; font-weight: bold; font-size: 14px;">${r.hostName}</div>
+                                    <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
+                                </div>
                             </div>
-                        </div>
-                        ${actionBtnHTML}
-                    `;
-                    
-                    playListContainer.appendChild(roomEl);
-                    playCount++;
+                            ${actionBtnHTML}
+                        `;
+                        
+                        playListContainer.appendChild(roomEl);
+                        playCount++;
+                    }
                 }
             });
 
@@ -618,19 +686,16 @@ export const socketManager = {
             gameState.lastMyMove = null;
             if(id) gameState.onlineRoomID = id;
 
-            // 🌟 1. إغلاق نافذة إعدادات الإنشاء فقط
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('create-room-modal');
             }
 
-            // 🌟 2. عرض إشعار بأن الغرفة أنشئت بنجاح
             this._showToast(getNotifyMsg('roomCreated'));
 
-            // 🌟 3. تعديل الزر أسفل القائمة
             const createBtn = document.querySelector('#online-modal .save-settings-btn');
             if (createBtn) {
                 createBtn.innerHTML = 'تم الإنشاء.. بانتظار الخصم ⏳';
-                createBtn.style.opacity = '0.7';
+                createBtn.style.opacity = '0.5';
                 createBtn.style.pointerEvents = 'none';
             }
         });
@@ -718,7 +783,6 @@ export const socketManager = {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
             
-            // 🌟 إغلاق كافة النوافذ الجانبية بمجرد دخول الخصم
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('online-modal');
                 window.closeAppModal('create-room-modal');
@@ -1358,7 +1422,7 @@ export const socketManager = {
             targetAction = 'joinMatchmakingPool';
         }
 
-        // 🌟 الإصلاح هنا: السماح بإنشاء الغرفة بدون إدخال ID مسبق
+        // 🌟 الإصلاح: السماح بإنشاء الغرفة بدون إدخال ID مسبق
         if (targetAction !== 'joinMatchmakingPool' && targetAction !== 'createRoom' && !roomIdInput) {
             this._showToast(getNotifyMsg('enterRoomId'));
             return;
@@ -1497,15 +1561,5 @@ const notifyTexts = {
         challengeDeclined: "{name} declined the challenge ❌"
     }
 };
-
-function getNotifyMsg(key, dynamicName = '') {
-    const lang = gameState.lang || 'ar';
-    const dictionary = notifyTexts[lang] || notifyTexts['ar'];
-    let text = dictionary[key] || key;
-    if (dynamicName) {
-        text = text.replace('{name}', dynamicName);
-    }
-    return text;
-}
 
 window.socketManager = socketManager;
