@@ -72,12 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
             100% { filter: drop-shadow(0 -6px 9px rgba(255,255,255,0.9)) drop-shadow(0 -5px 7px rgba(155,89,182,0.7)); }
         }
 
-        /* 🎨 كلاسات متغيرة لربط اللهب السريع والمناسب برمجياً */
-        .vip-glow-white  { --vip-glow-anim: vipFlameWhite 0.6s infinite alternate ease-in-out; }
-        .vip-glow-purple { --vip-glow-anim: vipFlamePurple 0.6s infinite alternate ease-in-out; }
-        .vip-glow-red    { --vip-glow-anim: vipFlameRed 0.6s infinite alternate ease-in-out; }
-        .vip-glow-mixed  { --vip-glow-anim: vipFlameMixed 0.5s infinite alternate ease-in-out; }
-
         /* 👑 1. شارة الـ VIP في الواجهة الرئيسية (Hub Profile) */
         .vip-badge-hub {
             position: absolute;
@@ -86,12 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
             width: 48px;  
             height: 64px; 
             object-fit: contain; 
-            z-index: 50;
+            z-index: 1000;
             pointer-events: none;
             will-change: transform, filter;
             transform-style: preserve-3d;
-            /* دمج أنيميشن الطفو مع أنيميشن اللهب */
-            animation: vipFloatAndSpin 10s infinite linear, var(--vip-glow-anim, vipFlameWhite 0.6s infinite alternate ease-in-out);
         }
 
         /* 👑 2. شارة الـ VIP في بطاقة اللاعب المحلي (أسفل اليمين) */
@@ -102,11 +94,10 @@ document.addEventListener('DOMContentLoaded', () => {
             width: 33px;  
             height: 44px; 
             object-fit: contain;
-            z-index: 50;
+            z-index: 1000;
             pointer-events: none;
             will-change: transform, filter;
             transform-style: preserve-3d;
-            animation: vipFloatAndSpin 10s infinite linear, var(--vip-glow-anim, vipFlameWhite 0.6s infinite alternate ease-in-out);
         }
 
         /* 👑 3. شارة الـ VIP في بطاقة الخصم (أسفل اليسار) */
@@ -117,12 +108,17 @@ document.addEventListener('DOMContentLoaded', () => {
             width: 33px;  
             height: 44px; 
             object-fit: contain;
-            z-index: 50;
+            z-index: 1000;
             pointer-events: none;
             will-change: transform, filter;
             transform-style: preserve-3d;
-            animation: vipFloatAndSpin 10s infinite linear, var(--vip-glow-anim, vipFlameWhite 0.6s infinite alternate ease-in-out);
         }
+
+        /* 🎨 كلاسات مخصصة لربط اللهب السريع مع الطفو بأمان وبدون متغيرات CSS */
+        .vip-glow-white  { animation: vipFloatAndSpin 10s infinite linear, vipFlameWhite 0.6s infinite alternate ease-in-out; }
+        .vip-glow-purple { animation: vipFloatAndSpin 10s infinite linear, vipFlamePurple 0.6s infinite alternate ease-in-out; }
+        .vip-glow-red    { animation: vipFloatAndSpin 10s infinite linear, vipFlameRed 0.6s infinite alternate ease-in-out; }
+        .vip-glow-mixed  { animation: vipFloatAndSpin 10s infinite linear, vipFlameMixed 0.5s infinite alternate ease-in-out; }
     `;
     document.head.appendChild(style);
 
@@ -134,8 +130,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const parent = avatarDiv.parentElement;
         if (!parent) return;
 
-        const badgeClass = (avatarContainerId === 'badge-avatar') ? 'vip-badge-hub' : 
-                           (avatarContainerId === 'card-my-avatar') ? 'vip-badge-match-me' : 'vip-badge-match-opp';
+        let badgeClass;
+        if (avatarContainerId === 'badge-avatar') {
+            badgeClass = 'vip-badge-hub';
+        } else {
+            // للبطاقات، نعود للمربع الشامل للبطاقة ككل
+            const matchCardParent = avatarDiv.closest('.match-players-flex');
+            if (!matchCardParent) return;
+            badgeClass = (avatarContainerId === 'card-my-avatar') ? 'vip-badge-match-me' : 'vip-badge-match-opp';
+            // نغير الأب ليصبح البطاقة بأكملها وليس الأفاتار الدائري
+            parent = matchCardParent; 
+        }
         
         let badge = parent.querySelector('.' + badgeClass);
         
@@ -149,163 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let lvl = parseInt(vipLevel);
             
             // 🌟 تحديد اللهب المناسب للمستوى
-            let glowClass = 'vip-glow-white'; 
-            if (lvl === 1 || lvl === 2) glowClass = 'vip-glow-white';
-            else if (lvl === 3) glowClass = 'vip-glow-purple';
-            else if (lvl === 4) glowClass = 'vip-glow-red';
-            else if (lvl >= 5) glowClass = 'vip-glow-mixed';
-
-            // تطبيق الكلاسات ومسار الصورة
-            badge.className = `${badgeClass} ${glowClass}`;
-            badge.src = `Media/VIP/vip${lvl}.webp`;
-            
-            badge.onerror = function() { this.style.display = 'none'; };
-            badge.style.display = 'block';
-        } else {
-            // إخفاء الشارة إذا لم يكن VIP
-            if (badge) badge.style.display = 'none';
-        }
-    };
-
-    // 3. اعتراض دوال الواجهة الأساسية لتحديث الشارات تلقائياً
-
-    // أ. تحديث شارة اللاعب المحلي (أنت)
-    const originalApplyProfile = window.applyProfileDataToUI;
-    window.applyProfileDataToUI = function(profile) {
-        if (originalApplyProfile) originalApplyProfile(profile); 
-        
-        let vipLevel = profile.vipLevel || 0;
-        
-        window.updateVipBadgeUI('card-my-avatar', vipLevel);
-        window.updateVipBadgeUI('badge-avatar', vipLevel);
-    };
-
-    // ب. تحديث شارة الخصم عند بدء المباراة
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            if (window.ui && window.ui.toggleOnlineUILayout) {
-                const origToggle = window.ui.toggleOnlineUILayout;
-                window.ui.toggleOnlineUILayout = function(active, oppName, oppAvatar) {
-                    origToggle.call(window.ui, active, oppName, oppAvatar); 
-                    
-                    if (active) {
-                        let oppVip = 0;
-                        if (window.currentOpponentData && window.currentOpponentData.vipLevel) {
-                            oppVip = window.currentOpponentData.vipLevel;
-                        }
-                        window.updateVipBadgeUI('card-opp-avatar', oppVip);
-                    } else {
-                        window.updateVipBadgeUI('card-opp-avatar', 0);
-                    }
-                };
-            }
-        }, 1000); 
-    });
-
-    // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة
-    setInterval(() => {
-        try {
-            let profileStr = localStorage.getItem('hub_user_profile');
-            if (profileStr) {
-                let p = JSON.parse(profileStr);
-                window.updateVipBadgeUI('card-my-avatar', p.vipLevel || 0);
-                window.updateVipBadgeUI('badge-avatar', p.vipLevel || 0);
-            }
-            
-            if (window.isMatchRunning && window.currentOpponentData) {
-                window.updateVipBadgeUI('card-opp-avatar', window.currentOpponentData.vipLevel || 0);
-            }
-        } catch(e) {}
-    }, 2000);
-
-})();
-                filter: 
-                    drop-shadow(3px -3px 8px rgba(255, 255, 255, 0.9)) 
-                    drop-shadow(-3px 3px 8px rgba(155, 89, 182, 0.9)) 
-                    drop-shadow(3px 3px 8px rgba(255, 69, 58, 0.9)) 
-                    drop-shadow(-3px -3px 8px rgba(255, 215, 0, 0.9)); 
-            }
-        }
-
-        /* 🎨 كلاسات متغيرة لربط الهالة المناسبة برمجياً */
-        .vip-glow-white  { --vip-glow-anim: vipPulseWhite 2s infinite alternate ease-in-out; }
-        .vip-glow-purple { --vip-glow-anim: vipPulsePurple 2s infinite alternate ease-in-out; }
-        .vip-glow-red    { --vip-glow-anim: vipPulseRed 2s infinite alternate ease-in-out; }
-        .vip-glow-mixed  { --vip-glow-anim: vipPulseMixed 2s infinite alternate ease-in-out; }
-
-        /* 👑 1. شارة الـ VIP في الواجهة الرئيسية (Hub Profile) */
-        .vip-badge-hub {
-            position: absolute;
-            top: 10px;
-            left: 185px; 
-            width: 48px;  
-            height: 64px; 
-            object-fit: contain; 
-            z-index: 50;
-            pointer-events: none;
-            will-change: transform, filter;
-            transform-style: preserve-3d;
-            /* دمج أنيميشن الطفو مع أنيميشن الهالة */
-            animation: vipFloatAndSpin 10s infinite linear, var(--vip-glow-anim, vipPulseWhite 2s infinite alternate ease-in-out);
-        }
-
-        /* 👑 2. شارة الـ VIP في بطاقة اللاعب المحلي (أسفل اليمين) */
-        .vip-badge-match-me {
-            position: absolute;
-            bottom: -15px; 
-            right: -15px;  
-            width: 33px;  
-            height: 44px; 
-            object-fit: contain;
-            z-index: 50;
-            pointer-events: none;
-            will-change: transform, filter;
-            transform-style: preserve-3d;
-            /* دمج أنيميشن الطفو مع أنيميشن الهالة */
-            animation: vipFloatAndSpin 10s infinite linear, var(--vip-glow-anim, vipPulseWhite 2s infinite alternate ease-in-out);
-        }
-
-        /* 👑 3. شارة الـ VIP في بطاقة الخصم (أسفل اليسار) */
-        .vip-badge-match-opp {
-            position: absolute;
-            bottom: -15px; 
-            left: -15px;   
-            width: 33px;  
-            height: 44px; 
-            object-fit: contain;
-            z-index: 50;
-            pointer-events: none;
-            will-change: transform, filter;
-            transform-style: preserve-3d;
-            /* دمج أنيميشن الطفو مع أنيميشن الهالة */
-            animation: vipFloatAndSpin 10s infinite linear, var(--vip-glow-anim, vipPulseWhite 2s infinite alternate ease-in-out);
-        }
-    `;
-    document.head.appendChild(style);
-
-    // 2. دالة رسم أو تحديث شارة الـ VIP مع تحديد لون الهالة
-    window.updateVipBadgeUI = function(avatarContainerId, vipLevel) {
-        const avatarDiv = document.getElementById(avatarContainerId);
-        if (!avatarDiv) return;
-
-        const parent = avatarDiv.parentElement;
-        if (!parent) return;
-
-        const badgeClass = (avatarContainerId === 'badge-avatar') ? 'vip-badge-hub' : 
-                           (avatarContainerId === 'card-my-avatar') ? 'vip-badge-match-me' : 'vip-badge-match-opp';
-        
-        let badge = parent.querySelector('.' + badgeClass);
-        
-        // إذا كان يمتلك مستوى VIP أعلى من 0
-        if (vipLevel && parseInt(vipLevel) > 0) {
-            if (!badge) {
-                badge = document.createElement('img');
-                parent.appendChild(badge);
-            }
-
-            let lvl = parseInt(vipLevel);
-            
-            // 🌟 تحديد الهالة المناسبة للمستوى
             let glowClass = 'vip-glow-white'; 
             if (lvl === 1 || lvl === 2) glowClass = 'vip-glow-white';
             else if (lvl === 3) glowClass = 'vip-glow-purple';
