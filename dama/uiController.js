@@ -1,4 +1,4 @@
-//
+// @ts-nocheck
 /**
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
@@ -399,6 +399,32 @@ export const ui = {
                 );
             } else { if(onComplete) onComplete(); }
         }, 3000);
+    },
+
+    // 🌟 دالة مراهنات المشاهدين المفقودة تمت إضافتها هنا
+    showSpectatorBetModal(roomID, p1, p2) {
+        this.setTxt('bet-p1-name', p1.name || 'اللاعب 1');
+        this.applyAvatar('bet-p1-avatar', p1.avatar, p1.isCustomAvatar || p1.avatar?.startsWith('data:'), p1.equippedProfileFrame);
+        
+        this.setTxt('bet-p2-name', p2.name || 'اللاعب 2');
+        this.applyAvatar('bet-p2-avatar', p2.avatar, p2.isCustomAvatar || p2.avatar?.startsWith('data:'), p2.equippedProfileFrame);
+        
+        const confirmBtn = this.getEl('confirm-spectator-bet-btn');
+        if (confirmBtn) {
+            confirmBtn.onclick = () => {
+                const color = this.getVal('spectator-bet-color');
+                const amt = parseInt(this.getVal('spectator-bet-amount')) || 0;
+                if (!color || amt <= 0) {
+                    this.showCustomAlert("الرجاء اختيار بطل وتحديد مبلغ الرهان بشكل صحيح!");
+                    return;
+                }
+                if (window.socket && window.socket.connected) {
+                    window.socket.emit('placeSpectatorBet', { roomID: roomID, color: color, amount: amt });
+                    window.closeAppModal('spectator-bet-modal');
+                }
+            };
+        }
+        window.openAppModal('spectator-bet-modal');
     },
 
     saveAndSyncProfile(profile) {
@@ -1770,6 +1796,13 @@ window.acceptFriendReq = function(reqId) {
         }
         prof.friendRequests.splice(reqIndex, 1); 
         localStorage.setItem('hub_user_profile', JSON.stringify(prof));
+        
+        // 🌟 حفر الصديق الجديد في الذاكرة الحية للعبة
+        if (gameState.userProfile) {
+            gameState.userProfile.friends = prof.friends;
+            gameState.userProfile.friendRequests = prof.friendRequests;
+        }
+
         renderFriendRequests(); renderFriendsList(prof.friends);
         
         if (window.socket && window.socket.connected) {
@@ -1787,6 +1820,10 @@ window.rejectFriendReq = function(reqId) {
     let prof = JSON.parse(profStr); 
     prof.friendRequests = prof.friendRequests.filter(r => r.id !== reqId);
     localStorage.setItem('hub_user_profile', JSON.stringify(prof)); 
+    
+    // 🌟 تحديث الذاكرة الحية بعد الرفض
+    if (gameState.userProfile) gameState.userProfile.friendRequests = prof.friendRequests;
+
     renderFriendRequests();
 
     if (window.socket && window.socket.connected) {
@@ -1948,9 +1985,6 @@ window.givePopularity = function(directTargetId) {
     if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
 };
 
-
-
-
 window.confirmSendGift = function(giftId, fallbackPopValue) {
     let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
@@ -1959,6 +1993,12 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     if (!targetId) return;
 
     profile.inventory[giftId] -= 1;
+    
+    // 🌟 مزامنة الذاكرة الحية فوراً لمنع ثغرة التكرار (Double Deduction)
+    if (gameState.userProfile && gameState.userProfile.inventory) {
+        gameState.userProfile.inventory[giftId] -= 1; 
+    }
+
     localStorage.setItem('hub_user_profile', JSON.stringify(profile));
 
     if (typeof window.closeAppModal === 'function') { 
@@ -2023,7 +2063,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     
                     const senderOverlay = document.createElement('div');
                     
-                    // 🌟 الإصلاح هنا: التعتيم والاختفاء يطبق فقط على الفيديوهات
+                    // 🌟 التعتيم والاختفاء يطبق فقط على الفيديوهات
                     let overlayBg = isVideoGift ? 'rgba(0, 0, 0, 0.4)' : 'transparent';
                     let overlayOpacity = isVideoGift ? '0' : '1';
                     let overlayTransition = isVideoGift ? 'transition: opacity 0.3s ease;' : '';
@@ -2101,7 +2141,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                             fill: 'forwards'
                         });
                         
-                        // 🌟 الإصلاح هنا: إزالة الهدية العادية بوقته، والفيديو بوقته
+                        // 🌟 إزالة الهدية العادية بوقته، والفيديو بوقته
                         if (isVideoGift) {
                             setTimeout(() => {
                                 senderOverlay.style.opacity = '0';
@@ -2140,12 +2180,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     }
     window.targetGiftReceiverId = null; 
 };
-
-
-
-
-
-
 
 function fallbackCopyText(text, callback) {
     const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-9999px";
