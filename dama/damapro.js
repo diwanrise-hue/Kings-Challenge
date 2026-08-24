@@ -26,10 +26,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP برمجياً
     const style = document.createElement('style');
     style.innerHTML = `
-        /* تأثير النبض الفخم المشترك */
-        @keyframes vipPulseGpu {
-            0% { transform: scale(1) translateZ(0); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
-            100% { transform: scale(1.08) translateZ(0); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)); }
+        /* 🌟 أنيميشن الطفو المستمر مع دوران سريع كل 10 ثوانٍ 🌟 */
+        @keyframes vipFloatAndSpin {
+            /* مرحلة الطفو الناعم (من 0 إلى 80 ثانية نسبياً) */
+            0%   { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-out; }
+            10%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in; }
+            20%  { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-out; }
+            30%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in; }
+            40%  { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-out; }
+            50%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in; }
+            60%  { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-out; }
+            70%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in; }
+            80%  { transform: translateY(0px) rotateY(0deg); }
+            
+            /* مرحلة الدوران السريع 3D (دورتين كاملتين = 720 درجة) */
+            85%  { transform: translateY(-3px) rotateY(0deg); animation-timing-function: ease-in; }
+            92%  { transform: translateY(-6px) rotateY(360deg); animation-timing-function: linear; }
+            98%  { transform: translateY(0px) rotateY(720deg); animation-timing-function: ease-out; }
+            100% { transform: translateY(0px) rotateY(720deg); }
         }
 
         /* 👑 1. شارة الـ VIP في الواجهة الرئيسية (Hub Profile) */
@@ -42,9 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
             object-fit: contain; /* يمنع أي تشوه للصورة */
             z-index: 50;
             pointer-events: none;
-            transition: all 0.3s ease;
-            animation: vipPulseGpu 2s infinite alternate ease-in-out;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
             will-change: transform;
+            /* تطبيق الأنيميشن الجديد لمدة 10 ثوانٍ */
+            animation: vipFloatAndSpin 10s infinite linear;
+            transform-style: preserve-3d;
         }
 
         /* 👑 2. شارة الـ VIP في بطاقات اللعب (Online Match Cards) */
@@ -57,9 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
             object-fit: contain;
             z-index: 50;
             pointer-events: none;
-            transition: all 0.3s ease;
-            animation: vipPulseGpu 2s infinite alternate ease-in-out;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
             will-change: transform;
+            /* تطبيق الأنيميشن الجديد لمدة 10 ثوانٍ */
+            animation: vipFloatAndSpin 10s infinite linear;
+            transform-style: preserve-3d;
         }
     `;
     document.head.appendChild(style);
