@@ -23,32 +23,48 @@ document.addEventListener('DOMContentLoaded', () => {
 // 🌟 نظام عرض شارات الـ VIP الديناميكي داخل لعبة الدامة 🌟
 // ==========================================
 (function() {
-    // 1. حقن التنسيقات (CSS) الخاصة بشارة الـ VIP برمجياً
+    // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP برمجياً
     const style = document.createElement('style');
     style.innerHTML = `
-        .vip-badge-ingame {
+        /* تأثير النبض الفخم المشترك */
+        @keyframes vipPulseGpu {
+            0% { transform: scale(1) translateZ(0); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
+            100% { transform: scale(1.08) translateZ(0); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)); }
+        }
+
+        /* 👑 1. شارة الـ VIP في الواجهة الرئيسية (Hub Profile) */
+        .vip-badge-hub {
             position: absolute;
             top: 10px;
-            left: 185px; /* الظهور في الزاوية العلوية اليسرى */
-            width: 55px;
-            height: 62px;
+            left: 185px; /* المكان المخصص للبروفايل الرئيسي */
+            width: 48px;  /* العرض */
+            height: 64px; /* الطول (نسبة 3:4 دقيقة 100%) */
+            object-fit: contain; /* يمنع أي تشوه للصورة */
             z-index: 50;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
             pointer-events: none;
             transition: all 0.3s ease;
             animation: vipPulseGpu 2s infinite alternate ease-in-out;
             will-change: transform;
         }
 
-        /* تأثير نبض خفيف ليعطي فخامة للشارة */
-        @keyframes vipPulseGpu {
-            0% { transform: scale(1) translateZ(0); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
-            100% { transform: scale(1.1) translateZ(0); filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6)); }
+        /* 👑 2. شارة الـ VIP في بطاقات اللعب (Online Match Cards) */
+        .vip-badge-match {
+            position: absolute;
+            top: -12px;
+            right: -12px; /* الظهور في الزاوية العلوية اليمنى للبطاقة */
+            width: 30px;  /* العرض المصغر للبطاقة */
+            height: 40px; /* الطول المصغر (نسبة 3:4 دقيقة 100%) */
+            object-fit: contain;
+            z-index: 50;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            animation: vipPulseGpu 2s infinite alternate ease-in-out;
+            will-change: transform;
         }
     `;
     document.head.appendChild(style);
 
-    // 2. دالة رسم أو تحديث شارة الـ VIP
+    // 2. دالة رسم أو تحديث شارة الـ VIP بذكاء (تفرق بين البروفايل وبطاقات اللعب)
     window.updateVipBadgeUI = function(avatarContainerId, vipLevel) {
         const avatarDiv = document.getElementById(avatarContainerId);
         if (!avatarDiv) return;
@@ -57,19 +73,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const parent = avatarDiv.parentElement;
         if (!parent) return;
 
-        let badge = parent.querySelector('.vip-badge-ingame');
+        // تحديد الكلاس المناسب بناءً على مكان الشارة (لمنع تشوه الأماكن)
+        const badgeClass = (avatarContainerId === 'badge-avatar') ? 'vip-badge-hub' : 'vip-badge-match';
+        let badge = parent.querySelector('.' + badgeClass);
         
         // إذا كان يمتلك مستوى VIP أعلى من 0
         if (vipLevel && parseInt(vipLevel) > 0) {
             if (!badge) {
                 badge = document.createElement('img');
-                badge.className = 'vip-badge-ingame';
+                badge.className = badgeClass;
                 parent.appendChild(badge);
             }
             // تحديث مسار الصورة حسب المستوى
             badge.src = `Media/VIP/vip${vipLevel}.webp`;
             
-            // في حال عدم العثور على الصورة، يمكنك جعلها تختفي حتى لا تظهر أيقونة مكسورة
             badge.onerror = function() { this.style.display = 'none'; };
             badge.style.display = 'block';
         } else {
@@ -78,12 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 3. اعتراض دوال الواجهة الأساسية لتحديث الشارات تلقائياً دون التعديل عليها
+    // 3. اعتراض دوال الواجهة الأساسية لتحديث الشارات تلقائياً
 
     // أ. تحديث شارة اللاعب المحلي (أنت)
     const originalApplyProfile = window.applyProfileDataToUI;
     window.applyProfileDataToUI = function(profile) {
-        if (originalApplyProfile) originalApplyProfile(profile); // تنفيذ الكود الأصلي
+        if (originalApplyProfile) originalApplyProfile(profile); 
         
         let vipLevel = profile.vipLevel || 0;
         
@@ -100,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.ui && window.ui.toggleOnlineUILayout) {
                 const origToggle = window.ui.toggleOnlineUILayout;
                 window.ui.toggleOnlineUILayout = function(active, oppName, oppAvatar) {
-                    origToggle.call(window.ui, active, oppName, oppAvatar); // تنفيذ الكود الأصلي
+                    origToggle.call(window.ui, active, oppName, oppAvatar);
                     
                     if (active) {
                         let oppVip = 0;
@@ -115,10 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
             }
-        }, 1000); // تأخير بسيط لضمان تحميل واجهة اللعبة بالكامل
+        }, 1000); 
     });
 
-    // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة حتى لو تم إعادة رسم الأفاتار
+    // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة
     setInterval(() => {
         try {
             // فحص اللاعب المحلي
@@ -137,4 +154,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000);
 
 })();
- 
