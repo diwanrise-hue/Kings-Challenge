@@ -244,50 +244,6 @@ window.renderDamaPopularityStore = function() {
     } else { grid.innerHTML = '<p style="color: #a1a1aa; text-align: center; grid-column: span 3; padding: 15px;">لا توجد عناصر شعبية حالياً.</p>'; }
 };
 
-window.givePopularity = function() {
-    const profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-    const inventory = profile.inventory || {};
-    const grid = document.getElementById('my-gifts-selection-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    let availableCount = 0;
-
-    (window.POPULARITY_ITEMS || []).forEach(gift => {
-        const count = inventory[gift.id] || 0;
-        if (count > 0) {
-            availableCount++;
-            const itemEl = document.createElement('div'); itemEl.className = 'store-item-card'; itemEl.style.padding = '8px'; itemEl.style.display = 'flex'; itemEl.style.flexDirection = 'column'; itemEl.style.alignItems = 'center'; itemEl.style.gap = '5px';
-            itemEl.innerHTML = `
-                <img src="${gift.imagePath}" style="width: 40px; height: 40px; object-fit: contain;">
-                <span style="color: white; font-size: 11px; font-weight: bold; text-align: center;">${gift.nameAr}</span>
-                <div style="color: #00d2ff; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 3px; filter: drop-shadow(0 0 2px rgba(0, 210, 255, 0.4));">
-                    +${formatCompactNumber(gift.popValue)} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
-                </div>
-                <span style="color: #f5a623; font-size: 10px;">لديك: x${count}</span>
-                <button class="store-buy-btn-small" onclick="window.confirmSendGift('${gift.id}', ${gift.popValue || gift.price || 10})" style="width: 100%; height: 26px; font-size: 11px; margin-top: auto;">إرسال 🚀</button>
-            `;
-            grid.appendChild(itemEl);
-        }
-    });
-
-    if (availableCount === 0) grid.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; grid-column: span 3; padding: 15px;">حقيبتك فارغة من الهدايا! اذهب للمتجر لشراء الشعبية.</p>';
-    if (typeof window.openAppModal === 'function') window.openAppModal('send-gift-modal');
-};
-
-window.confirmSendGift = function(giftId, popValue) {
-    let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-    if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
-    profile.inventory[giftId] -= 1;
-    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-
-    if (window.socket && window.socket.connected) {
-        window.socket.emit('sendPopularityGift', { giftId: giftId, popValue: popValue, targetOpponentId: window.challengeTargetFriendId || window.currentOpponentId });
-    }
-    if (typeof window.closeAppModal === 'function') { window.closeAppModal('send-gift-modal'); window.closeAppModal('in-game-profile-modal'); }
-    const toast = document.getElementById('toast-notification');
-    if (toast) { toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${formatCompactNumber(popValue)} شعبية)`; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-};
-
 window.showOpponentProfile = function() {
     if (!window.currentOpponentData) return;
     const opp = window.currentOpponentData;
