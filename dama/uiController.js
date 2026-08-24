@@ -158,7 +158,6 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            // 🌟 الإصلاح هنا: تصغير حجم البوت ورفعه قليلاً ليظهر كاملاً داخل الدائرة في نافذة النتائج فقط
             botScale = 'scale(0.85) translateY(-5%)'; 
         }
         else {
@@ -285,12 +284,10 @@ export const ui = {
         
         if (currentXp >= 5000) { 
             rank = "أسطوري"; 
-            // 🌟 استخدام الاسم الإنجليزي لتفادي مشاكل السيرفر
             rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
         }
         else if (currentXp >= 2500) { 
             rank = "ماسي"; 
-            // 🌟 استخدام الاسم الإنجليزي لتفادي مشاكل السيرفر
             rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
         }
         else if (currentXp >= 1200) { rank = "ذهبي"; rankIcon = "🥇"; }
@@ -411,7 +408,6 @@ export const ui = {
         }, 3000);
     },
 
-    // 🌟 دالة مراهنات المشاهدين المفقودة تمت إضافتها هنا
     showSpectatorBetModal(roomID, p1, p2) {
         this.setTxt('bet-p1-name', p1.name || 'اللاعب 1');
         this.applyAvatar('bet-p1-avatar', p1.avatar, p1.isCustomAvatar || p1.avatar?.startsWith('data:'), p1.equippedProfileFrame);
@@ -2066,14 +2062,13 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                 if (giftObj) {
                     const isVideoGift = giftObj.mediaType === 'video';
                     
-                    let animDuration = 2800; // الوقت الافتراضي للصور
+                    let animDuration = 2800; 
                     if (isVideoGift) {
                         animDuration = (giftId === 'pop_16') ? 10000 : 5000;
                     }
                     
                     const senderOverlay = document.createElement('div');
                     
-                    // 🌟 التعتيم والاختفاء يطبق فقط على الفيديوهات
                     let overlayBg = isVideoGift ? 'rgba(0, 0, 0, 0.4)' : 'transparent';
                     let overlayOpacity = isVideoGift ? '0' : '1';
                     let overlayTransition = isVideoGift ? 'transition: opacity 0.3s ease;' : '';
@@ -2081,7 +2076,9 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     senderOverlay.style.cssText = `
                         position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
                         pointer-events: none; z-index: 10000050; 
-                        display: flex; flex-direction: column; align-items: center; justify-content: center;
+                        display: flex; flex-direction: column; align-items: center; 
+                        justify-content: flex-start; /* 🌟 التعديل: تظهر في الأعلى */
+                        padding-top: 12vh; /* 🌟 التعديل: إزاحة للأسفل قليلاً */
                         background: ${overlayBg};
                         opacity: ${overlayOpacity}; 
                         ${overlayTransition}
@@ -2135,13 +2132,13 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                                 { transform: 'scale(1)', opacity: 0, offset: 1 }    
                             ];
                         } else {
-                            // الصور العادية تطير بشكل جميل للأعلى
+                            // 🌟 التعديل: الصور العادية تطير بشكل جميل للأعلى
                             keyframes = [
-                                { transform: 'scale(0.2) translateY(100px)', opacity: 0, offset: 0 },
-                                { transform: 'scale(1.2) translateY(-20px)', opacity: 1, offset: 0.15 },
+                                { transform: 'scale(0.2) translateY(50px)', opacity: 0, offset: 0 },
+                                { transform: 'scale(1.2) translateY(-10px)', opacity: 1, offset: 0.15 },
                                 { transform: 'scale(1) translateY(0)', opacity: 1, offset: 0.25 },
                                 { transform: 'scale(1.05) translateY(-5px)', opacity: 1, offset: 0.75 },
-                                { transform: 'scale(1.5) translateY(-250px)', opacity: 0, offset: 1 }
+                                { transform: 'scale(1.5) translateY(-150px)', opacity: 0, offset: 1 }
                             ];
                         }
 
@@ -2151,7 +2148,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                             fill: 'forwards'
                         });
                         
-                        // 🌟 إزالة الهدية العادية بوقته، والفيديو بوقته
                         if (isVideoGift) {
                             setTimeout(() => {
                                 senderOverlay.style.opacity = '0';
