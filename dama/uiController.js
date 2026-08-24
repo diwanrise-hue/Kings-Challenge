@@ -1951,8 +1951,6 @@ window.givePopularity = function(directTargetId) {
 
 
 
-
-
 window.confirmSendGift = function(giftId, fallbackPopValue) {
     let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
@@ -2018,25 +2016,29 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                 if (giftObj) {
                     const isVideoGift = giftObj.mediaType === 'video';
                     
-                    // 🌟 التعديل الأول: تخصيص الوقت (القلعة 16 = 10 ثواني، الباقي = 5 ثواني)
                     let animDuration = 2800; // الوقت الافتراضي للصور
                     if (isVideoGift) {
                         animDuration = (giftId === 'pop_16') ? 10000 : 5000;
                     }
                     
                     const senderOverlay = document.createElement('div');
+                    
+                    // 🌟 الإصلاح هنا: التعتيم والاختفاء يطبق فقط على الفيديوهات
+                    let overlayBg = isVideoGift ? 'rgba(0, 0, 0, 0.4)' : 'transparent';
+                    let overlayOpacity = isVideoGift ? '0' : '1';
+                    let overlayTransition = isVideoGift ? 'transition: opacity 0.3s ease;' : '';
+
                     senderOverlay.style.cssText = `
                         position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
                         pointer-events: none; z-index: 10000050; 
                         display: flex; flex-direction: column; align-items: center; justify-content: center;
-                        background: rgba(0, 0, 0, 0.4);
-                        opacity: 0; 
-                        transition: opacity 0.3s ease;
+                        background: ${overlayBg};
+                        opacity: ${overlayOpacity}; 
+                        ${overlayTransition}
                     `;
                     
                     let mediaHtml = '';
                     if (isVideoGift) {
-                        // 🌟 التعديل الثاني: إزالة poster لعدم إظهار صورة .webp قبل الفيديو
                         mediaHtml = `<video id="gift-media-el" src="${giftObj.videoPath}" autoplay loop playsinline preload="auto" style="width: 280px; height: 280px; object-fit: contain; will-change: transform, opacity;"></video>`;
                     } else {
                         mediaHtml = `<img id="gift-media-el" src="${giftObj.imagePath}" style="width: 180px; height: 180px; object-fit: contain; will-change: transform, opacity;">`;
@@ -2052,9 +2054,11 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     `;
                     document.body.appendChild(senderOverlay);
                     
-                    requestAnimationFrame(() => {
-                        senderOverlay.style.opacity = '1';
-                    });
+                    if (isVideoGift) {
+                        requestAnimationFrame(() => {
+                            senderOverlay.style.opacity = '1';
+                        });
+                    }
 
                     const mediaEl = document.getElementById('gift-media-el');
                     const animContainer = document.getElementById('gift-anim-container');
@@ -2075,13 +2079,13 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                         let keyframes = [];
                         
                         if (isVideoGift) {
-                            // 🌟 التعديل الثالث: إزالة مؤثرات البداية والنهاية للفيديو (ظهور فوري وثابت)
                             keyframes = [
-                                { transform: 'scale(1)', opacity: 1, offset: 0 },   // يبدأ فوراً بحجمه الكامل
-                                { transform: 'scale(1)', opacity: 1, offset: 0.9 }, // يبقى ثابتاً
-                                { transform: 'scale(1)', opacity: 0, offset: 1 }    // يختفي بهدوء
+                                { transform: 'scale(1)', opacity: 1, offset: 0 },   
+                                { transform: 'scale(1)', opacity: 1, offset: 0.9 }, 
+                                { transform: 'scale(1)', opacity: 0, offset: 1 }    
                             ];
                         } else {
+                            // الصور العادية تطير بشكل جميل للأعلى
                             keyframes = [
                                 { transform: 'scale(0.2) translateY(100px)', opacity: 0, offset: 0 },
                                 { transform: 'scale(1.2) translateY(-20px)', opacity: 1, offset: 0.15 },
@@ -2097,10 +2101,15 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                             fill: 'forwards'
                         });
                         
-                        setTimeout(() => {
-                            senderOverlay.style.opacity = '0';
-                            setTimeout(() => senderOverlay.remove(), 500); 
-                        }, animDuration - 500);
+                        // 🌟 الإصلاح هنا: إزالة الهدية العادية بوقته، والفيديو بوقته
+                        if (isVideoGift) {
+                            setTimeout(() => {
+                                senderOverlay.style.opacity = '0';
+                                setTimeout(() => senderOverlay.remove(), 500); 
+                            }, animDuration - 500);
+                        } else {
+                            setTimeout(() => senderOverlay.remove(), animDuration);
+                        }
                     };
 
                     if (isVideoGift) {
@@ -2131,7 +2140,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     }
     window.targetGiftReceiverId = null; 
 };
-
 
 
 
