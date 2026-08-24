@@ -51,31 +51,45 @@ document.addEventListener('DOMContentLoaded', () => {
             position: absolute;
             top: 10px;
             left: 185px; /* المكان المخصص للبروفايل الرئيسي */
-            width: 48px;  /* العرض */
-            height: 64px; /* الطول (نسبة 3:4 دقيقة 100%) */
-            object-fit: contain; /* يمنع أي تشوه للصورة */
+            width: 48px;  
+            height: 64px; 
+            object-fit: contain; 
             z-index: 50;
             pointer-events: none;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
             will-change: transform;
-            /* تطبيق الأنيميشن الجديد لمدة 10 ثوانٍ */
             animation: vipFloatAndSpin 10s infinite linear;
             transform-style: preserve-3d;
         }
 
-        /* 👑 2. شارة الـ VIP في بطاقات اللعب (Online Match Cards) */
-        .vip-badge-match {
+        /* 👑 2. شارة الـ VIP في بطاقة اللاعب المحلي (أسفل اليمين - قريب من حافة الشاشة) */
+        .vip-badge-match-me {
             position: absolute;
-            top: -12px;
-            right: -12px; /* الظهور في الزاوية العلوية اليمنى للبطاقة */
-            width: 30px;  /* العرض المصغر للبطاقة */
-            height: 40px; /* الطول المصغر (نسبة 3:4 دقيقة 100%) */
+            bottom: -15px; /* بروز بسيط للأسفل */
+            right: -15px;  /* بروز بسيط للخارج باتجاه حافة الشاشة اليمنى */
+            width: 33px;  
+            height: 44px; 
             object-fit: contain;
             z-index: 50;
             pointer-events: none;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
             will-change: transform;
-            /* تطبيق الأنيميشن الجديد لمدة 10 ثوانٍ */
+            animation: vipFloatAndSpin 10s infinite linear;
+            transform-style: preserve-3d;
+        }
+
+        /* 👑 3. شارة الـ VIP في بطاقة الخصم (أسفل اليسار - قريب من حافة الشاشة) */
+        .vip-badge-match-opp {
+            position: absolute;
+            bottom: -15px; /* بروز بسيط للأسفل */
+            left: -15px;   /* بروز بسيط للخارج باتجاه حافة الشاشة اليسرى */
+            width: 33px;  
+            height: 44px; 
+            object-fit: contain;
+            z-index: 50;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+            will-change: transform;
             animation: vipFloatAndSpin 10s infinite linear;
             transform-style: preserve-3d;
         }
@@ -87,12 +101,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const avatarDiv = document.getElementById(avatarContainerId);
         if (!avatarDiv) return;
 
-        // الحصول على الحاوية الأب (المربع الذي يحمل الـ relative)
-        const parent = avatarDiv.parentElement;
-        if (!parent) return;
+        let parent, badgeClass;
 
-        // تحديد الكلاس المناسب بناءً على مكان الشارة (لمنع تشوه الأماكن)
-        const badgeClass = (avatarContainerId === 'badge-avatar') ? 'vip-badge-hub' : 'vip-badge-match';
+        if (avatarContainerId === 'badge-avatar') {
+            // بالنسبة للبروفايل الرئيسي، نضعها في الحاوية الأب المباشرة للأفاتار
+            parent = avatarDiv.parentElement; 
+            badgeClass = 'vip-badge-hub';
+        } else {
+            // بالنسبة لبطاقات الأونلاين، نبحث عن حاوية البطاقة بالكامل لنضع الشارة على الحافة
+            parent = avatarDiv.closest('.match-players-flex');
+            if (!parent) return;
+            badgeClass = (avatarContainerId === 'card-my-avatar') ? 'vip-badge-match-me' : 'vip-badge-match-opp';
+        }
+
         let badge = parent.querySelector('.' + badgeClass);
         
         // إذا كان يمتلك مستوى VIP أعلى من 0
@@ -135,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.ui && window.ui.toggleOnlineUILayout) {
                 const origToggle = window.ui.toggleOnlineUILayout;
                 window.ui.toggleOnlineUILayout = function(active, oppName, oppAvatar) {
-                    origToggle.call(window.ui, active, oppName, oppAvatar);
+                    origToggle.call(window.ui, active, oppName, oppAvatar); 
                     
                     if (active) {
                         let oppVip = 0;
@@ -150,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
             }
-        }, 1000); 
+        }, 1000); // تأخير بسيط لضمان تحميل واجهة اللعبة بالكامل
     });
 
     // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة
