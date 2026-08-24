@@ -1,4 +1,3 @@
-/* dama.css */
 /* المتغيرات الأساسية والهيكل العام الثابت    */
 /* ========================================== */
 :root { 
@@ -1103,8 +1102,33 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .notification-badge { position: absolute; top: -2px; left: -2px; width: 10px; height: 10px; background-color: #ff453a; border-radius: 50%; box-shadow: 0 0 10px #ff453a; animation: badgePulse 1.5s infinite ease-in-out; }
 @keyframes badgePulse { 0% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.8; } }
 
-#match-players-card { background: rgba(24, 23, 29, 0.95) !important; backdrop-filter: blur(4px); border: 1px solid rgba(212, 175, 55, 0.3) !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; }
-.match-players-flex { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 80px; position: relative; }
+/* ========================================== */
+/* 🌟 التصميم الجديد: بطاقات اللاعبين المنفصلة 🌟 */
+/* ========================================== */
+#match-players-card { 
+    background: transparent !important; 
+    border: none !important; 
+    box-shadow: none !important; 
+    backdrop-filter: none !important; 
+}
+
+.match-players-flex { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 8px; 
+    flex: 1; 
+    max-width: 140px; 
+    position: relative; 
+    
+    background: linear-gradient(145deg, rgba(30, 32, 40, 0.95), rgba(15, 18, 25, 0.9)) !important;
+    border: 1.5px solid rgba(212, 175, 55, 0.3) !important;
+    border-radius: 20px !important;
+    padding: 12px 5px !important;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.05) !important;
+    backdrop-filter: blur(4px);
+}
+
 .match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid #d4af37; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: visible; background-color: rgba(255,255,255,0.05); }
 .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fdf5c9 !important; display: flex; align-items: center; justify-content: center; }
 .match-vs-text { color: #d4af37; font-weight: 800; font-size: 16px; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
@@ -1146,7 +1170,19 @@ body.game-active:not(.online-mode-active) #bag-quick-btn {
 body.online-mode-active { padding-top: 15px !important; }
 body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #bag-quick-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn, body.online-mode-active #room-portal-btn { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
 body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
-body.online-mode-active #match-players-card { width: 95vw !important; max-width: 500px !important; flex-direction: row !important; justify-content: space-between !important; padding: 10px 30px !important; margin-bottom: 15px !important; }
+
+/* تطبيق عرض البطاقات المنفصلة في وضع الأونلاين */
+body.online-mode-active #match-players-card { 
+    width: 95vw !important; 
+    max-width: 480px !important; 
+    flex-direction: row !important; 
+    justify-content: space-between !important; 
+    align-items: center !important;
+    padding: 5px 10px !important; 
+    margin-bottom: 15px !important; 
+    gap: 5px !important;
+}
+
 body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #d4af37 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 body.online-mode-active .scoreboard { order: 2 !important; }
 body.online-mode-active .game-container { order: 3 !important; }
