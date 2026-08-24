@@ -1,5 +1,6 @@
 // ==========================================
 // ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (متوافق 100% مع السيرفر)
+// 🌟 (مُحدّث جذرياً): إغلاق ثغرة الشراء الأوفلاين (Offline Purchase Exploit) لحماية الاقتصاد.
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -379,8 +380,6 @@ export const STORE_ITEMS = {
         damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135420.webp'
     },
 
-    // 🛡️ تم إزالة العنصر المكرر pc_death_skSkull من هنا لتطابق قاعدة بيانات السيرفر
-
     'pc_oak_leaf': { 
         type: 'pc', cost: 5000, isLegendary: true, nameAr: 'طاقم البلوط والتاج الملكي الأسطوري', nameEn: 'Royal Oak Leaf & Crown Set',
         isImage: true, 
@@ -595,9 +594,6 @@ window.renderGiftsInBag = function() {
 
 export const storeManager = {
     
-    // ==========================================
-    // 💡 إصلاح استهلاك الذاكرة الخاص بـ Resize
-    // ==========================================
     startGapKiller() {
         if (window.__gapKillerActive) return;
         window.__gapKillerActive = true;
@@ -813,28 +809,12 @@ export const storeManager = {
         if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(processMsg);
         
         if (window['socket'] && window['socket'].connected) { 
-            // 🌟 استخدام userId للحماية المطابقة للسيرفر
             window['socket'].emit('requestPurchase', { guestId: profile.id, userId: profile.id, itemId: itemId, cost: item.cost, itemType: itemType || item.type }); 
         } else { 
-            if (profile.tokens >= item.cost) {
-                profile.tokens -= item.cost;
-                if (itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === itemId))) {
-                    if (!profile.inventory) profile.inventory = {};
-                    profile.inventory[itemId] = (profile.inventory[itemId] || 0) + 1;
-                } else {
-                    if (!profile.purchasedItems.includes(itemId)) profile.purchasedItems.push(itemId);
-                }
-                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                if (window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-                }
-                const successMsg = isAr ? `تم شراء ${item.nameAr || 'المنتج'} بنجاح!` : 'Purchase successful!';
-                if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(successMsg);
-                this.renderUI();
-            } else {
-                const errorMsg = isAr ? "رصيدك غير كافٍ!" : "Insufficient tokens!";
-                if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(errorMsg);
-            }
+            // 🌟 الإصلاح الجذري: منع الشراء الأوفلاين كلياً لمنع مسح السيرفر للأموال والمشتريات
+            const errorMsg = isAr ? "يجب أن تكون متصلاً بالسيرفر لإتمام عملية الشراء وحفظها بأمان!" : "You must be online to purchase items safely!";
+            if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(errorMsg);
+            else alert(errorMsg);
         }
     },
 
@@ -853,7 +833,6 @@ export const storeManager = {
         const item = STORE_ITEMS[itemId];
 
         if (window['socket'] && window['socket'].connected) { 
-            // 🌟 استخدام userId للحماية
             window['socket'].emit('requestEquip', { guestId: profile.id, userId: profile.id, itemId: itemId, itemType: item ? item.type : 'pc' }); 
         } else {
             if (!item) return;
