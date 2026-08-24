@@ -1949,6 +1949,10 @@ window.givePopularity = function(directTargetId) {
 };
 
 
+
+
+
+
 window.confirmSendGift = function(giftId, fallbackPopValue) {
     let profile = (window.storeManager && window.storeManager.getProfile) ? window.storeManager.getProfile() : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     if (!profile.inventory || !profile.inventory[giftId] || profile.inventory[giftId] <= 0) return;
@@ -2013,7 +2017,12 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                 }
                 if (giftObj) {
                     const isVideoGift = giftObj.mediaType === 'video';
-                    const animDuration = isVideoGift ? 10000 : 2800; 
+                    
+                    // 🌟 التعديل الأول: تخصيص الوقت (القلعة 16 = 10 ثواني، الباقي = 5 ثواني)
+                    let animDuration = 2800; // الوقت الافتراضي للصور
+                    if (isVideoGift) {
+                        animDuration = (giftId === 'pop_16') ? 10000 : 5000;
+                    }
                     
                     const senderOverlay = document.createElement('div');
                     senderOverlay.style.cssText = `
@@ -2022,15 +2031,13 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                         display: flex; flex-direction: column; align-items: center; justify-content: center;
                         background: rgba(0, 0, 0, 0.4);
                         opacity: 0; 
-                        transition: opacity 0.5s ease;
+                        transition: opacity 0.3s ease;
                     `;
                     
                     let mediaHtml = '';
                     if (isVideoGift) {
-                        // 🌟 التعديلات هنا 🌟:
-                        // 1. إزالة كلمة 'muted' لكي يعمل الصوت بحرية.
-                        // 2. إضافة 'poster' ووضع صورة الهدية كغلاف مؤقت لتفادي أي وميض أو تقطيع.
-                        mediaHtml = `<video id="gift-media-el" src="${giftObj.videoPath}" poster="${giftObj.imagePath}" autoplay loop playsinline preload="auto" style="width: 280px; height: 280px; object-fit: contain; will-change: transform, opacity;"></video>`;
+                        // 🌟 التعديل الثاني: إزالة poster لعدم إظهار صورة .webp قبل الفيديو
+                        mediaHtml = `<video id="gift-media-el" src="${giftObj.videoPath}" autoplay loop playsinline preload="auto" style="width: 280px; height: 280px; object-fit: contain; will-change: transform, opacity;"></video>`;
                     } else {
                         mediaHtml = `<img id="gift-media-el" src="${giftObj.imagePath}" style="width: 180px; height: 180px; object-fit: contain; will-change: transform, opacity;">`;
                     }
@@ -2057,23 +2064,22 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                         if (animationStarted || !animContainer) return;
                         animationStarted = true;
                         
-                        // 🌟 فرض تشغيل الصوت برمجياً (تجنباً لقيود بعض المتصفحات)
                         if (isVideoGift && mediaEl) {
                             mediaEl.volume = 1.0;
                             let playPromise = mediaEl.play();
                             if (playPromise !== undefined) {
-                                playPromise.catch(e => console.log("الصوت يعمل تلقائياً بفضل تفاعل اللاعب مسبقاً"));
+                                playPromise.catch(e => console.log("Video AutoPlay handled."));
                             }
                         }
 
                         let keyframes = [];
                         
                         if (isVideoGift) {
+                            // 🌟 التعديل الثالث: إزالة مؤثرات البداية والنهاية للفيديو (ظهور فوري وثابت)
                             keyframes = [
-                                { transform: 'scale(0.8)', opacity: 0, offset: 0 },       
-                                { transform: 'scale(1)', opacity: 1, offset: 0.1 },        
-                                { transform: 'scale(1)', opacity: 1, offset: 0.9 },        
-                                { transform: 'scale(1.1)', opacity: 0, offset: 1 }         
+                                { transform: 'scale(1)', opacity: 1, offset: 0 },   // يبدأ فوراً بحجمه الكامل
+                                { transform: 'scale(1)', opacity: 1, offset: 0.9 }, // يبقى ثابتاً
+                                { transform: 'scale(1)', opacity: 0, offset: 1 }    // يختفي بهدوء
                             ];
                         } else {
                             keyframes = [
@@ -2087,7 +2093,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
 
                         animContainer.animate(keyframes, {
                             duration: animDuration,
-                            easing: isVideoGift ? 'ease-in-out' : 'cubic-bezier(0.25, 1, 0.5, 1)',
+                            easing: isVideoGift ? 'linear' : 'cubic-bezier(0.25, 1, 0.5, 1)',
                             fill: 'forwards'
                         });
                         
@@ -2125,6 +2131,11 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
     }
     window.targetGiftReceiverId = null; 
 };
+
+
+
+
+
 
 
 
