@@ -175,14 +175,36 @@ window.addEventListener('load', async () => {
         window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
     });
 
+    // ===========================================================
+    // 🌟 استقبال الشعبية وتحديث رقمها للخصم (مع تأثيرات الفيديو والصوت)
+    // ===========================================================
     socket.on('receivePopularityGift', (data) => {
         if (data && data.popValue) {
             gameState.userProfile.popularity = (gameState.userProfile.popularity || 0) + data.popValue;
             try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
             if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
             
+            // 🌟 الإضافة الجديدة: تحديث رقم الشعبية للمستلم أمام عينيه فوراً إذا كان يفتح بروفايله
+            const popValEl = document.getElementById('igp-popularity-val');
+            if (popValEl) {
+                let formatNum = (num) => {
+                    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+                    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+                    return num;
+                };
+                popValEl.innerText = formatNum(gameState.userProfile.popularity);
+                popValEl.style.transition = 'all 0.3s ease';
+                popValEl.style.transform = 'scale(1.3)';
+                popValEl.style.color = '#ffd700';
+                setTimeout(() => {
+                    popValEl.style.transform = 'scale(1)';
+                    popValEl.style.color = '';
+                }, 400);
+            }
+
             let giftImageHtml = '<div style="font-size: 60px;">🎁</div>';
             let giftName = 'هدية قيمة';
+            let animDuration = 4500; // الوقت الافتراضي للصور
             
             if (window.POPULARITY_ITEMS) {
                 const giftObj = window.POPULARITY_ITEMS.find(item => item.id === data.giftId);
@@ -191,7 +213,9 @@ window.addEventListener('load', async () => {
                     const style = "width: 140px; height: 140px; object-fit: contain; animation: floatGift 2s ease-in-out infinite; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));";
                     
                     if (giftObj.mediaType === 'video') {
-                        giftImageHtml = `<video src="${giftObj.videoPath}" autoplay loop  playsinline style="${style} border-radius: 12px;"></video>`;
+                        // 🌟 تحديد الوقت للخصم (10 للقلعة و 5 للباقي)
+                        animDuration = (data.giftId === 'pop_16') ? 10000 : 5000;
+                        giftImageHtml = `<video id="receiver-gift-vid" src="${giftObj.videoPath}" autoplay loop playsinline style="${style} border-radius: 12px;"></video>`;
                     } else {
                         giftImageHtml = `<img src="${giftObj.imagePath}" style="${style}">`;
                     }
@@ -227,12 +251,21 @@ window.addEventListener('load', async () => {
             `;
             
             document.body.appendChild(celebrationOverlay);
+
+            // 🌟 إجبار المتصفح على تشغيل الصوت للخصم
+            const recVideo = document.getElementById('receiver-gift-vid');
+            if (recVideo) {
+                recVideo.volume = 1.0;
+                let playPromise = recVideo.play();
+                if (playPromise !== undefined) playPromise.catch(e => console.log("AutoPlay Handled"));
+            }
             
+            // 🌟 استخدام الوقت الديناميكي (animDuration) بدلاً من 4500 الثابتة
             setTimeout(() => {
                 celebrationOverlay.style.opacity = '0';
                 celebrationOverlay.style.transition = 'opacity 0.5s ease';
                 setTimeout(() => celebrationOverlay.remove(), 500);
-            }, 4500);
+            }, animDuration);
         }
     });
 
