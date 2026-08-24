@@ -1944,11 +1944,48 @@ window.showPlayerProfileFromLB = function(player) {
     window.openAppModal('in-game-profile-modal');
 };
 
+// ==========================================
+// 🌟 نظام إرسال الهدايا (تمت إضافة الدعم للمشاهدين) 🌟
+// ==========================================
 window.openGiftPanel = function(targetId) {
-    if (!targetId) return;
-    window.targetGiftReceiverId = targetId;
-    window.givePopularity(targetId);
+    const selector = document.getElementById('spectator-gift-target-selector');
+    const desc = document.getElementById('gift-modal-desc');
+    
+    if (gameState.isSpectator && !targetId) {
+        // إذا كان المستخدم مشاهداً ولم يتم تحديد ID مسبقاً (قادم من زر الشريط السفلي)
+        window.targetGiftReceiverId = window.matchPlayer1Id; // اللاعب الأول كافتراضي
+        
+        if (selector) {
+            selector.style.display = 'block';
+            document.getElementById('gift-target-p1').innerText = document.getElementById('card-my-name').innerText || "اللاعب 1";
+            document.getElementById('gift-target-p2').innerText = document.getElementById('card-opp-name').innerText || "اللاعب 2";
+            
+            document.getElementById('gift-target-p1').classList.add('active');
+            document.getElementById('gift-target-p2').classList.remove('active');
+        }
+        if (desc) desc.innerText = "اختر هدية من حقيبتك لإرسالها:";
+    } else {
+        // إذا كان المستخدم لاعب فعلي، أو فتحها عبر ملف شخصي محدد
+        if (selector) selector.style.display = 'none';
+        if (desc) desc.innerText = "اختر هدية من حقيبتك لإرسالها إلى المنافس:";
+        if (targetId) {
+            window.targetGiftReceiverId = targetId;
+        } else {
+            window.targetGiftReceiverId = window.matchPlayer2Id || window.currentOpponentId;
+        }
+    }
+    
+    window.givePopularity(window.targetGiftReceiverId);
 };
+
+// دالة لتغيير اللاعب المستهدف عند الضغط على الأزرار في النافذة
+window.setGiftTarget = function(id, btnElement) {
+    window.targetGiftReceiverId = id;
+    document.getElementById('gift-target-p1').classList.remove('active');
+    document.getElementById('gift-target-p2').classList.remove('active');
+    if(btnElement) btnElement.classList.add('active');
+};
+
 
 window.givePopularity = function(directTargetId) {
     if (directTargetId) window.targetGiftReceiverId = directTargetId;
@@ -2568,20 +2605,27 @@ ui.onClick('undo-btn', () => {
 
 ui.onClick('hint-btn', () => { hintSystem.requestHint(); });
 
-// 🌟 فتح نافذة الهدايا للخصم أثناء اللعب الأونلاين
+// 🌟 فتح نافذة الهدايا (مدمجة بذكاء لتفريق المشاهد عن اللاعب)
 ui.onClick('match-gift-btn-p2', () => {
-    let targetId = window.matchPlayer2Id || window.currentOpponentId;
-    if (targetId) {
-        window.openGiftPanel(targetId);
+    if (gameState.isSpectator) {
+        window.openGiftPanel(); // فتح بدون ID لتشغيل مبدل اللاعبين التلقائي
     } else {
-        const toast = document.getElementById('toast-notification');
-        if (toast) { 
-            toast.innerText = `⚠️ لا يمكن تحديد الخصم حالياً`; 
-            toast.classList.add('show'); 
-            setTimeout(() => toast.classList.remove('show'), 2500); 
+        let targetId = window.matchPlayer2Id || window.currentOpponentId;
+        if (targetId) {
+            window.openGiftPanel(targetId);
+        } else {
+            const toast = document.getElementById('toast-notification');
+            if (toast) { 
+                toast.innerText = `⚠️ لا يمكن تحديد الخصم حالياً`; 
+                toast.classList.add('show'); 
+                setTimeout(() => toast.classList.remove('show'), 2500); 
+            }
         }
     }
 });
+
+// ⚠️ ملاحظة: يمكنك حذف الاستدعاء ui.onClick('match-gift-btn-p1') بالكامل من الكود القديم لأنه لم يعد مطلوباً.
+
 
 // 🌟 فتح نافذة الهدايا للاعب الأول (في حال كنت تشاهد المباراة كمشاهد)
 ui.onClick('match-gift-btn-p1', () => {
