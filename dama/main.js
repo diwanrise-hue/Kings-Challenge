@@ -2,7 +2,6 @@
  * main.js
  * المنسق العام للمشروع (Orchestrator).
  * يربط بين الواجهة (UI)، السيرفر (Socket)، وحالة اللعبة (GameState).
- * 🌟 (مُحدّث): إصلاح عرض الرقعة فوراً عند إنشاء الغرفة لمنع الخروج الوهمي أو الحذف الخاطئ لها.
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -176,7 +175,7 @@ window.addEventListener('load', async () => {
     });
 
     // ===========================================================
-    // 🌟 استقبال الشعبية وتحديث رقمها للخصم (مع تأثيرات الفيديو والصوت)
+    // 🌟 استقبال الشعبية وتحديث رقمها للخصم (مع تأثيرات عائمة خالية من الشاشة السوداء)
     // ===========================================================
     socket.on('receivePopularityGift', (data) => {
         if (data && data.popValue) {
@@ -184,7 +183,6 @@ window.addEventListener('load', async () => {
             try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
             if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
             
-            // 🌟 الإضافة الجديدة: تحديث رقم الشعبية للمستلم أمام عينيه فوراً إذا كان يفتح بروفايله
             const popValEl = document.getElementById('igp-popularity-val');
             if (popValEl) {
                 let formatNum = (num) => {
@@ -202,70 +200,116 @@ window.addEventListener('load', async () => {
                 }, 400);
             }
 
-            let giftImageHtml = '<div style="font-size: 60px;">🎁</div>';
-            let giftName = 'هدية قيمة';
-            let animDuration = 4500; // الوقت الافتراضي للصور
+            let giftImageHtml = '';
+            let giftName = 'هدية';
+            let isVideoGift = false;
+            let animDuration = 2800;
             
             if (window.POPULARITY_ITEMS) {
                 const giftObj = window.POPULARITY_ITEMS.find(item => item.id === data.giftId);
                 if (giftObj) {
                     giftName = giftObj.nameAr;
-                    const style = "width: 140px; height: 140px; object-fit: contain; animation: floatGift 2s ease-in-out infinite; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));";
+                    isVideoGift = giftObj.mediaType === 'video';
                     
-                    if (giftObj.mediaType === 'video') {
-                        // 🌟 تحديد الوقت للخصم (10 للقلعة و 5 للباقي)
+                    if (isVideoGift) {
                         animDuration = (data.giftId === 'pop_16') ? 10000 : 5000;
-                        giftImageHtml = `<video id="receiver-gift-vid" src="${giftObj.videoPath}" autoplay loop playsinline style="${style} border-radius: 12px;"></video>`;
+                        giftImageHtml = `<video id="receiver-gift-vid" src="${giftObj.videoPath}" autoplay loop playsinline preload="auto" style="width: 220px; height: 220px; object-fit: contain; will-change: transform, opacity;"></video>`;
                     } else {
-                        giftImageHtml = `<img src="${giftObj.imagePath}" style="${style}">`;
+                        giftImageHtml = `<img src="${giftObj.imagePath}" style="width: 150px; height: 150px; object-fit: contain; will-change: transform, opacity;">`;
                     }
                 }
             }
 
             const celebrationOverlay = document.createElement('div');
+            let overlayBg = isVideoGift ? 'rgba(0, 0, 0, 0.4)' : 'transparent';
+
             celebrationOverlay.style.cssText = `
                 position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
-                background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-                z-index: 999999999; display: flex; flex-direction: column;
-                align-items: center; justify-content: center;
-                animation: fadeInOverlay 0.4s ease-out;
+                pointer-events: none; z-index: 10000050; 
+                display: flex; flex-direction: column; align-items: center; 
+                justify-content: flex-start; /* 🌟 التعديل: تظهر في الأعلى */
+                padding-top: 12vh; /* 🌟 التعديل: إزاحة للأسفل قليلاً لتستقر فوق أسماء اللاعبين ولا تغطي الرقعة */
+                background: ${overlayBg};
+                opacity: 0; 
+                transition: opacity 0.3s ease;
             `;
             
             celebrationOverlay.innerHTML = `
-                <style>
-                    @keyframes floatGift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-15px) scale(1.05); } }
-                    @keyframes popInModal { 0% { transform: scale(0.5); opacity: 0; } 80% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-                    @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
-                    .gift-rays { position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; transform: translate(-50%, -50%); background: repeating-conic-gradient(from 0deg, rgba(255,215,0,0.15) 0deg 15deg, transparent 15deg 30deg); animation: spinRays 10s linear infinite; z-index: -1; }
-                    @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-                </style>
-                <div style="position: relative; overflow: hidden; background: linear-gradient(135deg, rgba(30,32,40,0.95), rgba(15,18,25,0.95)); border: 2px solid #ffd700; border-radius: 28px; padding: 40px 30px; text-align: center; box-shadow: 0 0 40px rgba(255,215,0,0.3); width: 85%; max-width: 340px; animation: popInModal 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-                    <div class="gift-rays"></div>
-                    <h3 style="color: #ffd700; margin: 0 0 20px 0; font-size: 26px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); position: relative; z-index: 2;">هدية جديدة! 🎉</h3>
-                    <div style="margin: 25px 0; position: relative; z-index: 2;">
-                        ${giftImageHtml}
+                <div id="receiver-anim-container" style="display: flex; flex-direction: column; align-items: center; opacity: 1; will-change: transform, opacity;">
+                    ${giftImageHtml}
+                    <div style="margin-top: 10px; color: #fff; font-weight: bold; font-size: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.65); padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(48, 209, 88, 0.5);">
+                        <span style="color: #30d158;">${data.senderName}</span> أرسل لك ${giftName} 🎁
                     </div>
-                    <p style="color: white; font-size: 16px; margin: 15px 0; position: relative; z-index: 2;">اللاعب <span style="color: #30d158; font-weight: 800; font-size: 18px;">${data.senderName}</span> أرسل لك:</p>
-                    <p style="color: #f5a623; font-size: 22px; font-weight: 900; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.9); position: relative; z-index: 2;">${giftName} <span style="color:#00d2ff;">(+${formatCompactNumber(data.popValue)} <span style="filter: hue-rotate(210deg);">🔥</span>)</span></p>
                 </div>
             `;
             
             document.body.appendChild(celebrationOverlay);
-
-            // 🌟 إجبار المتصفح على تشغيل الصوت للخصم
-            const recVideo = document.getElementById('receiver-gift-vid');
-            if (recVideo) {
-                recVideo.volume = 1.0;
-                let playPromise = recVideo.play();
-                if (playPromise !== undefined) playPromise.catch(e => console.log("AutoPlay Handled"));
-            }
             
-            // 🌟 استخدام الوقت الديناميكي (animDuration) بدلاً من 4500 الثابتة
-            setTimeout(() => {
-                celebrationOverlay.style.opacity = '0';
-                celebrationOverlay.style.transition = 'opacity 0.5s ease';
-                setTimeout(() => celebrationOverlay.remove(), 500);
-            }, animDuration);
+            requestAnimationFrame(() => {
+                celebrationOverlay.style.opacity = '1';
+            });
+
+            const recVideo = document.getElementById('receiver-gift-vid');
+            const animContainer = document.getElementById('receiver-anim-container');
+            let animationStarted = false;
+
+            const startAnimation = () => {
+                if (animationStarted || !animContainer) return;
+                animationStarted = true;
+
+                if (isVideoGift && recVideo) {
+                    recVideo.volume = 1.0;
+                    let playPromise = recVideo.play();
+                    if (playPromise !== undefined) playPromise.catch(e => console.log("AutoPlay Handled"));
+                }
+
+                let keyframes = [];
+                if (isVideoGift) {
+                    keyframes = [
+                        { transform: 'scale(1)', opacity: 1, offset: 0 },   
+                        { transform: 'scale(1)', opacity: 1, offset: 0.9 }, 
+                        { transform: 'scale(1)', opacity: 0, offset: 1 }    
+                    ];
+                } else {
+                    keyframes = [
+                        { transform: 'scale(0.2) translateY(50px)', opacity: 0, offset: 0 },
+                        { transform: 'scale(1.2) translateY(-10px)', opacity: 1, offset: 0.15 },
+                        { transform: 'scale(1) translateY(0)', opacity: 1, offset: 0.25 },
+                        { transform: 'scale(1.05) translateY(-5px)', opacity: 1, offset: 0.75 },
+                        { transform: 'scale(1.5) translateY(-150px)', opacity: 0, offset: 1 }
+                    ];
+                }
+
+                animContainer.animate(keyframes, {
+                    duration: animDuration,
+                    easing: isVideoGift ? 'linear' : 'cubic-bezier(0.25, 1, 0.5, 1)',
+                    fill: 'forwards'
+                });
+                
+                if (isVideoGift) {
+                    setTimeout(() => {
+                        celebrationOverlay.style.opacity = '0';
+                        setTimeout(() => celebrationOverlay.remove(), 500);
+                    }, animDuration - 500);
+                } else {
+                    setTimeout(() => celebrationOverlay.remove(), animDuration);
+                }
+            };
+
+            if (isVideoGift) {
+                if (recVideo.readyState >= 3) { 
+                    startAnimation();
+                } else {
+                    recVideo.addEventListener('canplay', startAnimation);
+                    recVideo.onerror = startAnimation; 
+                    setTimeout(() => { if(!animationStarted && celebrationOverlay.parentNode) startAnimation(); }, 1500);
+                }
+            } else {
+                const imgEl = celebrationOverlay.querySelector('img');
+                if (imgEl && imgEl.complete) { startAnimation(); } 
+                else if (imgEl) { imgEl.onload = startAnimation; imgEl.onerror = startAnimation; }
+                else { startAnimation(); }
+            }
         }
     });
 
