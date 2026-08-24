@@ -104,6 +104,7 @@
     </div>
 
     <div id="status-area">
+        <!-- 🌟 تصميم بطاقات اللاعبين المربّعة المنفصلة 🌟 -->
         <div id="match-players-card" style="display: none; width: 100%; justify-content: center; align-items: center; position: relative; z-index: 10;">
             
             <!-- اللاعب الخاص بي (أنت) -->
@@ -406,11 +407,22 @@
         </div>
     </div>
 
+    <!-- 🌟 نافذة إرسال الهدية المحدثة 🌟 -->
     <div id="send-gift-modal" class="modal-overlay" style="z-index: 10000020;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('send-gift-modal')">✕</button>
             <h3 style="color: #00d2ff; margin-bottom: 10px;">إرسال شعبية 🎁</h3>
-            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">اختر هدية من حقيبتك لإرسالها إلى المنافس:</p>
+            
+            <!-- 🌟 مبدل اختيار اللاعب (يظهر للمشاهدين فقط) 🌟 -->
+            <div id="spectator-gift-target-selector" style="display: none; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 14px; border: 1px solid rgba(0,210,255,0.2);">
+                <p style="color: #a1a1aa; font-size: 11px; margin: 0 0 8px 0; text-align: center;">لمن تريد إرسال الهدية؟</p>
+                <div style="display: flex; gap: 8px;">
+                    <button id="gift-target-p1" class="custom-tab-button active" onclick="window.setGiftTarget(window.matchPlayer1Id, this)" style="flex: 1; height: 38px; border-radius: 10px; font-size: 12px;">اللاعب 1</button>
+                    <button id="gift-target-p2" class="custom-tab-button" onclick="window.setGiftTarget(window.matchPlayer2Id, this)" style="flex: 1; height: 38px; border-radius: 10px; font-size: 12px;">اللاعب 2</button>
+                </div>
+            </div>
+            
+            <p id="gift-modal-desc" style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">اختر هدية من حقيبتك لإرسالها إلى المنافس:</p>
             <div id="my-gifts-selection-grid" class="store-items-grid" style="max-height: 50vh; overflow-y: auto;"></div>
         </div>
     </div>
@@ -588,6 +600,7 @@
         </div>
     </div>
 
+    <!-- 🌟 نافذة نتائج المباراة (Game Over) مع دعم عرض البوت الجديد 🌟 -->
     <div id="game-over-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <h3 id="game-over-title">Match Results</h3>
@@ -673,7 +686,7 @@
                 <div class="bet-option-item" onclick="window.confirmChallenge('50', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <span style="font-size:18px;">🪙</span></div></div>
                 <div class="bet-option-item" onclick="window.confirmChallenge('100', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <span style="font-size:18px;">🪙</span></div></div>
                 <div class="bet-option-item" onclick="window.confirmChallenge('200', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <span style="font-size:18px;">🪙</span></div></div>
-                <div class="bet-option-item" onclick="window.confirmChallenge('500', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('500', this)"><div class="bet-option-text">500 <span style="font-size:18px;">🪙</span></div></div>
             </div>
         </div>
     </div>
@@ -835,8 +848,8 @@
         
         <button id="mic-toggle-btn" title="المحادثة الصوتية" style="display: none;"></button>
         
-        <!-- زر الإهداء الجديد في الشريط السفلي -->
-        <button id="match-gift-btn-p2" title="إرسال شعبية للخصم" onclick="window.openGiftPanel(window.matchPlayer2Id)" style="display: none; background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #00d2ff !important; border-bottom: 3.5px solid #0088aa !important; color: #00d2ff !important; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5) !important; border-radius: 14px !important; width: 44px !important; height: 44px !important; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-direction: column; gap: 2px;">
+        <!-- زر الإهداء الموحد -->
+        <button id="match-gift-btn-p2" title="إرسال شعبية" style="display: none; background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #00d2ff !important; border-bottom: 3.5px solid #0088aa !important; color: #00d2ff !important; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5) !important; border-radius: 14px !important; width: 44px !important; height: 44px !important; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-direction: column; gap: 2px;">
             <span style="font-size: 16px; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8));">🎁</span>
             <span style="font-size: 9px; font-weight: bold; letter-spacing: 0.5px;">إهداء</span>
         </button>
