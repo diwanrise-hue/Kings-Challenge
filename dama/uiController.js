@@ -2520,6 +2520,30 @@ ui.onClick('undo-btn', () => {
 
 ui.onClick('hint-btn', () => { hintSystem.requestHint(); });
 
+// 🌟 فتح نافذة الهدايا للخصم أثناء اللعب الأونلاين
+ui.onClick('match-gift-btn-p2', () => {
+    let targetId = window.matchPlayer2Id || window.currentOpponentId;
+    if (targetId) {
+        window.openGiftPanel(targetId);
+    } else {
+        const toast = document.getElementById('toast-notification');
+        if (toast) { 
+            toast.innerText = `⚠️ لا يمكن تحديد الخصم حالياً`; 
+            toast.classList.add('show'); 
+            setTimeout(() => toast.classList.remove('show'), 2500); 
+        }
+    }
+});
+
+// 🌟 فتح نافذة الهدايا للاعب الأول (في حال كنت تشاهد المباراة كمشاهد)
+ui.onClick('match-gift-btn-p1', () => {
+    let targetId = window.matchPlayer1Id;
+    if (targetId) {
+        window.openGiftPanel(targetId);
+    }
+});
+
+
 ui.onClick('creator-update-bet-btn', () => {
     const roomIdEl = document.getElementById('creator-target-room-id');
     const newBetEl = document.getElementById('edit-room-bet-input');
