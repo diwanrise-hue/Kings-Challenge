@@ -1,8 +1,8 @@
 /**
  * gameEngine.js (Client-Side)
  * النسخة المطابقة تماماً لمحرك السيرفر (game-logic.js) لضمان التوافق 100%
- * 🌟 (مُحدّث): إصلاح الخلل الذي يمنع ظهور المربعات الزرقاء للحركات العادية.
- * 🌟 (مُحدّث): إصلاح نظام تحديد الاتجاه ليصبح ثابتاً ويمنع شلل الأحجار في نهاية اللعبة.
+ * 🌟 (مُحدّث): إصلاح نظام تحديد الاتجاه ليصبح ثابتاً ويمنع شلل الأحجار.
+ * 🎯 (مُحدّث جذرياً): نظام "التعادل الذكي" لإنهاء المطاردة المملة (1 ضد 1) فوراً ما لم يوجد أكل إجباري!
  */
 
 import { gameState } from './gameState.js'; 
@@ -259,8 +259,12 @@ export const gameEngine = {
         }
     },
 
-    checkIdleDraw(bState, currentTurn) {
+    // 🎯 الحل السحري لمنع المطاردة المملة (التعادل الذكي لـ 1 ضد 1)
+    checkIdleDraw(bState, currentTurn, roomDirectionData = null) {
+        // 1. قانون التعادل عند مرور 50 حركة بدون تقدم أو أكل
         if (gameState.movesWithoutProgress >= 50) return true;
+        
+        // 2. إحصاء الأحجار المتبقية على الرقعة
         let wCount = 0, bCount = 0;
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
@@ -270,7 +274,21 @@ export const gameEngine = {
                 }
             }
         }
-        if (wCount === 1 && bCount === 1) return true;
+        
+        // 3. تطبيق منطق (حجر ضد حجر)
+        if (wCount === 1 && bCount === 1) {
+            // نتحقق من كل الحركات المتاحة للاعب الذي جاء دوره الآن
+            let moves = this.generateAllTurnMoves(currentTurn, bState, null, null, null, null, roomDirectionData);
+            
+            // هل يمتلك هذا اللاعب أي حركة فيها أكل إجباري (midR ليس null)؟
+            let hasCapture = moves.some(path => path.some(step => step.midR !== null && step.midR !== undefined));
+            
+            // إذا لم يكن هناك أكل إجباري، ننهي اللعبة بالتعادل فوراً لمنع المطاردة!
+            if (!hasCapture) {
+                return true; 
+            }
+        }
+        
         return false;
     },
 
