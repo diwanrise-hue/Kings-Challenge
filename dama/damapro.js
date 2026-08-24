@@ -29,9 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .vip-badge-ingame {
             position: absolute;
             top: 10px;
-            left: 175px; /* الظهور في الزاوية العلوية اليسرى */
+            left: 185px; /* الظهور في الزاوية العلوية اليسرى */
             width: 55px;
-            height: 58px;
+            height: 62px;
             z-index: 50;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
             pointer-events: none;
