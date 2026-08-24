@@ -1,4 +1,3 @@
-<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -105,10 +104,10 @@
     </div>
 
     <div id="status-area">
-        <div id="match-players-card" style="display: none; width: 100%; justify-content: center; align-items: center; gap: 30px; padding: 15px 10px; background: linear-gradient(to bottom, rgba(20,22,30,0.95), rgba(10,12,15,0.8)); border-bottom: 2px solid rgba(212,175,55,0.3); border-radius: 0 0 25px 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); position: relative; z-index: 10;">
+        <div id="match-players-card" style="display: none; width: 100%; justify-content: center; align-items: center; position: relative; z-index: 10;">
             
             <!-- اللاعب الخاص بي (أنت) -->
-            <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center; width: 85px;">
+            <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center;">
                 <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; position: relative;">
                     <div id="card-my-avatar" class="profile-avatar-capsule" style="width: 70%; height: 70%; border-radius: 50%; overflow: visible; border: 2px solid #ffd700; background: #1a1a24; display: flex; align-items: center; justify-content: center;"></div>
                 </div>
@@ -117,7 +116,7 @@
             </div>
 
             <!-- علامة VS والرهان -->
-            <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="match-vs-container" style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0; margin: 0 10px;">
                 <span class="match-vs-text" style="font-size: 32px; font-weight: 900; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.6); font-family: 'Outfit', sans-serif; letter-spacing: 2px;">VS</span>
                 <span id="vs-bet-display" style="font-size:14px; color:#30d158; font-weight:bold; text-shadow:0 0 8px rgba(48,209,88,0.5); display: none; margin-top:4px;">💰 0</span>
                 
@@ -129,7 +128,7 @@
             </div>
 
             <!-- الخصم -->
-            <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center; width: 85px;">
+            <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center;">
                 <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;" onclick="window.showOpponentProfile()">
                     <div id="card-opp-avatar" class="profile-avatar-capsule" style="width: 70%; height: 70%; border-radius: 50%; overflow: visible; border: 2px solid #ff453a; background: #1a1a24; display: flex; align-items: center; justify-content: center;">❓</div>
                 </div>
@@ -181,7 +180,6 @@
                 <span id="menu-quests-text">المهام اليومية</span>
             </div>
 
-            <!-- 🌟 زر المتجر الملكي 🌟 -->
             <div class="side-menu-item" id="store-portal-corner-btn" onclick="toggleSideMenu(); openAppModal('store-modal')">
                 <span data-icon="storePortal" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;"></span>
                 <span id="menu-store-text">المتجر الملكي</span>
@@ -238,7 +236,6 @@
 
     <div id="toast-notification">✨ تم التغيير بنجاح</div>
 
-    <!-- 🌟 زر الأونلاين الفخم الموحد 🌟 -->
     <button id="online-toggle-btn" class="premium-game-btn" title="البحث العشوائي">
         <span class="btn-icon" data-icon="globeBtn"></span>
         <div class="btn-text-col">
@@ -334,10 +331,8 @@
             
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
             
-                        <!-- 🌟 الحاوية الجديدة المفصولة للرتبة والشعبية 🌟 -->
             <div style="display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 20px; width: 100%; gap: 12px;">
                 
-                <!-- حاوية الرتبة واللقب (اليمين) -->
                 <div style="flex: 1; background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(0,0,0,0.6)); padding: 12px; border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
                     <div id="igp-rank-display" style="color: #ffd700; font-size: 20px; font-weight: 900; text-shadow: 0 2px 5px rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; gap: 8px;">
                         <style>#igp-rank-display img { height: 35px !important; width: auto !important; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.9)) !important; transform: scale(1.1); }</style>
@@ -349,7 +344,6 @@
                     </div>
                 </div>
 
-                <!-- حاوية الشعبية (اليسار) -->
                 <div style="flex: 1; background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(0,0,0,0.6)); border: 1px solid rgba(0, 210, 255, 0.3); padding: 12px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); gap: 8px;">
                     <span style="color: #00d2ff; font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 6px;">الشعبية <span style="font-size: 16px; filter: hue-rotate(210deg) drop-shadow(0 0 5px rgba(0,210,255,0.8));">🔥</span></span>
                     <div style="width: 80%; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.6), transparent);"></div>
@@ -360,7 +354,6 @@
 
             </div>
 
-            
             <div id="igp-xp-container" style="width: 100%; margin-bottom: 20px;">
                 <div class="xp-bar-bg"><div class="xp-bar-fill" id="igp-xp-fill"></div><div class="xp-bar-text" id="igp-xp-text">0 / 100 XP</div></div>
             </div>
@@ -595,7 +588,6 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة نتائج المباراة (Game Over) مع دعم عرض البوت الجديد 🌟 -->
     <div id="game-over-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <h3 id="game-over-title">Match Results</h3>
