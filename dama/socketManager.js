@@ -4,8 +4,10 @@
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
  * تم ضبط نظام الغرف ليعمل في الخلفية بسلاسة (Background Hosting).
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد (3D Pedestal).
- * 🛡️ (مُحدّث جديد): نظام استعادة الاتصال (Reconnection) يعتمد 100% على السيرفر (Server-Authoritative) لمنع أي تضارب أو غرف وهمية.
+ * 🛡️ (مُحدّث جديد): نظام استعادة الاتصال (Reconnection) يعتمد 100% على السيرفر (Server-Authoritative).
  * 💎 (مُحدّث جديد): إضافة شارة הـ VIP للغرف المتاحة في اللوبي.
+ * 🚀 (مُحدّث جذرياً): حل شلل الأكل المتعدد في الأونلاين (Multi-Jump Path Sync).
+ * 🛡️ (مُحدّث جذرياً): منع اختطاف اللاعب من غرفته الخاصة عبر إخراجه من الـ Matchmaking.
  */
 
 import { gameState } from './gameState.js'; 
@@ -487,13 +489,11 @@ export const socketManager = {
                     frameHTML = `<img src="${miniFramesDB[hostFrame]}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));">`;
                 }
 
-                // 🌟 إضافة شارة الـ VIP للغرف (تطفو بفضل الأنيميشن العالمي في damapro.js)
+                // 🌟 إضافة شارة الـ VIP للغرف
                 let vipHTML = '';
                 let platformVipHTML = '';
                 if (r.hostVipLevel && parseInt(r.hostVipLevel) > 0) {
-                    // شارة مصغرة لقائمة الغرف (الزاوية العلوية اليمنى)
                     vipHTML = `<img src="Media/VIP/vip${r.hostVipLevel}.webp" onerror="this.style.display='none';" style="position: absolute; top: -10px; right: -10px; width: 24px; height: 32px; object-fit: contain; z-index: 50; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); animation: vipFloatAndSpin 10s infinite linear; transform-style: preserve-3d;">`;
-                    // شارة أكبر قليلاً للمنصة الكبيرة (الزاوية العلوية اليمنى)
                     platformVipHTML = `<img src="Media/VIP/vip${r.hostVipLevel}.webp" onerror="this.style.display='none';" style="position: absolute; top: -12px; right: -12px; width: 33px; height: 44px; object-fit: contain; z-index: 50; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); animation: vipFloatAndSpin 10s infinite linear; transform-style: preserve-3d;">`;
                 }
 
@@ -613,8 +613,6 @@ export const socketManager = {
             socket.emit('deviceFingerprint', { guestId: profile.id });
             
             socket.emit('requestActiveRooms');
-            
-            // 🌟 100% Server-Authoritative: تم إزالة localStorage المؤقت، السيرفر سيخبرنا أين نذهب! 🌟
             
             if (typeof ui.setDisplay === 'function') {
                 ui.setDisplay('custom-alert-modal', 'none');
@@ -839,7 +837,6 @@ export const socketManager = {
             
             const opponentXpFromServer = Number(data.opponent?.xp) || 0;
             gameState.currentOpponentXp = opponentXpFromServer;
-            // حفظ مستوى الـ VIP للخصم من السيرفر!
             if (data.opponent) gameState.currentOpponentData = data.opponent;
             
             gameState.isOnlineMode = true;
@@ -917,7 +914,7 @@ export const socketManager = {
                 gameState.movesWithoutProgress = 0; 
                 gameState.pieceHistories = {};
             } else {
-                let possibleMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, fromR, fromC);
+                let possibleMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
                 let executedPath = possibleMoves.find(p => p[p.length - 1].toR === toR && p[p.length - 1].toC === toC);
                 
                 if (executedPath) {
@@ -1306,18 +1303,30 @@ export const socketManager = {
         }
     },
 
-    sendMoveToServer(fromR, fromC, toR, toC, boardState, nextTurn) {
+    sendMoveToServer(fromR, fromC, toR, toC, boardStateOrPath, nextTurn) {
         if (gameState.isOnlineMode && gameState.onlineRoomID && !gameState.isSpectator) {
             const profile = this._ensureUserProfile(); 
             
             gameState.lastMyMove = { fromR: Number(fromR), fromC: Number(fromC), toR: Number(toR), toC: Number(toC) };
             
+            // 🌟 الإصلاح الجذري: تحديد مسار الأكل المتعدد لإرساله للسيرفر لحل شلل حركة الأونلاين
+            let movePath = null;
+            if (Array.isArray(boardStateOrPath) && boardStateOrPath.length > 0 && boardStateOrPath[0].fromR !== undefined) {
+                movePath = boardStateOrPath; 
+            } else {
+                let possiblePaths = gameEngine.generateAllTurnMoves(gameState.myOnlineColor, gameState.virtualBoard);
+                if (possiblePaths) {
+                    movePath = possiblePaths.find(p => p.length > 0 && p[0].fromR === Number(fromR) && p[0].fromC === Number(fromC) && p[p.length-1].toR === Number(toR) && p[p.length-1].toC === Number(toC));
+                }
+            }
+
             socket.emit('makeMove', { 
                 roomID: String(gameState.onlineRoomID).trim(), 
                 nextTurn: nextTurn, 
                 guestId: profile.id, 
                 from: { r: Number(fromR), c: Number(fromC) }, 
-                to: { r: Number(toR), c: Number(toC) }
+                to: { r: Number(toR), c: Number(toC) },
+                path: movePath // 🌟 تمرير المسار
             });
         }
     },
@@ -1438,6 +1447,11 @@ export const socketManager = {
 
         if (action === 'startMatchmaking' || action === 'joinMatchmaking' || action === 'joinMatchmakingPool') {
             targetAction = 'joinMatchmakingPool';
+        }
+
+        // 🌟 الإصلاح: الخروج من طابور البحث العشوائي عند إنشاء أو دخول غرفة خاصة (منع الاختطاف)
+        if (targetAction === 'createRoom' || targetAction === 'joinRoom') {
+            if (socket.connected) socket.emit('leaveMatchmakingPool');
         }
 
         if (targetAction !== 'joinMatchmakingPool' && targetAction !== 'createRoom' && !roomIdInput) {
