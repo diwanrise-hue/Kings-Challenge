@@ -19,58 +19,52 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP ولهب الطاقة برمجياً
     const style = document.createElement('style');
     style.innerHTML = `
-        /* 🌟 أنيميشن الطفو المستمر مع دوران سريع كل 10 ثوانٍ 🌟 */
+        /* 🌟 أنيميشن الطفو البطيء والانسيابي مع دوران كل 15 ثانية 🌟 */
         @keyframes vipFloatAndSpin {
-            0%   { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-out; }
-            10%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in; }
-            20%  { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-out; }
-            30%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in; }
-            40%  { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-out; }
-            50%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in; }
-            60%  { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-out; }
-            70%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in; }
-            80%  { transform: translateY(0px) rotateY(0deg); }
+            0%   { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-in-out; }
+            25%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in-out; }
+            50%  { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-in-out; }
+            75%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in-out; }
+            85%  { transform: translateY(0px) rotateY(0deg); }
             
             /* مرحلة الدوران السريع 3D */
-            85%  { transform: translateY(-3px) rotateY(0deg); animation-timing-function: ease-in; }
-            92%  { transform: translateY(-6px) rotateY(360deg); animation-timing-function: linear; }
-            98%  { transform: translateY(0px) rotateY(720deg); animation-timing-function: ease-out; }
-            100% { transform: translateY(0px) rotateY(720deg); }
+            90%  { transform: translateY(-3px) rotateY(0deg); animation-timing-function: ease-in; }
+            95%  { transform: translateY(-6px) rotateY(360deg); animation-timing-function: linear; }
+            100% { transform: translateY(0px) rotateY(720deg); animation-timing-function: ease-out; }
         }
 
-        /* 🌟 أنيميشن اللهب المشتعل (Flame Auras) 🌟 */
+        /* 🔥 أنيميشن ألسنة اللهب المتصاعدة بالـ CSS (Flame Effect) 🔥 */
         
-        /* لهب أبيض (VIP 1 & 2) */
+        /* لهب أبيض وفضي (VIP 1 & 2) */
         @keyframes vipFlameWhite {
-            0%   { filter: drop-shadow(0 0 4px rgba(255,255,255,0.7)) drop-shadow(0 -3px 6px rgba(255,255,255,0.4)); }
-            33%  { filter: drop-shadow(-2px -5px 7px rgba(255,255,255,0.9)) drop-shadow(1px -7px 9px rgba(200,200,255,0.5)); }
-            66%  { filter: drop-shadow(2px -3px 6px rgba(255,255,255,0.8)) drop-shadow(-1px -9px 11px rgba(255,255,255,0.6)); }
-            100% { filter: drop-shadow(0 -6px 8px rgba(255,255,255,1)) drop-shadow(0 -4px 6px rgba(200,200,255,0.5)); }
+            0%   { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(0 -5px 6px rgba(200,200,255,0.9)) drop-shadow(2px -12px 10px rgba(150,150,255,0.5)); }
+            33%  { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(-3px -8px 8px rgba(255,255,255,0.9)) drop-shadow(-2px -16px 12px rgba(200,200,255,0.4)); }
+            66%  { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(2px -6px 7px rgba(200,200,255,0.9)) drop-shadow(3px -14px 15px rgba(255,255,255,0.6)); }
+            100% { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(0 -5px 6px rgba(255,255,255,0.9)) drop-shadow(1px -12px 12px rgba(150,150,255,0.5)); }
         }
         
-        /* لهب بنفسجي (VIP 3) */
+        /* لهب بنفسجي ووردي (VIP 3) */
         @keyframes vipFlamePurple {
-            0%   { filter: drop-shadow(0 0 4px rgba(155,89,182,0.7)) drop-shadow(0 -3px 6px rgba(155,89,182,0.4)); }
-            33%  { filter: drop-shadow(-2px -5px 7px rgba(155,89,182,0.9)) drop-shadow(1px -7px 9px rgba(200,100,255,0.5)); }
-            66%  { filter: drop-shadow(2px -3px 6px rgba(155,89,182,0.8)) drop-shadow(-1px -9px 11px rgba(155,89,182,0.6)); }
-            100% { filter: drop-shadow(0 -6px 8px rgba(155,89,182,1)) drop-shadow(0 -4px 6px rgba(200,100,255,0.5)); }
+            0%   { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(0 -5px 6px rgba(190,40,210,0.9)) drop-shadow(2px -12px 10px rgba(255,100,255,0.5)); }
+            33%  { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(-3px -8px 8px rgba(155,89,182,0.9)) drop-shadow(-2px -16px 12px rgba(220,80,255,0.4)); }
+            66%  { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(2px -6px 7px rgba(190,40,210,0.9)) drop-shadow(3px -14px 15px rgba(255,150,255,0.6)); }
+            100% { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(0 -5px 6px rgba(155,89,182,0.9)) drop-shadow(1px -12px 12px rgba(220,80,255,0.5)); }
         }
         
-        /* لهب أحمر (VIP 4) */
+        /* لهب أحمر وبرتقالي (VIP 4) */
         @keyframes vipFlameRed {
-            0%   { filter: drop-shadow(0 0 4px rgba(255,69,58,0.7)) drop-shadow(0 -3px 6px rgba(255,69,58,0.4)); }
-            33%  { filter: drop-shadow(-2px -5px 7px rgba(255,69,58,0.9)) drop-shadow(1px -7px 9px rgba(255,120,50,0.5)); }
-            66%  { filter: drop-shadow(2px -3px 6px rgba(255,69,58,0.8)) drop-shadow(-1px -9px 11px rgba(255,69,58,0.6)); }
-            100% { filter: drop-shadow(0 -6px 8px rgba(255,69,58,1)) drop-shadow(0 -4px 6px rgba(255,120,50,0.5)); }
+            0%   { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(0 -5px 6px rgba(255,69,58,0.9)) drop-shadow(2px -12px 10px rgba(255,165,0,0.6)); }
+            33%  { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(-3px -8px 8px rgba(255,69,58,0.9)) drop-shadow(-2px -16px 12px rgba(255,215,0,0.4)); }
+            66%  { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(2px -6px 7px rgba(220,20,20,0.9)) drop-shadow(3px -14px 15px rgba(255,140,0,0.6)); }
+            100% { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(0 -5px 6px rgba(255,69,58,0.9)) drop-shadow(1px -12px 12px rgba(255,165,0,0.5)); }
         }
         
-        /* لهب مخلوط متطاير: أبيض، بنفسجي، أحمر، ذهبي (VIP 5) */
+        /* لهب أسطوري مختلط: بنفسجي، أحمر، ذهبي (VIP 5) */
         @keyframes vipFlameMixed {
-            0%   { filter: drop-shadow(-2px -4px 7px rgba(255,255,255,0.8)) drop-shadow(2px -6px 9px rgba(155,89,182,0.6)); }
-            25%  { filter: drop-shadow(2px -7px 9px rgba(255,69,58,0.9)) drop-shadow(-2px -3px 6px rgba(255,215,0,0.8)); }
-            50%  { filter: drop-shadow(1px -4px 7px rgba(155,89,182,0.8)) drop-shadow(-1px -9px 11px rgba(255,255,255,0.9)); }
-            75%  { filter: drop-shadow(-3px -7px 10px rgba(255,215,0,1)) drop-shadow(3px -4px 8px rgba(255,69,58,0.8)); }
-            100% { filter: drop-shadow(0 -6px 9px rgba(255,255,255,0.9)) drop-shadow(0 -5px 7px rgba(155,89,182,0.7)); }
+            0%   { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(-2px -7px 8px rgba(255,69,58,0.9)) drop-shadow(2px -14px 12px rgba(155,89,182,0.6)); }
+            33%  { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(3px -9px 9px rgba(155,89,182,0.9)) drop-shadow(-3px -16px 10px rgba(255,215,0,0.5)); }
+            66%  { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(1px -6px 7px rgba(255,215,0,0.9)) drop-shadow(-1px -15px 14px rgba(255,69,58,0.7)); }
+            100% { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(0 -8px 8px rgba(255,69,58,0.9)) drop-shadow(1px -13px 11px rgba(155,89,182,0.6)); }
         }
 
         /* 👑 1. شارة الـ VIP في الواجهة الرئيسية (Hub Profile) */
@@ -115,11 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
             transform-style: preserve-3d;
         }
 
-        /* 🎨 كلاسات مخصصة لربط اللهب السريع مع الطفو بأمان وبدون متغيرات CSS */
-        .vip-glow-white  { animation: vipFloatAndSpin 10s infinite linear, vipFlameWhite 0.6s infinite alternate ease-in-out; }
-        .vip-glow-purple { animation: vipFloatAndSpin 10s infinite linear, vipFlamePurple 0.6s infinite alternate ease-in-out; }
-        .vip-glow-red    { animation: vipFloatAndSpin 10s infinite linear, vipFlameRed 0.6s infinite alternate ease-in-out; }
-        .vip-glow-mixed  { animation: vipFloatAndSpin 10s infinite linear, vipFlameMixed 0.5s infinite alternate ease-in-out; }
+        /* 🎨 طفو بطيء (15 ثانية) مع لهب سريع (0.4 ثانية) للتوازن المثالي */
+        .vip-glow-white  { animation: vipFloatAndSpin 15s infinite linear, vipFlameWhite 0.4s infinite alternate ease-in-out; }
+        .vip-glow-purple { animation: vipFloatAndSpin 15s infinite linear, vipFlamePurple 0.4s infinite alternate ease-in-out; }
+        .vip-glow-red    { animation: vipFloatAndSpin 15s infinite linear, vipFlameRed 0.4s infinite alternate ease-in-out; }
+        .vip-glow-mixed  { animation: vipFloatAndSpin 15s infinite linear, vipFlameMixed 0.4s infinite alternate ease-in-out; }
     `;
     document.head.appendChild(style);
 
@@ -160,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (lvl === 4) glowClass = 'vip-glow-red';
             else if (lvl >= 5) glowClass = 'vip-glow-mixed';
 
-            // تطبيق الكلاسات ومسار الصورة
+            // تطبيق الكلاسات وم مسار الصورة
             badge.className = `${badgeClass} ${glowClass}`;
             badge.src = `Media/VIP/vip${lvl}.webp`;
             
