@@ -280,7 +280,7 @@ export const ui = {
         
         if (currentXp >= 5000) { 
             rank = "أسطوري"; 
-            rankIcon = `<img src="Media/front/اسطوري.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
+            rankIcon = `<img src="Media/front/أسطوري.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
         }
         else if (currentXp >= 2500) { 
             rank = "ماسي"; 
