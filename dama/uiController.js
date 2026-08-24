@@ -114,6 +114,7 @@ export const ui = {
         return el;
     },
 
+
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
         if (!el) return;
@@ -157,7 +158,8 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            botScale = 'scale(1.15)'; 
+            // 🌟 الإصلاح هنا: تصغير حجم البوت ورفعه قليلاً ليظهر كاملاً داخل الدائرة في نافذة النتائج فقط
+            botScale = 'scale(0.85) translateY(-5%)'; 
         }
         else {
             frameZ = '5';
@@ -220,6 +222,9 @@ export const ui = {
         el.innerHTML = innerHTML;
     },
 
+
+
+  
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null, onCancel = null) {
         title = title || t('alert_title');
         const msgContainer = this.getEl('custom-alert-message');
