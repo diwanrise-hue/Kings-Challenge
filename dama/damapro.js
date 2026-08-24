@@ -28,10 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
     style.innerHTML = `
         .vip-badge-ingame {
             position: absolute;
-            top: 8px;
-            left: 150px; /* الظهور في الزاوية العلوية اليسرى */
-            width: 45px;
-            height: 45px;
+            top: 10px;
+            left: 175px; /* الظهور في الزاوية العلوية اليسرى */
+            width: 55px;
+            height: 58px;
             z-index: 50;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
             pointer-events: none;
