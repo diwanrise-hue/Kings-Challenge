@@ -1,5 +1,6 @@
 // damapro.js
 // مخصص لإضافة الإطارات الملكية للوحة الشرف، ونظام عرض شارات الـ VIP الديناميكي مع تأثير "اللهب المشتعل".
+// 🌟 (مُحدّث جذرياً): تم حل مشكلة تدمير الـ Hook لضمان التحديث اللحظي للشارة بفضل الحقن الآمن.
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -37,38 +38,39 @@ document.addEventListener('DOMContentLoaded', () => {
             100% { transform: translateY(0px) rotateY(720deg); }
         }
 
-        /* 🔥 أنيميشن ألسنة اللهب المتصاعدة (Flame Effect) 🔥 */
+        /* 🌟 أنيميشن اللهب المشتعل (Flame Auras) 🌟 */
         
-        /* لهب أبيض وفضي (VIP 1 & 2) */
+        /* لهب أبيض (VIP 1 & 2) */
         @keyframes vipFlameWhite {
-            0%   { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(0 -5px 6px rgba(200,200,255,0.9)) drop-shadow(2px -12px 10px rgba(150,150,255,0.5)); }
-            33%  { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(-3px -8px 8px rgba(255,255,255,0.9)) drop-shadow(-2px -16px 12px rgba(200,200,255,0.4)); }
-            66%  { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(2px -6px 7px rgba(200,200,255,0.9)) drop-shadow(3px -14px 15px rgba(255,255,255,0.6)); }
-            100% { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(0 -5px 6px rgba(255,255,255,0.9)) drop-shadow(1px -12px 12px rgba(150,150,255,0.5)); }
+            0%   { filter: drop-shadow(0 0 4px rgba(255,255,255,0.7)) drop-shadow(0 -3px 6px rgba(255,255,255,0.4)); }
+            33%  { filter: drop-shadow(-2px -5px 7px rgba(255,255,255,0.9)) drop-shadow(1px -7px 9px rgba(200,200,255,0.5)); }
+            66%  { filter: drop-shadow(2px -3px 6px rgba(255,255,255,0.8)) drop-shadow(-1px -9px 11px rgba(255,255,255,0.6)); }
+            100% { filter: drop-shadow(0 -6px 8px rgba(255,255,255,1)) drop-shadow(0 -4px 6px rgba(200,200,255,0.5)); }
         }
         
-        /* لهب بنفسجي ووردي (VIP 3) */
+        /* لهب بنفسجي (VIP 3) */
         @keyframes vipFlamePurple {
-            0%   { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(0 -5px 6px rgba(190,40,210,0.9)) drop-shadow(2px -12px 10px rgba(255,100,255,0.5)); }
-            33%  { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(-3px -8px 8px rgba(155,89,182,0.9)) drop-shadow(-2px -16px 12px rgba(220,80,255,0.4)); }
-            66%  { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(2px -6px 7px rgba(190,40,210,0.9)) drop-shadow(3px -14px 15px rgba(255,150,255,0.6)); }
-            100% { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(0 -5px 6px rgba(155,89,182,0.9)) drop-shadow(1px -12px 12px rgba(220,80,255,0.5)); }
+            0%   { filter: drop-shadow(0 0 4px rgba(155,89,182,0.7)) drop-shadow(0 -3px 6px rgba(155,89,182,0.4)); }
+            33%  { filter: drop-shadow(-2px -5px 7px rgba(155,89,182,0.9)) drop-shadow(1px -7px 9px rgba(200,100,255,0.5)); }
+            66%  { filter: drop-shadow(2px -3px 6px rgba(155,89,182,0.8)) drop-shadow(-1px -9px 11px rgba(155,89,182,0.6)); }
+            100% { filter: drop-shadow(0 -6px 8px rgba(155,89,182,1)) drop-shadow(0 -4px 6px rgba(200,100,255,0.5)); }
         }
         
-        /* لهب أحمر وبرتقالي (VIP 4 - مشابه للصورة) */
+        /* لهب أحمر (VIP 4) */
         @keyframes vipFlameRed {
-            0%   { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(0 -5px 6px rgba(255,69,58,0.9)) drop-shadow(2px -12px 10px rgba(255,165,0,0.6)); }
-            33%  { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(-3px -8px 8px rgba(255,69,58,0.9)) drop-shadow(-2px -16px 12px rgba(255,215,0,0.4)); }
-            66%  { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(2px -6px 7px rgba(220,20,20,0.9)) drop-shadow(3px -14px 15px rgba(255,140,0,0.6)); }
-            100% { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(0 -5px 6px rgba(255,69,58,0.9)) drop-shadow(1px -12px 12px rgba(255,165,0,0.5)); }
+            0%   { filter: drop-shadow(0 0 4px rgba(255,69,58,0.7)) drop-shadow(0 -3px 6px rgba(255,69,58,0.4)); }
+            33%  { filter: drop-shadow(-2px -5px 7px rgba(255,69,58,0.9)) drop-shadow(1px -7px 9px rgba(255,120,50,0.5)); }
+            66%  { filter: drop-shadow(2px -3px 6px rgba(255,69,58,0.8)) drop-shadow(-1px -9px 11px rgba(255,69,58,0.6)); }
+            100% { filter: drop-shadow(0 -6px 8px rgba(255,69,58,1)) drop-shadow(0 -4px 6px rgba(255,120,50,0.5)); }
         }
         
-        /* لهب أسطوري مختلط: بنفسجي، أحمر، ذهبي (VIP 5) */
+        /* لهب مخلوط متطاير: أبيض، بنفسجي، أحمر، ذهبي (VIP 5) */
         @keyframes vipFlameMixed {
-            0%   { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(-2px -7px 8px rgba(255,69,58,0.9)) drop-shadow(2px -14px 12px rgba(155,89,182,0.6)); }
-            33%  { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(3px -9px 9px rgba(155,89,182,0.9)) drop-shadow(-3px -16px 10px rgba(255,215,0,0.5)); }
-            66%  { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(1px -6px 7px rgba(255,215,0,0.9)) drop-shadow(-1px -15px 14px rgba(255,69,58,0.7)); }
-            100% { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(0 -8px 8px rgba(255,69,58,0.9)) drop-shadow(1px -13px 11px rgba(155,89,182,0.6)); }
+            0%   { filter: drop-shadow(-2px -4px 7px rgba(255,255,255,0.8)) drop-shadow(2px -6px 9px rgba(155,89,182,0.6)); }
+            25%  { filter: drop-shadow(2px -7px 9px rgba(255,69,58,0.9)) drop-shadow(-2px -3px 6px rgba(255,215,0,0.8)); }
+            50%  { filter: drop-shadow(1px -4px 7px rgba(155,89,182,0.8)) drop-shadow(-1px -9px 11px rgba(255,255,255,0.9)); }
+            75%  { filter: drop-shadow(-3px -7px 10px rgba(255,215,0,1)) drop-shadow(3px -4px 8px rgba(255,69,58,0.8)); }
+            100% { filter: drop-shadow(0 -6px 9px rgba(255,255,255,0.9)) drop-shadow(0 -5px 7px rgba(155,89,182,0.7)); }
         }
 
         /* 👑 1. شارة الـ VIP في الواجهة الرئيسية (Hub Profile) */
@@ -114,10 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /* 🎨 كلاسات مخصصة لربط اللهب السريع مع الطفو بأمان وبدون متغيرات CSS */
-        .vip-glow-white  { animation: vipFloatAndSpin 10s infinite linear, vipFlameWhite 0.4s infinite alternate ease-in-out; }
-        .vip-glow-purple { animation: vipFloatAndSpin 10s infinite linear, vipFlamePurple 0.4s infinite alternate ease-in-out; }
-        .vip-glow-red    { animation: vipFloatAndSpin 10s infinite linear, vipFlameRed 0.4s infinite alternate ease-in-out; }
-        .vip-glow-mixed  { animation: vipFloatAndSpin 10s infinite linear, vipFlameMixed 0.4s infinite alternate ease-in-out; }
+        .vip-glow-white  { animation: vipFloatAndSpin 10s infinite linear, vipFlameWhite 0.6s infinite alternate ease-in-out; }
+        .vip-glow-purple { animation: vipFloatAndSpin 10s infinite linear, vipFlamePurple 0.6s infinite alternate ease-in-out; }
+        .vip-glow-red    { animation: vipFloatAndSpin 10s infinite linear, vipFlameRed 0.6s infinite alternate ease-in-out; }
+        .vip-glow-mixed  { animation: vipFloatAndSpin 10s infinite linear, vipFlameMixed 0.5s infinite alternate ease-in-out; }
     `;
     document.head.appendChild(style);
 
@@ -126,18 +128,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const avatarDiv = document.getElementById(avatarContainerId);
         if (!avatarDiv) return;
 
-        let parent = avatarDiv.parentElement;
-        if (!parent) return;
+        const parentNode = avatarDiv.parentElement;
+        if (!parentNode) return;
 
-        let badgeClass;
+        let parent, badgeClass;
         if (avatarContainerId === 'badge-avatar') {
             badgeClass = 'vip-badge-hub';
+            parent = parentNode;
         } else {
-            // للبطاقات، نعود للمربع الشامل للبطاقة ككل
             const matchCardParent = avatarDiv.closest('.match-players-flex');
             if (!matchCardParent) return;
             badgeClass = (avatarContainerId === 'card-my-avatar') ? 'vip-badge-match-me' : 'vip-badge-match-opp';
-            // نغير الأب ليصبح البطاقة بأكملها وليس الأفاتار الدائري
             parent = matchCardParent; 
         }
         
@@ -172,19 +173,23 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 3. اعتراض دوال الواجهة الأساسية لتحديث الشارات تلقائياً
+    
+    // 🌟 الإصلاح الجذري (The Hook Overwrite): حقن الدالة بأمان بعد أن تكون متوفرة
+    let isProfileHooked = false;
+    setInterval(() => {
+        if (!isProfileHooked && typeof window.applyProfileDataToUI === 'function') {
+            const originalApplyProfile = window.applyProfileDataToUI;
+            window.applyProfileDataToUI = function(profile) {
+                if (originalApplyProfile) originalApplyProfile(profile); 
+                let vipLevel = profile.vipLevel || 0;
+                window.updateVipBadgeUI('card-my-avatar', vipLevel);
+                window.updateVipBadgeUI('badge-avatar', vipLevel);
+            };
+            isProfileHooked = true;
+        }
+    }, 500);
 
-    // أ. تحديث شارة اللاعب المحلي (أنت)
-    const originalApplyProfile = window.applyProfileDataToUI;
-    window.applyProfileDataToUI = function(profile) {
-        if (originalApplyProfile) originalApplyProfile(profile); 
-        
-        let vipLevel = profile.vipLevel || 0;
-        
-        window.updateVipBadgeUI('card-my-avatar', vipLevel);
-        window.updateVipBadgeUI('badge-avatar', vipLevel);
-    };
-
-    // ب. تحديث شارة الخصم عند بدء المباراة
+    // تحديث شارة الخصم عند بدء المباراة
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (window.ui && window.ui.toggleOnlineUILayout) {
@@ -206,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000); 
     });
 
-    // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة
+    // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة في حال تغير الساحة
     setInterval(() => {
         try {
             let profileStr = localStorage.getItem('hub_user_profile');
