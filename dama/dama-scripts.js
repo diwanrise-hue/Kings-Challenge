@@ -1,9 +1,10 @@
 /**
  * dama-scripts.js
  * المساعد العام للتنسيق والمزامنة
- * 🌟 (مُحدّث): سقف مراهنات הـ VIP العالي للمشاهدين، ودالة تأكيد الرهان.
+ * 🌟 (مُحدّث): سقف مراهنات الـ VIP العالي للمشاهدين، ودالة تأكيد الرهان.
  * 🌟 (مُحدّث أمني): تشفير هوية الخصم (Masked ID) لمنع انتحال الشخصية.
  * 🚷 (مُحدّث جديد): إضافة دوال جلب قائمة المشاهدين وطرد الهاكرز (VIP 4+).
+ * 🛡️ (مُحدّث جذرياً): إزالة تجاوزات localStorage الخطيرة لمنع تسرب الذاكرة (Memory Leak).
  */
 
 function formatCompactNumber(num) {
@@ -114,60 +115,9 @@ window.refreshProfileUIStyles = function() {
 window.addEventListener('load', () => { setTimeout(window.refreshProfileUIStyles, 500); });
 
 // ==========================================
-// 💡 إصلاح تسرب الذاكرة (Memory Leak Fix)
+// 💡 تم إزالة دالة الاختراق لـ localStorage لأنها كانت تسبب تسرب الذاكرة (Memory Leak)
+// سيتم الاعتماد على الأحداث الصريحة للتحديث بدلاً من اعتراض دوال المتصفح الأصلية
 // ==========================================
-const originalGetItem = localStorage.getItem;
-let cachedProfileStr = null;
-let cachedProfileParsed = null;
-
-localStorage.getItem = function(key) {
-    let value = originalGetItem.call(this, key);
-    if (key === 'hub_user_profile' && value) {
-        if (value === cachedProfileStr && cachedProfileParsed !== null) {
-            return JSON.stringify(cachedProfileParsed);
-        }
-
-        try {
-            let profile = JSON.parse(value);
-            if (profile && profile.avatar && !profile.avatar.startsWith('http') && !profile.avatar.startsWith('data:') && !profile.avatar.startsWith('../')) {
-                profile.avatar = '../' + profile.avatar;
-            }
-            cachedProfileStr = value;
-            cachedProfileParsed = profile;
-            return JSON.stringify(profile);
-        } catch(e) {}
-    }
-    return value;
-};
-
-const originalSetItem = localStorage.setItem;
-localStorage.setItem = function(key, value) {
-    if (key === 'hub_user_profile' && value) {
-        try {
-            let profile = JSON.parse(value);
-            if (profile && profile.avatar && profile.avatar.startsWith('../')) {
-                profile.avatar = profile.avatar.replace('../', '');
-                value = JSON.stringify(profile);
-            }
-            cachedProfileStr = value;
-            cachedProfileParsed = JSON.parse(value);
-        } catch(e) {}
-        
-        if(window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-        setTimeout(() => { if(typeof window.refreshProfileUIStyles === 'function') window.refreshProfileUIStyles(); }, 150);
-    }
-    originalSetItem.call(this, key, value);
-};
-
-const originalRemoveItem = localStorage.removeItem;
-localStorage.removeItem = function(key) {
-    if (key === 'hub_user_profile') { 
-        if(window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*'); 
-        cachedProfileStr = null;
-        cachedProfileParsed = null;
-    }
-    originalRemoveItem.call(this, key);
-};
 
 window.sendFriendReqById = function() {
     const idInput = document.getElementById('add-friend-id-input');
@@ -449,8 +399,21 @@ window.requestSpectatorList = function() {
     
     const container = document.getElementById('spectators-items-container');
     const desc = document.getElementById('spectators-list-desc');
+    
+    // إنشاء الوصف ديناميكياً لتجنب مشكلة الـ null في الواجهة
+    if (!desc) {
+        const modalContent = document.getElementById('spectators-list-content');
+        if (modalContent && modalContent.parentElement) {
+            const newDesc = document.createElement('p');
+            newDesc.id = 'spectators-list-desc';
+            newDesc.style.cssText = "color: #a1a1aa; font-size: 12px; margin-bottom: 15px; text-align: center;";
+            modalContent.parentElement.insertBefore(newDesc, modalContent);
+        }
+    }
+    const safeDesc = document.getElementById('spectators-list-desc');
+
     if (container) container.innerHTML = '';
-    if (desc) desc.innerText = "جاري جلب القائمة...";
+    if (safeDesc) safeDesc.innerText = "جاري جلب القائمة...";
     
     window.openAppModal('spectators-list-modal');
     
@@ -460,22 +423,29 @@ window.requestSpectatorList = function() {
 };
 
 window.renderSpectatorsList = function(spectators) {
-    const container = document.getElementById('spectators-items-container');
+    let container = document.getElementById('spectators-items-container');
+    
+    // تأمين ظهور الحاوية
+    if (!container) {
+        container = document.getElementById('spectators-list-content');
+    }
+    
     const desc = document.getElementById('spectators-list-desc');
-    if (!container || !desc) return;
+    if (!container) return;
     
     container.innerHTML = '';
     
     if (!spectators || spectators.length === 0) {
-        desc.innerText = "لا يوجد مشاهدين حالياً.";
+        if (desc) desc.innerText = "لا يوجد مشاهدين حالياً.";
+        else container.innerHTML = '<p style="text-align: center; color: #a1a1aa; font-size: 13px;">لا يوجد مشاهدين حالياً.</p>';
         return;
     }
     
-    desc.innerText = `عدد المشاهدين الحاليين: ${spectators.length}`;
+    if (desc) desc.innerText = `عدد المشاهدين الحاليين: ${spectators.length}`;
     
     // التحقق مما إذا كان المستخدم هو صاحب الغرفة و VIP 4 أو 5
-    let isHost = (window.matchPlayer1Id === window.gameState.userProfile.id);
-    let isVipAdmin = (window.gameState.userProfile.vipLevel >= 4);
+    let isHost = (window.gameState && window.gameState.userProfile && window.matchPlayer1Id === window.gameState.userProfile.id);
+    let isVipAdmin = (window.gameState && window.gameState.userProfile && window.gameState.userProfile.vipLevel >= 4);
     let canKick = isHost && isVipAdmin;
 
     spectators.forEach(spec => {
