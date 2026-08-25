@@ -2,6 +2,7 @@
  * main.js
  * المنسق العام للمشروع (Orchestrator).
  * يربط بين الواجهة (UI)، السيرفر (Socket)، وحالة اللعبة (GameState).
+ * 🌟 (مُحدّث): تم دمج إصلاح تسرب التلميحات المكتسبة للحفاظ على حقوق اللاعبين.
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -61,16 +62,29 @@ export function startOnlineHintSystem() {
     if (gameState.originalHints === null) { 
         gameState.originalHints = gameState.userProfile.hints !== undefined ? gameState.userProfile.hints : 5; 
     }
-    gameState.userProfile.hints = 2;
+    gameState.userProfile.hints = 2; // إعطاء اللاعب تلميحين كحد أقصى داخل الأونلاين
     if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
 }
 
+// 🌟 الحل الجذري: الخصم العادل للتلميحات لعدم مسح الجوائز المكتسبة أثناء اللعب
 export function restoreOfflineHintSystem() {
     if (gameState.originalHints !== null) {
-        gameState.userProfile.hints = gameState.originalHints;
+        let hintsUsedOnline = 2 - gameState.userProfile.hints;
+        if (hintsUsedOnline < 0) hintsUsedOnline = 0;
+        
+        let latestProfileStr = localStorage.getItem('hub_user_profile');
+        let latestProfile = latestProfileStr ? JSON.parse(latestProfileStr) : gameState.userProfile;
+        
+        let realCurrentHints = (latestProfile.hints !== undefined) ? latestProfile.hints : gameState.originalHints;
+        
+        gameState.userProfile.hints = Math.max(0, realCurrentHints - hintsUsedOnline);
         gameState.originalHints = null;
+        
         try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e) { }
-        if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
+        
+        if (typeof ui.updateProfileUI === 'function') {
+            ui.updateProfileUI();
+        }
     }
 }
 
