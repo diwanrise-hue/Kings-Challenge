@@ -149,12 +149,11 @@
             z-index: 999999;
             white-space: nowrap;
             pointer-events: none;
-            transform-origin: top center; /* التمدد من الأعلى للأسفل */
+            transform-origin: top center; 
             animation: popInElement 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             border: 2px solid #e0e0e0;
         }
 
-        /* ذيل الفقاعة - تم تعديله ليؤشر للأعلى وتظهر الرسالة أسفل الصورة */
         .in-game-chat-bubble::before {
             content: '';
             position: absolute;
@@ -164,6 +163,20 @@
             border-width: 0 8px 8px 8px;
             border-style: solid;
             border-color: transparent transparent #ffffff transparent;
+        }
+
+        /* 👑 تنسيق الـ VIP الملكي للشات */
+        .vip-chat-bubble {
+            background: linear-gradient(135deg, #FFD700, #FF8C00) !important;
+            color: #3b2a00 !important;
+            border: 2px solid #FFF8DC !important;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.6) !important;
+            text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+            font-size: 14px;
+        }
+        
+        .vip-chat-bubble::before {
+            border-color: transparent transparent #FFD700 transparent !important;
         }
 
         .in-game-avatar-popup {
@@ -456,21 +469,25 @@
         }
     }
 
-    // 💡 الدالة المصححة والمحسنة لعرض الأفاتارات والرسائل
+    // 💡 الدالة المصححة والمحسنة لعرض الأفاتارات والرسائل الملكية
     window.playInGameChat = function(sender, type, value) {
         const targetElementId = sender === 'me' ? 'card-my-avatar' : 'card-opp-avatar';
         const targetElement = document.getElementById(targetElementId);
         
         if (!targetElement) return;
 
+        // تحديد مستوى הـ VIP للمرسل 👑
+        let senderVipLevel = 0;
+        if (sender === 'me') {
+            senderVipLevel = (window.gameState && window.gameState.userProfile) ? (window.gameState.userProfile.vipLevel || 0) : 0;
+        } else {
+            senderVipLevel = window.currentOpponentData ? (window.currentOpponentData.vipLevel || 0) : 0;
+        }
+
         // حساب الإحداثيات بدقة 
         const rect = targetElement.getBoundingClientRect();
         const avatarCenterX = rect.left + (rect.width / 2);
-        
-        // حساب منتصف الشاشة الأفقي (موقع كلمة VS)
         const screenCenter = window.innerWidth / 2;
-        
-        // معرفة ما إذا كانت صورة اللاعب تقع في النصف الأيسر أم الأيمن
         const isSenderLeft = avatarCenterX < screenCenter;
 
         if (type === 'text') {
@@ -480,9 +497,15 @@
             const bubble = document.createElement('div');
             bubble.id = 'active-chat-bubble-' + sender;
             bubble.className = 'in-game-chat-bubble';
-            bubble.textContent = value;
             
-            // تحديد الموقع: أسفل صورة البروفايل لتجنب قص الرسالة أعلى الشاشة
+            // 👑 تطبيق التوهج الملكي إذا كان اللاعب VIP 3 فما فوق
+            if (senderVipLevel >= 3) {
+                bubble.classList.add('vip-chat-bubble');
+                bubble.innerText = '👑 ' + value; 
+            } else {
+                bubble.innerText = value;
+            }
+            
             bubble.style.left = avatarCenterX + 'px';
             bubble.style.top = (rect.bottom + 12) + 'px'; 
             bubble.style.bottom = 'auto'; 
@@ -502,11 +525,7 @@
             avatarBox.id = 'active-chat-avatar-' + sender;
             avatarBox.className = 'in-game-avatar-popup avatar-container';
             
-            // 💡 الموقع الأفقي: يتمركز فوق الـ VS مع إزاحة خفيفة (30 بكسل) باتجاه اللاعب المرسل
             const popupX = screenCenter + (isSenderLeft ? -30 : 30);
-            
-            // 💡 الموقع العمودي: في نفس مستوى صور البروفايل (منتصف الصورة)
-            // نطرح 55 لأن ارتفاع كونتينر الافتار هو 110 بكسل (للتوسيط العمودي التام)
             const popupY = rect.top + (rect.height / 2) - 55;
 
             avatarBox.style.left = popupX + 'px';
