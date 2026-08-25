@@ -1,6 +1,6 @@
 // damapro.js
 // مخصص لإضافة الإطارات الملكية للوحة الشرف، ونظام عرض شارات الـ VIP الديناميكي مع تأثير "اللهب المشتعل".
-// 🌟 (مُحدّث جذرياً): تم بناء نظام "الطبقات الاحترافية" (Pseudo-elements) ليغطي الإطار البطاقة بالكامل من الحافة للحافة.
+// 🌟 (مُحدّث): ضبط قياس إطار الـ VIP ليكون مطابقاً تماماً لبطاقة اللاعب العادي مع إزالة التغويش (Blur).
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -74,10 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
         /* 🌟 نظام الطبقات (الإطارات الكاملة للبطاقة) 🌟 */
         /* ========================================== */
         
-        /* 1. إخفاء خلفية البطاقة الأصلية بالكامل وإلغاء أي حدود رمادية */
+        /* 1. إخفاء خلفية البطاقة الأصلية بالكامل وإلغاء التغويش (Blur) مع الحفاظ على نفس الحجم */
         .vip-bg-lvl1, .vip-bg-lvl23, .vip-bg-lvl45 {
             background: transparent !important;
-            border: none !important;
+            border: 1.5px solid transparent !important; /* الاحتفاظ بالحدود شفافة للحفاظ على نفس القياس بالملي */
             box-shadow: none !important;
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
@@ -89,39 +89,35 @@ document.addEventListener('DOMContentLoaded', () => {
             z-index: 2;
         }
 
-        /* 3. الطبقة السحرية (Pseudo-element) التي سترسم الإطار وتمطّه خارج المسافات الداخلية */
+        /* 3. الطبقة السحرية بحجم البطاقة الطبيعي تماماً (بدون تكبير) */
         .vip-bg-lvl1::before, .vip-bg-lvl23::before, .vip-bg-lvl45::before {
             content: '';
             position: absolute;
-            /* التمدد بقيمة سالبة لابتلاع مسافات الـ padding ورسم الإطار من الحافة للحافة */
-            top: -2px;
-            bottom: -2px;
-            left: -2px;
-            right: -2px;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             z-index: 1; /* خلف الأفاتار والاسم */
             background-size: 100% 100% !important;
             background-position: center !important;
             background-repeat: no-repeat !important;
-            border-radius: 20px; /* ليحافظ على انحناء بطاقتك الأصلية */
+            border-radius: 18px; /* تناسب انحناء البطاقة لتجنب الزوايا الحادة */
             pointer-events: none;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.6); /* إعادة ظل البطاقة الفخم */
+            box-shadow: 0 8px 15px rgba(0,0,0,0.6); /* الظل الفخم */
+            /* التأكد من عدم وجود تغويش في الإطار نفسه */
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
-        /* 4. ربط مسارات الصور لكل مستوى (مع تجديد الكاش لتفادي أي مشاكل) */
-        
-        /* VIP 1 */
+        /* 4. ربط مسارات الصور لكل مستوى */
         .vip-bg-lvl1::before {
-            background-image: url('Media/VIP/V1.webp?v=20'), url('Media/VIP/v1.webp?v=20') !important; 
+            background-image: url('Media/VIP/V1.webp?v=21'), url('Media/VIP/v1.webp?v=21') !important; 
         }
-
-        /* VIP 2 & 3 */
         .vip-bg-lvl23::before {
-            background-image: url('Media/VIP/V23.webp?v=20'), url('Media/VIP/v23.webp?v=20') !important; 
+            background-image: url('Media/VIP/V23.webp?v=21'), url('Media/VIP/v23.webp?v=21') !important; 
         }
-
-        /* VIP 4 & 5 */
         .vip-bg-lvl45::before {
-            background-image: url('Media/VIP/45.webp?v=20') !important; 
+            background-image: url('Media/VIP/45.webp?v=21') !important; 
         }
     `;
     document.head.appendChild(style);
@@ -155,6 +151,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (matchCardContainer) {
             // تنظيف الكلاسات القديمة
             matchCardContainer.classList.remove('vip-bg-lvl1', 'vip-bg-lvl23', 'vip-bg-lvl45');
+            
+            // حقن قوي لضمان اختفاء الخلفية الرمادية القديمة دون التأثير على الحجم
+            matchCardContainer.style.setProperty('background', 'transparent', 'important');
+            matchCardContainer.style.setProperty('border-color', 'transparent', 'important');
+            matchCardContainer.style.setProperty('backdrop-filter', 'none', 'important');
+            matchCardContainer.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
             
             // إضافة الإطار المناسب
             if (lvl === 1) {
