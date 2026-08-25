@@ -2,9 +2,11 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
+ * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف הـ VIP في قمة اللوبي.
+ * 🌟 (مُحدّث): حفظ هوية الخصم (currentOpponentId / currentOpponentData) لإتاحة إرسال الهدايا.
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد.
- * 🛡️ (مُحدّث جديد): نظام استعادة الاتصال (Reconnection) شامل للاعبين والمشاهدين.
- * 💎 (مُحدّث جديد): إضافة شارة הـ VIP للغرف المتاحة في اللوبي.
+ * 🛡️ (مُحدّث): نظام استعادة الاتصال (Reconnection) شامل للاعبين والمشاهدين.
+ * 💎 (مُحدّث): إضافة شارة הـ VIP للغرف المتاحة في اللوبي.
  * 🚀 (مُحدّث جذرياً): حل شلل الأكل المتعدد في الأونلاين (Multi-Jump Path Sync).
  * 🛡️ (مُحدّث جذرياً): منع اختطاف اللاعب، منع الرهانات السالبة، وحماية من XSS.
  */
@@ -426,12 +428,13 @@ export const socketManager = {
                 return;
             }
             
+            // 🌟 فرز الغرف: غرفتي أولاً، ثم غرف הـ VIP (من الأعلى للأقل)، ثم الغرف العادية
             rooms.sort((a, b) => {
                 const isAMine = (a.hostId === currentUserId);
                 const isBMine = (b.hostId === currentUserId);
                 if (isAMine && !isBMine) return -1;
                 if (!isAMine && isBMine) return 1;
-                return 0;
+                return (b.hostVipLevel || 0) - (a.hostVipLevel || 0);
             });
 
             if (!document.getElementById('wait-platform-style')) {
@@ -498,6 +501,8 @@ export const socketManager = {
                 const isCreator = (r.hostId === currentUserId);
                 let actionBtnHTML = '';
 
+                let displayName = r.customTitle ? ("👑 " + r.customTitle) : r.hostName;
+
                 if (!r.isFull && isCreator) {
                     roomEl.className = 'creator-platform';
                     
@@ -518,7 +523,7 @@ export const socketManager = {
                             
                             <div style="text-align: center; background: rgba(0,0,0,0.75); padding: 6px 18px; border-radius: 25px; border: 1px solid rgba(212,175,55,0.4); backdrop-filter: blur(6px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
                                 <div style="color: #ffd700; font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 6px; justify-content: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
-                                    <span style="animation: pulseHourglass 1.5s infinite;">⏳</span> بانتظار الخصم...
+                                    <span style="animation: pulseHourglass 1.5s infinite;">⏳</span> ${r.customTitle ? displayName : 'بانتظار الخصم...'}
                                 </div>
                                 <div style="color: #a1a1aa; font-size: 11px; margin-top: 4px; font-weight: 600;">
                                     ${isPrivate} | ${betText}
@@ -559,7 +564,7 @@ export const socketManager = {
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 ${avatarHTML}
                                 <div>
-                                    <div style="color: white; font-weight: bold; font-size: 14px;">مباراة: ${r.hostName}</div>
+                                    <div style="color: ${r.customTitle ? '#FFD700' : 'white'}; font-weight: bold; font-size: 14px;">${displayName}</div>
                                     <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
                                 </div>
                             </div>
@@ -581,7 +586,7 @@ export const socketManager = {
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 ${avatarHTML}
                                 <div>
-                                    <div style="color: white; font-weight: bold; font-size: 14px;">${r.hostName}</div>
+                                    <div style="color: ${r.customTitle ? '#FFD700' : 'white'}; font-weight: bold; font-size: 14px;">${displayName}</div>
                                     <div style="color: #a1a1aa; font-size: 11px;">${isPrivate} | ${betText}</div>
                                 </div>
                             </div>
@@ -609,7 +614,7 @@ export const socketManager = {
 
             const profile = this._ensureUserProfile();
             
-            // 🌟 الحل الجذري: إعادة ربط المشاهد بالبث الحي فور عودة الاتصال
+            // 🌟 إعادة ربط المشاهد بالبث الحي فور عودة الاتصال
             if (gameState.isSpectator && gameState.onlineRoomID) {
                 socket.emit('joinSpectator', { roomID: String(gameState.onlineRoomID).trim(), guestId: profile.id });
             } else {
@@ -833,6 +838,10 @@ export const socketManager = {
             if (data.roomID) {
                 gameState.onlineRoomID = data.roomID;
             }
+
+            // 🌟 حفظ بيانات الخصم والـ ID الخاص به لعمل متجر الشعبية
+            window.currentOpponentData = data.opponent;
+            window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
 
             gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
             gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.webp");
@@ -1202,7 +1211,7 @@ export const socketManager = {
             const openBtn = document.getElementById('challenge-toast-open-btn');
             
             if (toast && toastMsg && openBtn) {
-                // 🌟 الحل الجذري: حماية الواجهة من أكواد الاختراق XSS
+                // 🌟 حماية الواجهة من أكواد الاختراق XSS
                 const safeNameDiv = document.createElement('div');
                 safeNameDiv.innerText = challengerName;
                 const safeName = safeNameDiv.innerHTML;
@@ -1335,7 +1344,7 @@ export const socketManager = {
                 guestId: profile.id, 
                 from: { r: Number(fromR), c: Number(fromC) }, 
                 to: { r: Number(toR), c: Number(toC) },
-                path: movePath // 🌟 تمرير المسار
+                path: movePath
             });
         }
     },
@@ -1414,7 +1423,6 @@ export const socketManager = {
         if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
     },
 
-  
     sendRematchRequest() {
         if (gameState.onlineRoomID && !this.isAlertShown && !gameState.isSpectator) { 
             this.isAlertShown = true;
@@ -1451,14 +1459,15 @@ export const socketManager = {
         }
     },
 
-    handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0, allowSpectatorBetting = true) {
+    // 🌟 دعم تمرير roomTitle للميزات الملكية للـ VIP 3+
+    handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0, allowSpectatorBetting = true, roomTitle = null) {
         let targetAction = action;
 
         if (action === 'startMatchmaking' || action === 'joinMatchmaking' || action === 'joinMatchmakingPool') {
             targetAction = 'joinMatchmakingPool';
         }
 
-        // 🌟 الإصلاح: الخروج من طابور البحث العشوائي عند إنشاء أو دخول غرفة خاصة (منع الاختطاف)
+        // 🌟 الخروج من طابور البحث العشوائي عند إنشاء أو دخول غرفة خاصة
         if (targetAction === 'createRoom' || targetAction === 'joinRoom') {
             if (socket.connected) socket.emit('leaveMatchmakingPool');
         }
@@ -1482,7 +1491,8 @@ export const socketManager = {
             equippedBg: profile.equippedBg || 'bg_wood',
             equippedPc: profile.equippedPc || 'pc_original',
             equippedProfileFrame: profile.equippedProfileFrame || null,
-            syncThemeOptOut: profile.syncThemeOptOut === true
+            syncThemeOptOut: profile.syncThemeOptOut === true,
+            roomTitle: roomTitle // 👑 تمرير العنوان المخصص
         };
 
         if (roomIdInput && targetAction !== 'joinMatchmakingPool') {
@@ -1529,7 +1539,7 @@ export const socketManager = {
 
         const profile = this._ensureUserProfile();
         
-        // 🌟 الحل الجذري: القضاء على الأرقام السالبة والوهمية من المنبع
+        // 🌟 القضاء على الأرقام السالبة والوهمية من المنبع
         const safeBet = Math.max(0, parseInt(betAmount) || 0);
         
         const challengePayload = {
