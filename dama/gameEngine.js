@@ -1,8 +1,8 @@
 /**
  * gameEngine.js (Client-Side)
  * النسخة المطابقة تماماً لمحرك السيرفر (game-logic.js) لضمان التوافق 100%
- * 🌟 (مُحدّث): إصلاح نظام تحديد الاتجاه ليصبح ثابتاً ويمنع شلل الأحجار.
- * 🎯 (مُحدّث جذرياً): نظام "التعادل الذكي" لإنهاء المطاردة المملة (1 ضد 1) فوراً ما لم يوجد أكل إجباري!
+ * 🌟 (مُحدّث): نظام "التعادل الذكي" لإنهاء المطاردة المملة.
+ * 🛡️ (مُحدّث أمني): منع تسجيل إحصائيات اللعب (فوز/خسارة) عند اللعب ضد البوت لحماية السجل!
  */
 
 import { gameState } from './gameState.js'; 
@@ -14,15 +14,11 @@ export const gameEngine = {
 
     getPieceDirection(color, bState, roomDirectionData = null) {
         const baseColor = color.split('-')[0];
-        
-        // الاعتماد على الاتجاه الثابت الذي تم تحديده عند بدء المباراة لمنع الانعكاس
         if (roomDirectionData && roomDirectionData[baseColor] !== undefined) {
             return roomDirectionData[baseColor];
         } else if (gameState.pieceDirection && gameState.pieceDirection[baseColor] !== undefined) {
             return gameState.pieceDirection[baseColor];
         }
-
-        // في حال لم يكن متوفراً (كحالة احتياطية)، نعتمد على لون اللاعب الأساسي
         if (gameState.playerColor === 'white') {
             return baseColor === 'white' ? -1 : 1;
         } else {
@@ -90,6 +86,14 @@ export const gameEngine = {
                     if (midPiece && !midPiece.startsWith(baseColor) && toPiece === null) {
                         let capturedPiece = bState[midR][midC], movingPiece = bState[r][c];
 
+                        let isMidAirPromotion = false;
+                        let promoRow = (dirY === 1) ? 7 : 0;
+                        
+                        if (toR === promoRow && !movingPiece.includes('dama')) {
+                            movingPiece += '-dama';
+                            isMidAirPromotion = true;
+                        }
+
                         bState[midR][midC] = null;
                         bState[toR][toC] = movingPiece;
                         bState[r][c] = null;
@@ -101,7 +105,7 @@ export const gameEngine = {
                             for (const sp of subPaths) paths.push([stepObj, ...sp]);
                         } else { paths.push([stepObj]); }
 
-                        bState[r][c] = movingPiece;
+                        bState[r][c] = isMidAirPromotion ? movingPiece.replace('-dama', '') : movingPiece;
                         bState[toR][toC] = null;
                         bState[midR][midC] = capturedPiece;
                     }
@@ -175,16 +179,6 @@ export const gameEngine = {
         return allSimpleMoves;
     },
 
-    findMaxJumps(r, c, color, vBoard, initDr = null, initDc = null, roomDirectionData = null) {
-        const baseColor = color.split('-')[0];
-        const dirY = this.getPieceDirection(baseColor, vBoard, roomDirectionData);
-        const paths = this.getPieceCapturePaths(r, c, color, vBoard, dirY, initDr, initDc, roomDirectionData);
-        if (paths.length === 0) return 0;
-        let max = 0;
-        for (let p of paths) { if (p.length > max) max = p.length; }
-        return max;
-    },
-
     applyPathToBoard(path, bState, roomDirectionData = null) {
         let newBoard = bState.map(row => [...row]);
         if (!path || path.length === 0) return newBoard;
@@ -208,36 +202,6 @@ export const gameEngine = {
         return newBoard;
     },
 
-    isValidDamaMove(fromR, fromC, toR, toC, bState = null) {
-        let board = bState || gameState.virtualBoard;
-        if (!board) return false;
-        
-        if (fromR !== toR && fromC !== toC) return false;
-        let dr = fromR === toR ? 0 : (toR > fromR ? 1 : -1), dc = fromC === toC ? 0 : (toC > fromC ? 1 : -1);
-        let steps = Math.max(Math.abs(toR - fromR), Math.abs(toC - fromC));
-        for (let i = 1; i < steps; i++) { if (board[fromR + dr * i][fromC + dc * i] !== null) return false; }
-        return true;
-    },
-
-    getDamaJumpTarget(fromR, fromC, toR, toC, color, bState = null) {
-        let board = bState || gameState.virtualBoard;
-        if (!board) return null;
-        
-        if (fromR !== toR && fromC !== toC) return null;
-        const baseColor = color.split('-')[0];
-        let dr = fromR === toR ? 0 : (toR > fromR ? 1 : -1), dc = fromC === toC ? 0 : (toC > fromC ? 1 : -1);
-        let enemy = null; let steps = Math.max(Math.abs(toR - fromR), Math.abs(toC - fromC));
-        
-        for (let i = 1; i < steps; i++) {
-            let p = board[fromR + dr * i][fromC + dc * i];
-            if (p !== null) { 
-                if (enemy !== null || p.startsWith(baseColor)) return null; 
-                enemy = { row: fromR + dr * i, col: fromC + dc * i }; 
-            }
-        }
-        return enemy;
-    },
-
     hasAnyMove(color, bState, roomDirectionData = null) {
         return this.generateAllTurnMoves(color, bState, null, null, null, null, roomDirectionData).length > 0;
     },
@@ -259,12 +223,9 @@ export const gameEngine = {
         }
     },
 
-    // 🎯 الحل السحري لمنع المطاردة المملة (التعادل الذكي لـ 1 ضد 1)
     checkIdleDraw(bState, currentTurn, roomDirectionData = null) {
-        // 1. قانون التعادل عند مرور 50 حركة بدون تقدم أو أكل
         if (gameState.movesWithoutProgress >= 50) return true;
         
-        // 2. إحصاء الأحجار المتبقية على الرقعة
         let wCount = 0, bCount = 0;
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
@@ -275,20 +236,13 @@ export const gameEngine = {
             }
         }
         
-        // 3. تطبيق منطق (حجر ضد حجر)
         if (wCount === 1 && bCount === 1) {
-            // نتحقق من كل الحركات المتاحة للاعب الذي جاء دوره الآن
             let moves = this.generateAllTurnMoves(currentTurn, bState, null, null, null, null, roomDirectionData);
-            
-            // هل يمتلك هذا اللاعب أي حركة فيها أكل إجباري (midR ليس null)؟
             let hasCapture = moves.some(path => path.some(step => step.midR !== null && step.midR !== undefined));
-            
-            // إذا لم يكن هناك أكل إجباري، ننهي اللعبة بالتعادل فوراً لمنع المطاردة!
             if (!hasCapture) {
                 return true; 
             }
         }
-        
         return false;
     },
 
@@ -330,7 +284,11 @@ export const gameEngine = {
         if (gameState.isUpdatingStats || gameState.statsUpdated) return;
         gameState.isUpdatingStats = true; gameState.isGameOver = true; gameState.isGameActive = false;
         
-        if (winnerColor !== 'draw') { this.updateUserStats(winnerColor); }
+        // 🌟 حماية السجل: إذا كان اللعب ضد البوت، لا تسجل أي إحصائيات!
+        if (winnerColor !== 'draw' && !gameState.isBotOpponent) { 
+            this.updateUserStats(winnerColor); 
+        }
+        
         gameState.statsUpdated = true; gameState.isUpdatingStats = false; 
 
         if (window.questsManager && !gameState.isTutorialMode && !gameState.isSpectator) {
@@ -352,6 +310,9 @@ export const gameEngine = {
     },
 
     updateUserStats(winnerColor) {
+        // 🛑 أمان إضافي: خروج فوري إذا كان الخصم بوت
+        if (gameState.isBotOpponent) return; 
+
         const ui = typeof window !== 'undefined' ? window.ui : null;
         if (ui && typeof ui.updateUserStats === 'function') {
             const myColor = gameState.myOnlineColor || gameState.playerColor;
