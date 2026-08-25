@@ -1,8 +1,8 @@
 /**
  * main.js
  * المنسق العام للمشروع (Orchestrator).
- * يربط بين الواجهة (UI)، السيرفر (Socket)، وحالة اللعبة (GameState).
- * 🌟 (مُحدّث): تم دمج إصلاح تسرب التلميحات المكتسبة للحفاظ على حقوق اللاعبين.
+ * 🌟 (مُحدّث): دمج ميزة قراءة عنوان غرفة الـ VIP.
+ * 🛡️ (مُحدّث): المزامنة الفورية للتلميحات المرتجعة لمنع تضارب البيانات.
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -10,22 +10,12 @@ import { socket, socketManager } from './socketManager.js';
 import { gameEngine } from './gameEngine.js';
 import { t } from './i18n.js';
 
-// ==========================================
-// 🌟 دالة تحويل الأرقام الضخمة إلى K و M
-// ==========================================
 function formatCompactNumber(num) {
-    if (num >= 1000000) {
-        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    }
-    if (num >= 1000) {
-        return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    }
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num;
 }
 
-// ==========================================
-// 💡 الإصلاحات الذكية (الشاشة البيضاء، الرادار، البينج)
-// ==========================================
 document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible') {
         setTimeout(() => {
@@ -62,11 +52,10 @@ export function startOnlineHintSystem() {
     if (gameState.originalHints === null) { 
         gameState.originalHints = gameState.userProfile.hints !== undefined ? gameState.userProfile.hints : 5; 
     }
-    gameState.userProfile.hints = 2; // إعطاء اللاعب تلميحين كحد أقصى داخل الأونلاين
+    gameState.userProfile.hints = 2; 
     if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
 }
 
-// 🌟 الحل الجذري: الخصم العادل للتلميحات لعدم مسح الجوائز المكتسبة أثناء اللعب
 export function restoreOfflineHintSystem() {
     if (gameState.originalHints !== null) {
         let hintsUsedOnline = 2 - gameState.userProfile.hints;
@@ -80,7 +69,12 @@ export function restoreOfflineHintSystem() {
         gameState.userProfile.hints = Math.max(0, realCurrentHints - hintsUsedOnline);
         gameState.originalHints = null;
         
-        try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e) { }
+        try { 
+            localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+            if (socket && socket.connected) {
+                socket.emit('syncProfile', gameState.userProfile);
+            }
+        } catch(e) { }
         
         if (typeof ui.updateProfileUI === 'function') {
             ui.updateProfileUI();
@@ -188,9 +182,6 @@ window.addEventListener('load', async () => {
         window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
     });
 
-    // ===========================================================
-    // 🌟 استقبال الشعبية وتحديث رقمها للخصم (مع تأثيرات عائمة خالية من الشاشة السوداء)
-    // ===========================================================
     socket.on('receivePopularityGift', (data) => {
         if (data && data.popValue) {
             gameState.userProfile.popularity = (gameState.userProfile.popularity || 0) + data.popValue;
@@ -199,12 +190,7 @@ window.addEventListener('load', async () => {
             
             const popValEl = document.getElementById('igp-popularity-val');
             if (popValEl) {
-                let formatNum = (num) => {
-                    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-                    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-                    return num;
-                };
-                popValEl.innerText = formatNum(gameState.userProfile.popularity);
+                popValEl.innerText = formatCompactNumber(gameState.userProfile.popularity);
                 popValEl.style.transition = 'all 0.3s ease';
                 popValEl.style.transform = 'scale(1.3)';
                 popValEl.style.color = '#ffd700';
@@ -241,8 +227,8 @@ window.addEventListener('load', async () => {
                 position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
                 pointer-events: none; z-index: 10000050; 
                 display: flex; flex-direction: column; align-items: center; 
-                justify-content: flex-start; /* 🌟 التعديل: تظهر في الأعلى */
-                padding-top: 12vh; /* 🌟 التعديل: إزاحة للأسفل قليلاً لتستقر فوق أسماء اللاعبين ولا تغطي الرقعة */
+                justify-content: flex-start;
+                padding-top: 12vh;
                 background: ${overlayBg};
                 opacity: 0; 
                 transition: opacity 0.3s ease;
@@ -636,9 +622,13 @@ ui.onClick('online-close-btn', () => {
     if(typeof window.closeAppModal === 'function') window.closeAppModal('online-modal'); 
 });
 
+// 🌟 التحديث الجديد: التقاط العنوان المخصص לـ VIP
 ui.onClick('online-create-btn', () => {
     let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
     let allowSpectatorBetting = document.getElementById('allow-betting-checkbox')?.checked ?? true;
+    
+    let roomTitleInput = document.getElementById('room-title-input');
+    let roomTitle = roomTitleInput ? roomTitleInput.value.trim() : null;
 
     if (gameState.pendingChallengeId) {
         socketManager.sendChallenge(gameState.pendingChallengeId, betAmt);
@@ -654,7 +644,7 @@ ui.onClick('online-create-btn', () => {
         let pwd = document.getElementById('create-room-password-input')?.value;
         let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
 
-        socketManager.handleRoomAction('createRoom', rID, pwd, betAmt, allowSpectatorBetting);
+        socketManager.handleRoomAction('createRoom', rID, pwd, betAmt, allowSpectatorBetting, roomTitle);
         socketManager.showStatusMsg("جاري إنشاء الغرفة...");
         if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
     }
