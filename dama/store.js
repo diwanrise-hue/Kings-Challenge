@@ -1,6 +1,7 @@
 // ==========================================
 // ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (متوافق 100% مع السيرفر)
 // 🌟 (مُحدّث جذرياً): إغلاق ثغرة الشراء الأوفلاين (Offline Purchase Exploit) لحماية الاقتصاد.
+// 🌟 (مُحدّث): المصدر الوحيد (Single Source of Truth) لدالة نوافذ الشراء لمنع التضارب.
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -808,10 +809,10 @@ export const storeManager = {
         const processMsg = isAr ? "جاري معالجة الشراء عبر السيرفر..." : "Processing purchase...";
         if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(processMsg);
         
+        // 🌟 الإصلاح الجذري: منع الشراء الأوفلاين كلياً لمنع التضارب وضياع الأموال
         if (window['socket'] && window['socket'].connected) { 
             window['socket'].emit('requestPurchase', { guestId: profile.id, userId: profile.id, itemId: itemId, cost: item.cost, itemType: itemType || item.type }); 
         } else { 
-            // 🌟 الإصلاح الجذري: منع الشراء الأوفلاين كلياً لمنع مسح السيرفر للأموال والمشتريات
             const errorMsg = isAr ? "يجب أن تكون متصلاً بالسيرفر لإتمام عملية الشراء وحفظها بأمان!" : "You must be online to purchase items safely!";
             if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(errorMsg);
             else alert(errorMsg);
@@ -1118,7 +1119,7 @@ window.switchThemeGridTabCategory = function(category) {
 };
 
 // ===================================================================
-// 🌟 دالة نافذة الشراء لمتجر الدامة (محدثة لترتيب العناصر بشكل سليم)
+// 🌟 المصدر الوحيد (Single Source of Truth) لدالة الشراء لمنع التضارب 
 // ===================================================================
 window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     window.currentPurchaseItem = { id: itemId, type: itemType, price: price };
