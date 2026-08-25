@@ -3,6 +3,7 @@
  * المنسق العام للمشروع (Orchestrator).
  * 🌟 (مُحدّث): دمج ميزة قراءة عنوان غرفة الـ VIP.
  * 🛡️ (مُحدّث): المزامنة الفورية للتلميحات المرتجعة لمنع تضارب البيانات.
+ * 🛡️ (مُحدّث): حل مشكلة التبعية الدائرية (Circular Dependency) عبر كائن window.
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -44,9 +45,12 @@ socket.on('connect', () => {
     }, 300);
 });
 
+// 🛡️ ربط الدوال الحيوية بكائن window لحل مشكلة الـ Circular Dependency مع uiController
 export function saveGameState() { }
+window.saveGameState = saveGameState;
 
 export async function loadGameState() { return false; }
+window.loadGameState = loadGameState;
 
 export function startOnlineHintSystem() {
     if (gameState.originalHints === null) { 
@@ -55,6 +59,7 @@ export function startOnlineHintSystem() {
     gameState.userProfile.hints = 2; 
     if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
 }
+window.startOnlineHintSystem = startOnlineHintSystem;
 
 export function restoreOfflineHintSystem() {
     if (gameState.originalHints !== null) {
@@ -81,6 +86,7 @@ export function restoreOfflineHintSystem() {
         }
     }
 }
+window.restoreOfflineHintSystem = restoreOfflineHintSystem;
 
 let spinTimerInterval = null;
 export function updateSpinTimerDisplay(nextFreeTime) {
@@ -415,6 +421,7 @@ ui.onClick('login-submit-btn', () => {
         return;
     }
     
+    // 🛡️ فلترة الاسم لمنع حقن XSS
     name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
     gameState.userProfile = { 
         ...gameState.userProfile, 
