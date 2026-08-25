@@ -5,6 +5,7 @@
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
  * 🌟 (مُحدّث): تم حل مشكلة توقف اللعبة وإصلاح النص المعلق "اضغط بدء اللعب".
  * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
+ * 🗑️ (مُحدّث): تم إزالة إطارات الساحة المزعجة حول الصور وترك الدردشة تعمل عبر chat.js.
  */
 
 import { gameState } from './gameState.js'; 
@@ -467,7 +468,7 @@ export const ui = {
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
         
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
-        this.setDisplay('gameChatBtn', 'none');
+        this.setDisplay('gameChatBtn', 'none'); // سيظل مخفياً هنا في الأوفلاين
         this.setDisplay('mic-toggle-btn', 'none');
         
         this.setDisplay('match-gift-btn-p2', 'none'); 
@@ -513,32 +514,6 @@ export const ui = {
             p2LvlEl.style.borderColor = "#ff453a";
             p2LvlEl.style.color = "#ff453a";
         }
-
-        const applyVisualFrame = (elementId, frameId) => {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            if (!frameId || frameId === 'fr_classic') {
-                el.style.backgroundImage = 'none';
-                return;
-            }
-            setTimeout(() => {
-                let frameUrl = '';
-                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
-                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
-                }
-                if (frameUrl) {
-                    el.style.backgroundImage = `url('${frameUrl}')`;
-                    el.style.backgroundSize = '100% 100%';
-                    el.style.backgroundPosition = 'center';
-                    el.style.backgroundRepeat = 'no-repeat';
-                } else { 
-                    el.style.backgroundImage = 'none'; 
-                }
-            }, 50);
-        };
-        
-        applyVisualFrame('card-my-frame', p1?.equippedFr || null);
-        applyVisualFrame('card-opp-frame', p2?.equippedFr || null);
 
         const p1Xp = Number(p1?.xp) || 0;
         const p2Xp = Number(p2?.xp) || 0;
@@ -630,33 +605,6 @@ export const ui = {
             
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'), gameState.currentOpponentProfileFrame);
           
-            const myAvatarFrameId = gameState.userProfile.equippedFr || null;
-            const oppAvatarFrameId = gameState.currentOpponentFr || null;
-
-            const applyVisualFrame = (elementId, frameId) => {
-                const el = document.getElementById(elementId);
-                if (!el) return;
-                if (!frameId) {
-                    el.style.backgroundImage = 'none';
-                    return;
-                }
-                let frameUrl = '';
-                if (window.STORE_ITEMS && window.STORE_ITEMS[frameId]) {
-                    frameUrl = window.STORE_ITEMS[frameId].imagePathWhite || window.STORE_ITEMS[frameId].imagePath;
-                }
-                if (frameUrl) {
-                    el.style.backgroundImage = `url('${frameUrl}')`;
-                    el.style.backgroundSize = '100% 100%';
-                    el.style.backgroundPosition = 'center';
-                    el.style.backgroundRepeat = 'no-repeat';
-                } else {
-                    el.style.backgroundImage = 'none';
-                }
-            };
-
-            applyVisualFrame('card-my-frame', myAvatarFrameId);
-            applyVisualFrame('card-opp-frame', oppAvatarFrameId);
-
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
             let myCardLevel = this.getEl('card-my-level');
             if (myCardLevel) {
@@ -1111,7 +1059,6 @@ export const ui = {
             this.showResultsModal(winnerColor); return;
         }
         
-        // 🌟 الإصلاح: استخدام `generateAllTurnMoves` لحساب الأكل الإجباري بدلاً من `findMaxJumps` المحذوفة
         let allMoves = [];
         if (gameState.isMultiJumping && gameState.selectedPiece) {
             let cell = gameState.selectedPiece.parentElement;
@@ -1816,7 +1763,6 @@ window.acceptFriendReq = function(reqId) {
         prof.friendRequests.splice(reqIndex, 1); 
         localStorage.setItem('hub_user_profile', JSON.stringify(prof));
         
-        // 🌟 حفر الصديق الجديد في الذاكرة الحية للعبة
         if (gameState.userProfile) {
             gameState.userProfile.friends = prof.friends;
             gameState.userProfile.friendRequests = prof.friendRequests;
@@ -1840,7 +1786,6 @@ window.rejectFriendReq = function(reqId) {
     prof.friendRequests = prof.friendRequests.filter(r => r.id !== reqId);
     localStorage.setItem('hub_user_profile', JSON.stringify(prof)); 
     
-    // 🌟 تحديث الذاكرة الحية بعد الرفض
     if (gameState.userProfile) gameState.userProfile.friendRequests = prof.friendRequests;
 
     renderFriendRequests();
@@ -2743,7 +2688,6 @@ ui.onClick('board', e => {
         
         const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
         
-        // 🌟 الإصلاح: استخدام getPieceMaxJumps بدلاً من findMaxJumps
         if (gameState.requiredJumps > 0 && getPieceMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
         
         gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = []; 
@@ -2770,7 +2714,6 @@ ui.onClick('board', e => {
         if (gameState.requiredJumps > 0) {
             let isValidJump = false, midRow = -1, midCol = -1, currDr = Math.sign(rDiff), currDc = Math.sign(cDiff);
             
-            // 🌟 الإصلاح الجذري: تحديد القفزة من مسارات اللعبة المعتمدة لمنع الانهيار (Crash)
             let moves = (gameState.isMultiJumping)
                 ? gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, fromRow, fromCol, gameState.lastJumpDir.dr, gameState.lastJumpDir.dc)
                 : gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
@@ -2845,7 +2788,6 @@ ui.onClick('board', e => {
             }
         } 
         else {
-            // 🌟 الإصلاح: استخدام isMoveValid بدلاً من الدوال المحذوفة 
             if (isMoveValid(fromRow, fromCol, toRow, toCol, gameState.currentTurn, gameState.virtualBoard, isDama)) {
                 
                 let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
@@ -2890,8 +2832,9 @@ ui.onClick('board', e => {
         }
     }
 });
+
 // ==========================================
-// 🌟 نظام الاستماع لتحديثات الواجهة الرئيسية (تطبيق الساحات والأحجار والمستوى فوراً)
+// 🌟 نظام الاستماع لتحديثات الواجهة الرئيسية
 // ==========================================
 window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'PROFILE_UPDATED') {
