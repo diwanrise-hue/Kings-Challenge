@@ -117,11 +117,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* 🌟 إطار بطاقة اللاعب الخاصة بـ VIP 4 و VIP 5 🌟 */
         .premium-vip-card-bg {
-            background-image: url('Media/VIP/1000149020.webp') !important; 
+            /* تم تصحيح اسم الملف هنا إلى 45.webp */
+            background: url('Media/VIP/45.webp') no-repeat center center !important; 
             background-size: 100% 100% !important; /* مط الإطار ليغطي البطاقة بالكامل */
-            background-repeat: no-repeat !important;
             background-color: transparent !important; /* إخفاء لون البطاقة الافتراضي */
             border: none !important; 
+            box-shadow: none !important;
+        }
+
+        /* 🌟 كود إضافي لإلغاء تأثير الضباب (Blur) من اللعبة الذي كان يخفي الإطار 🌟 */
+        .premium-vip-card-bg::before, 
+        .premium-vip-card-bg::after, 
+        .premium-vip-card-bg > div {
+            background-color: transparent !important;
+            backdrop-filter: none !important; /* إزالة الضبابية تماماً لكي يظهر الإطار واضحاً */
             box-shadow: none !important;
         }
     `;
