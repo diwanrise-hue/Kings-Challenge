@@ -640,15 +640,17 @@
         </div>
     </div>
 
-  <div id="vip-title-container" style="display: none; margin-bottom: 15px;">
-    <label style="color: #FFD700; font-weight: bold;">👑 عنوان الغرفة (ميزة VIP):</label>
-    <input type="text" id="room-title-input" placeholder="مثال: تحدي الكبار ⚔️" maxlength="25" style="width: 100%; padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid #FFD700; color: #fff;">
-</div>
-
-    <div id="create-room-modal" class="modal-overlay" style="z-index: 1000001;">
+      <div id="create-room-modal" class="modal-overlay" style="z-index: 1000001;">
          <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('create-room-modal')" style="left:15px; right:auto;">✕</button>
             <h3>إنشاء غرفة</h3>
+
+            <!-- 👑 حقل إدخال عنوان الغرفة للـ VIP (تم نقله للداخل) -->
+            <div id="vip-title-container" style="margin-bottom: 20px; background: rgba(212, 175, 55, 0.05); padding: 12px; border-radius: 14px; border: 1px dashed rgba(212, 175, 55, 0.3);">
+                <label style="color: #FFD700; font-size: 13px; font-weight: bold; display: block; margin-bottom: 8px;">👑 عنوان الغرفة (ميزة VIP 3):</label>
+                <input type="text" id="room-title-input" class="online-input" placeholder="مثال: تحدي الكبار ⚔️" maxlength="25" style="margin-bottom: 0; border-color: rgba(212, 175, 55, 0.5); color: #FFD700; text-align: right;">
+            </div>
+
             <label class="settings-label">مبلغ الرهان لكل لاعب:</label>
             <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="window.openAppModal('bet-selector-modal')">
                 <span id="custom-bet-display">بدون رهان (مجاني)</span><span style="font-size: 14px; color: rgba(255,255,255,0.4);">▼</span>
@@ -666,7 +668,7 @@
             <button id="online-create-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.2) !important; color: #30d158 !important; margin-top: 20px; box-shadow: none !important;">تأكيد وإنشاء</button>
          </div>
     </div>
-
+  
     <div id="bet-selector-modal" class="modal-overlay" style="z-index: 99999999; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('bet-selector-modal')">
         <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
             <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
@@ -889,4 +891,4 @@
         });
     </script>
 </body>
-    </html>
+        </html>
