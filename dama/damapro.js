@@ -1,6 +1,6 @@
 // damapro.js
 // مخصص لإضافة الإطارات الملكية للوحة الشرف، ونظام عرض شارات الـ VIP الديناميكي مع تأثير "اللهب المشتعل".
-// 🌟 (مُحدّث جذرياً): حل مشكلة حساسية الحروف في خوادم GitHub باستخدام (Dual-URL Fallback) وتدمير الكاش.
+// 🌟 (مُحدّث جذرياً): تم بناء نظام "الطبقات الاحترافية" (Pseudo-elements) ليغطي الإطار البطاقة بالكامل من الحافة للحافة.
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -71,50 +71,57 @@ document.addEventListener('DOMContentLoaded', () => {
         .vip-glow-mixed  { animation: vipFloatAndSpin 15s infinite linear, vipFlameMixed 0.4s infinite alternate ease-in-out; }
 
         /* ========================================== */
-        /* 🌟 إطارات البطاقات المتعددة حسب المستوى 🌟 */
+        /* 🌟 نظام الطبقات (الإطارات الكاملة للبطاقة) 🌟 */
         /* ========================================== */
         
-        /* إطار مستوى VIP 1 (خدعة المسار المزدوج لتخطي حساسية الحروف) */
-        .vip-bg-lvl1 {
-            background-image: url('Media/VIP/V1.webp?v=10'), url('Media/VIP/v1.webp?v=10') !important; 
-            background-size: 100% 100%, 100% 100% !important;
-            background-position: center, center !important;
-            background-repeat: no-repeat, no-repeat !important;
-            background-color: transparent !important;
-            border: none !important; 
+        /* 1. إخفاء خلفية البطاقة الأصلية بالكامل وإلغاء أي حدود رمادية */
+        .vip-bg-lvl1, .vip-bg-lvl23, .vip-bg-lvl45 {
+            background: transparent !important;
+            border: none !important;
             box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
-        /* إطار مستوى VIP 2 و 3 */
-        .vip-bg-lvl23 {
-            background-image: url('Media/VIP/V23.webp?v=10'), url('Media/VIP/v23.webp?v=10') !important; 
-            background-size: 100% 100%, 100% 100% !important;
-            background-position: center, center !important;
-            background-repeat: no-repeat, no-repeat !important;
-            background-color: transparent !important;
-            border: none !important; 
-            box-shadow: none !important;
+        /* 2. رفع العناصر داخل البطاقة (الأفاتار، الاسم) لتكون فوق الإطار */
+        .vip-bg-lvl1 > *, .vip-bg-lvl23 > *, .vip-bg-lvl45 > * {
+            position: relative;
+            z-index: 2;
         }
 
-        /* إطار مستوى VIP 4 و 5 */
-        .vip-bg-lvl45 {
-            background-image: url('Media/VIP/45.webp?v=10') !important; 
+        /* 3. الطبقة السحرية (Pseudo-element) التي سترسم الإطار وتمطّه خارج المسافات الداخلية */
+        .vip-bg-lvl1::before, .vip-bg-lvl23::before, .vip-bg-lvl45::before {
+            content: '';
+            position: absolute;
+            /* التمدد بقيمة سالبة لابتلاع مسافات الـ padding ورسم الإطار من الحافة للحافة */
+            top: -2px;
+            bottom: -2px;
+            left: -2px;
+            right: -2px;
+            z-index: 1; /* خلف الأفاتار والاسم */
             background-size: 100% 100% !important;
             background-position: center !important;
             background-repeat: no-repeat !important;
-            background-color: transparent !important;
-            border: none !important; 
-            box-shadow: none !important;
+            border-radius: 20px; /* ليحافظ على انحناء بطاقتك الأصلية */
+            pointer-events: none;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.6); /* إعادة ظل البطاقة الفخم */
         }
 
-        /* 🌟 تدمير تأثير الضباب (Blur) من اللعبة تماماً لجميع الإطارات 🌟 */
-        .vip-bg-lvl1::before, .vip-bg-lvl1::after,
-        .vip-bg-lvl23::before, .vip-bg-lvl23::after,
-        .vip-bg-lvl45::before, .vip-bg-lvl45::after {
-            background: transparent !important;
-            backdrop-filter: none !important; 
-            box-shadow: none !important;
-            border: none !important;
+        /* 4. ربط مسارات الصور لكل مستوى (مع تجديد الكاش لتفادي أي مشاكل) */
+        
+        /* VIP 1 */
+        .vip-bg-lvl1::before {
+            background-image: url('Media/VIP/V1.webp?v=20'), url('Media/VIP/v1.webp?v=20') !important; 
+        }
+
+        /* VIP 2 & 3 */
+        .vip-bg-lvl23::before {
+            background-image: url('Media/VIP/V23.webp?v=20'), url('Media/VIP/v23.webp?v=20') !important; 
+        }
+
+        /* VIP 4 & 5 */
+        .vip-bg-lvl45::before {
+            background-image: url('Media/VIP/45.webp?v=20') !important; 
         }
     `;
     document.head.appendChild(style);
@@ -144,14 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let badge = parent.querySelector('.' + badgeClass);
         let lvl = parseInt(vipLevel) || 0;
 
-        // 🌟 تطبيق الإطارات الجديدة بقوة
+        // 🌟 تطبيق الإطارات الجديدة بنظام الكلاسات الجديد
         if (matchCardContainer) {
             // تنظيف الكلاسات القديمة
             matchCardContainer.classList.remove('vip-bg-lvl1', 'vip-bg-lvl23', 'vip-bg-lvl45');
-            
-            // حقن قوي للشفافية عبر الـ JS لضمان اختفاء خلفية الخصم
-            matchCardContainer.style.setProperty('background-color', 'transparent', 'important');
-            matchCardContainer.style.setProperty('border', 'none', 'important');
             
             // إضافة الإطار المناسب
             if (lvl === 1) {
