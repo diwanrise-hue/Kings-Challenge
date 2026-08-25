@@ -3,6 +3,7 @@
  * النسخة المطابقة تماماً لمحرك السيرفر (game-logic.js) لضمان التوافق 100%
  * 🌟 (مُحدّث): نظام "التعادل الذكي" لإنهاء المطاردة المملة.
  * 🛡️ (مُحدّث أمني): منع تسجيل إحصائيات اللعب (فوز/خسارة) عند اللعب ضد البوت لحماية السجل!
+ * 🛠️ (مُحدّث جذرياً): إصلاح تلف أسماء القطع (white-dama-dama) أثناء محاكاة القفز المتعدد.
  */
 
 import { gameState } from './gameState.js'; 
@@ -84,18 +85,19 @@ export const gameEngine = {
                 if (this.isValidPos(toR, toC)) {
                     const midPiece = bState[midR][midC], toPiece = bState[toR][toC];
                     if (midPiece && !midPiece.startsWith(baseColor) && toPiece === null) {
-                        let capturedPiece = bState[midR][midC], movingPiece = bState[r][c];
-
-                        let isMidAirPromotion = false;
+                        let capturedPiece = bState[midR][midC];
+                        let movingPiece = bState[r][c];
+                        
+                        // 🛠️ الإصلاح الجذري: منع تعديل القطعة الأصلية (Mutation) في المحاكاة
+                        let currentPieceForSimulation = movingPiece;
                         let promoRow = (dirY === 1) ? 7 : 0;
                         
                         if (toR === promoRow && !movingPiece.includes('dama')) {
-                            movingPiece += '-dama';
-                            isMidAirPromotion = true;
+                            currentPieceForSimulation = movingPiece + '-dama';
                         }
 
                         bState[midR][midC] = null;
-                        bState[toR][toC] = movingPiece;
+                        bState[toR][toC] = currentPieceForSimulation;
                         bState[r][c] = null;
 
                         const stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
@@ -105,7 +107,8 @@ export const gameEngine = {
                             for (const sp of subPaths) paths.push([stepObj, ...sp]);
                         } else { paths.push([stepObj]); }
 
-                        bState[r][c] = isMidAirPromotion ? movingPiece.replace('-dama', '') : movingPiece;
+                        // إرجاع القطعة الأصلية السليمة إلى مكانها الأول
+                        bState[r][c] = movingPiece;
                         bState[toR][toC] = null;
                         bState[midR][midC] = capturedPiece;
                     }
