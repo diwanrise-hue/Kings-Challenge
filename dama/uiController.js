@@ -6,6 +6,7 @@
  * 🌟 (مُحدّث): تم حل مشكلة توقف اللعبة وإصلاح النص المعلق "اضغط بدء اللعب".
  * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
  * 🗑️ (مُحدّث): تم إزالة إطارات الساحة المزعجة حول الصور وترك الدردشة تعمل عبر chat.js.
+ * 🛡️ (مُحدّث جذرياً): تم حل مشكلة الإطار العملاق في نافذة النتائج للبوت، وتصفير ذاكرة الإطارات السابقة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -196,12 +197,12 @@ export const ui = {
                 });
             }
             
+            // 🛡️ الترقيع الأمني للإطار: تم إدخال الإطار داخل حاوية الـ relative لمنعه من أخذ حجم الشاشة
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1a1a24; border-radius: 50%; border: 1.5px solid #d4af37; overflow: hidden; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 10;">
                         ${botContent}
                     </div>
-                </div>
             `;
 
             if (overlayFrameSrc) {
@@ -209,6 +210,7 @@ export const ui = {
                 innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(calc(-50% + ${finalX}px), calc(-50% + ${finalY}px)); width: ${frameScale}; height: ${frameScale}; z-index: ${frameZ}; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
             }
 
+            innerHTML += `</div>`; // إغلاق الحاوية بأمان هنا
             el.innerHTML = innerHTML;
             return;
         }
@@ -468,7 +470,6 @@ export const ui = {
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
         
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
-        this.setDisplay('gameChatBtn', 'none'); // سيظل مخفياً هنا في الأوفلاين
         this.setDisplay('mic-toggle-btn', 'none');
         
         this.setDisplay('match-gift-btn-p2', 'none'); 
@@ -482,7 +483,7 @@ export const ui = {
         document.body.classList.add('game-active');
         document.body.classList.add('online-mode-active');
         
-        const hides = ['store-portal-corner-btn', 'lucky-spin-portal-btn', 'floating-quests-btn', 'bag-quick-btn', 'custom-diff-btn', 'hint-btn', 'undo-btn', 'resign-btn', 'gameChatBtn', 'mic-toggle-btn'];
+        const hides = ['store-portal-corner-btn', 'lucky-spin-portal-btn', 'floating-quests-btn', 'bag-quick-btn', 'custom-diff-btn', 'hint-btn', 'undo-btn', 'resign-btn', 'mic-toggle-btn'];
         hides.forEach(id => this.setDisplay(id, 'none'));
         
         this.setDisplay('bottom-control-panel', 'flex');
@@ -589,7 +590,7 @@ export const ui = {
             'store-portal-corner-btn': flexState, 'lucky-spin-portal-btn': flexState, 'hamburger-menu-btn': flexState,
             'floating-quests-btn': flexState, 'bag-quick-btn': 'none', 'resign-btn': onlineState, 
             'undo-btn': 'none', 'match-players-card': active ? 'flex' : 'none',
-            'gameChatBtn': active ? 'flex' : 'none', 'mic-toggle-btn': active ? 'flex' : 'none',
+            'mic-toggle-btn': active ? 'flex' : 'none',
             'spectator-stats-container': 'none' 
         };
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
@@ -784,6 +785,9 @@ export const ui = {
         gameState.selectedPiece = null; gameState.lastJumpDir = { dr: null, dc: null };
         gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
         gameState.pieceHistories = {};
+        
+        // 🛡️ تصفير إطار الخصم السابق حتى لا يرثه البوت
+        gameState.currentOpponentProfileFrame = null;
 
         this.toggleOfflineInMatchUI(false); this.toggleOnlineUILayout(false); 
         document.body.classList.remove('game-active');
@@ -1267,7 +1271,8 @@ export const ui = {
             
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;");
             
-            const av = this.makeEl('div', 'result-avatar', "width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
+            // 🛡️ الترقيع الأمني: تم إضافة position:relative لضمان أن الإطار لا يأخذ حجم الشاشة
+            const av = this.makeEl('div', 'result-avatar', "position:relative;width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
             
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
             
