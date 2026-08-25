@@ -121,7 +121,6 @@ let cachedProfileParsed = null;
 localStorage.getItem = function(key) {
     let value = originalGetItem.call(this, key);
     if (key === 'hub_user_profile' && value) {
-        // العودة للذاكرة المؤقتة لمنع الإرهاق
         if (value === cachedProfileStr && cachedProfileParsed !== null) {
             return JSON.stringify(cachedProfileParsed);
         }
@@ -148,7 +147,6 @@ localStorage.setItem = function(key, value) {
                 profile.avatar = profile.avatar.replace('../', '');
                 value = JSON.stringify(profile);
             }
-            // تحديث الذاكرة المؤقتة لضمان التزامن
             cachedProfileStr = value;
             cachedProfileParsed = JSON.parse(value);
         } catch(e) {}
@@ -163,7 +161,6 @@ const originalRemoveItem = localStorage.removeItem;
 localStorage.removeItem = function(key) {
     if (key === 'hub_user_profile') { 
         if(window.parent && window.parent !== window) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*'); 
-        // تفريغ الذاكرة المؤقتة
         cachedProfileStr = null;
         cachedProfileParsed = null;
     }
@@ -245,12 +242,15 @@ window.renderDamaPopularityStore = function() {
     } else { grid.innerHTML = '<p style="color: #a1a1aa; text-align: center; grid-column: span 3; padding: 15px;">لا توجد عناصر شعبية حالياً.</p>'; }
 };
 
+// ==========================================
+// 🛡️ التشفير الجذري لمعرف الخصم لمنع الاختراق
+// ==========================================
 window.showOpponentProfile = function() {
     if (!window.currentOpponentData) return;
     const opp = window.currentOpponentData;
     document.getElementById('igp-name').innerText = opp.name || "الخصم";
     
-    // 🌟 التشفير الجذري لحماية حسابات اللاعبين (إخفاء الـ ID) 🌟
+    // تشفير الـ ID لمنع السرقات (تظهر أول 3 حروف، وتشفير الباقي مع إظهار آخر 4 أرقام)
     let safeId = "---";
     if (opp.guestId) {
         let parts = opp.guestId.split('-');
@@ -304,7 +304,7 @@ window.addEventListener('load', syncGlobalBackground);
 window.addEventListener('storage', (e) => { if (e.key === 'custom_app_bg') syncGlobalBackground(); });
 
 // ==========================================
-// 💡 تم إزالة مراقب التغيرات العشوائي وحل المشكلة
+// 💡 حل مشكلة رادار الانقطاع الوهمي
 // ==========================================
 (function() {
     let hidePingTimer = null;
@@ -396,142 +396,3 @@ document.addEventListener('DOMContentLoaded', () => {
     startSeasonCountdown();
 });
 window.startSeasonCountdown = startSeasonCountdown;
-
-
-// ==========================================
-// 🛒 إدارة نافذة الشراء وقسائم الخصم المتعددة (المصدر الوحيد للحقيقة للعبة الداخلية)
-// ==========================================
-window.openPurchaseModal = function(itemId, itemName, itemPrice, itemType) {
-    document.getElementById('modal-item-name').innerText = itemName;
-    const costEl = document.getElementById('modal-item-cost');
-    costEl.innerText = `🪙 السعر: ${formatCompactNumber(itemPrice)}`;
-    
-    const previewEl = document.getElementById('modal-item-preview');
-    if (previewEl) {
-        let itemData = window.STORE_ITEMS ? window.STORE_ITEMS[itemId] : null; 
-        if (!itemData && window.POPULARITY_ITEMS) {
-            const popItem = window.POPULARITY_ITEMS.find(p => p.id === itemId);
-            if (popItem) {
-                itemData = { isImage: true, imagePath: popItem.imagePath, isLegendary: false, type: 'popularity' };
-            }
-        }
-
-        previewEl.innerHTML = ''; 
-        previewEl.style.background = 'rgba(255,255,255,0.05)'; 
-        previewEl.style.backgroundImage = 'none';
-        
-        if(itemData) {
-            previewEl.style.border = itemData.isLegendary ? '1px solid #ffd700' : '1px solid rgba(255,255,255,0.1)'; 
-            previewEl.className = itemData.isLegendary ? 'purchase-preview-box legendary-icon' : 'purchase-preview-box';
-            if (itemData.isImage) { 
-                let imgUrl = itemData.imagePath || itemData.imagePathWhite || ''; 
-                previewEl.style.backgroundImage = `url('${imgUrl}')`; 
-                previewEl.style.backgroundSize = 'contain'; 
-                previewEl.style.backgroundRepeat = 'no-repeat';
-                previewEl.style.backgroundPosition = 'center'; 
-            } else if(itemType === 'pc') { 
-                previewEl.innerHTML = itemData.icon || '💎'; 
-            } else if(itemType === 'score') { 
-                previewEl.innerHTML = `<div style="width: 80%; height: 35px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2);"><div style="flex: 1; background: ${itemData.scoreBg2}; border-bottom: 1px solid rgba(255,255,255,0.1);"></div><div style="flex: 1; background: ${itemData.scoreBg1};"></div></div>`; 
-            } else if(itemType === 'bg' || itemType === 'fr') { 
-                if (itemData.cssLight && itemData.cssDark) { 
-                    previewEl.innerHTML = `<div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssLight}"></div><div style="flex:1; ${itemData.cssDark}"></div></div><div style="display:flex; flex:1;"><div style="flex:1; ${itemData.cssDark}"></div><div style="flex:1; ${itemData.cssLight}"></div></div>`; 
-                } else if (itemData.cssBoard) { 
-                    previewEl.innerHTML = `<div style="width:100%; height:100%; ${itemData.cssBoard} border-width:6px;"></div>`; 
-                } else { 
-                    previewEl.style.background = `linear-gradient(135deg, ${itemData.light || '#DEB887'} 50%, ${itemData.dark || '#8B4513'} 50%)`; 
-                } 
-            }
-        } else { 
-            previewEl.innerHTML = '🎁'; 
-            previewEl.className = 'purchase-preview-box'; 
-        }
-    }
-
-    window.currentPurchaseItem = { id: itemId, price: itemPrice, type: itemType };
-    
-    let profileStr = localStorage.getItem('hub_user_profile');
-    const profile = profileStr ? JSON.parse(profileStr) : {};
-    const discountContainer = document.getElementById('discount-selector-container');
-    const discountSelect = document.getElementById('discount-ticket-select');
-    
-    let availableTickets = [];
-    
-    if (Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
-        availableTickets = profile.discountTickets.map(t => typeof t === 'object' ? t.rate : t).filter(r => r > 0);
-    } 
-    else if (profile.discountTicket && profile.discountTicket > 0) {
-        availableTickets = [profile.discountTicket];
-    }
-
-    if (discountContainer && discountSelect) {
-        if (availableTickets.length > 0 && itemPrice > 0 && itemType !== 'popularity') {
-            discountContainer.style.display = 'flex';
-            discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
-            
-            availableTickets.sort((a, b) => b - a);
-            
-            availableTickets.forEach((rate) => {
-                let opt = document.createElement('option');
-                opt.value = rate;
-                opt.innerText = `خصم ${rate}% 🎫`;
-                discountSelect.appendChild(opt);
-            });
-
-            discountSelect.onchange = function() {
-                let selectedRate = parseInt(this.value) || 0;
-                if (selectedRate > 0) {
-                    let discountedPrice = Math.floor(itemPrice * (1 - (selectedRate / 100)));
-                    costEl.innerHTML = `🪙 السعر: <span style="text-decoration: line-through; color: #a1a1aa; font-size: 15px;">${formatCompactNumber(itemPrice)}</span> <span style="color: #30d158; margin-right: 5px;">${formatCompactNumber(discountedPrice)}</span>`;
-                } else {
-                    costEl.innerText = `🪙 السعر: ${formatCompactNumber(itemPrice)}`;
-                }
-            };
-            
-            discountSelect.value = "0";
-            discountSelect.dispatchEvent(new Event('change'));
-        } else {
-            discountContainer.style.display = 'none';
-        }
-    }
-
-    const buyBtn = document.getElementById('confirm-buy-btn');
-    if (buyBtn) {
-        buyBtn.innerText = "شراء الآن";
-        buyBtn.disabled = false;
-        
-        buyBtn.onclick = () => {
-            if (!window.currentPurchaseItem) return;
-            
-            let selectedDiscountRate = 0;
-            if (discountSelect && discountContainer && discountContainer.style.display !== 'none') {
-                selectedDiscountRate = parseInt(discountSelect.value) || 0;
-            }
-            
-            buyBtn.innerText = "جاري الشراء...";
-            buyBtn.disabled = true;
-
-            if (window.socket && window.socket.connected) {
-                // 🌟 الإصلاح السحري هنا: إضافة الهوية الصحيحة لطلب الشراء من اللعبة لكي لا يرفضه السيرفر
-                let safeProfileStr = localStorage.getItem('hub_user_profile');
-                let safeProfile = safeProfileStr ? JSON.parse(safeProfileStr) : null;
-                let validGuestId = (safeProfile && safeProfile.id) ? safeProfile.id : null;
-
-                window.socket.emit('requestPurchase', { 
-                    guestId: validGuestId,
-                    userId: validGuestId,
-                    itemId: window.currentPurchaseItem.id,
-                    appliedDiscountRate: selectedDiscountRate 
-                });
-            } else if (window.storeManager) {
-                window.storeManager.buyItem(window.currentPurchaseItem.id, window.currentPurchaseItem.type);
-            }
-            
-            setTimeout(() => { 
-                if (typeof window.closeAppModal === 'function') window.closeAppModal('purchase-modal'); 
-            }, 500);
-        };
-    }
-
-    if (typeof window.openAppModal === 'function') window.openAppModal('purchase-modal');
-};
