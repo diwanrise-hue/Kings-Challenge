@@ -1,6 +1,6 @@
 // damapro.js
 // مخصص لإضافة الإطارات الملكية للوحة الشرف، ونظام عرض شارات الـ VIP الديناميكي مع تأثير "اللهب المشتعل".
-// 🌟 (مُحدّث): ضبط قياس إطار الـ VIP ليكون مطابقاً تماماً لبطاقة اللاعب العادي مع إزالة التغويش (Blur).
+// 🌟 (مُحدّث جذرياً): استخدام نظام الصورة الخلفية (DOM Image) لضمان تطابق الحجم 100% وتدمير التغويش والظلال نهائياً.
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // 🌟 نظام عرض شارات وإطارات الـ VIP الديناميكي 🌟
 // ==========================================
 (function() {
-    // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP، اللهب، وإطارات البطاقات
+    // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP واللهب فقط
     const style = document.createElement('style');
     style.innerHTML = `
         /* 🌟 أنيميشن الطفو البطيء والانسيابي مع دوران كل 15 ثانية 🌟 */
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             100% { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(0 -8px 8px rgba(255,69,58,0.9)) drop-shadow(1px -13px 11px rgba(155,89,182,0.6)); }
         }
 
-        /* 👑 كلاسات شارة الـ VIP */
+        /* 👑 كلاسات شارة الـ VIP (شعلة النار) */
         .vip-badge-hub { position: absolute; top: 10px; left: 185px; width: 48px; height: 64px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d; }
         .vip-badge-match-me { position: absolute; bottom: -15px; right: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d; }
         .vip-badge-match-opp { position: absolute; bottom: -15px; left: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d; }
@@ -71,53 +71,26 @@ document.addEventListener('DOMContentLoaded', () => {
         .vip-glow-mixed  { animation: vipFloatAndSpin 15s infinite linear, vipFlameMixed 0.4s infinite alternate ease-in-out; }
 
         /* ========================================== */
-        /* 🌟 نظام الطبقات (الإطارات الكاملة للبطاقة) 🌟 */
+        /* 🌟 كلاس الإطار الجديد الذي يضمن الحجم الدقيق 🌟 */
         /* ========================================== */
-        
-        /* 1. إخفاء خلفية البطاقة الأصلية بالكامل وإلغاء التغويش (Blur) مع الحفاظ على نفس الحجم */
-        .vip-bg-lvl1, .vip-bg-lvl23, .vip-bg-lvl45 {
-            background: transparent !important;
-            border: 1.5px solid transparent !important; /* الاحتفاظ بالحدود شفافة للحفاظ على نفس القياس بالملي */
-            box-shadow: none !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
+        .vip-frame-img-layer {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: fill !important; /* هذا يجبر الإطار على الالتزام بحجم البطاقة تماماً */
+            z-index: 0 !important;
+            border-radius: 20px !important; /* نفس انحناء البطاقة */
+            pointer-events: none !important;
+            /* ظل نظيف مخصص للإطار فقط بعيداً عن تغويش اللعبة */
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)) !important; 
         }
 
-        /* 2. رفع العناصر داخل البطاقة (الأفاتار، الاسم) لتكون فوق الإطار */
-        .vip-bg-lvl1 > *, .vip-bg-lvl23 > *, .vip-bg-lvl45 > * {
+        /* رفع عناصر البطاقة لتظهر فوق الإطار */
+        .match-players-flex > div, .match-players-flex > span {
             position: relative;
             z-index: 2;
-        }
-
-        /* 3. الطبقة السحرية بحجم البطاقة الطبيعي تماماً (بدون تكبير) */
-        .vip-bg-lvl1::before, .vip-bg-lvl23::before, .vip-bg-lvl45::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1; /* خلف الأفاتار والاسم */
-            background-size: 100% 100% !important;
-            background-position: center !important;
-            background-repeat: no-repeat !important;
-            border-radius: 18px; /* تناسب انحناء البطاقة لتجنب الزوايا الحادة */
-            pointer-events: none;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.6); /* الظل الفخم */
-            /* التأكد من عدم وجود تغويش في الإطار نفسه */
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-        }
-
-        /* 4. ربط مسارات الصور لكل مستوى */
-        .vip-bg-lvl1::before {
-            background-image: url('Media/VIP/V1.webp?v=21'), url('Media/VIP/v1.webp?v=21') !important; 
-        }
-        .vip-bg-lvl23::before {
-            background-image: url('Media/VIP/V23.webp?v=21'), url('Media/VIP/v23.webp?v=21') !important; 
-        }
-        .vip-bg-lvl45::before {
-            background-image: url('Media/VIP/45.webp?v=21') !important; 
         }
     `;
     document.head.appendChild(style);
@@ -147,35 +120,56 @@ document.addEventListener('DOMContentLoaded', () => {
         let badge = parent.querySelector('.' + badgeClass);
         let lvl = parseInt(vipLevel) || 0;
 
-        // 🌟 تطبيق الإطارات الجديدة بنظام الكلاسات الجديد
+        // 🌟 تطبيق الإطارات عبر DOM بدلاً من الـ CSS لضمان السيطرة المطلقة 🌟
         if (matchCardContainer) {
-            // تنظيف الكلاسات القديمة
-            matchCardContainer.classList.remove('vip-bg-lvl1', 'vip-bg-lvl23', 'vip-bg-lvl45');
-            
-            // حقن قوي لضمان اختفاء الخلفية الرمادية القديمة دون التأثير على الحجم
-            matchCardContainer.style.setProperty('background', 'transparent', 'important');
-            matchCardContainer.style.setProperty('border-color', 'transparent', 'important');
-            matchCardContainer.style.setProperty('backdrop-filter', 'none', 'important');
-            matchCardContainer.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
-            
-            // إضافة الإطار المناسب
-            if (lvl === 1) {
-                matchCardContainer.classList.add('vip-bg-lvl1');
-            } else if (lvl === 2 || lvl === 3) {
-                matchCardContainer.classList.add('vip-bg-lvl23');
-            } else if (lvl >= 4) {
-                matchCardContainer.classList.add('vip-bg-lvl45');
+            let frameImg = matchCardContainer.querySelector('.vip-frame-img-layer');
+
+            if (lvl > 0) {
+                // 1. تدمير كل مؤثرات البطاقة القديمة (التغويش، الخلفية، الحدود، الظل)
+                matchCardContainer.style.setProperty('background', 'transparent', 'important');
+                matchCardContainer.style.setProperty('background-color', 'transparent', 'important');
+                matchCardContainer.style.setProperty('border', 'none', 'important');
+                matchCardContainer.style.setProperty('box-shadow', 'none', 'important');
+                matchCardContainer.style.setProperty('backdrop-filter', 'none', 'important');
+                matchCardContainer.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+
+                // 2. إنشاء طبقة الإطار إذا لم تكن موجودة
+                if (!frameImg) {
+                    frameImg = document.createElement('img');
+                    frameImg.className = 'vip-frame-img-layer';
+                    // نضعه كأول عنصر ليصبح في الخلفية
+                    matchCardContainer.insertBefore(frameImg, matchCardContainer.firstChild);
+                }
+
+                // 3. تحديد الصورة المناسبة للمستوى (تمت إضافة v=30 لتخطي الكاش)
+                if (lvl === 1) {
+                    frameImg.src = 'Media/VIP/V1.webp?v=30';
+                } else if (lvl === 2 || lvl === 3) {
+                    frameImg.src = 'Media/VIP/V23.webp?v=30';
+                } else if (lvl >= 4) {
+                    frameImg.src = 'Media/VIP/45.webp?v=30';
+                }
+
+            } else {
+                // في حال انقضاء الـ VIP يتم حذف الإطار واستعادة شكل اللعبة العادي
+                if (frameImg) frameImg.remove();
+                matchCardContainer.style.removeProperty('background');
+                matchCardContainer.style.removeProperty('background-color');
+                matchCardContainer.style.removeProperty('border');
+                matchCardContainer.style.removeProperty('box-shadow');
+                matchCardContainer.style.removeProperty('backdrop-filter');
+                matchCardContainer.style.removeProperty('-webkit-backdrop-filter');
             }
         }
 
-        // إضافة شارة اللهب
+        // إضافة شارة اللهب (VIP Badge)
         if (lvl > 0) {
             if (!badge) {
                 badge = document.createElement('img');
                 parent.appendChild(badge);
             }
             
-            // تحديد اللهب
+            // تحديد لون اللهب
             let glowClass = 'vip-glow-white'; 
             if (lvl === 1 || lvl === 2) glowClass = 'vip-glow-white';
             else if (lvl === 3) glowClass = 'vip-glow-purple';
