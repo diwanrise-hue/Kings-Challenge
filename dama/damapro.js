@@ -1,6 +1,6 @@
 // damapro.js
 // مخصص لإضافة الإطارات الملكية للوحة الشرف، ونظام عرض شارات الـ VIP الديناميكي مع تأثير "اللهب المشتعل".
-// 🌟 (مُحدّث جذرياً): دعم كامل لجميع إطارات البطاقات حسب مستوى الـ VIP مع إضافة (Force Cache Clear) لضمان ظهور الصور الجديدة.
+// 🌟 (مُحدّث جذرياً): حل مشكلة حساسية الحروف في خوادم GitHub باستخدام (Dual-URL Fallback) وتدمير الكاش.
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -34,28 +34,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /* 🔥 أنيميشن ألسنة اللهب المتصاعدة بالـ CSS 🔥 */
-        
         @keyframes vipFlameWhite {
             0%   { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(0 -5px 6px rgba(200,200,255,0.9)) drop-shadow(2px -12px 10px rgba(150,150,255,0.5)); }
             33%  { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(-3px -8px 8px rgba(255,255,255,0.9)) drop-shadow(-2px -16px 12px rgba(200,200,255,0.4)); }
             66%  { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(2px -6px 7px rgba(200,200,255,0.9)) drop-shadow(3px -14px 15px rgba(255,255,255,0.6)); }
             100% { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(0 -5px 6px rgba(255,255,255,0.9)) drop-shadow(1px -12px 12px rgba(150,150,255,0.5)); }
         }
-        
         @keyframes vipFlamePurple {
             0%   { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(0 -5px 6px rgba(190,40,210,0.9)) drop-shadow(2px -12px 10px rgba(255,100,255,0.5)); }
             33%  { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(-3px -8px 8px rgba(155,89,182,0.9)) drop-shadow(-2px -16px 12px rgba(220,80,255,0.4)); }
             66%  { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(2px -6px 7px rgba(190,40,210,0.9)) drop-shadow(3px -14px 15px rgba(255,150,255,0.6)); }
             100% { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(0 -5px 6px rgba(155,89,182,0.9)) drop-shadow(1px -12px 12px rgba(220,80,255,0.5)); }
         }
-        
         @keyframes vipFlameRed {
             0%   { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(0 -5px 6px rgba(255,69,58,0.9)) drop-shadow(2px -12px 10px rgba(255,165,0,0.6)); }
             33%  { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(-3px -8px 8px rgba(255,69,58,0.9)) drop-shadow(-2px -16px 12px rgba(255,215,0,0.4)); }
             66%  { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(2px -6px 7px rgba(220,20,20,0.9)) drop-shadow(3px -14px 15px rgba(255,140,0,0.6)); }
             100% { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(0 -5px 6px rgba(255,69,58,0.9)) drop-shadow(1px -12px 12px rgba(255,165,0,0.5)); }
         }
-        
         @keyframes vipFlameMixed {
             0%   { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(-2px -7px 8px rgba(255,69,58,0.9)) drop-shadow(2px -14px 12px rgba(155,89,182,0.6)); }
             33%  { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(3px -9px 9px rgba(155,89,182,0.9)) drop-shadow(-3px -16px 10px rgba(255,215,0,0.5)); }
@@ -64,15 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /* 👑 كلاسات شارة الـ VIP */
-        .vip-badge-hub {
-            position: absolute; top: 10px; left: 185px; width: 48px; height: 64px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d;
-        }
-        .vip-badge-match-me {
-            position: absolute; bottom: -15px; right: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d;
-        }
-        .vip-badge-match-opp {
-            position: absolute; bottom: -15px; left: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d;
-        }
+        .vip-badge-hub { position: absolute; top: 10px; left: 185px; width: 48px; height: 64px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d; }
+        .vip-badge-match-me { position: absolute; bottom: -15px; right: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d; }
+        .vip-badge-match-opp { position: absolute; bottom: -15px; left: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d; }
 
         /* 🎨 تأثيرات اللهب */
         .vip-glow-white  { animation: vipFloatAndSpin 15s infinite linear, vipFlameWhite 0.4s infinite alternate ease-in-out; }
@@ -82,13 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* ========================================== */
         /* 🌟 إطارات البطاقات المتعددة حسب المستوى 🌟 */
-        /* ملاحظة: تم إضافة (?v=2) لإجبار اللعبة على تحميل الصور الجديدة */
         /* ========================================== */
         
-        /* إطار مستوى VIP 1 */
+        /* إطار مستوى VIP 1 (خدعة المسار المزدوج لتخطي حساسية الحروف) */
         .vip-bg-lvl1 {
-            background: url('Media/VIP/V1.webp?v=2') no-repeat center center !important; 
-            background-size: 100% 100% !important;
+            background-image: url('Media/VIP/V1.webp?v=10'), url('Media/VIP/v1.webp?v=10') !important; 
+            background-size: 100% 100%, 100% 100% !important;
+            background-position: center, center !important;
+            background-repeat: no-repeat, no-repeat !important;
             background-color: transparent !important;
             border: none !important; 
             box-shadow: none !important;
@@ -96,8 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* إطار مستوى VIP 2 و 3 */
         .vip-bg-lvl23 {
-            background: url('Media/VIP/V23.webp?v=2') no-repeat center center !important; 
-            background-size: 100% 100% !important;
+            background-image: url('Media/VIP/V23.webp?v=10'), url('Media/VIP/v23.webp?v=10') !important; 
+            background-size: 100% 100%, 100% 100% !important;
+            background-position: center, center !important;
+            background-repeat: no-repeat, no-repeat !important;
             background-color: transparent !important;
             border: none !important; 
             box-shadow: none !important;
@@ -105,20 +98,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* إطار مستوى VIP 4 و 5 */
         .vip-bg-lvl45 {
-            background: url('Media/VIP/45.webp?v=2') no-repeat center center !important; 
+            background-image: url('Media/VIP/45.webp?v=10') !important; 
             background-size: 100% 100% !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
             background-color: transparent !important;
             border: none !important; 
             box-shadow: none !important;
         }
 
-        /* 🌟 إلغاء تأثير الضباب (Blur) من اللعبة لجميع الإطارات 🌟 */
-        .vip-bg-lvl1::before, .vip-bg-lvl1::after, .vip-bg-lvl1 > div,
-        .vip-bg-lvl23::before, .vip-bg-lvl23::after, .vip-bg-lvl23 > div,
-        .vip-bg-lvl45::before, .vip-bg-lvl45::after, .vip-bg-lvl45 > div {
-            background-color: transparent !important;
+        /* 🌟 تدمير تأثير الضباب (Blur) من اللعبة تماماً لجميع الإطارات 🌟 */
+        .vip-bg-lvl1::before, .vip-bg-lvl1::after,
+        .vip-bg-lvl23::before, .vip-bg-lvl23::after,
+        .vip-bg-lvl45::before, .vip-bg-lvl45::after {
+            background: transparent !important;
             backdrop-filter: none !important; 
             box-shadow: none !important;
+            border: none !important;
         }
     `;
     document.head.appendChild(style);
@@ -138,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
             badgeClass = 'vip-badge-hub';
             parent = parentNode;
         } else {
-            // تحديد البطاقة الكاملة (المربع الرمادي) داخل المباراة
+            // تحديد البطاقة الكاملة داخل المباراة
             matchCardContainer = avatarDiv.closest('.match-players-flex');
             if (!matchCardContainer) return;
             badgeClass = (avatarContainerId === 'card-my-avatar') ? 'vip-badge-match-me' : 'vip-badge-match-opp';
@@ -148,43 +144,45 @@ document.addEventListener('DOMContentLoaded', () => {
         let badge = parent.querySelector('.' + badgeClass);
         let lvl = parseInt(vipLevel) || 0;
 
-        // 🌟 تطبيق الإطارات الجديدة حسب المستوى وإزالة الإطارات غير المطابقة
+        // 🌟 تطبيق الإطارات الجديدة بقوة
         if (matchCardContainer) {
-            // أولاً: تنظيف البطاقة من أي إطار سابق لتجنب التداخل
+            // تنظيف الكلاسات القديمة
             matchCardContainer.classList.remove('vip-bg-lvl1', 'vip-bg-lvl23', 'vip-bg-lvl45');
             
-            // ثانياً: إضافة الإطار المطابق للمستوى الحالي
+            // حقن قوي للشفافية عبر الـ JS لضمان اختفاء خلفية الخصم
+            matchCardContainer.style.setProperty('background-color', 'transparent', 'important');
+            matchCardContainer.style.setProperty('border', 'none', 'important');
+            
+            // إضافة الإطار المناسب
             if (lvl === 1) {
                 matchCardContainer.classList.add('vip-bg-lvl1');
             } else if (lvl === 2 || lvl === 3) {
                 matchCardContainer.classList.add('vip-bg-lvl23');
-            } else if (lvl === 4 || lvl >= 5) {
+            } else if (lvl >= 4) {
                 matchCardContainer.classList.add('vip-bg-lvl45');
             }
         }
 
-        // إذا كان يمتلك مستوى VIP أعلى من 0 (إضافة شارة اللهب)
+        // إضافة شارة اللهب
         if (lvl > 0) {
             if (!badge) {
                 badge = document.createElement('img');
                 parent.appendChild(badge);
             }
             
-            // 🌟 تحديد اللهب المناسب للمستوى
+            // تحديد اللهب
             let glowClass = 'vip-glow-white'; 
             if (lvl === 1 || lvl === 2) glowClass = 'vip-glow-white';
             else if (lvl === 3) glowClass = 'vip-glow-purple';
             else if (lvl === 4) glowClass = 'vip-glow-red';
             else if (lvl >= 5) glowClass = 'vip-glow-mixed';
 
-            // تطبيق الكلاسات ومسار الصورة
             badge.className = `${badgeClass} ${glowClass}`;
             badge.src = `Media/VIP/vip${lvl}.webp`;
             
             badge.onerror = function() { this.style.display = 'none'; };
             badge.style.display = 'block';
         } else {
-            // إخفاء الشارة إذا لم يكن VIP
             if (badge) badge.style.display = 'none';
         }
     };
@@ -228,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000); 
     });
 
-    // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة والإطارات في حال تغير الساحة
+    // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة والإطارات
     setInterval(() => {
         try {
             let profileStr = localStorage.getItem('hub_user_profile');
