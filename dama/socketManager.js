@@ -2,12 +2,11 @@
 /**
  * socketManager.js
  * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
- * تم ضبط نظام الغرف ليعمل في الخلفية بسلاسة (Background Hosting).
- * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد (3D Pedestal).
- * 🛡️ (مُحدّث جديد): نظام استعادة الاتصال (Reconnection) يعتمد 100% على السيرفر (Server-Authoritative).
+ * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد.
+ * 🛡️ (مُحدّث جديد): نظام استعادة الاتصال (Reconnection) شامل للاعبين والمشاهدين.
  * 💎 (مُحدّث جديد): إضافة شارة הـ VIP للغرف المتاحة في اللوبي.
  * 🚀 (مُحدّث جذرياً): حل شلل الأكل المتعدد في الأونلاين (Multi-Jump Path Sync).
- * 🛡️ (مُحدّث جذرياً): منع اختطاف اللاعب من غرفته الخاصة عبر إخراجه من الـ Matchmaking.
+ * 🛡️ (مُحدّث جذرياً): منع اختطاف اللاعب، منع الرهانات السالبة، وحماية من XSS.
  */
 
 import { gameState } from './gameState.js'; 
@@ -489,7 +488,6 @@ export const socketManager = {
                     frameHTML = `<img src="${miniFramesDB[hostFrame]}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));">`;
                 }
 
-                // 🌟 إضافة شارة الـ VIP للغرف
                 let vipHTML = '';
                 let platformVipHTML = '';
                 if (r.hostVipLevel && parseInt(r.hostVipLevel) > 0) {
@@ -610,7 +608,13 @@ export const socketManager = {
             socket.volatile.emit('clientPing', Date.now()); 
 
             const profile = this._ensureUserProfile();
-            socket.emit('deviceFingerprint', { guestId: profile.id });
+            
+            // 🌟 الحل الجذري: إعادة ربط المشاهد بالبث الحي فور عودة الاتصال
+            if (gameState.isSpectator && gameState.onlineRoomID) {
+                socket.emit('joinSpectator', { roomID: String(gameState.onlineRoomID).trim(), guestId: profile.id });
+            } else {
+                socket.emit('deviceFingerprint', { guestId: profile.id });
+            }
             
             socket.emit('requestActiveRooms');
             
@@ -1198,7 +1202,12 @@ export const socketManager = {
             const openBtn = document.getElementById('challenge-toast-open-btn');
             
             if (toast && toastMsg && openBtn) {
-                toastMsg.innerHTML = `اللاعب <b>${challengerName}</b> يتحداك ${betText}.`;
+                // 🌟 الحل الجذري: حماية الواجهة من أكواد الاختراق XSS
+                const safeNameDiv = document.createElement('div');
+                safeNameDiv.innerText = challengerName;
+                const safeName = safeNameDiv.innerHTML;
+
+                toastMsg.innerHTML = `اللاعب <b>${safeName}</b> يتحداك ${betText}.`;
                 toast.style.right = '15px'; 
                 
                 const hideTimeout = setTimeout(() => { toast.style.right = '-320px'; }, 15000);
@@ -1213,7 +1222,7 @@ export const socketManager = {
                     const rejectBtn = document.getElementById('challenge-reject-btn');
                     
                     if (actionModal && actionMsg) {
-                        actionMsg.innerHTML = `هل تقبل تحدي <b>${challengerName}</b> ${betText}؟`;
+                        actionMsg.innerHTML = `هل تقبل تحدي <b>${safeName}</b> ${betText}؟`;
                         actionModal.style.display = 'flex';
                         
                         acceptBtn.onclick = () => {
@@ -1520,10 +1529,13 @@ export const socketManager = {
 
         const profile = this._ensureUserProfile();
         
+        // 🌟 الحل الجذري: القضاء على الأرقام السالبة والوهمية من المنبع
+        const safeBet = Math.max(0, parseInt(betAmount) || 0);
+        
         const challengePayload = {
             targetId: friendId,
             challengerName: profile.name,
-            betAmount: betAmount
+            betAmount: safeBet
         };
 
         this._safeEmit('sendChallenge', challengePayload);
