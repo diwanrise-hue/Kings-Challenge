@@ -1,6 +1,6 @@
 // damapro.js
 // مخصص لإضافة الإطارات الملكية للوحة الشرف، ونظام عرض شارات الـ VIP الديناميكي مع تأثير "اللهب المشتعل".
-// 🌟 (مُحدّث جذرياً): دعم كامل لجميع إطارات البطاقات حسب مستوى الـ VIP (V1, V23, 45) مع إزالة الضبابية.
+// 🌟 (مُحدّث جذرياً): دعم كامل لجميع إطارات البطاقات حسب مستوى الـ VIP مع إضافة (Force Cache Clear) لضمان ظهور الصور الجديدة.
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -82,11 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* ========================================== */
         /* 🌟 إطارات البطاقات المتعددة حسب المستوى 🌟 */
+        /* ملاحظة: تم إضافة (?v=2) لإجبار اللعبة على تحميل الصور الجديدة */
         /* ========================================== */
         
         /* إطار مستوى VIP 1 */
         .vip-bg-lvl1 {
-            background: url('Media/VIP/V1.webp') no-repeat center center !important; 
+            background: url('Media/VIP/V1.webp?v=2') no-repeat center center !important; 
             background-size: 100% 100% !important;
             background-color: transparent !important;
             border: none !important; 
@@ -95,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* إطار مستوى VIP 2 و 3 */
         .vip-bg-lvl23 {
-            background: url('Media/VIP/V23.webp') no-repeat center center !important; 
+            background: url('Media/VIP/V23.webp?v=2') no-repeat center center !important; 
             background-size: 100% 100% !important;
             background-color: transparent !important;
             border: none !important; 
@@ -104,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* إطار مستوى VIP 4 و 5 */
         .vip-bg-lvl45 {
-            background: url('Media/VIP/45.webp') no-repeat center center !important; 
+            background: url('Media/VIP/45.webp?v=2') no-repeat center center !important; 
             background-size: 100% 100% !important;
             background-color: transparent !important;
             border: none !important; 
