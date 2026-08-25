@@ -103,6 +103,7 @@ export const hintSystem = {
                 showGlow(syncMove || eleganceMoves[0]);
             }, fallbackWaitTime + 500);
 
+            // 🛠️ الإصلاح: تعريف الأحداث (onmessage, onerror) قبل الإرسال لحمايتها من الضياع
             worker.onmessage = (e) => {
                 clearTimeout(fallbackSafetyTimer);
                 worker.onmessage = null; 
@@ -117,7 +118,7 @@ export const hintSystem = {
                 worker.onerror = null;
                 let syncMove = gameAI.minimax(gameState.virtualBoard, 4, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
                 showGlow(syncMove || eleganceMoves[0]);
-            }
+            };
             
             worker.postMessage({ 
                 board: gameState.virtualBoard, 
