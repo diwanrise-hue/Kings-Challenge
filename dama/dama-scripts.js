@@ -3,6 +3,7 @@
  * المساعد العام للتنسيق والمزامنة
  * 🌟 (مُحدّث): سقف مراهنات הـ VIP العالي للمشاهدين، ودالة تأكيد الرهان.
  * 🌟 (مُحدّث أمني): تشفير هوية الخصم (Masked ID) لمنع انتحال الشخصية.
+ * 🚷 (مُحدّث جديد): إضافة دوال جلب قائمة المشاهدين وطرد الهاكرز (VIP 4+).
  */
 
 function formatCompactNumber(num) {
@@ -439,3 +440,87 @@ document.addEventListener('DOMContentLoaded', () => {
     startSeasonCountdown();
 });
 window.startSeasonCountdown = startSeasonCountdown;
+
+// ==========================================
+// 🚷 نظام إدارة وطرد المشاهدين (VIP 4+)
+// ==========================================
+window.requestSpectatorList = function() {
+    if (!window.gameState || !window.gameState.onlineRoomID) return;
+    
+    const container = document.getElementById('spectators-items-container');
+    const desc = document.getElementById('spectators-list-desc');
+    if (container) container.innerHTML = '';
+    if (desc) desc.innerText = "جاري جلب القائمة...";
+    
+    window.openAppModal('spectators-list-modal');
+    
+    if (window.socket && window.socket.connected) {
+        window.socket.emit('requestSpectatorsList', { roomID: window.gameState.onlineRoomID });
+    }
+};
+
+window.renderSpectatorsList = function(spectators) {
+    const container = document.getElementById('spectators-items-container');
+    const desc = document.getElementById('spectators-list-desc');
+    if (!container || !desc) return;
+    
+    container.innerHTML = '';
+    
+    if (!spectators || spectators.length === 0) {
+        desc.innerText = "لا يوجد مشاهدين حالياً.";
+        return;
+    }
+    
+    desc.innerText = `عدد المشاهدين الحاليين: ${spectators.length}`;
+    
+    // التحقق مما إذا كان المستخدم هو صاحب الغرفة و VIP 4 أو 5
+    let isHost = (window.matchPlayer1Id === window.gameState.userProfile.id);
+    let isVipAdmin = (window.gameState.userProfile.vipLevel >= 4);
+    let canKick = isHost && isVipAdmin;
+
+    spectators.forEach(spec => {
+        let specAvatar = spec.avatar || '1000132081.webp';
+        if (!specAvatar.startsWith('http') && !specAvatar.startsWith('data:')) {
+            specAvatar = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + specAvatar.replace(/\.\.\//g, '').replace('Photo/', '');
+        }
+        
+        let vipIcon = spec.vipLevel > 0 ? `<img src="Media/VIP/vip${spec.vipLevel}.webp" style="width: 16px; height: 16px; margin-right: 4px;" onerror="this.style.display='none';">` : '';
+
+        let kickBtnHTML = canKick ? `
+            <button onclick="window.kickSpectator('${spec.id}', '${spec.name}')" title="طرد المشاهد" style="background: rgba(255, 69, 58, 0.15); border: 1px solid rgba(255, 69, 58, 0.4); color: #ff453a; border-radius: 8px; width: 32px; height: 32px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.2s;" onmouseover="this.style.background='rgba(255, 69, 58, 0.3)'" onmouseout="this.style.background='rgba(255, 69, 58, 0.15)'">
+                🚷
+            </button>
+        ` : '';
+
+        let itemEl = document.createElement('div');
+        itemEl.style.cssText = "display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);";
+        
+        itemEl.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
+                <img src="${specAvatar}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.2);">
+                <div style="display: flex; flex-direction: column; overflow: hidden;">
+                    <span style="color: white; font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center;">${spec.name} ${vipIcon}</span>
+                </div>
+            </div>
+            ${kickBtnHTML}
+        `;
+        container.appendChild(itemEl);
+    });
+};
+
+window.kickSpectator = function(targetId, targetName) {
+    if (!window.gameState || !window.gameState.onlineRoomID) return;
+    
+    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+        window.ui.showCustomAlert(
+            `هل أنت متأكد من طرد المشاهد "${targetName}"؟\nلن يتمكن من العودة لهذه المباراة مجدداً.`,
+            "طرد مشاهد 🚷",
+            () => {
+                if (window.socket && window.socket.connected) {
+                    window.socket.emit('kickSpectator', { roomID: window.gameState.onlineRoomID, targetId: targetId });
+                }
+            },
+            true, "إلغاء", "طرد"
+        );
+    }
+};
