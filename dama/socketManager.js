@@ -326,7 +326,7 @@ export const socketManager = {
             'activeRoomsList', 'mic-request', 'mic-response', 'spectatorJoined', 'spectatorCountChanged',
             'spectatorBetsUpdated', 'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData', 'gameOverByServer',
             'matchCountdown', 'countdownAborted', 'serverNotification',
-            'receiveSpectatorsList', 'kickedFromRoom' // إيقاف الأحداث الجديدة أيضاً
+            'receiveSpectatorsList', 'kickedFromRoom'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
@@ -430,7 +430,6 @@ export const socketManager = {
                 return;
             }
             
-            // 🌟 فرز الغرف: غرفتي أولاً، ثم غرف הـ VIP (من الأعلى للأقل)، ثم الغرف العادية
             rooms.sort((a, b) => {
                 const isAMine = (a.hostId === currentUserId);
                 const isBMine = (b.hostId === currentUserId);
@@ -616,7 +615,6 @@ export const socketManager = {
 
             const profile = this._ensureUserProfile();
             
-            // 🌟 إعادة ربط المشاهد بالبث الحي فور عودة الاتصال
             if (gameState.isSpectator && gameState.onlineRoomID) {
                 socket.emit('joinSpectator', { roomID: String(gameState.onlineRoomID).trim(), guestId: profile.id });
             } else {
@@ -734,7 +732,6 @@ export const socketManager = {
             this._showToast(msg);
         });
 
-        // 🌟 الميزة الملكية: أحداث قائمة المشاهدين والطرد
         socket.on('receiveSpectatorsList', (list) => {
             if (typeof window.renderSpectatorsList === 'function') {
                 window.renderSpectatorsList(list);
@@ -855,7 +852,6 @@ export const socketManager = {
                 gameState.onlineRoomID = data.roomID;
             }
 
-            // 🌟 حفظ بيانات الخصم والـ ID الخاص به لعمل متجر الشعبية
             window.currentOpponentData = data.opponent;
             window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
 
@@ -1009,7 +1005,9 @@ export const socketManager = {
             gameState.isGameActive = false;
 
             if (!gameState.isSpectator) {
-                gameEngine.endGame(gameState.myOnlineColor);
+                if (typeof gameEngine.endGame === 'function') {
+                    gameEngine.endGame(gameState.myOnlineColor);
+                }
                 this._showToast(getNotifyMsg('oppResignedWin'));
             } else {
                 this._showToast(getNotifyMsg('oppResignedSpec'));
@@ -1030,7 +1028,9 @@ export const socketManager = {
             const winnerColor = (data && data.winner) ? data.winner : gameState.myOnlineColor;
             
             if (!gameState.isSpectator) {
-                gameEngine.endGame(winnerColor);
+                if (typeof gameEngine.endGame === 'function') {
+                    gameEngine.endGame(winnerColor);
+                }
                 if (winnerColor === 'draw') {
                     this._showToast(getNotifyMsg('timeoutDraw'));
                 } else if (winnerColor === gameState.myOnlineColor) {
@@ -1227,7 +1227,7 @@ export const socketManager = {
             const openBtn = document.getElementById('challenge-toast-open-btn');
             
             if (toast && toastMsg && openBtn) {
-                // 🌟 حماية الواجهة من أكواد الاختراق XSS
+                // 🛡️ حماية الواجهة من أكواد الاختراق XSS
                 const safeNameDiv = document.createElement('div');
                 safeNameDiv.innerText = challengerName;
                 const safeName = safeNameDiv.innerHTML;
@@ -1343,7 +1343,6 @@ export const socketManager = {
             
             gameState.lastMyMove = { fromR: Number(fromR), fromC: Number(fromC), toR: Number(toR), toC: Number(toC) };
             
-            // 🌟 الإصلاح الجذري: تحديد مسار الأكل المتعدد لإرساله للسيرفر لحل شلل حركة الأونلاين
             let movePath = null;
             if (Array.isArray(boardStateOrPath) && boardStateOrPath.length > 0 && boardStateOrPath[0].fromR !== undefined) {
                 movePath = boardStateOrPath; 
@@ -1371,7 +1370,11 @@ export const socketManager = {
             socket.emit('playerResigned', { roomID: String(gameState.onlineRoomID).trim() }); 
             gameState.isGameOver = true;
             gameState.isGameActive = false;
-            gameEngine.handleSurrender(gameState.myOnlineColor);
+            
+            // بدلاً من إنهاء اللعبة محلياً فوراً، ننتظر السيرفر، أو على الأقل ننفذ التنظيف محلياً بأمان
+            if (typeof gameEngine.handleSurrender === 'function') {
+                gameEngine.handleSurrender(gameState.myOnlineColor);
+            }
             if(gameState.turnTimerInterval) clearInterval(gameState.turnTimerInterval);
         }
     },
@@ -1475,7 +1478,6 @@ export const socketManager = {
         }
     },
 
-    // 🌟 دعم تمرير roomTitle للميزات الملكية للـ VIP 3+
     handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0, allowSpectatorBetting = true, roomTitle = null) {
         let targetAction = action;
 
@@ -1483,7 +1485,6 @@ export const socketManager = {
             targetAction = 'joinMatchmakingPool';
         }
 
-        // 🌟 الخروج من طابور البحث العشوائي عند إنشاء أو دخول غرفة خاصة
         if (targetAction === 'createRoom' || targetAction === 'joinRoom') {
             if (socket.connected) socket.emit('leaveMatchmakingPool');
         }
@@ -1494,6 +1495,7 @@ export const socketManager = {
         }
         
         const profile = this._ensureUserProfile();
+        const safeBetAmount = Math.max(0, parseInt(betAmount) || 0); // 🛡️
 
         const dataPayload = { 
             roomID: roomIdInput ? String(roomIdInput).trim() : null, 
@@ -1501,14 +1503,14 @@ export const socketManager = {
             avatar: profile.avatar, 
             password: roomPassword, 
             guestId: profile.id,
-            betAmount: betAmount,
+            betAmount: safeBetAmount,
             allowSpectatorBetting: allowSpectatorBetting,
             xp: profile.xp || 0,
             equippedBg: profile.equippedBg || 'bg_wood',
             equippedPc: profile.equippedPc || 'pc_original',
             equippedProfileFrame: profile.equippedProfileFrame || null,
             syncThemeOptOut: profile.syncThemeOptOut === true,
-            roomTitle: roomTitle // 👑 تمرير العنوان المخصص
+            roomTitle: roomTitle 
         };
 
         if (roomIdInput && targetAction !== 'joinMatchmakingPool') {
@@ -1541,7 +1543,8 @@ export const socketManager = {
     placeSpectatorBet(roomID, color, amount) {
         if (!socket.connected) return;
         const profile = this._ensureUserProfile();
-        socket.emit('placeSpectatorBet', { roomID: roomID, color: color, amount: amount, guestId: profile.id });
+        const safeAmount = Math.max(0, parseInt(amount) || 0); // 🛡️ منع الرهانات الوهمية أو السالبة
+        socket.emit('placeSpectatorBet', { roomID: roomID, color: color, amount: safeAmount, guestId: profile.id });
     },
 
     showStatusMsg(msg) {
@@ -1555,7 +1558,7 @@ export const socketManager = {
 
         const profile = this._ensureUserProfile();
         
-        // 🌟 القضاء على الأرقام السالبة والوهمية من المنبع
+        // 🛡️ القضاء على الأرقام السالبة والوهمية من المنبع
         const safeBet = Math.max(0, parseInt(betAmount) || 0);
         
         const challengePayload = {
