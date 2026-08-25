@@ -1,6 +1,6 @@
 // damapro.js
 // مخصص لإضافة الإطارات الملكية للوحة الشرف، ونظام عرض شارات الـ VIP الديناميكي مع تأثير "اللهب المشتعل".
-// 🌟 (مُحدّث جذرياً): تم حل مشكلة تدمير الـ Hook لضمان التحديث اللحظي للشارة بفضل الحقن الآمن.
+// 🌟 (مُحدّث جذرياً): تم حل مشكلة تدمير الـ Hook لضمان التحديث اللحظي للشارة بفضل الحقن الآمن، وتمت إضافة إطار فخم لبطاقات VIP 4 و 5.
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // 🌟 نظام عرض شارات الـ VIP الديناميكي داخل لعبة الدامة 🌟
 // ==========================================
 (function() {
-    // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP ولهب الطاقة برمجياً
+    // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP ولهب الطاقة والإطارات برمجياً
     const style = document.createElement('style');
     style.innerHTML = `
         /* 🌟 أنيميشن الطفو البطيء والانسيابي مع دوران كل 15 ثانية 🌟 */
@@ -114,10 +114,20 @@ document.addEventListener('DOMContentLoaded', () => {
         .vip-glow-purple { animation: vipFloatAndSpin 15s infinite linear, vipFlamePurple 0.4s infinite alternate ease-in-out; }
         .vip-glow-red    { animation: vipFloatAndSpin 15s infinite linear, vipFlameRed 0.4s infinite alternate ease-in-out; }
         .vip-glow-mixed  { animation: vipFloatAndSpin 15s infinite linear, vipFlameMixed 0.4s infinite alternate ease-in-out; }
+
+        /* 🌟 إطار بطاقة اللاعب الخاصة بـ VIP 4 و VIP 5 🌟 */
+        .premium-vip-card-bg {
+            background-image: url('Media/VIP/1000149020.webp') !important; 
+            background-size: 100% 100% !important; /* مط الإطار ليغطي البطاقة بالكامل */
+            background-repeat: no-repeat !important;
+            background-color: transparent !important; /* إخفاء لون البطاقة الافتراضي */
+            border: none !important; 
+            box-shadow: none !important;
+        }
     `;
     document.head.appendChild(style);
 
-    // 2. دالة رسم أو تحديث شارة الـ VIP مع تحديد لون اللهب
+    // 2. دالة رسم أو تحديث شارة الـ VIP والإطار الفخم
     window.updateVipBadgeUI = function(avatarContainerId, vipLevel) {
         const avatarDiv = document.getElementById(avatarContainerId);
         if (!avatarDiv) return;
@@ -126,26 +136,37 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!parentNode) return;
 
         let parent, badgeClass;
+        let matchCardContainer = null; // متغير لحفظ حاوية البطاقة بالكامل
+
         if (avatarContainerId === 'badge-avatar') {
             badgeClass = 'vip-badge-hub';
             parent = parentNode;
         } else {
-            const matchCardParent = avatarDiv.closest('.match-players-flex');
-            if (!matchCardParent) return;
+            // تحديد البطاقة الكاملة (المربع الرمادي) داخل المباراة
+            matchCardContainer = avatarDiv.closest('.match-players-flex');
+            if (!matchCardContainer) return;
             badgeClass = (avatarContainerId === 'card-my-avatar') ? 'vip-badge-match-me' : 'vip-badge-match-opp';
-            parent = matchCardParent; 
+            parent = matchCardContainer; 
         }
         
         let badge = parent.querySelector('.' + badgeClass);
-        
+        let lvl = parseInt(vipLevel) || 0;
+
+        // 🌟 تطبيق أو إزالة الإطار الفخم لـ VIP 4 و 5
+        if (matchCardContainer) {
+            if (lvl === 4 || lvl === 5) {
+                matchCardContainer.classList.add('premium-vip-card-bg');
+            } else {
+                matchCardContainer.classList.remove('premium-vip-card-bg');
+            }
+        }
+
         // إذا كان يمتلك مستوى VIP أعلى من 0
-        if (vipLevel && parseInt(vipLevel) > 0) {
+        if (lvl > 0) {
             if (!badge) {
                 badge = document.createElement('img');
                 parent.appendChild(badge);
             }
-
-            let lvl = parseInt(vipLevel);
             
             // 🌟 تحديد اللهب المناسب للمستوى
             let glowClass = 'vip-glow-white'; 
@@ -154,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (lvl === 4) glowClass = 'vip-glow-red';
             else if (lvl >= 5) glowClass = 'vip-glow-mixed';
 
-            // تطبيق الكلاسات وم مسار الصورة
+            // تطبيق الكلاسات ومسار الصورة
             badge.className = `${badgeClass} ${glowClass}`;
             badge.src = `Media/VIP/vip${lvl}.webp`;
             
