@@ -9,6 +9,7 @@
  * 💎 (مُحدّث): إضافة شارة הـ VIP للغرف المتاحة في اللوبي.
  * 🚀 (مُحدّث جذرياً): حل شلل الأكل المتعدد في الأونلاين (Multi-Jump Path Sync).
  * 🛡️ (مُحدّث جذرياً): منع اختطاف اللاعب، منع الرهانات السالبة، وحماية من XSS.
+ * 🚷 (مُحدّث جديد): إضافة أحداث جلب قائمة المشاهدين والطرد من قبل الملوك.
  */
 
 import { gameState } from './gameState.js'; 
@@ -324,7 +325,8 @@ export const socketManager = {
             'connect_error', 'syncTime', 'receiveChat', 'levelUpAlert', 'syncGameState',
             'activeRoomsList', 'mic-request', 'mic-response', 'spectatorJoined', 'spectatorCountChanged',
             'spectatorBetsUpdated', 'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData', 'gameOverByServer',
-            'matchCountdown', 'countdownAborted', 'serverNotification'
+            'matchCountdown', 'countdownAborted', 'serverNotification',
+            'receiveSpectatorsList', 'kickedFromRoom' // إيقاف الأحداث الجديدة أيضاً
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
@@ -730,6 +732,20 @@ export const socketManager = {
             const mmModal = document.getElementById('matchmaking-modal');
             if (mmModal && (mmModal.style.display === 'flex' || mmModal.style.display === 'block')) return;
             this._showToast(msg);
+        });
+
+        // 🌟 الميزة الملكية: أحداث قائمة المشاهدين والطرد
+        socket.on('receiveSpectatorsList', (list) => {
+            if (typeof window.renderSpectatorsList === 'function') {
+                window.renderSpectatorsList(list);
+            }
+        });
+
+        socket.on('kickedFromRoom', (data) => {
+            if (gameState.isSpectator && gameState.userProfile && gameState.userProfile.id === data.targetId) {
+                this._showToast("⚠️ لقد تم طردك من هذه الغرفة بواسطة المالك!");
+                this.handleExitGame(); 
+            }
         });
 
         socket.on('spectatorJoined', (data) => {
