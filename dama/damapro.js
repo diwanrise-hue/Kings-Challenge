@@ -1,6 +1,6 @@
 // damapro.js
 // مخصص لإضافة الإطارات الملكية للوحة الشرف، ونظام عرض شارات الـ VIP الديناميكي مع تأثير "اللهب المشتعل".
-// 🌟 (مُحدّث جذرياً): تم حل مشكلة تدمير الـ Hook لضمان التحديث اللحظي للشارة بفضل الحقن الآمن، وتمت إضافة إطار فخم لبطاقات VIP 4 و 5.
+// 🌟 (مُحدّث جذرياً): دعم كامل لجميع إطارات البطاقات حسب مستوى الـ VIP (V1, V23, 45) مع إزالة الضبابية.
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 🌟 نظام عرض شارات الـ VIP الديناميكي داخل لعبة الدامة 🌟
+// 🌟 نظام عرض شارات وإطارات الـ VIP الديناميكي 🌟
 // ==========================================
 (function() {
-    // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP ولهب الطاقة والإطارات برمجياً
+    // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP، اللهب، وإطارات البطاقات
     const style = document.createElement('style');
     style.innerHTML = `
         /* 🌟 أنيميشن الطفو البطيء والانسيابي مع دوران كل 15 ثانية 🌟 */
@@ -33,9 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
             100% { transform: translateY(0px) rotateY(720deg); animation-timing-function: ease-out; }
         }
 
-        /* 🔥 أنيميشن ألسنة اللهب المتصاعدة بالـ CSS (Flame Effect) 🔥 */
+        /* 🔥 أنيميشن ألسنة اللهب المتصاعدة بالـ CSS 🔥 */
         
-        /* لهب أبيض وفضي (VIP 1 & 2) */
         @keyframes vipFlameWhite {
             0%   { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(0 -5px 6px rgba(200,200,255,0.9)) drop-shadow(2px -12px 10px rgba(150,150,255,0.5)); }
             33%  { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(-3px -8px 8px rgba(255,255,255,0.9)) drop-shadow(-2px -16px 12px rgba(200,200,255,0.4)); }
@@ -43,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
             100% { filter: drop-shadow(0 2px 2px rgba(255,255,255,0.8)) drop-shadow(0 -5px 6px rgba(255,255,255,0.9)) drop-shadow(1px -12px 12px rgba(150,150,255,0.5)); }
         }
         
-        /* لهب بنفسجي ووردي (VIP 3) */
         @keyframes vipFlamePurple {
             0%   { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(0 -5px 6px rgba(190,40,210,0.9)) drop-shadow(2px -12px 10px rgba(255,100,255,0.5)); }
             33%  { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(-3px -8px 8px rgba(155,89,182,0.9)) drop-shadow(-2px -16px 12px rgba(220,80,255,0.4)); }
@@ -51,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
             100% { filter: drop-shadow(0 2px 2px rgba(155,89,182,0.8)) drop-shadow(0 -5px 6px rgba(155,89,182,0.9)) drop-shadow(1px -12px 12px rgba(220,80,255,0.5)); }
         }
         
-        /* لهب أحمر وبرتقالي (VIP 4) */
         @keyframes vipFlameRed {
             0%   { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(0 -5px 6px rgba(255,69,58,0.9)) drop-shadow(2px -12px 10px rgba(255,165,0,0.6)); }
             33%  { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(-3px -8px 8px rgba(255,69,58,0.9)) drop-shadow(-2px -16px 12px rgba(255,215,0,0.4)); }
@@ -59,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
             100% { filter: drop-shadow(0 2px 2px rgba(255,0,0,0.8)) drop-shadow(0 -5px 6px rgba(255,69,58,0.9)) drop-shadow(1px -12px 12px rgba(255,165,0,0.5)); }
         }
         
-        /* لهب أسطوري مختلط: بنفسجي، أحمر، ذهبي (VIP 5) */
         @keyframes vipFlameMixed {
             0%   { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(-2px -7px 8px rgba(255,69,58,0.9)) drop-shadow(2px -14px 12px rgba(155,89,182,0.6)); }
             33%  { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(3px -9px 9px rgba(155,89,182,0.9)) drop-shadow(-3px -16px 10px rgba(255,215,0,0.5)); }
@@ -67,76 +63,66 @@ document.addEventListener('DOMContentLoaded', () => {
             100% { filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)) drop-shadow(0 -8px 8px rgba(255,69,58,0.9)) drop-shadow(1px -13px 11px rgba(155,89,182,0.6)); }
         }
 
-        /* 👑 1. شارة الـ VIP في الواجهة الرئيسية (Hub Profile) */
+        /* 👑 كلاسات شارة الـ VIP */
         .vip-badge-hub {
-            position: absolute;
-            top: 10px;
-            left: 185px; 
-            width: 48px;  
-            height: 64px; 
-            object-fit: contain; 
-            z-index: 1000;
-            pointer-events: none;
-            will-change: transform, filter;
-            transform-style: preserve-3d;
+            position: absolute; top: 10px; left: 185px; width: 48px; height: 64px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d;
         }
-
-        /* 👑 2. شارة الـ VIP في بطاقة اللاعب المحلي (أسفل اليمين) */
         .vip-badge-match-me {
-            position: absolute;
-            bottom: -15px; 
-            right: -15px;  
-            width: 33px;  
-            height: 44px; 
-            object-fit: contain;
-            z-index: 1000;
-            pointer-events: none;
-            will-change: transform, filter;
-            transform-style: preserve-3d;
+            position: absolute; bottom: -15px; right: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d;
         }
-
-        /* 👑 3. شارة الـ VIP في بطاقة الخصم (أسفل اليسار) */
         .vip-badge-match-opp {
-            position: absolute;
-            bottom: -15px; 
-            left: -15px;   
-            width: 33px;  
-            height: 44px; 
-            object-fit: contain;
-            z-index: 1000;
-            pointer-events: none;
-            will-change: transform, filter;
-            transform-style: preserve-3d;
+            position: absolute; bottom: -15px; left: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d;
         }
 
-        /* 🎨 طفو بطيء (15 ثانية) مع لهب سريع (0.4 ثانية) للتوازن المثالي */
+        /* 🎨 تأثيرات اللهب */
         .vip-glow-white  { animation: vipFloatAndSpin 15s infinite linear, vipFlameWhite 0.4s infinite alternate ease-in-out; }
         .vip-glow-purple { animation: vipFloatAndSpin 15s infinite linear, vipFlamePurple 0.4s infinite alternate ease-in-out; }
         .vip-glow-red    { animation: vipFloatAndSpin 15s infinite linear, vipFlameRed 0.4s infinite alternate ease-in-out; }
         .vip-glow-mixed  { animation: vipFloatAndSpin 15s infinite linear, vipFlameMixed 0.4s infinite alternate ease-in-out; }
 
-        /* 🌟 إطار بطاقة اللاعب الخاصة بـ VIP 4 و VIP 5 🌟 */
-        .premium-vip-card-bg {
-            /* تم تصحيح اسم الملف هنا إلى 45.webp */
-            background: url('Media/VIP/45.webp') no-repeat center center !important; 
-            background-size: 100% 100% !important; /* مط الإطار ليغطي البطاقة بالكامل */
-            background-color: transparent !important; /* إخفاء لون البطاقة الافتراضي */
+        /* ========================================== */
+        /* 🌟 إطارات البطاقات المتعددة حسب المستوى 🌟 */
+        /* ========================================== */
+        
+        /* إطار مستوى VIP 1 */
+        .vip-bg-lvl1 {
+            background: url('Media/VIP/V1.webp') no-repeat center center !important; 
+            background-size: 100% 100% !important;
+            background-color: transparent !important;
             border: none !important; 
             box-shadow: none !important;
         }
 
-        /* 🌟 كود إضافي لإلغاء تأثير الضباب (Blur) من اللعبة الذي كان يخفي الإطار 🌟 */
-        .premium-vip-card-bg::before, 
-        .premium-vip-card-bg::after, 
-        .premium-vip-card-bg > div {
+        /* إطار مستوى VIP 2 و 3 */
+        .vip-bg-lvl23 {
+            background: url('Media/VIP/V23.webp') no-repeat center center !important; 
+            background-size: 100% 100% !important;
             background-color: transparent !important;
-            backdrop-filter: none !important; /* إزالة الضبابية تماماً لكي يظهر الإطار واضحاً */
+            border: none !important; 
+            box-shadow: none !important;
+        }
+
+        /* إطار مستوى VIP 4 و 5 */
+        .vip-bg-lvl45 {
+            background: url('Media/VIP/45.webp') no-repeat center center !important; 
+            background-size: 100% 100% !important;
+            background-color: transparent !important;
+            border: none !important; 
+            box-shadow: none !important;
+        }
+
+        /* 🌟 إلغاء تأثير الضباب (Blur) من اللعبة لجميع الإطارات 🌟 */
+        .vip-bg-lvl1::before, .vip-bg-lvl1::after, .vip-bg-lvl1 > div,
+        .vip-bg-lvl23::before, .vip-bg-lvl23::after, .vip-bg-lvl23 > div,
+        .vip-bg-lvl45::before, .vip-bg-lvl45::after, .vip-bg-lvl45 > div {
+            background-color: transparent !important;
+            backdrop-filter: none !important; 
             box-shadow: none !important;
         }
     `;
     document.head.appendChild(style);
 
-    // 2. دالة رسم أو تحديث شارة الـ VIP والإطار الفخم
+    // 2. دالة رسم أو تحديث شارة الـ VIP والإطارات
     window.updateVipBadgeUI = function(avatarContainerId, vipLevel) {
         const avatarDiv = document.getElementById(avatarContainerId);
         if (!avatarDiv) return;
@@ -145,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!parentNode) return;
 
         let parent, badgeClass;
-        let matchCardContainer = null; // متغير لحفظ حاوية البطاقة بالكامل
+        let matchCardContainer = null; 
 
         if (avatarContainerId === 'badge-avatar') {
             badgeClass = 'vip-badge-hub';
@@ -161,16 +147,22 @@ document.addEventListener('DOMContentLoaded', () => {
         let badge = parent.querySelector('.' + badgeClass);
         let lvl = parseInt(vipLevel) || 0;
 
-        // 🌟 تطبيق أو إزالة الإطار الفخم لـ VIP 4 و 5
+        // 🌟 تطبيق الإطارات الجديدة حسب المستوى وإزالة الإطارات غير المطابقة
         if (matchCardContainer) {
-            if (lvl === 4 || lvl === 5) {
-                matchCardContainer.classList.add('premium-vip-card-bg');
-            } else {
-                matchCardContainer.classList.remove('premium-vip-card-bg');
+            // أولاً: تنظيف البطاقة من أي إطار سابق لتجنب التداخل
+            matchCardContainer.classList.remove('vip-bg-lvl1', 'vip-bg-lvl23', 'vip-bg-lvl45');
+            
+            // ثانياً: إضافة الإطار المطابق للمستوى الحالي
+            if (lvl === 1) {
+                matchCardContainer.classList.add('vip-bg-lvl1');
+            } else if (lvl === 2 || lvl === 3) {
+                matchCardContainer.classList.add('vip-bg-lvl23');
+            } else if (lvl === 4 || lvl >= 5) {
+                matchCardContainer.classList.add('vip-bg-lvl45');
             }
         }
 
-        // إذا كان يمتلك مستوى VIP أعلى من 0
+        // إذا كان يمتلك مستوى VIP أعلى من 0 (إضافة شارة اللهب)
         if (lvl > 0) {
             if (!badge) {
                 badge = document.createElement('img');
@@ -196,9 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 3. اعتراض دوال الواجهة الأساسية لتحديث الشارات تلقائياً
+    // 3. اعتراض دوال الواجهة الأساسية لتحديث الشارات والإطارات تلقائياً
     
-    // 🌟 الإصلاح الجذري (The Hook Overwrite): حقن الدالة بأمان بعد أن تكون متوفرة
+    // 🌟 الإصلاح الجذري (The Hook Overwrite)
     let isProfileHooked = false;
     setInterval(() => {
         if (!isProfileHooked && typeof window.applyProfileDataToUI === 'function') {
@@ -213,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 500);
 
-    // تحديث شارة الخصم عند بدء المباراة
+    // تحديث شارة وإطار الخصم عند بدء المباراة
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (window.ui && window.ui.toggleOnlineUILayout) {
@@ -235,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000); 
     });
 
-    // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة في حال تغير الساحة
+    // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة والإطارات في حال تغير الساحة
     setInterval(() => {
         try {
             let profileStr = localStorage.getItem('hub_user_profile');
