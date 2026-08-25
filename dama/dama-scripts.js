@@ -396,3 +396,48 @@ document.addEventListener('DOMContentLoaded', () => {
     startSeasonCountdown();
 });
 window.startSeasonCountdown = startSeasonCountdown;
+
+
+// ==========================================
+// 🎯 دالة تأكيد رهان المشاهدين
+// ==========================================
+window.confirmSpectatorBet = function() {
+    // 1. التحقق من وجود الغرفة
+    if (!window.gameState || !window.gameState.onlineRoomID) return;
+
+    // 2. التحقق من اختيار اللاعب (أبيض أم أسود)
+    const colorInput = document.getElementById('spectator-bet-color');
+    let selectedColor = colorInput ? colorInput.value : null;
+
+    if (!selectedColor) {
+        if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+            window.ui.showCustomAlert("يرجى اختيار اللاعب الذي تتوقع فوزه أولاً!", "تنبيه");
+        }
+        return;
+    }
+
+    // 3. جلب مبلغ الرهان من الحقل
+    const modal = document.getElementById('spectator-bet-modal') || document;
+    let amountInput = document.getElementById('spectator-bet-amount') || modal.querySelector('input[type="number"]');
+    let amount = amountInput ? parseInt(amountInput.value) : 0;
+
+    if (isNaN(amount) || amount <= 0 || amount > 500) {
+        if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+            window.ui.showCustomAlert("مبلغ الرهان غير صالح! (يجب أن يكون بين 1 و 500 🪙)", "عذراً");
+        }
+        return;
+    }
+
+    // 4. إرسال الطلب للسيرفر عبر socketManager
+    if (window.socketManager && typeof window.socketManager.placeSpectatorBet === 'function') {
+        window.socketManager.placeSpectatorBet(window.gameState.onlineRoomID, selectedColor, amount);
+        
+        // إغلاق النافذة بعد الإرسال
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('spectator-bet-modal');
+        } else {
+            let modalEl = document.getElementById('spectator-bet-modal');
+            if (modalEl) modalEl.style.display = 'none';
+        }
+    }
+};
