@@ -3,7 +3,8 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * متوافق 100% مع نظام استضافة الغرف في الخلفية والتحديثات الأمنية.
+ * 🌟 (مُحدّث): تم حل مشكلة توقف اللعبة وإصلاح النص المعلق "اضغط بدء اللعب".
+ * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
  */
 
 import { gameState } from './gameState.js'; 
@@ -15,6 +16,20 @@ import { t } from './i18n.js';
 import { hintSystem } from './hintSystem.js';
 
 window.t = t; 
+
+// ==========================================
+// 🛡️ دالة مساعدة לחساب أقصى قفزات متاحة لقطعة (بديل آمن)
+// ==========================================
+function getPieceMaxJumps(r, c, color, board, dr = null, dc = null) {
+    if (!gameEngine || typeof gameEngine.getPieceCapturePaths !== 'function') return 0;
+    let baseColor = color.split('-')[0];
+    let dirY = gameEngine.getPieceDirection(baseColor, board);
+    let paths = gameEngine.getPieceCapturePaths(r, c, baseColor, board, dirY, dr, dc);
+    if (!paths || paths.length === 0) return 0;
+    let max = 0;
+    for (let p of paths) { if (p.length > max) max = p.length; }
+    return max;
+}
 
 // ==========================================
 // 🖼️ قاعدة بيانات الإطارات الشخصية داخل اللعبة
@@ -113,7 +128,6 @@ export const ui = {
         if (textContent) el.textContent = textContent;
         return el;
     },
-
 
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
@@ -221,9 +235,6 @@ export const ui = {
         el.innerHTML = innerHTML;
     },
 
-
-
-  
     showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null, onCancel = null) {
         title = title || t('alert_title');
         const msgContainer = this.getEl('custom-alert-message');
@@ -296,10 +307,7 @@ export const ui = {
         return { level, title, rank, rankIcon, progressXp, requiredXp, percentage };
     },
 
-
-
-  
-  showLevelUpModal(newLevel, title, rewardsHtml) {
+    showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
         this.setTxt('level-up-title', `لقب: ${title}`);
         const rewardsContainer = this.getEl('level-up-rewards');
@@ -612,7 +620,7 @@ export const ui = {
         Object.keys(displays).forEach(id => this.setDisplay(id, displays[id]));
         
         if (!active) {
-            this.setTxt('reset-btn-txt', 'ضد البوت'); 
+            this.setTxt('reset-btn-txt', 'لعبة جديدة'); 
         }
         
         if (active && gameState.userProfile) {
@@ -836,7 +844,7 @@ export const ui = {
         
         this.setDisplay('match-gift-btn-p2', 'none');
         
-        this.setTxt('reset-btn-txt', 'ضد البوت');
+        this.setTxt('reset-btn-txt', 'لعبة جديدة');
         
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
         
@@ -861,7 +869,7 @@ export const ui = {
     initBoard() {
         this.drawEmptyBoard(); 
         
-        this.setTxt('reset-btn-txt', 'بدء');
+        this.setTxt('reset-btn-txt', 'لعبة جديدة');
         
         gameState.botMoveCount = 0; gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
         gameState.pieceHistories = {};
@@ -1103,39 +1111,44 @@ export const ui = {
             this.showResultsModal(winnerColor); return;
         }
         
-        let maxJ = 0; let piecesJumps = []; 
-        
+        // 🌟 الإصلاح: استخدام `generateAllTurnMoves` لحساب الأكل الإجباري بدلاً من `findMaxJumps` المحذوفة
+        let allMoves = [];
         if (gameState.isMultiJumping && gameState.selectedPiece) {
             let cell = gameState.selectedPiece.parentElement;
             let r = parseInt(cell.dataset.row); let c = parseInt(cell.dataset.col);
-            maxJ = gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard);
-            piecesJumps.push({ r, c, jumps: maxJ });
+            allMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, r, c, gameState.lastJumpDir.dr, gameState.lastJumpDir.dc);
         } else {
-            gameState.virtualBoard.forEach((row, r) => {
-                row.forEach((p, c) => {
-                    if (p?.startsWith(gameState.currentTurn)) {
-                        let jumps = gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard);
-                        maxJ = Math.max(maxJ, jumps);
-                        if (jumps > 0) piecesJumps.push({ r, c, jumps }); 
+            allMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
+        }
+
+        gameState.requiredJumps = 0;
+        let fList = []; 
+
+        if (allMoves.length > 0) {
+            let firstMove = allMoves[0];
+            let isCapture = firstMove.some(step => step.midR !== null && step.midR !== undefined);
+
+            if (isCapture) {
+                gameState.requiredJumps = firstMove.length; 
+                allMoves.forEach(path => {
+                    let startStep = path[0];
+                    if (!fList.some(item => item.r === startStep.fromR && item.c === startStep.fromC)) {
+                        let cell = this.getEl('board').querySelector(`[data-row="${startStep.fromR}"][data-col="${startStep.fromC}"]`);
+                        if (cell?.children.length > 0) {
+                            fList.push({ el: cell.children[0], r: startStep.fromR, c: startStep.fromC });
+                        }
                     }
                 });
-            });
+            }
         }
         
-        gameState.requiredJumps = maxJ;
         gameState.jumpsCount = 0;
         gameState.isMultiJumping = false;
         
         if (gameState.requiredJumps > 0) {
             tInd.textContent = `${t('forced')} ${gameState.requiredJumps}`; tInd.style.color = "#e74c3c";
             
-            let fList = [];
-            piecesJumps.forEach(piece => {
-                if (piece.jumps === gameState.requiredJumps) {
-                    let cell = this.getEl('board').querySelector(`[data-row="${piece.r}"][data-col="${piece.c}"]`);
-                    if (cell?.children.length > 0) { cell.children[0].classList.add('forced'); fList.push({ el: cell.children[0], r: piece.r, c: piece.c }); }
-                }
-            });
+            fList.forEach(item => item.el.classList.add('forced'));
 
             if (fList.length > 1) { fList.forEach(item => item.el.classList.add('multi-choice')); }
             
@@ -1952,8 +1965,7 @@ window.openGiftPanel = function(targetId) {
     const desc = document.getElementById('gift-modal-desc');
     
     if (gameState.isSpectator && !targetId) {
-        // إذا كان المستخدم مشاهداً ولم يتم تحديد ID مسبقاً (قادم من زر الشريط السفلي)
-        window.targetGiftReceiverId = window.matchPlayer1Id; // اللاعب الأول كافتراضي
+        window.targetGiftReceiverId = window.matchPlayer1Id; 
         
         if (selector) {
             selector.style.display = 'block';
@@ -1965,7 +1977,6 @@ window.openGiftPanel = function(targetId) {
         }
         if (desc) desc.innerText = "اختر هدية من حقيبتك لإرسالها:";
     } else {
-        // إذا كان المستخدم لاعب فعلي، أو فتحها عبر ملف شخصي محدد
         if (selector) selector.style.display = 'none';
         if (desc) desc.innerText = "اختر هدية من حقيبتك لإرسالها إلى المنافس:";
         if (targetId) {
@@ -1978,7 +1989,6 @@ window.openGiftPanel = function(targetId) {
     window.givePopularity(window.targetGiftReceiverId);
 };
 
-// دالة لتغيير اللاعب المستهدف عند الضغط على الأزرار في النافذة
 window.setGiftTarget = function(id, btnElement) {
     window.targetGiftReceiverId = id;
     document.getElementById('gift-target-p1').classList.remove('active');
@@ -2037,7 +2047,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
 
     profile.inventory[giftId] -= 1;
     
-    // 🌟 مزامنة الذاكرة الحية فوراً لمنع ثغرة التكرار (Double Deduction)
     if (gameState.userProfile && gameState.userProfile.inventory) {
         gameState.userProfile.inventory[giftId] -= 1; 
     }
@@ -2114,8 +2123,8 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                         position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
                         pointer-events: none; z-index: 10000050; 
                         display: flex; flex-direction: column; align-items: center; 
-                        justify-content: flex-start; /* 🌟 التعديل: تظهر في الأعلى */
-                        padding-top: 12vh; /* 🌟 التعديل: إزاحة للأسفل قليلاً */
+                        justify-content: flex-start; 
+                        padding-top: 12vh; 
                         background: ${overlayBg};
                         opacity: ${overlayOpacity}; 
                         ${overlayTransition}
@@ -2169,7 +2178,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                                 { transform: 'scale(1)', opacity: 0, offset: 1 }    
                             ];
                         } else {
-                            // 🌟 التعديل: الصور العادية تطير بشكل جميل للأعلى
                             keyframes = [
                                 { transform: 'scale(0.2) translateY(50px)', opacity: 0, offset: 0 },
                                 { transform: 'scale(1.2) translateY(-10px)', opacity: 1, offset: 0.15 },
@@ -2605,10 +2613,10 @@ ui.onClick('undo-btn', () => {
 
 ui.onClick('hint-btn', () => { hintSystem.requestHint(); });
 
-// 🌟 فتح نافذة الهدايا (مدمجة بذكاء لتفريق المشاهد عن اللاعب)
+// 🌟 فتح نافذة الهدايا
 ui.onClick('match-gift-btn-p2', () => {
     if (gameState.isSpectator) {
-        window.openGiftPanel(); // فتح بدون ID لتشغيل مبدل اللاعبين التلقائي
+        window.openGiftPanel(); 
     } else {
         let targetId = window.matchPlayer2Id || window.currentOpponentId;
         if (targetId) {
@@ -2624,10 +2632,6 @@ ui.onClick('match-gift-btn-p2', () => {
     }
 });
 
-// ⚠️ ملاحظة: يمكنك حذف الاستدعاء ui.onClick('match-gift-btn-p1') بالكامل من الكود القديم لأنه لم يعد مطلوباً.
-
-
-// 🌟 فتح نافذة الهدايا للاعب الأول (في حال كنت تشاهد المباراة كمشاهد)
 ui.onClick('match-gift-btn-p1', () => {
     let targetId = window.matchPlayer1Id;
     if (targetId) {
@@ -2699,6 +2703,21 @@ document.addEventListener('click', (e) => {
 });
 
 // ==========================================
+// 🌟 دالة التحقق من صحة الحركات العادية بأمان (بدون دوال محذوفة)
+// ==========================================
+const isMoveValid = (fromR, fromC, toR, toC, color, board, isDama) => {
+    let moves = gameEngine.generateAllTurnMoves(color, board);
+    return moves.some(path =>
+        path.length === 1 &&
+        path[0].fromR === fromR &&
+        path[0].fromC === fromC &&
+        path[0].toR === toR &&
+        path[0].toC === toC &&
+        path[0].midR === null 
+    );
+};
+
+// ==========================================
 // 🌟 التنسيقات الإجبارية وأحداث اللوحة (مُحسّنة للأداء 60 FPS)
 // ==========================================
 if (!document.getElementById('forced-overlay-style')) {
@@ -2723,7 +2742,9 @@ ui.onClick('board', e => {
         if ((gameState.currentTurn === 'white' && !target.classList.contains('white')) || (gameState.currentTurn === 'black' && target.classList.contains('white'))) return;
         
         const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
-        if (gameState.requiredJumps > 0 && gameEngine.findMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
+        
+        // 🌟 الإصلاح: استخدام getPieceMaxJumps بدلاً من findMaxJumps
+        if (gameState.requiredJumps > 0 && getPieceMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
         
         gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = []; 
         
@@ -2749,17 +2770,17 @@ ui.onClick('board', e => {
         if (gameState.requiredJumps > 0) {
             let isValidJump = false, midRow = -1, midCol = -1, currDr = Math.sign(rDiff), currDc = Math.sign(cDiff);
             
-            if (isDama) {
-                if (!(gameState.isMultiJumping && currDr === -gameState.lastJumpDir.dr && currDc === -gameState.lastJumpDir.dc)) {
-                    let jt = gameEngine.getDamaJumpTarget(fromRow, fromCol, toRow, toCol, gameState.currentTurn);
-                    if (jt) { isValidJump = true; midRow = jt.row; midCol = jt.col; }
-                }
-            } else if ((Math.abs(rDiff) === 2 && cDiff === 0) || (rDiff === 0 && Math.abs(cDiff) === 2)) {
-                if (rDiff === gameState.pieceDirection[gameState.currentTurn] * 2 || rDiff === 0) {
-                    midRow = fromRow + rDiff / 2; midCol = fromCol + cDiff / 2;
-                    let midPiece = gameState.virtualBoard[midRow][midCol];
-                    if (midPiece && !midPiece.startsWith(gameState.currentTurn)) isValidJump = true;
-                }
+            // 🌟 الإصلاح الجذري: تحديد القفزة من مسارات اللعبة المعتمدة لمنع الانهيار (Crash)
+            let moves = (gameState.isMultiJumping)
+                ? gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, fromRow, fromCol, gameState.lastJumpDir.dr, gameState.lastJumpDir.dc)
+                : gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
+
+            let validStep = moves.map(p => p[0]).find(s => s && s.fromR === fromRow && s.fromC === fromCol && s.toR === toRow && s.toC === toCol && s.midR !== null);
+
+            if (validStep) {
+                isValidJump = true;
+                midRow = validStep.midR;
+                midCol = validStep.midC;
             }
 
             if (isValidJump) {
@@ -2769,7 +2790,7 @@ ui.onClick('board', e => {
                 tempBoard[midRow][midCol] = null; tempBoard[toRow][toCol] = movingPieceStr; tempBoard[fromRow][fromCol] = null;
                 gameState.movePath.push({r: toRow, c: toCol}); 
 
-                if (1 + gameEngine.findMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
+                if (1 + getPieceMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
                     if (typeof ui.playSound === 'function') { ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied); }
                     
                     gameState.virtualBoard = tempBoard; gameState.jumpsCount++; gameState.lastJumpDir = { dr: currDr, dc: currDc };
@@ -2824,7 +2845,8 @@ ui.onClick('board', e => {
             }
         } 
         else {
-            if ((isDama && gameEngine.isValidDamaMove(fromRow, fromCol, toRow, toCol)) || (!isDama && ((Math.abs(rDiff) === 1 && cDiff === 0 && (rDiff === gameState.pieceDirection[gameState.currentTurn])) || (rDiff === 0 && Math.abs(cDiff) === 1)))) {
+            // 🌟 الإصلاح: استخدام isMoveValid بدلاً من الدوال المحذوفة 
+            if (isMoveValid(fromRow, fromCol, toRow, toCol, gameState.currentTurn, gameState.virtualBoard, isDama)) {
                 
                 let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
                 gameState.virtualBoard[fromRow][fromCol] = null; gameState.virtualBoard[toRow][toCol] = movingPieceStr;
