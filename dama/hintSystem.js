@@ -9,14 +9,12 @@ import { t } from './i18n.js';
 export const hintSystem = {
     async requestHint() {
         try {
-            // 1. التحقق من أحقية اللعب
             if (gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) return;
             if (!gameState.isOnlineMode && gameState.currentTurn !== gameState.playerColor) return;
 
             let profile = gameState.userProfile;
             if (!profile) return;
             
-            // 2. التحقق من الرصيد
             if (!gameState.isTutorialMode) {
                 if (profile.hints === undefined) profile.hints = 5;
 
@@ -46,10 +44,8 @@ export const hintSystem = {
             
             ui.setTxt('turn-countdown', 'المصباح يفكر... 💡');
 
-            // 3. التفكير العميق لاستخراج أفضل حركة (باستخدام المحرك مباشرة لمنع انهيار الصفحة)
             let bestMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, 5, myColor, gameState.pieceDirection);
             
-            // 4. خصم المصباح من الرصيد وتحديث الواجهة
             if (!gameState.isTutorialMode && profile) {
                 profile.hints--;
                 if (gameState.isOnlineMode) gameState.onlineHintsUsed = (gameState.onlineHintsUsed || 0) + 1;
@@ -57,13 +53,10 @@ export const hintSystem = {
                 if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
                 localStorage.setItem('hub_user_profile', JSON.stringify(profile));
                 
-                // 🔴 هذا السطر يسبب إعادة رسم الرقعة (renderBoard)
                 if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
                 if (socket && socket.connected) socket.emit('useHint'); 
             }
 
-            // 🛡️ 5. الحل الجذري: تأخير رسم التوهج قليلاً (200 ملي ثانية) 
-            // لضمان أن إعادة رسم الرقعة قد انتهت ولن تقوم بمسح لون التلميح.
             setTimeout(() => {
                 this.showGlow(bestMove || eleganceMoves[0]);
             }, 200);
@@ -101,29 +94,29 @@ export const hintSystem = {
         let fCell = board.querySelector(`[data-row="${from.r}"][data-col="${from.c}"]`);
         let tCell = board.querySelector(`[data-row="${to.r}"][data-col="${to.c}"]`);
 
-        // 🌟 الطبقة السحرية المضيئة المستقلة (ستظهر فوق الحجر مهما كان تنسيقه من المتجر)
+        // 🌟 الستايل الجديد (بدون ضباب): شفاف من الداخل مع إطار أخضر نبضي نظيف
         if (!document.getElementById('hint-glow-overlay-style')) {
             const style = document.createElement('style');
             style.id = 'hint-glow-overlay-style';
             style.innerHTML = `
-                @keyframes hintGlowPulse {
-                    0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.7; box-shadow: 0 0 15px 5px #00ff00, inset 0 0 20px #00ff00; }
-                    100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; box-shadow: 0 0 30px 10px #00ff00, inset 0 0 40px #00ff00; }
+                @keyframes hintGlowPulseClean {
+                    0% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 5px 2px #30d158; }
+                    100% { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 15px 4px #30d158; }
                 }
                 .hint-magic-overlay {
                     position: absolute !important;
                     top: 50% !important;
                     left: 50% !important;
-                    width: 75% !important;
-                    height: 75% !important;
+                    width: 85% !important;
+                    height: 85% !important;
                     border-radius: 50% !important;
-                    background: rgba(0, 255, 0, 0.4) !important;
-                    border: 3px solid #00ff00 !important;
+                    background: transparent !important; /* 👈 هنا السر: شفافية تامة لعدم إخفاء الحجر */
+                    border: 3.5px solid #30d158 !important; /* إطار أخضر نظيف */
                     pointer-events: none !important;
                     z-index: 999999 !important;
-                    animation: hintGlowPulse 0.5s infinite alternate ease-in-out !important;
+                    animation: hintGlowPulseClean 0.6s infinite alternate ease-in-out !important;
                 }
-                .cell { position: relative; } /* لضمان تمركز التوهج بدقة */
+                .cell { position: relative; }
             `;
             document.head.appendChild(style);
         }
@@ -137,16 +130,12 @@ export const hintSystem = {
         let fGlow = createGlowElement();
         let tGlow = createGlowElement();
 
-        // وضع الطبقة المضيئة في الخلايا الصحيحة
         if (fCell) fCell.appendChild(fGlow);
         if (tCell) tCell.appendChild(tGlow);
 
-        // إزالة الطبقة بعد 3.5 ثانية
         setTimeout(() => { 
             if (fGlow && fGlow.parentNode) fGlow.parentNode.removeChild(fGlow);
             if (tGlow && tGlow.parentNode) tGlow.parentNode.removeChild(tGlow);
         }, 3500);
-
-        // ⛔ تمت إزالة الصوت، الكود الآن صامت بالكامل
     }
 };
