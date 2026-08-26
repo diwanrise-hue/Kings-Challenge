@@ -95,20 +95,44 @@ export const hintSystem = {
             if (!board) return;
             let fCell = board.querySelector(`[data-row="${from.r}"][data-col="${from.c}"]`);
             let tCell = board.querySelector(`[data-row="${to.r}"][data-col="${to.c}"]`);
-            
-            // 💡 الإصلاح البصري: وضع التوهج على الحجر نفسه (Piece) لكي يظهر ولا يختفي تحت الحجر!
-            if (fCell && fCell.children.length > 0) {
-                let pieceEl = fCell.children[0];
-                pieceEl.style.boxShadow = "0 0 25px 10px #FFD700";
-                pieceEl.style.borderRadius = "50%";
-                setTimeout(() => { pieceEl.style.boxShadow = ""; pieceEl.style.borderRadius = ""; }, 3500);
-            } else if (fCell) {
-                fCell.style.boxShadow = "inset 0 0 35px #FFD700";
-                setTimeout(() => fCell.style.boxShadow="", 3500);
+
+            // 💡 الإصلاح الجذري للمشكلة البصرية: حقن ستايل يظهر التوهج فوق الحجر مهما كان نوعه
+            if (!document.getElementById('hint-glow-style')) {
+                const style = document.createElement('style');
+                style.id = 'hint-glow-style';
+                style.innerHTML = `
+                    @keyframes hintPulseAnim {
+                        0% { box-shadow: inset 0 0 15px #34c759, 0 0 15px #34c759; background-color: rgba(52, 199, 89, 0.4); }
+                        100% { box-shadow: inset 0 0 35px #34c759, 0 0 35px #34c759; background-color: rgba(52, 199, 89, 0.7); }
+                    }
+                    .hint-cell-glow {
+                        position: relative !important;
+                    }
+                    .hint-cell-glow::after {
+                        content: '';
+                        position: absolute;
+                        top: 0; left: 0; width: 100%; height: 100%;
+                        border-radius: inherit;
+                        pointer-events: none;
+                        z-index: 99 !important; /* لكي يظهر اللون الأخضر فوق الحجر */
+                        border: 3px solid #34c759;
+                        animation: hintPulseAnim 0.6s infinite alternate ease-in-out;
+                    }
+                `;
+                document.head.appendChild(style);
             }
 
-            if (tCell) { tCell.style.boxShadow = "inset 0 0 35px #FFD700"; setTimeout(() => tCell.style.boxShadow="", 3500); }
-            ui.playSound(ui.sfx.move);
+            // تطبيق التوهج على الخلية المنطلق منها والخلية الهدف
+            if (fCell) fCell.classList.add('hint-cell-glow');
+            if (tCell) tCell.classList.add('hint-cell-glow');
+
+            // إزالة التوهج بعد 3.5 ثانية
+            setTimeout(() => { 
+                if (fCell) fCell.classList.remove('hint-cell-glow');
+                if (tCell) tCell.classList.remove('hint-cell-glow');
+            }, 3500);
+
+            // ⛔ تم حذف سطر الصوت (ui.playSound(ui.sfx.move)) نهائياً ليكون صامتاً
         };
 
         const worker = getHintWorker();
