@@ -4,6 +4,7 @@
  * 🌟 (مُحدّث): دمج ميزة قراءة عنوان غرفة الـ VIP.
  * 🛡️ (مُحدّث): المزامنة الفورية للتلميحات المرتجعة لمنع تضارب البيانات.
  * 🛡️ (مُحدّث): حل مشكلة التبعية الدائرية (Circular Dependency) عبر كائن window.
+ * 🛠️ (مُحدّث جذرياً): فصل عداد مصابيح الأونلاين لمنع السيرفر من تدمير الحد الأقصى (2).
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -52,38 +53,21 @@ window.saveGameState = saveGameState;
 export async function loadGameState() { return false; }
 window.loadGameState = loadGameState;
 
+// 🛡️ الإصلاح הגذري: تصفير عداد الأونلاين المعزول بدلاً من تغيير ملف اللاعب
 export function startOnlineHintSystem() {
-    if (gameState.originalHints === null) { 
-        gameState.originalHints = gameState.userProfile.hints !== undefined ? gameState.userProfile.hints : 5; 
+    gameState.onlineHintsUsed = 0; 
+    const counterEl = document.getElementById('hint-counter');
+    if (counterEl) {
+        counterEl.textContent = "2"; 
     }
-    gameState.userProfile.hints = 2; 
-    if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
 }
 window.startOnlineHintSystem = startOnlineHintSystem;
 
+// 🛡️ إعادة الواجهة لتعرض الرصيد الحقيقي للمصابيح عند العودة للأوفلاين
 export function restoreOfflineHintSystem() {
-    if (gameState.originalHints !== null) {
-        let hintsUsedOnline = 2 - gameState.userProfile.hints;
-        if (hintsUsedOnline < 0) hintsUsedOnline = 0;
-        
-        let latestProfileStr = localStorage.getItem('hub_user_profile');
-        let latestProfile = latestProfileStr ? JSON.parse(latestProfileStr) : gameState.userProfile;
-        
-        let realCurrentHints = (latestProfile.hints !== undefined) ? latestProfile.hints : gameState.originalHints;
-        
-        gameState.userProfile.hints = Math.max(0, realCurrentHints - hintsUsedOnline);
-        gameState.originalHints = null;
-        
-        try { 
-            localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
-            if (socket && socket.connected) {
-                socket.emit('syncProfile', gameState.userProfile);
-            }
-        } catch(e) { }
-        
-        if (typeof ui.updateProfileUI === 'function') {
-            ui.updateProfileUI();
-        }
+    gameState.onlineHintsUsed = 0;
+    if (typeof ui.updateProfileUI === 'function') {
+        ui.updateProfileUI(); 
     }
 }
 window.restoreOfflineHintSystem = restoreOfflineHintSystem;
