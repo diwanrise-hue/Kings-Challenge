@@ -94,13 +94,14 @@ export const hintSystem = {
         let fCell = board.querySelector(`[data-row="${from.r}"][data-col="${from.c}"]`);
         let tCell = board.querySelector(`[data-row="${to.r}"][data-col="${to.c}"]`);
 
+        // 🌟 الستايل الجديد: إطار ذهبي مع تعبئة ذهبية شفافة ونبض هادئ
         if (!document.getElementById('hint-glow-overlay-style')) {
             const style = document.createElement('style');
             style.id = 'hint-glow-overlay-style';
             style.innerHTML = `
-                @keyframes hintCleanRing {
-                    0% { transform: translate(-50%, -50%) scale(0.95); border-color: rgba(48, 209, 88, 0.3); }
-                    100% { transform: translate(-50%, -50%) scale(1.1); border-color: rgba(48, 209, 88, 1); }
+                @keyframes hintGoldPulse {
+                    0% { transform: translate(-50%, -50%) scale(0.95); border-color: rgba(255, 215, 0, 0.4); background: rgba(255, 215, 0, 0.2) !important; box-shadow: 0 0 5px rgba(255, 215, 0, 0.2) !important; }
+                    100% { transform: translate(-50%, -50%) scale(1.1); border-color: rgba(255, 215, 0, 1); background: rgba(255, 215, 0, 0.4) !important; box-shadow: 0 0 15px rgba(255, 215, 0, 0.6) !important; }
                 }
                 .hint-magic-overlay {
                     position: absolute !important;
@@ -109,13 +110,11 @@ export const hintSystem = {
                     width: 85% !important;
                     height: 85% !important;
                     border-radius: 50% !important;
-                    background: transparent !important; 
-                    border: 4px solid #30d158 !important; 
-                    box-shadow: none !important; 
+                    background: rgba(255, 215, 0, 0.3) !important; /* تعبئة ذهبية شفافة */
+                    border: 4px solid #ffd700 !important; /* إطار ذهبي صلب */
                     pointer-events: none !important;
                     z-index: 999999 !important;
-                    /* ⏱️ تم إبطاء النبض هنا إلى 0.8 ثانية ليكون أكثر هدوءاً */
-                    animation: hintCleanRing 0.8s infinite alternate ease-in-out !important;
+                    animation: hintGoldPulse 0.8s infinite alternate ease-in-out !important; /* نبض هادئ كل 0.8 ثانية */
                 }
                 .cell { position: relative; }
             `;
