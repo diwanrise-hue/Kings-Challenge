@@ -94,14 +94,13 @@ export const hintSystem = {
         let fCell = board.querySelector(`[data-row="${from.r}"][data-col="${from.c}"]`);
         let tCell = board.querySelector(`[data-row="${to.r}"][data-col="${to.c}"]`);
 
-        // 🌟 الستايل الجديد (بدون ضباب): شفاف من الداخل مع إطار أخضر نبضي نظيف
         if (!document.getElementById('hint-glow-overlay-style')) {
             const style = document.createElement('style');
             style.id = 'hint-glow-overlay-style';
             style.innerHTML = `
-                @keyframes hintGlowPulseClean {
-                    0% { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 5px 2px #30d158; }
-                    100% { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 15px 4px #30d158; }
+                @keyframes hintCleanRing {
+                    0% { transform: translate(-50%, -50%) scale(0.95); border-color: rgba(48, 209, 88, 0.3); }
+                    100% { transform: translate(-50%, -50%) scale(1.1); border-color: rgba(48, 209, 88, 1); }
                 }
                 .hint-magic-overlay {
                     position: absolute !important;
@@ -110,11 +109,13 @@ export const hintSystem = {
                     width: 85% !important;
                     height: 85% !important;
                     border-radius: 50% !important;
-                    background: transparent !important; /* 👈 هنا السر: شفافية تامة لعدم إخفاء الحجر */
-                    border: 3.5px solid #30d158 !important; /* إطار أخضر نظيف */
+                    background: transparent !important; 
+                    border: 4px solid #30d158 !important; 
+                    box-shadow: none !important; 
                     pointer-events: none !important;
                     z-index: 999999 !important;
-                    animation: hintGlowPulseClean 0.6s infinite alternate ease-in-out !important;
+                    /* ⏱️ تم إبطاء النبض هنا إلى 0.8 ثانية ليكون أكثر هدوءاً */
+                    animation: hintCleanRing 0.8s infinite alternate ease-in-out !important;
                 }
                 .cell { position: relative; }
             `;
