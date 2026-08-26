@@ -33,13 +33,11 @@ export const hintSystem = {
         if (!gameState.isTutorialMode) {
             if (profile.hints === undefined) profile.hints = 5;
 
-            // 🛡️ الإصلاح الجذري: 1. التحقق من الرصيد الكلي في الحقيبة
             if (profile.hints <= 0) {
                 ui.showCustomAlert(t('no_hints') || "لا تملك مصابيح تلميح كافية في حقيبتك! يمكنك الحصول عليها من المتجر.", "تنبيه");
                 return;
             }
 
-            // 🛡️ الإصلاح الجذري: 2. التحقق من الحد الأقصى لمباراة الأونلاين (مصباحين فقط)
             if (gameState.isOnlineMode) {
                 let used = gameState.onlineHintsUsed || 0;
                 if (used >= 2) {
@@ -80,24 +78,14 @@ export const hintSystem = {
 
             if (!gameState.isTutorialMode) {
                 profile.hints--;
-                
-                if (gameState.isOnlineMode) {
-                    gameState.onlineHintsUsed = (gameState.onlineHintsUsed || 0) + 1;
-                }
+                if (gameState.isOnlineMode) gameState.onlineHintsUsed = (gameState.onlineHintsUsed || 0) + 1;
 
-                // 🛡️ طلب تحديث الواجهة فوراً عبر الدالة المركزية لضمان الحساب الصحيح
-                if (typeof ui.updateProfileUI === 'function') {
-                    ui.updateProfileUI();
-                }
+                if (typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
                 
                 localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                if (window.parent) {
-                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-                }
+                if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
 
-                if (socket && socket.connected) {
-                    socket.emit('useHint'); 
-                }
+                if (socket && socket.connected) socket.emit('useHint'); 
             }
 
             let from = { r: actualPath[0].fromR, c: actualPath[0].fromC };
@@ -108,7 +96,17 @@ export const hintSystem = {
             let fCell = board.querySelector(`[data-row="${from.r}"][data-col="${from.c}"]`);
             let tCell = board.querySelector(`[data-row="${to.r}"][data-col="${to.c}"]`);
             
-            if (fCell) { fCell.style.boxShadow = "inset 0 0 35px #FFD700"; setTimeout(() => fCell.style.boxShadow="", 3500); }
+            // 💡 الإصلاح البصري: وضع التوهج على الحجر نفسه (Piece) لكي يظهر ولا يختفي تحت الحجر!
+            if (fCell && fCell.children.length > 0) {
+                let pieceEl = fCell.children[0];
+                pieceEl.style.boxShadow = "0 0 25px 10px #FFD700";
+                pieceEl.style.borderRadius = "50%";
+                setTimeout(() => { pieceEl.style.boxShadow = ""; pieceEl.style.borderRadius = ""; }, 3500);
+            } else if (fCell) {
+                fCell.style.boxShadow = "inset 0 0 35px #FFD700";
+                setTimeout(() => fCell.style.boxShadow="", 3500);
+            }
+
             if (tCell) { tCell.style.boxShadow = "inset 0 0 35px #FFD700"; setTimeout(() => tCell.style.boxShadow="", 3500); }
             ui.playSound(ui.sfx.move);
         };
@@ -118,8 +116,9 @@ export const hintSystem = {
             let fallbackSafetyTimer = setTimeout(() => {
                 worker.onmessage = null;
                 worker.onerror = null;
-                let syncMove = gameAI.minimax(gameState.virtualBoard, 4, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
-                showGlow(syncMove || eleganceMoves[0]);
+                gameAI.getBestMoveAsync(gameState.virtualBoard, 4, myColor, gameState.pieceDirection).then(syncMove => {
+                    showGlow(syncMove || eleganceMoves[0]);
+                });
             }, fallbackWaitTime + 500);
 
             worker.onmessage = (e) => {
@@ -134,21 +133,22 @@ export const hintSystem = {
                 clearTimeout(fallbackSafetyTimer);
                 worker.onmessage = null;
                 worker.onerror = null;
-                let syncMove = gameAI.minimax(gameState.virtualBoard, 4, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move;
-                showGlow(syncMove || eleganceMoves[0]);
+                gameAI.getBestMoveAsync(gameState.virtualBoard, 4, myColor, gameState.pieceDirection).then(syncMove => {
+                    showGlow(syncMove || eleganceMoves[0]);
+                });
             };
             
             worker.postMessage({ 
                 board: gameState.virtualBoard, 
-                depth: hintDepth, 
                 level: 7, 
                 aiColor: myColor,
                 pieceDirection: gameState.pieceDirection 
             });
         } else {
             setTimeout(() => {
-                let bestMove = gameAI.minimax(gameState.virtualBoard, 4, undefined, undefined, true, myColor, gameState.pieceDirection, Date.now(), fallbackWaitTime).move || eleganceMoves[0];
-                showGlow(bestMove);
+                gameAI.getBestMoveAsync(gameState.virtualBoard, 4, myColor, gameState.pieceDirection).then(bestMove => {
+                    showGlow(bestMove || eleganceMoves[0]);
+                });
             }, 50);
         }
     }
