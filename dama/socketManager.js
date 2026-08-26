@@ -9,7 +9,8 @@
  * 💎 (مُحدّث): إضافة شارة הـ VIP للغرف المتاحة في اللوبي.
  * 🚀 (مُحدّث جذرياً): حل شلل الأكل المتعدد في الأونلاين (Multi-Jump Path Sync).
  * 🛡️ (مُحدّث جذرياً): منع اختطاف اللاعب، منع الرهانات السالبة، وحماية من XSS.
- * 🚷 (مُحدّث جديد): إضافة أحداث جلب قائمة المشاهدين والطرد من قبل الملوك.
+ * 🚷 (مُحدّث): إضافة أحداث جلب قائمة المشاهدين والطرد من قبل الملوك.
+ * ⏱️ (مُحدّث): إصلاح تداخل المؤقتات (Timers) عند إجراء إعادة اللعب (Rematch).
  */
 
 import { gameState } from './gameState.js'; 
@@ -810,6 +811,7 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
+        // 🚀 الإصلاح: تصفير الوقت بشكل إجباري عند استقبال GameStart لمنع تداخل مؤقتات الغرفة السابقة
         socket.on('gameStart', data => {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
@@ -847,6 +849,15 @@ export const socketManager = {
             gameState.boardHistoryStr = [];
             gameState.pieceHistories = {}; 
             gameState.lastMyMove = null; 
+            
+            // 🛡️ تصفير وإعداد مؤقتات البداية لتجنب تداخل الأوقات القديمة من Rematch
+            gameState.turnEndTime = null;
+            gameState.turnTimeLeft = data.secondsLeft || 45;
+            if (data.turnEndTime) {
+                gameState.turnEndTime = data.turnEndTime;
+            } else {
+                gameState.turnEndTime = Date.now() + (gameState.turnTimeLeft * 1000);
+            }
 
             if (data.roomID) {
                 gameState.onlineRoomID = data.roomID;
@@ -869,8 +880,6 @@ export const socketManager = {
 
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
-
-            if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
 
             if (gameState.virtualBoard && Array.isArray(gameState.virtualBoard)) {
                 let wc = [0,0], bc = [0,0];
@@ -1371,7 +1380,6 @@ export const socketManager = {
             gameState.isGameOver = true;
             gameState.isGameActive = false;
             
-            // بدلاً من إنهاء اللعبة محلياً فوراً، ننتظر السيرفر، أو على الأقل ننفذ التنظيف محلياً بأمان
             if (typeof gameEngine.handleSurrender === 'function') {
                 gameEngine.handleSurrender(gameState.myOnlineColor);
             }
@@ -1495,7 +1503,7 @@ export const socketManager = {
         }
         
         const profile = this._ensureUserProfile();
-        const safeBetAmount = Math.max(0, parseInt(betAmount) || 0); // 🛡️
+        const safeBetAmount = Math.max(0, parseInt(betAmount) || 0);
 
         const dataPayload = { 
             roomID: roomIdInput ? String(roomIdInput).trim() : null, 
@@ -1543,7 +1551,7 @@ export const socketManager = {
     placeSpectatorBet(roomID, color, amount) {
         if (!socket.connected) return;
         const profile = this._ensureUserProfile();
-        const safeAmount = Math.max(0, parseInt(amount) || 0); // 🛡️ منع الرهانات الوهمية أو السالبة
+        const safeAmount = Math.max(0, parseInt(amount) || 0); 
         socket.emit('placeSpectatorBet', { roomID: roomID, color: color, amount: safeAmount, guestId: profile.id });
     },
 
@@ -1558,7 +1566,6 @@ export const socketManager = {
 
         const profile = this._ensureUserProfile();
         
-        // 🛡️ القضاء على الأرقام السالبة والوهمية من المنبع
         const safeBet = Math.max(0, parseInt(betAmount) || 0);
         
         const challengePayload = {
