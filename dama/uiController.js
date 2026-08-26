@@ -7,6 +7,7 @@
  * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
  * 🗑️ (مُحدّث): تم إزالة إطارات الساحة المزعجة حول الصور وترك الدردشة تعمل عبر chat.js.
  * 🛡️ (مُحدّث جذرياً): تم حل مشكلة الإطار العملاق في نافذة النتائج للبوت، وتصفير ذاكرة الإطارات السابقة.
+ * 💡 (مُحدّث): توافق تام لعداد المصباح في الواجهة لمنع التضارب بين الرصيد الحقيقي وحد المباراة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -197,11 +198,13 @@ export const ui = {
                 });
             }
             
-            // 🛡️ الترقيع الأمني للإطار: تم إدخال الإطار داخل حاوية الـ relative لمنعه من أخذ حجم الشاشة
+            // 🛡️ الترقيع الجذري لحل مشكلة الإطار العملاق وقص الصور
             let innerHTML = `
-                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1a1a24; border-radius: 50%; border: 1.5px solid #d4af37; overflow: hidden; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
-                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 10;">
-                        ${botContent}
+                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1a1a24; border-radius: 50%; border: 1.5px solid #d4af37; overflow: hidden; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 10;">
+                            ${botContent}
+                        </div>
                     </div>
             `;
 
@@ -210,7 +213,7 @@ export const ui = {
                 innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(calc(-50% + ${finalX}px), calc(-50% + ${finalY}px)); width: ${frameScale}; height: ${frameScale}; z-index: ${frameZ}; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
             }
 
-            innerHTML += `</div>`; // إغلاق الحاوية بأمان هنا
+            innerHTML += `</div>`; 
             el.innerHTML = innerHTML;
             return;
         }
@@ -470,6 +473,7 @@ export const ui = {
         this.setDisplay('bag-quick-btn', active ? 'flex' : 'none');
         
         this.setDisplay('resign-btn', active ? 'inline-block' : 'none');
+        this.setDisplay('gameChatBtn', 'none'); 
         this.setDisplay('mic-toggle-btn', 'none');
         
         this.setDisplay('match-gift-btn-p2', 'none'); 
@@ -483,7 +487,7 @@ export const ui = {
         document.body.classList.add('game-active');
         document.body.classList.add('online-mode-active');
         
-        const hides = ['store-portal-corner-btn', 'lucky-spin-portal-btn', 'floating-quests-btn', 'bag-quick-btn', 'custom-diff-btn', 'hint-btn', 'undo-btn', 'resign-btn', 'mic-toggle-btn'];
+        const hides = ['store-portal-corner-btn', 'lucky-spin-portal-btn', 'floating-quests-btn', 'bag-quick-btn', 'custom-diff-btn', 'hint-btn', 'undo-btn', 'resign-btn', 'gameChatBtn', 'mic-toggle-btn'];
         hides.forEach(id => this.setDisplay(id, 'none'));
         
         this.setDisplay('bottom-control-panel', 'flex');
@@ -589,6 +593,7 @@ export const ui = {
             'custom-diff-btn': normalState, 
             'store-portal-corner-btn': flexState, 'lucky-spin-portal-btn': flexState, 'hamburger-menu-btn': flexState,
             'floating-quests-btn': flexState, 'bag-quick-btn': 'none', 'resign-btn': onlineState, 
+            'gameChatBtn': active ? 'flex' : 'none',
             'undo-btn': 'none', 'match-players-card': active ? 'flex' : 'none',
             'mic-toggle-btn': active ? 'flex' : 'none',
             'spectator-stats-container': 'none' 
@@ -1460,7 +1465,18 @@ export const ui = {
                     hintCounter.textContent = "مجاني"; hintCounter.style.fontSize = "8px"; hintCounter.style.padding = "2px 4px";
                 } else if (gameState.userProfile) {
                     if (gameState.userProfile.hints === undefined) gameState.userProfile.hints = 5;
-                    hintCounter.textContent = gameState.userProfile.hints; hintCounter.style.fontSize = "11px"; hintCounter.style.padding = "2px 6px";
+                    
+                    // 🛡️ التعديل هنا ليعكس العدد المتاح بدقة حسب الوضع
+                    if (gameState.isOnlineMode) {
+                        let used = gameState.onlineHintsUsed || 0;
+                        let remainingOnline = Math.max(0, 2 - used);
+                        // يجب ألا يزيد المتاح عن الرصيد الفعلي ولا عن الحد الأقصى للمباراة
+                        hintCounter.textContent = Math.min(gameState.userProfile.hints, remainingOnline);
+                    } else {
+                        hintCounter.textContent = gameState.userProfile.hints; 
+                    }
+                    
+                    hintCounter.style.fontSize = "11px"; hintCounter.style.padding = "2px 6px";
                 }
             }
 
