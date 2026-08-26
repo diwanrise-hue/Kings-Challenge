@@ -30,21 +30,22 @@ export const hintSystem = {
         let profile = gameState.userProfile;
         if (!profile) return;
         
-        // 🛡️ الإصلاح الجذري: التحقق من مصابيح الأونلاين بعداد مستقل لا يتأثر بالسيرفر
-        if (gameState.isOnlineMode) {
-            let used = gameState.onlineHintsUsed || 0;
-            if (used >= 2) {
-                ui.showCustomAlert("لا يمكنك استخدام أكثر من مصباحين في المباراة الواحدة (أونلاين)!", "تنبيه");
-                return;
-            }
-        }
-
         if (!gameState.isTutorialMode) {
             if (profile.hints === undefined) profile.hints = 5;
 
+            // 🛡️ الإصلاح الجذري: 1. التحقق من الرصيد الكلي في الحقيبة
             if (profile.hints <= 0) {
-                ui.showCustomAlert(t('no_hints') || "لا تملك مصابيح تلميح كافية!");
+                ui.showCustomAlert(t('no_hints') || "لا تملك مصابيح تلميح كافية في حقيبتك! يمكنك الحصول عليها من المتجر.", "تنبيه");
                 return;
+            }
+
+            // 🛡️ الإصلاح الجذري: 2. التحقق من الحد الأقصى لمباراة الأونلاين (مصباحين فقط)
+            if (gameState.isOnlineMode) {
+                let used = gameState.onlineHintsUsed || 0;
+                if (used >= 2) {
+                    ui.showCustomAlert("لقد استنفدت الحد الأقصى للمصابيح (2) في هذه المباراة!", "تنبيه");
+                    return;
+                }
             }
         }
 
@@ -72,28 +73,21 @@ export const hintSystem = {
 
             if (!moveObj || moveObj.length === 0) return;
             
-            // 🛠️ الإصلاح הגذري للأوفلاين: التأكد من أن الحركة مصفوفة (Array) لمنع الانهيار
             let actualPath = Array.isArray(moveObj) ? moveObj : [moveObj];
             if (!actualPath[0] || actualPath[0].fromR === undefined) {
-                actualPath = eleganceMoves[0]; // إذا فشل الذكاء نأخذ الحركة الافتراضية
+                actualPath = eleganceMoves[0]; 
             }
 
             if (!gameState.isTutorialMode) {
                 profile.hints--;
                 
-                // زيادة عداد الأونلاين المعزول
                 if (gameState.isOnlineMode) {
                     gameState.onlineHintsUsed = (gameState.onlineHintsUsed || 0) + 1;
                 }
 
-                // تحديث الواجهة فوراً
-                const counterEl = document.getElementById('hint-counter');
-                if (counterEl) {
-                    if (gameState.isOnlineMode) {
-                        counterEl.textContent = Math.max(0, 2 - gameState.onlineHintsUsed);
-                    } else {
-                        counterEl.textContent = profile.hints;
-                    }
+                // 🛡️ طلب تحديث الواجهة فوراً عبر الدالة المركزية لضمان الحساب الصحيح
+                if (typeof ui.updateProfileUI === 'function') {
+                    ui.updateProfileUI();
                 }
                 
                 localStorage.setItem('hub_user_profile', JSON.stringify(profile));
@@ -106,7 +100,6 @@ export const hintSystem = {
                 }
             }
 
-            // الآن actualPath آمنة ولن تسبب undefined crash
             let from = { r: actualPath[0].fromR, c: actualPath[0].fromC };
             let to = { r: actualPath[actualPath.length - 1].toR, c: actualPath[actualPath.length - 1].toC };
             
