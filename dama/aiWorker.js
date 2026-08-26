@@ -1,6 +1,17 @@
-// aiWorker.js - عقل المصباح (الجراند ماستر) المنفصل عن الشاشة
-// 🌟 (مُحدّث جذرياً): تم إعادة بناء المحرك بالكامل ليتطابق مع اللعبة الأصلية لمنع أي انهيار (Crash).
-// 🧠 (مُحدّث): أصبح المصباح يفكر بعمق (Minimax) ويحلل الثغرات، الجدران، والتماسك.
+// aiWorker.js
+// 🌟 (مُحدّث): تم مطابقة أوزان التقييم لتتوافق مع "الجراند ماستر المتوازن" لعمل التضحيات التكتيكية
+
+const AI_LEVELS = {
+    1: { depth: 1, randomChance: 0.60, maxTime: 100,  name: "مبتدئ جداً" },
+    2: { depth: 2, randomChance: 0.30, maxTime: 200,  name: "مبتدئ" },
+    3: { depth: 3, randomChance: 0.10, maxTime: 350,  name: "سهل" },
+    4: { depth: 3, randomChance: 0.00, maxTime: 500,  name: "متوسط" },
+    5: { depth: 4, randomChance: 0.00, maxTime: 800,  name: "صعب" },
+    6: { depth: 4, randomChance: 0.00, maxTime: 1000, name: "محترف" },
+    7: { depth: 5, randomChance: 0.00, maxTime: 1200, name: "أستاذ" },
+    8: { depth: 5, randomChance: 0.00, maxTime: 1500, name: "جراند ماستر" },
+    9: { depth: 6, randomChance: 0.00, maxTime: 2500, name: "الزعيم" }
+};
 
 const engine = {
     isValidPos(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; },
@@ -158,32 +169,33 @@ const ai = {
                 let pColor = isMine ? aiColor : oppColor;
                 let eColor = isMine ? oppColor : aiColor;
                 
-                let pieceValue = isDama ? 150 : 10;
+                // التقييم الجديد المتوازن
+                let pieceValue = isDama ? 500 : 100;
                 score += pieceValue * sign;
                 
                 if (!isDama) {
                     let progress = (pDir === 1) ? r : (7 - r);
-                    score += (progress * 1.5) * sign; 
-                    if (c === 0 || c === 7) score += 3 * sign; 
+                    score += (progress * 2) * sign; 
+                    if (c === 0 || c === 7) score += 5 * sign; 
                     
                     let backR = r - pDir;
-                    if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(pColor)) score += 2 * sign;
+                    if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(pColor)) score += 3 * sign;
                     if ((c > 0 && board[r][c-1] && board[r][c-1].startsWith(pColor)) ||
                         (c < 7 && board[r][c+1] && board[r][c+1].startsWith(pColor))) {
-                        score += 1.5 * sign; 
+                        score += 2 * sign; 
                     }
                     
                     let frontR = r + pDir;
                     if (frontR >= 0 && frontR < 8 && backR >= 0 && backR < 8) {
                         let frontCell = board[frontR][c];
                         let backCell = board[backR][c];
-                        if (frontCell && frontCell.startsWith(eColor) && !backCell) score -= 6 * sign;
+                        if (frontCell && frontCell.startsWith(eColor) && !backCell) score -= 15 * sign;
                     }
                     let backRow = (pDir === 1) ? 0 : 7;
-                    if (r === backRow) score += 4 * sign;
+                    if (r === backRow) score += 8 * sign;
                 } else {
                     let centerDist = Math.abs(r - 3.5) + Math.abs(c - 3.5);
-                    score -= (centerDist * 0.8) * sign;
+                    score -= (centerDist * 2) * sign;
                 }
             }
         }
@@ -242,27 +254,17 @@ const ai = {
     },
 
     getBestMove(board, level, aiColor, pieceDirection) {
-        let maxAllowedDepth = 3; let timeLimitMs = 2000;
-        switch(level) {
-            case 2: maxAllowedDepth = 2; timeLimitMs = 1000; break;
-            case 3: maxAllowedDepth = 3; timeLimitMs = 1500; break;
-            case 4: maxAllowedDepth = 4; timeLimitMs = 2000; break;
-            case 5: maxAllowedDepth = 5; timeLimitMs = 3000; break;
-            case 6: maxAllowedDepth = 5; timeLimitMs = 4000; break;
-            case 7: maxAllowedDepth = 6; timeLimitMs = 4000; break;
-            case 8: maxAllowedDepth = 7; timeLimitMs = 6000; break;
-            case 9: maxAllowedDepth = 8; timeLimitMs = 8000; break; 
-        }
+        let currentLevelInfo = AI_LEVELS[level] || AI_LEVELS[3];
+        let maxAllowedDepth = currentLevelInfo.depth; 
+        let timeLimitMs = currentLevelInfo.maxTime;
         
         let moves = engine.generateAllTurnMoves(aiColor, board, null, null, null, null, pieceDirection);
         if (moves.length === 0) return null;
         if (moves.length === 1) return moves[0];
-        if (level === 1) return moves[Math.floor(Math.random() * moves.length)];
         
         let startTime = Date.now();
         let bestMoveGlobal = moves[0];
         
-        // 💡 التعمق التدريجي الآمن (Iterative Deepening)
         for (let currentDepth = 2; currentDepth <= maxAllowedDepth; currentDepth++) {
             let result = this.minimax(board, currentDepth, -Infinity, Infinity, true, aiColor, aiColor, pieceDirection, startTime, timeLimitMs, 0);
             if (result.move && !result.timeout) bestMoveGlobal = result.move;
@@ -276,8 +278,17 @@ const ai = {
 self.onmessage = function (e) {
     try {
         const { board, level, aiColor, pieceDirection } = e.data;
+        const currentLevel = AI_LEVELS[level] || AI_LEVELS[3];
+        let moves = engine.generateAllTurnMoves(aiColor, board, null, null, null, null, pieceDirection);
+        
+        if (!moves || moves.length === 0) return self.postMessage({ move: null });
+
+        if (Math.random() < currentLevel.randomChance) {
+            return self.postMessage({ move: moves[Math.floor(Math.random() * moves.length)] });
+        }
+        
         let bestMove = ai.getBestMove(board, level, aiColor, pieceDirection);
-        self.postMessage({ move: bestMove });
+        self.postMessage({ move: bestMove || moves[0] });
     } catch (error) { 
         self.postMessage({ error: true, details: error.message || error.toString() }); 
     }
