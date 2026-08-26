@@ -30,6 +30,15 @@ export const hintSystem = {
         let profile = gameState.userProfile;
         if (!profile) return;
         
+        // 🛡️ الإصلاح الجذري: التحقق من مصابيح الأونلاين بعداد مستقل لا يتأثر بالسيرفر
+        if (gameState.isOnlineMode) {
+            let used = gameState.onlineHintsUsed || 0;
+            if (used >= 2) {
+                ui.showCustomAlert("لا يمكنك استخدام أكثر من مصباحين في المباراة الواحدة (أونلاين)!", "تنبيه");
+                return;
+            }
+        }
+
         if (!gameState.isTutorialMode) {
             if (profile.hints === undefined) profile.hints = 5;
 
@@ -49,7 +58,6 @@ export const hintSystem = {
             hintBtn.style.opacity = '0.5';
         }
         
-        // فصلنا التلميح عن مستوى البوت! التلميح دائماً يكون بذكاء الجراند ماستر
         let hintDepth = 7; 
         let fallbackWaitTime = 4000; 
 
@@ -64,16 +72,33 @@ export const hintSystem = {
 
             if (!moveObj || moveObj.length === 0) return;
             
+            // 🛠️ الإصلاح הגذري للأوفلاين: التأكد من أن الحركة مصفوفة (Array) لمنع الانهيار
+            let actualPath = Array.isArray(moveObj) ? moveObj : [moveObj];
+            if (!actualPath[0] || actualPath[0].fromR === undefined) {
+                actualPath = eleganceMoves[0]; // إذا فشل الذكاء نأخذ الحركة الافتراضية
+            }
+
             if (!gameState.isTutorialMode) {
                 profile.hints--;
-                const counterEl = document.getElementById('hint-counter');
-                if (counterEl) counterEl.textContent = profile.hints;
                 
-                if (!gameState.isOnlineMode) {
-                    localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                    if (window.parent) {
-                        window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                // زيادة عداد الأونلاين المعزول
+                if (gameState.isOnlineMode) {
+                    gameState.onlineHintsUsed = (gameState.onlineHintsUsed || 0) + 1;
+                }
+
+                // تحديث الواجهة فوراً
+                const counterEl = document.getElementById('hint-counter');
+                if (counterEl) {
+                    if (gameState.isOnlineMode) {
+                        counterEl.textContent = Math.max(0, 2 - gameState.onlineHintsUsed);
+                    } else {
+                        counterEl.textContent = profile.hints;
                     }
+                }
+                
+                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                if (window.parent) {
+                    window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
                 }
 
                 if (socket && socket.connected) {
@@ -81,8 +106,9 @@ export const hintSystem = {
                 }
             }
 
-            let from = { r: moveObj[0].fromR, c: moveObj[0].fromC };
-            let to = { r: moveObj[moveObj.length - 1].toR, c: moveObj[moveObj.length - 1].toC };
+            // الآن actualPath آمنة ولن تسبب undefined crash
+            let from = { r: actualPath[0].fromR, c: actualPath[0].fromC };
+            let to = { r: actualPath[actualPath.length - 1].toR, c: actualPath[actualPath.length - 1].toC };
             
             let board = ui.getEl('board');
             if (!board) return;
@@ -103,7 +129,6 @@ export const hintSystem = {
                 showGlow(syncMove || eleganceMoves[0]);
             }, fallbackWaitTime + 500);
 
-            // 🛠️ الإصلاح: تعريف الأحداث (onmessage, onerror) قبل الإرسال لحمايتها من الضياع
             worker.onmessage = (e) => {
                 clearTimeout(fallbackSafetyTimer);
                 worker.onmessage = null; 
@@ -123,7 +148,7 @@ export const hintSystem = {
             worker.postMessage({ 
                 board: gameState.virtualBoard, 
                 depth: hintDepth, 
-                level: 7, // نطلب مستوى 7 لضمان عبقرية التلميح
+                level: 7, 
                 aiColor: myColor,
                 pieceDirection: gameState.pieceDirection 
             });
