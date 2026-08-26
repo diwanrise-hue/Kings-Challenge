@@ -15,7 +15,8 @@ const AI_LEVELS = {
     6: { id: 6, depth: 4, randomChance: 0.00, maxTime: 4000, name: "محترف" },
     7: { id: 7, depth: 5, randomChance: 0.00, maxTime: 5000, name: "أستاذ" },
     8: { id: 8, depth: 6, randomChance: 0.00, maxTime: 6000, name: "جراند ماستر" },
-    9: { id: 9, depth: 8, randomChance: 0.00, maxTime: 8000, name: "الزعيم (مستحيل)" }
+    9: { id: 9, depth: 8, randomChance: 0.00, maxTime: 8000, name: "الزعيم (مستحيل)" },
+    10: { id: 10, depth: 10, randomChance: 0.00, maxTime: 12000, name: "إله الدامة (تلميح حصري)" }
 };
 
 export const gameAI = {
@@ -51,7 +52,7 @@ export const gameAI = {
         return newBoard;
     },
 
-    // 💡 التقييم الاستراتيجي الدقيق (من aiWorker.js)
+    // 💡 التقييم الاستراتيجي الدقيق
     evaluateBoard(board, aiColor, pieceDirection, levelNum) {
         let score = 0;
         let oppColor = aiColor === 'white' ? 'black' : 'white';
@@ -143,7 +144,6 @@ export const gameAI = {
     },
 
     // 🔍 البحث الهادئ (Quiescence Search) لكشف الفخاخ
-    // (تعمل بشكل متزامن Sync لضمان أقصى سرعة لأنها تفحص الأكل فقط)
     quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, depthLimit) {
         this.nodesEvaluated++;
         let standPat = this.evaluateBoard(board, aiColor, pieceDirection, levelNum);
