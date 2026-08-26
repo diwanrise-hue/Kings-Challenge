@@ -9,6 +9,7 @@
  * 🚀 (مُحدّث جذرياً): حل شلل الأكل المتعدد في الأونلاين (Multi-Jump Path Sync).
  * 🚷 (مُحدّث): إضافة أحداث جلب قائمة المشاهدين والطرد من قبل الملوك.
  * 🔐 (مُحدّث أمنياً): دمج نظام المفتاح السري (AuthToken) لتوثيق الهوية ومنع سرقة الحسابات نهائياً.
+ * 🛠️ (مُحدّث أخيراً): إزالة السباق الزمني في إنشاء الغرف والبحث عن لاعب.
  */
 
 import { gameState } from './gameState.js'; 
@@ -1497,6 +1498,7 @@ export const socketManager = {
         }
     },
 
+    // 🛠️ تم إصلاح هذه الدالة بالكامل بإزالة السباق الزمني (Race Condition)
     handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0, allowSpectatorBetting = true, roomTitle = null) {
         let targetAction = action;
 
@@ -1546,7 +1548,6 @@ export const socketManager = {
             gameState.isGameActive = false;
             gameState.isGameOver = false;
 
-            socket.emit('deviceFingerprint', { guestId: profile.id, authToken: profile.authToken }); // 🛡️
             this._safeEmit(targetAction, dataPayload);
         } else {
             this._safeEmit(targetAction, dataPayload);
@@ -1556,7 +1557,7 @@ export const socketManager = {
     joinSpectator(roomID) {
         if (!socket.connected) socket.connect();
         const profile = this._ensureUserProfile();
-        socket.emit('joinSpectator', { roomID: roomID, guestId: profile.id, authToken: profile.authToken }); // 🛡️
+        socket.emit('joinSpectator', { roomID: roomID, guestId: profile.id, authToken: profile.authToken }); 
     },
 
     placeSpectatorBet(roomID, color, amount) {
