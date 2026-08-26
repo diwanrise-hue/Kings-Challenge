@@ -2,9 +2,9 @@
  * main.js
  * المنسق العام للمشروع (Orchestrator).
  * 🌟 (مُحدّث): دمج ميزة قراءة عنوان غرفة الـ VIP.
- * 🛡️ (مُحدّث): المزامنة الفورية للتلميحات المرتجعة لمنع تضارب البيانات.
  * 🛡️ (مُحدّث): حل مشكلة التبعية الدائرية (Circular Dependency) عبر كائن window.
  * 🛠️ (مُحدّث جذرياً): فصل عداد مصابيح الأونلاين لمنع السيرفر من تدمير الحد الأقصى (2).
+ * ⏱️ (مُحدّث): تصفير مؤقتات المصباح وتهيئته عند إعادة اللعب (Rematch).
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -53,12 +53,13 @@ window.saveGameState = saveGameState;
 export async function loadGameState() { return false; }
 window.loadGameState = loadGameState;
 
-// 🛡️ الإصلاح הגذري: تصفير عداد الأونلاين المعزول بدلاً من تغيير ملف اللاعب
+// 🛡️ الإصلاح الجذري: تصفير عداد الأونلاين المعزول بدلاً من تغيير ملف اللاعب
 export function startOnlineHintSystem() {
     gameState.onlineHintsUsed = 0; 
     const counterEl = document.getElementById('hint-counter');
-    if (counterEl) {
-        counterEl.textContent = "2"; 
+    if (counterEl && gameState.userProfile) {
+        let remain = Math.max(0, 2 - gameState.onlineHintsUsed);
+        counterEl.textContent = Math.min(gameState.userProfile.hints || 0, remain); 
     }
 }
 window.startOnlineHintSystem = startOnlineHintSystem;
@@ -405,7 +406,6 @@ ui.onClick('login-submit-btn', () => {
         return;
     }
     
-    // 🛡️ فلترة الاسم لمنع حقن XSS
     name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
     gameState.userProfile = { 
         ...gameState.userProfile, 
@@ -613,7 +613,6 @@ ui.onClick('online-close-btn', () => {
     if(typeof window.closeAppModal === 'function') window.closeAppModal('online-modal'); 
 });
 
-// 🌟 التحديث الجديد: التقاط العنوان المخصص לـ VIP
 ui.onClick('online-create-btn', () => {
     let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
     let allowSpectatorBetting = document.getElementById('allow-betting-checkbox')?.checked ?? true;
