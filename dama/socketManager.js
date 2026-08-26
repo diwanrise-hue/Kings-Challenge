@@ -1,16 +1,14 @@
 // socketManager.js
 /**
  * socketManager.js
- * النسخة المتطورة والكاملة (مُحسّنة وخالية من التشتيت).
+ * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
  * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف הـ VIP في قمة اللوبي.
- * 🌟 (مُحدّث): حفظ هوية الخصم (currentOpponentId / currentOpponentData) لإتاحة إرسال الهدايا.
+ * 🌟 (مُحدّث): حفظ هوية الخصم لإتاحة إرسال الهدايا للـ VIP والمشاهدين.
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد.
  * 🛡️ (مُحدّث): نظام استعادة الاتصال (Reconnection) شامل للاعبين والمشاهدين.
- * 💎 (مُحدّث): إضافة شارة הـ VIP للغرف المتاحة في اللوبي.
  * 🚀 (مُحدّث جذرياً): حل شلل الأكل المتعدد في الأونلاين (Multi-Jump Path Sync).
- * 🛡️ (مُحدّث جذرياً): منع اختطاف اللاعب، منع الرهانات السالبة، وحماية من XSS.
  * 🚷 (مُحدّث): إضافة أحداث جلب قائمة المشاهدين والطرد من قبل الملوك.
- * ⏱️ (مُحدّث): إصلاح تداخل المؤقتات (Timers) عند إجراء إعادة اللعب (Rematch).
+ * 🔐 (مُحدّث أمنياً): دمج نظام المفتاح السري (AuthToken) لتوثيق الهوية ومنع سرقة الحسابات نهائياً.
  */
 
 import { gameState } from './gameState.js'; 
@@ -187,6 +185,9 @@ export const socketManager = {
             return id.startsWith('GUEST-') || id.startsWith('USER-') || id.startsWith('FB-') || id.startsWith('DAMA-');
         };
 
+        // 🛡️ دالة لتوليد المفتاح السري الجديد
+        const generateAuthToken = () => 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+
         if (gameState.userProfile && gameState.userProfile.id) {
             if (!isValidId(gameState.userProfile.id)) {
                 gameState.userProfile = null; 
@@ -201,6 +202,14 @@ export const socketManager = {
                             gameState.userProfile.equippedBg = parsed.equippedBg || gameState.userProfile.equippedBg;
                             gameState.userProfile.equippedPc = parsed.equippedPc || gameState.userProfile.equippedPc;
                             gameState.userProfile.equippedFr = parsed.equippedFr || gameState.userProfile.equippedFr;
+                            
+                            // ضمان وجود المفتاح السري
+                            if (!gameState.userProfile.authToken && parsed.authToken) {
+                                gameState.userProfile.authToken = parsed.authToken;
+                            } else if (!gameState.userProfile.authToken) {
+                                gameState.userProfile.authToken = generateAuthToken();
+                                localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
+                            }
                         }
                     }
                 } catch(e){}
@@ -219,6 +228,7 @@ export const socketManager = {
                             id: String(parsed.id).trim().toUpperCase(),
                             name: String(parsed.name || 'Guest').trim(),
                             avatar: String(parsed.avatar || '1000132081.webp').trim(),
+                            authToken: parsed.authToken || generateAuthToken(), // 🛡️ استرجاع المفتاح أو إنشاء جديد
                             isCustomAvatar: !!parsed.isCustomAvatar,
                             tokens: Number(parsed.tokens) || 0,
                             xp: Number(parsed.xp) || 0, 
@@ -234,6 +244,7 @@ export const socketManager = {
                             friends: Array.isArray(parsed.friends) ? parsed.friends : [],
                             inventory: parsed.inventory || {}
                         };
+                        localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
                         return gameState.userProfile;
                     } else {
                         localStorage.removeItem('hub_user_profile');
@@ -249,6 +260,7 @@ export const socketManager = {
             id: 'GUEST-' + randomNum, 
             name: 'Guest_' + randomNum, 
             avatar: '1000132081.webp',
+            authToken: generateAuthToken(), // 🛡️ مفتاح سري قوي للاعب الجديد
             isCustomAvatar: false,
             tokens: 0,
             xp: 0,
@@ -617,9 +629,11 @@ export const socketManager = {
             const profile = this._ensureUserProfile();
             
             if (gameState.isSpectator && gameState.onlineRoomID) {
-                socket.emit('joinSpectator', { roomID: String(gameState.onlineRoomID).trim(), guestId: profile.id });
+                // 🛡️ إرسال المفتاح السري للمشاهد
+                socket.emit('joinSpectator', { roomID: String(gameState.onlineRoomID).trim(), guestId: profile.id, authToken: profile.authToken });
             } else {
-                socket.emit('deviceFingerprint', { guestId: profile.id });
+                // 🛡️ توثيق الجلسة فور الاتصال بالمفتاح السري
+                socket.emit('deviceFingerprint', { guestId: profile.id, authToken: profile.authToken });
             }
             
             socket.emit('requestActiveRooms');
@@ -811,7 +825,6 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
-        // 🚀 الإصلاح: تصفير الوقت بشكل إجباري عند استقبال GameStart لمنع تداخل مؤقتات الغرفة السابقة
         socket.on('gameStart', data => {
             if (!data) return;
             document.getElementById('custom-results-modal-container')?.remove(); 
@@ -850,7 +863,6 @@ export const socketManager = {
             gameState.pieceHistories = {}; 
             gameState.lastMyMove = null; 
             
-            // 🛡️ تصفير وإعداد مؤقتات البداية لتجنب تداخل الأوقات القديمة من Rematch
             gameState.turnEndTime = null;
             gameState.turnTimeLeft = data.secondsLeft || 45;
             if (data.turnEndTime) {
@@ -1220,7 +1232,7 @@ export const socketManager = {
 
         socket.on('error', msg => {
             this._showToast(msg);
-            if (msg && (msg.includes('match') || msg.includes('غرفة') || msg.includes('Room') || msg.includes('غير قانونية'))) {
+            if (msg && (msg.includes('محمي أمنياً') || msg.includes('قديمة') || msg.includes('match') || msg.includes('غرفة') || msg.includes('Room') || msg.includes('غير قانونية'))) {
                 this.handleExitGame();
             }
         });
@@ -1236,7 +1248,6 @@ export const socketManager = {
             const openBtn = document.getElementById('challenge-toast-open-btn');
             
             if (toast && toastMsg && openBtn) {
-                // 🛡️ حماية الواجهة من أكواد الاختراق XSS
                 const safeNameDiv = document.createElement('div');
                 safeNameDiv.innerText = challengerName;
                 const safeName = safeNameDiv.innerHTML;
@@ -1535,7 +1546,7 @@ export const socketManager = {
             gameState.isGameActive = false;
             gameState.isGameOver = false;
 
-            socket.emit('deviceFingerprint', { guestId: profile.id });
+            socket.emit('deviceFingerprint', { guestId: profile.id, authToken: profile.authToken }); // 🛡️
             this._safeEmit(targetAction, dataPayload);
         } else {
             this._safeEmit(targetAction, dataPayload);
@@ -1545,7 +1556,7 @@ export const socketManager = {
     joinSpectator(roomID) {
         if (!socket.connected) socket.connect();
         const profile = this._ensureUserProfile();
-        socket.emit('joinSpectator', { roomID: roomID, guestId: profile.id });
+        socket.emit('joinSpectator', { roomID: roomID, guestId: profile.id, authToken: profile.authToken }); // 🛡️
     },
 
     placeSpectatorBet(roomID, color, amount) {
