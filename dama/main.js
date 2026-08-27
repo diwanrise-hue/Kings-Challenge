@@ -337,328 +337,336 @@ window.addEventListener('load', async () => {
     }
 });
 
-ui.onClick('diff-quick-select', saveGameState);
 
-ui.onClick('start-white-btn', () => { 
-    gameState.playerColor = 'white'; 
-    if(typeof ui.initBoard === 'function') ui.initBoard(); 
-    if(typeof window.closeAppModal === 'function') window.closeAppModal('new-game-modal'); 
-});
+// 🌟 تغليف أحداث الأزرار داخل DOMContentLoaded لحل مشكلة Circular Dependency
+document.addEventListener('DOMContentLoaded', () => {
 
-ui.onClick('start-black-btn', () => { 
-    gameState.playerColor = 'black'; 
-    if(typeof ui.initBoard === 'function') ui.initBoard(); 
-    if(typeof window.closeAppModal === 'function') window.closeAppModal('new-game-modal'); 
-});
+    ui.onClick('diff-quick-select', saveGameState);
 
-ui.onClick('new-game-modal', e => { 
-    if (e.target.id === 'new-game-modal' && typeof window.closeAppModal === 'function') {
-        window.closeAppModal('new-game-modal'); 
-    }
-});
+    ui.onClick('start-white-btn', () => { 
+        gameState.playerColor = 'white'; 
+        if(typeof ui.initBoard === 'function') ui.initBoard(); 
+        if(typeof window.closeAppModal === 'function') window.closeAppModal('new-game-modal'); 
+    });
 
-ui.onClick('cancel-new-game-btn', () => { 
-    if(typeof window.closeAppModal === 'function') window.closeAppModal('new-game-modal'); 
-});
+    ui.onClick('start-black-btn', () => { 
+        gameState.playerColor = 'black'; 
+        if(typeof ui.initBoard === 'function') ui.initBoard(); 
+        if(typeof window.closeAppModal === 'function') window.closeAppModal('new-game-modal'); 
+    });
 
-ui.onClick('settings-btn', e => { 
-    e.stopPropagation(); 
-    if(typeof window.openAppModal === 'function') window.openAppModal('settings-overlay'); 
-});
+    ui.onClick('new-game-modal', e => { 
+        if (e.target.id === 'new-game-modal' && typeof window.closeAppModal === 'function') {
+            window.closeAppModal('new-game-modal'); 
+        }
+    });
 
-ui.onClick('save-settings-btn', () => { 
-    const optCb = document.getElementById('sync-theme-optout');
-    if (optCb && gameState.userProfile) {
-        gameState.userProfile.syncThemeOptOut = !optCb.checked;
-        try {
-            localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
-            if (window.socket && window.socket.connected) {
-                window.socket.emit('syncProfile', gameState.userProfile);
-            }
-        } catch(e) {}
-    }
-    
-    saveGameState(); 
-    if(typeof window.closeAppModal === 'function') window.closeAppModal('settings-overlay'); 
-});
+    ui.onClick('cancel-new-game-btn', () => { 
+        if(typeof window.closeAppModal === 'function') window.closeAppModal('new-game-modal'); 
+    });
 
-ui.onClick('settings-overlay', e => { 
-    if (e.target.id === 'settings-overlay' && typeof window.closeAppModal === 'function') {
-        window.closeAppModal('settings-overlay'); 
-    }
-});
+    ui.onClick('settings-btn', e => { 
+        e.stopPropagation(); 
+        if(typeof window.openAppModal === 'function') window.openAppModal('settings-overlay'); 
+    });
 
-ui.onClick('lang-select-modal', e => {
-    gameState.lang = e.target.value;
-    if (window.updateHtmlTexts) window.updateHtmlTexts();
-});
+    ui.onClick('save-settings-btn', () => { 
+        const optCb = document.getElementById('sync-theme-optout');
+        if (optCb && gameState.userProfile) {
+            gameState.userProfile.syncThemeOptOut = !optCb.checked;
+            try {
+                localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile));
+                if (window.socket && window.socket.connected) {
+                    window.socket.emit('syncProfile', gameState.userProfile);
+                }
+            } catch(e) {}
+        }
+        
+        saveGameState(); 
+        if(typeof window.closeAppModal === 'function') window.closeAppModal('settings-overlay'); 
+    });
 
-ui.onClick('login-guest-btn', () => {
-    const randomNum = 10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000);
-    const authToken = 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-    
-    gameState.userProfile = { 
-        ...gameState.userProfile, 
-        name: t('guest_prefix') + randomNum, 
-        id: "GUEST-" + randomNum, 
-        authToken: authToken, // 🛡️ تأمين الاتصال المستقل
-        avatar: ui.getVal('login-avatar-select', '1000132081.webp'), 
-        isCustomAvatar: false,
-        inventory: {}
-    };
-    try { 
-        localStorage.setItem('dama_guest_expiry', Date.now() + (30 * 24 * 60 * 60 * 1000)); 
-        localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
-    } catch (e) { }
-    
-    if(typeof ui.updateProfileUI === 'function') ui.updateProfileUI(); 
-    if(typeof window.closeAppModal === 'function') window.closeAppModal('login-modal');
-    if(socket && !socket.connected) socket.connect();
-});
+    ui.onClick('settings-overlay', e => { 
+        if (e.target.id === 'settings-overlay' && typeof window.closeAppModal === 'function') {
+            window.closeAppModal('settings-overlay'); 
+        }
+    });
 
-// 🛡️ (مُحدّث أمنياً): توليد AuthToken لضمان عدم طرد الحسابات المنشأة هنا
-ui.onClick('login-submit-btn', () => {
-    let name = ui.getVal('login-name-input').trim();
-    if (!name) {
-        if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('enter_name'));
-        return;
-    }
-    
-    name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
-    const authToken = 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+    ui.onClick('lang-select-modal', e => {
+        gameState.lang = e.target.value;
+        if (window.updateHtmlTexts) window.updateHtmlTexts();
+    });
 
-    gameState.userProfile = { 
-        ...gameState.userProfile, 
-        name, 
-        id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), 
-        authToken: authToken, 
-        avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.webp'),
-        inventory: gameState.userProfile.inventory || {}
-    };
-    
-    try { 
-        localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
-        localStorage.removeItem('dama_guest_expiry'); 
-    } catch (e) { }
-    
-    if(typeof ui.updateProfileUI === 'function') ui.updateProfileUI(); 
-    if(typeof window.closeAppModal === 'function') window.closeAppModal('login-modal');
-    if(socket && !socket.connected) socket.connect();
-});
-
-ui.onClick('add-friend-btn', () => {
-    let fId = ui.getVal('friend-id-input').trim().toUpperCase();
-    if (!fId || fId === gameState.userProfile.id || (gameState.userProfile.friends && gameState.userProfile.friends.includes(fId))) {
-        if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('invalid_id'));
-        return;
-    }
-    
-    if (!gameState.userProfile.friends) gameState.userProfile.friends = [];
-    gameState.userProfile.friends.push(fId);
-    
-    try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
-    
-    if(typeof ui.updateProfileUI === 'function') ui.updateProfileUI(); 
-    document.getElementById('friend-id-input').value = ''; 
-    if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('added_success'));
-});
-
-document.getElementById('avatar-upload-input')?.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file || !file.type.startsWith('image/') || file.size > 800 * 1024) {
-        if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('img_large'));
-        return;
-    }
-    const reader = new FileReader();
-    reader.onload = ev => {
-        gameState.userProfile.avatar = ev.target.result; 
-        gameState.userProfile.isCustomAvatar = true; 
-        if(typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
+    ui.onClick('login-guest-btn', () => {
+        const randomNum = 10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000);
+        const authToken = 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+        
+        gameState.userProfile = { 
+            ...gameState.userProfile, 
+            name: t('guest_prefix') + randomNum, 
+            id: "GUEST-" + randomNum, 
+            authToken: authToken, 
+            avatar: ui.getVal('login-avatar-select', '1000132081.webp'), 
+            isCustomAvatar: false,
+            inventory: {}
+        };
         try { 
+            localStorage.setItem('dama_guest_expiry', Date.now() + (30 * 24 * 60 * 60 * 1000)); 
             localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
-        } catch(err) { 
-            if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert("Storage limit exceeded."); 
-        }
-    };
-    reader.readAsDataURL(file);
-});
-
-ui.onClick('logout-btn', () => {
-    const isGuest = gameState.userProfile.id.startsWith("GUEST-");
-    const msg = isGuest ? t('guest_logout_warn') : t('logout_confirm');
-    
-    if(typeof ui.showCustomAlert === 'function') {
-        ui.showCustomAlert(msg, null, () => {
-            gameState.originalHints = null; 
-            localStorage.removeItem('hub_user_profile'); 
-            localStorage.removeItem('dama_guest_expiry');
-            
-            gameState.userProfile = { id: "", name: "", avatar: "1000132081.webp", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0, inventory: {} };
-            
-            if(typeof window.closeAppModal === 'function') window.closeAppModal('profile-modal'); 
-            if(typeof window.openAppModal === 'function') window.openAppModal('login-modal');
-            if (typeof window.applyProfileDataToUI === 'function') window.applyProfileDataToUI(gameState.userProfile);
-            if(socket && socket.connected) socket.disconnect();
-        }, true);
-    }
-});
-
-ui.onClick('switch-account-btn', () => { 
-    if(typeof window.closeAppModal === 'function') window.closeAppModal('profile-modal'); 
-    if(typeof window.openAppModal === 'function') window.openAppModal('login-modal'); 
-});
-
-ui.onClick('spin-free-btn', () => {
-    if (window.isSpinning) return;
-    if (socket && socket.connected) {
-        const btn = document.getElementById('spin-free-btn'); 
-        if (btn) btn.innerText = "جاري التحقق...";
-        socket.emit('requestLuckySpin', { type: 'free', guestId: gameState.userProfile.id });
-    } else { 
-        if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected') || "يرجى الاتصال بالإنترنت أولاً للعب عجلة الحظ!"); 
-    }
-});
-
-ui.onClick('spin-paid-btn', () => {
-    if (window.isSpinning) return;
-    if (gameState.userProfile.tokens < 200) { 
-        if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert("رصيدك غير كافٍ للفة الإضافية (مطلوب 200 🪙)", "عذراً");
-        return; 
-    }
-    
-    if (socket && socket.connected) {
-        if(typeof ui.showCustomAlert === 'function') {
-            ui.showCustomAlert("سيتم خصم 200 🪙 من رصيدك مقابل هذه اللفة الإضافية. هل أنت مستعد؟", "تأكيد اللفة", () => {
-                const btn = document.getElementById('spin-paid-btn');
-                if (btn) { btn.innerText = "جاري الدفع..."; btn.style.pointerEvents = 'none'; }
-                socket.emit('requestLuckySpin', { type: 'paid', guestId: gameState.userProfile.id });
-            }, true, "إلغاء", "نعم، لف العجلة!");
-        }
-    } else { 
-        if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected') || "يرجى الاتصال بالإنترنت أولاً للعب عجلة الحظ!"); 
-    }
-});
-
-const onlineBtn = document.getElementById('online-toggle-btn');
-if (onlineBtn) {
-    onlineBtn.addEventListener('click', (e) => {
-        e.preventDefault();
+        } catch (e) { }
         
-        if (gameState.isOnlineMode) { 
-            if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('already_match')); 
-            return; 
-        }
-        
-        if (!socket || !socket.connected) { 
-            if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected')); 
-            return; 
-        }
-
-        if (window.myCurrentRoomId || gameState.myCurrentRoomId) {
-            if (socketManager) {
-                socket.emit('leaveRoom', { roomID: window.myCurrentRoomId || gameState.myCurrentRoomId });
-                window.myCurrentRoomId = null;
-                gameState.myCurrentRoomId = null; 
-            }
-        }
-
-        const mmModal = document.getElementById('matchmaking-modal');
-        if (mmModal) {
-            mmModal.style.display = 'flex';
-            if (gameState.modalStack && !gameState.modalStack.includes('matchmaking-modal')) { 
-                gameState.modalStack.push('matchmaking-modal'); 
-                history.pushState({ modalOpen: 'matchmaking-modal' }, ''); 
-            }
-        }
-
-        const profile = gameState.userProfile || {};
-        const myNameEl = document.getElementById('mm-my-name'); 
-        const myAvatarEl = document.getElementById('mm-my-avatar');
-
-        if (myNameEl) myNameEl.innerText = profile.name || t('badge_you');
-        if (myAvatarEl) {
-            let avatarSrc = profile.avatar || "1000132081.webp";
-            if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
-                let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
-                avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
-            }
-            myAvatarEl.style.backgroundImage = 'none';
-            myAvatarEl.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
-        }
-
-        const oppNameEl = document.getElementById('mm-opp-name'); 
-        const oppAvatarEl = document.getElementById('mm-opp-avatar'); 
-        const statusLabelEl = document.getElementById('mm-status-label');
-        
-        if (oppNameEl) oppNameEl.innerText = t('mm_opp'); 
-        if (statusLabelEl) statusLabelEl.innerText = t('searching');
-        if (oppAvatarEl) { oppAvatarEl.innerHTML = "❓"; oppAvatarEl.style.backgroundImage = 'none'; }
-
-        socket.emit('joinMatchmakingPool', { guestId: profile.id, name: profile.name, avatar: profile.avatar });
-        
-        gameState.mmTimeLeft = 0;
-        const timerEl = document.getElementById('mm-timer'); 
-        if (timerEl) timerEl.innerText = "00:00";
-        
-        if (gameState.mmInterval) clearInterval(gameState.mmInterval);
-        gameState.mmInterval = setInterval(() => {
-            gameState.mmTimeLeft++; 
-            let m = String(Math.floor(gameState.mmTimeLeft / 60)).padStart(2, '0'); 
-            let s = String(gameState.mmTimeLeft % 60).padStart(2, '0');
-            if (timerEl) timerEl.innerText = `${m}:${s}`;
-        }, 1000);
+        if(typeof ui.updateProfileUI === 'function') ui.updateProfileUI(); 
+        if(typeof window.closeAppModal === 'function') window.closeAppModal('login-modal');
+        if(socket && !socket.connected) socket.connect();
     });
-}
 
-const cancelMmBtn = document.getElementById('mm-cancel-btn');
-if (cancelMmBtn) {
-    cancelMmBtn.addEventListener('click', (e) => {
-        e.preventDefault(); 
-        clearInterval(gameState.mmInterval); 
-        gameState.mmInterval = null;
-        
-        const mmModal = document.getElementById('matchmaking-modal');
-        if (mmModal) { 
-            mmModal.style.display = 'none'; 
-            if (gameState.modalStack) {
-                gameState.modalStack = gameState.modalStack.filter(id => id !== 'matchmaking-modal'); 
-            }
-        }
-        if (socket && socket.connected) { socket.emit('leaveMatchmakingPool'); }
-    });
-}
-
-ui.onClick('room-portal-btn', () => { 
-    if(typeof window.openAppModal === 'function') window.openAppModal('online-modal'); 
-});
-
-ui.onClick('online-close-btn', () => { 
-    if(typeof window.closeAppModal === 'function') window.closeAppModal('online-modal'); 
-});
-
-ui.onClick('online-create-btn', () => {
-    let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
-    let allowSpectatorBetting = document.getElementById('allow-betting-checkbox')?.checked ?? true;
-    
-    let roomTitleInput = document.getElementById('room-title-input');
-    let roomTitle = roomTitleInput ? roomTitleInput.value.trim() : null;
-
-    if (gameState.pendingChallengeId) {
-        socketManager.sendChallenge(gameState.pendingChallengeId, betAmt);
-        if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
-        gameState.pendingChallengeId = null;
-    } else {
-        if (window.myCurrentRoomId || gameState.myCurrentRoomId) {
-            if (socketManager) socketManager._showToast('لديك غرفة سابقاً! يرجى إغلاقها أولاً.');
-            if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
+    ui.onClick('login-submit-btn', () => {
+        let name = ui.getVal('login-name-input').trim();
+        if (!name) {
+            if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('enter_name'));
             return;
         }
+        
+        name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+        const authToken = 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 
-        let pwd = document.getElementById('create-room-password-input')?.value;
-        let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
+        gameState.userProfile = { 
+            ...gameState.userProfile, 
+            name, 
+            id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), 
+            authToken: authToken, 
+            avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.webp'),
+            inventory: gameState.userProfile.inventory || {}
+        };
+        
+        try { 
+            localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+            localStorage.removeItem('dama_guest_expiry'); 
+        } catch (e) { }
+        
+        if(typeof ui.updateProfileUI === 'function') ui.updateProfileUI(); 
+        if(typeof window.closeAppModal === 'function') window.closeAppModal('login-modal');
+        if(socket && !socket.connected) socket.connect();
+    });
 
-        socketManager.handleRoomAction('createRoom', rID, pwd, betAmt, allowSpectatorBetting, roomTitle);
-        socketManager.showStatusMsg("جاري إنشاء الغرفة...");
-        if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
+    ui.onClick('add-friend-btn', () => {
+        let fId = ui.getVal('friend-id-input').trim().toUpperCase();
+        if (!fId || fId === gameState.userProfile.id || (gameState.userProfile.friends && gameState.userProfile.friends.includes(fId))) {
+            if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('invalid_id'));
+            return;
+        }
+        
+        if (!gameState.userProfile.friends) gameState.userProfile.friends = [];
+        gameState.userProfile.friends.push(fId);
+        
+        try { localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); } catch(e){}
+        
+        if(typeof ui.updateProfileUI === 'function') ui.updateProfileUI(); 
+        document.getElementById('friend-id-input').value = ''; 
+        if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('added_success'));
+    });
+
+    const avatarUploadInput = document.getElementById('avatar-upload-input');
+    if (avatarUploadInput) {
+        avatarUploadInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file || !file.type.startsWith('image/') || file.size > 800 * 1024) {
+                if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('img_large'));
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = ev => {
+                gameState.userProfile.avatar = ev.target.result; 
+                gameState.userProfile.isCustomAvatar = true; 
+                if(typeof ui.updateProfileUI === 'function') ui.updateProfileUI();
+                try { 
+                    localStorage.setItem('hub_user_profile', JSON.stringify(gameState.userProfile)); 
+                } catch(err) { 
+                    if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert("Storage limit exceeded."); 
+                }
+            };
+            reader.readAsDataURL(file);
+        });
     }
+
+    ui.onClick('logout-btn', () => {
+        const isGuest = gameState.userProfile.id.startsWith("GUEST-");
+        const msg = isGuest ? t('guest_logout_warn') : t('logout_confirm');
+        
+        if(typeof ui.showCustomAlert === 'function') {
+            ui.showCustomAlert(msg, null, () => {
+                gameState.originalHints = null; 
+                localStorage.removeItem('hub_user_profile'); 
+                localStorage.removeItem('dama_guest_expiry');
+                
+                gameState.userProfile = { id: "", name: "", avatar: "1000132081.webp", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0, inventory: {} };
+                
+                if(typeof window.closeAppModal === 'function') window.closeAppModal('profile-modal'); 
+                if(typeof window.openAppModal === 'function') window.openAppModal('login-modal');
+                if (typeof window.applyProfileDataToUI === 'function') window.applyProfileDataToUI(gameState.userProfile);
+                if(socket && socket.connected) socket.disconnect();
+            }, true);
+        }
+    });
+
+    ui.onClick('switch-account-btn', () => { 
+        if(typeof window.closeAppModal === 'function') window.closeAppModal('profile-modal'); 
+        if(typeof window.openAppModal === 'function') window.openAppModal('login-modal'); 
+    });
+
+    ui.onClick('spin-free-btn', () => {
+        if (window.isSpinning) return;
+        if (socket && socket.connected) {
+            const btn = document.getElementById('spin-free-btn'); 
+            if (btn) btn.innerText = "جاري التحقق...";
+            socket.emit('requestLuckySpin', { type: 'free', guestId: gameState.userProfile.id });
+        } else { 
+            if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected') || "يرجى الاتصال بالإنترنت أولاً للعب عجلة الحظ!"); 
+        }
+    });
+
+    ui.onClick('spin-paid-btn', () => {
+        if (window.isSpinning) return;
+        if (gameState.userProfile.tokens < 200) { 
+            if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert("رصيدك غير كافٍ للفة الإضافية (مطلوب 200 🪙)", "عذراً");
+            return; 
+        }
+        
+        if (socket && socket.connected) {
+            if(typeof ui.showCustomAlert === 'function') {
+                ui.showCustomAlert("سيتم خصم 200 🪙 من رصيدك مقابل هذه اللفة الإضافية. هل أنت مستعد؟", "تأكيد اللفة", () => {
+                    const btn = document.getElementById('spin-paid-btn');
+                    if (btn) { btn.innerText = "جاري الدفع..."; btn.style.pointerEvents = 'none'; }
+                    socket.emit('requestLuckySpin', { type: 'paid', guestId: gameState.userProfile.id });
+                }, true, "إلغاء", "نعم، لف العجلة!");
+            }
+        } else { 
+            if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected') || "يرجى الاتصال بالإنترنت أولاً للعب عجلة الحظ!"); 
+        }
+    });
+
+    const onlineBtn = document.getElementById('online-toggle-btn');
+    if (onlineBtn) {
+        onlineBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            if (gameState.isOnlineMode) { 
+                if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('already_match')); 
+                return; 
+            }
+            
+            if (!socket || !socket.connected) { 
+                if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected')); 
+                return; 
+            }
+
+            if (window.myCurrentRoomId || gameState.myCurrentRoomId) {
+                if (socketManager) {
+                    socket.emit('leaveRoom', { roomID: window.myCurrentRoomId || gameState.myCurrentRoomId });
+                    window.myCurrentRoomId = null;
+                    gameState.myCurrentRoomId = null; 
+                }
+            }
+
+            const mmModal = document.getElementById('matchmaking-modal');
+            if (mmModal) {
+                mmModal.style.display = 'flex';
+                if (gameState.modalStack && !gameState.modalStack.includes('matchmaking-modal')) { 
+                    gameState.modalStack.push('matchmaking-modal'); 
+                    history.pushState({ modalOpen: 'matchmaking-modal' }, ''); 
+                }
+            }
+
+            const profile = gameState.userProfile || {};
+            const myNameEl = document.getElementById('mm-my-name'); 
+            const myAvatarEl = document.getElementById('mm-my-avatar');
+
+            if (myNameEl) myNameEl.innerText = profile.name || t('badge_you');
+            if (myAvatarEl) {
+                let avatarSrc = profile.avatar || "1000132081.webp";
+                if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
+                    let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+                    avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
+                }
+                myAvatarEl.style.backgroundImage = 'none';
+                myAvatarEl.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
+            }
+
+            const oppNameEl = document.getElementById('mm-opp-name'); 
+            const oppAvatarEl = document.getElementById('mm-opp-avatar'); 
+            const statusLabelEl = document.getElementById('mm-status-label');
+            
+            if (oppNameEl) oppNameEl.innerText = t('mm_opp'); 
+            if (statusLabelEl) statusLabelEl.innerText = t('searching');
+            if (oppAvatarEl) { oppAvatarEl.innerHTML = "❓"; oppAvatarEl.style.backgroundImage = 'none'; }
+
+            socket.emit('joinMatchmakingPool', { guestId: profile.id, name: profile.name, avatar: profile.avatar });
+            
+            gameState.mmTimeLeft = 0;
+            const timerEl = document.getElementById('mm-timer'); 
+            if (timerEl) timerEl.innerText = "00:00";
+            
+            if (gameState.mmInterval) clearInterval(gameState.mmInterval);
+            gameState.mmInterval = setInterval(() => {
+                gameState.mmTimeLeft++; 
+                let m = String(Math.floor(gameState.mmTimeLeft / 60)).padStart(2, '0'); 
+                let s = String(gameState.mmTimeLeft % 60).padStart(2, '0');
+                if (timerEl) timerEl.innerText = `${m}:${s}`;
+            }, 1000);
+        });
+    }
+
+    const cancelMmBtn = document.getElementById('mm-cancel-btn');
+    if (cancelMmBtn) {
+        cancelMmBtn.addEventListener('click', (e) => {
+            e.preventDefault(); 
+            clearInterval(gameState.mmInterval); 
+            gameState.mmInterval = null;
+            
+            const mmModal = document.getElementById('matchmaking-modal');
+            if (mmModal) { 
+                mmModal.style.display = 'none'; 
+                if (gameState.modalStack) {
+                    gameState.modalStack = gameState.modalStack.filter(id => id !== 'matchmaking-modal'); 
+                }
+            }
+            if (socket && socket.connected) { socket.emit('leaveMatchmakingPool'); }
+        });
+    }
+
+    ui.onClick('room-portal-btn', () => { 
+        if(typeof window.openAppModal === 'function') window.openAppModal('online-modal'); 
+    });
+
+    ui.onClick('online-close-btn', () => { 
+        if(typeof window.closeAppModal === 'function') window.closeAppModal('online-modal'); 
+    });
+
+    ui.onClick('online-create-btn', () => {
+        let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
+        let allowSpectatorBetting = document.getElementById('allow-betting-checkbox')?.checked ?? true;
+        
+        let roomTitleInput = document.getElementById('room-title-input');
+        let roomTitle = roomTitleInput ? roomTitleInput.value.trim() : null;
+
+        if (gameState.pendingChallengeId) {
+            socketManager.sendChallenge(gameState.pendingChallengeId, betAmt);
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
+            gameState.pendingChallengeId = null;
+        } else {
+            if (window.myCurrentRoomId || gameState.myCurrentRoomId) {
+                if (socketManager) socketManager._showToast('لديك غرفة سابقاً! يرجى إغلاقها أولاً.');
+                if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
+                return;
+            }
+
+            let pwd = document.getElementById('create-room-password-input')?.value;
+            let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
+
+            socketManager.handleRoomAction('createRoom', rID, pwd, betAmt, allowSpectatorBetting, roomTitle);
+            socketManager.showStatusMsg("جاري إنشاء الغرفة...");
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
+        }
+    });
+
 });
