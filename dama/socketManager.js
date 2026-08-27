@@ -2,17 +2,14 @@
 /**
  * socketManager.js
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
- * 🌟 (مُحدّث): حل مشكلة الحلقة المفرغة (Infinite Reload Loop) وعدم دخول المباريات.
- * 🌟 (مُحدّث): إصلاح انهيار الكود الأمني بوضع كبسولات (try...catch) لتجنب أخطاء المتصفح.
- * 🌟 (مُحدّث): دعم استرجاع اللعب القوي جداً (Reconnection Fix).
- * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف الـ VIP في قمة اللوبي.
+ * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف הـ VIP في قمة اللوبي.
  * 🌟 (مُحدّث): حفظ هوية الخصم لإتاحة إرسال الهدايا للـ VIP والمشاهدين.
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد.
  * 🛡️ (مُحدّث): نظام استعادة الاتصال (Reconnection) شامل للاعبين والمشاهدين.
  * 🚀 (مُحدّث جذرياً): حل شلل الأكل المتعدد في الأونلاين (Multi-Jump Path Sync).
  * 🚷 (مُحدّث): إضافة أحداث جلب قائمة المشاهدين والطرد من قبل الملوك.
  * 🔐 (مُحدّث أمنياً): دمج نظام المفتاح السري (AuthToken) لتوثيق الهوية ومنع سرقة الحسابات نهائياً.
- * 🛠️ (مُحدّث أخيراً): إضافة الدالة المفقودة للرسائل (getNotifyMsg) وحماية الاتجاهات.
+ * 🛠️ (مُحدّث أخيراً): إزالة السباق الزمني في إنشاء الغرف والبحث عن لاعب.
  */
 
 import { gameState } from './gameState.js'; 
@@ -189,6 +186,7 @@ export const socketManager = {
             return id.startsWith('GUEST-') || id.startsWith('USER-') || id.startsWith('FB-') || id.startsWith('DAMA-');
         };
 
+        // 🛡️ دالة لتوليد المفتاح السري الجديد
         const generateAuthToken = () => 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 
         if (gameState.userProfile && gameState.userProfile.id) {
@@ -206,6 +204,7 @@ export const socketManager = {
                             gameState.userProfile.equippedPc = parsed.equippedPc || gameState.userProfile.equippedPc;
                             gameState.userProfile.equippedFr = parsed.equippedFr || gameState.userProfile.equippedFr;
                             
+                            // ضمان وجود المفتاح السري
                             if (!gameState.userProfile.authToken && parsed.authToken) {
                                 gameState.userProfile.authToken = parsed.authToken;
                             } else if (!gameState.userProfile.authToken) {
@@ -230,7 +229,7 @@ export const socketManager = {
                             id: String(parsed.id).trim().toUpperCase(),
                             name: String(parsed.name || 'Guest').trim(),
                             avatar: String(parsed.avatar || '1000132081.webp').trim(),
-                            authToken: parsed.authToken || generateAuthToken(), 
+                            authToken: parsed.authToken || generateAuthToken(), // 🛡️ استرجاع المفتاح أو إنشاء جديد
                             isCustomAvatar: !!parsed.isCustomAvatar,
                             tokens: Number(parsed.tokens) || 0,
                             xp: Number(parsed.xp) || 0, 
@@ -262,7 +261,7 @@ export const socketManager = {
             id: 'GUEST-' + randomNum, 
             name: 'Guest_' + randomNum, 
             avatar: '1000132081.webp',
-            authToken: generateAuthToken(), 
+            authToken: generateAuthToken(), // 🛡️ مفتاح سري قوي للاعب الجديد
             isCustomAvatar: false,
             tokens: 0,
             xp: 0,
@@ -349,7 +348,6 @@ export const socketManager = {
             if (data && data.msg) this._showToast(data.msg);
         });
 
-        // 🌟 الإصلاح: عداد الرهان وتجنب Reload
         socket.on('matchCountdown', (data) => {
             const overlay = document.getElementById('match-countdown-overlay');
             const numEl = document.getElementById('match-countdown-number');
@@ -357,19 +355,6 @@ export const socketManager = {
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('online-modal');
             }
-
-            try {
-                if (window.parent && window.parent.document) {
-                    const pGameIf = window.parent.document.getElementById('game-interface');
-                    const pGameSel = window.parent.document.getElementById('game-selector');
-                    const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
-                    if (pGameIf && pGameIf.style.display !== 'block') {
-                        pGameIf.style.display = 'block';
-                        if (pGameSel) pGameSel.style.display = 'none';
-                        if (pBotNav) pBotNav.style.display = 'none';
-                    }
-                }
-            } catch(e) {}
 
             if (overlay && numEl) {
                 overlay.style.display = 'flex';
@@ -385,7 +370,7 @@ export const socketManager = {
                     timeLeft--;
                     if (timeLeft <= 0) {
                         clearInterval(gameState.countdownInterval);
-                        numEl.innerText = "جاري البدء..."; // رسالة تطمين بدلاً من إخفاء النافذة
+                        overlay.style.display = 'none';
                     } else {
                         numEl.innerText = timeLeft;
                         if(timeLeft <= 3 && typeof ui.playSound === 'function' && ui.sfx.clock) ui.playSound(ui.sfx.clock);
@@ -645,8 +630,10 @@ export const socketManager = {
             const profile = this._ensureUserProfile();
             
             if (gameState.isSpectator && gameState.onlineRoomID) {
+                // 🛡️ إرسال المفتاح السري للمشاهد
                 socket.emit('joinSpectator', { roomID: String(gameState.onlineRoomID).trim(), guestId: profile.id, authToken: profile.authToken });
             } else {
+                // 🛡️ توثيق الجلسة فور الاتصال بالمفتاح السري
                 socket.emit('deviceFingerprint', { guestId: profile.id, authToken: profile.authToken });
             }
             
@@ -791,19 +778,6 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
 
-            try {
-                if (window.parent && window.parent.document) {
-                    const pGameIf = window.parent.document.getElementById('game-interface');
-                    if (pGameIf && pGameIf.style.display !== 'block') {
-                        pGameIf.style.display = 'block';
-                        const pGameSel = window.parent.document.getElementById('game-selector');
-                        const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
-                        if (pGameSel) pGameSel.style.display = 'none';
-                        if (pBotNav) pBotNav.style.display = 'none';
-                    }
-                }
-            } catch(e) {}
-
             ui.setupSpectatorUI(data.player1, data.player2, data.isBettingOpen, data.roomID, data.hasAlreadyBet);
             ui.renderBoard(true);
             ui.startTurn();
@@ -854,20 +828,6 @@ export const socketManager = {
 
         socket.on('gameStart', data => {
             if (!data) return;
-            
-            try {
-                if (window.parent && window.parent.document) {
-                    const pGameIf = window.parent.document.getElementById('game-interface');
-                    const pGameSel = window.parent.document.getElementById('game-selector');
-                    const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
-                    if (pGameIf && pGameIf.style.display !== 'block') {
-                        pGameIf.style.display = 'block';
-                        if (pGameSel) pGameSel.style.display = 'none';
-                        if (pBotNav) pBotNav.style.display = 'none';
-                    }
-                }
-            } catch(e) {}
-
             document.getElementById('custom-results-modal-container')?.remove(); 
             
             if (typeof window.closeAppModal === 'function') {
@@ -946,7 +906,6 @@ export const socketManager = {
                         });
                     }
                 });
-                if (!gameState.pieceDirection) gameState.pieceDirection = {}; 
                 gameState.pieceDirection.white = wc[0] > wc[1] ? 1 : -1;
                 gameState.pieceDirection.black = bc[0] > bc[1] ? 1 : -1;
             }
@@ -1539,6 +1498,7 @@ export const socketManager = {
         }
     },
 
+    // 🛠️ تم إصلاح هذه الدالة بالكامل بإزالة السباق الزمني (Race Condition)
     handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0, allowSpectatorBetting = true, roomTitle = null) {
         let targetAction = action;
 
@@ -1694,9 +1654,9 @@ const notifyTexts = {
 };
 
 function getNotifyMsg(key, param = '') {
-    const lang = (gameState && gameState.lang) ? gameState.lang : (localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar');
-    const texts = notifyTexts[lang] || notifyTexts['ar'];
-    let msg = texts[key] || key;
+    const lang = (gameState && gameState.lang) ? gameState.lang : 'ar';
+    const msgs = notifyTexts[lang] || notifyTexts['ar'];
+    let msg = msgs[key] || '';
     if (param) msg = msg.replace('{name}', param);
     return msg;
 }
