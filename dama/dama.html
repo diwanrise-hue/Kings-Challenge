@@ -1,4 +1,4 @@
-<!-- dama.html:لاتحذف هذا تعليق--ملف-- -->
+<!-- dama.html: ملف واجهة لعبة الدامة -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -8,11 +8,11 @@
     <link rel="icon" type="image/png" href="1000127272.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="dama.css">
+    <!-- 🛡️ (مُحدّث): تفادي الكاش باستخدام إصدارات للملفات ?v=2.0 -->
+    <link rel="stylesheet" href="dama.css?v=2.0">
     
-    <script src="dama-scripts.js"></script>
-    <script src="damapro.js"></script> 
-
+    <script src="dama-scripts.js?v=2.0"></script>
+    <script src="damapro.js?v=2.0"></script> 
 </head>
 <body data-piece-style="pc_original">
     
@@ -40,7 +40,6 @@
         <!-- الخط الفاصل -->
         <div class="vertical-divider-free"></div>
         
-        <!-- 🌟 أيقونة الرتبة المنفصلة (مكبرة وفي نفس المكان) 🌟 -->
         <div class="text-boundary boundary-rank-icon">
             <span id="profile-stat-rank-icon-badge" class="rank-icon-free">🥈</span>
         </div>
@@ -85,7 +84,7 @@
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
     <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" data-icon="bagQuick"></button>
 
-    <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(24,23,29,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 1000000; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
+    <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(24,23,29,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 5000; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="font-weight: bold; font-size: 14px; color: #34c759;">تحدي جديد ⚔️</span>
         </div>
@@ -93,7 +92,7 @@
         <button id="challenge-toast-open-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px; color: white; cursor: pointer; font-size: 12px; font-weight: bold;">عرض التحدي</button>
     </div>
 
-    <div id="challenge-action-modal" class="modal-overlay" style="z-index: 1000001;">
+    <div id="challenge-action-modal" class="modal-overlay" style="z-index: 5100;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <h3 style="color: #34c759; margin-bottom: 15px;">تحدي من صديق!</h3>
             <p id="challenge-action-msg" style="font-size: 15px; color: white; margin-bottom: 25px; line-height: 1.6;"></p>
@@ -105,10 +104,9 @@
     </div>
 
     <div id="status-area">
-        <!-- 🌟 تصميم بطاقات اللاعبين المربّعة المنفصلة 🌟 -->
         <div id="match-players-card" style="display: none; width: 100%; justify-content: center; align-items: center; position: relative; z-index: 10;">
             
-            <!-- اللاعب الخاص بي (أنت) -->
+            <!-- اللاعب الخاص بي -->
             <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center;">
                 <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; position: relative;">
                     <div id="card-my-avatar" class="profile-avatar-capsule" style="width: 70%; height: 70%; border-radius: 50%; overflow: visible; border: 2px solid #ffd700; background: #1a1a24; display: flex; align-items: center; justify-content: center;"></div>
@@ -122,7 +120,6 @@
                 <span class="match-vs-text" style="font-size: 32px; font-weight: 900; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.6); font-family: 'Outfit', sans-serif; letter-spacing: 2px;">VS</span>
                 <span id="vs-bet-display" style="font-size:14px; color:#30d158; font-weight:bold; text-shadow:0 0 8px rgba(48,209,88,0.5); display: none; margin-top:4px;">💰 0</span>
                 
-                <!-- حاوية العدادات الثابتة للمشاهدين والمراهنين (معدلة) -->
                 <div id="spectator-stats-container" onclick="if(window.requestSpectatorList) window.requestSpectatorList()" style="display: none; gap: 8px; margin-top: 8px; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                     <span title="المشاهدين" style="font-size:12px; color:#a1a1aa; background: rgba(0,0,0,0.6); padding: 3px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">👁️ <span id="spectator-count-display">1</span></span>
                     <span title="المراهنين" style="font-size:12px; color:#f1c40f; background: rgba(0,0,0,0.6); padding: 3px 10px; border-radius: 10px; border: 1px solid rgba(241,196,15,0.2); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">🎯 <span id="bettors-count-display">0</span></span>
@@ -141,7 +138,7 @@
         </div>
 
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-            <div id="mini-disconnect-radar" data-icon="disconnectIcon" style="display: none; position: absolute; bottom: 22px; left: calc(50% + 138px); transform: translateX(-50%); width: 22px; height: 22px; z-index: 999999; align-items: center; justify-content: center; pointer-events: none;"></div>
+            <div id="mini-disconnect-radar" data-icon="disconnectIcon" style="display: none; position: absolute; bottom: 22px; left: calc(50% + 138px); transform: translateX(-50%); width: 22px; height: 22px; z-index: 4000; align-items: center; justify-content: center; pointer-events: none;"></div>
             
             <div id="turn-box-container">
                 <div id="idle-counter" style="position: absolute; top: 5px; left: 12px; font-size: 11px; font-weight: 800; color: #a1a1aa; background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 8px; display: none; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -216,7 +213,8 @@
         </div>
     </div>
 
-    <div id="daily-quests-modal" class="modal-overlay">
+    <!-- 🛡️ Z-Indexes normalized for all modals -->
+    <div id="daily-quests-modal" class="modal-overlay" style="z-index: 2000;">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')">✕</button>
             <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">سجل المهام 📜</h3>
@@ -236,7 +234,7 @@
         </div>
     </div>
 
-    <div id="toast-notification">✨ تم التغيير بنجاح</div>
+    <div id="toast-notification" style="z-index: 9999;">✨ تم التغيير بنجاح</div>
 
     <button id="online-toggle-btn" class="premium-game-btn" title="البحث العشوائي">
         <span class="btn-icon" data-icon="globeBtn"></span>
@@ -250,7 +248,7 @@
         <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
     </button>
 
-    <div id="level-select-modal" class="modal-overlay" style="z-index: 10000000 !important;">
+    <div id="level-select-modal" class="modal-overlay" style="z-index: 2500;">
         <div class="settings-card" dir="auto" style="max-width: 340px; padding: 30px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('level-select-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color:#f5a623; margin-bottom: 5px; font-size: 22px;">مستوى الحاسوب 🤖</h3>
@@ -274,7 +272,7 @@
         </div>
     </div>
 
-    <div id="lucky-spin-modal" class="modal-overlay">
+    <div id="lucky-spin-modal" class="modal-overlay" style="z-index: 2000;">
         <div class="settings-card" dir="auto" style="max-width: 360px;">
             <button class="modal-close-btn" onclick="closeAppModal('lucky-spin-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 24px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">عجلة الحظ 🎡</h3>
@@ -295,7 +293,7 @@
         </div>
     </div>
 
-    <div id="level-up-modal" class="modal-overlay">
+    <div id="level-up-modal" class="modal-overlay" style="z-index: 3000;">
         <div class="settings-card" dir="auto" style="max-width: 320px; overflow: hidden; position: relative;">
             <div class="level-up-rays"></div> <button class="modal-close-btn" onclick="closeAppModal('level-up-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color:#ffd700; font-size: 26px; text-shadow: 0 0 10px rgba(255,215,0,0.6); margin-bottom: 10px;">ترقية جديدة! ⬆️</h3>
@@ -310,7 +308,7 @@
         </div>
     </div>
 
-    <div id="mic-request-modal" class="modal-overlay" style="z-index: 10000000;">
+    <div id="mic-request-modal" class="modal-overlay" style="z-index: 3500;">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 style="color: #87ceeb; margin-bottom: 10px;">طلب محادثة صوتية 🎤</h3>
             <p style="color: #e0e0e0; font-size: 14px; margin-bottom: 20px; line-height: 1.6;">الخصم يطلب تفعيل المايكروفون، هل توافق على بدء المحادثة؟</p>
@@ -321,7 +319,7 @@
         </div>
     </div>
 
-    <div id="in-game-profile-modal" class="modal-overlay" style="z-index: 10000000;">
+    <div id="in-game-profile-modal" class="modal-overlay" style="z-index: 2200;">
         <div class="settings-card" dir="auto" style="max-width: 340px; padding: 40px 15px; display: flex; flex-direction: column; align-items: center;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             <h3 id="igp-title" style="margin-bottom: 15px;">الملف الشخصي</h3>
@@ -408,13 +406,11 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة إرسال الهدية المحدثة 🌟 -->
-    <div id="send-gift-modal" class="modal-overlay" style="z-index: 10000020;">
+    <div id="send-gift-modal" class="modal-overlay" style="z-index: 2600;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('send-gift-modal')">✕</button>
             <h3 style="color: #00d2ff; margin-bottom: 10px;">إرسال شعبية 🎁</h3>
             
-            <!-- 🌟 مبدل اختيار اللاعب (يظهر للمشاهدين فقط) 🌟 -->
             <div id="spectator-gift-target-selector" style="display: none; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 14px; border: 1px solid rgba(0,210,255,0.2);">
                 <p style="color: #a1a1aa; font-size: 11px; margin: 0 0 8px 0; text-align: center;">لمن تريد إرسال الهدية؟</p>
                 <div style="display: flex; gap: 8px;">
@@ -428,7 +424,7 @@
         </div>
     </div>
 
-    <div id="friend-requests-modal" class="modal-overlay" style="z-index: 10000015 !important;">
+    <div id="friend-requests-modal" class="modal-overlay" style="z-index: 2300;">
         <div class="settings-card" dir="auto" style="max-width: 340px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('friend-requests-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color: #f5a623; margin-bottom: 10px;">طلبات الصداقة 🔔</h3>
@@ -437,18 +433,19 @@
         </div>
     </div>
 
-    <div id="login-modal" class="modal-overlay">
+    <!-- 🛡️ (مُحدّث): نافذة تسجيل الدخول المستقلة -->
+    <div id="login-modal" class="modal-overlay" style="z-index: 4000;">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="window.closeAppModal('login-modal')" style="left:15px; right:auto;">✕</button>
             <h3>تسجيل الدخول</h3>
             <label class="settings-label" for="login-name-input">الاسم</label><input type="text" id="login-name-input" class="online-input" placeholder="أدخل اسمك">
-            <label class="settings-label" for="login-password-input">كلمة المرور / Password</label><input type="password" id="login-password-input" class="online-input" placeholder="كلمة المرور">
-            <label class="settings-label" for="login-avatar-select">الشخصية</label><select id="login-avatar-select" class="online-input"><option value="avatar1">شخصية 1</option></select>
-            <button id="login-submit-btn" class="save-settings-btn" style="box-shadow: none !important;">دخول</button>
+            <label class="settings-label" for="login-password-input">كلمة المرور / Password</label><input type="password" id="login-password-input" class="online-input" placeholder="كلمة المرور (غير مطلوبة للزائر)">
+            <label class="settings-label" for="login-avatar-select">الشخصية</label><select id="login-avatar-select" class="online-input"><option value="Photo/1000132081.webp">شخصية 1</option></select>
+            <button id="login-submit-btn" class="save-settings-btn" style="box-shadow: none !important;">حفظ ودخول</button>
         </div>
     </div>
 
-    <div id="store-modal" class="modal-overlay">
+    <div id="store-modal" class="modal-overlay" style="z-index: 2000;">
         <div class="settings-card" dir="auto" style="max-width: 420px; padding: 25px 15px; position: relative;">
             <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 10;">✕</button>
             <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(255,215,0,0.4);">متجر الدامة 👑</h3>
@@ -472,7 +469,7 @@
         </div>
     </div>
 
-    <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 9999999;">
+    <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 2000;">
         <div class="leaderboard-full-screen" dir="rtl">
             <button class="lb-rewards-btn" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
             <button class="lb-close-btn" onclick="window.closeAppModal('leaderboard-modal')">✕</button>
@@ -500,7 +497,7 @@
         </div>
     </div>
 
-    <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 10000000 !important;">
+    <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 2500;">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 30px 20px; background: linear-gradient(145deg, #1a1a24, #2b2b35) !important; border: 1.5px solid #a88734 !important; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212,175,55,0.05) !important; max-height: 90vh; overflow-y: auto;">
             <button class="modal-close-btn" onclick="window.closeAppModal('top3-rewards-modal')" style="left:15px; right:auto; background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important;">✕</button>
             
@@ -550,7 +547,7 @@
         </div>
     </div>
 
-    <div id="themes-grid-overlay" class="modal-overlay">
+    <div id="themes-grid-overlay" class="modal-overlay" style="z-index: 2000;">
         <div class="settings-card" dir="auto">
             <h3 id="themes-grid-title" style="margin-bottom: 15px; font-size: 20px;">المظهر والأزياء</h3>
             <div class="custom-nav-tabs">
@@ -569,7 +566,7 @@
         </div>
     </div>
 
-    <div id="custom-alert-modal" class="modal-overlay">
+    <div id="custom-alert-modal" class="modal-overlay" style="z-index: 4500;">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <h3 id="custom-alert-title">تنبيه</h3>
             <p id="custom-alert-message" style="color: #e0e0e0; margin: 20px 0; font-size: 15px; line-height: 1.6;"></p>
@@ -580,7 +577,7 @@
         </div>
     </div>
 
-    <div id="new-game-modal" class="modal-overlay">
+    <div id="new-game-modal" class="modal-overlay" style="z-index: 1000;">
         <div class="settings-card" dir="auto" style="max-width: 300px; position: relative;">
             
             <input type="hidden" id="diff-quick-select" value="3">
@@ -601,8 +598,7 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة نتائج المباراة (Game Over) مع دعم عرض البوت الجديد 🌟 -->
-    <div id="game-over-modal" class="modal-overlay">
+    <div id="game-over-modal" class="modal-overlay" style="z-index: 1500;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <h3 id="game-over-title">Match Results</h3>
             
@@ -619,7 +615,7 @@
         </div>
     </div>
 
-    <div id="online-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 1000000;">
+    <div id="online-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 1000;">
         <div class="settings-card room-full-screen" dir="auto">
             <button class="modal-close-btn" onclick="window.closeAppModal('online-modal')" style="left: 20px; right: auto; top: 20px; background: rgba(0,0,0,0.5) !important;">✕</button>
             <h3 style="font-size: 26px; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8);">الغرف الخاصة 🚪</h3>
@@ -641,12 +637,11 @@
         </div>
     </div>
 
-      <div id="create-room-modal" class="modal-overlay" style="z-index: 1000001;">
+    <div id="create-room-modal" class="modal-overlay" style="z-index: 1500;">
          <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('create-room-modal')" style="left:15px; right:auto;">✕</button>
             <h3>إنشاء غرفة</h3>
 
-            <!-- 👑 حقل إدخال عنوان الغرفة للـ VIP (تم نقله للداخل) -->
             <div id="vip-title-container" style="margin-bottom: 20px; background: rgba(212, 175, 55, 0.05); padding: 12px; border-radius: 14px; border: 1px dashed rgba(212, 175, 55, 0.3);">
                 <label style="color: #FFD700; font-size: 13px; font-weight: bold; display: block; margin-bottom: 8px;">👑 عنوان الغرفة (ميزة VIP 3):</label>
                 <input type="text" id="room-title-input" class="online-input" placeholder="مثال: تحدي الكبار ⚔️" maxlength="25" style="margin-bottom: 0; border-color: rgba(212, 175, 55, 0.5); color: #FFD700; text-align: right;">
@@ -670,7 +665,7 @@
          </div>
     </div>
   
-    <div id="bet-selector-modal" class="modal-overlay" style="z-index: 99999999; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('bet-selector-modal')">
+    <div id="bet-selector-modal" class="modal-overlay" style="z-index: 2000; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('bet-selector-modal')">
         <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
             <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
             <div style="display: flex; flex-direction: column; width: 100%;">
@@ -684,7 +679,7 @@
         </div>
     </div>
 
-    <div id="challenge-bet-modal" class="modal-overlay" style="z-index: 99999999; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('challenge-bet-modal')">
+    <div id="challenge-bet-modal" class="modal-overlay" style="z-index: 5200; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('challenge-bet-modal')">
         <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: slideUpBottomSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
             <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
             <h3 style="color: #34c759; text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: 800;">تحديد رهان التحدي ⚔️</h3>
@@ -699,7 +694,7 @@
         </div>
     </div>
 
-    <div id="matchmaking-modal" class="modal-overlay">
+    <div id="matchmaking-modal" class="modal-overlay" style="z-index: 2000;">
         <div class="settings-card" dir="auto" style="max-width: 350px;">
             <h3 id="matchmaking-title">البحث</h3>
             <div style="display: flex; justify-content: space-around; align-items: center; margin: 30px 0;">
@@ -715,7 +710,7 @@
         </div>
     </div>
 
-    <div id="settings-overlay" class="modal-overlay">
+    <div id="settings-overlay" class="modal-overlay" style="z-index: 1000;">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="window.closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
             <h3 id="set-title">الإعدادات</h3>
@@ -730,33 +725,7 @@
         </div>
     </div>
 
-    <div id="purchase-modal" class="modal-overlay" style="z-index: 1000005;">
-        <div class="settings-card" dir="auto" style="max-width: 320px; padding: 30px 20px; background: #111115; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.9);">
-            <h3 id="modal-item-name" style="color: white; font-size: 20px; font-weight: 700; margin-bottom: 20px;">اسم المنتج</h3>
-            
-            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 20px;"></div>
-            
-            <div id="modal-item-preview" style="width: 80px; height: 80px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 35px; overflow: hidden;">💡</div>
-            
-            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;">
-                <span id="modal-item-cost" style="color: #ffd700; font-weight: 800; font-size: 22px;">0</span>
-            </div>
-
-            <div id="discount-container" style="display: none; width: 100%; margin-bottom: 25px; background: rgba(52, 199, 89, 0.05); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: 16px; padding: 15px;">
-                <label style="color: #34c759; font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">استخدم قسيمة خصم (اختياري) 🎫:</label>
-                <select id="modal-discount-select" class="clean-input" style="height: 40px; font-size: 14px; background: rgba(0,0,0,0.4); border-color: rgba(52, 199, 89, 0.2); color: white;">
-                    <option value="0">بدون خصم (حفظ القسائم)</option>
-                </select>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                <button id="confirm-buy-btn" class="btn" style="width: 100%; background: rgba(255, 215, 0, 0.05); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.4); border-radius: 20px; font-weight: bold; font-size: 15px; height: 48px;">شراء الآن</button>
-                <button onclick="document.getElementById('purchase-modal').style.display = 'none'" class="btn" style="width: 100%; background: transparent; color: #e0e0e0; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; font-size: 15px; height: 48px;">إلغاء</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="custom-password-modal" class="modal-overlay" style="z-index: 1000005;">
+    <div id="custom-password-modal" class="modal-overlay" style="z-index: 2500;">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('custom-password-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color: #f1c40f; margin-bottom: 10px;">غرفة محمية 🔒</h3>
@@ -769,7 +738,7 @@
         </div>
     </div>
 
-    <div id="creator-room-settings-modal" class="modal-overlay" style="z-index: 1000005;">
+    <div id="creator-room-settings-modal" class="modal-overlay" style="z-index: 2500;">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('creator-room-settings-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color: #87ceeb; margin-bottom: 10px;">إدارة غرفتي ⚙️</h3>
@@ -789,7 +758,7 @@
         </div>
     </div>
 
-    <div id="spectator-bet-modal" class="modal-overlay" style="z-index: 1000005;">
+    <div id="spectator-bet-modal" class="modal-overlay" style="z-index: 2500;">
         <div class="settings-card" dir="auto" style="max-width: 320px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('spectator-bet-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color: #f1c40f; margin-bottom: 10px;">صندوق المراهنات 🎯</h3>
@@ -826,8 +795,7 @@
         </div>
     </div>
     
-    <!-- 🌟 نافذة قائمة المشاهدين 🌟 -->
-    <div id="spectators-list-modal" class="modal-overlay" style="z-index: 10000030;">
+    <div id="spectators-list-modal" class="modal-overlay" style="z-index: 2500;">
         <div class="settings-card" dir="auto" style="max-width: 340px;">
             <button class="modal-close-btn" onclick="window.closeAppModal('spectators-list-modal')">✕</button>
             <h3 style="color: #f1c40f; margin-bottom: 15px;">قائمة المشاهدين 👁️</h3>
@@ -857,7 +825,6 @@
         <button id="room-portal-btn" title="الغرف الخاصة" onclick="window.openAppModal('online-modal')">
             <span data-icon="door" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 6px;"></span>
             <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: right; line-height: 1.2;">
-                <!-- تم تكبير الخط إلى 18px -->
                 <span style="color: #ffffff; font-size: 18px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">الغرف</span>
                 <span style="color: #f5a623; font-size: 9px; font-weight: 700;">المشاهدة والمراهنات</span>
             </div>
@@ -869,7 +836,6 @@
         
         <button id="mic-toggle-btn" title="المحادثة الصوتية" style="display: none;"></button>
         
-        <!-- زر الإهداء الموحد -->
         <button id="match-gift-btn-p2" title="إرسال شعبية" style="display: none; background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #00d2ff !important; border-bottom: 3.5px solid #0088aa !important; color: #00d2ff !important; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5) !important; border-radius: 14px !important; width: 44px !important; height: 44px !important; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-direction: column; gap: 2px;">
             <span style="font-size: 16px; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8));">🎁</span>
             <span style="font-size: 9px; font-weight: bold; letter-spacing: 0.5px;">إهداء</span>
@@ -878,24 +844,24 @@
         <button id="resign-btn" title="الانسحاب" style="display: none;">الانسحاب</button>
     </div>
 
-    <div id="match-countdown-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(0,0,0,0.85); z-index: 9999999; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px);">
+    <div id="match-countdown-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(0,0,0,0.85); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px);">
         <div style="font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(241,196,15,0.6));">⚔️</div>
         <h2 style="color: #fce8a1; font-size: 26px; text-shadow: 0 0 15px #f1c40f; margin-bottom: 5px;">تجهّز للمواجهة!</h2>
         <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 20px;">المشاهدون يستطيعون المراهنة الآن...</p>
         <div id="match-countdown-number" style="font-size: 120px; color: white; font-weight: 900; text-shadow: 0 10px 25px rgba(0,0,0,1); background: linear-gradient(180deg, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">10</div>
     </div>
 
-    <script src="icons.js"></script>
+    <script src="icons.js?v=2.0"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
-    <script type="module" src="main.js"></script>
-    <script type="module" src="dailyQuests.js"></script>
-    <script src="../populars.js"></script>
-    <script src="chat.js"></script>
-    <script type="module" src="voice.js"></script>
+    <script type="module" src="main.js?v=2.0"></script>
+    <script type="module" src="dailyQuests.js?v=2.0"></script>
+    <script src="../populars.js?v=2.0"></script>
+    <script src="chat.js?v=2.0"></script>
+    <script type="module" src="voice.js?v=2.0"></script>
 
     <script type="module">
-        import { storeManager } from './store.js?v=999';
+        import { storeManager } from './store.js?v=2.0';
         document.addEventListener('DOMContentLoaded', () => { 
             setTimeout(() => {
                 if (storeManager && typeof storeManager.init === 'function') {
