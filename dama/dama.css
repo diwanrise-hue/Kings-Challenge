@@ -141,7 +141,7 @@ body {
     padding: 12px 15px;
     box-sizing: border-box; display: flex; justify-content: center; 
     align-items: center; gap: 12px; border-radius: 24px 24px 0 0; 
-    z-index: 9999; box-shadow: 0 -10px 30px rgba(0,0,0,0.4) !important; 
+    z-index: 800; box-shadow: 0 -10px 30px rgba(0,0,0,0.4) !important; 
 }
 
 /* زر الانسحاب (بدون الطبقة الحمراء) */
@@ -229,7 +229,7 @@ body {
     transition: all 0.15s ease !important;
     display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
     position: fixed !important; 
-    z-index: 10001 !important; 
+    z-index: 850 !important; 
     box-sizing: border-box !important;
     width: 44px !important; 
     height: 44px !important;
@@ -420,7 +420,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 #profile-badge.profile-badge-container { 
     position: fixed !important; 
     top: 1.5px !important; 
-    z-index: 10001; 
+    z-index: 850 !important; 
     width: 185px !important;       
     height: 100px !important;       
     background-image: url('Media/front/profile.webp'); 
@@ -1164,7 +1164,7 @@ body.game-active:not(.online-mode-active) #bag-quick-btn {
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
-    z-index: 10001 !important;
+    z-index: 850 !important; /* 🌟 تم التعديل هنا لعدم تغطية النوافذ المفتوحة */
 }
 
 body.online-mode-active { padding-top: 15px !important; }
@@ -1445,7 +1445,7 @@ body:not(.game-active) button#online-toggle-btn.premium-game-btn,
 body:not(.game-active) button#reset-btn.premium-game-btn {
     position: fixed !important;
     bottom: 74px !important; 
-    z-index: 9998 !important;
+    z-index: 800 !important; /* 🌟 تم التعديل هنا لعدم تغطية النوافذ المفتوحة */
     width: calc(50vw - 15px) !important; 
     max-width: 180px !important;   
     height: 66px !important;       
