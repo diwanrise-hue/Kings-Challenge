@@ -5,15 +5,14 @@
  * 🌟 (مُحدّث): حل مشكلة الحلقة المفرغة (Infinite Reload Loop) وعدم دخول المباريات.
  * 🌟 (مُحدّث): إصلاح انهيار الكود الأمني بوضع كبسولات (try...catch) لتجنب أخطاء المتصفح.
  * 🌟 (مُحدّث): دعم استرجاع اللعب القوي جداً (Reconnection Fix).
- * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف הـ VIP في قمة اللوبي.
+ * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف الـ VIP في قمة اللوبي.
  * 🌟 (مُحدّث): حفظ هوية الخصم لإتاحة إرسال الهدايا للـ VIP والمشاهدين.
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد.
  * 🛡️ (مُحدّث): نظام استعادة الاتصال (Reconnection) شامل للاعبين والمشاهدين.
  * 🚀 (مُحدّث جذرياً): حل شلل الأكل المتعدد في الأونلاين (Multi-Jump Path Sync).
  * 🚷 (مُحدّث): إضافة أحداث جلب قائمة المشاهدين والطرد من قبل الملوك.
  * 🔐 (مُحدّث أمنياً): دمج نظام المفتاح السري (AuthToken) لتوثيق الهوية ومنع سرقة الحسابات نهائياً.
- * 🛠️ (مُحدّث أخيراً): إزالة السباق الزمني في إنشاء الغرف والبحث عن لاعب.
- * 🛠️ (إصلاح حرج): حماية pieceDirection وتعديل العداد لمنع الشاشة الوهمية.
+ * 🛠️ (مُحدّث أخيراً): إضافة الدالة المفقودة للرسائل (getNotifyMsg) وحماية الاتجاهات.
  */
 
 import { gameState } from './gameState.js'; 
@@ -350,7 +349,7 @@ export const socketManager = {
             if (data && data.msg) this._showToast(data.msg);
         });
 
-        // 🌟 الإصلاح: عداد الرهان وتجنب Reload وتعديل الشاشة الوهمية
+        // 🌟 الإصلاح: عداد الرهان وتجنب Reload
         socket.on('matchCountdown', (data) => {
             const overlay = document.getElementById('match-countdown-overlay');
             const numEl = document.getElementById('match-countdown-number');
@@ -386,7 +385,7 @@ export const socketManager = {
                     timeLeft--;
                     if (timeLeft <= 0) {
                         clearInterval(gameState.countdownInterval);
-                        numEl.innerText = "جاري البدء..."; // 🛡️ تم الإصلاح هنا (لن تختفي الشاشة مبكراً)
+                        numEl.innerText = "جاري البدء..."; // رسالة تطمين بدلاً من إخفاء النافذة
                     } else {
                         numEl.innerText = timeLeft;
                         if(timeLeft <= 3 && typeof ui.playSound === 'function' && ui.sfx.clock) ui.playSound(ui.sfx.clock);
@@ -853,7 +852,6 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
-        // 🌟 الإصلاح הגذري: حماية القطع من الاختفاء + منع الـ Refresh وكبسولة الحماية
         socket.on('gameStart', data => {
             if (!data) return;
             
@@ -948,10 +946,7 @@ export const socketManager = {
                         });
                     }
                 });
-                
-                // 🛡️ التعديل هنا: حماية الكائن قبل تعيين خصائصه
                 if (!gameState.pieceDirection) gameState.pieceDirection = {}; 
-                
                 gameState.pieceDirection.white = wc[0] > wc[1] ? 1 : -1;
                 gameState.pieceDirection.black = bc[0] > bc[1] ? 1 : -1;
             }
@@ -1697,5 +1692,13 @@ const notifyTexts = {
         challengeDeclined: "{name} declined the challenge ❌"
     }
 };
+
+function getNotifyMsg(key, param = '') {
+    const lang = (gameState && gameState.lang) ? gameState.lang : (localStorage.getItem('app_lang') || localStorage.getItem('appLang') || 'ar');
+    const texts = notifyTexts[lang] || notifyTexts['ar'];
+    let msg = texts[key] || key;
+    if (param) msg = msg.replace('{name}', param);
+    return msg;
+}
 
 window.socketManager = socketManager;
