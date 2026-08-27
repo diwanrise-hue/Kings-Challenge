@@ -2,7 +2,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
- * 🌟 (مُحدّث): حل مشكلة الحلقة المفرغة (Infinite Reload Loop) عند دخول المباريات.
+ * 🌟 (مُحدّث): حل مشكلة الحلقة المفرغة (Infinite Reload Loop) وعدم دخول المباريات.
+ * 🌟 (مُحدّث): إصلاح انهيار الكود الأمني بوضع كبسولات (try...catch) لتجنب أخطاء المتصفح.
  * 🌟 (مُحدّث): دعم استرجاع اللعب القوي جداً (Reconnection Fix).
  * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف הـ VIP في قمة اللوبي.
  * 🌟 (مُحدّث): حفظ هوية الخصم لإتاحة إرسال الهدايا للـ VIP والمشاهدين.
@@ -348,6 +349,7 @@ export const socketManager = {
             if (data && data.msg) this._showToast(data.msg);
         });
 
+        // 🌟 الإصلاح: عداد الرهان وتجنب Reload
         socket.on('matchCountdown', (data) => {
             const overlay = document.getElementById('match-countdown-overlay');
             const numEl = document.getElementById('match-countdown-number');
@@ -356,17 +358,19 @@ export const socketManager = {
                 window.closeAppModal('online-modal');
             }
 
-            // 🌟 إصلاح آمن: إظهار نافذة اللعب بدون عمل Refresh
-            if (window.parent && window.parent.document) {
-                const pGameIf = window.parent.document.getElementById('game-interface');
-                const pGameSel = window.parent.document.getElementById('game-selector');
-                const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
-                if (pGameIf && pGameIf.style.display !== 'block') {
-                    pGameIf.style.display = 'block';
-                    if (pGameSel) pGameSel.style.display = 'none';
-                    if (pBotNav) pBotNav.style.display = 'none';
+            // إظهار نافذة اللعب (بدون استدعاء startGame لتجنب اللوب)
+            try {
+                if (window.parent && window.parent.document) {
+                    const pGameIf = window.parent.document.getElementById('game-interface');
+                    const pGameSel = window.parent.document.getElementById('game-selector');
+                    const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
+                    if (pGameIf && pGameIf.style.display !== 'block') {
+                        pGameIf.style.display = 'block';
+                        if (pGameSel) pGameSel.style.display = 'none';
+                        if (pBotNav) pBotNav.style.display = 'none';
+                    }
                 }
-            }
+            } catch(e) {}
 
             if (overlay && numEl) {
                 overlay.style.display = 'flex';
@@ -788,6 +792,20 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
 
+            // إظهار نافذة اللعب إذا كانت مخفية بأمان (بدون أخطاء CORS)
+            try {
+                if (window.parent && window.parent.document) {
+                    const pGameIf = window.parent.document.getElementById('game-interface');
+                    if (pGameIf && pGameIf.style.display !== 'block') {
+                        pGameIf.style.display = 'block';
+                        const pGameSel = window.parent.document.getElementById('game-selector');
+                        const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
+                        if (pGameSel) pGameSel.style.display = 'none';
+                        if (pBotNav) pBotNav.style.display = 'none';
+                    }
+                }
+            } catch(e) {}
+
             ui.setupSpectatorUI(data.player1, data.player2, data.isBettingOpen, data.roomID, data.hasAlreadyBet);
             ui.renderBoard(true);
             ui.startTurn();
@@ -836,21 +854,22 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
-        // 🌟 دالة العودة للعب والإصلاح الجذري للحلقة المفرغة
+        // 🌟 الإصلاح הגذري: منع الـ Refresh وكبسولة الحماية لإظهار الشاشة
         socket.on('gameStart', data => {
             if (!data) return;
             
-            // 🌟 الإصلاح: بدلاً من عمل Refresh، نقوم فقط بإظهار شاشة اللعبة الموجودة حالياً (CSS Display)
-            if (window.parent && window.parent.document) {
-                const pGameIf = window.parent.document.getElementById('game-interface');
-                const pGameSel = window.parent.document.getElementById('game-selector');
-                const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
-                if (pGameIf && pGameIf.style.display !== 'block') {
-                    pGameIf.style.display = 'block';
-                    if (pGameSel) pGameSel.style.display = 'none';
-                    if (pBotNav) pBotNav.style.display = 'none';
+            try {
+                if (window.parent && window.parent.document) {
+                    const pGameIf = window.parent.document.getElementById('game-interface');
+                    const pGameSel = window.parent.document.getElementById('game-selector');
+                    const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
+                    if (pGameIf && pGameIf.style.display !== 'block') {
+                        pGameIf.style.display = 'block';
+                        if (pGameSel) pGameSel.style.display = 'none';
+                        if (pBotNav) pBotNav.style.display = 'none';
+                    }
                 }
-            }
+            } catch(e) {}
 
             document.getElementById('custom-results-modal-container')?.remove(); 
             
