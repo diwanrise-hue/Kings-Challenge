@@ -2,7 +2,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
- * 🌟 (مُحدّث): دعم استرجاع اللعب القوي جداً (Reconnection Fix) عند تحديث الصفحة أو قطع الإنترنت.
+ * 🌟 (مُحدّث): حل مشكلة الحلقة المفرغة (Infinite Reload Loop) عند دخول المباريات.
+ * 🌟 (مُحدّث): دعم استرجاع اللعب القوي جداً (Reconnection Fix).
  * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف הـ VIP في قمة اللوبي.
  * 🌟 (مُحدّث): حفظ هوية الخصم لإتاحة إرسال الهدايا للـ VIP والمشاهدين.
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد.
@@ -355,9 +356,16 @@ export const socketManager = {
                 window.closeAppModal('online-modal');
             }
 
-            // 🛡️ التعديل هنا: إظهار الواجهة في حال كانت مخفية (Reconnection Fix)
-            if (window.parent && typeof window.parent.startGame === 'function') {
-                window.parent.startGame();
+            // 🌟 إصلاح آمن: إظهار نافذة اللعب بدون عمل Refresh
+            if (window.parent && window.parent.document) {
+                const pGameIf = window.parent.document.getElementById('game-interface');
+                const pGameSel = window.parent.document.getElementById('game-selector');
+                const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
+                if (pGameIf && pGameIf.style.display !== 'block') {
+                    pGameIf.style.display = 'block';
+                    if (pGameSel) pGameSel.style.display = 'none';
+                    if (pBotNav) pBotNav.style.display = 'none';
+                }
             }
 
             if (overlay && numEl) {
@@ -828,13 +836,20 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
-        // 🛡️ التعديل الجذري: دالة العودة للعب (Reconnection Fix)
+        // 🌟 دالة العودة للعب والإصلاح الجذري للحلقة المفرغة
         socket.on('gameStart', data => {
             if (!data) return;
             
-            // 🌟 إجبار الواجهة الرئيسية على نقلك للساحة في حال كنت مختفياً
-            if (window.parent && typeof window.parent.startGame === 'function') {
-                window.parent.startGame();
+            // 🌟 الإصلاح: بدلاً من عمل Refresh، نقوم فقط بإظهار شاشة اللعبة الموجودة حالياً (CSS Display)
+            if (window.parent && window.parent.document) {
+                const pGameIf = window.parent.document.getElementById('game-interface');
+                const pGameSel = window.parent.document.getElementById('game-selector');
+                const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
+                if (pGameIf && pGameIf.style.display !== 'block') {
+                    pGameIf.style.display = 'block';
+                    if (pGameSel) pGameSel.style.display = 'none';
+                    if (pBotNav) pBotNav.style.display = 'none';
+                }
             }
 
             document.getElementById('custom-results-modal-container')?.remove(); 
@@ -1660,13 +1675,5 @@ const notifyTexts = {
         challengeDeclined: "{name} declined the challenge ❌"
     }
 };
-
-function getNotifyMsg(key, param = '') {
-    const lang = (gameState && gameState.lang) ? gameState.lang : 'ar';
-    const msgs = notifyTexts[lang] || notifyTexts['ar'];
-    let msg = msgs[key] || '';
-    if (param) msg = msg.replace('{name}', param);
-    return msg;
-}
 
 window.socketManager = socketManager;
