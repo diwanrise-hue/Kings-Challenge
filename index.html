@@ -15,16 +15,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
-    <script src="radio.js?v=13" defer></script>
     
-    <!-- 🌟 ملفات السكربت الخارجية 🌟 -->
-    <script src="translations.js?v=13"></script>
-    <script src="hubIcons.js?v=13" defer></script>
-    <script src="populars.js?v=13" defer></script>
-    <script src="storeAll.js?v=13" defer></script>
-    
-    <!-- 🌟 ملف السكربت الرئيسي الخاص بالواجهة -->
-    <script src="index-scripts.js?v=13" defer></script>
+    <!-- 🛡️ (مُحدّث): تفادي الكاش باستخدام إصدارات للملفات ?v=2.0 -->
+    <script src="radio.js?v=2.0" defer></script>
+    <script src="translations.js?v=2.0"></script>
+    <script src="hubIcons.js?v=2.0" defer></script>
+    <script src="populars.js?v=2.0" defer></script>
+    <script src="storeAll.js?v=2.0" defer></script>
+    <script src="index-scripts.js?v=2.0" defer></script>
 
     <style>
         :root {
@@ -238,9 +236,10 @@
             position: fixed; top: 0; left: 0; z-index: 99999; 
         }
 
+        /* 🛡️ (مُحدّث): توحيد طبقات المودال */
         .modal-overlay { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); z-index: 99998; 
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); z-index: 3000; 
             justify-content: center; align-items: center; padding: 20px;
         }
         
@@ -332,6 +331,7 @@
         .bottom-actions { display: flex; gap: 10px; }
         .bottom-actions .btn { height: 48px; margin: 0; font-size: 14px; }
 
+        #custom-popup-modal { z-index: 5000; }
         #custom-popup-modal .settings-card { padding: 35px 25px; border: 1px solid rgba(255,255,255,0.1); }
         #custom-popup-msg { font-size: 15px; font-weight: 500; color: var(--text-primary); line-height: 1.6; margin-bottom: 25px; }
 
@@ -649,7 +649,7 @@
 
     <!-- المودلز الخاصة بالتطبيق -->
     
-    <div id="lang-select-modal" class="modal-overlay" style="z-index: 1000005;">
+    <div id="lang-select-modal" class="modal-overlay" style="z-index: 3000;">
         <div class="settings-card" dir="auto" style="max-width: 250px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeLangModal()">✕</button>
             <h3 data-i18n="change_lang" style="margin-bottom: 25px;">اللغة</h3>
@@ -661,7 +661,7 @@
         </div>
     </div>
 
-    <div id="bg-select-modal" class="modal-overlay" style="z-index: 1000005;">
+    <div id="bg-select-modal" class="modal-overlay" style="z-index: 3000;">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeBgModal()">✕</button>
             <h3 data-i18n="bg_title" style="margin-bottom: 25px;">تغيير الخلفية</h3>
@@ -679,7 +679,7 @@
         </div>
     </div>
 
-    <div id="custom-popup-modal" class="modal-overlay" style="z-index: 99999;">
+    <div id="custom-popup-modal" class="modal-overlay">
         <div class="settings-card" dir="auto" style="max-width: 300px; padding: 35px 25px; border: 1px solid rgba(255,255,255,0.1);">
             <p id="custom-popup-msg" style="font-size: 15px; font-weight: 500; color: var(--text-primary); line-height: 1.6; margin-bottom: 25px;"></p>
             <div class="input-group" id="custom-popup-input-group" style="display: none; margin-bottom: 25px;">
@@ -692,24 +692,25 @@
         </div>
     </div>
       
-    <div id="login-modal" class="modal-overlay">
+    <!-- 🛡️ (مُحدّث): تغيير معرف نافذة الـ Login الخاصة بالـ Hub لمنع تضاربها مع نافذة الـ Game -->
+    <div id="hub-login-modal" class="modal-overlay" style="z-index: 4000;">
         <div class="settings-card" dir="auto">
             <h3 id="auth-modal-title" data-i18n="register_tab_title">إنشاء حساب</h3>
             <p id="auth-modal-desc" class="desc" data-i18n="register_tab_desc">أهلاً بك. قم بإنشاء حسابك لجمع وتوحيد رصيدك عبر جميع الألعاب.</p>
             
             <div class="input-group">
                 <label class="settings-label" data-i18n="login_name_label">الاسم</label>
-                <input type="text" id="login-name-input" class="clean-input" data-i18n-placeholder="login_name_placeholder" placeholder="اكتب اسمك هنا">
+                <input type="text" id="hub-login-name-input" class="clean-input" data-i18n-placeholder="login_name_placeholder" placeholder="اكتب اسمك هنا">
             </div>
 
             <div class="input-group">
                 <label class="settings-label">كلمة المرور / Password</label>
-                <input type="password" id="login-password-input" class="clean-input" placeholder="••••••••">
+                <input type="password" id="hub-login-password-input" class="clean-input" placeholder="••••••••">
             </div>
 
             <div class="input-group" id="avatar-select-group">
                 <label class="settings-label" data-i18n="login_avatar_label">الشخصية</label>
-                <select id="login-avatar-select" class="clean-input">
+                <select id="hub-login-avatar-select" class="clean-input">
                     <option value="Photo/1000132081.webp" data-i18n="avatar_1">الملك الشاب</option>
                     <option value="Photo/1000132078.webp" data-i18n="avatar_2">الرجل الكردي</option>
                     <option value="Photo/1000132080.webp" data-i18n="avatar_3">الملكة</option>
@@ -732,8 +733,7 @@
         </div>
     </div>
 
-    <!-- نافذة المتجر الجانبية -->
-    <div id="store-modal" class="modal-overlay">
+    <div id="store-modal" class="modal-overlay" style="z-index: 2000;">
         <div class="settings-card" dir="auto" style="padding: 0; overflow: hidden; position: relative;">
             <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
             <div style="position: absolute; top: 18px; right: 20px; z-index: 100000; color: white;">🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
@@ -741,7 +741,7 @@
     </div>
 
     <!-- 👑 نافذة معلومات الـ VIP ومميزات المستويات -->
-    <div id="vip-info-modal" class="modal-overlay" style="z-index: 1000008;">
+    <div id="vip-info-modal" class="modal-overlay" style="z-index: 3500;">
         <div class="settings-card" dir="auto" style="max-width: 340px; padding: 25px 20px; background: #111115; border: 1px solid var(--accent); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.9); max-height: 85vh; overflow-y: auto;">
             <button onclick="window.closeAppModal('vip-info-modal')" class="modal-close-btn" style="top: 15px; left: 15px;">✕</button>
             <h3 style="color: var(--accent); font-size: 22px; font-weight: 800; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">مميزات مستويات الـ VIP</h3>
@@ -802,7 +802,7 @@
         </div>
     </div>
 
-    <div id="profile-modal" class="modal-overlay">
+    <div id="profile-modal" class="modal-overlay" style="z-index: 2500;">
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="closeProfileModal()">✕</button>
             <h3 data-i18n="profile_title" style="margin-bottom: 25px;">الملف الشخصي</h3>
@@ -847,8 +847,7 @@
         </div>
     </div>
 
-    <!-- 🌟 نافذة تأكيد الشراء (المرتبة) -->
-    <div id="purchase-modal" class="modal-overlay" style="z-index: 1000005;">
+    <div id="purchase-modal" class="modal-overlay" style="z-index: 3000;">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 30px 20px; background: #111115; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.9);">
             <h3 id="modal-item-name" style="color: white; font-size: 20px; font-weight: 700; margin-bottom: 20px;">اسم المنتج</h3>
             
@@ -875,7 +874,7 @@
     </div>
 
     <!-- 🌟 نافذة الحقيبة -->
-    <div id="themes-grid-overlay" class="modal-overlay" style="z-index: 1000006;">
+    <div id="themes-grid-overlay" class="modal-overlay" style="z-index: 2500;">
         <div class="settings-card" dir="auto" style="width: 90vw; height: 90vh; max-width: none; max-height: none; padding: 0; background: #0b120d; border: 1px solid var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.9); display: flex; flex-direction: column; overflow: hidden;">
             
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(197, 155, 66, 0.2); flex-shrink: 0;">
@@ -963,7 +962,6 @@
                 <div id="bag-view-general" style="display: none; flex-direction: column; height: 100%; animation: fadeIn 0.3s ease-out; padding: 6px;">
                     <div id="bag-content-general" class="bag-game-content active" style="flex-direction: column; height: 100%; display: flex !important;">
                         <div class="store-tabs-container" style="margin-bottom: 10px; width: 100%; max-width: 100%; flex-shrink: 0;">
-                            <!-- 🌟 التعديل الجذري في أزرار تبويبات حقيبة الواجهة الرئيسية -->
                             <button id="theme-btn-tab-profile-frames" class="store-tab-btn" onclick="window.hubSwitchThemeGridTabCategory('profile-frames')">إطارات البروفايل</button>
                             <button id="theme-btn-tab-gifts" class="store-tab-btn active" onclick="window.hubSwitchThemeGridTabCategory('gifts')">هدايا <span style="filter: hue-rotate(210deg);">🔥</span></button>
                        </div>
@@ -981,7 +979,7 @@
     </div>
 
     <script type="module">
-        import { storeManager } from './dama/store.js'; 
+        import { storeManager } from './dama/store.js?v=2.0'; 
         document.addEventListener('DOMContentLoaded', () => {
             if (storeManager && typeof storeManager.init === 'function') {
                 storeManager.init();
