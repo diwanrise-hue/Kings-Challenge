@@ -4,8 +4,16 @@
  * 🌟 (مُحدّث): سقف مراهنات الـ VIP العالي للمشاهدين، ودالة تأكيد الرهان.
  * 🌟 (مُحدّث أمني): تشفير هوية الخصم (Masked ID) لمنع انتحال الشخصية.
  * 🚷 (مُحدّث جديد): إضافة دوال جلب قائمة المشاهدين وطرد الهاكرز (VIP 4+).
- * 🛡️ (مُحدّث جذرياً): إزالة تجاوزات localStorage الخطيرة لمنع تسرب الذاكرة (Memory Leak).
+ * 🛡️ (مُحدّث جذرياً): تنظيف مدخلات XSS ومسح الذاكرة عند إغلاق لوحة الشرف (Bug 40 & 47).
  */
+
+// 🛡️ (مُحدّث أمنياً): دالة لتنظيف أي نصوص قادمة من السيرفر (أسماء اللاعبين) لمنع ثغرة XSS
+function escapeHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.innerText = str;
+    return div.innerHTML;
+}
 
 function formatCompactNumber(num) {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -114,11 +122,6 @@ window.refreshProfileUIStyles = function() {
 
 window.addEventListener('load', () => { setTimeout(window.refreshProfileUIStyles, 500); });
 
-// ==========================================
-// 💡 تم إزالة دالة الاختراق لـ localStorage لأنها كانت تسبب تسرب الذاكرة (Memory Leak)
-// سيتم الاعتماد على الأحداث الصريحة للتحديث بدلاً من اعتراض دوال المتصفح الأصلية
-// ==========================================
-
 window.sendFriendReqById = function() {
     const idInput = document.getElementById('add-friend-id-input');
     if(idInput && idInput.value.trim() !== '') {
@@ -177,16 +180,17 @@ window.renderDamaPopularityStore = function() {
     if (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.length > 0) {
         window.POPULARITY_ITEMS.forEach(gift => {
             const card = document.createElement('div'); card.className = 'store-item-card'; card.style.padding = '8px 4px'; card.style.position = 'relative';
+            const safeName = escapeHTML(gift.nameAr);
             card.innerHTML = `
                 <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border-radius: 8px;">
                     <img src="${gift.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain;">
                 </div>
-                <span style="color: white; font-size: 11px; font-weight: bold; line-height: 1.2; text-align: center; margin-top: 4px;">${gift.nameAr}</span>
+                <span style="color: white; font-size: 11px; font-weight: bold; line-height: 1.2; text-align: center; margin-top: 4px;">${safeName}</span>
                 <div style="color: #00d2ff; font-size: 10px; font-weight: bold; margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 3px; filter: drop-shadow(0 0 2px rgba(0, 210, 255, 0.4));">
                     +${formatCompactNumber(gift.popValue)} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
                 </div>
                 <div style="color: #f5a623; font-size: 12px; font-weight: bold; margin-top: auto; margin-bottom: 2px;">🪙 ${formatCompactNumber(gift.price)}</div>
-                <button class="store-buy-btn store-buy-btn-small" onclick="window.openPurchaseModal('${gift.id}', '${gift.nameAr}', ${gift.price}, 'popularity')">شراء</button>
+                <button class="store-buy-btn store-buy-btn-small" onclick="window.openPurchaseModal('${gift.id}', '${safeName}', ${gift.price}, 'popularity')">شراء</button>
             `;
             grid.appendChild(card);
         });
@@ -314,9 +318,8 @@ window.confirmSpectatorBet = function() {
     let amountInput = document.getElementById('spectator-bet-amount') || modal.querySelector('input[type="number"]');
     let amount = amountInput ? parseInt(amountInput.value) : 0;
 
-    // 🌟 حساب الحد الأقصى للرهان بناءً على مستوى الـ VIP
     let vipLevel = window.gameState.userProfile ? (window.gameState.userProfile.vipLevel || 0) : 0;
-    let maxBet = 500; // الافتراضي
+    let maxBet = 500; 
     if (vipLevel === 3) maxBet = 2500;
     else if (vipLevel === 4) maxBet = 10000;
     else if (vipLevel >= 5) maxBet = 50000;
@@ -388,6 +391,16 @@ function startSeasonCountdown() {
 
 document.addEventListener('DOMContentLoaded', () => {
     startSeasonCountdown();
+    
+    // 🛡️ (مُحدّث للأداء): اعتراض دالة إغلاق النوافذ لمسح الذاكرة عند إغلاق لوحة الشرف
+    const originalCloseAppModal = window.closeAppModal;
+    window.closeAppModal = function(id) {
+        if (id === 'leaderboard-modal') {
+            window.lastFetchedWinsData = null;
+            window.lastFetchedXpData = null;
+        }
+        if (originalCloseAppModal) originalCloseAppModal(id);
+    };
 });
 window.startSeasonCountdown = startSeasonCountdown;
 
@@ -400,7 +413,6 @@ window.requestSpectatorList = function() {
     const container = document.getElementById('spectators-items-container');
     const desc = document.getElementById('spectators-list-desc');
     
-    // إنشاء الوصف ديناميكياً لتجنب مشكلة الـ null في الواجهة
     if (!desc) {
         const modalContent = document.getElementById('spectators-list-content');
         if (modalContent && modalContent.parentElement) {
@@ -425,7 +437,6 @@ window.requestSpectatorList = function() {
 window.renderSpectatorsList = function(spectators) {
     let container = document.getElementById('spectators-items-container');
     
-    // تأمين ظهور الحاوية
     if (!container) {
         container = document.getElementById('spectators-list-content');
     }
@@ -443,7 +454,6 @@ window.renderSpectatorsList = function(spectators) {
     
     if (desc) desc.innerText = `عدد المشاهدين الحاليين: ${spectators.length}`;
     
-    // التحقق مما إذا كان المستخدم هو صاحب الغرفة و VIP 4 أو 5
     let isHost = (window.gameState && window.gameState.userProfile && window.matchPlayer1Id === window.gameState.userProfile.id);
     let isVipAdmin = (window.gameState && window.gameState.userProfile && window.gameState.userProfile.vipLevel >= 4);
     let canKick = isHost && isVipAdmin;
@@ -456,8 +466,13 @@ window.renderSpectatorsList = function(spectators) {
         
         let vipIcon = spec.vipLevel > 0 ? `<img src="Media/VIP/vip${spec.vipLevel}.webp" style="width: 16px; height: 16px; margin-right: 4px;" onerror="this.style.display='none';">` : '';
 
+        // 🛡️ (مُحدّث أمنياً): تنظيف الاسم قبل إدراجه
+        const safeName = escapeHTML(spec.name);
+        // لا نحتاج لتنظيف الـ ID لأنه مجرد أحرف وأرقام ولكن زيادة في الأمان نستخدمه عبر دالة محكمة
+        const safeId = escapeHTML(spec.id);
+
         let kickBtnHTML = canKick ? `
-            <button onclick="window.kickSpectator('${spec.id}', '${spec.name}')" title="طرد المشاهد" style="background: rgba(255, 69, 58, 0.15); border: 1px solid rgba(255, 69, 58, 0.4); color: #ff453a; border-radius: 8px; width: 32px; height: 32px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.2s;" onmouseover="this.style.background='rgba(255, 69, 58, 0.3)'" onmouseout="this.style.background='rgba(255, 69, 58, 0.15)'">
+            <button onclick="window.kickSpectator('${safeId}', '${safeName.replace(/'/g, "\\'")}')" title="طرد المشاهد" style="background: rgba(255, 69, 58, 0.15); border: 1px solid rgba(255, 69, 58, 0.4); color: #ff453a; border-radius: 8px; width: 32px; height: 32px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.2s;" onmouseover="this.style.background='rgba(255, 69, 58, 0.3)'" onmouseout="this.style.background='rgba(255, 69, 58, 0.15)'">
                 🚷
             </button>
         ` : '';
@@ -469,7 +484,7 @@ window.renderSpectatorsList = function(spectators) {
             <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
                 <img src="${specAvatar}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.2);">
                 <div style="display: flex; flex-direction: column; overflow: hidden;">
-                    <span style="color: white; font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center;">${spec.name} ${vipIcon}</span>
+                    <span style="color: white; font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center;">${safeName} ${vipIcon}</span>
                 </div>
             </div>
             ${kickBtnHTML}
@@ -492,5 +507,206 @@ window.kickSpectator = function(targetId, targetName) {
             },
             true, "إلغاء", "طرد"
         );
+    }
+};
+
+// 🛡️ (مُحدّث أمنياً): تأمين إدخالات لوحة الشرف
+window.createLbItemHTML = function(rank, playerObj, type) {
+    let score = playerObj.score || playerObj.wins || 0; 
+    let name = escapeHTML(playerObj.name); // تنظيف الاسم
+    let avatarStr = playerObj.avatar; 
+    let playerRankInfo = playerObj.rankInfo;
+    
+    let displayScore = '';
+    
+    if (type === 'xp') {
+        let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1; 
+        if (level > 200) level = 200;
+        displayScore = `<span style="color:#87ceeb; font-weight:800; background: rgba(135,206,235,0.15); border: 1px solid rgba(135,206,235,0.3); padding: 2px 8px; border-radius: 6px;">Lv.${level}</span>`;
+    } else {
+        displayScore = `<span style="color:#f5a623; font-weight:800;">${formatCompactNumber(score)} 🏆</span>`;
+    }
+
+    const div = document.createElement('div'); 
+    div.className = 'lb-item';
+    let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${escapeHTML(playerRankInfo.title)}">${playerRankInfo.icon}</span>` : '';
+    const nameEl = document.createElement('div'); 
+    nameEl.className = 'lb-name'; 
+    nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
+    
+    let secureImgSrc = getSecureAvatarUrl(avatarStr);
+    let overlayFrameSrc = playerObj.equippedProfileFrame && PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] ? PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] : null;
+
+    div.innerHTML = `
+        <div class="lb-rank">#${rank}</div>
+        <div class="lb-avatar" style="padding:0; border:none; display:flex; justify-content:center; align-items:center; overflow:visible; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px; width: 40px; height: 40px; border-radius: 50%; background: transparent;" title="عرض الملف الشخصي">
+            <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                <img src="${secureImgSrc}" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'font-size: 22px;\\'>👤</span>';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
+                ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; border-radius: 0; max-width: none; max-height: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">` : ''}
+            </div>
+        </div>
+        <div class="lb-info" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
+            <div class="lb-name-container"></div>
+            <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${displayScore}</div>
+        </div>
+    `;
+    
+    div.querySelector('.lb-name-container').replaceWith(nameEl);
+    const avatarContainer = div.querySelector('.lb-avatar');
+    
+    avatarContainer.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(playerObj); };
+    avatarContainer.onmouseover = () => { avatarContainer.style.transform = 'scale(1.1)'; };
+    avatarContainer.onmouseout = () => { avatarContainer.style.transform = 'scale(1)'; };
+
+    return div;
+};
+
+function getSecureAvatarUrl(src) {
+    if (!src || src === 'null' || src === 'undefined') {
+        return 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
+    }
+    if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
+        return src;
+    }
+    let cleanName = src.replace(/\.\.\//g, '').replace('Photo/', '');
+    return 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
+}
+
+function getFormattedLeaderboardScore(player, tabType) {
+    let score = player.score || player.wins || 0;
+    
+    if (tabType === 'wins') {
+        return formatCompactNumber(score) + ' 🏆';
+    }
+    
+    if (tabType === 'xp') {
+        let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1;
+        if (level > 200) level = 200;
+        return `Lv.${level}`;
+    }
+    
+    return formatCompactNumber(score);
+}
+
+window.renderDynamicLeaderboardUI = function(playersList, tabType) {
+    const podiumContainer = document.getElementById('leaderboard-podium-container');
+    const listContainer = document.getElementById('leaderboard-list-' + tabType); 
+    
+    if (!podiumContainer || !listContainer) return;
+
+    podiumContainer.innerHTML = '';
+    listContainer.innerHTML = '';
+
+    if (!playersList || playersList.length === 0) {
+        listContainer.innerHTML = '<p style="text-align: center; color: #a1a1aa; padding: 20px; width: 100%;">لا توجد بيانات حالياً في هذا التصنيف.</p>';
+        return;
+    }
+
+    const podiumOrder = [
+        { rank: 2, data: playersList[1] },
+        { rank: 1, data: playersList[0] },
+        { rank: 3, data: playersList[2] }
+    ];
+
+    podiumOrder.forEach(item => {
+        if (!item.data) return; 
+        
+        const player = item.data;
+        const card = document.createElement('div');
+        card.className = `lb-podium-card rank-${item.rank}`;
+        
+        let frameOverlay = '';
+
+        if (tabType === 'xp') {
+            const proFrames = { 1: window.frameRank1, 2: window.frameRank2, 3: window.frameRank3 };
+            let frameUrl = proFrames[item.rank];
+            if (frameUrl) {
+                frameOverlay = `
+                    <div style="position: absolute; top: -22%; left: -22%; width: 144%; height: 144%;
+                                background-image: url('${frameUrl}');
+                                background-size: 100% 100%;
+                                background-position: center;
+                                background-repeat: no-repeat;
+                                z-index: 5; pointer-events: none;">
+                    </div>
+                `;
+            }
+        }
+        
+        let overlayFrameSrc = player.equippedProfileFrame && PROFILE_FRAMES_DB[player.equippedProfileFrame] ? PROFILE_FRAMES_DB[player.equippedProfileFrame] : null;
+        let safeName = escapeHTML(player.name || 'Guest');
+
+        card.innerHTML = `
+            <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
+            
+            <div style="position: relative; width: ${item.rank === 1 ? '72px' : '62px'}; height: ${item.rank === 1 ? '72px' : '62px'}; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;">
+                <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1; background: transparent; overflow: visible; border: none; box-shadow: none;">
+                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="${getSecureAvatarUrl(player.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 1;">
+                        ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 3; pointer-events: none; object-fit: contain; border-radius: 0; max-width: none; max-height: none;">` : ''}
+                    </div>
+                </div>
+                ${frameOverlay}
+            </div>
+
+            <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
+                <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
+                <div class="lb-podium-name" style="width: 100%; text-align: center; margin-bottom: 0;">${safeName}</div>
+            </div>
+        `;
+        
+        card.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(player); };
+        card.style.cursor = 'pointer';
+
+        podiumContainer.appendChild(card);
+    });
+
+    for (let i = 3; i < playersList.length; i++) {
+        listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
+    }
+};
+
+window.populateLeaderboards = function(winsData, xpData) {
+    document.getElementById('leaderboard-list-wins').innerHTML = '';
+    document.getElementById('leaderboard-list-xp').innerHTML = '';
+    
+    const activeTabBtn = document.querySelector('.lb-tab-button.active');
+    let activeTabId = 'wins';
+    if(activeTabBtn && activeTabBtn.id === 'lb-tab-xp') activeTabId = 'xp';
+
+    window.lastFetchedWinsData = winsData;
+    window.lastFetchedXpData = xpData;
+
+    if(activeTabId === 'wins') {
+        window.renderDynamicLeaderboardUI(winsData, 'wins');
+    } else {
+        window.renderDynamicLeaderboardUI(xpData, 'xp');
+    }
+};
+
+window.showLeaderboard = function() {
+    window.openAppModal('leaderboard-modal'); 
+    const loadingText = window.t ? window.t('lb_loading') : 'جاري التحميل...';
+    document.getElementById('leaderboard-list-wins').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
+    document.getElementById('leaderboard-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
+    if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
+};
+
+window.switchLbTab = function(tabId) {
+    document.getElementById('lb-tab-wins').classList.remove('active'); 
+    document.getElementById('lb-tab-xp').classList.remove('active');
+    
+    document.getElementById('leaderboard-list-wins').style.display = 'none'; 
+    document.getElementById('leaderboard-list-xp').style.display = 'none'; 
+    
+    document.getElementById('lb-tab-' + tabId).classList.add('active'); 
+    document.getElementById('leaderboard-list-' + tabId).style.display = 'flex';
+
+    document.getElementById('leaderboard-podium-container').innerHTML = '';
+
+    if (tabId === 'wins' && window.lastFetchedWinsData) {
+        window.renderDynamicLeaderboardUI(window.lastFetchedWinsData, 'wins');
+    } else if (tabId === 'xp' && window.lastFetchedXpData) {
+        window.renderDynamicLeaderboardUI(window.lastFetchedXpData, 'xp');
     }
 };
