@@ -1,5 +1,9 @@
 // ملف: index-scripts.js
 // 🌟 النسخة المحدثة والمتوافقة بالكامل مع السيرفر المركزي وجدار الحماية (AuthToken) 🌟
+// 🛡️ (مُحدّث): حماية أزرار التسجيل من الـ Spam.
+// 🛡️ (مُحدّث): التحقق الصارم من كلمات المرور وتأمين حسابات الزوار.
+// 🛠️ (مُحدّث): تحديث معرّفات (IDs) نافذة الدخول لمنع التضارب.
+// 💰 (مُحدّث): توحيد منطق الخصومات العادلة.
 
 function formatCompactNumber(num) {
     if (num >= 1000000) {
@@ -49,7 +53,7 @@ window.PROFILE_FRAMES_ITEMS = [
     { id: 'pf_noble', nameAr: 'إطار النبلاء الأسود', price: 10000, imagePath: GITHUB_PROFILE_BASE + 'Profile7.webp' }
 ];
 
-// 🌟 دالة فتح نافذة تأكيد الشراء (تدعم الآن الشعبية وإطارات البروفايل)
+// 🌟 دالة فتح نافذة تأكيد الشراء (تدعم الآن الشعبية وإطارات البروفايل مع توحيد الخصم)
 let currentPurchaseItem = null;
 
 window.openPurchaseModal = function(itemId, itemName, price, itemType) {
@@ -99,28 +103,22 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     else if (vipLevel === 4) passiveDiscount = 10; 
     else if (vipLevel >= 5) passiveDiscount = 15;  
 
+    // 🛡️ (مُحدّث): حل خلل حساب التخفيض المزدوج لتكون الخصومات عادلة للاعب
     function updatePriceDisplay() {
         if(!costEl) return;
         let ticketDiscount = (discountSelect && discountContainer && discountContainer.style.display !== 'none') ? (parseInt(discountSelect.value) || 0) : 0;
-        let finalPrice = price;
         let priceHtml = '';
         
-        if (passiveDiscount > 0 && price > 0) {
-            finalPrice = Math.floor(price * (1 - (passiveDiscount / 100)));
-            if (ticketDiscount > 0) finalPrice = Math.floor(finalPrice * (1 - (ticketDiscount / 100)));
+        if (itemType !== 'popularity' && (passiveDiscount > 0 || ticketDiscount > 0) && price > 0) {
+            let totalDiscount = passiveDiscount + ticketDiscount;
+            if (totalDiscount > 100) totalDiscount = 100;
+            
+            let finalPrice = Math.floor(price * (1 - (totalDiscount / 100)));
             
             priceHtml = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:14px; text-decoration:line-through; color:var(--text-secondary);">${formatCompactNumber(price)}</span>
-                    <span style="color:#34c759;">${formatCompactNumber(finalPrice)} 🪙 <span style="font-size:12px;">(مشمول الخصم)</span></span>
-                </div>
-            `;
-        } else if (ticketDiscount > 0 && price > 0) {
-            finalPrice = Math.floor(price * (1 - (ticketDiscount / 100)));
-             priceHtml = `
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <span style="font-size:14px; text-decoration:line-through; color:var(--text-secondary);">${formatCompactNumber(price)}</span>
-                    <span style="color:#34c759;">${formatCompactNumber(finalPrice)} 🪙 <span style="font-size:12px;">(خصم التذكرة)</span></span>
+                    <span style="color:#34c759;">${formatCompactNumber(finalPrice)} 🪙 <span style="font-size:12px;">(خصم ${totalDiscount}%)</span></span>
                 </div>
             `;
         } else {
@@ -358,7 +356,6 @@ window.updateTranslations = function() {
             document.getElementById('auth-primary-submit-btn').innerText = t.login_tab_btn;
             toggleLink.innerText = t.login_tab_toggle;
             
-            // تغيير الحقل الأول ليكون للمعرف (ID) في حالة تسجيل الدخول
             const nameLabel = document.querySelector('label[data-i18n="login_name_label"]');
             if (nameLabel) nameLabel.innerText = "المعرف الخاص بك (ID)";
         } else {
@@ -367,7 +364,6 @@ window.updateTranslations = function() {
             document.getElementById('auth-primary-submit-btn').innerText = t.register_tab_btn;
             toggleLink.innerText = t.register_tab_toggle;
             
-            // إعادة الحقل ليكون للاسم في حالة التسجيل
             const nameLabel = document.querySelector('label[data-i18n="login_name_label"]');
             if (nameLabel) nameLabel.innerText = t.login_name_label || "الاسم";
         }
@@ -461,42 +457,36 @@ window.getSafeProfile = function() {
 
 // 🌟 أحداث الاستجابة الجديدة للسيرفر بعد الجدار الناري 🌟
 socket.on('authRegisterSuccess', (data) => {
+    const btn = document.getElementById('auth-primary-submit-btn');
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; } // إعادة تفعيل الزر
+    
     document.getElementById('custom-popup-modal').style.display = 'none';
     showCustomPopup(data.msg);
     localStorage.setItem('hub_user_profile', JSON.stringify(data.profile));
-    if(document.getElementById('profile-modal').style.display === 'flex') {
-        syncHubProfile();
-    } else {
-        checkUserAuthentication();
-    }
+    
+    // إخفاء نافذة الـ Login المحدثة
+    window.closeAppModal('hub-login-modal');
+    window.checkUserAuthentication();
 });
 
 socket.on('authLoginSuccess', (data) => {
+    const btn = document.getElementById('auth-primary-submit-btn');
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; } // إعادة تفعيل الزر
+    
     document.getElementById('custom-popup-modal').style.display = 'none';
     showCustomPopup(data.msg);
     localStorage.setItem('hub_user_profile', JSON.stringify(data.profile));
-    if(document.getElementById('profile-modal').style.display === 'flex') {
-        syncHubProfile();
-    } else {
-        checkUserAuthentication();
-    }
+    
+    window.closeAppModal('hub-login-modal');
+    window.checkUserAuthentication();
 });
 
 socket.on('authError', (data) => {
+    const btn = document.getElementById('auth-primary-submit-btn');
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; } // إعادة تفعيل الزر
+    
     document.getElementById('custom-popup-modal').style.display = 'none';
     showCustomPopup(data.msg);
-});
-
-// الأحداث القديمة كاحتياط فقط
-socket.on('auth_success', (data) => {
-    const msg = safeParseAuthMessage(data.message);
-    showCustomPopup(msg);
-    localStorage.setItem('hub_user_profile', JSON.stringify(data.profile));
-    if(document.getElementById('profile-modal').style.display === 'flex') {
-        syncHubProfile();
-    } else {
-        checkUserAuthentication();
-    }
 });
 
 socket.on('profileUpdated', (updatedProfile) => {
@@ -550,11 +540,6 @@ socket.on('royalEntrance', (data) => {
     }, 4000);
 });
 
-socket.on('auth_failed', (data) => {
-    const msg = safeParseAuthMessage(data.message);
-    showCustomPopup(data.message);
-});
-
 socket.on('purchaseSuccess', (msg) => {
     document.getElementById('custom-popup-modal').style.display = 'none';
     if(typeof msg === 'string') {
@@ -590,7 +575,7 @@ window.showLoadingPopup = function(msg) {
     customPopupCallback = null;
 };
 
-// 🌟 تحديث دالة تسجيل الدخول بفيسبوك لإرسال المفتاح السري (AuthToken)
+// 🛡️ (مُحدّث): حل مشكلة تعطل السيرفر عند غياب الصورة، وتمرير الـ Token 
 window.loginWithFacebook = function() {
     if (typeof FB === 'undefined') { showCustomPopup(translations[currentLang].msg_fb_connect); return; }
 
@@ -601,16 +586,17 @@ window.loginWithFacebook = function() {
 
             FB.api('/me?fields=id,name,picture.width(200).height(200)', function(fbUser) {
                 if (fbUser && !fbUser.error) {
-                    // جلب أو إنشاء المفتاح السري للجهاز
                     let profileRaw = localStorage.getItem('hub_user_profile');
                     let myAuthToken = null;
                     if (profileRaw) { try { myAuthToken = JSON.parse(profileRaw).authToken; } catch(e){} }
                     if (!myAuthToken) myAuthToken = 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 
+                    const avatarUrl = fbUser.picture?.data?.url || 'Photo/1000132081.webp';
+
                     const payload = {
                         fbId: fbUser.id,
                         name: fbUser.name,
-                        avatar: (fbUser.picture && fbUser.picture.data && fbUser.picture.data.url) ? fbUser.picture.data.url : null,
+                        avatar: avatarUrl,
                         newAuthToken: myAuthToken
                     };
                     
@@ -650,16 +636,18 @@ window.linkGuestWithFacebook = function() {
             FB.api('/me?fields=id,name,picture.width(200).height(200)', function(fbUser) {
                 if (fbUser && !fbUser.error) {
                     const profile = getSafeProfile();
+                    const avatarUrl = fbUser.picture?.data?.url || 'Photo/1000132081.webp';
+
                     const payload = {
                         guestId: profile.id,
                         fbId: fbUser.id,
                         name: fbUser.name,
-                        avatar: (fbUser.picture && fbUser.picture.data && fbUser.picture.data.url) ? fbUser.picture.data.url : null,
-                        newAuthToken: profile.authToken // نرسل نفس مفتاحنا لتأكيد هويتنا
+                        avatar: avatarUrl,
+                        newAuthToken: profile.authToken 
                     };
 
                     if (socket && socket.connected) {
-                        socket.emit('loginWithFacebook', payload); // استخدمنا نفس المسار المحدث
+                        socket.emit('loginWithFacebook', payload); 
                     } else {
                         socket.connect();
                         const onConnectLink = () => {
@@ -681,16 +669,6 @@ window.linkGuestWithFacebook = function() {
             });
         }
     }); 
-};
-
-window.safeParseAuthMessage = function(msgStr) {
-    if (typeof msgStr === 'string' && msgStr.startsWith('{')) {
-        try {
-            const parsed = JSON.parse(msgStr);
-            return parsed[currentLang] || parsed.en || msgStr;
-        } catch(e) { return msgStr; }
-    }
-    return msgStr;
 };
 
 window.toggleAuthMode = function() {
@@ -777,14 +755,18 @@ window.triggerAlertSoon = function() {
     }
 };
 
-// 🌟 تحديث دالة المتابعة لتشمل مسارات السيرفر الجديدة وترسل المفتاح السري 🌟
+// 🛡️ (مُحدّث): حماية زر التسجيل من الـ Spam والتوافق مع الـ IDs الجديدة
 window.submitManualAuthForm = function() {
-    const nameOrIdInput = document.getElementById('login-name-input').value.trim();
-    const passInput = document.getElementById('login-password-input').value;
-    const avatarSelect = document.getElementById('login-avatar-select').value;
+    const nameOrIdInput = document.getElementById('hub-login-name-input').value.trim();
+    const passInput = document.getElementById('hub-login-password-input').value;
+    const avatarSelect = document.getElementById('hub-login-avatar-select').value;
 
     if (!nameOrIdInput) return showCustomPopup(isLoginMode ? "الرجاء إدخال المعرف (ID)" : (translations[currentLang].msg_no_name || "الرجاء إدخال الاسم"));
     if (!passInput) return showCustomPopup(translations[currentLang].msg_no_pass || "الرجاء إدخال كلمة المرور");
+    
+    if (!isLoginMode && String(passInput).trim().length < 6) {
+        return showCustomPopup("كلمة المرور ضعيفة! يجب أن تتكون من 6 أحرف/أرقام على الأقل.");
+    }
 
     if (!socket || !socket.connected) {
         showCustomPopup(translations[currentLang].msg_server_fail || "السيرفر غير متصل، جاري المحاولة...");
@@ -792,7 +774,12 @@ window.submitManualAuthForm = function() {
         return;
     }
 
-    // جلب أو إنشاء المفتاح السري الخاص بالجهاز
+    const btn = document.getElementById('auth-primary-submit-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+    }
+
     let profileRaw = localStorage.getItem('hub_user_profile');
     let myAuthToken = null;
     if (profileRaw) {
@@ -805,14 +792,12 @@ window.submitManualAuthForm = function() {
     showLoadingPopup(currentLang === 'ar' ? "جاري المعالجة..." : "Processing...");
 
     if (isLoginMode) {
-        // تسجيل الدخول يتطلب ID + Password + NewAuthToken
         socket.emit('loginAccount', { 
             id: nameOrIdInput, 
             password: passInput, 
             newAuthToken: myAuthToken 
         });
     } else {
-        // إنشاء حساب يتطلب Name + Password + AuthToken + Avatar
         socket.emit('registerAccount', { 
             name: nameOrIdInput, 
             password: passInput, 
@@ -820,6 +805,13 @@ window.submitManualAuthForm = function() {
             avatar: avatarSelect 
         });
     }
+    
+    setTimeout(() => {
+        if (btn && btn.disabled) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+    }, 5000);
 };
 
 window.addEventListener('load', () => {
@@ -861,7 +853,7 @@ window.checkUserAuthentication = function() {
     if (globalProfile) {
         try {
             JSON.parse(globalProfile);
-            document.getElementById('login-modal').style.display = 'none';
+            document.getElementById('hub-login-modal').style.display = 'none';
             document.getElementById('game-selector').style.display = 'flex';
             document.getElementById('bottom-nav-bar').style.display = 'flex';
             syncHubProfile();
@@ -869,12 +861,12 @@ window.checkUserAuthentication = function() {
             localStorage.removeItem('hub_user_profile');
             document.getElementById('game-selector').style.display = 'none';
             document.getElementById('bottom-nav-bar').style.display = 'none';
-            document.getElementById('login-modal').style.display = 'flex';
+            document.getElementById('hub-login-modal').style.display = 'flex';
         }
     } else {
         document.getElementById('game-selector').style.display = 'none';
         document.getElementById('bottom-nav-bar').style.display = 'none';
-        document.getElementById('login-modal').style.display = 'flex';
+        document.getElementById('hub-login-modal').style.display = 'flex';
     }
 };
 
@@ -886,7 +878,7 @@ window.loginAsGuest = function() {
     
     const guestProfile = {
         id: randomId, name: randomName, avatar: 'Photo/1000132081.webp',
-        authToken: newAuthToken, // 🛡️ حفظ المفتاح في بيانات الزائر
+        authToken: newAuthToken, 
         isCustomAvatar: false,
         tokens: 10000, gamesPlayed: 0, wins: 0, losses: 0, friends: [], popularity: 0,
         purchasedItems: [], equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedPc: 'pc_original',
@@ -1270,7 +1262,7 @@ window.addEventListener('message', (event) => {
 });
 
 // ===================================================================
-// 🌟 دوال التنقل وإدارة الحقيبة المعزولة للواجهة الرئيسية (تمنع التعارض) 🌟
+// 🌟 دوال التنقل وإدارة الحقيبة المعزولة للواجهة الرئيسية 🌟
 // ===================================================================
 
 window.hubSwitchThemeGridTabCategory = function(category) {
@@ -1306,12 +1298,7 @@ window.hubRenderProfileFramesInBag = function() {
     let rawPurchased = profile.purchasedItems || [];
     let purchasedItems = Array.isArray(rawPurchased) ? rawPurchased : [];
 
-    const GITHUB_PROFILE_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/";
-    const framesList = window.PROFILE_FRAMES_ITEMS || [
-        { id: 'pf_ruby', nameAr: 'إطار الياقوت الملكي', imagePath: GITHUB_PROFILE_BASE + 'Profil2.webp' },
-        { id: 'pf_dragon', nameAr: 'إطار التنين الذهبي', imagePath: GITHUB_PROFILE_BASE + 'Profile4.webp' },
-        { id: 'pf_noble', nameAr: 'إطار النبلاء الأسود', imagePath: GITHUB_PROFILE_BASE + 'Profile7.webp' }
-    ];
+    const framesList = window.PROFILE_FRAMES_ITEMS || [];
 
     containers.forEach(container => {
         container.innerHTML = '';
@@ -1510,7 +1497,6 @@ window.updateVipProgressBarUI = function() {
 window.addEventListener('load', () => {
     setTimeout(updateVipProgressBarUI, 1000);
 });
-
 
 // 🌟 استرجاع اللاعب للمباراة تلقائياً عند تحديث الصفحة
 socket.on('gameStart', (data) => {
