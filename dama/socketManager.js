@@ -1,10 +1,9 @@
 // socketManager.js
 /**
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
- * 🌟 (مُحدّث): حل مشكلة الـ Ping العشوائي باستخدام RTT الدقيق وتعديل الـ z-index.
- * 🌟 (مُحدّث): نظام مسح تلقائي للحسابات التالفة لمنع حلقة الطرد اللانهائية.
+ * 🌟 (مُحدّث): حل مشكلة الـ Ping العشوائي باستخدام RTT الدقيق.
+ * 🌟 (مُحدّث جذرياً): إصلاح خلل الطرد للوبي عند وجود كلمة "غرفة" في رسائل الخطأ.
  * 🌟 (مُحدّث): توحيد نظام الصوت ليتوافق مع إعدادات كتم الصوت الخاصة باللاعب.
- * 🛠️ (مُحدّث): تتبع الأخطاء الصامتة عبر console.error لتسهيل التطوير.
  */
 
 import { gameState } from './gameState.js'; 
@@ -91,8 +90,7 @@ export const socketManager = {
                 background: transparent; color: #66bb6a; 
                 font-family: monospace; font-size: 11px; font-weight: 700; 
                 padding: 0; border: none; margin: 0;
-                z-index: 850; /* 🌟 تم التعديل هنا لتكون خلف النوافذ بدلاً من 99999 */
-                display: flex; align-items: center; justify-content: flex-start; gap: 4px;
+                z-index: 99999; display: flex; align-items: center; justify-content: flex-start; gap: 4px;
                 flex-direction: row; flex-wrap: nowrap; white-space: nowrap; 
                 pointer-events: none; opacity: 0.95; transition: opacity 0.5s ease;
                 text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.8), 1px -1px 1px rgba(0,0,0,0.8), -1px 1px 1px rgba(0,0,0,0.8); 
@@ -847,7 +845,7 @@ export const socketManager = {
                         ui.setDisplay('custom-alert-modal', 'none');
                     }
                 }
-            } catch(e) { console.error("Error closing modals on gameStart", e); }
+            } catch(e) {}
 
             if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
             const overlay = document.getElementById('match-countdown-overlay');
@@ -901,7 +899,7 @@ export const socketManager = {
                 if (typeof startOnlineHintSystem === 'function') {
                     startOnlineHintSystem(); 
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {}
 
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
@@ -953,7 +951,7 @@ export const socketManager = {
                 if (gameMenuContainer) {
                     gameMenuContainer.style.display = 'none';
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {}
 
             if (ui && typeof ui.toggleOnlineUILayout === 'function') {
                 ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
@@ -1029,7 +1027,7 @@ export const socketManager = {
                 if (window.ui && window.ui.sfx && window.ui.sfx.move) {
                     window.ui.playSound(window.ui.sfx.move);
                 }
-            } catch (err) { console.error("Sound play failed", err); }
+            } catch (err) {}
             
             if(gameState.selectedPiece) {
                 gameState.selectedPiece.classList.remove('selected');
@@ -1261,14 +1259,22 @@ export const socketManager = {
             this.handleExitGame(); 
         });
 
+        // 🛡️ (مُحدّث أمنياً): معالجة الأخطاء الذكية (إظهار النوافذ دون طرد اللاعب)
         socket.on('error', msg => {
             this._showToast(msg);
             
             if (msg && (msg.includes('محمي أمنياً') || msg.includes('Clear Cache'))) {
                 localStorage.removeItem('hub_user_profile');
                 setTimeout(() => window.location.reload(), 1500); 
-            } else if (msg && (msg.includes('قديمة') || msg.includes('match') || msg.includes('غرفة') || msg.includes('Room') || msg.includes('غير قانونية'))) {
+            } else if (msg && (msg.includes('نسخة اللعبة لديك قديمة') || msg.includes('غير قانونية'))) {
                 this.handleExitGame();
+            } else {
+                // 🚀 الإصلاح: عرض رسالة التنبيه دون طرد اللاعب من الواجهة
+                if (typeof ui !== 'undefined' && typeof ui.showCustomAlert === 'function') {
+                    if (msg.includes('غرفة') || msg.includes('Room') || msg.includes('نشطة')) {
+                        ui.showCustomAlert(msg, "تنبيه النظام ⚠️");
+                    }
+                }
             }
         });
 
