@@ -1,7 +1,8 @@
-// ==========================================
-// ملف store.js - النسخة النهائية المحدثة الشاملة المدمجة (متوافق 100% مع السيرفر)
-// 🌟 (مُحدّث جذرياً): إغلاق ثغرة الشراء الأوفلاين (Offline Purchase Exploit) لحماية الاقتصاد.
-// 🌟 (مُحدّث): المصدر الوحيد (Single Source of Truth) لدالة نوافذ الشراء لمنع التضارب.
+// ملف store.js 
+// النسخة النهائية المحدثة الشاملة المدمجة (متوافق 100% مع السيرفر)
+// 🌟 (مُحدّث جذرياً): حل مشكلة تسرب الذاكرة (Memory Leak) في CSS الديناميكي.
+// 🌟 (مُحدّث): إصلاح تصميم الـ Gap Killer ليعمل بكفاءة دون تشويه شاشات الـ PC.
+// 🌟 (مُحدّث مالي): توحيد جمع الخصومات (VIP + قسيمة) لتكون عادلة وشفافة للاعب.
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -105,9 +106,6 @@ export const STORE_ITEMS = {
                 box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.05), inset 0 0 15px rgba(0,0,0,0.9) !important; 
                 border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12 !important;
                 box-sizing: border-box !important;
-                width: 100vw !important;
-                max-width: 100vw !important;
-                height: 100vw !important;
                 position: relative !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
@@ -131,9 +129,6 @@ export const STORE_ITEMS = {
                 border-radius: 0 !important; 
                 background-clip: padding-box !important; 
                 box-sizing: border-box !important;
-                width: 100vw !important;
-                max-width: 100vw !important;
-                height: 100vw !important;
                 position: relative !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
@@ -164,9 +159,6 @@ export const STORE_ITEMS = {
                 border-image: url('${GITHUB_RAW_BASE}assets/frames/1000134883.webp') 9.5% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
-                width: 100vw !important;
-                max-width: 100vw !important;
-                height: 100vw !important;
                 position: relative !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
@@ -189,9 +181,6 @@ export const STORE_ITEMS = {
                 border-image: url('${GITHUB_RAW_BASE}assets/frames/1000134904.webp') 5% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
-                width: 100vw !important;
-                max-width: 100vw !important;
-                height: 100vw !important;
                 position: relative !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
@@ -214,9 +203,6 @@ export const STORE_ITEMS = {
                 border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136304.webp') 5% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
-                width: 100vw !important;
-                max-width: 100vw !important;
-                height: 100vw !important;
                 position: relative !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
@@ -239,9 +225,6 @@ export const STORE_ITEMS = {
                 border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136584.webp') 8% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
-                width: 100vw !important;
-                max-width: 100vw !important;
-                height: 100vw !important;
                 position: relative !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
@@ -264,9 +247,6 @@ export const STORE_ITEMS = {
                 border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136630.webp') 6% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
-                width: 100vw !important;
-                max-width: 100vw !important;
-                height: 100vw !important;
                 position: relative !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
@@ -289,9 +269,6 @@ export const STORE_ITEMS = {
                 border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136629.webp') 8% stretch !important; 
                 border-radius: 0 !important; 
                 box-sizing: border-box !important;
-                width: 100vw !important;
-                max-width: 100vw !important;
-                height: 100vw !important;
                 position: relative !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
@@ -603,9 +580,18 @@ export const storeManager = {
             const board = document.getElementById('board');
             if (!board) return;
 
-            board.style.setProperty('width', '100vw', 'important');
-            board.style.setProperty('height', '100vw', 'important');
-            board.style.setProperty('max-width', '100vw', 'important');
+            // 🛡️ (مُحدّث للـ UI/UX): تطبيق الـ 100vw فقط على الشاشات الصغيرة لتجنب تمزق اللعبة على الـ PC
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                board.style.setProperty('width', '100vw', 'important');
+                board.style.setProperty('height', '100vw', 'important');
+                board.style.setProperty('max-width', '100vw', 'important');
+            } else {
+                board.style.removeProperty('width');
+                board.style.removeProperty('height');
+                board.style.removeProperty('max-width');
+            }
+            
             board.style.setProperty('position', 'relative', 'important');
             board.style.setProperty('left', '50%', 'important');
             board.style.setProperty('transform', 'translateX(-50%)', 'important');
@@ -621,10 +607,11 @@ export const storeManager = {
 
         applyGapKillerStyles();
         
+        // 🛡️ (مُحدّث للأداء): إضافة Debounce حقيقي 250ms لمنع تجميد المتصفح أثناء التدوير
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(applyGapKillerStyles, 150);
+            resizeTimer = setTimeout(applyGapKillerStyles, 250);
         });
     },
 
@@ -647,7 +634,10 @@ export const storeManager = {
         document.body.appendChild(style);
     },
 
+    // 🛡️ (مُحدّث للأداء): منع إعادة إنشاء ستايل الـ CSS في كل مرة يفتح فيها المتجر
     injectDynamicPieceStyles() {
+        if (document.getElementById('dynamic-pieces-css')) return;
+        
         let pieceStyles = `
             #board .cell { display: flex !important; align-items: center !important; justify-content: center !important; }
             @keyframes goldenVaporAura { 0% { transform: scale(1); opacity: 0.8; filter: blur(2px); } 100% { transform: scale(1.6); opacity: 0; filter: blur(8px); } }
@@ -694,9 +684,10 @@ export const storeManager = {
             }
         });
 
-        let styleEl = document.getElementById('dynamic-pieces-css');
-        if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-pieces-css'; document.head.appendChild(styleEl); }
+        let styleEl = document.createElement('style'); 
+        styleEl.id = 'dynamic-pieces-css'; 
         styleEl.innerHTML = pieceStyles;
+        document.head.appendChild(styleEl);
     },
 
     applyBoardThemeCSS(bgKey) {
@@ -809,7 +800,6 @@ export const storeManager = {
         const processMsg = isAr ? "جاري معالجة الشراء عبر السيرفر..." : "Processing purchase...";
         if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(processMsg);
         
-        // 🌟 الإصلاح الجذري: منع الشراء الأوفلاين كلياً لمنع التضارب وضياع الأموال
         if (window['socket'] && window['socket'].connected) { 
             window['socket'].emit('requestPurchase', { guestId: profile.id, userId: profile.id, itemId: itemId, cost: item.cost, itemType: itemType || item.type }); 
         } else { 
@@ -1174,28 +1164,23 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         return num;
     }
 
+    // 🛡️ (مُحدّث): حل خلل حساب التخفيض المزدوج (Issue #43) لتكون الخصومات عادلة للاعب 
     function updatePriceDisplay() {
         if(!costEl) return;
         let ticketDiscount = (discountSelect && discountContainer && discountContainer.style.display !== 'none') ? (parseInt(discountSelect.value) || 0) : 0;
-        let finalPrice = price;
         let priceHtml = '';
         
-        if (passiveDiscount > 0 && price > 0 && itemType !== 'popularity') {
-            finalPrice = Math.floor(price * (1 - (passiveDiscount / 100)));
-            if (ticketDiscount > 0) finalPrice = Math.floor(finalPrice * (1 - (ticketDiscount / 100)));
+        if (itemType !== 'popularity' && (passiveDiscount > 0 || ticketDiscount > 0) && price > 0) {
+            // نجمع الخصومات بدلاً من خصمها بشكل متسلسل
+            let totalDiscount = passiveDiscount + ticketDiscount;
+            if (totalDiscount > 100) totalDiscount = 100;
+            
+            let finalPrice = Math.floor(price * (1 - (totalDiscount / 100)));
             
             priceHtml = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">${formatCompact(price)}</span>
-                    <span style="color:#34c759;">${formatCompact(finalPrice)} 🪙 <span style="font-size:12px;">(مشمول الخصم)</span></span>
-                </div>
-            `;
-        } else if (ticketDiscount > 0 && price > 0) {
-            finalPrice = Math.floor(price * (1 - (ticketDiscount / 100)));
-             priceHtml = `
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">${formatCompact(price)}</span>
-                    <span style="color:#34c759;">${formatCompact(finalPrice)} 🪙 <span style="font-size:12px;">(خصم التذكرة)</span></span>
+                    <span style="color:#34c759;">${formatCompact(finalPrice)} 🪙 <span style="font-size:12px;">(خصم ${totalDiscount}%)</span></span>
                 </div>
             `;
         } else {
