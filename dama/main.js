@@ -1,9 +1,9 @@
 /**
  * main.js
  * المنسق العام للمشروع (Orchestrator).
- * 🌟 (مُحدّث): دمج ميزة قراءة عنوان غرفة الـ VIP.
- * 🛡️ (مُحدّث): حل مشكلة التبعية الدائرية (Circular Dependency) عبر كائن window.
- * 🛠️ (مُحدّث جذرياً): فصل عداد مصابيح الأونلاين لمنع السيرفر من تدمير الحد الأقصى (2).
+ * 🌟 (مُحدّث): نظام الطابور (Queue) للهدايا لمنع تداخل الأصوات والفيديوهات.
+ * 🛡️ (مُحدّث أمنياً): تأمين توليد الحسابات المستقلة بـ AuthToken لمنع الطرد.
+ * 🛠️ (مُحدّث): إزالة الوميض الأسود المزعج (Flicker Hack) عند العودة للتطبيق.
  * ⏱️ (مُحدّث): تصفير مؤقتات المصباح وتهيئته عند إعادة اللعب (Rematch).
  */
 import { gameState } from './gameState.js';
@@ -18,12 +18,11 @@ function formatCompactNumber(num) {
     return num;
 }
 
+// 🛠️ (مُحدّث): إزالة الوميض الأسود واستبداله بإعادة حساب الأبعاد الآمنة (Reflow)
 document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible') {
         setTimeout(() => {
-            document.body.style.display = 'none';
-            void document.body.offsetHeight;
-            document.body.style.display = 'flex';
+            window.dispatchEvent(new Event('resize'));
         }, 50);
     }
 });
@@ -53,7 +52,6 @@ window.saveGameState = saveGameState;
 export async function loadGameState() { return false; }
 window.loadGameState = loadGameState;
 
-// 🛡️ الإصلاح الجذري: تصفير عداد الأونلاين المعزول بدلاً من تغيير ملف اللاعب
 export function startOnlineHintSystem() {
     gameState.onlineHintsUsed = 0; 
     const counterEl = document.getElementById('hint-counter');
@@ -64,7 +62,6 @@ export function startOnlineHintSystem() {
 }
 window.startOnlineHintSystem = startOnlineHintSystem;
 
-// 🛡️ إعادة الواجهة لتعرض الرصيد الحقيقي للمصابيح عند العودة للأوفلاين
 export function restoreOfflineHintSystem() {
     gameState.onlineHintsUsed = 0;
     if (typeof ui.updateProfileUI === 'function') {
@@ -173,6 +170,129 @@ window.addEventListener('load', async () => {
         window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
     });
 
+    // 🌟 (مُحدّث): نظام الطابور للهدايا لمنع تداخل الأصوات والفيديوهات 🌟
+    const giftQueue = [];
+    let isProcessingGift = false;
+
+    const processGiftQueue = () => {
+        if (isProcessingGift || giftQueue.length === 0) return;
+        isProcessingGift = true;
+
+        const data = giftQueue.shift();
+        
+        let giftImageHtml = '';
+        let giftName = 'هدية';
+        let isVideoGift = false;
+        let animDuration = 2800;
+        
+        if (window.POPULARITY_ITEMS) {
+            const giftObj = window.POPULARITY_ITEMS.find(item => item.id === data.giftId);
+            if (giftObj) {
+                giftName = giftObj.nameAr;
+                isVideoGift = giftObj.mediaType === 'video';
+                
+                if (isVideoGift) {
+                    animDuration = (data.giftId === 'pop_16') ? 10000 : 5000;
+                    giftImageHtml = `<video id="receiver-gift-vid" src="${giftObj.videoPath}" autoplay loop playsinline preload="auto" style="width: 220px; height: 220px; object-fit: contain; will-change: transform, opacity;"></video>`;
+                } else {
+                    giftImageHtml = `<img src="${giftObj.imagePath}" style="width: 150px; height: 150px; object-fit: contain; will-change: transform, opacity;">`;
+                }
+            }
+        }
+
+        const celebrationOverlay = document.createElement('div');
+        let overlayBg = isVideoGift ? 'rgba(0, 0, 0, 0.4)' : 'transparent';
+
+        celebrationOverlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
+            pointer-events: none; z-index: 10000050; 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: flex-start;
+            padding-top: 12vh;
+            background: ${overlayBg};
+            opacity: 0; 
+            transition: opacity 0.3s ease;
+        `;
+        
+        celebrationOverlay.innerHTML = `
+            <div id="receiver-anim-container" style="display: flex; flex-direction: column; align-items: center; opacity: 1; will-change: transform, opacity;">
+                ${giftImageHtml}
+                <div style="margin-top: 10px; color: #fff; font-weight: bold; font-size: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.65); padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(48, 209, 88, 0.5);">
+                    <span style="color: #30d158;">${data.senderName}</span> أرسل لك ${giftName} 🎁
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(celebrationOverlay);
+        
+        requestAnimationFrame(() => {
+            celebrationOverlay.style.opacity = '1';
+        });
+
+        const recVideo = document.getElementById('receiver-gift-vid');
+        const animContainer = document.getElementById('receiver-anim-container');
+        let animationStarted = false;
+
+        const startAnimation = () => {
+            if (animationStarted || !animContainer) return;
+            animationStarted = true;
+
+            if (isVideoGift && recVideo) {
+                recVideo.volume = 1.0;
+                let playPromise = recVideo.play();
+                if (playPromise !== undefined) playPromise.catch(e => console.log("AutoPlay Handled"));
+            }
+
+            let keyframes = [];
+            if (isVideoGift) {
+                keyframes = [
+                    { transform: 'scale(1)', opacity: 1, offset: 0 },   
+                    { transform: 'scale(1)', opacity: 1, offset: 0.9 }, 
+                    { transform: 'scale(1)', opacity: 0, offset: 1 }    
+                ];
+            } else {
+                keyframes = [
+                    { transform: 'scale(0.2) translateY(50px)', opacity: 0, offset: 0 },
+                    { transform: 'scale(1.2) translateY(-10px)', opacity: 1, offset: 0.15 },
+                    { transform: 'scale(1) translateY(0)', opacity: 1, offset: 0.25 },
+                    { transform: 'scale(1.05) translateY(-5px)', opacity: 1, offset: 0.75 },
+                    { transform: 'scale(1.5) translateY(-150px)', opacity: 0, offset: 1 }
+                ];
+            }
+
+            animContainer.animate(keyframes, {
+                duration: animDuration,
+                easing: isVideoGift ? 'linear' : 'cubic-bezier(0.25, 1, 0.5, 1)',
+                fill: 'forwards'
+            });
+            
+            // 🌟 الانتقال للهدية التالية بعد انتهاء الحالية
+            setTimeout(() => {
+                celebrationOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    celebrationOverlay.remove();
+                    isProcessingGift = false;
+                    processGiftQueue(); // تشغيل الهدية القادمة في الطابور
+                }, 500);
+            }, isVideoGift ? animDuration - 500 : animDuration);
+        };
+
+        if (isVideoGift) {
+            if (recVideo.readyState >= 3) { 
+                startAnimation();
+            } else {
+                recVideo.addEventListener('canplay', startAnimation);
+                recVideo.onerror = startAnimation; 
+                setTimeout(() => { if(!animationStarted && celebrationOverlay.parentNode) startAnimation(); }, 1500);
+            }
+        } else {
+            const imgEl = celebrationOverlay.querySelector('img');
+            if (imgEl && imgEl.complete) { startAnimation(); } 
+            else if (imgEl) { imgEl.onload = startAnimation; imgEl.onerror = startAnimation; }
+            else { startAnimation(); }
+        }
+    };
+
     socket.on('receivePopularityGift', (data) => {
         if (data && data.popValue) {
             gameState.userProfile.popularity = (gameState.userProfile.popularity || 0) + data.popValue;
@@ -190,117 +310,10 @@ window.addEventListener('load', async () => {
                     popValEl.style.color = '';
                 }, 400);
             }
-
-            let giftImageHtml = '';
-            let giftName = 'هدية';
-            let isVideoGift = false;
-            let animDuration = 2800;
             
-            if (window.POPULARITY_ITEMS) {
-                const giftObj = window.POPULARITY_ITEMS.find(item => item.id === data.giftId);
-                if (giftObj) {
-                    giftName = giftObj.nameAr;
-                    isVideoGift = giftObj.mediaType === 'video';
-                    
-                    if (isVideoGift) {
-                        animDuration = (data.giftId === 'pop_16') ? 10000 : 5000;
-                        giftImageHtml = `<video id="receiver-gift-vid" src="${giftObj.videoPath}" autoplay loop playsinline preload="auto" style="width: 220px; height: 220px; object-fit: contain; will-change: transform, opacity;"></video>`;
-                    } else {
-                        giftImageHtml = `<img src="${giftObj.imagePath}" style="width: 150px; height: 150px; object-fit: contain; will-change: transform, opacity;">`;
-                    }
-                }
-            }
-
-            const celebrationOverlay = document.createElement('div');
-            let overlayBg = isVideoGift ? 'rgba(0, 0, 0, 0.4)' : 'transparent';
-
-            celebrationOverlay.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
-                pointer-events: none; z-index: 10000050; 
-                display: flex; flex-direction: column; align-items: center; 
-                justify-content: flex-start;
-                padding-top: 12vh;
-                background: ${overlayBg};
-                opacity: 0; 
-                transition: opacity 0.3s ease;
-            `;
-            
-            celebrationOverlay.innerHTML = `
-                <div id="receiver-anim-container" style="display: flex; flex-direction: column; align-items: center; opacity: 1; will-change: transform, opacity;">
-                    ${giftImageHtml}
-                    <div style="margin-top: 10px; color: #fff; font-weight: bold; font-size: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.65); padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(48, 209, 88, 0.5);">
-                        <span style="color: #30d158;">${data.senderName}</span> أرسل لك ${giftName} 🎁
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(celebrationOverlay);
-            
-            requestAnimationFrame(() => {
-                celebrationOverlay.style.opacity = '1';
-            });
-
-            const recVideo = document.getElementById('receiver-gift-vid');
-            const animContainer = document.getElementById('receiver-anim-container');
-            let animationStarted = false;
-
-            const startAnimation = () => {
-                if (animationStarted || !animContainer) return;
-                animationStarted = true;
-
-                if (isVideoGift && recVideo) {
-                    recVideo.volume = 1.0;
-                    let playPromise = recVideo.play();
-                    if (playPromise !== undefined) playPromise.catch(e => console.log("AutoPlay Handled"));
-                }
-
-                let keyframes = [];
-                if (isVideoGift) {
-                    keyframes = [
-                        { transform: 'scale(1)', opacity: 1, offset: 0 },   
-                        { transform: 'scale(1)', opacity: 1, offset: 0.9 }, 
-                        { transform: 'scale(1)', opacity: 0, offset: 1 }    
-                    ];
-                } else {
-                    keyframes = [
-                        { transform: 'scale(0.2) translateY(50px)', opacity: 0, offset: 0 },
-                        { transform: 'scale(1.2) translateY(-10px)', opacity: 1, offset: 0.15 },
-                        { transform: 'scale(1) translateY(0)', opacity: 1, offset: 0.25 },
-                        { transform: 'scale(1.05) translateY(-5px)', opacity: 1, offset: 0.75 },
-                        { transform: 'scale(1.5) translateY(-150px)', opacity: 0, offset: 1 }
-                    ];
-                }
-
-                animContainer.animate(keyframes, {
-                    duration: animDuration,
-                    easing: isVideoGift ? 'linear' : 'cubic-bezier(0.25, 1, 0.5, 1)',
-                    fill: 'forwards'
-                });
-                
-                if (isVideoGift) {
-                    setTimeout(() => {
-                        celebrationOverlay.style.opacity = '0';
-                        setTimeout(() => celebrationOverlay.remove(), 500);
-                    }, animDuration - 500);
-                } else {
-                    setTimeout(() => celebrationOverlay.remove(), animDuration);
-                }
-            };
-
-            if (isVideoGift) {
-                if (recVideo.readyState >= 3) { 
-                    startAnimation();
-                } else {
-                    recVideo.addEventListener('canplay', startAnimation);
-                    recVideo.onerror = startAnimation; 
-                    setTimeout(() => { if(!animationStarted && celebrationOverlay.parentNode) startAnimation(); }, 1500);
-                }
-            } else {
-                const imgEl = celebrationOverlay.querySelector('img');
-                if (imgEl && imgEl.complete) { startAnimation(); } 
-                else if (imgEl) { imgEl.onload = startAnimation; imgEl.onerror = startAnimation; }
-                else { startAnimation(); }
-            }
+            // إضافة الهدية للطابور
+            giftQueue.push(data);
+            processGiftQueue();
         }
     });
 
@@ -382,10 +395,13 @@ ui.onClick('lang-select-modal', e => {
 
 ui.onClick('login-guest-btn', () => {
     const randomNum = 10000 + ([...gameState.deviceFingerprint].reduce((a, c) => a + c.charCodeAt(0), 0) % 90000);
+    const authToken = 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+    
     gameState.userProfile = { 
         ...gameState.userProfile, 
         name: t('guest_prefix') + randomNum, 
         id: "GUEST-" + randomNum, 
+        authToken: authToken, // 🛡️ تأمين الاتصال المستقل
         avatar: ui.getVal('login-avatar-select', '1000132081.webp'), 
         isCustomAvatar: false,
         inventory: {}
@@ -397,8 +413,10 @@ ui.onClick('login-guest-btn', () => {
     
     if(typeof ui.updateProfileUI === 'function') ui.updateProfileUI(); 
     if(typeof window.closeAppModal === 'function') window.closeAppModal('login-modal');
+    if(socket && !socket.connected) socket.connect();
 });
 
+// 🛡️ (مُحدّث أمنياً): توليد AuthToken لضمان عدم طرد الحسابات المنشأة هنا
 ui.onClick('login-submit-btn', () => {
     let name = ui.getVal('login-name-input').trim();
     if (!name) {
@@ -407,10 +425,13 @@ ui.onClick('login-submit-btn', () => {
     }
     
     name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+    const authToken = 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+
     gameState.userProfile = { 
         ...gameState.userProfile, 
         name, 
         id: "DAMA-" + Math.random().toString(36).substring(2, 8).toUpperCase(), 
+        authToken: authToken, 
         avatar: gameState.userProfile.isCustomAvatar ? gameState.userProfile.avatar : ui.getVal('login-avatar-select', '1000132081.webp'),
         inventory: gameState.userProfile.inventory || {}
     };
@@ -422,6 +443,7 @@ ui.onClick('login-submit-btn', () => {
     
     if(typeof ui.updateProfileUI === 'function') ui.updateProfileUI(); 
     if(typeof window.closeAppModal === 'function') window.closeAppModal('login-modal');
+    if(socket && !socket.connected) socket.connect();
 });
 
 ui.onClick('add-friend-btn', () => {
@@ -476,6 +498,7 @@ ui.onClick('logout-btn', () => {
             if(typeof window.closeAppModal === 'function') window.closeAppModal('profile-modal'); 
             if(typeof window.openAppModal === 'function') window.openAppModal('login-modal');
             if (typeof window.applyProfileDataToUI === 'function') window.applyProfileDataToUI(gameState.userProfile);
+            if(socket && socket.connected) socket.disconnect();
         }, true);
     }
 });
