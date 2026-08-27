@@ -1,7 +1,7 @@
 // socketManager.js
 /**
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
- * 🌟 (مُحدّث): حل مشكلة الـ Ping العشوائي باستخدام RTT الدقيق.
+ * 🌟 (مُحدّث): حل مشكلة الـ Ping العشوائي باستخدام RTT الدقيق وتعديل الـ z-index.
  * 🌟 (مُحدّث): نظام مسح تلقائي للحسابات التالفة لمنع حلقة الطرد اللانهائية.
  * 🌟 (مُحدّث): توحيد نظام الصوت ليتوافق مع إعدادات كتم الصوت الخاصة باللاعب.
  * 🛠️ (مُحدّث): تتبع الأخطاء الصامتة عبر console.error لتسهيل التطوير.
@@ -91,7 +91,8 @@ export const socketManager = {
                 background: transparent; color: #66bb6a; 
                 font-family: monospace; font-size: 11px; font-weight: 700; 
                 padding: 0; border: none; margin: 0;
-                z-index: 99999; display: flex; align-items: center; justify-content: flex-start; gap: 4px;
+                z-index: 850; /* 🌟 تم التعديل هنا لتكون خلف النوافذ بدلاً من 99999 */
+                display: flex; align-items: center; justify-content: flex-start; gap: 4px;
                 flex-direction: row; flex-wrap: nowrap; white-space: nowrap; 
                 pointer-events: none; opacity: 0.95; transition: opacity 0.5s ease;
                 text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.8), 1px -1px 1px rgba(0,0,0,0.8), -1px 1px 1px rgba(0,0,0,0.8); 
@@ -127,7 +128,6 @@ export const socketManager = {
         socket.off('serverPong'); 
         socket.on('serverPong', (clientTime) => {
             this._hideDisconnectUI();
-            // 🛡️ (مُحدّث): حساب الـ RTT وقسمته على 2 للحصول على تأخير دقيق يعكس المسافة الحقيقية للسيرفر
             let rtt = Date.now() - clientTime; 
             let latency = Math.max(1, Math.floor(rtt / 2)); 
             if (latency > 999) latency = 999;
@@ -341,7 +341,6 @@ export const socketManager = {
             if (data && data.msg) this._showToast(data.msg);
         });
 
-        // 🌟 الإصلاح הגذري: إرسال أمر آمن للواجهة الرئيسية لإظهار الشاشة بدون خطأ CORS
         socket.on('matchCountdown', (data) => {
             const overlay = document.getElementById('match-countdown-overlay');
             const numEl = document.getElementById('match-countdown-number');
@@ -350,7 +349,6 @@ export const socketManager = {
                 window.closeAppModal('online-modal');
             }
 
-            // إرسال رسالة آمنة للواجهة الرئيسية لإظهار الإطار 
             if (window.parent && window.parent !== window) {
                 window.parent.postMessage({ type: 'SHOW_GAME_UI' }, '*');
             }
@@ -827,11 +825,9 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
-        // 🌟 الإصلاح הגذري: كبسولة حماية قوية جداً والتخاطب الآمن لإظهار اللعبة
         socket.on('gameStart', data => {
             if (!data) return;
             
-            // إرسال رسالة آمنة للواجهة الرئيسية لإظهار الإطار 
             if (window.parent && window.parent !== window) {
                 window.parent.postMessage({ type: 'SHOW_GAME_UI' }, '*');
             }
@@ -1265,7 +1261,6 @@ export const socketManager = {
             this.handleExitGame(); 
         });
 
-        // 🛡️ (مُحدّث أمنياً): مراقبة الأخطاء الأمنية لطرد الهاكرز وحذف التوكن التالف
         socket.on('error', msg => {
             this._showToast(msg);
             
@@ -1504,7 +1499,6 @@ export const socketManager = {
 
         if (ui && typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
 
-        // 🌟 إرسال أمر العودة للواجهة الرئيسية عند الخروج
         if (window.parent && window.parent !== window) {
             window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
         }
