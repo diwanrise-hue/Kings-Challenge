@@ -1,7 +1,8 @@
 /**
  * storeAll.js
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
- * 🌟 التحديث: إخفاء إطارات البروفايل من المتجر تلقائياً بمجرد امتلاك اللاعب لها.
+ * 🌟 (مُحدّث): إضافة Fallback آمن للبيانات لمنع فشل التحميل (Bug #20).
+ * 🌟 (مُحدّث): تزامن فوري لرصيد اللاعب عند بناء المتجر لتجنب ظهور "0" مؤقتاً.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,6 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (storeContainer) {
         
+        // 🌟 تزامن أولي للرصيد من الـ LocalStorage لمنع ظهور 0
+        let initialTokens = 0;
+        try {
+            const profileRaw = localStorage.getItem('hub_user_profile');
+            if (profileRaw) {
+                const p = JSON.parse(profileRaw);
+                if (p && p.tokens) initialTokens = p.tokens;
+            }
+        } catch(e) { console.error("Error reading profile for store initialization", e); }
+
         // 🌟 ضبط الحاوية الأساسية 
         storeContainer.style.width = '100%';
         storeContainer.style.height = '100%';
@@ -393,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div id="store-topup-content" class="store-tab-content">
                 <div class="store-group-box-dark" style="width: 100%; border-radius: 18px !important; display: flex; flex-direction: column; padding: 15px; border-color: var(--accent) !important; overflow-y: auto;">
                     
-                    <!-- 🌟 بطاقة تقدم الـ VIP (VIP Progress Card) مع زر التعجب (!) -->
+                    <!-- 🌟 بطاقة تقدم الـ VIP -->
                     <div style="background: linear-gradient(135deg, rgba(27, 94, 32, 0.4), rgba(8, 33, 11, 0.9)); border: 1px solid var(--accent); border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -479,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.switchStoreTabCategory('bg', firstBtn); 
             }
             
-            // 🌟 استدعاء الشعبية والإطارات الشخصية
+            // 🌟 استدعاء الشعبية والإطارات الشخصية بشكل آمن
             if (typeof window.renderPopularityItems === 'function') {
                 window.renderPopularityItems();
             }
@@ -612,7 +623,7 @@ window.triggerAlertSoon = function() {
 // ==========================================
 // 🌟 دوال عرض وشراء إطارات البروفايل الشخصية (محدثة للإخفاء بعد الشراء) 🌟
 // ==========================================
-
+// 🛡️ (مُحدّث): تعريف Fallback آمن لضمان عدم توقف الواجهة إذا تأخر تحميل index-scripts.js
 window.renderProfileFrames = function() {
     const grid = document.getElementById('store-profile-frames-grid');
     if (!grid) return;
@@ -623,10 +634,19 @@ window.renderProfileFrames = function() {
     let rawPurchased = profile.purchasedItems || [];
     let purchasedItems = Array.isArray(rawPurchased) ? rawPurchased : [];
     
-    if (window.PROFILE_FRAMES_ITEMS && window.PROFILE_FRAMES_ITEMS.length > 0) {
+    // Fallback آمن في حال عدم وجود البيانات
+    const GITHUB_PROFILE_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/";
+    const fallbackFrames = [
+        { id: 'pf_ruby', nameAr: 'إطار الياقوت الملكي', price: 15000, imagePath: GITHUB_PROFILE_BASE + 'Profil2.webp' },
+        { id: 'pf_dragon', nameAr: 'إطار التنين الذهبي', price: 35000, imagePath: GITHUB_PROFILE_BASE + 'Profile4.webp' },
+        { id: 'pf_noble', nameAr: 'إطار النبلاء الأسود', price: 10000, imagePath: GITHUB_PROFILE_BASE + 'Profile7.webp' }
+    ];
+    const framesList = window.PROFILE_FRAMES_ITEMS || fallbackFrames;
+
+    if (framesList && framesList.length > 0) {
         let framesRendered = 0;
         
-        window.PROFILE_FRAMES_ITEMS.forEach(item => {
+        framesList.forEach(item => {
             // 🌟 شرط الإخفاء: إذا كان الإطار مملوكاً، قم بتخطيه (عدم عرضه في المتجر)
             const isPurchased = purchasedItems.some(purchased => 
                 String(purchased).trim() === String(item.id).trim() || 
@@ -662,7 +682,14 @@ window.renderProfileFrames = function() {
 };
 
 window.buyProfileFrameItem = function(itemId) {
-    const item = window.PROFILE_FRAMES_ITEMS.find(i => i.id === itemId);
+    const fallbackFrames = [
+        { id: 'pf_ruby', nameAr: 'إطار الياقوت الملكي', price: 15000 },
+        { id: 'pf_dragon', nameAr: 'إطار التنين الذهبي', price: 35000 },
+        { id: 'pf_noble', nameAr: 'إطار النبلاء الأسود', price: 10000 }
+    ];
+    const framesList = window.PROFILE_FRAMES_ITEMS || fallbackFrames;
+    
+    const item = framesList.find(i => i.id === itemId);
     if(item) {
         if (typeof window.openPurchaseModal === 'function') {
             window.openPurchaseModal(item.id, item.nameAr, item.price, 'profile_frame');
