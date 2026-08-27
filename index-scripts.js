@@ -1510,3 +1510,25 @@ window.updateVipProgressBarUI = function() {
 window.addEventListener('load', () => {
     setTimeout(updateVipProgressBarUI, 1000);
 });
+
+
+// 🌟 استرجاع اللاعب للمباراة تلقائياً عند تحديث الصفحة
+socket.on('gameStart', (data) => {
+    if (document.getElementById('game-interface').style.display !== 'block') {
+        showLoadingPopup(currentLang === 'ar' ? "تم العثور على مباراة نشطة! جاري إعادتك للساحة..." : "Active match found! Reconnecting...");
+        setTimeout(() => {
+            document.getElementById('custom-popup-modal').style.display = 'none';
+            startGame();
+        }, 1500);
+    }
+});
+
+socket.on('matchCountdown', (data) => {
+    if (document.getElementById('game-interface').style.display !== 'block') {
+        showLoadingPopup(currentLang === 'ar' ? "مباراتك ستبدأ بعد قليل! جاري إعادتك..." : "Match starting soon! Reconnecting...");
+        setTimeout(() => {
+            document.getElementById('custom-popup-modal').style.display = 'none';
+            startGame();
+        }, 1500);
+    }
+});
