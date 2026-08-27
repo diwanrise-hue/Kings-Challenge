@@ -1,18 +1,10 @@
 // socketManager.js
 /**
- * socketManager.js
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
- * 🌟 (مُحدّث جذرياً): حل مشكلة التعليق في القائمة (CORS Block) واستخدام نظام postMessage الآمن.
- * 🌟 (مُحدّث): إعادة أمر EXIT_GAME للعودة للواجهة الرئيسية (Hub) عند انتهاء أو إلغاء اللعب.
- * 🌟 (مُحدّث): دعم استرجاع اللعب القوي جداً (Reconnection Fix).
- * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف הـ VIP في قمة اللوبي.
- * 🌟 (مُحدّث): حفظ هوية الخصم لإتاحة إرسال الهدايا للـ VIP والمشاهدين.
- * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد.
- * 🛡️ (مُحدّث): نظام استعادة الاتصال (Reconnection) شامل للاعبين والمشاهدين.
- * 🚀 (مُحدّث جذرياً): حل شلل الأكل المتعدد في الأونلاين (Multi-Jump Path Sync).
- * 🚷 (مُحدّث): إضافة أحداث جلب قائمة المشاهدين والطرد من قبل الملوك.
- * 🔐 (مُحدّث أمنياً): دمج نظام المفتاح السري (AuthToken) لتوثيق الهوية ومنع سرقة الحسابات نهائياً.
- * 🛠️ (مُحدّث أخيراً): إزالة السباق الزمني في إنشاء الغرف والبحث عن لاعب.
+ * 🌟 (مُحدّث): حل مشكلة الـ Ping العشوائي باستخدام RTT الدقيق.
+ * 🌟 (مُحدّث): نظام مسح تلقائي للحسابات التالفة لمنع حلقة الطرد اللانهائية.
+ * 🌟 (مُحدّث): توحيد نظام الصوت ليتوافق مع إعدادات كتم الصوت الخاصة باللاعب.
+ * 🛠️ (مُحدّث): تتبع الأخطاء الصامتة عبر console.error لتسهيل التطوير.
  */
 
 import { gameState } from './gameState.js'; 
@@ -32,8 +24,6 @@ export const socket = io('https://diwanrise-dama-game-diwan.hf.space/dama', {
 });
 
 window.socket = socket; 
-
-const fallbackMoveAudio = new Audio('move.mp3');
 
 const applyMatchThemeRobust = (profile, retries = 5) => {
     if (!profile) return;
@@ -137,7 +127,9 @@ export const socketManager = {
         socket.off('serverPong'); 
         socket.on('serverPong', (clientTime) => {
             this._hideDisconnectUI();
-            let latency = Date.now() - clientTime; 
+            // 🛡️ (مُحدّث): حساب الـ RTT وقسمته على 2 للحصول على تأخير دقيق يعكس المسافة الحقيقية للسيرفر
+            let rtt = Date.now() - clientTime; 
+            let latency = Math.max(1, Math.floor(rtt / 2)); 
             if (latency > 999) latency = 999;
             this._updatePingUI(latency);
         });
@@ -214,7 +206,7 @@ export const socketManager = {
                             }
                         }
                     }
-                } catch(e){}
+                } catch(e) { console.error("Error parsing profile:", e); }
                 return gameState.userProfile;
             }
         }
@@ -859,7 +851,7 @@ export const socketManager = {
                         ui.setDisplay('custom-alert-modal', 'none');
                     }
                 }
-            } catch(e) {}
+            } catch(e) { console.error("Error closing modals on gameStart", e); }
 
             if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
             const overlay = document.getElementById('match-countdown-overlay');
@@ -965,7 +957,7 @@ export const socketManager = {
                 if (gameMenuContainer) {
                     gameMenuContainer.style.display = 'none';
                 }
-            } catch(e) {}
+            } catch(e) { console.error(e); }
 
             if (ui && typeof ui.toggleOnlineUILayout === 'function') {
                 ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
@@ -1038,8 +1030,10 @@ export const socketManager = {
             ui.renderBoard();
             
             try {
-                if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move || fallbackMoveAudio);
-            } catch (err) {}
+                if (window.ui && window.ui.sfx && window.ui.sfx.move) {
+                    window.ui.playSound(window.ui.sfx.move);
+                }
+            } catch (err) { console.error("Sound play failed", err); }
             
             if(gameState.selectedPiece) {
                 gameState.selectedPiece.classList.remove('selected');
@@ -1271,9 +1265,14 @@ export const socketManager = {
             this.handleExitGame(); 
         });
 
+        // 🛡️ (مُحدّث أمنياً): مراقبة الأخطاء الأمنية لطرد الهاكرز وحذف التوكن التالف
         socket.on('error', msg => {
             this._showToast(msg);
-            if (msg && (msg.includes('محمي أمنياً') || msg.includes('قديمة') || msg.includes('match') || msg.includes('غرفة') || msg.includes('Room') || msg.includes('غير قانونية'))) {
+            
+            if (msg && (msg.includes('محمي أمنياً') || msg.includes('Clear Cache'))) {
+                localStorage.removeItem('hub_user_profile');
+                setTimeout(() => window.location.reload(), 1500); 
+            } else if (msg && (msg.includes('قديمة') || msg.includes('match') || msg.includes('غرفة') || msg.includes('Room') || msg.includes('غير قانونية'))) {
                 this.handleExitGame();
             }
         });
@@ -1456,9 +1455,11 @@ export const socketManager = {
             window.closeAppModal('challenge-action-modal');
             window.closeAppModal('spectator-bet-modal');
         } else {
-            ui.setDisplay('custom-alert-modal', 'none');
-            ui.setDisplay('challenge-action-modal', 'none');
-            ui.setDisplay('spectator-bet-modal', 'none');
+            if (ui && typeof ui.setDisplay === 'function') {
+                ui.setDisplay('custom-alert-modal', 'none');
+                ui.setDisplay('challenge-action-modal', 'none');
+                ui.setDisplay('spectator-bet-modal', 'none');
+            }
         }
         
         if (gameState.onlineRoomID && socket.connected) {
@@ -1496,10 +1497,12 @@ export const socketManager = {
 
         if (window.bridge && typeof window.bridge.unlockRoom === 'function') window.bridge.unlockRoom();
         
-        ui.toggleOnlineUILayout(false);
-        ui.setDisplay('bottom-control-panel', 'flex'); 
+        if (ui && typeof ui.toggleOnlineUILayout === 'function') {
+            ui.toggleOnlineUILayout(false);
+            ui.setDisplay('bottom-control-panel', 'flex'); 
+        }
 
-        if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
+        if (ui && typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
 
         // 🌟 إرسال أمر العودة للواجهة الرئيسية عند الخروج
         if (window.parent && window.parent !== window) {
@@ -1531,7 +1534,7 @@ export const socketManager = {
                                 e.preventDefault();
                                 socketManager.isAlertShown = false;
                                 if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
-                                else ui.setDisplay('custom-alert-modal', 'none');
+                                else if (ui) ui.setDisplay('custom-alert-modal', 'none');
                                 socketManager.handleExitGame(); 
                             };
                         }
@@ -1612,9 +1615,11 @@ export const socketManager = {
     },
 
     showStatusMsg(msg) {
-        ui.setTxt('online-status-text', msg);
-        const el = document.getElementById('online-status-text');
-        if (el) el.style.cssText = "color:#f1c40f;display:block;";
+        if (ui && typeof ui.setTxt === 'function') {
+            ui.setTxt('online-status-text', msg);
+            const el = document.getElementById('online-status-text');
+            if (el) el.style.cssText = "color:#f1c40f;display:block;";
+        }
     },
 
     sendChallenge(friendId, betAmount = 0) {
@@ -1657,7 +1662,7 @@ const notifyTexts = {
         timeoutLoss: "انتهى وقتك! حظاً موفقاً ⏳",
         timeoutSpec: "انتهى وقت أحد اللاعبين وانتهت المباراة.",
         oppDisconnected: "انقطع اتصال الخصم ⚠️",
-        oppReconnected: "عاد {name} للاتصال! 🔄",
+        oppReconnected: "{name} عاد للاتصال! 🔄",
         oppLeftRoom: "غادر الخصم الغرفة 🚪",
         oppLeftMatch: "غادر الخصم المباراة 🚪",
         rematchTimeout: "انتهى وقت الاستجابة لإعادة اللعب ⏱️",
@@ -1696,5 +1701,13 @@ const notifyTexts = {
         challengeDeclined: "{name} declined the challenge ❌"
     }
 };
+
+function getNotifyMsg(key, name = '') {
+    const lang = (gameState && gameState.lang) ? gameState.lang : 'ar';
+    const dict = notifyTexts[lang] || notifyTexts['en'];
+    let text = dict[key] || notifyTexts['en'][key] || key;
+    if (name) text = text.replace('{name}', name);
+    return text;
+}
 
 window.socketManager = socketManager;
