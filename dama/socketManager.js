@@ -2,6 +2,7 @@
 /**
  * socketManager.js
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
+ * 🌟 (مُحدّث): دعم استرجاع اللعب القوي جداً (Reconnection Fix) عند تحديث الصفحة أو قطع الإنترنت.
  * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف הـ VIP في قمة اللوبي.
  * 🌟 (مُحدّث): حفظ هوية الخصم لإتاحة إرسال الهدايا للـ VIP والمشاهدين.
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد.
@@ -186,7 +187,6 @@ export const socketManager = {
             return id.startsWith('GUEST-') || id.startsWith('USER-') || id.startsWith('FB-') || id.startsWith('DAMA-');
         };
 
-        // 🛡️ دالة لتوليد المفتاح السري الجديد
         const generateAuthToken = () => 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 
         if (gameState.userProfile && gameState.userProfile.id) {
@@ -204,7 +204,6 @@ export const socketManager = {
                             gameState.userProfile.equippedPc = parsed.equippedPc || gameState.userProfile.equippedPc;
                             gameState.userProfile.equippedFr = parsed.equippedFr || gameState.userProfile.equippedFr;
                             
-                            // ضمان وجود المفتاح السري
                             if (!gameState.userProfile.authToken && parsed.authToken) {
                                 gameState.userProfile.authToken = parsed.authToken;
                             } else if (!gameState.userProfile.authToken) {
@@ -229,7 +228,7 @@ export const socketManager = {
                             id: String(parsed.id).trim().toUpperCase(),
                             name: String(parsed.name || 'Guest').trim(),
                             avatar: String(parsed.avatar || '1000132081.webp').trim(),
-                            authToken: parsed.authToken || generateAuthToken(), // 🛡️ استرجاع المفتاح أو إنشاء جديد
+                            authToken: parsed.authToken || generateAuthToken(), 
                             isCustomAvatar: !!parsed.isCustomAvatar,
                             tokens: Number(parsed.tokens) || 0,
                             xp: Number(parsed.xp) || 0, 
@@ -261,7 +260,7 @@ export const socketManager = {
             id: 'GUEST-' + randomNum, 
             name: 'Guest_' + randomNum, 
             avatar: '1000132081.webp',
-            authToken: generateAuthToken(), // 🛡️ مفتاح سري قوي للاعب الجديد
+            authToken: generateAuthToken(), 
             isCustomAvatar: false,
             tokens: 0,
             xp: 0,
@@ -354,6 +353,11 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('online-modal');
+            }
+
+            // 🛡️ التعديل هنا: إظهار الواجهة في حال كانت مخفية (Reconnection Fix)
+            if (window.parent && typeof window.parent.startGame === 'function') {
+                window.parent.startGame();
             }
 
             if (overlay && numEl) {
@@ -630,10 +634,8 @@ export const socketManager = {
             const profile = this._ensureUserProfile();
             
             if (gameState.isSpectator && gameState.onlineRoomID) {
-                // 🛡️ إرسال المفتاح السري للمشاهد
                 socket.emit('joinSpectator', { roomID: String(gameState.onlineRoomID).trim(), guestId: profile.id, authToken: profile.authToken });
             } else {
-                // 🛡️ توثيق الجلسة فور الاتصال بالمفتاح السري
                 socket.emit('deviceFingerprint', { guestId: profile.id, authToken: profile.authToken });
             }
             
@@ -826,8 +828,15 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
+        // 🛡️ التعديل الجذري: دالة العودة للعب (Reconnection Fix)
         socket.on('gameStart', data => {
             if (!data) return;
+            
+            // 🌟 إجبار الواجهة الرئيسية على نقلك للساحة في حال كنت مختفياً
+            if (window.parent && typeof window.parent.startGame === 'function') {
+                window.parent.startGame();
+            }
+
             document.getElementById('custom-results-modal-container')?.remove(); 
             
             if (typeof window.closeAppModal === 'function') {
@@ -1498,7 +1507,6 @@ export const socketManager = {
         }
     },
 
-    // 🛠️ تم إصلاح هذه الدالة بالكامل بإزالة السباق الزمني (Race Condition)
     handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0, allowSpectatorBetting = true, roomTitle = null) {
         let targetAction = action;
 
