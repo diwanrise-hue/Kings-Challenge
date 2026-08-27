@@ -5,7 +5,7 @@
  * 🛡️ (مُحدّث أمنياً): تأمين توليد الحسابات المستقلة بـ AuthToken لمنع الطرد.
  * 🛠️ (مُحدّث): إزالة الوميض الأسود المزعج (Flicker Hack) عند العودة للتطبيق.
  * ⏱️ (مُحدّث): تصفير مؤقتات المصباح وتهيئته عند إعادة اللعب (Rematch).
- * 🚀 (مُحدّث للإصلاح): ربط زر "إنشاء الغرفة" بشكل مباشر لضمان استجابته السريعة والقطعية.
+ * ✅ (مُحدّث للإصلاح): تنظيف تضارب زر "إنشاء الغرفة" ليعمل باستجابة فورية 100%.
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -643,34 +643,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if(typeof window.closeAppModal === 'function') window.closeAppModal('online-modal'); 
     });
 
-    // 🚀 (الإصلاح الجذري): ربط مباشر وقوي بالزر لضمان استجابته بدون الاعتماد على التغليف المعقد.
-    const createRoomBtn = document.getElementById('online-create-btn');
-    if (createRoomBtn) {
-        createRoomBtn.onclick = function() {
-            let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
-            let allowSpectatorBetting = document.getElementById('allow-betting-checkbox')?.checked ?? true;
-            
-            let roomTitleInput = document.getElementById('room-title-input');
-            let roomTitle = roomTitleInput ? roomTitleInput.value.trim() : null;
+    // 🚀 ربط الحدث بشكل آمن ودون تكرار.
+    ui.onClick('online-create-btn', () => {
+        let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
+        let allowSpectatorBetting = document.getElementById('allow-betting-checkbox')?.checked ?? true;
+        
+        let roomTitleInput = document.getElementById('room-title-input');
+        let roomTitle = roomTitleInput ? roomTitleInput.value.trim() : null;
 
-            if (gameState.pendingChallengeId) {
-                socketManager.sendChallenge(gameState.pendingChallengeId, betAmt);
+        if (gameState.pendingChallengeId) {
+            socketManager.sendChallenge(gameState.pendingChallengeId, betAmt);
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
+            gameState.pendingChallengeId = null;
+        } else {
+            if (window.myCurrentRoomId || gameState.myCurrentRoomId) {
+                if (socketManager) socketManager._showToast('لديك غرفة سابقاً! يرجى إغلاقها أولاً.');
                 if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
-                gameState.pendingChallengeId = null;
-            } else {
-                if (window.myCurrentRoomId || gameState.myCurrentRoomId) {
-                    if (socketManager) socketManager._showToast('لديك غرفة سابقاً! يرجى إغلاقها أولاً.');
-                    if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
-                    return;
-                }
-
-                let pwd = document.getElementById('create-room-password-input')?.value;
-                let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
-
-                socketManager.handleRoomAction('createRoom', rID, pwd, betAmt, allowSpectatorBetting, roomTitle);
-                socketManager.showStatusMsg("جاري إنشاء الغرفة...");
-                if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
+                return;
             }
-        };
-    }
+
+            let pwd = document.getElementById('create-room-password-input')?.value;
+            let rID = "RM-" + Math.random().toString(36).substring(2,8).toUpperCase();
+
+            socketManager.handleRoomAction('createRoom', rID, pwd, betAmt, allowSpectatorBetting, roomTitle);
+            socketManager.showStatusMsg("جاري إنشاء الغرفة...");
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('create-room-modal');
+        }
+    });
+
 });
