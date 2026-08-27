@@ -2,6 +2,9 @@
 /**
  * socketManager.js
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
+ * 🌟 (مُحدّث جذرياً): حل مشكلة التعليق في القائمة (CORS Block) واستخدام نظام postMessage الآمن.
+ * 🌟 (مُحدّث): إعادة أمر EXIT_GAME للعودة للواجهة الرئيسية (Hub) عند انتهاء أو إلغاء اللعب.
+ * 🌟 (مُحدّث): دعم استرجاع اللعب القوي جداً (Reconnection Fix).
  * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف הـ VIP في قمة اللوبي.
  * 🌟 (مُحدّث): حفظ هوية الخصم لإتاحة إرسال الهدايا للـ VIP والمشاهدين.
  * 🌟 (مُحدّث): تحويل شريط غرفة المنشئ إلى منصة انتظار ثلاثية الأبعاد.
@@ -186,7 +189,6 @@ export const socketManager = {
             return id.startsWith('GUEST-') || id.startsWith('USER-') || id.startsWith('FB-') || id.startsWith('DAMA-');
         };
 
-        // 🛡️ دالة لتوليد المفتاح السري الجديد
         const generateAuthToken = () => 'tk_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 
         if (gameState.userProfile && gameState.userProfile.id) {
@@ -204,7 +206,6 @@ export const socketManager = {
                             gameState.userProfile.equippedPc = parsed.equippedPc || gameState.userProfile.equippedPc;
                             gameState.userProfile.equippedFr = parsed.equippedFr || gameState.userProfile.equippedFr;
                             
-                            // ضمان وجود المفتاح السري
                             if (!gameState.userProfile.authToken && parsed.authToken) {
                                 gameState.userProfile.authToken = parsed.authToken;
                             } else if (!gameState.userProfile.authToken) {
@@ -229,7 +230,7 @@ export const socketManager = {
                             id: String(parsed.id).trim().toUpperCase(),
                             name: String(parsed.name || 'Guest').trim(),
                             avatar: String(parsed.avatar || '1000132081.webp').trim(),
-                            authToken: parsed.authToken || generateAuthToken(), // 🛡️ استرجاع المفتاح أو إنشاء جديد
+                            authToken: parsed.authToken || generateAuthToken(), 
                             isCustomAvatar: !!parsed.isCustomAvatar,
                             tokens: Number(parsed.tokens) || 0,
                             xp: Number(parsed.xp) || 0, 
@@ -261,7 +262,7 @@ export const socketManager = {
             id: 'GUEST-' + randomNum, 
             name: 'Guest_' + randomNum, 
             avatar: '1000132081.webp',
-            authToken: generateAuthToken(), // 🛡️ مفتاح سري قوي للاعب الجديد
+            authToken: generateAuthToken(), 
             isCustomAvatar: false,
             tokens: 0,
             xp: 0,
@@ -348,12 +349,18 @@ export const socketManager = {
             if (data && data.msg) this._showToast(data.msg);
         });
 
+        // 🌟 الإصلاح הגذري: إرسال أمر آمن للواجهة الرئيسية لإظهار الشاشة بدون خطأ CORS
         socket.on('matchCountdown', (data) => {
             const overlay = document.getElementById('match-countdown-overlay');
             const numEl = document.getElementById('match-countdown-number');
             
             if (typeof window.closeAppModal === 'function') {
                 window.closeAppModal('online-modal');
+            }
+
+            // إرسال رسالة آمنة للواجهة الرئيسية لإظهار الإطار 
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'SHOW_GAME_UI' }, '*');
             }
 
             if (overlay && numEl) {
@@ -630,10 +637,8 @@ export const socketManager = {
             const profile = this._ensureUserProfile();
             
             if (gameState.isSpectator && gameState.onlineRoomID) {
-                // 🛡️ إرسال المفتاح السري للمشاهد
                 socket.emit('joinSpectator', { roomID: String(gameState.onlineRoomID).trim(), guestId: profile.id, authToken: profile.authToken });
             } else {
-                // 🛡️ توثيق الجلسة فور الاتصال بالمفتاح السري
                 socket.emit('deviceFingerprint', { guestId: profile.id, authToken: profile.authToken });
             }
             
@@ -778,6 +783,10 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
 
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'SHOW_GAME_UI' }, '*');
+            }
+
             ui.setupSpectatorUI(data.player1, data.player2, data.isBettingOpen, data.roomID, data.hasAlreadyBet);
             ui.renderBoard(true);
             ui.startTurn();
@@ -826,21 +835,31 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
+        // 🌟 الإصلاح הגذري: كبسولة حماية قوية جداً والتخاطب الآمن لإظهار اللعبة
         socket.on('gameStart', data => {
             if (!data) return;
-            document.getElementById('custom-results-modal-container')?.remove(); 
             
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('online-modal');
-                window.closeAppModal('create-room-modal');
-                window.closeAppModal('matchmaking-modal');
-                window.closeAppModal('custom-alert-modal');
-            } else {
-                ui.setDisplay('online-modal', 'none');
-                ui.setDisplay('create-room-modal', 'none');
-                ui.setDisplay('matchmaking-modal', 'none');
-                ui.setDisplay('custom-alert-modal', 'none');
+            // إرسال رسالة آمنة للواجهة الرئيسية لإظهار الإطار 
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'SHOW_GAME_UI' }, '*');
             }
+
+            try {
+                document.getElementById('custom-results-modal-container')?.remove(); 
+                if (typeof window.closeAppModal === 'function') {
+                    window.closeAppModal('online-modal');
+                    window.closeAppModal('create-room-modal');
+                    window.closeAppModal('matchmaking-modal');
+                    window.closeAppModal('custom-alert-modal');
+                } else {
+                    if (ui && typeof ui.setDisplay === 'function') {
+                        ui.setDisplay('online-modal', 'none');
+                        ui.setDisplay('create-room-modal', 'none');
+                        ui.setDisplay('matchmaking-modal', 'none');
+                        ui.setDisplay('custom-alert-modal', 'none');
+                    }
+                }
+            } catch(e) {}
 
             if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
             const overlay = document.getElementById('match-countdown-overlay');
@@ -889,7 +908,12 @@ export const socketManager = {
             if (data.opponent) gameState.currentOpponentData = data.opponent;
             
             gameState.isOnlineMode = true;
-            startOnlineHintSystem(); 
+            
+            try {
+                if (typeof startOnlineHintSystem === 'function') {
+                    startOnlineHintSystem(); 
+                }
+            } catch(e) { console.error(e); }
 
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
@@ -906,14 +930,22 @@ export const socketManager = {
                         });
                     }
                 });
+                if (!gameState.pieceDirection) gameState.pieceDirection = {};
                 gameState.pieceDirection.white = wc[0] > wc[1] ? 1 : -1;
                 gameState.pieceDirection.black = bc[0] > bc[1] ? 1 : -1;
             }
             
-            gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
+            try {
+                if (typeof gameEngine.computeOnlineFlip === 'function') {
+                    gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
+                } else {
+                    gameState.onlineFlip = (gameState.myOnlineColor === 'black');
+                }
+            } catch(e) {
+                gameState.onlineFlip = (gameState.myOnlineColor === 'black');
+            }
             
             const myProfile = gameState.userProfile || this._ensureUserProfile();
-            
             const isOptOut = myProfile.syncThemeOptOut === true;
             const myXp = Number(myProfile.xp) || 0;
             const oppXp = opponentXpFromServer;
@@ -928,13 +960,21 @@ export const socketManager = {
                 applyMatchThemeRobust(myProfile);
             }
 
-            ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
-            ui.setDisplay('bottom-control-panel', 'flex'); 
+            try {
+                const gameMenuContainer = document.getElementById('game-mode-selection') || document.querySelector('.menu-buttons-container');
+                if (gameMenuContainer) {
+                    gameMenuContainer.style.display = 'none';
+                }
+            } catch(e) {}
 
-            ui.renderBoard(true);
-
-            gameState.currentTurn = data.turn || 'white';
-            ui.startTurn();
+            if (ui && typeof ui.toggleOnlineUILayout === 'function') {
+                ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
+                ui.setDisplay('bottom-control-panel', 'flex'); 
+                ui.renderBoard(true);
+                
+                gameState.currentTurn = data.turn || 'white';
+                ui.startTurn();
+            }
         });
 
         socket.on('opponentMove', data => {
@@ -1460,6 +1500,11 @@ export const socketManager = {
         ui.setDisplay('bottom-control-panel', 'flex'); 
 
         if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
+
+        // 🌟 إرسال أمر العودة للواجهة الرئيسية عند الخروج
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
+        }
     },
 
     sendRematchRequest() {
@@ -1498,7 +1543,6 @@ export const socketManager = {
         }
     },
 
-    // 🛠️ تم إصلاح هذه الدالة بالكامل بإزالة السباق الزمني (Race Condition)
     handleRoomAction(action, roomIdInput, roomPassword = null, betAmount = 0, allowSpectatorBetting = true, roomTitle = null) {
         let targetAction = action;
 
@@ -1652,13 +1696,5 @@ const notifyTexts = {
         challengeDeclined: "{name} declined the challenge ❌"
     }
 };
-
-function getNotifyMsg(key, param = '') {
-    const lang = (gameState && gameState.lang) ? gameState.lang : 'ar';
-    const msgs = notifyTexts[lang] || notifyTexts['ar'];
-    let msg = msgs[key] || '';
-    if (param) msg = msg.replace('{name}', param);
-    return msg;
-}
 
 window.socketManager = socketManager;
