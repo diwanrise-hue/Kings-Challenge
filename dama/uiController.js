@@ -5,9 +5,9 @@
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
  * 🌟 (مُحدّث): تم حل مشكلة توقف اللعبة وإصلاح النص المعلق "اضغط بدء اللعب".
  * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
- * 🗑️ (مُحدّث): تم إزالة إطارات الساحة المزعجة حول الصور وترك الدردشة تعمل عبر chat.js.
- * 🛡️ (مُحدّث جذرياً): تم حل مشكلة الإطار العملاق في نافذة النتائج للبوت، وتصفير ذاكرة الإطارات السابقة.
- * 💡 (مُحدّث): توافق تام لعداد المصباح في الواجهة لمنع التضارب بين الرصيد الحقيقي وحد المباراة.
+ * 🛡️ (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
+ * 📱 (مُحدّث للتوافق): دعم أجهزة الآيفون القديمة (Safari < 15.4) بإضافة فئة multi-choice-cell كبديل لـ :has().
+ * 🤖 (مُحدّث): إيقاف الـ Timeout الخاص بالبوت فوراً عند انسحاب اللاعب لمنع الأصوات الوهمية.
  */
 
 import { gameState } from './gameState.js'; 
@@ -21,7 +21,7 @@ import { hintSystem } from './hintSystem.js';
 window.t = t; 
 
 // ==========================================
-// 🛡️ دالة مساعدة לחساب أقصى قفزات متاحة لقطعة (بديل آمن)
+// 🛡️ دالة مساعدة لحساب أقصى قفزات متاحة لقطعة (بديل آمن)
 // ==========================================
 function getPieceMaxJumps(r, c, color, board, dr = null, dc = null) {
     if (!gameEngine || typeof gameEngine.getPieceCapturePaths !== 'function') return 0;
@@ -198,7 +198,6 @@ export const ui = {
                 });
             }
             
-            // 🛡️ الترقيع الجذري لحل مشكلة الإطار العملاق وقص الصور
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                     <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1a1a24; border-radius: 50%; border: 1.5px solid #d4af37; overflow: hidden; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
@@ -261,7 +260,7 @@ export const ui = {
         
         const modalEl = this.getEl('custom-alert-modal');
         if (modalEl) {
-            modalEl.style.setProperty('z-index', '99999999', 'important');
+            modalEl.style.setProperty('z-index', '4500', 'important');
             modalEl.style.display = 'flex'; 
         }
         
@@ -791,16 +790,13 @@ export const ui = {
         gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
         gameState.pieceHistories = {};
         
-        // 🛡️ تصفير إطار الخصم السابق حتى لا يرثه البوت
         gameState.currentOpponentProfileFrame = null;
 
         this.toggleOfflineInMatchUI(false); this.toggleOnlineUILayout(false); 
         document.body.classList.remove('game-active');
         
         this.setDisplay('spectator-stats-container', 'none');
-        
         this.setDisplay('match-gift-btn-p2', 'none');
-        
         this.setTxt('reset-btn-txt', 'لعبة جديدة');
         
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
@@ -814,6 +810,8 @@ export const ui = {
             while (forcedPieces.length > 0) forcedPieces[0].classList.remove('forced');
             const multiPieces = boardEl.getElementsByClassName('multi-choice');
             while (multiPieces.length > 0) multiPieces[0].classList.remove('multi-choice');
+            const multiCells = boardEl.getElementsByClassName('multi-choice-cell');
+            while (multiCells.length > 0) multiCells[0].classList.remove('multi-choice-cell');
         }
         
         const tInd = this.getEl('turn-indicator');
@@ -865,6 +863,8 @@ export const ui = {
         if (!board) return;
         const highlighted = board.getElementsByClassName('highlight');
         while (highlighted.length > 0) highlighted[0].classList.remove('highlight');
+        const multiCells = board.getElementsByClassName('multi-choice-cell');
+        while (multiCells.length > 0) multiCells[0].classList.remove('multi-choice-cell');
     },
 
     highlightMove(from, to) {
@@ -1051,6 +1051,8 @@ export const ui = {
             while (forcedPieces.length > 0) forcedPieces[0].classList.remove('forced');
             const multiPieces = boardEl.getElementsByClassName('multi-choice');
             while (multiPieces.length > 0) multiPieces[0].classList.remove('multi-choice');
+            const multiCells = boardEl.getElementsByClassName('multi-choice-cell');
+            while (multiCells.length > 0) multiCells[0].classList.remove('multi-choice-cell');
         }
         
         const isBoardEmpty = gameState.virtualBoard.every(row => row.every(cell => cell === null));
@@ -1104,9 +1106,16 @@ export const ui = {
         if (gameState.requiredJumps > 0) {
             tInd.textContent = `${t('forced')} ${gameState.requiredJumps}`; tInd.style.color = "#e74c3c";
             
-            fList.forEach(item => item.el.classList.add('forced'));
-
-            if (fList.length > 1) { fList.forEach(item => item.el.classList.add('multi-choice')); }
+            // 🛡️ (مُحدّث): دعم سفاري القديم عبر إضافة الكلاس للأب بدلاً من الاعتماد على :has
+            fList.forEach(item => {
+                item.el.classList.add('forced');
+                if (fList.length > 1) {
+                    item.el.classList.add('multi-choice');
+                    if (item.el.parentElement) {
+                        item.el.parentElement.classList.add('multi-choice-cell');
+                    }
+                }
+            });
             
             if ((gameState.currentTurn === gameState.playerColor || gameState.isOnlineMode) && fList.length === 1 && !gameState.isSpectator) {
                 gameState.selectedPiece = fList[0].el; gameState.selectedPiece.classList.add('selected');
@@ -1182,7 +1191,8 @@ export const ui = {
         let stepIdx = 0; let startRow = chosenMove[0].fromR; let startCol = chosenMove[0].fromC;
 
         function executeStep() {
-            if (gameState.gameId !== gameId) return; 
+            // 🛡️ (مُحدّث أمنياً): منع الـ setTimeout من الاستمرار في إطلاق أصوات إذا اللاعب انسحب!
+            if (!gameState.isGameActive || gameState.gameId !== gameId) return; 
             if (gameState.currentTurn !== aiColor || gameState.isOnlineMode) return;
 
             let step = chosenMove[stepIdx]; if (!step) return;
@@ -1258,7 +1268,8 @@ export const ui = {
         
         this.setDisplay('match-gift-btn-p2', 'none');
 
-        const container = this.makeEl('div', 'custom-results-modal-container', "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,18,25,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:999999;font-family:sans-serif;direction:rtl;box-sizing:border-box;padding:20px;");
+        // 🛡️ (مُحدّث): تم تخفيض Z-Index ليكون 4000 بدلاً من 999999 لمنع إخفاء إشعارات النظام
+        const container = this.makeEl('div', 'custom-results-modal-container', "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,18,25,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:4000;font-family:sans-serif;direction:rtl;box-sizing:border-box;padding:20px;");
         container.id = 'custom-results-modal-container';
         
         const box = this.makeEl('div', null, "background:rgba(45,48,55,0.65);backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:35px 25px;border-radius:32px;width:100%;max-width:320px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);");
@@ -1276,7 +1287,7 @@ export const ui = {
             
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;");
             
-            // 🛡️ الترقيع الأمني: تم إضافة position:relative لضمان أن الإطار لا يأخذ حجم الشاشة
+            // 🛡️ (مُحدّث): تم إضافة position:relative لضمان أن الإطار لا ينفجر ويغطي الشاشة كلها
             const av = this.makeEl('div', 'result-avatar', "position:relative;width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
             
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
@@ -1455,7 +1466,6 @@ export const ui = {
                 badgeRankIconEl.innerHTML = lvlInfo.rankIcon;
             }
 
-
             if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
             if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
 
@@ -1466,11 +1476,9 @@ export const ui = {
                 } else if (gameState.userProfile) {
                     if (gameState.userProfile.hints === undefined) gameState.userProfile.hints = 5;
                     
-                    // 🛡️ التعديل هنا ليعكس العدد المتاح بدقة حسب الوضع
                     if (gameState.isOnlineMode) {
                         let used = gameState.onlineHintsUsed || 0;
                         let remainingOnline = Math.max(0, 2 - used);
-                        // يجب ألا يزيد المتاح عن الرصيد الفعلي ولا عن الحد الأقصى للمباراة
                         hintCounter.textContent = Math.min(gameState.userProfile.hints, remainingOnline);
                     } else {
                         hintCounter.textContent = gameState.userProfile.hints; 
@@ -2067,121 +2075,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     setTimeout(() => toast.classList.remove('show'), 2500); 
                 }
 
-                let giftObj = null;
-                if (window.POPULARITY_ITEMS) {
-                    giftObj = window.POPULARITY_ITEMS.find(item => item.id === giftId);
-                }
-                if (giftObj) {
-                    const isVideoGift = giftObj.mediaType === 'video';
-                    
-                    let animDuration = 2800; 
-                    if (isVideoGift) {
-                        animDuration = (giftId === 'pop_16') ? 10000 : 5000;
-                    }
-                    
-                    const senderOverlay = document.createElement('div');
-                    
-                    let overlayBg = isVideoGift ? 'rgba(0, 0, 0, 0.4)' : 'transparent';
-                    let overlayOpacity = isVideoGift ? '0' : '1';
-                    let overlayTransition = isVideoGift ? 'transition: opacity 0.3s ease;' : '';
-
-                    senderOverlay.style.cssText = `
-                        position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
-                        pointer-events: none; z-index: 10000050; 
-                        display: flex; flex-direction: column; align-items: center; 
-                        justify-content: flex-start; 
-                        padding-top: 12vh; 
-                        background: ${overlayBg};
-                        opacity: ${overlayOpacity}; 
-                        ${overlayTransition}
-                    `;
-                    
-                    let mediaHtml = '';
-                    if (isVideoGift) {
-                        mediaHtml = `<video id="gift-media-el" src="${giftObj.videoPath}" autoplay loop playsinline preload="auto" style="width: 280px; height: 280px; object-fit: contain; will-change: transform, opacity;"></video>`;
-                    } else {
-                        mediaHtml = `<img id="gift-media-el" src="${giftObj.imagePath}" style="width: 180px; height: 180px; object-fit: contain; will-change: transform, opacity;">`;
-                    }
-
-                    senderOverlay.innerHTML = `
-                        <div id="gift-anim-container" style="display: flex; flex-direction: column; align-items: center; opacity: 1; will-change: transform, opacity;">
-                            ${mediaHtml}
-                            <div style="margin-top: 15px; color: #ffd700; font-weight: 900; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.6); padding: 6px 20px; border-radius: 25px; border: 1px solid rgba(255,215,0,0.5);">
-                                تم الإرسال 🚀
-                            </div>
-                        </div>
-                    `;
-                    document.body.appendChild(senderOverlay);
-                    
-                    if (isVideoGift) {
-                        requestAnimationFrame(() => {
-                            senderOverlay.style.opacity = '1';
-                        });
-                    }
-
-                    const mediaEl = document.getElementById('gift-media-el');
-                    const animContainer = document.getElementById('gift-anim-container');
-                    let animationStarted = false;
-
-                    const startAnimation = () => {
-                        if (animationStarted || !animContainer) return;
-                        animationStarted = true;
-                        
-                        if (isVideoGift && mediaEl) {
-                            mediaEl.volume = 1.0;
-                            let playPromise = mediaEl.play();
-                            if (playPromise !== undefined) {
-                                playPromise.catch(e => console.log("Video AutoPlay handled."));
-                            }
-                        }
-
-                        let keyframes = [];
-                        
-                        if (isVideoGift) {
-                            keyframes = [
-                                { transform: 'scale(1)', opacity: 1, offset: 0 },   
-                                { transform: 'scale(1)', opacity: 1, offset: 0.9 }, 
-                                { transform: 'scale(1)', opacity: 0, offset: 1 }    
-                            ];
-                        } else {
-                            keyframes = [
-                                { transform: 'scale(0.2) translateY(50px)', opacity: 0, offset: 0 },
-                                { transform: 'scale(1.2) translateY(-10px)', opacity: 1, offset: 0.15 },
-                                { transform: 'scale(1) translateY(0)', opacity: 1, offset: 0.25 },
-                                { transform: 'scale(1.05) translateY(-5px)', opacity: 1, offset: 0.75 },
-                                { transform: 'scale(1.5) translateY(-150px)', opacity: 0, offset: 1 }
-                            ];
-                        }
-
-                        animContainer.animate(keyframes, {
-                            duration: animDuration,
-                            easing: isVideoGift ? 'linear' : 'cubic-bezier(0.25, 1, 0.5, 1)',
-                            fill: 'forwards'
-                        });
-                        
-                        if (isVideoGift) {
-                            setTimeout(() => {
-                                senderOverlay.style.opacity = '0';
-                                setTimeout(() => senderOverlay.remove(), 500); 
-                            }, animDuration - 500);
-                        } else {
-                            setTimeout(() => senderOverlay.remove(), animDuration);
-                        }
-                    };
-
-                    if (isVideoGift) {
-                        if (mediaEl.readyState >= 3) { 
-                            startAnimation();
-                        } else {
-                            mediaEl.addEventListener('canplay', startAnimation);
-                            mediaEl.onerror = startAnimation; 
-                            setTimeout(() => { if(!animationStarted && senderOverlay.parentNode) startAnimation(); }, 1500);
-                        }
-                    } else {
-                        if (mediaEl.complete) { startAnimation(); } 
-                        else { mediaEl.onload = startAnimation; mediaEl.onerror = startAnimation; }
-                    }
-                }
+                // سيتم عرض الأنيميشن عبر مستلم socket receivePopularityGift لمنع التكرار
             } else {
                 const toast = document.getElementById('toast-notification');
                 if (toast) { 
@@ -2684,15 +2578,15 @@ const isMoveValid = (fromR, fromC, toR, toC, color, board, isDama) => {
 };
 
 // ==========================================
-// 🌟 التنسيقات الإجبارية وأحداث اللوحة (مُحسّنة للأداء 60 FPS)
+// 🌟 التنسيقات الإجبارية وأحداث اللوحة (مُحسّنة للأداء 60 FPS ودعم السفاري القديم)
 // ==========================================
 if (!document.getElementById('forced-overlay-style')) {
     const forcedStyle = document.createElement('style'); forcedStyle.id = 'forced-overlay-style';
     forcedStyle.innerHTML = `
-        .cell:has(.piece.multi-choice) { position: relative !important; border: 2px solid #ff453a !important; border-radius: inherit; }
-        .cell:has(.piece.multi-choice)::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 20px rgba(255, 69, 58, 0.8); border-radius: inherit; pointer-events: none; animation: gpuPulse 1s infinite alternate ease-in-out; will-change: opacity; }
+        .cell:has(.piece.multi-choice), .cell.multi-choice-cell { position: relative !important; border: 2px solid #ff453a !important; border-radius: inherit; }
+        .cell:has(.piece.multi-choice)::after, .cell.multi-choice-cell::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 20px rgba(255, 69, 58, 0.8); border-radius: inherit; pointer-events: none; animation: gpuPulse 1s infinite alternate ease-in-out; will-change: opacity; }
         @keyframes gpuPulse { 0% { opacity: 0.3; } 100% { opacity: 1; } }
-        .cell:has(.piece.multi-choice) .piece { z-index: 2 !important; position: relative !important; transform: scale(1.08) translateZ(0) !important; will-change: transform; transition: transform 0.2s ease; }
+        .cell:has(.piece.multi-choice) .piece, .cell.multi-choice-cell .piece { z-index: 2 !important; position: relative !important; transform: scale(1.08) translateZ(0) !important; will-change: transform; transition: transform 0.2s ease; }
     `;
     document.head.appendChild(forcedStyle);
 }
