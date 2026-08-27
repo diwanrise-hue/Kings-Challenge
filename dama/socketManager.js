@@ -2,8 +2,8 @@
 /**
  * socketManager.js
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
+ * 🌟 (مُحدّث جذرياً): وضع كبسولات أمان (Try-Catch) لمنع انهيار اللعبة بعد العداد.
  * 🌟 (مُحدّث): حل مشكلة الحلقة المفرغة (Infinite Reload Loop) وعدم دخول المباريات.
- * 🌟 (مُحدّث): إصلاح انهيار الكود الأمني بوضع كبسولات (try...catch) لتجنب أخطاء المتصفح.
  * 🌟 (مُحدّث): دعم استرجاع اللعب القوي جداً (Reconnection Fix).
  * 🌟 (مُحدّث): دعم عناوين الغرف المخصصة للـ VIP وتثبيت غرف הـ VIP في قمة اللوبي.
  * 🌟 (مُحدّث): حفظ هوية الخصم لإتاحة إرسال الهدايا للـ VIP والمشاهدين.
@@ -349,7 +349,6 @@ export const socketManager = {
             if (data && data.msg) this._showToast(data.msg);
         });
 
-        // 🌟 الإصلاح: عداد الرهان وتجنب Reload
         socket.on('matchCountdown', (data) => {
             const overlay = document.getElementById('match-countdown-overlay');
             const numEl = document.getElementById('match-countdown-number');
@@ -358,7 +357,6 @@ export const socketManager = {
                 window.closeAppModal('online-modal');
             }
 
-            // إظهار نافذة اللعب (بدون استدعاء startGame لتجنب اللوب)
             try {
                 if (window.parent && window.parent.document) {
                     const pGameIf = window.parent.document.getElementById('game-interface');
@@ -792,7 +790,6 @@ export const socketManager = {
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
 
-            // إظهار نافذة اللعب إذا كانت مخفية بأمان (بدون أخطاء CORS)
             try {
                 if (window.parent && window.parent.document) {
                     const pGameIf = window.parent.document.getElementById('game-interface');
@@ -854,130 +851,174 @@ export const socketManager = {
             if (gameState.isSpectator) this._showToast(getNotifyMsg('betClosed'));
         });
 
-        // 🌟 الإصلاح הגذري: منع الـ Refresh وكبسولة الحماية لإظهار الشاشة
+        // 🌟 الإصلاح הגذري: كبسولة حماية قوية جداً لحدث gameStart
         socket.on('gameStart', data => {
             if (!data) return;
             
             try {
-                if (window.parent && window.parent.document) {
-                    const pGameIf = window.parent.document.getElementById('game-interface');
-                    const pGameSel = window.parent.document.getElementById('game-selector');
-                    const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
-                    if (pGameIf && pGameIf.style.display !== 'block') {
-                        pGameIf.style.display = 'block';
-                        if (pGameSel) pGameSel.style.display = 'none';
-                        if (pBotNav) pBotNav.style.display = 'none';
+                // 1. الإظهار الفوري لواجهة اللعب دون عمل Refresh
+                try {
+                    if (window.parent && window.parent.document) {
+                        const pGameIf = window.parent.document.getElementById('game-interface');
+                        const pGameSel = window.parent.document.getElementById('game-selector');
+                        const pBotNav = window.parent.document.getElementById('bottom-nav-bar');
+                        if (pGameIf && pGameIf.style.display !== 'block') {
+                            pGameIf.style.display = 'block';
+                            if (pGameSel) pGameSel.style.display = 'none';
+                            if (pBotNav) pBotNav.style.display = 'none';
+                        }
                     }
+                } catch(e) {}
+
+                // 2. إخفاء أي قائمة قديمة مفتوحة
+                try {
+                    document.getElementById('custom-results-modal-container')?.remove(); 
+                    if (typeof window.closeAppModal === 'function') {
+                        window.closeAppModal('online-modal');
+                        window.closeAppModal('create-room-modal');
+                        window.closeAppModal('matchmaking-modal');
+                        window.closeAppModal('custom-alert-modal');
+                    } else {
+                        if (ui && typeof ui.setDisplay === 'function') {
+                            ui.setDisplay('online-modal', 'none');
+                            ui.setDisplay('create-room-modal', 'none');
+                            ui.setDisplay('matchmaking-modal', 'none');
+                            ui.setDisplay('custom-alert-modal', 'none');
+                        }
+                    }
+                } catch(e) {}
+
+                // 3. إيقاف وإخفاء العداد التنازلي
+                if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
+                const overlay = document.getElementById('match-countdown-overlay');
+                if (overlay) overlay.style.display = 'none';
+                
+                this.isAlertShown = false; 
+
+                if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
+                clearInterval(gameState.mmInterval);
+                gameState.mmInterval = null; 
+
+                // 4. تهيئة بيانات المباراة
+                gameState.isBotOpponent = false;
+                gameState.isGameOver = false;
+                gameState.isGameActive = true;
+                gameState.isSpectator = false;
+                gameState.statsUpdated = false; 
+                gameState.isUpdatingStats = false; 
+                gameState.selectedPiece = null; 
+                gameState.movesWithoutProgress = 0;
+                gameState.boardHistoryStr = [];
+                gameState.pieceHistories = {}; 
+                gameState.lastMyMove = null; 
+                
+                gameState.turnEndTime = null;
+                gameState.turnTimeLeft = data.secondsLeft || 45;
+                if (data.turnEndTime) {
+                    gameState.turnEndTime = data.turnEndTime;
+                } else {
+                    gameState.turnEndTime = Date.now() + (gameState.turnTimeLeft * 1000);
                 }
-            } catch(e) {}
 
-            document.getElementById('custom-results-modal-container')?.remove(); 
-            
-            if (typeof window.closeAppModal === 'function') {
-                window.closeAppModal('online-modal');
-                window.closeAppModal('create-room-modal');
-                window.closeAppModal('matchmaking-modal');
-                window.closeAppModal('custom-alert-modal');
-            } else {
-                ui.setDisplay('online-modal', 'none');
-                ui.setDisplay('create-room-modal', 'none');
-                ui.setDisplay('matchmaking-modal', 'none');
-                ui.setDisplay('custom-alert-modal', 'none');
-            }
+                if (data.roomID) {
+                    gameState.onlineRoomID = data.roomID;
+                }
 
-            if (gameState.countdownInterval) clearInterval(gameState.countdownInterval);
-            const overlay = document.getElementById('match-countdown-overlay');
-            if (overlay) overlay.style.display = 'none';
-            
-            this.isAlertShown = false; 
+                window.currentOpponentData = data.opponent;
+                window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
 
-            if (typeof gameEngine.closeResultsMenu === 'function') gameEngine.closeResultsMenu();
-            clearInterval(gameState.mmInterval);
-            gameState.mmInterval = null; 
-
-            gameState.isBotOpponent = false;
-            gameState.isGameOver = false;
-            gameState.isGameActive = true;
-            gameState.isSpectator = false;
-            gameState.statsUpdated = false; 
-            gameState.isUpdatingStats = false; 
-            gameState.selectedPiece = null; 
-            gameState.movesWithoutProgress = 0;
-            gameState.boardHistoryStr = [];
-            gameState.pieceHistories = {}; 
-            gameState.lastMyMove = null; 
-            
-            gameState.turnEndTime = null;
-            gameState.turnTimeLeft = data.secondsLeft || 45;
-            if (data.turnEndTime) {
-                gameState.turnEndTime = data.turnEndTime;
-            } else {
-                gameState.turnEndTime = Date.now() + (gameState.turnTimeLeft * 1000);
-            }
-
-            if (data.roomID) {
-                gameState.onlineRoomID = data.roomID;
-            }
-
-            window.currentOpponentData = data.opponent;
-            window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
-
-            gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
-            gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.webp");
-            gameState.currentOpponentFr = (data.opponent?.equippedFr || "fr_classic");
-            gameState.currentOpponentProfileFrame = data.opponent?.equippedProfileFrame || null; 
-            
-            const opponentXpFromServer = Number(data.opponent?.xp) || 0;
-            gameState.currentOpponentXp = opponentXpFromServer;
-            if (data.opponent) gameState.currentOpponentData = data.opponent;
-            
-            gameState.isOnlineMode = true;
-            startOnlineHintSystem(); 
-
-            gameState.playerColor = gameState.myOnlineColor = data.color;
-            gameState.virtualBoard = data.board;
-
-            if (gameState.virtualBoard && Array.isArray(gameState.virtualBoard)) {
-                let wc = [0,0], bc = [0,0];
-                gameState.virtualBoard.forEach((row, r) => {
-                    if (row && Array.isArray(row)) {
-                        row.forEach(p => {
-                            if(p) {
-                                if(p.startsWith('white')) r < 4 ? wc[0]++ : wc[1]++;
-                                if(p.startsWith('black')) r < 4 ? bc[0]++ : bc[1]++;
-                            }
-                        });
+                gameState.currentOpponentName = (data.opponent?.name || (gameState.lang === 'ar' ? "لاعب أونلاين" : "Online"));
+                gameState.currentOpponentAvatar = (data.opponent?.avatar || "1000132081.webp");
+                gameState.currentOpponentFr = (data.opponent?.equippedFr || "fr_classic");
+                gameState.currentOpponentProfileFrame = data.opponent?.equippedProfileFrame || null; 
+                
+                const opponentXpFromServer = Number(data.opponent?.xp) || 0;
+                gameState.currentOpponentXp = opponentXpFromServer;
+                if (data.opponent) gameState.currentOpponentData = data.opponent;
+                
+                gameState.isOnlineMode = true;
+                
+                // 🛡️ كبسولة حماية لمنع انهيار اللعبة إذا كانت دالة التلميح مفقودة
+                try {
+                    if (typeof startOnlineHintSystem === 'function') {
+                        startOnlineHintSystem(); 
                     }
-                });
-                gameState.pieceDirection.white = wc[0] > wc[1] ? 1 : -1;
-                gameState.pieceDirection.black = bc[0] > bc[1] ? 1 : -1;
+                } catch(e) { console.error(e); }
+
+                gameState.playerColor = gameState.myOnlineColor = data.color;
+                gameState.virtualBoard = data.board;
+
+                // 🛡️ حساب اتجاه الأحجار بطريقة آمنة جداً
+                if (gameState.virtualBoard && Array.isArray(gameState.virtualBoard)) {
+                    let wc = [0,0], bc = [0,0];
+                    gameState.virtualBoard.forEach((row, r) => {
+                        if (row && Array.isArray(row)) {
+                            row.forEach(p => {
+                                if(p) {
+                                    if(p.startsWith('white')) r < 4 ? wc[0]++ : wc[1]++;
+                                    if(p.startsWith('black')) r < 4 ? bc[0]++ : bc[1]++;
+                                }
+                            });
+                        }
+                    });
+                    if (!gameState.pieceDirection) gameState.pieceDirection = {};
+                    gameState.pieceDirection.white = wc[0] > wc[1] ? 1 : -1;
+                    gameState.pieceDirection.black = bc[0] > bc[1] ? 1 : -1;
+                }
+                
+                // 🛡️ حماية دالة قلب الساحة
+                try {
+                    if (typeof gameEngine.computeOnlineFlip === 'function') {
+                        gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
+                    } else {
+                        gameState.onlineFlip = (gameState.myOnlineColor === 'black');
+                    }
+                } catch(e) {
+                    gameState.onlineFlip = (gameState.myOnlineColor === 'black');
+                }
+                
+                const myProfile = gameState.userProfile || this._ensureUserProfile();
+                const isOptOut = myProfile.syncThemeOptOut === true;
+                const myXp = Number(myProfile.xp) || 0;
+                const oppXp = opponentXpFromServer;
+
+                if (!isOptOut && oppXp > myXp) {
+                    this._showToast(getNotifyMsg('oppHigherTheme'));
+                    applyMatchThemeRobust(data.opponent);
+                } else if (!isOptOut && myXp > oppXp) {
+                    this._showToast(getNotifyMsg('myHigherTheme'));
+                    applyMatchThemeRobust(myProfile);
+                } else {
+                    applyMatchThemeRobust(myProfile);
+                }
+
+                // 🛡️ إخفاء القائمة الجانبية أو أي قائمة تمنع رؤية الساحة
+                try {
+                    const gameMenuContainer = document.getElementById('game-mode-selection') || document.querySelector('.menu-buttons-container');
+                    if (gameMenuContainer) {
+                        gameMenuContainer.style.display = 'none';
+                    }
+                } catch(e) {}
+
+                // 5. رسم الساحة وبدء اللعب!
+                if (ui && typeof ui.toggleOnlineUILayout === 'function') {
+                    ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
+                    ui.setDisplay('bottom-control-panel', 'flex'); 
+                    ui.renderBoard(true);
+                    
+                    gameState.currentTurn = data.turn || 'white';
+                    ui.startTurn();
+                }
+
+            } catch (fatalError) {
+                console.error("FATAL ERROR IN GAME START:", fatalError);
+                this._showToast("تم تجاوز خطأ تقني، جاري إعداد اللوحة...");
+                // محاولة أخيرة لرسم الساحة حتى لو حدث خطأ بسيط
+                if (ui && typeof ui.renderBoard === 'function') {
+                    ui.renderBoard(true);
+                    ui.startTurn();
+                }
             }
-            
-            gameState.onlineFlip = gameEngine.computeOnlineFlip(gameState.myOnlineColor);
-            
-            const myProfile = gameState.userProfile || this._ensureUserProfile();
-            
-            const isOptOut = myProfile.syncThemeOptOut === true;
-            const myXp = Number(myProfile.xp) || 0;
-            const oppXp = opponentXpFromServer;
-
-            if (!isOptOut && oppXp > myXp) {
-                this._showToast(getNotifyMsg('oppHigherTheme'));
-                applyMatchThemeRobust(data.opponent);
-            } else if (!isOptOut && myXp > oppXp) {
-                this._showToast(getNotifyMsg('myHigherTheme'));
-                applyMatchThemeRobust(myProfile);
-            } else {
-                applyMatchThemeRobust(myProfile);
-            }
-
-            ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
-            ui.setDisplay('bottom-control-panel', 'flex'); 
-
-            ui.renderBoard(true);
-
-            gameState.currentTurn = data.turn || 'white';
-            ui.startTurn();
         });
 
         socket.on('opponentMove', data => {
