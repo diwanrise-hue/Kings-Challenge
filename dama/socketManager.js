@@ -1,5 +1,3 @@
-// socketManager.js
-
 /**
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
  * 🌟 (مُحدّث): حل مشكلة الـ Ping العشوائي باستخدام RTT الدقيق.
@@ -12,7 +10,7 @@
  * 🌟 (مُحدّث جديد): فصل زر المراهنة 💰 عن المشاهدة 👁️ وإظهار صورتي اللاعبين للغرف الممتلئة.
  * 🌟 (مُحدّث حصري): إصلاح قص صور الـ VIP، تأثير الضباب الجانبي، وتعديل لون زر "دخول".
  * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية والقضاء على اللاج تماماً.
- * 🎨 (تحديث التصميم): أزرار المراهنة والمشاهدة أصبحت صلبة (Solid) مع خط فاصل ذهبي ومسافات متناسقة.
+ * 🎨 (تحديث التصميم): أزرار المراهنة والمشاهدة أصبحت صلبة (Solid) مع خط فاصل ذهبي ومسافات متناسقة بين اللاعبين.
  */
 
 import { gameState } from './gameState.js'; 
@@ -319,14 +317,16 @@ window.renderRoomsList = function() {
                 let p1UI = getAvatarUI(r.hostAvatar, r.equippedProfileFrame, r.hostVipLevel);
                 let p2UI = getAvatarUI(r.p2Avatar, r.p2Frame, r.p2Vip);
 
+                // 🌟 تعديل هنا: فصل صورتي اللاعبين وإضافة خط ذهبي بينهما 🌟
                 const avatarsHTML = `
-                    <div style="display: flex; align-items: center; margin-left: 5px; transform: translateZ(0);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-left: 5px; transform: translateZ(0);">
                         <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; overflow: visible;">
                             <img src="${p1UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
                             ${p1UI.frameHTML}
                             ${p1UI.vipHTML}
                         </div>
-                        <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; margin-right: -15px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; box-shadow: -3px 0 5px rgba(0,0,0,0.5); overflow: visible;">
+                        <div style="width: 2px; height: 35px; background: linear-gradient(to bottom, transparent, #ffd700, transparent); border-radius: 2px;"></div>
+                        <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; overflow: visible;">
                             <img src="${p2UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
                             ${p2UI.frameHTML}
                             ${p2UI.vipHTML}
@@ -338,14 +338,14 @@ window.renderRoomsList = function() {
                     const p1Obj = encodeURIComponent(JSON.stringify({name: r.hostName, avatar: r.hostAvatar, equippedProfileFrame: r.equippedProfileFrame}));
                     const p2Obj = encodeURIComponent(JSON.stringify({name: r.p2Name || 'الخصم', avatar: r.p2Avatar || '1000132081.webp', equippedProfileFrame: r.p2Frame}));
 
+                    // 🌟 تعديل هنا: أزرار مراهنة ومشاهدة بألوان صلبة (Solid) ومسافات متناسقة 🌟
                     actionBtnHTML = `
-                        <div style="width: 2px; height: 50px; background: linear-gradient(to bottom, transparent, #ffd700, transparent); margin: 0 10px; opacity: 0.6; flex-shrink: 0;"></div>
-                        <div style="display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; z-index: 10; width: 105px; transform: translateZ(0);">
-                            <button onclick="window.openDirectBetModal('${r.id}', '${p1Obj}', '${p2Obj}')" style="background: linear-gradient(135deg, #f1c40f, #f39c12); border: none; border-radius: 8px; padding: 6px 8px; color: #000; cursor: pointer; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
+                            <button onclick="window.openDirectBetModal('${r.id}', '${p1Obj}', '${p2Obj}')" style="background: #d68910; border: 1px solid #b9770e; border-radius: 8px; padding: 6px 8px; color: #fff; cursor: pointer; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                 <span style="width: 22px; text-align: center; margin-left: 2px; font-size: 13px;">💰</span>
                                 <span style="flex: 1; text-align: center;">مراهنة</span>
                             </button>
-                            <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: linear-gradient(135deg, #9b59b6, #8e44ad); border: none; border-radius: 8px; padding: 6px 8px; color: #fff; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: #8e44ad; border: 1px solid #732d91; border-radius: 8px; padding: 6px 8px; color: #fff; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                 <span style="width: 22px; text-align: center; margin-left: 2px; font-size: 13px;">👁️</span>
                                 <span style="flex: 1; text-align: center;">مشاهدة (${r.spectatorsCount || 0})</span>
                             </button>
@@ -353,9 +353,8 @@ window.renderRoomsList = function() {
                     `;
                 } else {
                     actionBtnHTML = `
-                        <div style="width: 2px; height: 40px; background: linear-gradient(to bottom, transparent, #ffd700, transparent); margin: 0 10px; opacity: 0.6; flex-shrink: 0;"></div>
-                        <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 105px; transform: translateZ(0);">
-                            <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: linear-gradient(135deg, #9b59b6, #8e44ad); border: none; border-radius: 8px; padding: 8px; color: #fff; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
+                            <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: #8e44ad; border: 1px solid #732d91; border-radius: 8px; padding: 6px 8px; color: #fff; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                 <span style="width: 22px; text-align: center; margin-left: 2px; font-size: 13px;">👁️</span>
                                 <span style="flex: 1; text-align: center;">مشاهدة (${r.spectatorsCount || 0})</span>
                             </button>
