@@ -1,3 +1,5 @@
+// socketManager.js
+
 /**
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
  * 🌟 (مُحدّث): حل مشكلة الـ Ping العشوائي باستخدام RTT الدقيق.
@@ -9,7 +11,8 @@
  * 🌟 (مُحدّث جديد): إصلاح أيقونات (عامة/خاصة) وإزالة كيس الدولار من الرهان.
  * 🌟 (مُحدّث جديد): فصل زر المراهنة 💰 عن المشاهدة 👁️ وإظهار صورتي اللاعبين للغرف الممتلئة.
  * 🌟 (مُحدّث حصري): إصلاح قص صور الـ VIP، تأثير الضباب الجانبي، وتعديل لون زر "دخول".
- * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية والقضاء على (Recalculate Style Lag) تماماً.
+ * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية والقضاء على اللاج تماماً.
+ * 🎨 (تحديث التصميم): أزرار المراهنة والمشاهدة أصبحت صلبة (Solid) مع خط فاصل ذهبي ومسافات متناسقة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -37,8 +40,8 @@ window.socket = socket;
 window.currentRoomSearchQuery = '';
 window.currentRoomSortMode = 'vip'; // 'vip', 'bet', 'new'
 window.lastRoomsList = [];
+window.lastRenderStateHash = null; 
 
-// 🌟 دالة لفتح نافذة إنشاء الغرفة برمجياً مع إظهار ميزة الـ VIP فقط لمن يستحقها 🌟
 window.openCreateRoomModal = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     const vipContainer = document.getElementById('vip-title-container');
@@ -130,6 +133,7 @@ window.applyRoomSort = function(mode, element) {
     if (typeof window.closeAppModal === 'function') {
         window.closeAppModal('room-sort-modal');
     }
+    window.lastRenderStateHash = null; 
     if (window.renderRoomsList) window.renderRoomsList();
 };
 
@@ -142,9 +146,26 @@ window.renderRoomsList = function() {
     window.currentRoomSearchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
     if (!playListContainer) return;
+
+    const currentRenderState = JSON.stringify({
+        r: rooms,
+        s: window.currentRoomSearchQuery,
+        m: window.currentRoomSortMode
+    });
+
+    if (window.lastRenderStateHash === currentRenderState) {
+        return; 
+    }
+    window.lastRenderStateHash = currentRenderState;
     
     const currentUserId = gameState.userProfile ? gameState.userProfile.id : null;
     window.myCurrentRoomId = null;
+
+    const playFragment = document.createDocumentFragment();
+    const spectateFragment = document.createDocumentFragment();
+
+    let playCount = 0;
+    let spectateCount = 0;
 
     const miniFramesDB = {
         'pf_ruby': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profil2.webp',
@@ -152,7 +173,6 @@ window.renderRoomsList = function() {
         'pf_noble': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile7.webp'
     };
 
-    // 🌟 1. تحديث الغرفة الخاصة بصمت (بدون مسح الـ DOM) 🌟
     const myRoom = rooms.find(r => r.hostId === currentUserId);
     const myRoomCard = document.getElementById('my-waiting-room-card');
     
@@ -209,7 +229,6 @@ window.renderRoomsList = function() {
         }
     }
 
-    // 🌟 2. تحديث قائمة الغرف باستخدام نظام (DOM Diffing) للقضاء على اللاج 🌟
     let roomsToRender = rooms.filter(r => r.hostId !== currentUserId);
 
     if (window.currentRoomSearchQuery) {
@@ -245,7 +264,6 @@ window.renderRoomsList = function() {
         const emptyP = container.querySelector('.empty-rooms-msg');
         if (emptyP) emptyP.remove();
 
-        // إزالة الغرف التي لم تعد موجودة
         const currentIds = new Set(roomList.map(r => `room-card-${r.id}`));
         Array.from(container.children).forEach(child => {
             if (child.id && child.id.startsWith('room-card-') && !currentIds.has(child.id)) {
@@ -253,7 +271,6 @@ window.renderRoomsList = function() {
             }
         });
 
-        // إضافة أو تحديث الغرف
         roomList.forEach((r, index) => {
             let roomEl = document.getElementById(`room-card-${r.id}`);
             let isNew = false;
@@ -322,22 +339,24 @@ window.renderRoomsList = function() {
                     const p2Obj = encodeURIComponent(JSON.stringify({name: r.p2Name || 'الخصم', avatar: r.p2Avatar || '1000132081.webp', equippedProfileFrame: r.p2Frame}));
 
                     actionBtnHTML = `
-                        <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
-                            <button onclick="window.openDirectBetModal('${r.id}', '${p1Obj}', '${p2Obj}')" style="background: rgba(241,196,15,0.15); border: 1px solid rgba(241,196,15,0.4); border-radius: 8px; padding: 6px 8px; color: #f1c40f; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(241,196,15,0.25)'" onmouseout="this.style.background='rgba(241,196,15,0.15)'">
-                                <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">💰</span>
+                        <div style="width: 2px; height: 50px; background: linear-gradient(to bottom, transparent, #ffd700, transparent); margin: 0 10px; opacity: 0.6; flex-shrink: 0;"></div>
+                        <div style="display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; z-index: 10; width: 105px; transform: translateZ(0);">
+                            <button onclick="window.openDirectBetModal('${r.id}', '${p1Obj}', '${p2Obj}')" style="background: linear-gradient(135deg, #f1c40f, #f39c12); border: none; border-radius: 8px; padding: 6px 8px; color: #000; cursor: pointer; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <span style="width: 22px; text-align: center; margin-left: 2px; font-size: 13px;">💰</span>
                                 <span style="flex: 1; text-align: center;">مراهنة</span>
                             </button>
-                            <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.4); border-radius: 8px; padding: 6px 8px; color: #9b59b6; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(155,89,182,0.25)'" onmouseout="this.style.background='rgba(155,89,182,0.15)'">
-                                <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">👁️</span>
+                            <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: linear-gradient(135deg, #9b59b6, #8e44ad); border: none; border-radius: 8px; padding: 6px 8px; color: #fff; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <span style="width: 22px; text-align: center; margin-left: 2px; font-size: 13px;">👁️</span>
                                 <span style="flex: 1; text-align: center;">مشاهدة (${r.spectatorsCount || 0})</span>
                             </button>
                         </div>
                     `;
                 } else {
                     actionBtnHTML = `
-                        <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
-                            <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.4); border-radius: 8px; padding: 6px 8px; color: #9b59b6; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(155,89,182,0.25)'" onmouseout="this.style.background='rgba(155,89,182,0.15)'">
-                                <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">👁️</span>
+                        <div style="width: 2px; height: 40px; background: linear-gradient(to bottom, transparent, #ffd700, transparent); margin: 0 10px; opacity: 0.6; flex-shrink: 0;"></div>
+                        <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 105px; transform: translateZ(0);">
+                            <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: linear-gradient(135deg, #9b59b6, #8e44ad); border: none; border-radius: 8px; padding: 8px; color: #fff; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <span style="width: 22px; text-align: center; margin-left: 2px; font-size: 13px;">👁️</span>
                                 <span style="flex: 1; text-align: center;">مشاهدة (${r.spectatorsCount || 0})</span>
                             </button>
                         </div>
@@ -379,14 +398,12 @@ window.renderRoomsList = function() {
                 `;
             }
 
-            // تحديث محتوى الغرفة فقط إذا تغير بالفعل (سرعة استجابة هائلة)
             if (roomEl.innerHTML !== innerHTMLContent) {
                 roomEl.innerHTML = innerHTMLContent;
             }
 
             if (isNew) container.appendChild(roomEl);
 
-            // ترتيب العناصر في DOM حسب ترتيب المصفوفة
             if (container.children[index] !== roomEl) {
                 container.insertBefore(roomEl, container.children[index]);
             }
@@ -1274,7 +1291,7 @@ export const socketManager = {
                 
                 if (window.ui && typeof window.ui.setTxt === 'function') {
                     let timeTxt = (window.t && window.t('time_left')) ? window.t('time_left') : 'المتبقي للدور:';
-                    window.ui.setTxt('turn-countdown', `${timeTxt}s`);
+                    window.ui.setTxt('turn-countdown', `${timeTxt} ${seconds}s`);
                 }
             }
         });
