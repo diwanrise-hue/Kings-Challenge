@@ -1,4 +1,4 @@
-/* المتغيرات الأساسية والهيكل العام الثابت    */
+/* dama.css    */
 /* ========================================== */
 :root { 
     --light-cell: #DEB887; 
@@ -579,7 +579,21 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     width: 90vw !important; max-width: 600px !important; height: 80vh !important; max-height: 800px !important; padding-top: 35px; display: flex; flex-direction: column;
 }
 
-.room-full-screen { width: 100vw !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; border:none !important; padding: 60px 20px 20px 20px !important; background-image: url('Media/front/room.webp') !important; background-size: cover !important; background-position: center !important; background-color: #1a1a24 !important; display: flex; flex-direction: column; } 
+.room-full-screen { 
+    width: 100vw !important; 
+    height: 100dvh !important; 
+    max-width: none !important; 
+    max-height: none !important; 
+    border-radius: 0 !important; 
+    border:none !important; 
+    padding: 22px 20px 15px 20px !important; 
+    background-image: url('Media/front/room.webp') !important; 
+    background-size: cover !important; 
+    background-position: center !important; 
+    background-color: #1a1a24 !important; 
+    display: flex; 
+    flex-direction: column; 
+} 
 
 .settings-card::-webkit-scrollbar { display: none; }
 @keyframes modalFadeIn { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
@@ -1542,3 +1556,15 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 #igp-rank-display img {
     max-height: 32px !important; /* حد أقصى خاص بنافذة البروفايل */
 }
+
+/* ========================================== */
+/* 🌟 حاوية غرفة اللاعب الخاصة (مستطيل ثابت) 🌟 */
+/* ========================================== */
+.my-waiting-room-card { display: none; flex-direction: row; align-items: center; justify-content: space-between; width: 100%; height: 85px; background: linear-gradient(145deg, rgba(20, 22, 28, 0.95), rgba(10, 12, 16, 0.95)); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; padding: 10px 15px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.6), inset 0 0 10px rgba(212, 175, 55, 0.1); margin-bottom: 12px; }
+.my-waiting-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; flex: 1; margin-right: 15px; }
+.my-waiting-actions { display: flex; gap: 10px; }
+.my-waiting-action-btn { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s ease; }
+.my-waiting-action-btn.settings { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; }
+.my-waiting-action-btn.settings:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+.my-waiting-action-btn.delete { background: rgba(255, 69, 58, 0.15); border: 1px solid rgba(255, 69, 58, 0.3); color: #ff453a; }
+.my-waiting-action-btn.delete:hover { background: rgba(255, 69, 58, 0.25); transform: scale(1.05); }
