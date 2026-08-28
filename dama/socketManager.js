@@ -9,7 +9,8 @@
  * 🌟 (مُحدّث جديد): إصلاح أيقونات (عامة/خاصة) وإزالة كيس الدولار من الرهان.
  * 🌟 (مُحدّث جديد): فصل زر المراهنة 💰 عن المشاهدة 👁️ وإظهار صورتي اللاعبين للغرف الممتلئة.
  * 🌟 (مُحدّث حصري): إصلاح قص صور الـ VIP، تأثير الضباب الجانبي، وتعديل لون زر "دخول".
- * 🚀 (مُحدّث للأداء): تحويل معالجة الألوان والضباب لكرت شاشة الهاتف (GPU Acceleration) لضمان سلاسة 60fps.
+ * 🚀 (مُحدّث للأداء): تحويل معالجة الألوان والضباب لكرت شاشة الهاتف (GPU Acceleration).
+ * ⚡ (ترقية الأداء القصوى): نظام Smart Render لمنع إعادة الرسم الوهمية وتقليل Recalculate Style للصفر!
  */
 
 import { gameState } from './gameState.js'; 
@@ -37,8 +38,8 @@ window.socket = socket;
 window.currentRoomSearchQuery = '';
 window.currentRoomSortMode = 'vip'; // 'vip', 'bet', 'new'
 window.lastRoomsList = [];
+window.lastRenderStateHash = null; // ⚡ متغير لتخزين بصمة الرسمة الأخيرة
 
-// 🌟 دالة لفتح نافذة إنشاء الغرفة برمجياً مع إظهار ميزة الـ VIP فقط لمن يستحقها 🌟
 window.openCreateRoomModal = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     const vipContainer = document.getElementById('vip-title-container');
@@ -130,6 +131,7 @@ window.applyRoomSort = function(mode, element) {
     if (typeof window.closeAppModal === 'function') {
         window.closeAppModal('room-sort-modal');
     }
+    window.lastRenderStateHash = null; // إجبار التحديث عند تغيير الفرز
     if (window.renderRoomsList) window.renderRoomsList();
 };
 
@@ -142,12 +144,25 @@ window.renderRoomsList = function() {
     window.currentRoomSearchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
     if (!playListContainer) return;
+
+    // ⚡ نظام Smart Render: التحقق مما إذا كانت البيانات متطابقة تماماً لتجنب مسح وإعادة بناء الـ DOM
+    const currentRenderState = JSON.stringify({
+        r: rooms,
+        s: window.currentRoomSearchQuery,
+        m: window.currentRoomSortMode
+    });
+
+    if (window.lastRenderStateHash === currentRenderState) {
+        return; // الأداء: لا توجد تغييرات، الخروج فوراً لعدم استهلاك الـ CPU!
+    }
+    window.lastRenderStateHash = currentRenderState;
     
     const currentUserId = gameState.userProfile ? gameState.userProfile.id : null;
     window.myCurrentRoomId = null;
 
-    playListContainer.innerHTML = '';
-    if (spectateListContainer) spectateListContainer.innerHTML = '';
+    // استخدام DocumentFragment لتقليل التقطيع (Layout Thrashing) أثناء الرسم
+    const playFragment = document.createDocumentFragment();
+    const spectateFragment = document.createDocumentFragment();
 
     let playCount = 0;
     let spectateCount = 0;
@@ -247,17 +262,16 @@ window.renderRoomsList = function() {
         let glowStyle = '';
         let baseBorder = '1px solid rgba(30, 58, 138, 0.8)';
         
-        if (r.betAmount > 0 && r.betAmount === highestBetValue) {
-            glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(155, 89, 182, 0.6); border: ${baseBorder};`;
-        } else if (r.hostVipLevel && parseInt(r.hostVipLevel) > 0) {
+        if (r.hostVipLevel && parseInt(r.hostVipLevel) > 0) {
             glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(255, 215, 0, 0.4); border: ${baseBorder};`;
+        } else if (r.betAmount > 0 && r.betAmount === highestBetValue) {
+            glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(155, 89, 182, 0.6); border: ${baseBorder};`;
         } else if (r.betAmount === 0 || !r.betAmount) {
             glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(255, 255, 255, 0.2); border: ${baseBorder};`;
         } else {
             glowStyle = `border: ${baseBorder};`;
         }
 
-        // 🚀 إضافة خصائص GPU Acceleration
         roomEl.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(15,18,25,0.85); border-radius: 12px; margin-bottom: 8px; transition: transform 0.2s ease, box-shadow 0.2s ease; transform: translateZ(0); will-change: transform, box-shadow; backface-visibility: hidden; ${glowStyle}`;
         
         roomEl.onmouseenter = () => roomEl.style.transform = 'translateZ(0) scale(1.02)';
@@ -333,7 +347,7 @@ window.renderRoomsList = function() {
             `;
             
             if (spectateListContainer) {
-                spectateListContainer.appendChild(roomEl);
+                spectateFragment.appendChild(roomEl);
                 spectateCount++;
             }
         } else {
@@ -374,16 +388,26 @@ window.renderRoomsList = function() {
                 ${actionBtnHTML}
             `;
             
-            playListContainer.appendChild(roomEl);
+            playFragment.appendChild(roomEl);
             playCount++;
         }
     });
 
+    // ⚡ تطبيق التغييرات دفعة واحدة (DOM Write)
+    playListContainer.innerHTML = '';
     if (playCount === 0) {
         playListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة تطابق بحثك.</p>';
+    } else {
+        playListContainer.appendChild(playFragment);
     }
-    if (spectateCount === 0 && spectateListContainer) {
-        spectateListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>';
+
+    if (spectateListContainer) {
+        spectateListContainer.innerHTML = '';
+        if (spectateCount === 0) {
+            spectateListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>';
+        } else {
+            spectateListContainer.appendChild(spectateFragment);
+        }
     }
 };
 
