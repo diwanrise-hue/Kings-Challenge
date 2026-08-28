@@ -6,7 +6,7 @@
  * 🌟 (مُحدّث جديد): فصل مستطيل الغرفة الخاصة وعزلها في واجهة قائمة الغرف.
  * 🌟 (مُحدّث جديد): ضبط z-index للـ Ping ليكون 800 في الشاشة الرئيسية فقط.
  * 🌟 (مُحدّث جديد): نظام الفرز الذكي (Sort) والبحث (Search) في الغرف.
- * 🌟 (مُحدّث جديد): إصلاح جذري لمشكلة تداخل نصوص تحديد نسبة الرهان.
+ * 🌟 (مُحدّث جديد): إصلاح أيقونات (عامة/خاصة) وإزالة كيس الدولار من الرهان.
  */
 
 import { gameState } from './gameState.js'; 
@@ -123,9 +123,10 @@ window.renderRoomsList = function() {
         let displayName = myRoom.customTitle ? ("👑 " + myRoom.customTitle) : myRoom.hostName;
         document.getElementById('my-waiting-title').innerText = myRoom.customTitle ? displayName : 'بانتظار الخصم...';
         
-        const isPrivate = myRoom.hasPassword ? '🔒 محمية' : '🔓 عامة';
-        const betText = myRoom.betAmount > 0 ? `💰 ${myRoom.betAmount} 🪙` : `🆓 مجاني`;
-        document.getElementById('my-waiting-details').innerText = `${isPrivate} | ${betText}`;
+        // 🌟 التعديل هنا لغرفتك الخاصة 🌟
+        const isPrivate = myRoom.hasPassword ? '🔒 خاصة' : '<span style="filter: grayscale(100%);">🌐</span> عامة';
+        const betText = myRoom.betAmount > 0 ? `${myRoom.betAmount} 🪙` : `🆓 مجاني`;
+        document.getElementById('my-waiting-details').innerHTML = `${isPrivate} | ${betText}`;
 
         document.getElementById('my-waiting-settings-btn').onclick = () => window.openCreatorSettings(myRoom.id, myRoom.betAmount);
         document.getElementById('my-waiting-delete-btn').onclick = () => window.deleteMyRoom(myRoom.id);
@@ -173,8 +174,9 @@ window.renderRoomsList = function() {
     });
 
     roomsToRender.forEach(r => {
-        const isPrivate = r.hasPassword ? '🔒 محمية' : '🔓 عامة';
-        const betText = r.betAmount > 0 ? `💰 ${r.betAmount} 🪙` : `🆓 مجاني`;
+        // 🌟 التعديل هنا لبقية الغرف المتاحة والمشاهدة 🌟
+        const isPrivate = r.hasPassword ? '🔒 خاصة' : '<span style="filter: grayscale(100%);">🌐</span> عامة';
+        const betText = r.betAmount > 0 ? `${r.betAmount} 🪙` : `🆓 مجاني`;
         const roomEl = document.createElement('div');
         
         let avatarSrc = r.hostAvatar || "1000132081.webp";
