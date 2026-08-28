@@ -1,3 +1,5 @@
+// socketManager.js
+
 /**
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
  * 🌟 (مُحدّث): حل مشكلة الـ Ping العشوائي باستخدام RTT الدقيق.
@@ -6,11 +8,10 @@
  * 🌟 (مُحدّث جديد): فصل مستطيل الغرفة الخاصة وعزلها في واجهة قائمة الغرف.
  * 🌟 (مُحدّث جديد): ضبط z-index للـ Ping ليكون 800 في الشاشة الرئيسية فقط.
  * 🌟 (مُحدّث جديد): نظام الفرز الذكي (Sort) والبحث (Search) في الغرف.
- * 🌟 (مُحدّث جديد): إصلاح أيقونات (عامة/خاصة) وإزالة كيس الدولار من الرهان.
  * 🌟 (مُحدّث جديد): فصل زر المراهنة 💰 عن المشاهدة 👁️ وإظهار صورتي اللاعبين للغرف الممتلئة.
  * 🌟 (مُحدّث حصري): إصلاح قص صور الـ VIP، تأثير الضباب الجانبي، وتعديل لون زر "دخول".
- * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية والقضاء على اللاج تماماً.
- * 🎨 (تحديث التصميم): أزرار المراهنة والمشاهدة أصبحت صلبة (Solid) مع خط فاصل ذهبي ومسافات متناسقة بين اللاعبين.
+ * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية والقضاء على اللاج.
+ * ⏱️ (مُحدّث حصري): إصلاح وميض (Flickering) عداد الوقت بمنع السيرفر من تداخل الرسم مع العميل.
  */
 
 import { gameState } from './gameState.js'; 
@@ -317,7 +318,6 @@ window.renderRoomsList = function() {
                 let p1UI = getAvatarUI(r.hostAvatar, r.equippedProfileFrame, r.hostVipLevel);
                 let p2UI = getAvatarUI(r.p2Avatar, r.p2Frame, r.p2Vip);
 
-                // 🌟 تعديل هنا: فصل صورتي اللاعبين وإضافة خط ذهبي بينهما 🌟
                 const avatarsHTML = `
                     <div style="display: flex; align-items: center; gap: 8px; margin-left: 5px; transform: translateZ(0);">
                         <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; overflow: visible;">
@@ -338,7 +338,6 @@ window.renderRoomsList = function() {
                     const p1Obj = encodeURIComponent(JSON.stringify({name: r.hostName, avatar: r.hostAvatar, equippedProfileFrame: r.equippedProfileFrame}));
                     const p2Obj = encodeURIComponent(JSON.stringify({name: r.p2Name || 'الخصم', avatar: r.p2Avatar || '1000132081.webp', equippedProfileFrame: r.p2Frame}));
 
-                    // 🌟 تعديل هنا: أزرار مراهنة ومشاهدة بألوان صلبة (Solid) ومسافات متناسقة 🌟
                     actionBtnHTML = `
                         <div style="display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
                             <button onclick="window.openDirectBetModal('${r.id}', '${p1Obj}', '${p2Obj}')" style="background: #d68910; border: 1px solid #b9770e; border-radius: 8px; padding: 6px 8px; color: #fff; cursor: pointer; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
@@ -1250,6 +1249,16 @@ export const socketManager = {
             }
         });
 
+        // 🌟 التعديل الخاص بمنع وميض عداد الدور (Flickering Fix)
+        socket.on('syncTime', (data) => {
+            if (gameState.isOnlineMode && data) {
+                const seconds = data.secondsLeft || 0;
+                // نكتفي بتحديث المتغيرات الداخلية فقط ولا نكتب على الشاشة
+                gameState.turnTimeLeft = seconds;
+                gameState.turnEndTime = Date.now() + (seconds * 1000);
+            }
+        });
+
         socket.on('turnTimeout', data => {
             if(gameState.turnTimerInterval) clearInterval(gameState.turnTimerInterval);
             if (gameState.isGameOver) return;
@@ -1279,19 +1288,6 @@ export const socketManager = {
                     tInd.style.color = '#30d158'; 
                 }
                 if (tCount) tCount.innerText = 'المباراة انتهت';
-            }
-        });
-
-        socket.on('syncTime', (data) => {
-            if (gameState.isOnlineMode && data) {
-                const seconds = data.secondsLeft || 0;
-                gameState.turnTimeLeft = seconds;
-                gameState.turnEndTime = Date.now() + (seconds * 1000);
-                
-                if (window.ui && typeof window.ui.setTxt === 'function') {
-                    let timeTxt = (window.t && window.t('time_left')) ? window.t('time_left') : 'المتبقي للدور:';
-                    window.ui.setTxt('turn-countdown', `${timeTxt} ${seconds}s`);
-                }
             }
         });
 
