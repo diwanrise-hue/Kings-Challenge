@@ -1,4 +1,3 @@
-<!-- dama.html: ملف واجهة لعبة الدامة -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -615,25 +614,55 @@
         </div>
     </div>
 
+    <!-- 🌟 النافذة المحدثة للغرف الخاصة والمستطيل الثابت 🌟 -->
     <div id="online-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 1000;">
         <div class="settings-card room-full-screen" dir="auto">
             <button class="modal-close-btn" onclick="window.closeAppModal('online-modal')" style="left: 20px; right: auto; top: 20px; background: rgba(0,0,0,0.5) !important;">✕</button>
-            <h3 style="font-size: 26px; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8);">الغرف الخاصة 🚪</h3>
             
-            <div class="custom-nav-tabs" style="margin-bottom: 15px;">
-                <button id="room-tab-play" class="custom-tab-button active" onclick="window.switchRoomTab('play')">الغرف</button>
+            <!-- تم تقليل الهوامش لتكون بمحاذاة التبويبات -->
+            <h3 style="font-size: 26px; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8); margin-top: 5px; margin-bottom: 8px;">الغرف الخاصة 🚪</h3>
+            
+            <!-- 🌟 المستطيل الثابت الخاص بغرفتك (مخفي افتراضياً) 🌟 -->
+            <div id="my-waiting-room-card" class="my-waiting-room-card">
+                <div style="position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <img id="my-waiting-avatar" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1; border: 2px solid rgba(212,175,55,0.5);">
+                    <div id="my-waiting-frame" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none;"></div>
+                    <div id="my-waiting-vip" style="position: absolute; top: -8px; right: -8px; width: 24px; height: 32px; z-index: 50; pointer-events: none;"></div>
+                </div>
+
+                <div class="my-waiting-info">
+                    <div style="color: #ffd700; font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+                        <span style="animation: pulseHourglass 1.5s infinite;">⏳</span> 
+                        <span id="my-waiting-title">بانتظار الخصم...</span>
+                    </div>
+                    <div id="my-waiting-details" style="color: #a1a1aa; font-size: 11px; margin-top: 4px; font-weight: 600;">
+                        عامة | مجاني
+                    </div>
+                </div>
+
+                <div class="my-waiting-actions">
+                    <button id="my-waiting-settings-btn" class="my-waiting-action-btn settings" title="إعدادات الغرفة">⚙️</button>
+                    <button id="my-waiting-delete-btn" class="my-waiting-action-btn delete" title="حذف الغرفة">✕</button>
+                </div>
+            </div>
+
+            <!-- التبويبات العلوية مع مسافة صغيرة -->
+            <div class="custom-nav-tabs" style="margin-bottom: 8px;">
+                <button id="room-tab-play" class="custom-tab-button active" onclick="window.switchRoomTab('play')">الغرف المتاحة</button>
                 <button id="room-tab-bet" class="custom-tab-button" onclick="window.switchRoomTab('bet')">رهان (مشاهدة)</button>
             </div>
 
-            <div style="flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin-bottom: 20px; overflow-y: auto; padding: 10px;" id="active-rooms-list">
-                <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>
+            <!-- قائمة الغرف -->
+            <div style="flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px; overflow-y: auto; padding: 10px;" id="active-rooms-list">
+                <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>
             </div>
 
-            <div style="display: none; flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin-bottom: 20px; overflow-y: auto; padding: 10px;" id="spectate-rooms-list">
-                <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>
+            <div style="display: none; flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px; overflow-y: auto; padding: 10px;" id="spectate-rooms-list">
+                <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>
             </div>
 
-            <button onclick="window.openAppModal('create-room-modal')" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; border: 1.5px solid #85c1e9 !important; border-bottom: 3.5px solid #1f618d !important; height: 55px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important;">+ إنشاء غرفة جديدة</button>
+            <!-- زر الإنشاء السفلي الثابت -->
+            <button onclick="window.openAppModal('create-room-modal')" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; border: 1.5px solid #85c1e9 !important; border-bottom: 3.5px solid #1f618d !important; height: 55px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important; margin: 0;">+ إنشاء غرفة جديدة</button>
         </div>
     </div>
 
