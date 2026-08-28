@@ -9,8 +9,7 @@
  * 🌟 (مُحدّث جديد): إصلاح أيقونات (عامة/خاصة) وإزالة كيس الدولار من الرهان.
  * 🌟 (مُحدّث جديد): فصل زر المراهنة 💰 عن المشاهدة 👁️ وإظهار صورتي اللاعبين للغرف الممتلئة.
  * 🌟 (مُحدّث حصري): إصلاح قص صور الـ VIP، تأثير الضباب الجانبي، وتعديل لون زر "دخول".
- * 🚀 (مُحدّث للأداء): تحويل معالجة الألوان والضباب لكرت شاشة الهاتف (GPU Acceleration).
- * ⚡ (ترقية الأداء القصوى): نظام Smart Render لمنع إعادة الرسم الوهمية وتقليل Recalculate Style للصفر!
+ * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية والقضاء على (Recalculate Style Lag) تماماً.
  */
 
 import { gameState } from './gameState.js'; 
@@ -38,8 +37,8 @@ window.socket = socket;
 window.currentRoomSearchQuery = '';
 window.currentRoomSortMode = 'vip'; // 'vip', 'bet', 'new'
 window.lastRoomsList = [];
-window.lastRenderStateHash = null; // ⚡ متغير لتخزين بصمة الرسمة الأخيرة
 
+// 🌟 دالة لفتح نافذة إنشاء الغرفة برمجياً مع إظهار ميزة الـ VIP فقط لمن يستحقها 🌟
 window.openCreateRoomModal = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     const vipContainer = document.getElementById('vip-title-container');
@@ -131,7 +130,6 @@ window.applyRoomSort = function(mode, element) {
     if (typeof window.closeAppModal === 'function') {
         window.closeAppModal('room-sort-modal');
     }
-    window.lastRenderStateHash = null; // إجبار التحديث عند تغيير الفرز
     if (window.renderRoomsList) window.renderRoomsList();
 };
 
@@ -144,28 +142,9 @@ window.renderRoomsList = function() {
     window.currentRoomSearchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
     if (!playListContainer) return;
-
-    // ⚡ نظام Smart Render: التحقق مما إذا كانت البيانات متطابقة تماماً لتجنب مسح وإعادة بناء الـ DOM
-    const currentRenderState = JSON.stringify({
-        r: rooms,
-        s: window.currentRoomSearchQuery,
-        m: window.currentRoomSortMode
-    });
-
-    if (window.lastRenderStateHash === currentRenderState) {
-        return; // الأداء: لا توجد تغييرات، الخروج فوراً لعدم استهلاك الـ CPU!
-    }
-    window.lastRenderStateHash = currentRenderState;
     
     const currentUserId = gameState.userProfile ? gameState.userProfile.id : null;
     window.myCurrentRoomId = null;
-
-    // استخدام DocumentFragment لتقليل التقطيع (Layout Thrashing) أثناء الرسم
-    const playFragment = document.createDocumentFragment();
-    const spectateFragment = document.createDocumentFragment();
-
-    let playCount = 0;
-    let spectateCount = 0;
 
     const miniFramesDB = {
         'pf_ruby': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profil2.webp',
@@ -173,6 +152,7 @@ window.renderRoomsList = function() {
         'pf_noble': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile7.webp'
     };
 
+    // 🌟 1. تحديث الغرفة الخاصة بصمت (بدون مسح الـ DOM) 🌟
     const myRoom = rooms.find(r => r.hostId === currentUserId);
     const myRoomCard = document.getElementById('my-waiting-room-card');
     
@@ -184,37 +164,36 @@ window.renderRoomsList = function() {
             avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
         }
         
-        document.getElementById('my-waiting-avatar').src = avatarSrc;
+        const avatarEl = document.getElementById('my-waiting-avatar');
+        if (avatarEl && avatarEl.src !== avatarSrc) avatarEl.src = avatarSrc;
         
         const frameEl = document.getElementById('my-waiting-frame');
         let hostFrame = myRoom.equippedProfileFrame || myRoom.equippedFr; 
-        if (hostFrame && miniFramesDB[hostFrame]) {
-            frameEl.innerHTML = `<img src="${miniFramesDB[hostFrame]}" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); transform: translateZ(0); will-change: transform;">`;
-        } else {
-            frameEl.innerHTML = '';
-        }
+        const frameHTML = (hostFrame && miniFramesDB[hostFrame]) ? `<img src="${miniFramesDB[hostFrame]}" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); transform: translateZ(0); will-change: transform;">` : '';
+        if (frameEl && frameEl.innerHTML !== frameHTML) frameEl.innerHTML = frameHTML;
 
         const vipEl = document.getElementById('my-waiting-vip');
-        if (myRoom.hostVipLevel && parseInt(myRoom.hostVipLevel) > 0) {
-            vipEl.innerHTML = `<img src="Media/VIP/vip${myRoom.hostVipLevel}.webp" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); transform: translateZ(0); will-change: transform;">`;
-        } else {
-            vipEl.innerHTML = '';
-        }
+        const vipHTML = (myRoom.hostVipLevel && parseInt(myRoom.hostVipLevel) > 0) ? `<img src="Media/VIP/vip${myRoom.hostVipLevel}.webp" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); transform: translateZ(0); will-change: transform;">` : '';
+        if (vipEl && vipEl.innerHTML !== vipHTML) vipEl.innerHTML = vipHTML;
 
         let displayName = myRoom.customTitle ? ("👑 " + myRoom.customTitle) : myRoom.hostName;
-        document.getElementById('my-waiting-title').innerText = myRoom.customTitle ? displayName : 'بانتظار الخصم...';
+        const titleEl = document.getElementById('my-waiting-title');
+        const targetTitle = myRoom.customTitle ? displayName : 'بانتظار الخصم...';
+        if (titleEl && titleEl.innerText !== targetTitle) titleEl.innerText = targetTitle;
         
         const isPrivate = myRoom.hasPassword ? '🔒 خاصة' : '<span style="filter: grayscale(100%);">🌐</span> عامة';
         const betText = myRoom.betAmount > 0 ? `${myRoom.betAmount} 🪙` : `🆓 مجاني`;
-        document.getElementById('my-waiting-details').innerHTML = `${isPrivate} | ${betText}`;
+        const detailsEl = document.getElementById('my-waiting-details');
+        const targetDetails = `${isPrivate} | ${betText}`;
+        if (detailsEl && detailsEl.innerHTML !== targetDetails) detailsEl.innerHTML = targetDetails;
 
         document.getElementById('my-waiting-settings-btn').onclick = () => window.openCreatorSettings(myRoom.id, myRoom.betAmount);
         document.getElementById('my-waiting-delete-btn').onclick = () => window.deleteMyRoom(myRoom.id);
 
-        if (myRoomCard) myRoomCard.style.display = 'flex';
+        if (myRoomCard && myRoomCard.style.display !== 'flex') myRoomCard.style.display = 'flex';
         
     } else {
-        if (myRoomCard) myRoomCard.style.display = 'none';
+        if (myRoomCard && myRoomCard.style.display !== 'none') myRoomCard.style.display = 'none';
     }
 
     const createBtn = document.querySelector('#online-modal .save-settings-btn');
@@ -230,6 +209,7 @@ window.renderRoomsList = function() {
         }
     }
 
+    // 🌟 2. تحديث قائمة الغرف باستخدام نظام (DOM Diffing) للقضاء على اللاج 🌟
     let roomsToRender = rooms.filter(r => r.hostId !== currentUserId);
 
     if (window.currentRoomSearchQuery) {
@@ -241,45 +221,73 @@ window.renderRoomsList = function() {
     }
 
     roomsToRender.sort((a, b) => {
-        if (window.currentRoomSortMode === 'bet') {
-            return (b.betAmount || 0) - (a.betAmount || 0); 
-        } else if (window.currentRoomSortMode === 'new') {
-            return (b.id || "").localeCompare(a.id || ""); 
-        } else {
-            return (b.hostVipLevel || 0) - (a.hostVipLevel || 0); 
-        }
+        if (window.currentRoomSortMode === 'bet') return (b.betAmount || 0) - (a.betAmount || 0); 
+        else if (window.currentRoomSortMode === 'new') return (b.id || "").localeCompare(a.id || ""); 
+        else return (b.hostVipLevel || 0) - (a.hostVipLevel || 0); 
     });
 
     const highestBetValue = roomsToRender.reduce((max, r) => Math.max(max, r.betAmount || 0), 0);
 
-    roomsToRender.forEach(r => {
-        const isPrivate = r.hasPassword ? '🔒 خاصة' : '<span style="filter: grayscale(100%);">🌐</span> عامة';
-        const betText = r.betAmount > 0 ? `${r.betAmount} 🪙` : `🆓 مجاني`;
-        const roomEl = document.createElement('div');
-        
-        let displayName = r.customTitle ? ("👑 " + r.customTitle) : r.hostName;
+    const playRooms = roomsToRender.filter(r => !r.isFull);
+    const spectateRooms = roomsToRender.filter(r => r.isFull);
 
-        let glowStyle = '';
-        let baseBorder = '1px solid rgba(30, 58, 138, 0.8)';
-        
-        if (r.hostVipLevel && parseInt(r.hostVipLevel) > 0) {
-            glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(255, 215, 0, 0.4); border: ${baseBorder};`;
-        } else if (r.betAmount > 0 && r.betAmount === highestBetValue) {
-            glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(155, 89, 182, 0.6); border: ${baseBorder};`;
-        } else if (r.betAmount === 0 || !r.betAmount) {
-            glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(255, 255, 255, 0.2); border: ${baseBorder};`;
-        } else {
-            glowStyle = `border: ${baseBorder};`;
+    const updateContainer = (container, roomList, emptyMsg) => {
+        if (!container) return;
+
+        if (roomList.length === 0) {
+            const currentEmpty = container.querySelector('.empty-rooms-msg');
+            if (!currentEmpty) {
+                container.innerHTML = `<p class="empty-rooms-msg" style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">${emptyMsg}</p>`;
+            }
+            return;
         }
 
-        roomEl.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(15,18,25,0.85); border-radius: 12px; margin-bottom: 8px; transition: transform 0.2s ease, box-shadow 0.2s ease; transform: translateZ(0); will-change: transform, box-shadow; backface-visibility: hidden; ${glowStyle}`;
-        
-        roomEl.onmouseenter = () => roomEl.style.transform = 'translateZ(0) scale(1.02)';
-        roomEl.onmouseleave = () => roomEl.style.transform = 'translateZ(0) scale(1)';
+        const emptyP = container.querySelector('.empty-rooms-msg');
+        if (emptyP) emptyP.remove();
 
-        let actionBtnHTML = '';
+        // إزالة الغرف التي لم تعد موجودة
+        const currentIds = new Set(roomList.map(r => `room-card-${r.id}`));
+        Array.from(container.children).forEach(child => {
+            if (child.id && child.id.startsWith('room-card-') && !currentIds.has(child.id)) {
+                child.remove();
+            }
+        });
 
-        if (r.isFull) {
+        // إضافة أو تحديث الغرف
+        roomList.forEach((r, index) => {
+            let roomEl = document.getElementById(`room-card-${r.id}`);
+            let isNew = false;
+            
+            if (!roomEl) {
+                roomEl = document.createElement('div');
+                roomEl.id = `room-card-${r.id}`;
+                isNew = true;
+            }
+
+            const isPrivate = r.hasPassword ? '🔒 خاصة' : '<span style="filter: grayscale(100%);">🌐</span> عامة';
+            const betText = r.betAmount > 0 ? `${r.betAmount} 🪙` : `🆓 مجاني`;
+            let displayName = r.customTitle ? ("👑 " + r.customTitle) : r.hostName;
+
+            let glowStyle = '';
+            let baseBorder = '1px solid rgba(30, 58, 138, 0.8)';
+            
+            if (r.hostVipLevel && parseInt(r.hostVipLevel) > 0) {
+                glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(255, 215, 0, 0.4); border: ${baseBorder};`;
+            } else if (r.betAmount > 0 && r.betAmount === highestBetValue) {
+                glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(155, 89, 182, 0.6); border: ${baseBorder};`;
+            } else if (r.betAmount === 0 || !r.betAmount) {
+                glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(255, 255, 255, 0.2); border: ${baseBorder};`;
+            } else {
+                glowStyle = `border: ${baseBorder};`;
+            }
+
+            roomEl.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(15,18,25,0.85); border-radius: 12px; margin-bottom: 8px; transition: transform 0.2s ease, box-shadow 0.2s ease; transform: translateZ(0); will-change: transform, box-shadow; backface-visibility: hidden; ${glowStyle}`;
+            roomEl.onmouseenter = () => roomEl.style.transform = 'translateZ(0) scale(1.02)';
+            roomEl.onmouseleave = () => roomEl.style.transform = 'translateZ(0) scale(1)';
+
+            let actionBtnHTML = '';
+            let innerHTMLContent = '';
+
             const getAvatarUI = (avatar, frame, vip) => {
                 let src = avatar || "1000132081.webp";
                 if (!src.startsWith('http') && !src.startsWith('data:')) {
@@ -290,125 +298,103 @@ window.renderRoomsList = function() {
                 return { src, frameHTML, vipHTML };
             };
 
-            let p1UI = getAvatarUI(r.hostAvatar, r.equippedProfileFrame, r.hostVipLevel);
-            let p2UI = getAvatarUI(r.p2Avatar, r.p2Frame, r.p2Vip);
+            if (r.isFull) {
+                let p1UI = getAvatarUI(r.hostAvatar, r.equippedProfileFrame, r.hostVipLevel);
+                let p2UI = getAvatarUI(r.p2Avatar, r.p2Frame, r.p2Vip);
 
-            const avatarsHTML = `
-                <div style="display: flex; align-items: center; margin-left: 5px; transform: translateZ(0);">
-                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; overflow: visible;">
-                        <img src="${p1UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
-                        ${p1UI.frameHTML}
-                        ${p1UI.vipHTML}
-                    </div>
-                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; margin-right: -15px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; box-shadow: -3px 0 5px rgba(0,0,0,0.5); overflow: visible;">
-                        <img src="${p2UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
-                        ${p2UI.frameHTML}
-                        ${p2UI.vipHTML}
-                    </div>
-                </div>
-            `;
-
-            if (r.isBettingOpen) {
-                const p1Obj = encodeURIComponent(JSON.stringify({name: r.hostName, avatar: r.hostAvatar, equippedProfileFrame: r.equippedProfileFrame}));
-                const p2Obj = encodeURIComponent(JSON.stringify({name: r.p2Name || 'الخصم', avatar: r.p2Avatar || '1000132081.webp', equippedProfileFrame: r.p2Frame}));
-
-                actionBtnHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
-                        <button onclick="window.openDirectBetModal('${r.id}', '${p1Obj}', '${p2Obj}')" style="background: rgba(241,196,15,0.15); border: 1px solid rgba(241,196,15,0.4); border-radius: 8px; padding: 6px 8px; color: #f1c40f; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(241,196,15,0.25)'" onmouseout="this.style.background='rgba(241,196,15,0.15)'">
-                            <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">💰</span>
-                            <span style="flex: 1; text-align: center;">مراهنة</span>
-                        </button>
-                        <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.4); border-radius: 8px; padding: 6px 8px; color: #9b59b6; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(155,89,182,0.25)'" onmouseout="this.style.background='rgba(155,89,182,0.15)'">
-                            <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">👁️</span>
-                            <span style="flex: 1; text-align: center;">مشاهدة (${r.spectatorsCount || 0})</span>
-                        </button>
+                const avatarsHTML = `
+                    <div style="display: flex; align-items: center; margin-left: 5px; transform: translateZ(0);">
+                        <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; overflow: visible;">
+                            <img src="${p1UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
+                            ${p1UI.frameHTML}
+                            ${p1UI.vipHTML}
+                        </div>
+                        <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; margin-right: -15px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; box-shadow: -3px 0 5px rgba(0,0,0,0.5); overflow: visible;">
+                            <img src="${p2UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
+                            ${p2UI.frameHTML}
+                            ${p2UI.vipHTML}
+                        </div>
                     </div>
                 `;
-            } else {
-                actionBtnHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
-                        <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.4); border-radius: 8px; padding: 6px 8px; color: #9b59b6; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(155,89,182,0.25)'" onmouseout="this.style.background='rgba(155,89,182,0.15)'">
-                            <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">👁️</span>
-                            <span style="flex: 1; text-align: center;">مشاهدة (${r.spectatorsCount || 0})</span>
-                        </button>
+
+                if (r.isBettingOpen) {
+                    const p1Obj = encodeURIComponent(JSON.stringify({name: r.hostName, avatar: r.hostAvatar, equippedProfileFrame: r.equippedProfileFrame}));
+                    const p2Obj = encodeURIComponent(JSON.stringify({name: r.p2Name || 'الخصم', avatar: r.p2Avatar || '1000132081.webp', equippedProfileFrame: r.p2Frame}));
+
+                    actionBtnHTML = `
+                        <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
+                            <button onclick="window.openDirectBetModal('${r.id}', '${p1Obj}', '${p2Obj}')" style="background: rgba(241,196,15,0.15); border: 1px solid rgba(241,196,15,0.4); border-radius: 8px; padding: 6px 8px; color: #f1c40f; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(241,196,15,0.25)'" onmouseout="this.style.background='rgba(241,196,15,0.15)'">
+                                <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">💰</span>
+                                <span style="flex: 1; text-align: center;">مراهنة</span>
+                            </button>
+                            <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.4); border-radius: 8px; padding: 6px 8px; color: #9b59b6; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(155,89,182,0.25)'" onmouseout="this.style.background='rgba(155,89,182,0.15)'">
+                                <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">👁️</span>
+                                <span style="flex: 1; text-align: center;">مشاهدة (${r.spectatorsCount || 0})</span>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    actionBtnHTML = `
+                        <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
+                            <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.4); border-radius: 8px; padding: 6px 8px; color: #9b59b6; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(155,89,182,0.25)'" onmouseout="this.style.background='rgba(155,89,182,0.15)'">
+                                <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">👁️</span>
+                                <span style="flex: 1; text-align: center;">مشاهدة (${r.spectatorsCount || 0})</span>
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                innerHTMLContent = `
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; overflow: visible;">
+                        ${avatarsHTML}
+                        <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 10px; z-index: 5;">
+                            <div style="color: ${r.customTitle ? '#FFD700' : 'white'}; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</div>
+                            <div style="color: #a1a1aa; font-size: 11px; margin-top: 3px;">${isPrivate} | ${betText}</div>
+                        </div>
                     </div>
+                    ${actionBtnHTML}
+                `;
+            } else {
+                let p1UI = getAvatarUI(r.hostAvatar, r.equippedProfileFrame, r.hostVipLevel);
+
+                if (r.hasPassword) {
+                    actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 58, 138, 0.8); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.5); transform: translateZ(0);">دخول 🔒</button>`;
+                } else {
+                    actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 58, 138, 0.8); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.5); transform: translateZ(0);">دخول</button>`;
+                }
+
+                innerHTMLContent = `
+                    <div style="display: flex; align-items: center; gap: 10px; flex: 1; overflow: visible;">
+                        <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible; transform: translateZ(0);">
+                            <img src="${p1UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
+                            ${p1UI.frameHTML}
+                            ${p1UI.vipHTML}
+                        </div>
+                        <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 5px; z-index: 5;">
+                            <div style="color: ${r.customTitle ? '#FFD700' : 'white'}; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</div>
+                            <div style="color: #a1a1aa; font-size: 11px; margin-top: 3px;">${isPrivate} | ${betText}</div>
+                        </div>
+                    </div>
+                    ${actionBtnHTML}
                 `;
             }
-            
-            roomEl.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px; flex: 1; overflow: visible;">
-                    ${avatarsHTML}
-                    <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 10px; z-index: 5;">
-                        <div style="color: ${r.customTitle ? '#FFD700' : 'white'}; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</div>
-                        <div style="color: #a1a1aa; font-size: 11px; margin-top: 3px;">${isPrivate} | ${betText}</div>
-                    </div>
-                </div>
-                ${actionBtnHTML}
-            `;
-            
-            if (spectateListContainer) {
-                spectateFragment.appendChild(roomEl);
-                spectateCount++;
-            }
-        } else {
-            let avatarSrc = r.hostAvatar || "1000132081.webp";
-            if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
-                avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
-            }
-            
-            let frameHTML = '';
-            let hostFrame = r.equippedProfileFrame || r.equippedFr; 
-            if (hostFrame && miniFramesDB[hostFrame]) {
-                frameHTML = `<img src="${miniFramesDB[hostFrame]}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateZ(0); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); will-change: transform;">`;
+
+            // تحديث محتوى الغرفة فقط إذا تغير بالفعل (سرعة استجابة هائلة)
+            if (roomEl.innerHTML !== innerHTMLContent) {
+                roomEl.innerHTML = innerHTMLContent;
             }
 
-            let vipHTML = '';
-            if (r.hostVipLevel && parseInt(r.hostVipLevel) > 0) {
-                vipHTML = `<img src="Media/VIP/vip${r.hostVipLevel}.webp" onerror="this.style.display='none';" style="position: absolute; top: -10px; right: -10px; width: 24px; height: 32px; object-fit: contain; z-index: 50; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); transform: translateZ(0); will-change: transform;">`;
+            if (isNew) container.appendChild(roomEl);
+
+            // ترتيب العناصر في DOM حسب ترتيب المصفوفة
+            if (container.children[index] !== roomEl) {
+                container.insertBefore(roomEl, container.children[index]);
             }
+        });
+    };
 
-            if (r.hasPassword) {
-                actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 58, 138, 0.8); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.5); transform: translateZ(0);">دخول 🔒</button>`;
-            } else {
-                actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 58, 138, 0.8); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.5); transform: translateZ(0);">دخول</button>`;
-            }
-
-            roomEl.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px; flex: 1; overflow: visible;">
-                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible; transform: translateZ(0);">
-                        <img src="${avatarSrc}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
-                        ${frameHTML}
-                        ${vipHTML}
-                    </div>
-                    <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 5px; z-index: 5;">
-                        <div style="color: ${r.customTitle ? '#FFD700' : 'white'}; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</div>
-                        <div style="color: #a1a1aa; font-size: 11px; margin-top: 3px;">${isPrivate} | ${betText}</div>
-                    </div>
-                </div>
-                ${actionBtnHTML}
-            `;
-            
-            playFragment.appendChild(roomEl);
-            playCount++;
-        }
-    });
-
-    // ⚡ تطبيق التغييرات دفعة واحدة (DOM Write)
-    playListContainer.innerHTML = '';
-    if (playCount === 0) {
-        playListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة تطابق بحثك.</p>';
-    } else {
-        playListContainer.appendChild(playFragment);
-    }
-
-    if (spectateListContainer) {
-        spectateListContainer.innerHTML = '';
-        if (spectateCount === 0) {
-            spectateListContainer.innerHTML = '<p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>';
-        } else {
-            spectateListContainer.appendChild(spectateFragment);
-        }
-    }
+    updateContainer(playListContainer, playRooms, "لا توجد غرف متاحة تطابق بحثك.");
+    updateContainer(spectateListContainer, spectateRooms, "لا توجد مباريات جارية للمراهنة عليها حالياً.");
 };
 
 const applyMatchThemeRobust = (profile, retries = 5) => {
@@ -1288,7 +1274,7 @@ export const socketManager = {
                 
                 if (window.ui && typeof window.ui.setTxt === 'function') {
                     let timeTxt = (window.t && window.t('time_left')) ? window.t('time_left') : 'المتبقي للدور:';
-                    window.ui.setTxt('turn-countdown', `${timeTxt} ${seconds}s`);
+                    window.ui.setTxt('turn-countdown', `${timeTxt}s`);
                 }
             }
         });
