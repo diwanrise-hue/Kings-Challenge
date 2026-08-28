@@ -8,6 +8,7 @@
  * 🌟 (مُحدّث جديد): نظام الفرز الذكي (Sort) والبحث (Search) في الغرف.
  * 🌟 (مُحدّث جديد): إصلاح أيقونات (عامة/خاصة) وإزالة كيس الدولار من الرهان.
  * 🌟 (مُحدّث جديد): فصل زر المراهنة 💰 عن المشاهدة 👁️ وإظهار صورتي اللاعبين للغرف الممتلئة.
+ * 🌟 (مُحدّث حصري): إصلاح قص صور الـ VIP، إضافة تأثير الضباب الجانبي (ذهبي، بنفسجي، أبيض)، وإطارات زرقاء غامقة!
  */
 
 import { gameState } from './gameState.js'; 
@@ -179,6 +180,9 @@ window.renderRoomsList = function() {
         }
     });
 
+    // 🌟 استخراج أعلى قيمة رهان موجودة حالياً في القائمة لمعرفة الغرفة البنفسجية 🌟
+    const highestBetValue = roomsToRender.reduce((max, r) => Math.max(max, r.betAmount || 0), 0);
+
     roomsToRender.forEach(r => {
         const isPrivate = r.hasPassword ? '🔒 خاصة' : '<span style="filter: grayscale(100%);">🌐</span> عامة';
         const betText = r.betAmount > 0 ? `${r.betAmount} 🪙` : `🆓 مجاني`;
@@ -186,9 +190,29 @@ window.renderRoomsList = function() {
         
         let displayName = r.customTitle ? ("👑 " + r.customTitle) : r.hostName;
 
-        roomEl.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;";
-        roomEl.onmouseenter = () => roomEl.style.background = 'rgba(255,255,255,0.1)';
-        roomEl.onmouseleave = () => roomEl.style.background = 'rgba(255,255,255,0.05)';
+        // 🌟 تحديد لون الضباب (Glow) والإطار الأزرق الغامق 🌟
+        let glowStyle = '';
+        let baseBorder = '1px solid rgba(30, 58, 138, 0.8)'; // إطار أزرق غامق افتراضي
+        
+        if (r.betAmount > 0 && r.betAmount === highestBetValue) {
+            // أعلى رهان: ضباب بنفسجي
+            glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(155, 89, 182, 0.6); border: ${baseBorder};`;
+        } else if (r.hostVipLevel && parseInt(r.hostVipLevel) > 0) {
+            // VIP: ضباب ذهبي
+            glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(255, 215, 0, 0.4); border: ${baseBorder};`;
+        } else if (r.betAmount === 0 || !r.betAmount) {
+            // مجاني: ضباب أبيض
+            glowStyle = `box-shadow: inset 120px 0 60px -50px rgba(255, 255, 255, 0.2); border: ${baseBorder};`;
+        } else {
+            // غرفة عادية (ليست الأعلى): بدون ضباب، إطار أزرق فقط
+            glowStyle = `border: ${baseBorder};`;
+        }
+
+        roomEl.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(15,18,25,0.85); border-radius: 12px; margin-bottom: 8px; transition: transform 0.2s ease; ${glowStyle}`;
+        
+        // تأثير تكبير بسيط عند التمرير بدلاً من تغيير الخلفية لكي لا يختفي الضباب
+        roomEl.onmouseenter = () => roomEl.style.transform = 'scale(1.02)';
+        roomEl.onmouseleave = () => roomEl.style.transform = 'scale(1)';
 
         let actionBtnHTML = '';
 
@@ -207,14 +231,15 @@ window.renderRoomsList = function() {
             let p1UI = getAvatarUI(r.hostAvatar, r.equippedProfileFrame, r.hostVipLevel);
             let p2UI = getAvatarUI(r.p2Avatar, r.p2Frame, r.p2Vip);
 
+            // 🌟 إزالة overflow: hidden للسماح للـ VIP بالظهور بالكامل!
             const avatarsHTML = `
                 <div style="display: flex; align-items: center; margin-left: 5px;">
-                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24;">
+                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; overflow: visible;">
                         <img src="${p1UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
                         ${p1UI.frameHTML}
                         ${p1UI.vipHTML}
                     </div>
-                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; margin-right: -15px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; box-shadow: -3px 0 5px rgba(0,0,0,0.5);">
+                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; margin-right: -15px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; box-shadow: -3px 0 5px rgba(0,0,0,0.5); overflow: visible;">
                         <img src="${p2UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
                         ${p2UI.frameHTML}
                         ${p2UI.vipHTML}
@@ -227,7 +252,7 @@ window.renderRoomsList = function() {
                 const p2Obj = encodeURIComponent(JSON.stringify({name: r.p2Name || 'الخصم', avatar: r.p2Avatar || '1000132081.webp', equippedProfileFrame: r.p2Frame}));
 
                 actionBtnHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0;">
+                    <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10;">
                         <button onclick="window.openDirectBetModal('${r.id}', '${p1Obj}', '${p2Obj}')" style="background: rgba(241,196,15,0.15); border: 1px solid rgba(241,196,15,0.4); border-radius: 8px; padding: 4px 10px; color: #f1c40f; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 4px; transition: 0.2s;" onmouseover="this.style.background='rgba(241,196,15,0.25)'" onmouseout="this.style.background='rgba(241,196,15,0.15)'">
                             💰 مراهنة
                         </button>
@@ -238,16 +263,16 @@ window.renderRoomsList = function() {
                 `;
             } else {
                 actionBtnHTML = `
-                    <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.4); border-radius: 8px; padding: 6px 16px; color: #9b59b6; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: 0.2s; flex-shrink: 0;">
+                    <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.4); border-radius: 8px; padding: 6px 16px; color: #9b59b6; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: 0.2s; flex-shrink: 0; z-index: 10;">
                         👁️ مشاهدة (${r.spectatorsCount || 0})
                     </button>
                 `;
             }
             
             roomEl.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px; flex: 1; overflow: hidden;">
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1; overflow: visible;">
                     ${avatarsHTML}
-                    <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 5px;">
+                    <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 10px; z-index: 5;">
                         <div style="color: ${r.customTitle ? '#FFD700' : 'white'}; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</div>
                         <div style="color: #a1a1aa; font-size: 11px; margin-top: 3px;">${isPrivate} | ${betText}</div>
                     </div>
@@ -278,19 +303,20 @@ window.renderRoomsList = function() {
             }
 
             if (r.hasPassword) {
-                actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(52,152,219,0.2); border: 1px solid rgba(52,152,219,0.4); border-radius: 12px; padding: 6px 16px; color: #3498db; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0;">دخول 🔒</button>`;
+                actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(52,152,219,0.2); border: 1px solid rgba(52,152,219,0.4); border-radius: 12px; padding: 6px 16px; color: #3498db; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10;">دخول 🔒</button>`;
             } else {
-                actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(48,209,88,0.2); border: 1px solid rgba(48,209,88,0.4); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0;">دخول</button>`;
+                actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(48,209,88,0.2); border: 1px solid rgba(48,209,88,0.4); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10;">دخول</button>`;
             }
 
+            // 🌟 إزالة overflow: hidden هنا أيضاً للـ VIP
             roomEl.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden;">
-                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1; overflow: visible;">
+                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
                         <img src="${avatarSrc}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
                         ${frameHTML}
                         ${vipHTML}
                     </div>
-                    <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 5px;">
+                    <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 5px; z-index: 5;">
                         <div style="color: ${r.customTitle ? '#FFD700' : 'white'}; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</div>
                         <div style="color: #a1a1aa; font-size: 11px; margin-top: 3px;">${isPrivate} | ${betText}</div>
                     </div>
