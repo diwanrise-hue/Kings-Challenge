@@ -193,8 +193,6 @@ export const ui = {
                 let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
-                }).replace(/url\(#([^)]+)\)/g, function(match, p1) {
-                    return 'url(#' + p1 + uniqueSuffix + ')';
                 });
             }
             
@@ -1675,12 +1673,24 @@ window.switchQuestTab = function(tab) {
     }
 };
 
+// 🌟 التعديل المطلوب لتبويبات الغرفة المخصصة هنا:
 window.switchRoomTab = function(tab) {
-    document.getElementById('room-tab-play').classList.remove('active'); document.getElementById('room-tab-bet').classList.remove('active');
-    document.getElementById('active-rooms-list').style.display = 'none'; document.getElementById('spectate-rooms-list').style.display = 'none';
+    document.getElementById('room-tab-play').classList.remove('active'); 
+    document.getElementById('room-tab-bet').classList.remove('active');
+    
+    const playContent = document.getElementById('play-tab-content');
+    const spectateContent = document.getElementById('spectate-rooms-list');
+    
+    if (playContent) playContent.style.display = 'none';
+    if (spectateContent) spectateContent.style.display = 'none';
+    
     document.getElementById('room-tab-' + tab).classList.add('active'); 
-    if (tab === 'play') { document.getElementById('active-rooms-list').style.display = 'block'; } 
-    else { document.getElementById('spectate-rooms-list').style.display = 'block'; }
+    
+    if (tab === 'play') { 
+        if (playContent) playContent.style.display = 'flex'; 
+    } else { 
+        if (spectateContent) spectateContent.style.display = 'block'; 
+    }
 };
 
 window.selectBetAmount = function(value, displayText, element) {
