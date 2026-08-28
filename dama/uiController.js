@@ -7,7 +7,7 @@
  * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
  * 🛡️ (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
  * 📱 (مُحدّث للتوافق): دعم أجهزة الآيفون القديمة (Safari < 15.4) بإضافة فئة multi-choice-cell كبديل لـ :has().
- * 🤖 (مُحدّث): إيقاف الـ Timeout الخاص بالبوت فوراً عند انسحاب اللاعب لمنع الأصوات الوهمية.
+ * 🤖 (مُحدّث حصري): إصلاح مشكلة قص صورة البوت في نافذة النتائج، وجعل إطاره مطابقاً لحجم إطار اللاعب الحقيقي.
  */
 
 import { gameState } from './gameState.js'; 
@@ -175,7 +175,8 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            botScale = 'scale(0.85) translateY(-5%)'; 
+            // 🌟 تعديل حجم البوت هنا ليتناسب مع نافذة النتائج
+            botScale = 'scale(1.2) translateY(-2%)'; 
         }
         else {
             frameZ = '5';
@@ -196,9 +197,10 @@ export const ui = {
                 });
             }
             
+            // 🌟 إزالة overflow: hidden والسماح لملامح البوت بالظهور بالكامل داخل الإطار
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1a1a24; border-radius: 50%; border: 1.5px solid #d4af37; overflow: hidden; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
+                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1a1a24; border-radius: 50%; border: 2px solid #ffd700; overflow: visible; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
                         <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 10;">
                             ${botContent}
                         </div>
@@ -426,7 +428,7 @@ export const ui = {
         this.setTxt('bet-p2-name', p2.name || 'اللاعب 2');
         this.applyAvatar('bet-p2-avatar', p2.avatar, p2.isCustomAvatar || p2.avatar?.startsWith('data:'), p2.equippedProfileFrame);
         
-        const confirmBtn = this.getEl('confirm-spectator-bet-btn');
+        const confirmBtn = this.getEl('spectator-submit-bet-btn');
         if (confirmBtn) {
             confirmBtn.onclick = () => {
                 const color = this.getVal('spectator-bet-color');
@@ -1104,7 +1106,6 @@ export const ui = {
         if (gameState.requiredJumps > 0) {
             tInd.textContent = `${t('forced')} ${gameState.requiredJumps}`; tInd.style.color = "#e74c3c";
             
-            // 🛡️ (مُحدّث): دعم سفاري القديم عبر إضافة الكلاس للأب بدلاً من الاعتماد على :has
             fList.forEach(item => {
                 item.el.classList.add('forced');
                 if (fList.length > 1) {
@@ -1189,7 +1190,6 @@ export const ui = {
         let stepIdx = 0; let startRow = chosenMove[0].fromR; let startCol = chosenMove[0].fromC;
 
         function executeStep() {
-            // 🛡️ (مُحدّث أمنياً): منع الـ setTimeout من الاستمرار في إطلاق أصوات إذا اللاعب انسحب!
             if (!gameState.isGameActive || gameState.gameId !== gameId) return; 
             if (gameState.currentTurn !== aiColor || gameState.isOnlineMode) return;
 
@@ -1266,7 +1266,6 @@ export const ui = {
         
         this.setDisplay('match-gift-btn-p2', 'none');
 
-        // 🛡️ (مُحدّث): تم تخفيض Z-Index ليكون 4000 بدلاً من 999999 لمنع إخفاء إشعارات النظام
         const container = this.makeEl('div', 'custom-results-modal-container', "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,18,25,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:4000;font-family:sans-serif;direction:rtl;box-sizing:border-box;padding:20px;");
         container.id = 'custom-results-modal-container';
         
@@ -1285,7 +1284,6 @@ export const ui = {
             
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;");
             
-            // 🛡️ (مُحدّث): تم إضافة position:relative لضمان أن الإطار لا ينفجر ويغطي الشاشة كلها
             const av = this.makeEl('div', 'result-avatar', "position:relative;width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
             
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
@@ -1607,11 +1605,11 @@ window.openCreatorSettings = function(roomId, currentBet) {
     
     if (betDisplay) {
         let betText = "بدون رهان (مجاني)";
-        if (currentBet == 50) betText = "50 🪙 (الجائزة الكبرى: 100)";
-        else if (currentBet == 100) betText = "100 🪙 (الجائزة الكبرى: 200)";
-        else if (currentBet == 200) betText = "200 🪙 (الجائزة الكبرى: 400)";
-        else if (currentBet == 500) betText = "500 🪙 (الجائزة الكبرى: 1000)";
-        else if (currentBet == 1000) betText = "1000 🪙 (الجائزة الكبرى: 2000)";
+        if (currentBet == 50) betText = "50 🪙";
+        else if (currentBet == 100) betText = "100 🪙";
+        else if (currentBet == 200) betText = "200 🪙";
+        else if (currentBet == 500) betText = "500 🪙 (الحد الأقصى)";
+        else if (currentBet == 1000) betText = "1000 🪙 (الحد الأقصى)";
         betDisplay.innerText = betText;
     }
     
@@ -1673,7 +1671,6 @@ window.switchQuestTab = function(tab) {
     }
 };
 
-// 🌟 التعديل المطلوب لتبويبات الغرفة المخصصة هنا:
 window.switchRoomTab = function(tab) {
     document.getElementById('room-tab-play').classList.remove('active'); 
     document.getElementById('room-tab-bet').classList.remove('active');
@@ -1691,19 +1688,6 @@ window.switchRoomTab = function(tab) {
     } else { 
         if (spectateContent) spectateContent.style.display = 'block'; 
     }
-};
-
-window.selectBetAmount = function(value, displayText, element) {
-    if (window.isEditingBet) {
-        document.getElementById('edit-room-bet-input').value = value; 
-        document.getElementById('edit-room-bet-display').innerText = displayText;
-    } else {
-        document.getElementById('room-bet-input').value = value; 
-        document.getElementById('custom-bet-display').innerText = displayText;
-    }
-    document.querySelectorAll('.bet-option-item').forEach(el => el.classList.remove('selected'));
-    element.classList.add('selected');
-    setTimeout(() => window.closeAppModal('bet-selector-modal'), 150);
 };
 
 function cleanExpiredRequests(profile) {
@@ -2085,7 +2069,6 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                     setTimeout(() => toast.classList.remove('show'), 2500); 
                 }
 
-                // سيتم عرض الأنيميشن عبر مستلم socket receivePopularityGift لمنع التكرار
             } else {
                 const toast = document.getElementById('toast-notification');
                 if (toast) { 
@@ -2483,7 +2466,6 @@ ui.onClick('undo-btn', () => {
 
 ui.onClick('hint-btn', () => { hintSystem.requestHint(); });
 
-// 🌟 فتح نافذة الهدايا
 ui.onClick('match-gift-btn-p2', () => {
     if (gameState.isSpectator) {
         window.openGiftPanel(); 
@@ -2572,9 +2554,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// ==========================================
-// 🌟 دالة التحقق من صحة الحركات العادية بأمان (بدون دوال محذوفة)
-// ==========================================
 const isMoveValid = (fromR, fromC, toR, toC, color, board, isDama) => {
     let moves = gameEngine.generateAllTurnMoves(color, board);
     return moves.some(path =>
@@ -2587,9 +2566,6 @@ const isMoveValid = (fromR, fromC, toR, toC, color, board, isDama) => {
     );
 };
 
-// ==========================================
-// 🌟 التنسيقات الإجبارية وأحداث اللوحة (مُحسّنة للأداء 60 FPS ودعم السفاري القديم)
-// ==========================================
 if (!document.getElementById('forced-overlay-style')) {
     const forcedStyle = document.createElement('style'); forcedStyle.id = 'forced-overlay-style';
     forcedStyle.innerHTML = `
@@ -2758,9 +2734,6 @@ ui.onClick('board', e => {
     }
 });
 
-// ==========================================
-// 🌟 نظام الاستماع لتحديثات الواجهة الرئيسية
-// ==========================================
 window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'PROFILE_UPDATED') {
         const profile = event.data.profile;
@@ -2788,9 +2761,6 @@ window.addEventListener('message', (event) => {
     }
 });
 
-// ==========================================
-// 🌟 بدء اللعبة عند التحميل
-// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     let globalProfile = localStorage.getItem('hub_user_profile'); 
     let initialAvatar = '1000132081.webp';
