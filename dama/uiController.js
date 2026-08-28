@@ -1,4 +1,5 @@
-// @ts-nocheck
+// uiController.js
+
 /**
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
@@ -6,8 +7,8 @@
  * 🌟 (مُحدّث): تم حل مشكلة توقف اللعبة وإصلاح النص المعلق "اضغط بدء اللعب".
  * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
  * 🛡️ (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
- * 📱 (مُحدّث للتوافق): دعم أجهزة الآيفون القديمة (Safari < 15.4) بإضافة فئة multi-choice-cell كبديل لـ :has().
- * 🤖 (مُحدّث حصري): إصلاح مشكلة قص صورة البوت في نافذة النتائج، وجعل إطاره مطابقاً لحجم إطار اللاعب الحقيقي.
+ * 📱 (مُحدّث للتوافق): دعم أجهزة الآيفون القديمة (Safari < 15.4) بإضافة فئة multi-choice-cell.
+ * 🤖 (مُحدّث حصري): حل مشكلة "انضغاط" صورة البوت في نافذة النتائج من خلال معالجة جذور Flexbox والـ SVG!
  */
 
 import { gameState } from './gameState.js'; 
@@ -175,8 +176,8 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            // 🌟 تعديل حجم البوت هنا ليتناسب مع نافذة النتائج
-            botScale = 'scale(1.2) translateY(-2%)'; 
+            // 🌟 تعديل حجم البوت هنا ليتناسب بدقة مع حجم اللاعب
+            botScale = 'scale(1.1)'; 
         }
         else {
             frameZ = '5';
@@ -185,6 +186,7 @@ export const ui = {
             botScale = 'scale(1.2)';
         }
 
+        // 🌟 الإصلاح الجذري للبوت هنا: نستخدم overflow: hidden للدائرة الخلفية ونضبط الـ SVG ليلتزم بالأبعاد
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
@@ -195,13 +197,14 @@ export const ui = {
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
                 });
+                // إصلاح الـ SVG نفسه لكي يحافظ على النسبة والتناسب
+                botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
             }
             
-            // 🌟 إزالة overflow: hidden والسماح لملامح البوت بالظهور بالكامل داخل الإطار
             let innerHTML = `
-                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1a1a24; border-radius: 50%; border: 2px solid #ffd700; overflow: visible; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
-                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 10;">
+                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <div style="width: 100%; height: 100%; background: #1a1a24; border-radius: 50%; border: 2px solid #ffd700; display: flex; align-items: center; justify-content: center; overflow: hidden; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
+                        <div style="width: 70%; height: 70%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative;">
                             ${botContent}
                         </div>
                     </div>
@@ -226,7 +229,7 @@ export const ui = {
         }
 
         let innerHTML = `
-            <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+            <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                 <img src="${finalSrc}" onerror="this.onerror=null; this.src='${defaultAvatar}';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1; transform: ${avatarScale};">
         `;
         
@@ -1248,6 +1251,7 @@ export const ui = {
 
     showOnlineResultsModal(winnerColor) { this.showResultsModal(winnerColor); },
 
+    // 🌟 دالة رسم نافذة النتائج (مع تحديث حاوية صورة البوت واللاعب لمنع التشوه)
     showResultsModal(winnerColor) {
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
         sfx.clock.pause(); sfx.clock.currentTime = 0; this.setTxt('turn-countdown', '');
@@ -1282,9 +1286,10 @@ export const ui = {
         const createPlayerBox = (name, avatar, isCustom, isWin, isDrawMatch, equippedProfileFrame = null) => {
             const pBox = this.makeEl('div', null, "display:flex;flex-direction:column;align-items:center;width:45%;");
             
-            const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;");
+            const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;display:flex;justify-content:center;");
             
-            const av = this.makeEl('div', 'result-avatar', "position:relative;width:65px;height:65px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
+            // 🌟 الإصلاح الأساسي هنا: إضافة min-width, min-height, و flex-shrink: 0 لمنع انضغاط الصورة لتصبح بيضاوية!
+            const av = this.makeEl('div', 'result-avatar', "position:relative;width:65px;height:65px;min-width:65px;min-height:65px;flex-shrink:0;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
             
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
             
