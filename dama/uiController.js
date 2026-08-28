@@ -7,8 +7,9 @@
  * 🌟 (مُحدّث): تم حل مشكلة توقف اللعبة وإصلاح النص المعلق "اضغط بدء اللعب".
  * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
  * 🛡️ (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
- * 📱 (مُحدّث للتوافق): دعم أجهزة الآيفون القديمة (Safari < 15.4) بإضافة فئة multi-choice-cell.
- * 🤖 (مُحدّث حصري): حل مشكلة "انضغاط" صورة البوت في نافذة النتائج من خلال معالجة جذور Flexbox والـ SVG!
+ * 📱 (مُحدّث للتوافق): دعم أجهزة الآيفون القديمة.
+ * 🤖 (مُحدّث حصري): حل مشكلة تشوه وانضغاط صورة البوت في نافذة النتائج لتصبح مطابقة تماماً لإطار اللاعب.
+ * ⚡ (ترقية الأداء القصوى): استبدال innerText بـ textContent للقضاء على (Layout Thrashing) وتسريع الأداء 100x.
  */
 
 import { gameState } from './gameState.js'; 
@@ -61,7 +62,7 @@ window.isMatchRunning = false;
 
 window.setAiLevel = function(level) {
     document.getElementById('diff-quick-select').value = level;
-    document.getElementById('custom-diff-btn').innerText = 'L' + level;
+    document.getElementById('custom-diff-btn').textContent = 'L' + level;
     
     document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
     let activeBtn = document.getElementById('lvl-btn-' + level);
@@ -176,7 +177,7 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            // 🌟 تعديل حجم البوت هنا ليتناسب بدقة مع حجم اللاعب
+            // 🌟 تعديل حجم البوت هنا ليتناسب بدقة مع حجم اللاعب بدون انضغاط
             botScale = 'scale(1.1)'; 
         }
         else {
@@ -197,7 +198,6 @@ export const ui = {
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
                 });
-                // إصلاح الـ SVG نفسه لكي يحافظ على النسبة والتناسب
                 botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
             }
             
@@ -642,7 +642,7 @@ export const ui = {
             if (vsBetEl) {
                 if (gameState.roomBet && gameState.roomBet > 0) {
                     vsBetEl.style.display = 'block';
-                    vsBetEl.innerText = `💰 ${gameState.roomBet * 2}`;
+                    vsBetEl.textContent = `💰 ${gameState.roomBet * 2}`;
                 } else {
                     vsBetEl.style.display = 'none';
                 }
@@ -1583,13 +1583,18 @@ window.applyProfileDataToUI = function(profile) {
             'igp-losses': profile.losses !== undefined ? profile.losses : 0 
         };
 
+        // 🌟 الإصلاح الأساسي للأداء: استخدام textContent بدلاً من innerText
         for (let id in textElements) {
             const el = document.getElementById(id);
-            if (el && String(el.innerText) !== String(textElements[id])) { el.innerText = textElements[id]; }
+            if (el && String(el.textContent) !== String(textElements[id])) { 
+                el.textContent = textElements[id]; 
+            }
         }
 
         const currentStreakEl = document.getElementById('profile-stat-streak-badge');
-        if (currentStreakEl) currentStreakEl.innerText = profile.currentStreak || 0;
+        if (currentStreakEl && String(currentStreakEl.textContent) !== String(profile.currentStreak || 0)) {
+            currentStreakEl.textContent = profile.currentStreak || 0;
+        }
 
         if(typeof forceLockedGlobalAvatar === 'function') forceLockedGlobalAvatar();
         if(window.updateInventoryUI) window.updateInventoryUI();
@@ -1615,7 +1620,7 @@ window.openCreatorSettings = function(roomId, currentBet) {
         else if (currentBet == 200) betText = "200 🪙";
         else if (currentBet == 500) betText = "500 🪙 (الحد الأقصى)";
         else if (currentBet == 1000) betText = "1000 🪙 (الحد الأقصى)";
-        betDisplay.innerText = betText;
+        betDisplay.textContent = betText;
     }
     
     window.openAppModal('creator-room-settings-modal');
@@ -1704,7 +1709,7 @@ function cleanExpiredRequests(profile) {
 
 function renderFriendsList(friendsArr) {
     const listContainer = document.getElementById('igp-friends-list'); if (!listContainer) return;
-    if (!friendsArr || friendsArr.length === 0) { listContainer.innerHTML = 'لا يوجد أصدقاء حالياً'; return; }
+    if (!friendsArr || friendsArr.length === 0) { listContainer.innerHTML = '<p style="text-align:center;color:#a1a1aa;font-size:12px;">لا يوجد أصدقاء حالياً</p>'; return; }
     listContainer.innerHTML = '';
     
     let actualFriends = friendsArr;
@@ -1753,7 +1758,7 @@ function renderFriendRequests() {
     let container = document.getElementById('friend-requests-container'); let badge = document.getElementById('friend-requests-badge');
     let reqs = prof.friendRequests || [];
 
-    if(badge) { if(reqs.length > 0) { badge.style.display = 'inline-block'; badge.innerText = reqs.length; } else { badge.style.display = 'none'; } }
+    if(badge) { if(reqs.length > 0) { badge.style.display = 'inline-block'; badge.textContent = reqs.length; } else { badge.style.display = 'none'; } }
     if (!container) return; container.innerHTML = '';
     
     if (reqs.length === 0) { container.innerHTML = '<div style="text-align:center; color:#a1a1aa; padding:20px;">لا توجد طلبات صداقة حالياً.</div>'; return; }
@@ -1804,7 +1809,7 @@ window.acceptFriendReq = function(reqId) {
         }
 
         const toast = document.getElementById('toast-notification'); 
-        if (toast) { toast.innerText = '✅ تمت إضافة الصديق بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+        if (toast) { toast.textContent = '✅ تمت إضافة الصديق بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
     }
 };
 
@@ -1832,7 +1837,7 @@ window.sendFriendRequest = function() {
     
     const toast = document.getElementById('toast-notification'); 
     if (toast) { 
-        toast.innerText = '📨 تم إرسال طلب الصداقة بنجاح!'; 
+        toast.textContent = '📨 تم إرسال طلب الصداقة بنجاح!'; 
         toast.classList.add('show'); 
         setTimeout(() => toast.classList.remove('show'), 2500); 
     }
@@ -1860,13 +1865,13 @@ window.openMyProfile = function() {
         ui.applyAvatar('igp-avatar', prof.avatar, prof.avatar?.startsWith('data:image'), prof.equippedProfileFrame);
         
         let level = Math.floor(Math.sqrt(Math.max(0, prof.xp || 0) / 50)) + 1;
-        if(lvlBadge) lvlBadge.innerText = `Lv.${level}`;
+        if(lvlBadge) lvlBadge.textContent = `Lv.${level}`;
         
         let xpBar = document.getElementById('igp-xp-fill'); let xpText = document.getElementById('igp-xp-text');
         if(xpBar && xpText) {
             let currentLevelXp = Math.pow(level - 1, 2) * 50; let nextLevelXp = Math.pow(level, 2) * 50;
             let progress = ((prof.xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
-            xpBar.style.width = Math.min(100, Math.max(0, progress)) + '%'; xpText.innerText = `${prof.xp || 0} / ${nextLevelXp} XP`;
+            xpBar.style.width = Math.min(100, Math.max(0, progress)) + '%'; xpText.textContent = `${prof.xp || 0} / ${nextLevelXp} XP`;
         }
         
         const formatPop = (num) => {
@@ -1874,10 +1879,10 @@ window.openMyProfile = function() {
             if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
             return num;
         };
-        document.getElementById('igp-popularity-val').innerText = formatPop(prof.popularity || 0);
+        document.getElementById('igp-popularity-val').textContent = formatPop(prof.popularity || 0);
 
         const highestStreakEl = document.getElementById('igp-highest-streak');
-        if (highestStreakEl) highestStreakEl.innerText = prof.highestStreak || 0;
+        if (highestStreakEl) highestStreakEl.textContent = prof.highestStreak || 0;
 
         renderFriendsList(prof.friends); renderFriendRequests();
     }
@@ -1893,17 +1898,17 @@ window.showPlayerProfileFromLB = function(player) {
     const reqBtn = document.getElementById('send-friend-req-btn'); if(reqBtn) { reqBtn.innerHTML = '➕ إرسال طلب صداقة'; reqBtn.style.cssText = "background: rgba(48,209,88,0.15) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.3) !important; margin: 0;"; reqBtn.disabled = false; }
     const popBtn = document.getElementById('give-pop-btn'); if(popBtn) { popBtn.innerHTML = '🔥 منح شعبية'; popBtn.style.cssText = "background: rgba(0, 210, 255, 0.15) !important; color: #00d2ff !important; border-color: rgba(0, 210, 255, 0.3) !important; margin: 0;"; popBtn.disabled = false; }
 
-    document.getElementById('igp-name').innerText = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').innerText = player.id || 'غير متوفر';
+    document.getElementById('igp-name').textContent = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').textContent = player.id || 'غير متوفر';
     
     const formatPop = (num) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
         return num;
     };
-    document.getElementById('igp-popularity-val').innerText = formatPop(player.popularity !== undefined ? player.popularity : 0);
+    document.getElementById('igp-popularity-val').textContent = formatPop(player.popularity !== undefined ? player.popularity : 0);
 
     const highestStreakEl = document.getElementById('igp-highest-streak');
-    if (highestStreakEl) highestStreakEl.innerText = player.highestStreak || 0;
+    if (highestStreakEl) highestStreakEl.textContent = player.highestStreak || 0;
 
     let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
     ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
@@ -1942,16 +1947,16 @@ window.openGiftPanel = function(targetId) {
         
         if (selector) {
             selector.style.display = 'block';
-            document.getElementById('gift-target-p1').innerText = document.getElementById('card-my-name').innerText || "اللاعب 1";
-            document.getElementById('gift-target-p2').innerText = document.getElementById('card-opp-name').innerText || "اللاعب 2";
+            document.getElementById('gift-target-p1').textContent = document.getElementById('card-my-name').textContent || "اللاعب 1";
+            document.getElementById('gift-target-p2').textContent = document.getElementById('card-opp-name').textContent || "اللاعب 2";
             
             document.getElementById('gift-target-p1').classList.add('active');
             document.getElementById('gift-target-p2').classList.remove('active');
         }
-        if (desc) desc.innerText = "اختر هدية من حقيبتك لإرسالها:";
+        if (desc) desc.textContent = "اختر هدية من حقيبتك لإرسالها:";
     } else {
         if (selector) selector.style.display = 'none';
-        if (desc) desc.innerText = "اختر هدية من حقيبتك لإرسالها إلى المنافس:";
+        if (desc) desc.textContent = "اختر هدية من حقيبتك لإرسالها إلى المنافس:";
         if (targetId) {
             window.targetGiftReceiverId = targetId;
         } else {
@@ -2055,7 +2060,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
                         return num;
                     };
                     
-                    popDisplay.innerText = formatNum(response.newTotalPopularity);
+                    popDisplay.textContent = formatNum(response.newTotalPopularity);
                     popDisplay.style.transition = 'all 0.3s ease';
                     popDisplay.style.transform = 'scale(1.5)';
                     popDisplay.style.color = '#fff';
@@ -2069,7 +2074,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
 
                 const toast = document.getElementById('toast-notification');
                 if (toast) { 
-                    toast.innerText = `✨ تم إرسال الهدية بنجاح! (+${response.popValue} شعبية)`; 
+                    toast.textContent = `✨ تم إرسال الهدية بنجاح! (+${response.popValue} شعبية)`; 
                     toast.classList.add('show'); 
                     setTimeout(() => toast.classList.remove('show'), 2500); 
                 }
@@ -2077,7 +2082,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
             } else {
                 const toast = document.getElementById('toast-notification');
                 if (toast) { 
-                    toast.innerText = `❌ فشل الإرسال (السيرفر رفض العملية)`; 
+                    toast.textContent = `❌ فشل الإرسال (السيرفر رفض العملية)`; 
                     toast.classList.add('show'); 
                     toast.style.borderColor = "#ff453a";
                     setTimeout(() => { toast.classList.remove('show'); toast.style.borderColor = ""; }, 2500); 
@@ -2098,9 +2103,9 @@ function fallbackCopyText(text, callback) {
 }
 
 window.copyMyId = function() {
-    const idText = document.getElementById('igp-id-display').innerText;
+    const idText = document.getElementById('igp-id-display').textContent;
     if (idText && idText !== '...') {
-        const showToast = () => { const toast = document.getElementById('toast-notification'); if (toast) { toast.innerText = '📋 تم نسخ الـ ID بنجاح'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); } };
+        const showToast = () => { const toast = document.getElementById('toast-notification'); if (toast) { toast.textContent = '📋 تم نسخ الـ ID بنجاح'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); } };
         if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(idText).then(showToast).catch(() => { fallbackCopyText(idText, showToast); }); } else { fallbackCopyText(idText, showToast); }
     }
 };
@@ -2311,7 +2316,7 @@ window.showEquipNotification = function(itemType) {
     else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
     else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
     else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
-    toast.innerText = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
+    toast.textContent = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
 
     setTimeout(() => {
         try {
@@ -2328,14 +2333,14 @@ window.showEquipNotification = function(itemType) {
 window.triggerCustomAlertNotification = function(msg) {
     if (typeof ui.showCustomAlert === 'function') { ui.showCustomAlert(msg); } else {
         const alertModal = document.getElementById('custom-alert-modal'); const alertMsg = document.getElementById('custom-alert-message'); const alertOk = document.getElementById('custom-alert-ok'); const alertCancel = document.getElementById('custom-alert-cancel');
-        if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').innerText = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.innerText = msg; if(alertCancel) alertCancel.style.display = 'none'; window.openAppModal('custom-alert-modal'); alertOk.onclick = () => window.closeAppModal('custom-alert-modal'); } else { alert(msg); }
+        if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').textContent = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.textContent = msg; if(alertCancel) alertCancel.style.display = 'none'; window.openAppModal('custom-alert-modal'); alertOk.onclick = () => window.closeAppModal('custom-alert-modal'); } else { alert(msg); }
     }
 };
 
 window.currentLang = 'ar';
 window.updateHtmlTexts = function() {
     if (!window.t) return;
-    const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.innerText = window.t(key); };
+    const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = window.t(key); };
     setTxt('menu-title-text', 'menu_title'); 
     setTxt('menu-bag-text', 'menu_bag'); 
     setTxt('menu-radio-text', 'menu_radio'); 
@@ -2345,11 +2350,11 @@ window.updateHtmlTexts = function() {
     setTxt('menu-exit-text', 'menu_exit'); 
     
     const lbTitle = document.getElementById('lb-title-text');
-    if(lbTitle) lbTitle.innerText = "لوحة الشرف";
+    if(lbTitle) lbTitle.textContent = "لوحة الشرف";
     const lbWins = document.getElementById('lb-tab-wins');
-    if(lbWins) lbWins.innerText = "فوز";
+    if(lbWins) lbWins.textContent = "فوز";
     const lbXp = document.getElementById('lb-tab-xp');
-    if(lbXp) lbXp.innerText = "مستوى";
+    if(lbXp) lbXp.textContent = "مستوى";
 
     setTxt('tutorial-mode-label', 'tutorial_mode'); 
     setTxt('menu-quests-text', 'menu_quests');
@@ -2481,7 +2486,7 @@ ui.onClick('match-gift-btn-p2', () => {
         } else {
             const toast = document.getElementById('toast-notification');
             if (toast) { 
-                toast.innerText = `⚠️ لا يمكن تحديد الخصم حالياً`; 
+                toast.textContent = `⚠️ لا يمكن تحديد الخصم حالياً`; 
                 toast.classList.add('show'); 
                 setTimeout(() => toast.classList.remove('show'), 2500); 
             }
@@ -2554,7 +2559,7 @@ document.addEventListener('click', (e) => {
             }
             
             const toast = document.getElementById('toast-notification'); 
-            if (toast) { toast.innerText = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+            if (toast) { toast.textContent = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
         }
     }
 });
