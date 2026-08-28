@@ -9,6 +9,7 @@
  * 🌟 (مُحدّث جديد): إصلاح أيقونات (عامة/خاصة) وإزالة كيس الدولار من الرهان.
  * 🌟 (مُحدّث جديد): فصل زر المراهنة 💰 عن المشاهدة 👁️ وإظهار صورتي اللاعبين للغرف الممتلئة.
  * 🌟 (مُحدّث حصري): إصلاح قص صور الـ VIP، تأثير الضباب الجانبي، وتعديل لون زر "دخول".
+ * 🚀 (مُحدّث للأداء): تحويل معالجة الألوان والضباب لكرت شاشة الهاتف (GPU Acceleration) لضمان سلاسة 60fps.
  */
 
 import { gameState } from './gameState.js'; 
@@ -83,18 +84,18 @@ window.selectSpectatorBetColor = function(color) {
     p1Card.style.border = '2px solid transparent';
     p1Card.style.background = 'transparent';
     p1Card.style.boxShadow = 'none';
-    p1Card.style.transform = 'scale(1)';
+    p1Card.style.transform = 'translateZ(0) scale(1)';
 
     p2Card.style.border = '2px solid transparent';
     p2Card.style.background = 'transparent';
     p2Card.style.boxShadow = 'none';
-    p2Card.style.transform = 'scale(1)';
+    p2Card.style.transform = 'translateZ(0) scale(1)';
 
     const activeStyle = `
         border: 2px solid #ffd700; 
         background: rgba(255, 215, 0, 0.08); 
         box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), inset 0 0 10px rgba(255, 215, 0, 0.1); 
-        transform: scale(1.05);
+        transform: translateZ(0) scale(1.05);
     `;
 
     if (color === 'white') {
@@ -173,14 +174,14 @@ window.renderRoomsList = function() {
         const frameEl = document.getElementById('my-waiting-frame');
         let hostFrame = myRoom.equippedProfileFrame || myRoom.equippedFr; 
         if (hostFrame && miniFramesDB[hostFrame]) {
-            frameEl.innerHTML = `<img src="${miniFramesDB[hostFrame]}" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));">`;
+            frameEl.innerHTML = `<img src="${miniFramesDB[hostFrame]}" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); transform: translateZ(0); will-change: transform;">`;
         } else {
             frameEl.innerHTML = '';
         }
 
         const vipEl = document.getElementById('my-waiting-vip');
         if (myRoom.hostVipLevel && parseInt(myRoom.hostVipLevel) > 0) {
-            vipEl.innerHTML = `<img src="Media/VIP/vip${myRoom.hostVipLevel}.webp" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">`;
+            vipEl.innerHTML = `<img src="Media/VIP/vip${myRoom.hostVipLevel}.webp" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); transform: translateZ(0); will-change: transform;">`;
         } else {
             vipEl.innerHTML = '';
         }
@@ -256,10 +257,11 @@ window.renderRoomsList = function() {
             glowStyle = `border: ${baseBorder};`;
         }
 
-        roomEl.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(15,18,25,0.85); border-radius: 12px; margin-bottom: 8px; transition: transform 0.2s ease; ${glowStyle}`;
+        // 🚀 إضافة خصائص GPU Acceleration
+        roomEl.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(15,18,25,0.85); border-radius: 12px; margin-bottom: 8px; transition: transform 0.2s ease, box-shadow 0.2s ease; transform: translateZ(0); will-change: transform, box-shadow; backface-visibility: hidden; ${glowStyle}`;
         
-        roomEl.onmouseenter = () => roomEl.style.transform = 'scale(1.02)';
-        roomEl.onmouseleave = () => roomEl.style.transform = 'scale(1)';
+        roomEl.onmouseenter = () => roomEl.style.transform = 'translateZ(0) scale(1.02)';
+        roomEl.onmouseleave = () => roomEl.style.transform = 'translateZ(0) scale(1)';
 
         let actionBtnHTML = '';
 
@@ -269,8 +271,8 @@ window.renderRoomsList = function() {
                 if (!src.startsWith('http') && !src.startsWith('data:')) {
                     src = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + src.replace(/\.\.\//g, '').replace('Photo/', '');
                 }
-                let frameHTML = frame && miniFramesDB[frame] ? `<img src="${miniFramesDB[frame]}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));">` : '';
-                let vipHTML = vip && parseInt(vip) > 0 ? `<img src="Media/VIP/vip${vip}.webp" onerror="this.style.display='none';" style="position: absolute; top: -10px; right: -10px; width: 24px; height: 32px; object-fit: contain; z-index: 50; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">` : '';
+                let frameHTML = frame && miniFramesDB[frame] ? `<img src="${miniFramesDB[frame]}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateZ(0); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); will-change: transform;">` : '';
+                let vipHTML = vip && parseInt(vip) > 0 ? `<img src="Media/VIP/vip${vip}.webp" onerror="this.style.display='none';" style="position: absolute; top: -10px; right: -10px; width: 24px; height: 32px; object-fit: contain; z-index: 50; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); transform: translateZ(0); will-change: transform;">` : '';
                 return { src, frameHTML, vipHTML };
             };
 
@@ -278,7 +280,7 @@ window.renderRoomsList = function() {
             let p2UI = getAvatarUI(r.p2Avatar, r.p2Frame, r.p2Vip);
 
             const avatarsHTML = `
-                <div style="display: flex; align-items: center; margin-left: 5px;">
+                <div style="display: flex; align-items: center; margin-left: 5px; transform: translateZ(0);">
                     <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; overflow: visible;">
                         <img src="${p1UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
                         ${p1UI.frameHTML}
@@ -296,9 +298,8 @@ window.renderRoomsList = function() {
                 const p1Obj = encodeURIComponent(JSON.stringify({name: r.hostName, avatar: r.hostAvatar, equippedProfileFrame: r.equippedProfileFrame}));
                 const p2Obj = encodeURIComponent(JSON.stringify({name: r.p2Name || 'الخصم', avatar: r.p2Avatar || '1000132081.webp', equippedProfileFrame: r.p2Frame}));
 
-                // 🌟 تعديل الأزرار لتثبيت الأيقونات ومحاذاتها بدقة 🌟
                 actionBtnHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 110px;">
+                    <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
                         <button onclick="window.openDirectBetModal('${r.id}', '${p1Obj}', '${p2Obj}')" style="background: rgba(241,196,15,0.15); border: 1px solid rgba(241,196,15,0.4); border-radius: 8px; padding: 6px 8px; color: #f1c40f; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(241,196,15,0.25)'" onmouseout="this.style.background='rgba(241,196,15,0.15)'">
                             <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">💰</span>
                             <span style="flex: 1; text-align: center;">مراهنة</span>
@@ -311,7 +312,7 @@ window.renderRoomsList = function() {
                 `;
             } else {
                 actionBtnHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 110px;">
+                    <div style="display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; z-index: 10; width: 110px; transform: translateZ(0);">
                         <button onclick="window.socketManager.joinSpectator('${r.id}')" style="background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.4); border-radius: 8px; padding: 6px 8px; color: #9b59b6; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: flex-start; transition: 0.2s;" onmouseover="this.style.background='rgba(155,89,182,0.25)'" onmouseout="this.style.background='rgba(155,89,182,0.15)'">
                             <span style="width: 22px; text-align: center; margin-left: 4px; font-size: 13px;">👁️</span>
                             <span style="flex: 1; text-align: center;">مشاهدة (${r.spectatorsCount || 0})</span>
@@ -344,24 +345,23 @@ window.renderRoomsList = function() {
             let frameHTML = '';
             let hostFrame = r.equippedProfileFrame || r.equippedFr; 
             if (hostFrame && miniFramesDB[hostFrame]) {
-                frameHTML = `<img src="${miniFramesDB[hostFrame]}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));">`;
+                frameHTML = `<img src="${miniFramesDB[hostFrame]}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateZ(0); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); will-change: transform;">`;
             }
 
             let vipHTML = '';
             if (r.hostVipLevel && parseInt(r.hostVipLevel) > 0) {
-                vipHTML = `<img src="Media/VIP/vip${r.hostVipLevel}.webp" onerror="this.style.display='none';" style="position: absolute; top: -10px; right: -10px; width: 24px; height: 32px; object-fit: contain; z-index: 50; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">`;
+                vipHTML = `<img src="Media/VIP/vip${r.hostVipLevel}.webp" onerror="this.style.display='none';" style="position: absolute; top: -10px; right: -10px; width: 24px; height: 32px; object-fit: contain; z-index: 50; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); transform: translateZ(0); will-change: transform;">`;
             }
 
-            // 🌟 زر "دخول" بخلفية وإطار أزرق غامق 🌟
             if (r.hasPassword) {
-                actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 58, 138, 0.8); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">دخول 🔒</button>`;
+                actionBtnHTML = `<button onclick="window.showCustomPasswordPrompt('${r.id}')" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 58, 138, 0.8); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.5); transform: translateZ(0);">دخول 🔒</button>`;
             } else {
-                actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 58, 138, 0.8); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">دخول</button>`;
+                actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 58, 138, 0.8); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.5); transform: translateZ(0);">دخول</button>`;
             }
 
             roomEl.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 10px; flex: 1; overflow: visible;">
-                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
+                    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible; transform: translateZ(0);">
                         <img src="${avatarSrc}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
                         ${frameHTML}
                         ${vipHTML}
