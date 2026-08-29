@@ -15,7 +15,7 @@
 
     <style>
         /* ========================================== */
-        /* ساحة التحديات (Matchmaking Stakes) - مطابقة 100% للصورة */
+        /* ساحة التحديات (Matchmaking Stakes) - ألوان هجينة وإيموجيات ومقاسات دقيقة */
         /* ========================================== */
         #matchmaking-stakes-modal {
             align-items: center !important;
@@ -111,9 +111,7 @@
             scroll-snap-align: center;
             flex: 0 0 290px;
             height: 410px;
-            background: linear-gradient(180deg, #2b354b 0%, #171e2e 100%);
             border-radius: 20px;
-            border: 2px solid #007aff;
             padding: 30px 15px 25px 15px;
             position: relative;
             text-align: center;
@@ -124,7 +122,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
             transform: scale(0.9);
-            opacity: 0.7;
+            opacity: 0.6;
             z-index: 1;
             box-sizing: border-box;
         }
@@ -133,19 +131,19 @@
             transform: scale(1);
             opacity: 1;
             z-index: 10;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 30px rgba(255,255,255,0.05);
         }
 
-        .mm-card-icon-wrapper {
-            height: 100px;
+        /* الإيموجيات المرجعة */
+        .mm-card-medal {
+            height: 90px;
+            font-size: 75px;
+            line-height: 1;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.7));
         }
-        .mm-card-icon-wrapper img { max-height: 100%; max-width: 100%; object-fit: contain; }
 
         .mm-card-title {
             color: #ffffff;
@@ -156,7 +154,7 @@
         }
 
         .mm-card-desc {
-            color: #94a3b8;
+            color: #b0c4de;
             font-size: 13px;
             font-weight: 600;
             margin: 0 0 35px 0;
@@ -172,7 +170,7 @@
         }
         
         .mm-prize-label {
-            color: #94a3b8;
+            color: #b0c4de;
             font-size: 12px;
             font-weight: 600;
         }
@@ -184,25 +182,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             text-shadow: 0 2px 6px rgba(0,0,0,0.8);
             line-height: 1;
         }
         
-        .mm-real-coin {
-            width: 38px;
-            height: 38px;
-            object-fit: contain;
+        /* إيموجي العملة */
+        .mm-coin-icon {
+            font-size: 32px;
+            line-height: 1;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
         }
 
         .mm-card-btn {
             width: 85%;
             height: 52px;
-            background: linear-gradient(180deg, #64748b 0%, #334155 100%);
-            border: 1.5px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
-            color: #ffffff;
             font-size: 18px;
             font-weight: 800;
             cursor: pointer;
@@ -213,6 +208,39 @@
         }
         .mm-card-btn:active { transform: scale(0.95); }
         .mm-card-btn:hover { filter: brightness(1.1); }
+
+        /* الألوان المستوحاة من الصورة 1000149295.jpg */
+        .theme-gray { background: linear-gradient(180deg, #333 0%, #111 100%); border: 2px solid #555; }
+        .theme-gray.active { border-color: #aaa; box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 15px 40px rgba(0,0,0,0.9); }
+        .theme-gray .mm-card-btn { background: linear-gradient(180deg, #666, #333); color: #fff; border: 1px solid #777; }
+
+        .theme-teal { background: linear-gradient(180deg, #004d40 0%, #001a14 100%); border: 2px solid #00897b; }
+        .theme-teal.active { border-color: #26a69a; box-shadow: 0 0 25px rgba(38, 166, 154, 0.4), 0 15px 40px rgba(0,0,0,0.9); }
+        .theme-teal .mm-card-btn { background: linear-gradient(180deg, #00695c, #00332a); color: #80cbc4; border: 1px solid #00897b; }
+
+        .theme-blue { background: linear-gradient(180deg, #0b2e59 0%, #041021 100%); border: 2px solid #1e5b99; }
+        .theme-blue.active { border-color: #4da6ff; box-shadow: 0 0 25px rgba(77, 166, 255, 0.4), 0 15px 40px rgba(0,0,0,0.9); }
+        .theme-blue .mm-card-btn { background: linear-gradient(180deg, #16467a, #0b2542); color: #85c1e9; border: 1px solid #1e5b99; }
+
+        .theme-red { background: linear-gradient(180deg, #590b0b 0%, #210404 100%); border: 2px solid #991e1e; }
+        .theme-red.active { border-color: #ff4d4d; box-shadow: 0 0 25px rgba(255, 77, 77, 0.4), 0 15px 40px rgba(0,0,0,0.9); }
+        .theme-red .mm-card-btn { background: linear-gradient(180deg, #fceabb, #d49500); color: #4a3500; border: 1px solid #ffcc00; }
+
+        .theme-purple { background: linear-gradient(180deg, #360b59 0%, #130421 100%); border: 2px solid #6c1e99; }
+        .theme-purple.active { border-color: #d14dff; box-shadow: 0 0 25px rgba(209, 77, 255, 0.4), 0 15px 40px rgba(0,0,0,0.9); }
+        .theme-purple .mm-card-btn { background: linear-gradient(180deg, #4d167a, #240b42); color: #cda8ff; border: 1px solid #6c1e99; }
+
+        .theme-gold { background: linear-gradient(180deg, #5c4300 0%, #1a1200 100%); border: 2px solid #b8860b; }
+        .theme-gold.active { border-color: #ffd700; box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), 0 15px 40px rgba(0,0,0,0.9); }
+        .theme-gold .mm-card-btn { background: linear-gradient(180deg, #fceabb, #f8b500); color: #4a3500; border: 1px solid #ffea79;}
+
+        .theme-cyan { background: linear-gradient(180deg, #004d66 0%, #001a24 100%); border: 2px solid #0082b3; }
+        .theme-cyan.active { border-color: #00bcd4; box-shadow: 0 0 25px rgba(0, 188, 212, 0.4), 0 15px 40px rgba(0,0,0,0.9); }
+        .theme-cyan .mm-card-btn { background: linear-gradient(180deg, #0082b3, #003a4d); color: #fff; border: 1px solid #00acc1; }
+
+        .theme-magenta { background: linear-gradient(180deg, #66004d 0%, #24001a 100%); border: 2px solid #b30082; }
+        .theme-magenta.active { border-color: #ff4081; box-shadow: 0 0 25px rgba(255, 64, 129, 0.4), 0 15px 40px rgba(0,0,0,0.9); }
+        .theme-magenta .mm-card-btn { background: linear-gradient(180deg, #b30082, #4d003a); color: #fff; border: 1px solid #e91e63; }
 
         .mm-lock-overlay { 
             display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
@@ -948,7 +976,7 @@
         </div>
     </div>
 
-    <!-- نافذة ساحة التحديات المطابقة 100% للتصميم -->
+    <!-- نافذة ساحة التحديات بالألوان والمقاسات والإيموجيات -->
     <div id="matchmaking-stakes-modal" class="modal-overlay" style="z-index: 2000;">
         <div style="width: 100%; display: flex; flex-direction: column; align-items: center; position: relative;">
             <button class="modal-close-btn" onclick="window.closeAppModal('matchmaking-stakes-modal')">✕</button>
@@ -966,17 +994,15 @@
                 <div class="mm-carousel" id="mm-carousel-scroller">
                     
                     <!-- 1. تدريب / مجاني -->
-                    <div class="mm-card active">
-                        <div class="mm-card-icon-wrapper">
-                            <img src="Media/front/shield.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🛡️</span>'">
-                        </div>
+                    <div class="mm-card theme-gray active">
+                        <div class="mm-card-medal">🛡️</div>
                         <h4 class="mm-card-title">تدريب / مجاني</h4>
                         <p class="mm-card-desc">اكتساب خبرة بدون رهان</p>
                         
                         <div class="mm-card-prize-box">
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
-                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <div class="mm-coin-icon">🪙</div>
                                 <span>10</span>
                             </div>
                         </div>
@@ -984,18 +1010,16 @@
                     </div>
 
                     <!-- 2. الهواة -->
-                    <div class="mm-card">
+                    <div class="mm-card theme-teal">
                         <div id="mm-lock-50" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-icon-wrapper">
-                            <img src="Media/front/medal_bronze.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🏅</span>'">
-                        </div>
+                        <div class="mm-card-medal">🏅</div>
                         <h4 class="mm-card-title">الهواة</h4>
                         <p class="mm-card-desc">رهان 50 عملة</p>
                         
                         <div class="mm-card-prize-box">
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
-                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <div class="mm-coin-icon">🪙</div>
                                 <span>100</span>
                             </div>
                         </div>
@@ -1003,18 +1027,16 @@
                     </div>
 
                     <!-- 3. ساحة المحاربين -->
-                    <div class="mm-card">
+                    <div class="mm-card theme-blue">
                         <div id="mm-lock-250" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-icon-wrapper">
-                            <img src="Media/front/medal_silver.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🥈</span>'">
-                        </div>
+                        <div class="mm-card-medal">🥈</div>
                         <h4 class="mm-card-title">ساحة المحاربين</h4>
                         <p class="mm-card-desc">رهان 250 عملة</p>
                         
                         <div class="mm-card-prize-box">
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
-                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <div class="mm-coin-icon">🪙</div>
                                 <span>500</span>
                             </div>
                         </div>
@@ -1022,18 +1044,16 @@
                     </div>
 
                     <!-- 4. ساحة الأبطال -->
-                    <div class="mm-card">
+                    <div class="mm-card theme-red">
                         <div id="mm-lock-500" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-icon-wrapper">
-                            <img src="Media/front/medal_gold.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🥇</span>'">
-                        </div>
+                        <div class="mm-card-medal">🥇</div>
                         <h4 class="mm-card-title">ساحة الأبطال</h4>
                         <p class="mm-card-desc">رهان 500 عملة</p>
                         
                         <div class="mm-card-prize-box">
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
-                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <div class="mm-coin-icon">🪙</div>
                                 <span>1,000</span>
                             </div>
                         </div>
@@ -1041,18 +1061,16 @@
                     </div>
 
                     <!-- 5. ساحة الأساطير -->
-                    <div class="mm-card">
+                    <div class="mm-card theme-purple">
                         <div id="mm-lock-1000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-icon-wrapper">
-                            <img src="Media/front/trophy_legend.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🏆</span>'">
-                        </div>
+                        <div class="mm-card-medal">🏆</div>
                         <h4 class="mm-card-title">ساحة الأساطير</h4>
                         <p class="mm-card-desc">رهان 1,000 عملة</p>
                         
                         <div class="mm-card-prize-box">
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
-                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <div class="mm-coin-icon">🪙</div>
                                 <span>2,000</span>
                             </div>
                         </div>
@@ -1060,18 +1078,16 @@
                     </div>
 
                     <!-- 6. الكبار -->
-                    <div class="mm-card">
+                    <div class="mm-card theme-gold">
                         <div id="mm-lock-2500" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-icon-wrapper">
-                            <img src="Media/front/crown.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>👑</span>'">
-                        </div>
+                        <div class="mm-card-medal">👑</div>
                         <h4 class="mm-card-title">الكبار</h4>
                         <p class="mm-card-desc">رهان 2,500 عملة</p>
                         
                         <div class="mm-card-prize-box">
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
-                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <div class="mm-coin-icon">🪙</div>
                                 <span>5,000</span>
                             </div>
                         </div>
@@ -1079,18 +1095,16 @@
                     </div>
 
                     <!-- 7. التنين -->
-                    <div class="mm-card">
+                    <div class="mm-card theme-cyan">
                         <div id="mm-lock-5000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-icon-wrapper">
-                            <img src="Media/front/dragon.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🐉</span>'">
-                        </div>
+                        <div class="mm-card-medal">🐉</div>
                         <h4 class="mm-card-title">التنين</h4>
                         <p class="mm-card-desc">رهان 5,000 عملة</p>
                         
                         <div class="mm-card-prize-box">
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
-                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <div class="mm-coin-icon">🪙</div>
                                 <span>10K</span>
                             </div>
                         </div>
@@ -1098,18 +1112,16 @@
                     </div>
 
                     <!-- 8. الملوك -->
-                    <div class="mm-card">
+                    <div class="mm-card theme-magenta">
                         <div id="mm-lock-10000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-icon-wrapper">
-                            <img src="Media/front/volcano.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🌋</span>'">
-                        </div>
+                        <div class="mm-card-medal">🌋</div>
                         <h4 class="mm-card-title">الملوك</h4>
                         <p class="mm-card-desc">رهان 10,000 عملة</p>
                         
                         <div class="mm-card-prize-box">
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
-                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <div class="mm-coin-icon">🪙</div>
                                 <span>20K</span>
                             </div>
                         </div>
@@ -1344,10 +1356,10 @@
                     if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
                         if (!initialScrollDone) {
                             setTimeout(() => {
-                                // تركيز على بطاقة "ساحة الأبطال" (البطاقة الرابعة) كافتراضي، يمكن تعديله
+                                // تركيز على بطاقة "تدريب / مجاني" (أول بطاقة) كافتراضي، يمكن تعديله
                                 const cards = scroller.querySelectorAll('.mm-card');
-                                if (cards.length > 3) {
-                                    const defaultCard = cards[3]; // المؤشر رقم 3 هو البطاقة الرابعة (ساحة الأبطال)
+                                if (cards.length > 0) {
+                                    const defaultCard = cards[0]; 
                                     const scrollPos = defaultCard.offsetLeft - (scroller.clientWidth / 2) + (defaultCard.clientWidth / 2);
                                     scroller.scrollTo({ left: scrollPos, behavior: 'auto' });
                                     updateActiveCard();
