@@ -1,3 +1,4 @@
+// dama-scripts.js
 /**
  * dama-scripts.js
  * المساعد العام للتنسيق والمزامنة
@@ -708,5 +709,65 @@ window.switchLbTab = function(tabId) {
         window.renderDynamicLeaderboardUI(window.lastFetchedWinsData, 'wins');
     } else if (tabId === 'xp' && window.lastFetchedXpData) {
         window.renderDynamicLeaderboardUI(window.lastFetchedXpData, 'xp');
+    }
+};
+
+// ==========================================
+// 🎡 نظام ساحة التحديات (Matchmaking Stakes) التأثير ثلاثي الأبعاد
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const scroller = document.getElementById('mm-carousel-scroller');
+    if (!scroller) return;
+
+    // دالة لتحديث البطاقة النشطة (المتمركزة)
+    const updateActiveCard = () => {
+        const cards = scroller.querySelectorAll('.mm-card');
+        const scrollerCenter = scroller.getBoundingClientRect().left + (scroller.clientWidth / 2);
+        
+        let closestCard = null;
+        let closestDistance = Infinity;
+
+        cards.forEach(card => {
+            const cardCenter = card.getBoundingClientRect().left + (card.clientWidth / 2);
+            const distance = Math.abs(scrollerCenter - cardCenter);
+            
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestCard = card;
+            }
+        });
+
+        cards.forEach(c => c.classList.remove('active'));
+        if (closestCard) closestCard.classList.add('active');
+    };
+
+    // الاستماع لحدث التمرير لتطبيق التأثير
+    scroller.addEventListener('scroll', updateActiveCard);
+    
+    // تركيز مبدئي على البطاقة الحمراء (ساحة الأبطال) عند فتح النافذة
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
+                setTimeout(() => {
+                    const redCard = document.querySelector('.mm-card.theme-red');
+                    if (redCard) {
+                        redCard.scrollIntoView({ behavior: 'auto', inline: 'center' });
+                        updateActiveCard();
+                    }
+                }, 50);
+            }
+        });
+    });
+
+    const modal = document.getElementById('matchmaking-stakes-modal');
+    if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+});
+
+// دالة الأسهم الجانبية
+window.scrollMmCarousel = function(direction) {
+    const scroller = document.getElementById('mm-carousel-scroller');
+    if(scroller) {
+        // تمرير بمقدار عرض بطاقة تقريباً (مع الفراغات)
+        scroller.scrollBy({ left: direction * 240, behavior: 'smooth' });
     }
 };
