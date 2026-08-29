@@ -117,12 +117,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
+            /* 🌟 التأثير ثلاثي الأبعاد للبطاقة */
+            border-bottom-width: 8px !important; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            /* زيادة التداخل وإظهار البطاقات الجانبية بشكل أكبر */
             margin: 0 -40px; 
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out, border 0.3s ease, box-shadow 0.3s ease;
-            transform: scale(0.8); /* تصغير الخلفيات لتزيد من التباين */
-            opacity: 0.6; /* وضوح أعلى للبطاقات الجانبية */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out, box-shadow 0.3s ease;
+            transform: scale(0.8); 
+            opacity: 0.6; 
             z-index: 1;
             box-sizing: border-box;
             will-change: transform, opacity; 
@@ -130,9 +131,12 @@
         }
         
         .mm-card.active {
-            transform: scale(1); /* حجم كامل في المنتصف */
+            /* 🌟 ترتفع البطاقة للأعلى قليلاً لتبرز */
+            transform: scale(1) translateY(-8px); 
             opacity: 1;
             z-index: 10;
+            /* ظل عميق ومزدوج لإعطاء إحساس الطفو */
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9), 0 10px 15px rgba(0,0,0,0.6);
         }
 
         .mm-card-medal {
@@ -184,7 +188,8 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            margin-bottom: auto;
+            margin-top: auto; /* ✅ يدفعه لأسفل البطاقة */
+            margin-bottom: 15px; /* ✅ يترك مسافة صغيرة وجميلة بينه وبين الزر */
             width: 85%;
             background: rgba(0, 0, 0, 0.35); /* خلفية داكنة شفافة */
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -224,14 +229,26 @@
             font-size: 16px;
             font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.1);
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
             font-family: 'Tajawal', sans-serif;
-            transition: transform 0.15s ease, filter 0.2s ease;
             margin-top: 10px;
+            /* 🌟 التأثير ثلاثي الأبعاد للزر */
+            border-bottom: 5px solid rgba(0, 0, 0, 0.5) !important;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.2) !important;
+            transition: all 0.1s ease !important;
+            position: relative;
         }
-        .mm-card-btn:active { transform: scale(0.95); }
-        .mm-card-btn:hover { filter: brightness(1.1); }
+
+        .mm-card-btn:active { 
+            /* 🌟 تأثير الضغط الفيزيائي (الزر يغوص للداخل) */
+            transform: translateY(4px) !important; 
+            border-bottom-width: 1px !important; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 4px 6px rgba(0,0,0,0.6) !important;
+        }
+
+        .mm-card-btn:hover { 
+            filter: brightness(1.15); 
+        }
 
         /* الألوان المستوحاة من الصور */
         .theme-gray { background: linear-gradient(180deg, #333 0%, #111 100%); border: 2px solid #555; }
@@ -1405,9 +1422,21 @@
                     if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
                         if (!initialScrollDone) {
                             setTimeout(() => {
-                                // تركيز على بطاقة "ساحة المحاربين" (البطاقة رقم 3 - index 2) كافتراضي للجمالية
-                                const defaultCard = cards.length > 2 ? cards[2] : cards[0]; 
-                                const scrollPos = defaultCard.offsetLeft - (scroller.clientWidth / 2) + (defaultCard.clientWidth / 2);
+                                const lastBet = localStorage.getItem('last_selected_mm_bet');
+                                let targetCard = null;
+
+                                if (lastBet !== null) {
+                                    targetCard = Array.from(cards).find(card => {
+                                        const btn = card.querySelector('.mm-card-btn');
+                                        return btn && btn.getAttribute('onclick') === `window.startMatchmakingWithBet(${lastBet})`;
+                                    });
+                                }
+
+                                if (!targetCard) {
+                                    targetCard = cards.length > 2 ? cards[2] : cards[0];
+                                }
+
+                                const scrollPos = targetCard.offsetLeft - (scroller.clientWidth / 2) + (targetCard.clientWidth / 2);
                                 
                                 scroller.style.scrollBehavior = 'smooth';
                                 scroller.scrollTo({ left: scrollPos });
@@ -1437,6 +1466,31 @@
                 scroller.style.scrollBehavior = 'smooth';
                 scroller.scrollBy({ left: direction * (cardWidth + (margin * 2)) });
                 setTimeout(() => { scroller.style.scrollBehavior = 'auto'; }, 300);
+            }
+        };
+
+        window.startMatchmakingWithBet = function(betAmount) {
+            localStorage.setItem('last_selected_mm_bet', betAmount);
+            window.closeAppModal('matchmaking-stakes-modal');
+            
+            const timerEl = document.getElementById('mm-timer');
+            if (timerEl) timerEl.textContent = '00:00';
+            
+            if (window.gameState) {
+                window.gameState.mmStartTime = Date.now();
+                if (window.gameState.mmInterval) clearInterval(window.gameState.mmInterval);
+                window.gameState.mmInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - window.gameState.mmStartTime) / 1000);
+                    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                    const s = String(elapsed % 60).padStart(2, '0');
+                    if (timerEl) timerEl.textContent = `${m}:${s}`;
+                }, 1000);
+            }
+
+            window.openAppModal('matchmaking-modal');
+            
+            if (window.socketManager && typeof window.socketManager.handleRoomAction === 'function') {
+                window.socketManager.handleRoomAction('joinMatchmakingPool', null, null, betAmount);
             }
         };
     </script>
