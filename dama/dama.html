@@ -591,6 +591,165 @@
         </div>
     </div>
 
+    <div id="game-over-modal" class="modal-overlay" style="z-index: 1500;">
+        <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <h3 id="game-over-title">Match Results</h3>
+            
+            <div id="game-over-icon-container" style="position: relative; width: 100px; height: 100px; margin: 15px auto; display: flex; align-items: center; justify-content: center;">
+                <div id="game-over-default-icon" style="font-size: 60px; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);">🏆</div>
+                <div id="game-over-bot-icon" style="display: none; width: 120px; height: 120px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));"></div>
+            </div>
+
+            <p id="game-over-message" style="color: white; font-size: 19px; margin: 15px 0 25px 0; font-weight: 700; text-align: center; line-height: 1.4;"></p>
+            <div style="display: flex; gap: 10px; width: 100%;">
+                <button id="rematch-btn" class="save-settings-btn" style="margin: 0; flex: 1; box-shadow: none !important;">إعادة اللعب</button>
+                <button id="exit-game-btn" class="save-settings-btn" style="margin: 0; flex: 1; box-shadow: none !important;">خروج</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="online-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 1000;">
+        <div class="settings-card room-full-screen" dir="auto">
+            <button class="modal-close-btn" onclick="window.closeAppModal('online-modal')" style="left: 20px; right: auto; top: 20px; background: rgba(0,0,0,0.5) !important;">✕</button>
+            
+            <h3 style="font-size: 26px; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8); margin-top: 5px; margin-bottom: 8px;">الغرف الخاصة 🚪</h3>
+
+            <div class="custom-nav-tabs" style="margin-bottom: 8px; border: 1px solid rgba(212, 175, 55, 0.5) !important;">
+                <button id="room-tab-play" class="custom-tab-button active" onclick="window.switchRoomTab('play')">الغرف المتاحة</button>
+                <button id="room-tab-bet" class="custom-tab-button" onclick="window.switchRoomTab('bet')">رهان (مشاهدة)</button>
+            </div>
+
+            <div id="my-waiting-room-card" class="my-waiting-room-card" style="display: none; flex-shrink: 0; margin-bottom: 10px;">
+                <div style="position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <img id="my-waiting-avatar" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1; border: 2px solid rgba(212,175,55,0.5);">
+                    <div id="my-waiting-frame" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none;"></div>
+                    <div id="my-waiting-vip" style="position: absolute; top: -8px; right: -8px; width: 24px; height: 32px; z-index: 50; pointer-events: none;"></div>
+                </div>
+
+                <div class="my-waiting-info">
+                    <div style="color: #ffd700; font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+                        <span style="animation: pulseHourglass 1.5s infinite;">⏳</span> 
+                        <span id="my-waiting-title">بانتظار الخصم...</span>
+                    </div>
+                    <div id="my-waiting-details" style="color: #a1a1aa; font-size: 11px; margin-top: 4px; font-weight: 600;">
+                        عامة | مجاني
+                    </div>
+                </div>
+
+                <div class="my-waiting-actions">
+                    <button id="my-waiting-settings-btn" class="my-waiting-action-btn settings" title="إعدادات الغرفة">⚙️</button>
+                    <button id="my-waiting-delete-btn" class="my-waiting-action-btn delete" title="حذف الغرفة">✕</button>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 10px; width: 100%; flex-shrink: 0;">
+                <div style="flex: 1; display: flex; background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; padding: 0 10px; align-items: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
+                    <span style="font-size: 16px; color: #a1a1aa;">🔍</span>
+                    <input type="text" id="room-search-input" placeholder="ابحث باسم الغرفة..." oninput="if(window.renderRoomsList) window.renderRoomsList()" style="background: transparent; border: none; color: white; width: 100%; height: 38px; outline: none; text-align: right; font-family: inherit; font-size: 13px; padding: 0 8px;">
+                </div>
+                <button onclick="window.openAppModal('room-sort-modal')" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; width: 45px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 26px; font-weight: bold; line-height: 1; padding-bottom: 4px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">⇅</button>
+            </div>
+
+            <div id="play-tab-content" style="display: flex; flex-direction: column; flex: 1; min-height: 0; margin-bottom: 10px;">
+                <div style="flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; overflow-y: auto; padding: 10px;" id="active-rooms-list">
+                    <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>
+                </div>
+            </div>
+
+            <div id="spectate-rooms-list" style="display: none; flex-direction: column; flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; margin-bottom: 10px; overflow-y: auto; padding: 10px;">
+                <p class="empty-rooms-msg" style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>
+            </div>
+
+            <button onclick="window.openCreateRoomModal()" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; border: 1.5px solid #85c1e9 !important; border-bottom: 3.5px solid #1f618d !important; height: 55px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important; margin: 0; flex-shrink: 0;">+ إنشاء غرفة جديدة</button>
+        </div>
+    </div>
+
+    <div id="room-sort-modal" class="modal-overlay" style="z-index: 3500; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('room-sort-modal')">
+        <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
+            <h3 style="color: #ffd700; text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: 800;">فرز الغرف ⇅</h3>
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="bet-option-item selected" onclick="window.applyRoomSort('vip', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">الافتراضي</div></div>
+                <div class="bet-option-item" onclick="window.applyRoomSort('bet', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">أعلى رهاناً</div></div>
+                <div class="bet-option-item" id="sort-opt-new" onclick="window.applyRoomSort('new', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">الأحدث</div></div>
+                <div class="bet-option-item" id="sort-opt-views" style="display: none;" onclick="window.applyRoomSort('views', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">أعلى مشاهدة</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="create-room-modal" class="modal-overlay" style="z-index: 1500;">
+         <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('create-room-modal')" style="left:15px; right:auto;">✕</button>
+            <h3>إنشاء غرفة</h3>
+
+            <div id="vip-title-container" style="display: none; margin-bottom: 20px; background: rgba(212, 175, 55, 0.05); padding: 12px; border-radius: 14px; border: 1px dashed rgba(212, 175, 55, 0.3);">
+                <label style="color: #FFD700; font-size: 13px; font-weight: bold; display: block; margin-bottom: 8px;">👑 عنوان الغرفة (ميزة VIP):</label>
+                <input type="text" id="room-title-input" class="online-input" placeholder="مثال: تحدي الكبار ⚔️" maxlength="25" style="margin-bottom: 0; border-color: rgba(212, 175, 55, 0.5); color: #FFD700; text-align: right;">
+            </div>
+
+            <label class="settings-label">مبلغ الرهان لكل لاعب:</label>
+            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="window.openAppModal('bet-selector-modal')">
+                <span id="custom-bet-display">بدون رهان (مجاني)</span><span style="font-size: 14px; color: rgba(255,255,255,0.4);">▼</span>
+            </div>
+            <input type="hidden" id="room-bet-input" value="0">
+            
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; border: 1px solid rgba(212,175,55,0.2);">
+                <input type="checkbox" id="allow-betting-checkbox" checked style="width: 18px; height: 18px; accent-color: #d4af37; cursor: pointer;">
+                <label for="allow-betting-checkbox" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0; line-height: 1.4;">السماح للمشاهدين بدخول الغرفة والمراهنة</label>
+            </div>
+
+            <label class="settings-label" style="margin-top: 15px;">كلمة السر للغرفة (اختياري):</label>
+            <input type="password" id="create-room-password-input" class="online-input" placeholder="اتركها فارغة لتكون عامة">
+            
+            <button id="online-create-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.2) !important; color: #30d158 !important; margin-top: 20px; box-shadow: none !important;">تأكيد وإنشاء</button>
+         </div>
+    </div>
+  
+    <div id="bet-selector-modal" class="modal-overlay" style="z-index: 3500; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('bet-selector-modal')">
+        <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="bet-option-item selected" onclick="window.selectBetAmount('0', 'بدون رهان (مجاني)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">بدون رهان (مجاني)</div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('50', '50 🪙 (الجائزة الكبرى: 100)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 100)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('100', '100 🪙 (الجائزة الكبرى: 200)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 200)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('200', '200 🪙 (الجائزة الكبرى: 400)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 400)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('500', '500 🪙 (الجائزة الكبرى: 1000)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 1000)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('1000', '1000 🪙 (الجائزة الكبرى: 2000)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">1000 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 2000)</span></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="challenge-bet-modal" class="modal-overlay" style="z-index: 5200; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('challenge-bet-modal')">
+        <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: slideUpBottomSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
+            <h3 style="color: #34c759; text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: 800;">تحديد رهان التحدي ⚔️</h3>
+            <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-bottom: 20px;">اختر مبلغ الرهان للعب ضد صديقك</p>
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="bet-option-item selected" onclick="window.confirmChallenge('0', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">بدون رهان (مباراة ودية)</div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('50', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('100', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('200', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('500', this)"><div class="bet-option-text">500 <span style="font-size:18px;">🪙</span></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="matchmaking-modal" class="modal-overlay" style="z-index: 2000;">
+        <div class="settings-card" dir="auto" style="max-width: 350px;">
+            <h3 id="matchmaking-title">البحث</h3>
+            <div style="display: flex; justify-content: space-around; align-items: center; margin: 30px 0;">
+                <div style="text-align: center;"><div id="mm-my-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: visible; background-color: rgba(255,255,255,0.05);"></div><div id="mm-my-name" style="color: white; margin-top: 10px; font-weight: 500; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">أنت</div></div>
+                <div style="text-align: center;"><div id="mm-opp-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: rgba(255,255,255,0.02);">❓</div><div id="mm-opp-name" style="color: #a1a1aa; margin-top: 10px; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">الخصم</div></div>
+            </div>
+            <div style="margin: 20px 0;">
+                <div id="mm-status-label" class="settings-label" style="text-align: center;">جاري البحث عن خصم...</div>
+                <div class="loading-dots-container"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
+                <div id="mm-timer" style="color: white; font-weight: 600; font-size: 18px; margin-top: 15px;">00:00</div>
+            </div>
+            <button id="mm-cancel-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; box-shadow: none !important;">إلغاء البحث</button>
+        </div>
+    </div>
+
     <div id="matchmaking-stakes-modal" class="modal-overlay" style="z-index: 2000;">
         <div class="settings-card" dir="auto" style="max-width: 95%; width: 400px; padding: 25px 0; background: transparent !important; box-shadow: none !important; border: none !important;">
             <button class="modal-close-btn" onclick="window.closeAppModal('matchmaking-stakes-modal')" style="left:20px; right:auto; top: 0; background: rgba(0,0,0,0.7) !important; z-index: 100;">✕</button>
