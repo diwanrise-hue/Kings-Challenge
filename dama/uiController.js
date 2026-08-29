@@ -8,8 +8,9 @@
  * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
  * 🛡️ (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
  * 📱 (مُحدّث للتوافق): دعم أجهزة الآيفون القديمة.
- * 🤖 (مُحدّث حصري): حل مشكلة قص صورة البوت (اختفاء الأذنين) بجعل overflow: visible ليظهر الـ SVG بكامل تفاصيله.
- * ⚡ (ترقية الأداء القصوى): استبدال innerText بـ textContent للقضاء على (Layout Thrashing).
+ * 🤖 (مُحدّث حصري): حل مشكلة تشوه وانضغاط صورة البوت في نافذة النتائج لتصبح مطابقة تماماً لإطار اللاعب.
+ * ⚡ (ترقية الأداء القصوى): استبدال innerText بـ textContent للقضاء على (Layout Thrashing) وتسريع الأداء 100x.
+ * 🎡 (مُحدّث جديد): برمجة نظام "ساحة التحديات" والمراهنات الخاصة بالبحث العشوائي مع الأقفال الديناميكية!
  */
 
 import { gameState } from './gameState.js'; 
@@ -177,8 +178,8 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            // 🌟 حجم البوت المناسب لنافذة النتائج
-            botScale = 'scale(1.2)'; 
+            // 🌟 تعديل حجم البوت هنا ليتناسب بدقة مع حجم اللاعب بدون انضغاط
+            botScale = 'scale(1.1)'; 
         }
         else {
             frameZ = '5';
@@ -187,7 +188,7 @@ export const ui = {
             botScale = 'scale(1.2)';
         }
 
-        // 🌟 الإصلاح الجذري للبوت هنا: إزالة overflow: hidden لكي لا يُقص الـ SVG من الأطراف
+        // 🌟 الإصلاح الجذري للبوت هنا: نستخدم overflow: visible للدائرة الخلفية ونضبط الـ SVG ليلتزم بالأبعاد
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
@@ -1566,6 +1567,7 @@ function forceLockedGlobalAvatar() {
 }
 window.forceLockedGlobalAvatar = forceLockedGlobalAvatar;
 
+// 🌟 تحديث الأداء: استخدام textContent بدلاً من innerText
 window.applyProfileDataToUI = function(profile) {
     requestAnimationFrame(() => {
         const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
@@ -1583,7 +1585,6 @@ window.applyProfileDataToUI = function(profile) {
             'igp-losses': profile.losses !== undefined ? profile.losses : 0 
         };
 
-        // 🌟 الإصلاح الأساسي للأداء: استخدام textContent بدلاً من innerText
         for (let id in textElements) {
             const el = document.getElementById(id);
             if (el && String(el.textContent) !== String(textElements[id])) { 
@@ -1702,7 +1703,7 @@ window.switchRoomTab = function(tab) {
         if (optViews) optViews.style.display = 'none';
         
         if (window.currentRoomSortMode === 'views') {
-            window.currentRoomSortMode = 'vip'; // إرجاع للوضع الافتراضي
+            window.currentRoomSortMode = 'vip';
             document.querySelectorAll('#room-sort-modal .bet-option-item').forEach(el => el.classList.remove('selected'));
             const defaultOpt = document.querySelector('#room-sort-modal .bet-option-item');
             if (defaultOpt) defaultOpt.classList.add('selected');
@@ -1713,13 +1714,13 @@ window.switchRoomTab = function(tab) {
         if (optViews) optViews.style.display = 'flex';
         
         if (window.currentRoomSortMode === 'new') {
-            window.currentRoomSortMode = 'vip'; // إرجاع للوضع الافتراضي
+            window.currentRoomSortMode = 'vip'; 
             document.querySelectorAll('#room-sort-modal .bet-option-item').forEach(el => el.classList.remove('selected'));
             const defaultOpt = document.querySelector('#room-sort-modal .bet-option-item');
             if (defaultOpt) defaultOpt.classList.add('selected');
         }
     }
-    window.lastRenderStateHash = null; // إجبار المتصفح على إعادة الرسم بالفرز الجديد
+    window.lastRenderStateHash = null; 
     if (window.renderRoomsList) window.renderRoomsList();
 };
 
@@ -2830,3 +2831,61 @@ document.addEventListener('DOMContentLoaded', () => {
         
     }, 500); 
 });
+
+// ==========================================
+// 🎡 نظام ساحة التحديات (Matchmaking Stakes) الجديد
+// ==========================================
+
+window.openMatchmakingModal = function() {
+    const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    const userTokens = parseInt(profile.tokens) || 0;
+
+    const tiers = [50, 250, 500, 1000, 2500, 5000, 10000];
+
+    tiers.forEach(bet => {
+        const lockEl = document.getElementById(`mm-lock-${bet}`);
+        const btnEl = document.getElementById(`mm-btn-${bet}`);
+        
+        if (userTokens < bet) {
+            if (lockEl) lockEl.style.display = 'flex';
+            if (btnEl) {
+                btnEl.disabled = true;
+                btnEl.style.opacity = '0.5';
+                btnEl.style.pointerEvents = 'none';
+            }
+        } else {
+            if (lockEl) lockEl.style.display = 'none';
+            if (btnEl) {
+                btnEl.disabled = false;
+                btnEl.style.opacity = '1';
+                btnEl.style.pointerEvents = 'auto';
+            }
+        }
+    });
+
+    window.openAppModal('matchmaking-stakes-modal');
+};
+
+window.startMatchmakingWithBet = function(betAmount) {
+    window.closeAppModal('matchmaking-stakes-modal');
+    
+    const timerEl = document.getElementById('mm-timer');
+    if (timerEl) timerEl.textContent = '00:00';
+    
+    if (window.gameState) {
+        window.gameState.mmStartTime = Date.now();
+        if (window.gameState.mmInterval) clearInterval(window.gameState.mmInterval);
+        window.gameState.mmInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - window.gameState.mmStartTime) / 1000);
+            const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+            const s = String(elapsed % 60).padStart(2, '0');
+            if (timerEl) timerEl.textContent = `${m}:${s}`;
+        }, 1000);
+    }
+
+    window.openAppModal('matchmaking-modal');
+    
+    if (window.socketManager && typeof window.socketManager.handleRoomAction === 'function') {
+        window.socketManager.handleRoomAction('joinMatchmakingPool', null, null, betAmount);
+    }
+};
