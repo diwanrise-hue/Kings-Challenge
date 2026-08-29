@@ -846,6 +846,163 @@
         </div>
     </div>
 
+    <div id="spectator-bet-modal" class="modal-overlay" style="z-index: 2500;">
+        <div class="settings-card" dir="auto" style="max-width: 340px; padding: 25px 20px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('spectator-bet-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #ffd700; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(255,215,0,0.3);">صندوق المراهنات 🎯</h3>
+            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 25px; text-align: center; line-height: 1.5;">راهن على اللاعب الذي تتوقع فوزه!<br>(متاح حتى أول حركتين)</p>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 15px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
+                <div onclick="window.selectSpectatorBetColor('white')" id="bet-p1-card" style="flex: 1; text-align: center; cursor: pointer; border: 2px solid transparent; padding: 10px 5px; border-radius: 16px; transition: all 0.3s ease; background: transparent;">
+                    <div id="bet-p1-avatar" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto; overflow: visible;"></div>
+                    <div id="bet-p1-name" style="color: white; margin-top: 12px; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; margin-left: auto; margin-right: auto;">اللاعب 1</div>
+                    <div style="color: #a1a1aa; font-size: 11px; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px;"><span style="display:inline-block; width:10px; height:10px; background:#fff; border-radius:50%; box-shadow:0 0 5px #fff;"></span> أبيض</div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;">
+                    <div style="width: 2px; height: 25px; background: linear-gradient(to bottom, transparent, rgba(255,215,0,0.5)); border-radius: 2px;"></div>
+                    <div style="color: #ff453a; font-weight: 900; font-size: 18px; text-shadow: 0 2px 10px rgba(255,69,58,0.6); font-family: 'Outfit', sans-serif; letter-spacing: 1px;">VS</div>
+                    <div style="width: 2px; height: 25px; background: linear-gradient(to top, transparent, rgba(255,215,0,0.5)); border-radius: 2px;"></div>
+                </div>
+                
+                <div onclick="window.selectSpectatorBetColor('black')" id="bet-p2-card" style="flex: 1; text-align: center; cursor: pointer; border: 2px solid transparent; padding: 10px 5px; border-radius: 16px; transition: all 0.3s ease; background: transparent;">
+                    <div id="bet-p2-avatar" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto; overflow: visible;"></div>
+                    <div id="bet-p2-name" style="color: white; margin-top: 12px; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; margin-left: auto; margin-right: auto;">اللاعب 2</div>
+                    <div style="color: #a1a1aa; font-size: 11px; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px;"><span style="display:inline-block; width:10px; height:10px; background:#1a1a24; border:1px solid #555; border-radius:50%; box-shadow:0 0 5px #000;"></span> أسود</div>
+                </div>
+            </div>
+
+            <input type="hidden" id="spectator-bet-color" value="">
+            <input type="hidden" id="spectator-bet-room-id" value="">
+
+            <label class="settings-label" style="text-align: center; color: #fdf5c9;">مبلغ الرهان:</label>
+            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 25px; background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(212, 175, 55, 0.4) !important;" onclick="window.openAppModal('spectator-bet-selector-modal')">
+                <span id="spectator-bet-display-text" style="color: #ffd700; font-weight: bold;">اختر المبلغ...</span>
+                <span style="font-size: 14px; color: rgba(255,215,0,0.5);">▼</span>
+            </div>
+            <input type="hidden" id="spectator-bet-amount" value="0">
+
+            <button id="spectator-submit-bet-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #f5a623, #d35400) !important; color: white !important; border: 1.5px solid #ffca28 !important; border-bottom: 3.5px solid #a85400 !important; box-shadow: 0 4px 15px rgba(245,166,35,0.3) !important; height: 50px; font-size: 16px;" onclick="if(window.confirmSpectatorBet) window.confirmSpectatorBet();">تأكيد الرهان 💰</button>
+        </div>
+    </div>
+
+    <div id="spectator-bet-selector-modal" class="modal-overlay" style="z-index: 3500; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('spectator-bet-selector-modal')">
+        <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: modalFadeIn 0.3s ease;">
+            <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
+            <h3 style="color: #ffd700; text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: 800;">تحديد مبلغ الرهان 🪙</h3>
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('50', '50 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('100', '100 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('200', '200 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('500', '500 🪙 (الحد الأقصى)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:13px; margin-right: 4px;">(الحد الأقصى)</span></div></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="spectators-list-modal" class="modal-overlay" style="z-index: 2500;">
+        <div class="settings-card" dir="auto" style="max-width: 340px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('spectators-list-modal')">✕</button>
+            <h3 style="color: #f1c40f; margin-bottom: 15px;">قائمة المشاهدين 👁️</h3>
+            <p id="spectators-list-desc" style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px; text-align: center;">اللاعبون الذين يشاهدون المباراة حالياً</p>
+            
+            <div id="spectators-items-container" class="scrollable-content" style="max-height: 50vh; display: flex; flex-direction: column; gap: 10px;">
+                <p style="text-align: center; color: #666; font-size: 13px;">جاري تحميل قائمة المشاهدين...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-overlay" class="modal-overlay" style="z-index: 1000;">
+        <div class="settings-card" dir="auto">
+            <button class="modal-close-btn" onclick="window.closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
+            <h3 id="set-title">الإعدادات</h3>
+            <div class="audio-controls"><label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label><input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7"></div>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; background: rgba(255,255,255,0.04); padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <label for="sync-theme-optout" style="color: #e0e0e0; font-size: 13px; font-weight: 500; text-align: right; line-height: 1.4;">استخدام شكل الساحة للاعب الأعلى مستوى (أونلاين)</label>
+                <input type="checkbox" id="sync-theme-optout" style="width: 18px; height: 18px; accent-color: #f5a623; margin-right: 10px;">
+            </div>
+
+            <button id="save-settings-btn" class="save-settings-btn" style="margin-top: 25px; box-shadow: none !important;">حفظ</button>
+        </div>
+    </div>
+
+    <div id="custom-password-modal" class="modal-overlay" style="z-index: 2500;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('custom-password-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #f1c40f; margin-bottom: 10px;">غرفة محمية 🔒</h3>
+            <p style="color: #e0e0e0; font-size: 14px; margin-bottom: 20px; text-align: center;">الرجاء إدخال كلمة السر الخاصة بهذه الغرفة:</p>
+            
+            <input type="password" id="custom-room-pwd-input" class="online-input" placeholder="كلمة السر..." style="text-align: center; font-size: 18px; letter-spacing: 2px;">
+            <input type="hidden" id="custom-target-room-id">
+            
+            <button id="custom-join-confirm-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; margin-top: 15px; border: 1.5px solid #85c1e9 !important; border-bottom: 3.5px solid #1f618d !important; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important;">دخول الغرفة</button>
+        </div>
+    </div>
+
+    <div id="creator-room-settings-modal" class="modal-overlay" style="z-index: 2500;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('creator-room-settings-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #87ceeb; margin-bottom: 10px;">إدارة غرفتي ⚙️</h3>
+            
+            <input type="hidden" id="creator-target-room-id">
+            
+            <label class="settings-label" style="margin-top: 15px;">تعديل مبلغ الرهان:</label>
+            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px;" onclick="window.openBetSelectorForEdit()">
+                <span id="edit-room-bet-display">اختر الرهان الجديد</span><span style="font-size: 14px; color: rgba(255,255,255,0.4);">▼</span>
+            </div>
+            <input type="hidden" id="edit-room-bet-input" value="0">
+            
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button id="creator-update-bet-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.2) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.4) !important; margin: 0; box-shadow: none !important;">تحديث الرهان 🔄</button>
+                <button id="creator-cancel-room-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; border-color: rgba(255, 69, 58, 0.4) !important; margin: 0; box-shadow: none !important;">إغلاق وحذف الغرفة 🗑️</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="control-panel" id="bottom-control-panel">
+        <button id="reset-btn" class="premium-game-btn" title="لعب ضد البوت">
+            <span class="btn-icon" data-icon="robotBtn" style="width: 45px; height: 45px;"></span>
+            <div class="btn-text-col">
+                <span id="reset-btn-txt" class="btn-main-text">ضد البوت</span>
+                <span class="btn-sub-text">لعب أوفلاين</span>
+            </div>
+        </button>
+
+        <button id="hint-btn" title="أفضل حركة">
+            <span data-icon="bulb" style="display: flex; align-items: center; justify-content: center;"></span>
+            <span id="hint-counter" style="position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 50%; border: 1.5px solid #a88734; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10;">0</span>
+        </button>
+        <button id="undo-btn" title="تراجع (أوفلاين)" style="display: none;">↩️</button>
+        
+        <button id="room-portal-btn" title="الغرف الخاصة" onclick="window.openAppModal('online-modal')">
+            <span data-icon="door" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 6px;"></span>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: right; line-height: 1.2;">
+                <span style="color: #ffffff; font-size: 18px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">الغرف</span>
+                <span style="color: #f5a623; font-size: 9px; font-weight: 700;">المشاهدة والمراهنات</span>
+            </div>
+        </button>
+        
+        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" onclick="window.toggleRadioMusic()">
+            <span id="dama-radio-status" class="radio-status-dot"></span><span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
+        </button>
+        
+        <button id="mic-toggle-btn" title="المحادثة الصوتية" style="display: none;"></button>
+        
+        <button id="match-gift-btn-p2" title="إرسال شعبية" style="display: none; background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #00d2ff !important; border-bottom: 3.5px solid #0088aa !important; color: #00d2ff !important; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5) !important; border-radius: 14px !important; width: 44px !important; height: 44px !important; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-direction: column; gap: 2px;">
+            <span style="font-size: 16px; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8));">🎁</span>
+            <span style="font-size: 9px; font-weight: bold; letter-spacing: 0.5px;">إهداء</span>
+        </button>
+
+        <button id="resign-btn" title="الانسحاب" style="display: none;">الانسحاب</button>
+    </div>
+
+    <div id="match-countdown-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(0,0,0,0.85); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px);">
+        <div style="font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(241,196,15,0.6));">⚔️</div>
+        <h2 style="color: #fce8a1; font-size: 26px; text-shadow: 0 0 15px #f1c40f; margin-bottom: 5px;">تجهّز للمواجهة!</h2>
+        <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 20px;">المشاهدون يستطيعون المراهنة الآن...</p>
+        <div id="match-countdown-number" style="font-size: 120px; color: white; font-weight: 900; text-shadow: 0 10px 25px rgba(0,0,0,1); background: linear-gradient(180deg, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">10</div>
+    </div>
+
     <script src="icons.js?v=2.0"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
