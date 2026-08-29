@@ -14,7 +14,7 @@
 
     <style>
         /* ========================================== */
-        /* ساحة التحديات (Matchmaking Stakes) - مقاسات أصغر ومتناسقة */
+        /* ساحة التحديات (Matchmaking Stakes) - مقاسات أصغر ومتناسقة وتباين 3D */
         /* ========================================== */
         #matchmaking-stakes-modal {
             align-items: center !important;
@@ -95,7 +95,7 @@
             display: flex;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
-            padding: 30px calc(50vw - 120px); /* 120px هو نصف عرض البطاقة الجديد 240px للتوسيط الدقيق */
+            padding: 30px calc(50vw - 120px); /* 120px نصف عرض البطاقة للتوسيط */
             scrollbar-width: none;
             -ms-overflow-style: none;
             direction: rtl;
@@ -107,8 +107,8 @@
         .mm-card {
             scroll-snap-align: center;
             scroll-snap-stop: always;
-            flex: 0 0 240px; /* تم التصغير من 290px إلى 240px */
-            height: 350px;   /* تم التصغير من 410px إلى 350px */
+            flex: 0 0 240px; /* العرض الجديد الأصغر */
+            height: 350px;   /* الارتفاع الجديد الأصغر */
             border-radius: 18px;
             padding: 20px 10px 15px 10px;
             position: relative;
@@ -118,9 +118,9 @@
             align-items: center;
             justify-content: flex-start;
             box-shadow: 0 8px 25px rgba(0,0,0,0.6);
-            margin: 0 -30px; /* تداخل يتناسب مع الحجم الجديد */
+            margin: 0 -30px; /* المسافة السلبية لسحب البطاقات الجانبية للداخل لتظهر أطرافها */
             transition: transform 0.3s ease-out, opacity 0.3s ease-out, border 0.3s ease, box-shadow 0.3s ease;
-            transform: scale(0.8); /* تصغير البطاقات الخلفية للتباين */
+            transform: scale(0.8); /* تصغير البطاقات الخلفية لإعطاء عمق وتبيان */
             opacity: 0.6;
             z-index: 1;
             box-sizing: border-box;
@@ -129,7 +129,7 @@
         }
         
         .mm-card.active {
-            transform: scale(1);
+            transform: scale(1); /* إعادة الحجم الكامل للبطاقة النشطة */
             opacity: 1;
             z-index: 10;
         }
@@ -198,7 +198,7 @@
         
         .mm-prize-value {
             color: #ffffff;
-            font-size: 32px; /* تم التصغير من 38 إلى 32 */
+            font-size: 32px;
             font-weight: 900;
             display: flex;
             align-items: center;
@@ -216,7 +216,7 @@
 
         .mm-card-btn {
             width: 90%;
-            height: 42px; /* تم التصغير من 48 إلى 42 */
+            height: 42px;
             border-radius: 10px;
             font-size: 15px;
             font-weight: 800;
@@ -230,7 +230,7 @@
         .mm-card-btn:active { transform: scale(0.95); }
         .mm-card-btn:hover { filter: brightness(1.1); }
 
-        /* الألوان المستوحاة من الصور */
+        /* الألوان المستوحاة من صورك */
         .theme-gray { background: linear-gradient(180deg, #333 0%, #111 100%); border: 2px solid #555; }
         .theme-gray.active { border-color: #aaa; box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 15px 40px rgba(0,0,0,0.9); }
         .theme-gray .mm-card-btn { background: linear-gradient(180deg, #666, #333); color: #fff; border: 1px solid #777; }
@@ -277,36 +277,17 @@
 
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) window.openMyProfile()">
         <div id="badge-avatar" class="profile-avatar-capsule"></div>
-        <div class="text-boundary boundary-level">
-            <span id="badge-level" class="shrink-text">Lv.1</span>
-        </div>
-        <div class="text-boundary boundary-name">
-            <span id="badge-username-display-game" class="player-name shrink-text">أنت</span>
-        </div>
-        <div class="text-boundary boundary-title">
-            <span id="profile-stat-title-badge" class="title-text-free shrink-text">مبارز</span>
-        </div>
+        <div class="text-boundary boundary-level"><span id="badge-level" class="shrink-text">Lv.1</span></div>
+        <div class="text-boundary boundary-name"><span id="badge-username-display-game" class="player-name shrink-text">أنت</span></div>
+        <div class="text-boundary boundary-title"><span id="profile-stat-title-badge" class="title-text-free shrink-text">مبارز</span></div>
         <div class="vertical-divider-free"></div>
-        <div class="text-boundary boundary-rank-icon">
-            <span id="profile-stat-rank-icon-badge" class="rank-icon-free">🥈</span>
-        </div>
-        <div class="text-boundary boundary-xp">
-            <span id="xp-text-element" class="xp-text-free shrink-text">0 / 100 XP</span>
-        </div>
-        <div class="xp-wrapper">
-            <div class="straight-xp-fill" id="xp-bar-fill"></div>
-        </div>
+        <div class="text-boundary boundary-rank-icon"><span id="profile-stat-rank-icon-badge" class="rank-icon-free">🥈</span></div>
+        <div class="text-boundary boundary-xp"><span id="xp-text-element" class="xp-text-free shrink-text">0 / 100 XP</span></div>
+        <div class="xp-wrapper"><div class="straight-xp-fill" id="xp-bar-fill"></div></div>
         <div class="bottom-stats-frame" id="profile-stat-tokens-badge-container">
-            <div class="stat-item coins-text-format">
-                <span class="stat-icon">🪙</span>
-                <span class="tokens-number-ctrl" id="profile-stat-tokens-badge">0</span>
-            </div>
+            <div class="stat-item coins-text-format"><span class="stat-icon">🪙</span><span class="tokens-number-ctrl" id="profile-stat-tokens-badge">0</span></div>
             <div class="frame-divider"></div>
-            <div class="stat-item streak-text-format">
-                <span class="streak-number-ctrl" id="profile-stat-streak-badge">0</span>
-                <span class="streak-text-ctrl">انتصار</span>
-                <span class="stat-icon streak-fire-ctrl">🔥</span>
-            </div>
+            <div class="stat-item streak-text-format"><span class="streak-number-ctrl" id="profile-stat-streak-badge">0</span><span class="streak-text-ctrl">انتصار</span><span class="stat-icon streak-fire-ctrl">🔥</span></div>
         </div>
     </div>
     
@@ -367,11 +348,9 @@
 
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
             <div id="mini-disconnect-radar" data-icon="disconnectIcon" style="display: none; position: absolute; bottom: 22px; left: calc(50% + 138px); transform: translateX(-50%); width: 22px; height: 22px; z-index: 800; align-items: center; justify-content: center; pointer-events: none;"></div>
-            
             <div id="turn-box-container">
                 <div id="idle-counter" style="position: absolute; top: 5px; left: 12px; font-size: 11px; font-weight: 800; color: #a1a1aa; background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 8px; display: none; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
                 <div id="repetition-counter" style="position: absolute; top: 28px; left: 12px; font-size: 10px; font-weight: 800; color: #f5a623; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 8px; display: none; border: 1px solid rgba(245, 166, 35, 0.3); box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
-                
                 <h3 id="turn-indicator">Your Turn</h3>
                 <div id="turn-countdown"></div>
             </div>
@@ -393,7 +372,6 @@
                 <h3 class="side-menu-title" id="menu-title-text">القائمة</h3>
                 <button class="side-menu-close" onclick="toggleSideMenu()">✕</button>
             </div>
-            
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('lucky-spin-modal')">
                 <span style="position: relative; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
                     <span data-icon="luckySpin" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
@@ -401,39 +379,31 @@
                 </span>
                 <span id="menu-spin-text">عجلة الحظ</span>
             </div>
-            
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('daily-quests-modal')">
                 <span data-icon="dailyQuests" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;"></span>
                 <span id="menu-quests-text">المهام اليومية</span>
             </div>
-
             <div class="side-menu-item" id="store-portal-corner-btn" onclick="toggleSideMenu(); openAppModal('store-modal')">
                 <span data-icon="storePortal" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;"></span>
                 <span id="menu-store-text">المتجر الملكي</span>
             </div>
-
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
                 <span data-icon="bagSide"></span>
                 <span id="menu-bag-text">الحقيبة الممتلكات</span>
             </div>
-
             <div class="side-menu-item" onclick="toggleSideMenu(); window.openRadioModal();">
                 <span style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;" data-icon="radioSide"></span> 
                 <span id="menu-radio-text">الراديو</span>
             </div>
-            
             <div class="side-menu-item" onclick="toggleSideMenu(); window.showLeaderboard()">
                 <span data-icon="medal"></span>
                 <span id="menu-leaderboard-text">سجل الشرف</span>
             </div>
-            
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('settings-overlay')">
                 <span data-icon="gear"></span> 
                 <span id="menu-settings-text">الضبط</span>
             </div>
-            
             <div style="flex-grow: 1;"></div>
-            
             <div class="side-menu-item" onclick="toggleSideMenu(); window.exitDamaGame();" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
                 <span style="font-size: 36px; display: flex; align-items: center; justify-content: center; width: 38px; transform: translateY(1px);">🚪</span> 
                 <span id="menu-exit-text">خروج</span>
@@ -446,17 +416,13 @@
             <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')">✕</button>
             <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">سجل المهام 📜</h3>
             <p class="settings-label" style="text-align:center; margin-bottom: 15px; color: #fdf5c9;">أكمل المهام للحصول على جوائز إضافية!</p>
-            
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="quest-tab-daily" class="custom-tab-button active" onclick="switchQuestTab('daily')">يومية</button>
                 <button id="quest-tab-weekly" class="custom-tab-button" onclick="switchQuestTab('weekly')">أسبوعية</button>
             </div>
-
             <div id="quests-list-container-daily" style="display: flex; flex-direction: column; gap: 12px; max-height: 48vh; overflow-y: auto; padding-right: 5px;"></div>
             <div id="quests-list-container-weekly" style="display: none; flex-direction: column; gap: 12px; max-height: 48vh; overflow-y: auto; padding-right: 5px;"></div>
-            
             <button id="collect-all-btn" class="save-settings-btn" style="display: none; background: linear-gradient(135deg, #34c759, #28a745) !important; margin: 15px auto 0 auto; width: 80%; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important; border-color: #8be8ab !important; border-bottom: 3.5px solid #145a32 !important;" onclick="if(window.questsManager) window.questsManager.claimAllRewards(window.questsManager.currentTab)">جمع الكل 🎁</button>
-
             <p id="quests-reset-timer" style="color: #a1a1aa; font-size: 12px; margin-top: 15px; font-weight: 600;">تتجدد المهام بعد: --:--:--</p>
         </div>
     </div>
@@ -480,21 +446,17 @@
             <button class="modal-close-btn" onclick="closeAppModal('level-select-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color:#f5a623; margin-bottom: 5px; font-size: 22px;">مستوى الحاسوب 🤖</h3>
             <p class="settings-label" style="text-align: center; margin-bottom: 25px;">اختر درجة ذكاء البوت</p>
-            
             <div class="level-grid-container">
                 <button id="lvl-btn-1" class="level-btn easy" onclick="setAiLevel(1)">L1<span>سهل جداً</span></button>
                 <button id="lvl-btn-2" class="level-btn easy" onclick="setAiLevel(2)">L2<span>سهل</span></button>
                 <button id="lvl-btn-3" class="level-btn easy active" onclick="setAiLevel(3)">L3<span>متوسط</span></button>
-                
                 <button id="lvl-btn-4" class="level-btn medium" onclick="setAiLevel(4)">L4<span>متقدم</span></button>
                 <button id="lvl-btn-5" class="level-btn medium" onclick="setAiLevel(5)">L5<span>خبير</span></button>
                 <button id="lvl-btn-6" class="level-btn medium" onclick="setAiLevel(6)">L6<span>محترف</span></button>
-                
                 <button id="lvl-btn-7" class="level-btn hard" onclick="setAiLevel(7)">L7<span>ماستر</span></button>
                 <button id="lvl-btn-8" class="level-btn hard" onclick="setAiLevel(8)">L8<span>جراند</span></button>
                 <button id="lvl-btn-9" class="level-btn hard boss" onclick="setAiLevel(9)">L9<span>مستحيل 👑</span></button>
             </div>
-            
             <button onclick="closeAppModal('level-select-modal')" class="save-settings-btn" style="margin-top: 20px; background: transparent !important; box-shadow: none !important; border: 1.5px solid #a88734 !important;">إلغاء</button>
         </div>
     </div>
@@ -504,7 +466,6 @@
             <button class="modal-close-btn" onclick="closeAppModal('lucky-spin-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 24px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">عجلة الحظ 🎡</h3>
             <p class="settings-label" style="text-align:center; margin-bottom: 25px; color: #fdf5c9;">جرب حظك واربح جوائز وخصومات نادرة!</p>
-
             <div class="wheel-container">
                 <div class="wheel-pointer-wrapper" id="lucky-wheel-pointer"><div class="wheel-pointer-shape"></div></div>
                 <div class="wheel-inner" id="lucky-wheel-inner">
@@ -513,7 +474,6 @@
                 </div>
                 <div class="wheel-center-pin"></div>
             </div>
-
             <div id="spin-timer" style="color: #a1a1aa; font-size: 14px; margin-bottom: 15px; font-weight: 600;">اللفة المجانية جاهزة!</div>
             <button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important; border-color: #8be8ab !important; border-bottom: 3.5px solid #145a32 !important;">لفة مجانية 🆓</button>
             <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none; border-color: #f5a623 !important;">لفة إضافية (200 🪙)</button>
@@ -559,18 +519,14 @@
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
             
             <div style="display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 20px; width: 100%; gap: 12px;">
-                
                 <div style="flex: 1; background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(0,0,0,0.6)); padding: 12px; border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
                     <div id="igp-rank-display" style="color: #ffd700; font-size: 20px; font-weight: 900; text-shadow: 0 2px 5px rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; gap: 8px;">
                         <style>#igp-rank-display img { height: 35px !important; width: auto !important; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.9)) !important; transform: scale(1.1); }</style>
                         🥉 <span>برونزي</span>
                     </div>
                     <div style="width: 80%; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);"></div>
-                    <div id="igp-title-display" style="color: #e0e0e0; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
-                        اللقب: مبتدئ
-                    </div>
+                    <div id="igp-title-display" style="color: #e0e0e0; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">اللقب: مبتدئ</div>
                 </div>
-
                 <div style="flex: 1; background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(0,0,0,0.6)); border: 1px solid rgba(0, 210, 255, 0.3); padding: 12px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); gap: 8px;">
                     <span style="color: #00d2ff; font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 6px;">الشعبية <span style="font-size: 16px; filter: hue-rotate(210deg) drop-shadow(0 0 5px rgba(0,210,255,0.8));">🔥</span></span>
                     <div style="width: 80%; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.6), transparent);"></div>
@@ -578,7 +534,6 @@
                         <span id="igp-popularity-val">0</span>
                     </div>
                 </div>
-
             </div>
 
             <div id="igp-xp-container" style="width: 100%; margin-bottom: 20px;">
@@ -613,7 +568,6 @@
                     <input type="text" id="add-friend-id-input" class="online-input" placeholder="إضافة صديق بواسطة ID..." style="margin: 0; height: 44px; flex: 1; font-size: 13px; text-align: right; padding-right: 15px;">
                     <button onclick="window.sendFriendReqById()" class="save-settings-btn" style="margin: 0; height: 44px; width: auto; padding: 0 15px; background: rgba(48,209,88,0.2) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.4) !important; box-shadow: none !important;">إضافة</button>
                 </div>
-                
                 <button onclick="window.openAppModal('friend-requests-modal')" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border-color: rgba(245, 166, 35, 0.3) !important; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: none !important;">
                     <span>🔔 طلبات الصداقة</span>
                     <span id="friend-requests-badge" style="background: #ff453a !important; color: white !important; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none;">0</span>
@@ -1169,6 +1123,50 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="control-panel" id="bottom-control-panel">
+        <button id="reset-btn" class="premium-game-btn" title="لعب ضد البوت">
+            <span class="btn-icon" data-icon="robotBtn" style="width: 45px; height: 45px;"></span>
+            <div class="btn-text-col">
+                <span id="reset-btn-txt" class="btn-main-text">ضد البوت</span>
+                <span class="btn-sub-text">لعب أوفلاين</span>
+            </div>
+        </button>
+
+        <button id="hint-btn" title="أفضل حركة">
+            <span data-icon="bulb" style="display: flex; align-items: center; justify-content: center;"></span>
+            <span id="hint-counter" style="position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 50%; border: 1.5px solid #a88734; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10;">0</span>
+        </button>
+        <button id="undo-btn" title="تراجع (أوفلاين)" style="display: none;">↩️</button>
+        
+        <button id="room-portal-btn" title="الغرف الخاصة" onclick="window.openAppModal('online-modal')">
+            <span data-icon="door" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 6px;"></span>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: right; line-height: 1.2;">
+                <span style="color: #ffffff; font-size: 18px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">الغرف</span>
+                <span style="color: #f5a623; font-size: 9px; font-weight: 700;">المشاهدة والمراهنات</span>
+            </div>
+        </button>
+        
+        <button id="dama-radio-toggle" title="تشغيل/إيقاف الراديو" onclick="window.toggleRadioMusic()">
+            <span id="dama-radio-status" class="radio-status-dot"></span><span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
+        </button>
+        
+        <button id="mic-toggle-btn" title="المحادثة الصوتية" style="display: none;"></button>
+        
+        <button id="match-gift-btn-p2" title="إرسال شعبية" style="display: none; background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #00d2ff !important; border-bottom: 3.5px solid #0088aa !important; color: #00d2ff !important; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5) !important; border-radius: 14px !important; width: 44px !important; height: 44px !important; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-direction: column; gap: 2px;">
+            <span style="font-size: 16px; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8));">🎁</span>
+            <span style="font-size: 9px; font-weight: bold; letter-spacing: 0.5px;">إهداء</span>
+        </button>
+
+        <button id="resign-btn" title="الانسحاب" style="display: none;">الانسحاب</button>
+    </div>
+
+    <div id="match-countdown-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(0,0,0,0.85); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px);">
+        <div style="font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(241,196,15,0.6));">⚔️</div>
+        <h2 style="color: #fce8a1; font-size: 26px; text-shadow: 0 0 15px #f1c40f; margin-bottom: 5px;">تجهّز للمواجهة!</h2>
+        <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 20px;">المشاهدون يستطيعون المراهنة الآن...</p>
+        <div id="match-countdown-number" style="font-size: 120px; color: white; font-weight: 900; text-shadow: 0 10px 25px rgba(0,0,0,1); background: linear-gradient(180deg, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">10</div>
     </div>
 
     <script src="icons.js?v=2.0"></script>
