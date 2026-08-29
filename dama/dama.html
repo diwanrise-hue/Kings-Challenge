@@ -607,6 +607,14 @@
                 <button id="room-tab-bet" class="custom-tab-button" onclick="window.switchRoomTab('bet')">رهان (مشاهدة)</button>
             </div>
 
+            <div style="display: flex; gap: 8px; margin-bottom: 10px; width: 100%;">
+                <div style="flex: 1; display: flex; background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; padding: 0 10px; align-items: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
+                    <span style="font-size: 16px; color: #a1a1aa;">🔍</span>
+                    <input type="text" id="room-search-input" placeholder="ابحث باسم الغرفة..." oninput="if(window.renderRoomsList) window.renderRoomsList()" style="background: transparent; border: none; color: white; width: 100%; height: 38px; outline: none; text-align: right; font-family: inherit; font-size: 13px; padding: 0 8px;">
+                </div>
+                <button onclick="window.openAppModal('room-sort-modal')" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; width: 45px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 18px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">⇅</button>
+            </div>
+
             <div id="play-tab-content" style="display: flex; flex-direction: column; flex: 1; min-height: 0; margin-bottom: 10px;">
                 
                 <div id="my-waiting-room-card" class="my-waiting-room-card">
@@ -632,22 +640,14 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 8px; margin-bottom: 10px; width: 100%;">
-                    <div style="flex: 1; display: flex; background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; padding: 0 10px; align-items: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
-                        <span style="font-size: 16px; color: #a1a1aa;">🔍</span>
-                        <input type="text" id="room-search-input" placeholder="ابحث باسم الغرفة..." oninput="if(window.renderRoomsList) window.renderRoomsList()" style="background: transparent; border: none; color: white; width: 100%; height: 38px; outline: none; text-align: right; font-family: inherit; font-size: 13px; padding: 0 8px;">
-                    </div>
-                    <button onclick="window.openAppModal('room-sort-modal')" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; width: 45px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 18px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">⇅</button>
-                </div>
-
                 <div style="flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; overflow-y: auto; padding: 10px;" id="active-rooms-list">
                     <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>
                 </div>
 
             </div>
 
-            <div style="display: none; flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; margin-bottom: 10px; overflow-y: auto; padding: 10px;" id="spectate-rooms-list">
-                <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>
+            <div style="display: none; flex-direction: column; flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; margin-bottom: 10px; overflow-y: auto; padding: 10px;" id="spectate-rooms-list">
+                <p class="empty-rooms-msg" style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>
             </div>
 
             <button onclick="window.openCreateRoomModal()" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; border: 1.5px solid #85c1e9 !important; border-bottom: 3.5px solid #1f618d !important; height: 55px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important; margin: 0; flex-shrink: 0;">+ إنشاء غرفة جديدة</button>
@@ -661,7 +661,8 @@
             <div style="display: flex; flex-direction: column; width: 100%;">
                 <div class="bet-option-item selected" onclick="window.applyRoomSort('vip', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">الافتراضي</div></div>
                 <div class="bet-option-item" onclick="window.applyRoomSort('bet', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">أعلى رهاناً</div></div>
-                <div class="bet-option-item" onclick="window.applyRoomSort('new', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">الأحدث</div></div>
+                <div class="bet-option-item" id="sort-opt-new" onclick="window.applyRoomSort('new', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">الأحدث</div></div>
+                <div class="bet-option-item" id="sort-opt-views" style="display: none;" onclick="window.applyRoomSort('views', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">أعلى مشاهدة</div></div>
             </div>
         </div>
     </div>
