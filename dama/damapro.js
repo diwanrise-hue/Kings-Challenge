@@ -64,11 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
         .vip-badge-match-me { position: absolute; bottom: -15px; right: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d; }
         .vip-badge-match-opp { position: absolute; bottom: -15px; left: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d; }
 
-        /* 🎨 تأثيرات اللهب */
-        .vip-glow-white  { animation: vipFloatAndSpin 15s infinite linear, vipFlameWhite 0.4s infinite alternate ease-in-out; }
-        .vip-glow-purple { animation: vipFloatAndSpin 15s infinite linear, vipFlamePurple 0.4s infinite alternate ease-in-out; }
-        .vip-glow-red    { animation: vipFloatAndSpin 15s infinite linear, vipFlameRed 0.4s infinite alternate ease-in-out; }
-        .vip-glow-mixed  { animation: vipFloatAndSpin 15s infinite linear, vipFlameMixed 0.4s infinite alternate ease-in-out; }
+        /* 🎨 تأثيرات اللهب (تم إبطاؤها لتصبح مريحة جداً للعين بـ 2.5 ثانية) */
+        .vip-glow-white  { animation: vipFloatAndSpin 15s infinite linear, vipFlameWhite 2.5s infinite alternate ease-in-out; }
+        .vip-glow-purple { animation: vipFloatAndSpin 15s infinite linear, vipFlamePurple 2.5s infinite alternate ease-in-out; }
+        .vip-glow-red    { animation: vipFloatAndSpin 15s infinite linear, vipFlameRed 2.5s infinite alternate ease-in-out; }
+        .vip-glow-mixed  { animation: vipFloatAndSpin 15s infinite linear, vipFlameMixed 2.5s infinite alternate ease-in-out; }
 
         /* ========================================== */
         /* 🌟 كلاس الإطار الجديد الذي يضمن الحجم الدقيق 🌟 */
@@ -79,11 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
             left: 0 !important;
             width: 100% !important;
             height: 100% !important;
-            object-fit: fill !important; /* هذا يجبر الإطار على الالتزام بحجم البطاقة تماماً */
+            object-fit: fill !important; 
             z-index: 0 !important;
-            border-radius: 20px !important; /* نفس انحناء البطاقة */
+            border-radius: 20px !important; 
             pointer-events: none !important;
-            /* ظل نظيف مخصص للإطار فقط بعيداً عن تغويش اللعبة */
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)) !important; 
         }
 
@@ -124,8 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (matchCardContainer) {
             let frameImg = matchCardContainer.querySelector('.vip-frame-img-layer');
 
-            if (lvl > 1) { // 👈 التعديل هنا: يتم عرض الإطار فقط لـ VIP 2 فما فوق
-                // 1. تدمير كل مؤثرات البطاقة القديمة (التغويش، الخلفية، الحدود، الظل)
+            if (lvl > 1) { // يتم عرض الإطار فقط لـ VIP 2 فما فوق
+                // 1. تدمير كل مؤثرات البطاقة القديمة
                 matchCardContainer.style.setProperty('background', 'transparent', 'important');
                 matchCardContainer.style.setProperty('background-color', 'transparent', 'important');
                 matchCardContainer.style.setProperty('border', 'none', 'important');
@@ -137,11 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!frameImg) {
                     frameImg = document.createElement('img');
                     frameImg.className = 'vip-frame-img-layer';
-                    // نضعه كأول عنصر ليصبح في الخلفية
                     matchCardContainer.insertBefore(frameImg, matchCardContainer.firstChild);
                 }
 
-                // 3. تحديد الصورة المناسبة للمستوى (تمت إزالة V1)
+                // 3. تحديد الصورة المناسبة للمستوى
                 if (lvl === 2 || lvl === 3) {
                     frameImg.src = 'Media/VIP/V23.webp?v=30';
                 } else if (lvl >= 4) {
@@ -186,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. اعتراض دوال الواجهة الأساسية لتحديث الشارات والإطارات تلقائياً
     
-    // 🌟 الإصلاح الجذري (The Hook Overwrite)
     let isProfileHooked = false;
     setInterval(() => {
         if (!isProfileHooked && typeof window.applyProfileDataToUI === 'function') {
