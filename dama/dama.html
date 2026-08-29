@@ -1,3 +1,4 @@
+<!--dama.html-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -13,52 +14,70 @@
     <script src="damapro.js?v=2.0"></script> 
 
     <style>
-        /* التنسيقات الخاصة بساحة التحديات المطابقة للتصميم 100% */
+        /* ========================================== */
+        /* ساحة التحديات (Matchmaking Stakes) - مطابقة 100% للصورة */
+        /* ========================================== */
         #matchmaking-stakes-modal {
-            align-items: flex-start !important;
-            padding-top: 8vh !important;
-            background: rgba(15, 10, 10, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            align-items: center !important;
+            justify-content: center !important;
+            padding-top: 0 !important;
+            background: rgba(15, 10, 15, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
         }
-        
+
+        #matchmaking-stakes-modal .modal-close-btn {
+            top: 25px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7) !important;
+            border: 1px solid #FFD700 !important;
+            color: #FFD700;
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
+            z-index: 100;
+        }
+
         .mm-header-wrapper {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            margin-top: -30px;
             width: 100%;
+            position: relative;
         }
-        .mm-swords-icon {
-            font-size: 32px;
-            margin-bottom: 0px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
-        }
+        
+        .mm-swords-icon { display: none; }
+        
         .mm-title-row {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 15px;
+            margin-bottom: 8px;
         }
+        
         .mm-decor-line {
-            height: 1.5px;
-            width: 50px;
-            background: linear-gradient(90deg, transparent, #d4af37);
+            height: 2px;
+            width: 35px;
+            background: linear-gradient(90deg, transparent, #FFD700);
         }
         .mm-decor-line.right {
-            background: linear-gradient(90deg, #d4af37, transparent);
+            background: linear-gradient(90deg, #FFD700, transparent);
         }
+        
         .mm-title-row h3 {
-            color: #ffd700;
+            color: #FFD700;
             font-size: 32px;
             margin: 0;
             font-weight: 900;
             text-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            letter-spacing: 1px;
             font-family: 'Tajawal', sans-serif;
         }
+        
         .mm-header-wrapper p {
-            color: #a1a1aa;
-            font-size: 15px;
-            margin-top: 5px;
+            color: #94a3b8;
+            font-size: 14px;
+            margin: 0;
             font-weight: 500;
         }
 
@@ -71,30 +90,14 @@
             justify-content: center;
         }
 
-        .mm-nav-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 45px;
-            color: #b8860b;
-            cursor: pointer;
-            z-index: 100;
-            padding: 10px;
-            transition: color 0.2s, transform 0.2s;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.9);
-            user-select: none;
-            opacity: 0.7;
-        }
-        .mm-nav-arrow:hover { color: #ffd700; opacity: 1; transform: translateY(-50%) scale(1.1); }
-        .mm-nav-arrow.left { left: 5px; }
-        .mm-nav-arrow.right { right: 5px; }
+        .mm-nav-arrow { display: none; }
 
         .mm-carousel {
             display: flex;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
-            gap: -40px; 
-            padding: 40px calc(50vw - 125px); 
+            gap: 15px;
+            padding: 20px calc(50vw - 145px);
             scrollbar-width: none;
             -ms-overflow-style: none;
             direction: rtl;
@@ -106,159 +109,117 @@
 
         .mm-card {
             scroll-snap-align: center;
-            flex: 0 0 250px;
-            height: 420px;
-            border-radius: 24px;
-            padding: 20px 15px 15px 15px;
+            flex: 0 0 290px;
+            height: 410px;
+            background: linear-gradient(180deg, #2b354b 0%, #171e2e 100%);
+            border-radius: 20px;
+            border: 2px solid #007aff;
+            padding: 30px 15px 25px 15px;
             position: relative;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.6);
-            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, border 0.4s ease, box-shadow 0.4s ease;
-            transform: scale(0.85);
-            opacity: 0.6;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: scale(0.9);
+            opacity: 0.7;
             z-index: 1;
+            box-sizing: border-box;
         }
         
-        /* البطاقة المركزية النشطة بدون إطار ذهبي */
         .mm-card.active {
-            transform: scale(1.1);
+            transform: scale(1);
             opacity: 1;
             z-index: 10;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 50px rgba(0,0,0,0.7), 0 0 15px rgba(255,215,0,0.4);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 30px rgba(255,255,255,0.05);
         }
 
-        .mm-card-medal {
-            height: 80px;
-            font-size: 70px;
-            line-height: 1;
-            margin-top: -10px;
-            margin-bottom: 5px;
+        .mm-card-icon-wrapper {
+            height: 100px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.9));
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
         }
+        .mm-card-icon-wrapper img { max-height: 100%; max-width: 100%; object-fit: contain; }
 
         .mm-card-title {
-            color: white;
+            color: #ffffff;
             font-size: 26px;
             font-weight: 900;
-            margin: 10px 0 5px 0;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+            margin: 0 0 8px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
-        .mm-card-bet-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 25px;
-            width: 85%;
-        }
-        .mm-bet-line {
-            height: 1px;
-            flex: 1;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
-        }
-        .mm-card-bet-row .mm-bet-line:last-child {
-            background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent);
-        }
-        .mm-bet-text {
-            color: #d4af37;
+        .mm-card-desc {
+            color: #94a3b8;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 600;
+            margin: 0 0 35px 0;
         }
 
         .mm-card-prize-box {
-            background: transparent;
-            border: none;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
-            margin-bottom: 25px;
+            gap: 10px;
+            margin-bottom: auto;
             width: 100%;
         }
+        
         .mm-prize-label {
-            color: #d4af37;
-            font-size: 14px;
+            color: #94a3b8;
+            font-size: 12px;
             font-weight: 600;
         }
+        
         .mm-prize-value {
             color: #ffffff;
-            font-size: 32px;
+            font-size: 40px;
             font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            text-shadow: 0 2px 8px rgba(0,0,0,1);
-        }
-        .mm-coin-icon {
-            width: 28px;
-            height: 28px;
-            background: radial-gradient(circle, #ffe066, #f8b500);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: inset 0 0 5px rgba(255,255,255,0.8), 0 2px 5px rgba(0,0,0,0.5);
-            border: 2px solid #ffea79;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.8);
             line-height: 1;
+        }
+        
+        .mm-real-coin {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
         }
 
         .mm-card-btn {
-            margin-top: auto;
-            width: 90%;
-            height: 48px;
+            width: 85%;
+            height: 52px;
+            background: linear-gradient(180deg, #64748b 0%, #334155 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
-            font-size: 16px;
-            font-weight: 900;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 800;
             cursor: pointer;
-            border: none;
-            transition: transform 0.2s, filter 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-            margin-bottom: 10px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.1);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
             font-family: 'Tajawal', sans-serif;
+            transition: transform 0.15s ease, filter 0.2s ease;
         }
         .mm-card-btn:active { transform: scale(0.95); }
         .mm-card-btn:hover { filter: brightness(1.1); }
 
-        /* التدرجات اللونية المطابقة للتصميم */
-        .theme-gray { background: radial-gradient(circle at top, #444, #1a1a1a, #000); border-color: #666; }
-        .theme-gray .mm-card-btn { background: linear-gradient(180deg, #888, #444); color: #fff; border: 1px solid #666; }
-
-        .theme-teal { background: radial-gradient(circle at top, #005953, #002620, #000); border-color: #00796b; }
-        .theme-teal .mm-card-btn { background: linear-gradient(180deg, #00796b, #004d40); color: #fff; border: 1px solid #004d40; }
-
-        .theme-blue { background: radial-gradient(circle at top, #113458, #05101f); border-color: #1e5b99; }
-        .theme-blue .mm-card-btn { background: linear-gradient(180deg, #16467a, #0b2542); color: #85c1e9; border: 1px solid #16467a; }
-
-        .theme-red { background: radial-gradient(circle at top, #7a0b0b, #2a0202); border-color: #a81c1c; }
-        .theme-red .mm-card-btn { background: linear-gradient(180deg, #fceabb, #d49500); color: #4a3500; border: 1px solid #ffcc00; }
-
-        .theme-purple { background: radial-gradient(circle at top, #441158, #15031f); border-color: #6a1b9a; }
-        .theme-purple .mm-card-btn { background: linear-gradient(180deg, #370c4a, #1f042e); color: #bb8fce; border: 1px solid #4a1466; }
-
-        .theme-gold { background: radial-gradient(circle at top, #5c4300, #1a1200, #000); border-color: #b8860b; }
-        .theme-gold .mm-card-btn { background: linear-gradient(180deg, #fceabb, #f8b500); color: #4a3500; }
-
-        .theme-cyan { background: radial-gradient(circle at top, #004d66, #001a24, #000); border-color: #0082b3; }
-        .theme-cyan .mm-card-btn { background: linear-gradient(180deg, #0082b3, #003a4d); color: #fff; border: 1px solid #003a4d; }
-
-        .theme-magenta { background: radial-gradient(circle at top, #66004d, #24001a, #000); border-color: #b30082; }
-        .theme-magenta .mm-card-btn { background: linear-gradient(180deg, #b30082, #4d003a); color: #fff; border: 1px solid #4d003a; }
-        
-        .mm-lock-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius: inherit; flex-direction: column; justify-content: center; align-items: center; z-index: 20; border: 1px solid rgba(255,69,58,0.3); }
-        .mm-coin-icon { font-size: 18px; margin-right: 4px; }
+        .mm-lock-overlay { 
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); 
+            border-radius: 18px; flex-direction: column; justify-content: center; align-items: center; 
+            z-index: 20; border: 1px solid rgba(255,69,58,0.4); 
+        }
     </style>
 </head>
 <body data-piece-style="pc_original">
@@ -987,12 +948,12 @@
         </div>
     </div>
 
+    <!-- نافذة ساحة التحديات المطابقة 100% للتصميم -->
     <div id="matchmaking-stakes-modal" class="modal-overlay" style="z-index: 2000;">
-        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-            <button class="modal-close-btn" onclick="window.closeAppModal('matchmaking-stakes-modal')" style="top: 20px; left: 20px; background: rgba(0,0,0,0.7) !important; z-index: 100;">✕</button>
+        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; position: relative;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('matchmaking-stakes-modal')">✕</button>
 
             <div class="mm-header-wrapper">
-                <div class="mm-swords-icon">⚔️</div>
                 <div class="mm-title-row">
                     <span class="mm-decor-line"></span>
                     <h3>ساحة التحديات</h3>
@@ -1002,82 +963,160 @@
             </div>
 
             <div class="mm-carousel-container">
-                <div class="mm-nav-arrow right" onclick="window.scrollMmCarousel(-1)">❯</div>
                 <div class="mm-carousel" id="mm-carousel-scroller">
                     
-                    <div class="mm-card theme-gray">
-                        <div class="mm-card-medal">🛡️</div>
-                        <h4 class="mm-card-title">تدريب</h4>
-                        <div class="mm-card-bet-row"><span class="mm-bet-line"></span><span class="mm-bet-text">مجاني</span><span class="mm-bet-line"></span></div>
-                        <div class="mm-card-prize-box"><span class="mm-prize-label">جائزة الفوز</span><div class="mm-prize-value">10 <div class="mm-coin-icon">🪙</div></div></div>
+                    <!-- 1. تدريب / مجاني -->
+                    <div class="mm-card active">
+                        <div class="mm-card-icon-wrapper">
+                            <img src="Media/front/shield.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🛡️</span>'">
+                        </div>
+                        <h4 class="mm-card-title">تدريب / مجاني</h4>
+                        <p class="mm-card-desc">اكتساب خبرة بدون رهان</p>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <span>10</span>
+                            </div>
+                        </div>
                         <button class="mm-card-btn" onclick="window.startMatchmakingWithBet(0)">بحث عن خصم</button>
                     </div>
 
-                    <div class="mm-card theme-teal">
+                    <!-- 2. الهواة -->
+                    <div class="mm-card">
                         <div id="mm-lock-50" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-medal">🏅</div>
+                        <div class="mm-card-icon-wrapper">
+                            <img src="Media/front/medal_bronze.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🏅</span>'">
+                        </div>
                         <h4 class="mm-card-title">الهواة</h4>
-                        <div class="mm-card-bet-row"><span class="mm-bet-line"></span><span class="mm-bet-text">رهان 50 عملة</span><span class="mm-bet-line"></span></div>
-                        <div class="mm-card-prize-box"><span class="mm-prize-label">جائزة الفوز</span><div class="mm-prize-value">100 <div class="mm-coin-icon">🪙</div></div></div>
+                        <p class="mm-card-desc">رهان 50 عملة</p>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <span>100</span>
+                            </div>
+                        </div>
                         <button id="mm-btn-50" class="mm-card-btn" onclick="window.startMatchmakingWithBet(50)">بحث عن خصم</button>
                     </div>
 
-                    <div class="mm-card theme-blue">
+                    <!-- 3. ساحة المحاربين -->
+                    <div class="mm-card">
                         <div id="mm-lock-250" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-medal">🥈</div>
+                        <div class="mm-card-icon-wrapper">
+                            <img src="Media/front/medal_silver.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🥈</span>'">
+                        </div>
                         <h4 class="mm-card-title">ساحة المحاربين</h4>
-                        <div class="mm-card-bet-row"><span class="mm-bet-line"></span><span class="mm-bet-text">رهان 250 عملة</span><span class="mm-bet-line"></span></div>
-                        <div class="mm-card-prize-box"><span class="mm-prize-label">جائزة الفوز</span><div class="mm-prize-value">500 <div class="mm-coin-icon">🪙</div></div></div>
+                        <p class="mm-card-desc">رهان 250 عملة</p>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <span>500</span>
+                            </div>
+                        </div>
                         <button id="mm-btn-250" class="mm-card-btn" onclick="window.startMatchmakingWithBet(250)">بحث عن خصم</button>
                     </div>
 
-                    <div class="mm-card theme-red active">
+                    <!-- 4. ساحة الأبطال -->
+                    <div class="mm-card">
                         <div id="mm-lock-500" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-medal">🥇</div>
+                        <div class="mm-card-icon-wrapper">
+                            <img src="Media/front/medal_gold.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🥇</span>'">
+                        </div>
                         <h4 class="mm-card-title">ساحة الأبطال</h4>
-                        <div class="mm-card-bet-row"><span class="mm-bet-line"></span><span class="mm-bet-text">رهان 500 عملة</span><span class="mm-bet-line"></span></div>
-                        <div class="mm-card-prize-box"><span class="mm-prize-label">جائزة الفوز</span><div class="mm-prize-value">1,000 <div class="mm-coin-icon">🪙</div></div></div>
+                        <p class="mm-card-desc">رهان 500 عملة</p>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <span>1,000</span>
+                            </div>
+                        </div>
                         <button id="mm-btn-500" class="mm-card-btn" onclick="window.startMatchmakingWithBet(500)">بحث عن خصم</button>
                     </div>
 
-                    <div class="mm-card theme-purple">
+                    <!-- 5. ساحة الأساطير -->
+                    <div class="mm-card">
                         <div id="mm-lock-1000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-medal">🥉</div>
+                        <div class="mm-card-icon-wrapper">
+                            <img src="Media/front/trophy_legend.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🏆</span>'">
+                        </div>
                         <h4 class="mm-card-title">ساحة الأساطير</h4>
-                        <div class="mm-card-bet-row"><span class="mm-bet-line"></span><span class="mm-bet-text">رهان 1,000 عملة</span><span class="mm-bet-line"></span></div>
-                        <div class="mm-card-prize-box"><span class="mm-prize-label">جائزة الفوز</span><div class="mm-prize-value">2,000 <div class="mm-coin-icon">🪙</div></div></div>
+                        <p class="mm-card-desc">رهان 1,000 عملة</p>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <span>2,000</span>
+                            </div>
+                        </div>
                         <button id="mm-btn-1000" class="mm-card-btn" onclick="window.startMatchmakingWithBet(1000)">بحث عن خصم</button>
                     </div>
 
-                    <div class="mm-card theme-gold">
+                    <!-- 6. الكبار -->
+                    <div class="mm-card">
                         <div id="mm-lock-2500" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-medal">👑</div>
+                        <div class="mm-card-icon-wrapper">
+                            <img src="Media/front/crown.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>👑</span>'">
+                        </div>
                         <h4 class="mm-card-title">الكبار</h4>
-                        <div class="mm-card-bet-row"><span class="mm-bet-line"></span><span class="mm-bet-text">رهان 2,500 عملة</span><span class="mm-bet-line"></span></div>
-                        <div class="mm-card-prize-box"><span class="mm-prize-label">جائزة الفوز</span><div class="mm-prize-value">5,000 <div class="mm-coin-icon">🪙</div></div></div>
+                        <p class="mm-card-desc">رهان 2,500 عملة</p>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <span>5,000</span>
+                            </div>
+                        </div>
                         <button id="mm-btn-2500" class="mm-card-btn" onclick="window.startMatchmakingWithBet(2500)">بحث عن خصم</button>
                     </div>
 
-                    <div class="mm-card theme-cyan">
+                    <!-- 7. التنين -->
+                    <div class="mm-card">
                         <div id="mm-lock-5000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-medal">🐉</div>
+                        <div class="mm-card-icon-wrapper">
+                            <img src="Media/front/dragon.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🐉</span>'">
+                        </div>
                         <h4 class="mm-card-title">التنين</h4>
-                        <div class="mm-card-bet-row"><span class="mm-bet-line"></span><span class="mm-bet-text">رهان 5,000 عملة</span><span class="mm-bet-line"></span></div>
-                        <div class="mm-card-prize-box"><span class="mm-prize-label">جائزة الفوز</span><div class="mm-prize-value">10K <div class="mm-coin-icon">🪙</div></div></div>
+                        <p class="mm-card-desc">رهان 5,000 عملة</p>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <span>10K</span>
+                            </div>
+                        </div>
                         <button id="mm-btn-5000" class="mm-card-btn" onclick="window.startMatchmakingWithBet(5000)">بحث عن خصم</button>
                     </div>
 
-                    <div class="mm-card theme-magenta">
+                    <!-- 8. الملوك -->
+                    <div class="mm-card">
                         <div id="mm-lock-10000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-medal">🌋</div>
+                        <div class="mm-card-icon-wrapper">
+                            <img src="Media/front/volcano.webp" onerror="this.outerHTML='<span style=\\'font-size:85px; line-height:1;\\'>🌋</span>'">
+                        </div>
                         <h4 class="mm-card-title">الملوك</h4>
-                        <div class="mm-card-bet-row"><span class="mm-bet-line"></span><span class="mm-bet-text">رهان 10,000 عملة</span><span class="mm-bet-line"></span></div>
-                        <div class="mm-card-prize-box"><span class="mm-prize-label">جائزة الفوز</span><div class="mm-prize-value">20K <div class="mm-coin-icon">🪙</div></div></div>
+                        <p class="mm-card-desc">رهان 10,000 عملة</p>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <img src="Media/front/coin.webp" class="mm-real-coin" onerror="this.outerHTML='<span style=\\'font-size:35px;\\'>🪙</span>'">
+                                <span>20K</span>
+                            </div>
+                        </div>
                         <button id="mm-btn-10000" class="mm-card-btn" onclick="window.startMatchmakingWithBet(10000)">بحث عن خصم</button>
                     </div>
                     
                 </div>
-                <div class="mm-nav-arrow left" onclick="window.scrollMmCarousel(1)">❮</div>
             </div>
         </div>
     </div>
@@ -1305,9 +1344,11 @@
                     if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
                         if (!initialScrollDone) {
                             setTimeout(() => {
-                                const redCard = document.querySelector('.mm-card.theme-red');
-                                if (redCard) {
-                                    const scrollPos = redCard.offsetLeft - (scroller.clientWidth / 2) + (redCard.clientWidth / 2);
+                                // تركيز على بطاقة "ساحة الأبطال" (البطاقة الرابعة) كافتراضي، يمكن تعديله
+                                const cards = scroller.querySelectorAll('.mm-card');
+                                if (cards.length > 3) {
+                                    const defaultCard = cards[3]; // المؤشر رقم 3 هو البطاقة الرابعة (ساحة الأبطال)
+                                    const scrollPos = defaultCard.offsetLeft - (scroller.clientWidth / 2) + (defaultCard.clientWidth / 2);
                                     scroller.scrollTo({ left: scrollPos, behavior: 'auto' });
                                     updateActiveCard();
                                 }
@@ -1326,8 +1367,8 @@
         window.scrollMmCarousel = function(direction) {
             const scroller = document.getElementById('mm-carousel-scroller');
             if(scroller) {
-                const cardWidth = 250; 
-                const gap = -40;
+                const cardWidth = 290; 
+                const gap = 15;
                 scroller.scrollBy({ left: direction * (cardWidth + gap), behavior: 'smooth' });
             }
         };
