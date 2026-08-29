@@ -8,7 +8,7 @@
  * 🌟 (مُحدّث حصري): إضافة الفرز حسب (أعلى مشاهدة) وإظهار/إخفاء الخيارات ديناميكياً.
  * 📐 (تحديث التنسيق Layout): تباعد مثالي بين النصوص والصور والأزرار، وتعديل عرض الأزرار وطول الخط الذهبي.
  * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية.
- * 🔄 (مُحدّث جديد): الرجوع إلى نافذة الغرف (اللوبي) بدلاً من الواجهة الأساسية عند خروج الخصم أو انتهاء المباراة.
+ * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة (اللوبي الرئيسي) عند انتهاء المباراة بدلاً من فتح نافذة الغرف.
  */
 
 import { gameState } from './gameState.js'; 
@@ -968,7 +968,7 @@ export const socketManager = {
         socket.on('kickedFromRoom', (data) => {
             if (gameState.isSpectator && gameState.userProfile && gameState.userProfile.id === data.targetId) {
                 this._showToast("⚠️ لقد تم طردك من هذه الغرفة بواسطة المالك!");
-                this.handleExitGame(true); 
+                this.handleExitGame(); 
             }
         });
 
@@ -1351,13 +1351,13 @@ export const socketManager = {
         socket.on('playerDisconnected', () => {
             if (!gameState.isOnlineMode) { socket.disconnect(); return; }
             this._showToast(getNotifyMsg('oppLeftRoom'));
-            this.handleExitGame(true); // 🌟 تم التعديل للرجوع للوبي
+            this.handleExitGame(); // 🌟 تم التعديل
         });
 
         socket.on('opponentLeftRoom', data => {
             if (!gameState.isOnlineMode) return;
             this._showToast((data && data.message) || getNotifyMsg('oppLeftMatch'));
-            this.handleExitGame(true); // 🌟 تم التعديل للرجوع للوبي
+            this.handleExitGame(); // 🌟 تم التعديل
         });
 
         socket.on('gameOverByServer', data => {
@@ -1435,7 +1435,7 @@ export const socketManager = {
                                 socketManager.isAlertShown = false;
                                 if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
                                 else ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(true); // 🌟 تم التعديل
+                                socketManager.handleExitGame(); // 🌟 تم التعديل
                             };
                         }
                     }
@@ -1469,7 +1469,7 @@ export const socketManager = {
             const reasonMsg = data && data.reason ? data.reason : getNotifyMsg('rematchTimeout');
             this._showToast(reasonMsg);
             
-            this.handleExitGame(true); // 🌟 تم التعديل للرجوع للوبي
+            this.handleExitGame(); // 🌟 تم التعديل
         });
 
         socket.on('error', msg => {
@@ -1551,7 +1551,7 @@ export const socketManager = {
             } else {
                 const responderName = (data && data.responderName) || (gameState.lang === 'ar' ? 'الصديق' : 'Friend');
                 this._showToast(getNotifyMsg('challengeDeclined', responderName));
-                this.handleExitGame(true); // 🌟 تم التعديل
+                this.handleExitGame(); // 🌟 تم التعديل
             }
         });
 
@@ -1650,8 +1650,8 @@ export const socketManager = {
         }
     },
 
-    // 🌟 1. تحديث دالة الخروج لتقبل خيار الرجوع للوبي
-    handleExitGame(returnToLobby = false) {
+    // 🌟 1. تم إرجاع دالة الخروج لوضعها الأصلي لإظهار الواجهة الرئيسية
+    handleExitGame() {
         if (window.voiceChat && typeof window.voiceChat.closeCall === 'function') {
             window.voiceChat.closeCall();
             window.voiceChat.updateMicUI(false);
@@ -1717,15 +1717,8 @@ export const socketManager = {
 
         if (ui && typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
 
-        // 🌟 السر هنا: إذا كان المطلوب الرجوع للوبي، نفتح نافذة الأونلاين بدلاً من طرده
-        if (returnToLobby) {
-            if (typeof window.openAppModal === 'function') {
-                window.openAppModal('online-modal');
-            }
-        } else {
-            if (window.parent && window.parent !== window) {
-                window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
-            }
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
         }
     },
 
@@ -1754,7 +1747,7 @@ export const socketManager = {
                                 socketManager.isAlertShown = false;
                                 if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
                                 else if (ui) ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(true); // 🌟 تم التعديل
+                                socketManager.handleExitGame(); 
                             };
                         }
                     }
