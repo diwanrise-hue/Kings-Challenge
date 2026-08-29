@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (matchCardContainer) {
             let frameImg = matchCardContainer.querySelector('.vip-frame-img-layer');
 
-            if (lvl > 0) {
+            if (lvl > 1) { // 👈 التعديل هنا: يتم عرض الإطار فقط لـ VIP 2 فما فوق
                 // 1. تدمير كل مؤثرات البطاقة القديمة (التغويش، الخلفية، الحدود، الظل)
                 matchCardContainer.style.setProperty('background', 'transparent', 'important');
                 matchCardContainer.style.setProperty('background-color', 'transparent', 'important');
@@ -141,17 +141,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     matchCardContainer.insertBefore(frameImg, matchCardContainer.firstChild);
                 }
 
-                // 3. تحديد الصورة المناسبة للمستوى (تمت إضافة v=30 لتخطي الكاش)
-                if (lvl === 1) {
-                    frameImg.src = 'Media/VIP/V1.webp?v=30';
-                } else if (lvl === 2 || lvl === 3) {
+                // 3. تحديد الصورة المناسبة للمستوى (تمت إزالة V1)
+                if (lvl === 2 || lvl === 3) {
                     frameImg.src = 'Media/VIP/V23.webp?v=30';
                 } else if (lvl >= 4) {
                     frameImg.src = 'Media/VIP/45.webp?v=30';
                 }
 
             } else {
-                // في حال انقضاء الـ VIP يتم حذف الإطار واستعادة شكل اللعبة العادي
+                // في حال انقضاء الـ VIP أو كان VIP 1، يتم حذف الإطار واستعادة الشكل الأصلي
                 if (frameImg) frameImg.remove();
                 matchCardContainer.style.removeProperty('background');
                 matchCardContainer.style.removeProperty('background-color');
@@ -162,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // إضافة شارة اللهب (VIP Badge)
+        // إضافة شارة اللهب (VIP Badge) تظل تعمل لجميع مستويات VIP بما فيها VIP 1
         if (lvl > 0) {
             if (!badge) {
                 badge = document.createElement('img');
