@@ -15,7 +15,7 @@
 
     <style>
         /* ========================================== */
-        /* ساحة التحديات (Matchmaking Stakes) - ألوان هجينة وإيموجيات ومقاسات دقيقة */
+        /* ساحة التحديات (Matchmaking Stakes) - ظهور البطاقات الجانبية */
         /* ========================================== */
         #matchmaking-stakes-modal {
             align-items: center !important;
@@ -96,8 +96,8 @@
             display: flex;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
-            gap: 15px;
-            padding: 20px calc(50vw - 145px);
+            gap: -25px; /* السر هنا: مسافة سلبية لسحب البطاقات الجانبية لتظهر على الشاشة */
+            padding: 40px calc(50vw - 145px); /* حشوة علوية وسفلية لحماية الظلال */
             scrollbar-width: none;
             -ms-overflow-style: none;
             direction: rtl;
@@ -109,8 +109,8 @@
 
         .mm-card {
             scroll-snap-align: center;
-            flex: 0 0 290px;
-            height: 410px;
+            flex: 0 0 290px; /* المقاس الثابت للبطاقة */
+            height: 410px; /* المقاس الثابت للبطاقة */
             border-radius: 20px;
             padding: 30px 15px 25px 15px;
             position: relative;
@@ -120,15 +120,15 @@
             align-items: center;
             justify-content: flex-start;
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-            transform: scale(0.9);
-            opacity: 0.6;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, border 0.4s ease, box-shadow 0.4s ease;
+            transform: scale(0.85); /* تصغير البطاقات غير النشطة لإعطاء عمق وتبيان */
+            opacity: 0.5; /* تعتيم البطاقات الجانبية */
             z-index: 1;
             box-sizing: border-box;
         }
         
         .mm-card.active {
-            transform: scale(1);
+            transform: scale(1); /* استعادة الحجم الكامل للبطاقة في المنتصف */
             opacity: 1;
             z-index: 10;
         }
@@ -209,7 +209,7 @@
         .mm-card-btn:active { transform: scale(0.95); }
         .mm-card-btn:hover { filter: brightness(1.1); }
 
-        /* الألوان المستوحاة من الصورة 1000149295.jpg */
+        /* الألوان المستوحاة من الصورة */
         .theme-gray { background: linear-gradient(180deg, #333 0%, #111 100%); border: 2px solid #555; }
         .theme-gray.active { border-color: #aaa; box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 15px 40px rgba(0,0,0,0.9); }
         .theme-gray .mm-card-btn { background: linear-gradient(180deg, #666, #333); color: #fff; border: 1px solid #777; }
@@ -1380,7 +1380,7 @@
             const scroller = document.getElementById('mm-carousel-scroller');
             if(scroller) {
                 const cardWidth = 290; 
-                const gap = 15;
+                const gap = -25; // تحديث المسافة لتطابق الـ CSS
                 scroller.scrollBy({ left: direction * (cardWidth + gap), behavior: 'smooth' });
             }
         };
