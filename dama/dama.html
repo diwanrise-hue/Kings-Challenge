@@ -607,46 +607,44 @@
                 <button id="room-tab-bet" class="custom-tab-button" onclick="window.switchRoomTab('bet')">رهان (مشاهدة)</button>
             </div>
 
-            <div style="display: flex; gap: 8px; margin-bottom: 10px; width: 100%;">
+            <div id="my-waiting-room-card" class="my-waiting-room-card" style="display: none; flex-shrink: 0; margin-bottom: 10px;">
+                <div style="position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <img id="my-waiting-avatar" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1; border: 2px solid rgba(212,175,55,0.5);">
+                    <div id="my-waiting-frame" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none;"></div>
+                    <div id="my-waiting-vip" style="position: absolute; top: -8px; right: -8px; width: 24px; height: 32px; z-index: 50; pointer-events: none;"></div>
+                </div>
+
+                <div class="my-waiting-info">
+                    <div style="color: #ffd700; font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+                        <span style="animation: pulseHourglass 1.5s infinite;">⏳</span> 
+                        <span id="my-waiting-title">بانتظار الخصم...</span>
+                    </div>
+                    <div id="my-waiting-details" style="color: #a1a1aa; font-size: 11px; margin-top: 4px; font-weight: 600;">
+                        عامة | مجاني
+                    </div>
+                </div>
+
+                <div class="my-waiting-actions">
+                    <button id="my-waiting-settings-btn" class="my-waiting-action-btn settings" title="إعدادات الغرفة">⚙️</button>
+                    <button id="my-waiting-delete-btn" class="my-waiting-action-btn delete" title="حذف الغرفة">✕</button>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 10px; width: 100%; flex-shrink: 0;">
                 <div style="flex: 1; display: flex; background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; padding: 0 10px; align-items: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
                     <span style="font-size: 16px; color: #a1a1aa;">🔍</span>
                     <input type="text" id="room-search-input" placeholder="ابحث باسم الغرفة..." oninput="if(window.renderRoomsList) window.renderRoomsList()" style="background: transparent; border: none; color: white; width: 100%; height: 38px; outline: none; text-align: right; font-family: inherit; font-size: 13px; padding: 0 8px;">
                 </div>
-                <button onclick="window.openAppModal('room-sort-modal')" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; width: 45px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 18px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">⇅</button>
+                <button onclick="window.openAppModal('room-sort-modal')" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; width: 45px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 26px; font-weight: bold; line-height: 1; padding-bottom: 4px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">⇅</button>
             </div>
 
             <div id="play-tab-content" style="display: flex; flex-direction: column; flex: 1; min-height: 0; margin-bottom: 10px;">
-                
-                <div id="my-waiting-room-card" class="my-waiting-room-card">
-                    <div style="position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <img id="my-waiting-avatar" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1; border: 2px solid rgba(212,175,55,0.5);">
-                        <div id="my-waiting-frame" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none;"></div>
-                        <div id="my-waiting-vip" style="position: absolute; top: -8px; right: -8px; width: 24px; height: 32px; z-index: 50; pointer-events: none;"></div>
-                    </div>
-
-                    <div class="my-waiting-info">
-                        <div style="color: #ffd700; font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
-                            <span style="animation: pulseHourglass 1.5s infinite;">⏳</span> 
-                            <span id="my-waiting-title">بانتظار الخصم...</span>
-                        </div>
-                        <div id="my-waiting-details" style="color: #a1a1aa; font-size: 11px; margin-top: 4px; font-weight: 600;">
-                            عامة | مجاني
-                        </div>
-                    </div>
-
-                    <div class="my-waiting-actions">
-                        <button id="my-waiting-settings-btn" class="my-waiting-action-btn settings" title="إعدادات الغرفة">⚙️</button>
-                        <button id="my-waiting-delete-btn" class="my-waiting-action-btn delete" title="حذف الغرفة">✕</button>
-                    </div>
-                </div>
-
                 <div style="flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; overflow-y: auto; padding: 10px;" id="active-rooms-list">
                     <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>
                 </div>
-
             </div>
 
-            <div style="display: none; flex-direction: column; flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; margin-bottom: 10px; overflow-y: auto; padding: 10px;" id="spectate-rooms-list">
+            <div id="spectate-rooms-list" style="display: none; flex-direction: column; flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; margin-bottom: 10px; overflow-y: auto; padding: 10px;">
                 <p class="empty-rooms-msg" style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>
             </div>
 
