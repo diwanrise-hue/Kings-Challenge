@@ -8,8 +8,8 @@
  * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
  * 🛡️ (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
  * 📱 (مُحدّث للتوافق): دعم أجهزة الآيفون القديمة.
- * 🤖 (مُحدّث حصري): حل مشكلة تشوه وانضغاط صورة البوت في نافذة النتائج لتصبح مطابقة تماماً لإطار اللاعب.
- * ⚡ (ترقية الأداء القصوى): استبدال innerText بـ textContent للقضاء على (Layout Thrashing) وتسريع الأداء 100x.
+ * 🤖 (مُحدّث حصري): حل مشكلة قص صورة البوت (اختفاء الأذنين) بجعل overflow: visible ليظهر الـ SVG بكامل تفاصيله.
+ * ⚡ (ترقية الأداء القصوى): استبدال innerText بـ textContent للقضاء على (Layout Thrashing).
  */
 
 import { gameState } from './gameState.js'; 
@@ -177,8 +177,8 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            // 🌟 تعديل حجم البوت هنا ليتناسب بدقة مع حجم اللاعب بدون انضغاط
-            botScale = 'scale(1.1)'; 
+            // 🌟 حجم البوت المناسب لنافذة النتائج
+            botScale = 'scale(1.2)'; 
         }
         else {
             frameZ = '5';
@@ -187,7 +187,7 @@ export const ui = {
             botScale = 'scale(1.2)';
         }
 
-        // 🌟 الإصلاح الجذري للبوت هنا: نستخدم overflow: hidden للدائرة الخلفية ونضبط الـ SVG ليلتزم بالأبعاد
+        // 🌟 الإصلاح الجذري للبوت هنا: إزالة overflow: hidden لكي لا يُقص الـ SVG من الأطراف
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
@@ -203,8 +203,8 @@ export const ui = {
             
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <div style="width: 100%; height: 100%; background: #1a1a24; border-radius: 50%; border: 2px solid #ffd700; display: flex; align-items: center; justify-content: center; overflow: hidden; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
-                        <div style="width: 70%; height: 70%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative;">
+                    <div style="width: 100%; height: 100%; background: #1a1a24; border-radius: 50%; border: 2px solid #ffd700; display: flex; align-items: center; justify-content: center; overflow: visible; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
+                        <div style="width: 80%; height: 80%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative;">
                             ${botContent}
                         </div>
                     </div>
@@ -1693,11 +1693,34 @@ window.switchRoomTab = function(tab) {
     
     document.getElementById('room-tab-' + tab).classList.add('active'); 
     
+    const optNew = document.getElementById('sort-opt-new');
+    const optViews = document.getElementById('sort-opt-views');
+
     if (tab === 'play') { 
         if (playContent) playContent.style.display = 'flex'; 
+        if (optNew) optNew.style.display = 'flex';
+        if (optViews) optViews.style.display = 'none';
+        
+        if (window.currentRoomSortMode === 'views') {
+            window.currentRoomSortMode = 'vip'; // إرجاع للوضع الافتراضي
+            document.querySelectorAll('#room-sort-modal .bet-option-item').forEach(el => el.classList.remove('selected'));
+            const defaultOpt = document.querySelector('#room-sort-modal .bet-option-item');
+            if (defaultOpt) defaultOpt.classList.add('selected');
+        }
     } else { 
-        if (spectateContent) spectateContent.style.display = 'block'; 
+        if (spectateContent) spectateContent.style.display = 'flex'; 
+        if (optNew) optNew.style.display = 'none';
+        if (optViews) optViews.style.display = 'flex';
+        
+        if (window.currentRoomSortMode === 'new') {
+            window.currentRoomSortMode = 'vip'; // إرجاع للوضع الافتراضي
+            document.querySelectorAll('#room-sort-modal .bet-option-item').forEach(el => el.classList.remove('selected'));
+            const defaultOpt = document.querySelector('#room-sort-modal .bet-option-item');
+            if (defaultOpt) defaultOpt.classList.add('selected');
+        }
     }
+    window.lastRenderStateHash = null; // إجبار المتصفح على إعادة الرسم بالفرز الجديد
+    if (window.renderRoomsList) window.renderRoomsList();
 };
 
 function cleanExpiredRequests(profile) {
