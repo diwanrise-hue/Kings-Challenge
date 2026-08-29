@@ -1415,14 +1415,17 @@
             const modal = document.getElementById('matchmaking-stakes-modal');
             let initialScrollDone = false;
 
+          
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
                         if (!initialScrollDone) {
                             setTimeout(() => {
+                                // 1. قراءة الرهان المحفوظ في ذاكرة الهاتف
                                 const lastBet = localStorage.getItem('last_selected_mm_bet');
                                 let targetCard = null;
 
+                                // 2. إذا كان هناك رهان محفوظ، ابحث عن بطاقته
                                 if (lastBet !== null) {
                                     targetCard = Array.from(cards).find(card => {
                                         const btn = card.querySelector('.mm-card-btn');
@@ -1430,10 +1433,12 @@
                                     });
                                 }
 
+                                // ✅ 3. التعديل هنا: إذا لم يكن هناك رهان محفوظ (أول مرة)، افتح على البطاقة الأولى (تدريب مجاني)
                                 if (!targetCard) {
-                                    targetCard = cards.length > 2 ? cards[2] : cards[0];
+                                    targetCard = cards[0]; 
                                 }
 
+                                // 4. تحريك الشاشة إلى البطاقة المستهدفة
                                 const scrollPos = targetCard.offsetLeft - (scroller.clientWidth / 2) + (targetCard.clientWidth / 2);
                                 
                                 scroller.style.scrollBehavior = 'smooth';
@@ -1453,6 +1458,8 @@
                 });
             });
 
+
+          
             if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
         });
 
