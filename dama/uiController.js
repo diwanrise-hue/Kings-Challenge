@@ -11,6 +11,7 @@
  * 🤖 (مُحدّث حصري): حل مشكلة تشوه وانضغاط صورة البوت في نافذة النتائج لتصبح مطابقة تماماً لإطار اللاعب.
  * ⚡ (ترقية الأداء القصوى): استبدال innerText بـ textContent للقضاء على (Layout Thrashing) وتسريع الأداء 100x.
  * 🎡 (مُحدّث جديد): برمجة نظام "ساحة التحديات" والمراهنات الخاصة بالبحث العشوائي مع الأقفال الديناميكية!
+ * 🛡️ [إصلاح البق - HOTFIX]: منع تدمير وتغيير شكل ساحة اللعب الخاصة بالخصم عند استخدام المصباح أو تحديث الرصيد!
  */
 
 import { gameState } from './gameState.js'; 
@@ -178,7 +179,6 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            // 🌟 تعديل حجم البوت هنا ليتناسب بدقة مع حجم اللاعب بدون انضغاط
             botScale = 'scale(1.1)'; 
         }
         else {
@@ -188,7 +188,6 @@ export const ui = {
             botScale = 'scale(1.2)';
         }
 
-        // 🌟 الإصلاح الجذري للبوت هنا: نستخدم overflow: visible للدائرة الخلفية ونضبط الـ SVG ليلتزم بالأبعاد
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
@@ -1252,7 +1251,6 @@ export const ui = {
 
     showOnlineResultsModal(winnerColor) { this.showResultsModal(winnerColor); },
 
-    // 🌟 دالة رسم نافذة النتائج (مع تحديث حاوية صورة البوت واللاعب لمنع التشوه)
     showResultsModal(winnerColor) {
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
         sfx.clock.pause(); sfx.clock.currentTime = 0; this.setTxt('turn-countdown', '');
@@ -1289,7 +1287,6 @@ export const ui = {
             
             const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;display:flex;justify-content:center;");
             
-            // 🌟 الإصلاح الأساسي هنا: إضافة min-width, min-height, و flex-shrink: 0 لمنع انضغاط الصورة لتصبح بيضاوية!
             const av = this.makeEl('div', 'result-avatar', "position:relative;width:65px;height:65px;min-width:65px;min-height:65px;flex-shrink:0;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
             
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
@@ -1567,7 +1564,6 @@ function forceLockedGlobalAvatar() {
 }
 window.forceLockedGlobalAvatar = forceLockedGlobalAvatar;
 
-// 🌟 تحديث الأداء: استخدام textContent بدلاً من innerText
 window.applyProfileDataToUI = function(profile) {
     requestAnimationFrame(() => {
         const currentTokens = profile.tokens !== undefined ? profile.tokens : 0;
@@ -2347,8 +2343,11 @@ window.showEquipNotification = function(itemType) {
             let profStr = localStorage.getItem('hub_user_profile');
             if (profStr) {
                 let prof = JSON.parse(profStr);
-                if (typeof window.applyTheme === 'function') window.applyTheme(prof);
-                if (window.ui && typeof window.ui.renderBoard === 'function') window.ui.renderBoard(true);
+                // 🛡️ [الإصلاح الجذري للـ BUG]: نمنع تطبيق تجهيزات المتجر فوراً إذا كنا داخل مباراة أونلاين
+                if (!gameState.isOnlineMode) {
+                    if (typeof window.applyTheme === 'function') window.applyTheme(prof);
+                    if (window.ui && typeof window.ui.renderBoard === 'function') window.ui.renderBoard(true);
+                }
             }
         } catch(e) {}
     }, 50);
@@ -2782,12 +2781,17 @@ window.addEventListener('message', (event) => {
                 window.ui.updateProfileUI(); 
             }
 
-            if (typeof window.applyTheme === 'function') {
-                window.applyTheme(profile);
+            // 🛡️ [الإصلاح الجذري للـ BUG]: لا تقم بإعادة تطبيق ثيم اللاعب الشخصي إذا كان داخل مباراة أونلاين
+            // لأن ذلك سيدمر ثيم الخصم (الأعلى مستوى) ويعيد الساحة للوضع الافتراضي.
+            if (!gameState.isOnlineMode) {
+                if (typeof window.applyTheme === 'function') {
+                    window.applyTheme(profile);
+                }
+                if (window.ui && typeof window.ui.renderBoard === 'function') {
+                    window.ui.renderBoard(true);
+                }
             }
-            if (window.ui && typeof window.ui.renderBoard === 'function') {
-                window.ui.renderBoard(true);
-            }
+
             if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
                 window.storeManager.renderUI();
             }
