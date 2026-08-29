@@ -4,15 +4,10 @@
  * النسخة المتطورة والمحصنة أمنياً 🛡️ (The Ultimate Secure Version).
  * 🌟 (مُحدّث): حل مشكلة الـ Ping العشوائي باستخدام RTT الدقيق.
  * 🌟 (مُحدّث جذرياً): إصلاح خلل الطرد للوبي عند وجود كلمة "غرفة" في رسائل الخطأ.
- * 🌟 (مُحدّث): توحيد نظام الصوت ليتوافق مع إعدادات كتم الصوت الخاصة باللاعب.
- * 🌟 (مُحدّث جديد): فصل مستطيل الغرفة الخاصة وعزلها في واجهة قائمة الغرف.
- * 🌟 (مُحدّث جديد): ضبط z-index للـ Ping ليكون 800 في الشاشة الرئيسية فقط.
- * 🌟 (مُحدّث جديد): نظام الفرز الذكي (Sort) والبحث (Search) في الغرف.
- * 🌟 (مُحدّث جديد): فصل زر المراهنة 💰 عن المشاهدة 👁️ وإظهار صورتي اللاعبين للغرف الممتلئة.
- * 🌟 (مُحدّث حصري): إصلاح قص صور الـ VIP، تأثير الضباب الجانبي، وتعديل لون زر "دخول".
- * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية والقضاء على اللاج.
- * ⏱️ (مُحدّث حصري): إصلاح وميض (Flickering) عداد الوقت بمنع السيرفر من تداخل الرسم مع العميل.
+ * 🌟 (مُحدّث جديد): نظام الفرز الذكي (Sort) والبحث (Search) المشترك بين التبويبات.
+ * 🌟 (مُحدّث حصري): إضافة الفرز حسب (أعلى مشاهدة) وإظهار/إخفاء الخيارات ديناميكياً.
  * 📐 (تحديث التنسيق Layout): تباعد مثالي بين النصوص والصور والأزرار، وتعديل عرض الأزرار وطول الخط الذهبي.
+ * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية.
  */
 
 import { gameState } from './gameState.js'; 
@@ -38,7 +33,7 @@ window.socket = socket;
 // ==========================================
 
 window.currentRoomSearchQuery = '';
-window.currentRoomSortMode = 'vip'; // 'vip', 'bet', 'new'
+window.currentRoomSortMode = 'vip'; // 'vip', 'bet', 'new', 'views'
 window.lastRoomsList = [];
 window.lastRenderStateHash = null; 
 
@@ -134,6 +129,49 @@ window.applyRoomSort = function(mode, element) {
         window.closeAppModal('room-sort-modal');
     }
     window.lastRenderStateHash = null; 
+    if (window.renderRoomsList) window.renderRoomsList();
+};
+
+// 🌟 دالة تبديل التبويبات وتحديث خيارات الفرز ديناميكياً 🌟
+window.switchRoomTab = function(tab) {
+    document.getElementById('room-tab-play').classList.remove('active'); 
+    document.getElementById('room-tab-bet').classList.remove('active');
+    
+    const playContent = document.getElementById('play-tab-content');
+    const spectateContent = document.getElementById('spectate-rooms-list');
+    
+    if (playContent) playContent.style.display = 'none';
+    if (spectateContent) spectateContent.style.display = 'none';
+    
+    document.getElementById('room-tab-' + tab).classList.add('active'); 
+    
+    const optNew = document.getElementById('sort-opt-new');
+    const optViews = document.getElementById('sort-opt-views');
+
+    if (tab === 'play') { 
+        if (playContent) playContent.style.display = 'flex'; 
+        if (optNew) optNew.style.display = 'flex';
+        if (optViews) optViews.style.display = 'none';
+        
+        if (window.currentRoomSortMode === 'views') {
+            window.currentRoomSortMode = 'vip'; // إرجاع للوضع الافتراضي
+            document.querySelectorAll('#room-sort-modal .bet-option-item').forEach(el => el.classList.remove('selected'));
+            const defaultOpt = document.querySelector('#room-sort-modal .bet-option-item');
+            if (defaultOpt) defaultOpt.classList.add('selected');
+        }
+    } else { 
+        if (spectateContent) spectateContent.style.display = 'flex'; 
+        if (optNew) optNew.style.display = 'none';
+        if (optViews) optViews.style.display = 'flex';
+        
+        if (window.currentRoomSortMode === 'new') {
+            window.currentRoomSortMode = 'vip'; // إرجاع للوضع الافتراضي
+            document.querySelectorAll('#room-sort-modal .bet-option-item').forEach(el => el.classList.remove('selected'));
+            const defaultOpt = document.querySelector('#room-sort-modal .bet-option-item');
+            if (defaultOpt) defaultOpt.classList.add('selected');
+        }
+    }
+    window.lastRenderStateHash = null; // إجبار المتصفح على إعادة الرسم بالفرز الجديد
     if (window.renderRoomsList) window.renderRoomsList();
 };
 
@@ -239,9 +277,11 @@ window.renderRoomsList = function() {
         });
     }
 
+    // 🌟 منطق الفرز الجديد 🌟
     roomsToRender.sort((a, b) => {
         if (window.currentRoomSortMode === 'bet') return (b.betAmount || 0) - (a.betAmount || 0); 
         else if (window.currentRoomSortMode === 'new') return (b.id || "").localeCompare(a.id || ""); 
+        else if (window.currentRoomSortMode === 'views') return (b.spectatorsCount || 0) - (a.spectatorsCount || 0);
         else return (b.hostVipLevel || 0) - (a.hostVipLevel || 0); 
     });
 
@@ -319,7 +359,6 @@ window.renderRoomsList = function() {
                 let p1UI = getAvatarUI(r.hostAvatar, r.equippedProfileFrame, r.hostVipLevel);
                 let p2UI = getAvatarUI(r.p2Avatar, r.p2Frame, r.p2Vip);
 
-                // 🌟 التعديل: تباعد واضح بين الصورتين وزيادة طول الخط الذهبي إلى 46px
                 const avatarsHTML = `
                     <div style="display: flex; align-items: center; gap: 12px; margin-left: 0; transform: translateZ(0); flex-shrink: 0;">
                         <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24; overflow: visible;">
@@ -340,7 +379,6 @@ window.renderRoomsList = function() {
                     const p1Obj = encodeURIComponent(JSON.stringify({name: r.hostName, avatar: r.hostAvatar, equippedProfileFrame: r.equippedProfileFrame}));
                     const p2Obj = encodeURIComponent(JSON.stringify({name: r.p2Name || 'الخصم', avatar: r.p2Avatar || '1000132081.webp', equippedProfileFrame: r.p2Frame}));
 
-                    // 🌟 التعديل: تقليص عرض الأزرار إلى 95px وتثبيت محاذاة الأيقونات
                     actionBtnHTML = `
                         <div style="display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; z-index: 10; width: 95px; transform: translateZ(0);">
                             <button onclick="window.openDirectBetModal('${r.id}', '${p1Obj}', '${p2Obj}')" style="background: #d68910; border: 1px solid #b9770e; border-radius: 8px; padding: 6px 8px; color: #fff; cursor: pointer; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: flex-start; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
@@ -364,7 +402,6 @@ window.renderRoomsList = function() {
                     `;
                 }
                 
-                // 🌟 التعديل: قسم النصوص يأخذ مسافة (padding) متساوية من اليمين واليسار لمركزة مثالية
                 innerHTMLContent = `
                     ${avatarsHTML}
                     <div style="display: flex; flex-direction: column; justify-content: center; flex: 1; padding: 0 15px; overflow: hidden; z-index: 5;">
@@ -382,7 +419,6 @@ window.renderRoomsList = function() {
                     actionBtnHTML = `<button onclick="window.socketManager.handleRoomAction('joinRoom', '${r.id}', null, ${r.betAmount})" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(30, 58, 138, 0.8); border-radius: 12px; padding: 6px 16px; color: #30d158; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; flex-shrink: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.5); transform: translateZ(0);">دخول</button>`;
                 }
 
-                // 🌟 التعديل: تطبيق نفس التنسيق المتساوي على غرفة اللاعب الواحد
                 innerHTMLContent = `
                     <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible; transform: translateZ(0);">
                         <img src="${p1UI.src}" onerror="this.style.display='none';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1;">
@@ -1245,8 +1281,8 @@ export const socketManager = {
                 this._showToast(getNotifyMsg('oppResignedSpec'));
                 const tInd = document.getElementById('turn-indicator');
                 const tCount = document.getElementById('turn-countdown');
-                if (tInd) { tInd.innerText = '🏳️ انسحب أحد اللاعبين'; tInd.style.color = '#ff453a'; }
-                if (tCount) tCount.innerText = 'المباراة انتهت';
+                if (tInd) { tInd.textContent = '🏳️ انسحب أحد اللاعبين'; tInd.style.color = '#ff453a'; }
+                if (tCount) tCount.textContent = 'المباراة انتهت';
             }
         });
 
@@ -1285,10 +1321,10 @@ export const socketManager = {
                 const tInd = document.getElementById('turn-indicator');
                 const tCount = document.getElementById('turn-countdown');
                 if (tInd) { 
-                    tInd.innerText = winnerColor === 'white' ? '🏆 فاز الأبيض بالوقت' : '🏆 فاز الأسود بالوقت'; 
+                    tInd.textContent = winnerColor === 'white' ? '🏆 فاز الأبيض بالوقت' : '🏆 فاز الأسود بالوقت'; 
                     tInd.style.color = '#30d158'; 
                 }
-                if (tCount) tCount.innerText = 'المباراة انتهت';
+                if (tCount) tCount.textContent = 'المباراة انتهت';
             }
         });
 
@@ -1352,10 +1388,10 @@ export const socketManager = {
                 const tInd = document.getElementById('turn-indicator');
                 const tCount = document.getElementById('turn-countdown');
                 if (tInd) {
-                    if (data.winner === 'draw') { tInd.innerText = '🤝 انتهت بالتعادل'; tInd.style.color = '#f1c40f'; }
-                    else { tInd.innerText = data.winner === 'white' ? '🏆 فاز الأبيض' : '🏆 فاز الأسود'; tInd.style.color = '#30d158'; }
+                    if (data.winner === 'draw') { tInd.textContent = '🤝 انتهت بالتعادل'; tInd.style.color = '#f1c40f'; }
+                    else { tInd.textContent = data.winner === 'white' ? '🏆 فاز الأبيض' : '🏆 فاز الأسود'; tInd.style.color = '#30d158'; }
                 }
-                if (tCount) tCount.innerText = 'المباراة انتهت';
+                if (tCount) tCount.textContent = 'المباراة انتهت';
             }
         });
 
@@ -1467,7 +1503,7 @@ export const socketManager = {
             
             if (toast && toastMsg && openBtn) {
                 const safeNameDiv = document.createElement('div');
-                safeNameDiv.innerText = challengerName;
+                safeNameDiv.textContent = challengerName;
                 const safeName = safeNameDiv.innerHTML;
 
                 toastMsg.innerHTML = `اللاعب <b>${safeName}</b> يتحداك ${betText}.`;
