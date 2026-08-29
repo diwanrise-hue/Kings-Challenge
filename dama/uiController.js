@@ -12,6 +12,7 @@
  * ⚡ (ترقية الأداء القصوى): استبدال innerText بـ textContent للقضاء على (Layout Thrashing) وتسريع الأداء 100x.
  * 🎡 (مُحدّث جديد): برمجة نظام "ساحة التحديات" والمراهنات الخاصة بالبحث العشوائي مع الأقفال الديناميكية!
  * 🛡️ [إصلاح البق - HOTFIX]: منع تدمير وتغيير شكل ساحة اللعب الخاصة بالخصم عند استخدام المصباح أو تحديث الرصيد!
+ * 🔄 (مُحدّث جديد): العودة التلقائية لنافذة الغرف أونلاين عند الضغط على زر "خروج" بعد انتهاء المباراة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -1352,6 +1353,11 @@ export const ui = {
             
             gameState.isOnlineMode = false; gameState.onlineRoomID = null; 
             this.drawEmptyBoard();
+
+            // 🌟 العودة التلقائية لنافذة الغرف بدلاً من الواجهة الرئيسية
+            if (typeof window.openAppModal === 'function') {
+                window.openAppModal('online-modal');
+            }
         });
         
         btns.append(rBtn, eBtn); box.appendChild(btns); container.appendChild(box); document.body.appendChild(container);
