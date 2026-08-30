@@ -13,6 +13,7 @@
  * 🎡 (مُحدّث جديد): برمجة نظام "ساحة التحديات" والمراهنات الخاصة بالبحث العشوائي مع الأقفال الديناميكية!
  * 🛡️ [إصلاح البق - HOTFIX]: منع تدمير وتغيير شكل ساحة اللعب الخاصة بالخصم عند استخدام المصباح أو تحديث الرصيد!
  * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة (اللوبي الأساسي) عند انتهاء المباراة والضغط على خروج.
+ * 🛡️ (مُحدّث جديد): منع فتح واجهة الخصم عند الضغط على ملفك الشخصي في لوحة الشرف لمنع طلبات الصداقة الذاتية.
  */
 
 import { gameState } from './gameState.js'; 
@@ -1354,7 +1355,7 @@ export const ui = {
             gameState.isOnlineMode = false; gameState.onlineRoomID = null; 
             this.drawEmptyBoard();
             
-            // ✅ تم إزالة استدعاء نافذة الأونلاين هنا ليعود المستخدم للوبي الأساسي كما طلبت.
+            // ✅ تم إزالة استدعاء نافذة الأونلاين هنا ليعود المستخدم للوبي الأساسي.
         });
         
         btns.append(rBtn, eBtn); box.appendChild(btns); container.appendChild(box); document.body.appendChild(container);
@@ -1912,7 +1913,15 @@ window.openMyProfile = function() {
     window.openAppModal('in-game-profile-modal');
 };
 
+// 🌟 [الإصلاح]: منع فتح واجهة الخصم إذا ضغطت على ملفك الشخصي في لوحة الشرف
 window.showPlayerProfileFromLB = function(player) {
+    let myProfile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    
+    if (player.id === myProfile.id) {
+        window.openMyProfile(); 
+        return; 
+    }
+
     gameState.currentViewedPlayer = player; 
     const xpContainer = document.getElementById('igp-xp-container'); const statsGrid = document.getElementById('igp-stats-grid'); const levelBadge = document.getElementById('igp-level');
     if(xpContainer) xpContainer.style.display = 'none'; if(statsGrid) statsGrid.style.display = 'none'; if(levelBadge) levelBadge.style.display = 'none';
@@ -2346,7 +2355,6 @@ window.showEquipNotification = function(itemType) {
             let profStr = localStorage.getItem('hub_user_profile');
             if (profStr) {
                 let prof = JSON.parse(profStr);
-                // 🛡️ [الإصلاح الجذري للـ BUG]: نمنع تطبيق تجهيزات المتجر فوراً إذا كنا داخل مباراة أونلاين
                 if (!gameState.isOnlineMode) {
                     if (typeof window.applyTheme === 'function') window.applyTheme(prof);
                     if (window.ui && typeof window.ui.renderBoard === 'function') window.ui.renderBoard(true);
@@ -2784,8 +2792,6 @@ window.addEventListener('message', (event) => {
                 window.ui.updateProfileUI(); 
             }
 
-            // 🛡️ [الإصلاح الجذري للـ BUG]: لا تقم بإعادة تطبيق ثيم اللاعب الشخصي إذا كان داخل مباراة أونلاين
-            // لأن ذلك سيدمر ثيم الخصم (الأعلى مستوى) ويعيد الساحة للوضع الافتراضي.
             if (!gameState.isOnlineMode) {
                 if (typeof window.applyTheme === 'function') {
                     window.applyTheme(profile);
