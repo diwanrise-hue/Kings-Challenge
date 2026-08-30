@@ -4,16 +4,12 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🌟 (مُحدّث): تم حل مشكلة توقف اللعبة وإصلاح النص المعلق "اضغط بدء اللعب".
- * 🌟 (مُحدّث): تم الاعتماد على المحرك الأساسي لحساب القفزات الإجبارية لمنع الانهيار.
- * 🛡️ (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
- * 📱 (مُحدّث للتوافق): دعم أجهزة الآيفون القديمة.
- * 🤖 (مُحدّث حصري): حل مشكلة تشوه وانضغاط صورة البوت في نافذة النتائج لتصبح مطابقة تماماً لإطار اللاعب.
- * ⚡ (ترقية الأداء القصوى): استبدال innerText بـ textContent للقضاء على (Layout Thrashing) وتسريع الأداء 100x.
- * 🎡 (مُحدّث جديد): برمجة نظام "ساحة التحديات" والمراهنات الخاصة بالبحث العشوائي مع الأقفال الديناميكية!
- * 🛡️ [إصلاح البق - HOTFIX]: منع تدمير وتغيير شكل ساحة اللعب الخاصة بالخصم عند استخدام المصباح أو تحديث الرصيد!
- * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة (اللوبي الأساسي) عند انتهاء المباراة والضغط على خروج.
- * 🛡️ (مُحدّث جديد): منع فتح واجهة الخصم عند الضغط على ملفك الشخصي في لوحة الشرف لمنع طلبات الصداقة الذاتية.
+ * 🌟 (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
+ * 🎡 (مُحدّث جديد): برمجة نظام "ساحة التحديات" والمراهنات.
+ * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة عند انتهاء المباراة.
+ * 🛡️ (مُحدّث جديد): منع فتح واجهة الخصم عند الضغط على ملفك الشخصي في لوحة الشرف.
+ * 🔊 (مُحدّث للصوت): استنساخ مسار الصوت لعجلة الحظ لضمان تداخل التكات بشكل واقعي ومتناسق.
+ * 📑 (مُحدّث للطبقات): رفع Z-Index نافذة التنبيهات لتظهر دائماً فوق عجلة الحظ وغيرها.
  */
 
 import { gameState } from './gameState.js'; 
@@ -265,7 +261,8 @@ export const ui = {
         
         const modalEl = this.getEl('custom-alert-modal');
         if (modalEl) {
-            modalEl.style.setProperty('z-index', '4500', 'important');
+            // ✅ التعديل هنا: تم رفع قيمة Z-Index إلى 999999 لتظهر فوق عجلة الحظ
+            modalEl.style.setProperty('z-index', '999999', 'important');
             modalEl.style.display = 'flex'; 
         }
         
@@ -282,8 +279,7 @@ export const ui = {
         });
     },
 
-
-      calculateLevelInfo(xpStr) {
+    calculateLevelInfo(xpStr) {
         let currentXp = parseInt(xpStr) || 0;
         let level = Math.floor(Math.sqrt(currentXp / 50)) + 1;
         if (level > 200) level = 200; 
@@ -306,12 +302,10 @@ export const ui = {
         
         if (currentXp >= 5000) { 
             rank = "أسطوري"; 
-            // ✅ التعديل هنا: إضافة transform: translateY(-3px) لرفع صورة التاج للأعلى
             rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; transform: translateY(-3px); filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
         }
         else if (currentXp >= 2500) { 
             rank = "ماسي"; 
-            // ✅ التعديل هنا: إضافة transform: translateY(-3px) لرفع صورة الماسة للأعلى
             rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; transform: translateY(-3px); filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
         }
         else if (currentXp >= 1200) { rank = "ذهبي"; rankIcon = "🥇"; }
@@ -319,7 +313,6 @@ export const ui = {
 
         return { level, title, rank, rankIcon, progressXp, requiredXp, percentage };
     },
-
 
     showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
@@ -373,7 +366,19 @@ export const ui = {
             let currentPin = Math.floor((currentSimulatedAngle - 22.5) / 45);
             if (currentPin > lastPinPassed) {
                 lastPinPassed = currentPin;
-                this.playSound(tickAudio);
+                
+                // ✅ التعديل هنا: استنساخ الصوت (Clone) في كل مرة ليعمل بشكل متداخل وبدون تقطيع
+                try {
+                    if (tickAudio) {
+                        let clone = tickAudio.cloneNode();
+                        clone.volume = 0.5; // تخفيف الصوت قليلاً ليكون مريحاً
+                        let playPromise = clone.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(() => {});
+                        }
+                    }
+                } catch(e) {}
+
                 if (pointer) {
                     pointer.style.transform = 'translateX(-50%) rotate(-30deg)';
                     setTimeout(() => { if (pointer) pointer.style.transform = 'translateX(-50%) rotate(0deg)'; }, 60); 
@@ -1359,7 +1364,6 @@ export const ui = {
             gameState.isOnlineMode = false; gameState.onlineRoomID = null; 
             this.drawEmptyBoard();
             
-            // ✅ تم إزالة استدعاء نافذة الأونلاين هنا ليعود المستخدم للوبي الأساسي.
         });
         
         btns.append(rBtn, eBtn); box.appendChild(btns); container.appendChild(box); document.body.appendChild(container);
@@ -1917,7 +1921,6 @@ window.openMyProfile = function() {
     window.openAppModal('in-game-profile-modal');
 };
 
-// 🌟 [الإصلاح]: منع فتح واجهة الخصم إذا ضغطت على ملفك الشخصي في لوحة الشرف
 window.showPlayerProfileFromLB = function(player) {
     let myProfile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     
@@ -2796,6 +2799,8 @@ window.addEventListener('message', (event) => {
                 window.ui.updateProfileUI(); 
             }
 
+            // 🛡️ [الإصلاح الجذري للـ BUG]: لا تقم بإعادة تطبيق ثيم اللاعب الشخصي إذا كان داخل مباراة أونلاين
+            // لأن ذلك سيدمر ثيم الخصم (الأعلى مستوى) ويعيد الساحة للوضع الافتراضي.
             if (!gameState.isOnlineMode) {
                 if (typeof window.applyTheme === 'function') {
                     window.applyTheme(profile);
