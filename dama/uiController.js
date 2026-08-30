@@ -282,7 +282,8 @@ export const ui = {
         });
     },
 
-    calculateLevelInfo(xpStr) {
+
+      calculateLevelInfo(xpStr) {
         let currentXp = parseInt(xpStr) || 0;
         let level = Math.floor(Math.sqrt(currentXp / 50)) + 1;
         if (level > 200) level = 200; 
@@ -305,17 +306,20 @@ export const ui = {
         
         if (currentXp >= 5000) { 
             rank = "أسطوري"; 
-            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
+            // ✅ التعديل هنا: إضافة transform: translateY(-3px) لرفع صورة التاج للأعلى
+            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; transform: translateY(-3px); filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
         }
         else if (currentXp >= 2500) { 
             rank = "ماسي"; 
-            rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
+            // ✅ التعديل هنا: إضافة transform: translateY(-3px) لرفع صورة الماسة للأعلى
+            rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; transform: translateY(-3px); filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
         }
         else if (currentXp >= 1200) { rank = "ذهبي"; rankIcon = "🥇"; }
         else if (currentXp >= 500) { rank = "فضي"; rankIcon = "🥈"; }
 
         return { level, title, rank, rankIcon, progressXp, requiredXp, percentage };
     },
+
 
     showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
