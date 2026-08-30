@@ -12,6 +12,7 @@
  * 🎤 (مُحدّث أمنياً): إصلاح تداخل الـ WebRTC بتحديد (المُتصل) و (المُتلقي) لضمان عمل المايك.
  * 👁️ (تحديث جديد): إظهار شريط (المشاهدين والمراهنات) للاعبين أنفسهم داخل الغرف الداعمة للمراهنة.
  * 💰 (تحديث جديد): إظهار رسالة واضحة للمشاهدين بنتيجة مراهناتهم في الغرف المختلفة.
+ * 🛑 (الإصلاح الجديد): إخفاء بطاقة (الغرفة الخاصة باللاعب) من تبويب الرهانات/المشاهدة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -37,9 +38,10 @@ window.socket = socket;
 // ==========================================
 
 window.currentRoomSearchQuery = '';
-window.currentRoomSortMode = 'vip'; // 'vip', 'bet', 'new', 'views'
+window.currentRoomSortMode = 'vip'; 
 window.lastRoomsList = [];
 window.lastRenderStateHash = null; 
+window.currentRoomTab = 'play'; // متغير جديد لتتبع التبويب النشط
 
 window.openCreateRoomModal = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
@@ -141,6 +143,7 @@ window.applyRoomSort = function(mode, element) {
 };
 
 window.switchRoomTab = function(tab) {
+    window.currentRoomTab = tab; // حفظ التبويب النشط الحالي
     document.getElementById('room-tab-play').classList.remove('active'); 
     document.getElementById('room-tab-bet').classList.remove('active');
     
@@ -195,7 +198,8 @@ window.renderRoomsList = function() {
     const currentRenderState = JSON.stringify({
         r: rooms,
         s: window.currentRoomSearchQuery,
-        m: window.currentRoomSortMode
+        m: window.currentRoomSortMode,
+        t: window.currentRoomTab // إضافة التبويب لحالة الرسم لضمان الاستجابة للتغيير
     });
 
     if (window.lastRenderStateHash === currentRenderState) {
@@ -215,7 +219,9 @@ window.renderRoomsList = function() {
     const myRoom = rooms.find(r => r.hostId === currentUserId);
     const myRoomCard = document.getElementById('my-waiting-room-card');
     
-    if (myRoom) {
+    // 🛑 [هام جداً]: إظهار غرفة اللاعب فقط في تبويب "العب" وإخفاؤها في تبويب "المشاهدة والرهانات"
+    // يرجى عدم تغيير أو حذف هذا الشرط
+    if (myRoom && window.currentRoomTab === 'play') {
         window.myCurrentRoomId = myRoom.id;
         
         let avatarSrc = myRoom.hostAvatar || "1000132081.webp";
@@ -252,6 +258,7 @@ window.renderRoomsList = function() {
         if (myRoomCard && myRoomCard.style.display !== 'flex') myRoomCard.style.display = 'flex';
         
     } else {
+        // إخفاء بطاقة اللاعب إذا كان في تبويب الرهان أو لا يمتلك غرفة
         if (myRoomCard && myRoomCard.style.display !== 'none') myRoomCard.style.display = 'none';
     }
 
@@ -345,7 +352,6 @@ window.renderRoomsList = function() {
             let actionBtnHTML = '';
             let innerHTMLContent = '';
 
-            // ✅ التعديل هنا: تنسيق النص ليكون أحدهما فوق الآخر ويفصلهما خط
             const detailsHTML = `
                 <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px; width: 100%;">
                     <div style="color: #a1a1aa; font-size: 11px; display: flex; align-items: center; gap: 5px;">${isPrivate}</div>
@@ -1027,11 +1033,11 @@ export const socketManager = {
             if (bettorsEl) bettorsEl.innerText = data.totalBettors;
         });
 
-        // ✅ التعديل هنا: إظهار نتيجة الرهان للمشاهد بشكل واضح عبر نافذة مخصصة
+        // ✅ التعديل هنا: إظهار نتيجة الرهان للمشاهد بشكل واضح عبر نافذة مخصصة تتضمن اسم الغرفة من السيرفر
         socket.on('betResult', (data) => {
             if (data && data.msg) {
                 if (typeof ui.showCustomAlert === 'function' && data.won) {
-                    ui.showCustomAlert(data.msg, "نتيجة رهان الغرف 💰", null, false, null, "استلام الجائزة");
+                    ui.showCustomAlert(data.msg, "نتيجة الرهان 💰", null, false, null, "استلام الجائزة");
                     this._showToast("🎉 كسبت الرهان!");
                 } else {
                     const toast = document.getElementById('toast-notification');
@@ -1199,7 +1205,7 @@ export const socketManager = {
                 ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
                 ui.setDisplay('bottom-control-panel', 'flex'); 
                 
-                // ✅ التعديل هنا: إظهار إحصائيات الغرفة للاعبين أنفسهم (إذا كانت تدعم ذلك)
+                // ✅ إظهار إحصائيات الغرفة للاعبين أنفسهم (إذا كانت تدعم المراهنة)
                 if (data.allowSpectatorBetting) {
                     ui.setDisplay('spectator-stats-container', 'flex');
                     const bettorsEl = document.getElementById('bettors-count-display');
@@ -1386,13 +1392,13 @@ export const socketManager = {
         socket.on('playerDisconnected', () => {
             if (!gameState.isOnlineMode) { socket.disconnect(); return; }
             this._showToast(getNotifyMsg('oppLeftRoom'));
-            this.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
+            this.handleExitGame(false); 
         });
 
         socket.on('opponentLeftRoom', data => {
             if (!gameState.isOnlineMode) return;
             this._showToast((data && data.message) || getNotifyMsg('oppLeftMatch'));
-            this.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
+            this.handleExitGame(false); 
         });
 
         socket.on('gameOverByServer', data => {
@@ -1470,7 +1476,7 @@ export const socketManager = {
                                 socketManager.isAlertShown = false;
                                 if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
                                 else ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
+                                socketManager.handleExitGame(false); 
                             };
                         }
                     }
@@ -1504,7 +1510,7 @@ export const socketManager = {
             const reasonMsg = data && data.reason ? data.reason : getNotifyMsg('rematchTimeout');
             this._showToast(reasonMsg);
             
-            this.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
+            this.handleExitGame(false); 
         });
 
         socket.on('error', msg => {
@@ -1586,7 +1592,7 @@ export const socketManager = {
             } else {
                 const responderName = (data && data.responderName) || (gameState.lang === 'ar' ? 'الصديق' : 'Friend');
                 this._showToast(getNotifyMsg('challengeDeclined', responderName));
-                this.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
+                this.handleExitGame(false); 
             }
         });
 
@@ -1685,7 +1691,6 @@ export const socketManager = {
         }
     },
 
-    // 🌟 1. تم تعديل دالة الخروج للإجبار على العودة للواجهة الأساسية بدلاً من فتح نافذة الغرف
     handleExitGame(fullExitToHub = false) {
         if (window.voiceChat && typeof window.voiceChat.closeCall === 'function') {
             window.voiceChat.closeCall();
@@ -1752,7 +1757,6 @@ export const socketManager = {
 
         if (ui && typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
 
-        // 🌟 التعديل الحاسم: نرسل أمر الخروج للتطبيق الرئيسي فقط إذا كان fullExitToHub صحيحاً
         if (fullExitToHub) {
             if (window.parent && window.parent !== window) {
                 window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
@@ -1785,7 +1789,7 @@ export const socketManager = {
                                 socketManager.isAlertShown = false;
                                 if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
                                 else if (ui) ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
+                                socketManager.handleExitGame(false); 
                             };
                         }
                     }
