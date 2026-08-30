@@ -8,8 +8,8 @@
  * 🌟 (مُحدّث حصري): إضافة الفرز حسب (أعلى مشاهدة) وإظهار/إخفاء الخيارات ديناميكياً.
  * 📐 (تحديث التنسيق Layout): تباعد مثالي بين النصوص والصور والأزرار، وتعديل عرض الأزرار وطول الخط الذهبي.
  * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية.
- * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة (اللوبي الأساسي) عند انتهاء المباراة بدلاً من فتح نافذة الغرف للطرفين.
  * 🎤 (مُحدّث أمنياً): إصلاح تداخل الـ WebRTC بتحديد (المُتصل) و (المُتلقي) لضمان عمل المايك.
+ * ✅ (الإصلاح الجديد): البقاء في واجهة الدامة الرئيسية (الساحة) عند انتهاء المباراة بدلاً من الطرد لواجهة اختيار الألعاب.
  */
 
 import { gameState } from './gameState.js'; 
@@ -966,7 +966,7 @@ export const socketManager = {
         socket.on('kickedFromRoom', (data) => {
             if (gameState.isSpectator && gameState.userProfile && gameState.userProfile.id === data.targetId) {
                 this._showToast("⚠️ لقد تم طردك من هذه الغرفة بواسطة المالك!");
-                this.handleExitGame(); 
+                this.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
             }
         });
 
@@ -1073,7 +1073,6 @@ export const socketManager = {
             clearInterval(gameState.mmInterval);
             gameState.mmInterval = null; 
 
-            // 🌟 إغلاق المايك وتصفيره بشكل قاطع عند بداية كل مباراة أونلاين جديدة
             if (window.voiceChat && typeof window.voiceChat.closeCall === 'function') {
                 window.voiceChat.closeCall();
                 window.voiceChat.updateMicUI(false);
@@ -1355,13 +1354,13 @@ export const socketManager = {
         socket.on('playerDisconnected', () => {
             if (!gameState.isOnlineMode) { socket.disconnect(); return; }
             this._showToast(getNotifyMsg('oppLeftRoom'));
-            this.handleExitGame(); // 🌟 تم إرجاعها إلى الوضع الأصلي
+            this.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
         });
 
         socket.on('opponentLeftRoom', data => {
             if (!gameState.isOnlineMode) return;
             this._showToast((data && data.message) || getNotifyMsg('oppLeftMatch'));
-            this.handleExitGame(); // 🌟 تم إرجاعها إلى الوضع الأصلي
+            this.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
         });
 
         socket.on('gameOverByServer', data => {
@@ -1439,7 +1438,7 @@ export const socketManager = {
                                 socketManager.isAlertShown = false;
                                 if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
                                 else ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(); // 🌟 تم إرجاعها إلى الوضع الأصلي
+                                socketManager.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
                             };
                         }
                     }
@@ -1473,7 +1472,7 @@ export const socketManager = {
             const reasonMsg = data && data.reason ? data.reason : getNotifyMsg('rematchTimeout');
             this._showToast(reasonMsg);
             
-            this.handleExitGame(); // 🌟 تم إرجاعها إلى الوضع الأصلي
+            this.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
         });
 
         socket.on('error', msg => {
@@ -1483,7 +1482,7 @@ export const socketManager = {
                 localStorage.removeItem('hub_user_profile');
                 setTimeout(() => window.location.reload(), 1500); 
             } else if (msg && (msg.includes('نسخة اللعبة لديك قديمة') || msg.includes('غير قانونية'))) {
-                this.handleExitGame();
+                this.handleExitGame(false);
             } else {
                 if (typeof ui !== 'undefined' && typeof ui.showCustomAlert === 'function') {
                     if (msg.includes('غرفة') || msg.includes('Room') || msg.includes('نشطة')) {
@@ -1555,7 +1554,7 @@ export const socketManager = {
             } else {
                 const responderName = (data && data.responderName) || (gameState.lang === 'ar' ? 'الصديق' : 'Friend');
                 this._showToast(getNotifyMsg('challengeDeclined', responderName));
-                this.handleExitGame(); // 🌟 تم إرجاعها إلى الوضع الأصلي
+                this.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
             }
         });
 
@@ -1568,7 +1567,6 @@ export const socketManager = {
                 document.getElementById('mic-accept-btn').onclick = () => {
                     modal.style.display = 'none';
                     socket.emit('mic-response', { roomID: gameState.onlineRoomID, accept: true, senderId: data.senderId });
-                    // ✅ المتلقي (Receiver) ينتظر ولا يولد Offer
                     if (window.voiceChat) window.voiceChat.startVoiceInteraction(false);
                 };
                 document.getElementById('mic-reject-btn').onclick = () => {
@@ -1581,7 +1579,6 @@ export const socketManager = {
         socket.on('mic-response', (data) => {
             if (data.accept) {
                 this._showToast(getNotifyMsg('micAccepted'));
-                // ✅ المُتصل (Caller) هو من يولد الـ Offer
                 if (window.voiceChat) window.voiceChat.startVoiceInteraction(true);
             } else {
                 this._showToast(getNotifyMsg('micRejected'));
@@ -1657,8 +1654,8 @@ export const socketManager = {
         }
     },
 
-    // 🌟 1. تم إرجاع دالة الخروج لوضعها الأصلي لإظهار الواجهة الرئيسية
-    handleExitGame() {
+    // 🌟 1. تم تعديل دالة الخروج للإجبار على العودة للواجهة الأساسية بدلاً من فتح نافذة الغرف
+    handleExitGame(fullExitToHub = false) {
         if (window.voiceChat && typeof window.voiceChat.closeCall === 'function') {
             window.voiceChat.closeCall();
             window.voiceChat.updateMicUI(false);
@@ -1724,8 +1721,11 @@ export const socketManager = {
 
         if (ui && typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
 
-        if (window.parent && window.parent !== window) {
-            window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
+        // 🌟 التعديل الحاسم: نرسل أمر الخروج للتطبيق الرئيسي فقط إذا كان fullExitToHub صحيحاً
+        if (fullExitToHub) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
+            }
         }
     },
 
@@ -1754,7 +1754,7 @@ export const socketManager = {
                                 socketManager.isAlertShown = false;
                                 if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
                                 else if (ui) ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(); 
+                                socketManager.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
                             };
                         }
                     }
