@@ -1,8 +1,7 @@
 /**
  * voice.js
- * النسخة المتوافقة مع نظام الاستئذان قبل تفعيل الصوت
- * 🌟 (مُحدّث): حل مشكلة تصادم الاتصال لضمان وصول الصوت للطرفين (WebRTC Sync).
- * 🌟 (مُحدّث): إصلاح شكل الأيقونة لتظهر مغلقة دائماً في بداية اللعبة.
+ * 🌟 (مُحدّث جذرياً): إضافة playsInline لحل مشاكل آيفون (iOS Safari).
+ * 🌟 (مُحدّث): زيادة عدد خوادم STUN لضمان اختراق جدران الحماية (NAT) بين الشبكات المختلفة.
  */
 import { socket, socketManager } from './socketManager.js';
 import { gameState } from './gameState.js'; 
@@ -10,13 +9,15 @@ import { gameState } from './gameState.js';
 let localStream = null;
 let peerConnection = null;
 let isMicActive = false;
-let streamPromise = null; // 🌟 إضافة جديدة: لتتبع حالة فتح المايك قبل إرسال الاتصال
+let streamPromise = null; 
 
+// إضافة خوادم STUN متعددة لضمان نجاح الاتصال بين الشبكات (4G, Wi-Fi) المختلفة
 const servers = {
     iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:19302' }
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun.services.mozilla.com' }
     ]
 };
 
@@ -98,18 +99,16 @@ export const voiceChat = {
 
     async startVoiceInteraction(isCaller) {
         try {
-            // 🌟 حفظ العملية كـ Promise للتأكد من انتهاء تفعيل المايك قبل استلام الاتصال
             streamPromise = navigator.mediaDevices.getUserMedia({ audio: true, video: false });
             localStream = await streamPromise;
             isMicActive = true;
             this.updateMicUI(true);
 
             if (isCaller) {
-                // 🌟 تأخير بسيط جداً لإعطاء الخصم فرصة لفتح المايك لديه قبل إرسال الـ Offer
                 setTimeout(() => this.createOfferCall(), 1000);
             }
         } catch (err) {
-            alert(gameState.lang === 'ar' ? "تعذر الوصول إلى الميكروفون. يرجى إعطاء الصلاحية." : "Microphone access denied.");
+            alert(gameState.lang === 'ar' ? "تعذر الوصول إلى الميكروفون. يرجى إعطاء الصلاحية من إعدادات المتصفح." : "Microphone access denied.");
             this.updateMicUI(false);
             isMicActive = false;
             streamPromise = null;
@@ -138,7 +137,6 @@ export const voiceChat = {
     },
 
     async handleOffer(offer) {
-        // 🌟 أهم إصلاح للصوت: إذا كان المايك قيد التشغيل، انتظر حتى يكتمل فتحه قبل إضافة الصوت للاتصال!
         if (streamPromise && !localStream) {
             try { localStream = await streamPromise; } catch(e){}
         }
@@ -177,6 +175,8 @@ export const voiceChat = {
             remoteAudio = document.createElement('audio');
             remoteAudio.id = 'remote-audio-element';
             remoteAudio.autoplay = true;
+            // 🌟 الإصلاح الأساسي للآيفون (iOS)
+            remoteAudio.playsInline = true; 
             document.body.appendChild(remoteAudio);
         }
         remoteAudio.srcObject = stream;
