@@ -5,7 +5,8 @@
  * 🛡️ (مُحدّث أمنياً): تأمين توليد الحسابات المستقلة بـ AuthToken لمنع الطرد.
  * 🛠️ (مُحدّث): إزالة الوميض الأسود المزعج (Flicker Hack) عند العودة للتطبيق.
  * ⏱️ (مُحدّث): تصفير مؤقتات المصباح وتهيئته عند إعادة اللعب (Rematch).
- * ✅ (مُحدّث للإصلاح): تنظيف تضارب زر "إنشاء الغرفة" ليعمل باستجابة فورية 100%.
+ * ✅ (مُحدّث للإصلاح): تنظيف تضارب زر "إنشاء الغرفة" ليعمل باستجابة فورية 100% ويظهر حقل الـ VIP.
+ * 🎡 (مُحدّث): تغيير نص تأكيد عجلة الحظ المدفوعة إلى "نعم" لتناسب النافذة.
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -333,7 +334,12 @@ window.addEventListener('load', async () => {
             const confirmBtn = document.getElementById('online-create-btn');
             if (confirmBtn) confirmBtn.innerText = "تأكيد وإنشاء";
             
-            if (typeof window.openAppModal === 'function') window.openAppModal('create-room-modal');
+            // ✅ الحل الجذري: استدعاء دالة الفحص المخصصة التي تظهر حقل الـ VIP
+            if (typeof window.openCreateRoomModal === 'function') {
+                window.openCreateRoomModal();
+            } else if (typeof window.openAppModal === 'function') {
+                window.openAppModal('create-room-modal');
+            }
         };
     }
 });
@@ -535,11 +541,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (socket && socket.connected) {
             if(typeof ui.showCustomAlert === 'function') {
-                ui.showCustomAlert("سيتم خصم 200 🪙 من رصيدك مقابل هذه اللفة الإضافية. هل أنت مستعد؟", "تأكيد اللفة", () => {
+                // ✅ التعديل هنا: استخدام عبارة "نعم" فقط بدلاً من "نعم، لف العجلة!"
+                ui.showCustomAlert(`سيتم خصم 200 🪙 من رصيدك مقابل هذه اللفة الإضافية. هل أنت مستعد؟`, "تأكيد اللفة", () => {
                     const btn = document.getElementById('spin-paid-btn');
                     if (btn) { btn.innerText = "جاري الدفع..."; btn.style.pointerEvents = 'none'; }
                     socket.emit('requestLuckySpin', { type: 'paid', guestId: gameState.userProfile.id });
-                }, true, "إلغاء", "نعم، لف العجلة!");
+                }, true, "إلغاء", "نعم");
             }
         } else { 
             if(typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected') || "يرجى الاتصال بالإنترنت أولاً للعب عجلة الحظ!"); 
