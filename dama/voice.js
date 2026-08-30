@@ -1,7 +1,8 @@
 /**
  * voice.js
  * النسخة المتوافقة مع نظام الاستئذان قبل تفعيل الصوت
- * 🌟 (مُحدّث): حل مشكلة تصادم الاتصال (Caller vs Receiver) لضمان وصول الصوت.
+ * 🌟 (مُحدّث): حل مشكلة تصادم الاتصال لضمان وصول الصوت للطرفين (WebRTC Sync).
+ * 🌟 (مُحدّث): إصلاح شكل الأيقونة لتظهر مغلقة دائماً في بداية اللعبة.
  */
 import { socket, socketManager } from './socketManager.js';
 import { gameState } from './gameState.js'; 
@@ -9,6 +10,7 @@ import { gameState } from './gameState.js';
 let localStream = null;
 let peerConnection = null;
 let isMicActive = false;
+let streamPromise = null; // 🌟 إضافة جديدة: لتتبع حالة فتح المايك قبل إرسال الاتصال
 
 const servers = {
     iceServers: [
@@ -67,15 +69,17 @@ export const voiceChat = {
 
         if (isActive) {
             micBtn.innerHTML = micOnIcon;
-            micBtn.style.background = 'rgba(46, 204, 113, 0.8) !important'; 
-            micBtn.style.borderColor = '#2ecc71';
-            micBtn.style.boxShadow = '0 0 10px rgba(46, 204, 113, 0.5)';
+            micBtn.style.setProperty('background', 'rgba(46, 204, 113, 0.8)', 'important'); 
+            micBtn.style.setProperty('border-color', '#2ecc71', 'important');
+            micBtn.style.setProperty('box-shadow', '0 0 10px rgba(46, 204, 113, 0.5)', 'important');
+            micBtn.style.setProperty('color', '#fff', 'important');
             micBtn.title = "إيقاف المايك";
         } else {
             micBtn.innerHTML = micOffIcon;
-            micBtn.style.background = 'rgba(45, 48, 55, 0.65) !important'; 
-            micBtn.style.borderColor = 'rgba(135, 206, 235, 0.4)';
-            micBtn.style.boxShadow = '0 0 3px rgba(135, 206, 235, 0.3)';
+            micBtn.style.setProperty('background', 'rgba(45, 48, 55, 0.65)', 'important'); 
+            micBtn.style.setProperty('border-color', 'rgba(135, 206, 235, 0.4)', 'important');
+            micBtn.style.setProperty('box-shadow', 'none', 'important');
+            micBtn.style.setProperty('color', '#a1a1aa', 'important');
             micBtn.title = "تشغيل المايك";
         }
     },
@@ -92,29 +96,30 @@ export const voiceChat = {
         }
     },
 
-    // 🌟 الدالة الجديدة: تحدد من هو المتصل (Caller) ومن هو المتلقي (Receiver)
     async startVoiceInteraction(isCaller) {
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            // 🌟 حفظ العملية كـ Promise للتأكد من انتهاء تفعيل المايك قبل استلام الاتصال
+            streamPromise = navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            localStream = await streamPromise;
             isMicActive = true;
             this.updateMicUI(true);
 
             if (isCaller) {
-                this.createOfferCall();
+                // 🌟 تأخير بسيط جداً لإعطاء الخصم فرصة لفتح المايك لديه قبل إرسال الـ Offer
+                setTimeout(() => this.createOfferCall(), 1000);
             }
-            // إذا لم يكن هو المتصل (isCaller = false)، سينتظر فقط استقبال الـ Offer عبر السوكيت
         } catch (err) {
             alert(gameState.lang === 'ar' ? "تعذر الوصول إلى الميكروفون. يرجى إعطاء الصلاحية." : "Microphone access denied.");
             this.updateMicUI(false);
             isMicActive = false;
+            streamPromise = null;
         }
     },
 
     async createOfferCall() {
-        if (!gameState.onlineRoomID) return;
+        if (!gameState.onlineRoomID || !localStream) return;
         
         peerConnection = new RTCPeerConnection(servers);
-
         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
         peerConnection.ontrack = (event) => {
@@ -133,6 +138,11 @@ export const voiceChat = {
     },
 
     async handleOffer(offer) {
+        // 🌟 أهم إصلاح للصوت: إذا كان المايك قيد التشغيل، انتظر حتى يكتمل فتحه قبل إضافة الصوت للاتصال!
+        if (streamPromise && !localStream) {
+            try { localStream = await streamPromise; } catch(e){}
+        }
+
         peerConnection = new RTCPeerConnection(servers);
 
         if (localStream) {
@@ -196,6 +206,8 @@ export const voiceChat = {
         }
         
         isMicActive = false;
+        streamPromise = null;
+        this.updateMicUI(false);
     }
 };
 
