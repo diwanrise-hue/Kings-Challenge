@@ -6,10 +6,12 @@
  * 🌟 (مُحدّث جذرياً): إصلاح خلل الطرد للوبي عند وجود كلمة "غرفة" في رسائل الخطأ.
  * 🌟 (مُحدّث جديد): نظام الفرز الذكي (Sort) والبحث (Search) المشترك بين التبويبات.
  * 🌟 (مُحدّث حصري): إضافة الفرز حسب (أعلى مشاهدة) وإظهار/إخفاء الخيارات ديناميكياً.
- * 📐 (تحديث التنسيق Layout): تباعد مثالي بين النصوص والصور والأزرار، وتعديل عرض الأزرار وطول الخط الذهبي.
+ * 📐 (تحديث التنسيق Layout): فصل كلمة (مجاني/خاص) عن (عامة) بخط فاصل في قائمة الغرف.
  * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية.
+ * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة (اللوبي الأساسي) عند انتهاء المباراة بدلاً من فتح نافذة الغرف للطرفين.
  * 🎤 (مُحدّث أمنياً): إصلاح تداخل الـ WebRTC بتحديد (المُتصل) و (المُتلقي) لضمان عمل المايك.
- * ✅ (الإصلاح الجديد): البقاء في واجهة الدامة الرئيسية (الساحة) عند انتهاء المباراة بدلاً من الطرد لواجهة اختيار الألعاب.
+ * 👁️ (تحديث جديد): إظهار شريط (المشاهدين والمراهنات) للاعبين أنفسهم داخل الغرف الداعمة للمراهنة.
+ * 💰 (تحديث جديد): إظهار رسالة واضحة للمشاهدين بنتيجة مراهناتهم في الغرف المختلفة.
  */
 
 import { gameState } from './gameState.js'; 
@@ -319,7 +321,7 @@ window.renderRoomsList = function() {
                 isNew = true;
             }
 
-            const isPrivate = r.hasPassword ? '🔒 خاصة' : '<span style="filter: grayscale(100%);">🌐</span> عامة';
+            const isPrivate = r.hasPassword ? '🔒 خاصة' : '<span style="filter: grayscale(100%); font-size: 13px;">🌐</span> عامة';
             const betText = r.betAmount > 0 ? `${r.betAmount} 🪙` : `🆓 مجاني`;
             let displayName = r.customTitle ? ("👑 " + r.customTitle) : r.hostName;
 
@@ -342,6 +344,15 @@ window.renderRoomsList = function() {
 
             let actionBtnHTML = '';
             let innerHTMLContent = '';
+
+            // ✅ التعديل هنا: تنسيق النص ليكون أحدهما فوق الآخر ويفصلهما خط
+            const detailsHTML = `
+                <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px; width: 100%;">
+                    <div style="color: #a1a1aa; font-size: 11px; display: flex; align-items: center; gap: 5px;">${isPrivate}</div>
+                    <div style="width: 80%; height: 1px; background: rgba(255,255,255,0.1);"></div>
+                    <div style="color: ${r.betAmount > 0 ? '#ffd700' : '#30d158'}; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 5px;">${betText}</div>
+                </div>
+            `;
 
             const getAvatarUI = (avatar, frame, vip) => {
                 let src = avatar || "1000132081.webp";
@@ -404,7 +415,7 @@ window.renderRoomsList = function() {
                     ${avatarsHTML}
                     <div style="display: flex; flex-direction: column; justify-content: center; flex: 1; padding: 0 15px; overflow: hidden; z-index: 5;">
                         <div style="color: ${r.customTitle ? '#FFD700' : 'white'}; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</div>
-                        <div style="color: #a1a1aa; font-size: 11px; margin-top: 4px;">${isPrivate} | ${betText}</div>
+                        ${detailsHTML}
                     </div>
                     ${actionBtnHTML}
                 `;
@@ -425,7 +436,7 @@ window.renderRoomsList = function() {
                     </div>
                     <div style="display: flex; flex-direction: column; justify-content: center; flex: 1; padding: 0 15px; overflow: hidden; z-index: 5;">
                         <div style="color: ${r.customTitle ? '#FFD700' : 'white'}; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</div>
-                        <div style="color: #a1a1aa; font-size: 11px; margin-top: 4px;">${isPrivate} | ${betText}</div>
+                        ${detailsHTML}
                     </div>
                     ${actionBtnHTML}
                 `;
@@ -966,7 +977,7 @@ export const socketManager = {
         socket.on('kickedFromRoom', (data) => {
             if (gameState.isSpectator && gameState.userProfile && gameState.userProfile.id === data.targetId) {
                 this._showToast("⚠️ لقد تم طردك من هذه الغرفة بواسطة المالك!");
-                this.handleExitGame(false); // 🌟 إرجاع للواجهة الأساسية
+                this.handleExitGame(false); 
             }
         });
 
@@ -1016,12 +1027,22 @@ export const socketManager = {
             if (bettorsEl) bettorsEl.innerText = data.totalBettors;
         });
 
+        // ✅ التعديل هنا: إظهار نتيجة الرهان للمشاهد بشكل واضح عبر نافذة مخصصة
         socket.on('betResult', (data) => {
             if (data && data.msg) {
-                if (typeof ui.showCustomAlert === 'function') {
-                    ui.showCustomAlert(data.msg, data.won ? "نتيجة الرهان 🎉" : "نتيجة الرهان", null, false, null, "رائع");
+                if (typeof ui.showCustomAlert === 'function' && data.won) {
+                    ui.showCustomAlert(data.msg, "نتيجة رهان الغرف 💰", null, false, null, "استلام الجائزة");
+                    this._showToast("🎉 كسبت الرهان!");
                 } else {
-                    this._showToast(data.msg);
+                    const toast = document.getElementById('toast-notification');
+                    if (toast) {
+                        toast.innerText = data.msg;
+                        toast.style.backgroundColor = 'rgba(231, 76, 60, 0.9)';
+                        toast.classList.add('show');
+                        setTimeout(() => { toast.classList.remove('show'); toast.style.backgroundColor = ''; }, 4000);
+                    } else {
+                        this._showToast(data.msg);
+                    }
                 }
             }
         });
@@ -1177,8 +1198,19 @@ export const socketManager = {
             if (ui && typeof ui.toggleOnlineUILayout === 'function') {
                 ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
                 ui.setDisplay('bottom-control-panel', 'flex'); 
-                ui.renderBoard(true);
                 
+                // ✅ التعديل هنا: إظهار إحصائيات الغرفة للاعبين أنفسهم (إذا كانت تدعم ذلك)
+                if (data.allowSpectatorBetting) {
+                    ui.setDisplay('spectator-stats-container', 'flex');
+                    const bettorsEl = document.getElementById('bettors-count-display');
+                    if (bettorsEl) bettorsEl.innerText = data.totalBettors || 0;
+                    const specCountEl = document.getElementById('spectator-count-display');
+                    if (specCountEl) specCountEl.innerText = data.spectatorsCount || 0;
+                } else {
+                    ui.setDisplay('spectator-stats-container', 'none');
+                }
+
+                ui.renderBoard(true);
                 gameState.currentTurn = data.turn || 'white';
                 ui.startTurn();
             }
@@ -1558,7 +1590,6 @@ export const socketManager = {
             }
         });
 
-        // 🌟 تحديث نظام المحادثة الصوتية لتمرير تحديد من المتصل ومن المستقبل
         socket.on('mic-request', (data) => {
             if (!gameState.isOnlineMode || gameState.isSpectator) return;
             const modal = document.getElementById('mic-request-modal');
