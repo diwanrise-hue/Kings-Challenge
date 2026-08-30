@@ -1,6 +1,7 @@
 /**
  * voice.js
  * النسخة المتوافقة مع نظام الاستئذان قبل تفعيل الصوت
+ * 🌟 (مُحدّث): حل مشكلة تصادم الاتصال (Caller vs Receiver) لضمان وصول الصوت.
  */
 import { socket, socketManager } from './socketManager.js';
 import { gameState } from './gameState.js'; 
@@ -12,7 +13,8 @@ let isMicActive = false;
 const servers = {
     iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' }
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' }
     ]
 };
 
@@ -43,18 +45,18 @@ export const voiceChat = {
         });
 
         socket.on('voice-offer', async (data) => {
-            await this.handleOffer(data.offer);
+            if (data && data.offer) await this.handleOffer(data.offer);
         });
 
         socket.on('voice-answer', async (data) => {
-            await this.handleAnswer(data.answer);
+            if (data && data.answer) await this.handleAnswer(data.answer);
         });
 
         socket.on('voice-candidate', async (data) => {
             if (peerConnection && data.candidate) {
                 try {
                     await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                } catch (e) {}
+                } catch (e) { console.error("Error adding ice candidate:", e); }
             }
         });
     },
@@ -90,18 +92,25 @@ export const voiceChat = {
         }
     },
 
-    async forceStartCall() {
+    // 🌟 الدالة الجديدة: تحدد من هو المتصل (Caller) ومن هو المتلقي (Receiver)
+    async startVoiceInteraction(isCaller) {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
             isMicActive = true;
             this.updateMicUI(true);
-            this.startCall();
+
+            if (isCaller) {
+                this.createOfferCall();
+            }
+            // إذا لم يكن هو المتصل (isCaller = false)، سينتظر فقط استقبال الـ Offer عبر السوكيت
         } catch (err) {
-            alert(gameState.lang === 'ar' ? "تعذر الوصول إلى الميكروفون." : "Microphone access denied.");
+            alert(gameState.lang === 'ar' ? "تعذر الوصول إلى الميكروفون. يرجى إعطاء الصلاحية." : "Microphone access denied.");
+            this.updateMicUI(false);
+            isMicActive = false;
         }
     },
 
-    async startCall() {
+    async createOfferCall() {
         if (!gameState.onlineRoomID) return;
         
         peerConnection = new RTCPeerConnection(servers);
@@ -161,6 +170,14 @@ export const voiceChat = {
             document.body.appendChild(remoteAudio);
         }
         remoteAudio.srcObject = stream;
+        remoteAudio.volume = 1.0;
+        
+        let playPromise = remoteAudio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log("تتطلب المتصفحات تفاعلاً لتشغيل الصوت.", error);
+            });
+        }
     },
 
     closeCall() {
