@@ -10,6 +10,8 @@
  * 🛡️ (مُحدّث جديد): منع فتح واجهة الخصم عند الضغط على ملفك الشخصي في لوحة الشرف.
  * 🔊 (مُحدّث للصوت): استنساخ مسار الصوت لعجلة الحظ لضمان تداخل التكات بشكل واقعي ومتناسق.
  * 📑 (مُحدّث للطبقات): رفع Z-Index نافذة التنبيهات لتظهر دائماً فوق عجلة الحظ وغيرها.
+ * 💎 (مُحدّث): محاذاة أيقونات رتب (الماسي والأسطوري) لتتطابق تماماً مع السطر.
+ * 🎯 (مُحدّث للإصلاح): إصلاح زر المراهنة الخارجي بتمرير كود الغرفة المخفي (Room ID) بنجاح للسيرفر.
  */
 
 import { gameState } from './gameState.js'; 
@@ -261,7 +263,7 @@ export const ui = {
         
         const modalEl = this.getEl('custom-alert-modal');
         if (modalEl) {
-            // ✅ التعديل هنا: تم رفع قيمة Z-Index إلى 999999 لتظهر فوق عجلة الحظ
+            // ✅ رفع مستوى النافذة (Z-Index) لتكون فوق كل شيء، حتى عجلة الحظ
             modalEl.style.setProperty('z-index', '999999', 'important');
             modalEl.style.display = 'flex'; 
         }
@@ -302,10 +304,12 @@ export const ui = {
         
         if (currentXp >= 5000) { 
             rank = "أسطوري"; 
+            // ✅ محاذاة رتبة الأسطوري بدقة مع السطر
             rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; transform: translateY(-3px); filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
         }
         else if (currentXp >= 2500) { 
             rank = "ماسي"; 
+            // ✅ محاذاة رتبة الماسي بدقة مع السطر
             rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; transform: translateY(-3px); filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
         }
         else if (currentXp >= 1200) { rank = "ذهبي"; rankIcon = "🥇"; }
@@ -367,11 +371,11 @@ export const ui = {
             if (currentPin > lastPinPassed) {
                 lastPinPassed = currentPin;
                 
-                // ✅ التعديل هنا: استنساخ الصوت (Clone) في كل مرة ليعمل بشكل متداخل وبدون تقطيع
+                // ✅ استنساخ مسار الصوت (Clone) لضمان تداخل التكات بدون تقطيع
                 try {
                     if (tickAudio) {
                         let clone = tickAudio.cloneNode();
-                        clone.volume = 0.5; // تخفيف الصوت قليلاً ليكون مريحاً
+                        clone.volume = 0.5;
                         let playPromise = clone.play();
                         if (playPromise !== undefined) {
                             playPromise.catch(() => {});
@@ -436,27 +440,31 @@ export const ui = {
     },
 
     showSpectatorBetModal(roomID, p1, p2) {
-        this.setTxt('bet-p1-name', p1.name || 'اللاعب 1');
-        this.applyAvatar('bet-p1-avatar', p1.avatar, p1.isCustomAvatar || p1.avatar?.startsWith('data:'), p1.equippedProfileFrame);
+        // ✅ 1. تعيين كود الغرفة المستهدفة في الحقل المخفي فوراً ليعمل زر المراهنة الخارجي
+        const roomIdInput = this.getEl('spectator-bet-room-id');
+        if (roomIdInput) roomIdInput.value = roomID;
+
+        // 2. تصفير الاختيارات السابقة
+        const colorInput = this.getEl('spectator-bet-color');
+        if (colorInput) colorInput.value = '';
+        const amtInput = this.getEl('spectator-bet-amount');
+        if (amtInput) amtInput.value = '0';
+        const displayTxt = this.getEl('spectator-bet-display-text');
+        if (displayTxt) displayTxt.innerText = 'اختر المبلغ...';
+
+        // 3. إزالة التحديد القديم عن البطاقات
+        const p1Card = document.getElementById('bet-p1-card');
+        const p2Card = document.getElementById('bet-p2-card');
+        if (p1Card) { p1Card.style.border = '2px solid transparent'; p1Card.style.background = 'transparent'; p1Card.style.boxShadow = 'none'; p1Card.style.transform = 'scale(1)'; }
+        if (p2Card) { p2Card.style.border = '2px solid transparent'; p2Card.style.background = 'transparent'; p2Card.style.boxShadow = 'none'; p2Card.style.transform = 'scale(1)'; }
+
+        // 4. عرض بيانات اللاعبين
+        this.setTxt('bet-p1-name', p1?.name || 'اللاعب 1');
+        this.applyAvatar('bet-p1-avatar', p1?.avatar, p1?.isCustomAvatar || p1?.avatar?.startsWith('data:'), p1?.equippedProfileFrame);
         
-        this.setTxt('bet-p2-name', p2.name || 'اللاعب 2');
-        this.applyAvatar('bet-p2-avatar', p2.avatar, p2.isCustomAvatar || p2.avatar?.startsWith('data:'), p2.equippedProfileFrame);
+        this.setTxt('bet-p2-name', p2?.name || 'اللاعب 2');
+        this.applyAvatar('bet-p2-avatar', p2?.avatar, p2?.isCustomAvatar || p2?.avatar?.startsWith('data:'), p2?.equippedProfileFrame);
         
-        const confirmBtn = this.getEl('spectator-submit-bet-btn');
-        if (confirmBtn) {
-            confirmBtn.onclick = () => {
-                const color = this.getVal('spectator-bet-color');
-                const amt = parseInt(this.getVal('spectator-bet-amount')) || 0;
-                if (!color || amt <= 0) {
-                    this.showCustomAlert("الرجاء اختيار بطل وتحديد مبلغ الرهان بشكل صحيح!");
-                    return;
-                }
-                if (window.socket && window.socket.connected) {
-                    window.socket.emit('placeSpectatorBet', { roomID: roomID, color: color, amount: amt });
-                    window.closeAppModal('spectator-bet-modal');
-                }
-            };
-        }
         window.openAppModal('spectator-bet-modal');
     },
 
@@ -1974,9 +1982,6 @@ window.showPlayerProfileFromLB = function(player) {
     window.openAppModal('in-game-profile-modal');
 };
 
-// ==========================================
-// 🌟 نظام إرسال الهدايا (تمت إضافة الدعم للمشاهدين) 🌟
-// ==========================================
 window.openGiftPanel = function(targetId) {
     const selector = document.getElementById('spectator-gift-target-selector');
     const desc = document.getElementById('gift-modal-desc');
@@ -2799,8 +2804,6 @@ window.addEventListener('message', (event) => {
                 window.ui.updateProfileUI(); 
             }
 
-            // 🛡️ [الإصلاح الجذري للـ BUG]: لا تقم بإعادة تطبيق ثيم اللاعب الشخصي إذا كان داخل مباراة أونلاين
-            // لأن ذلك سيدمر ثيم الخصم (الأعلى مستوى) ويعيد الساحة للوضع الافتراضي.
             if (!gameState.isOnlineMode) {
                 if (typeof window.applyTheme === 'function') {
                     window.applyTheme(profile);
@@ -2854,60 +2857,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500); 
 });
 
-// ==========================================
-// 🎡 نظام ساحة التحديات (Matchmaking Stakes) الجديد
-// ==========================================
+// ✅ دالة تأكيد رهان المشاهد المدمجة بنجاح
+window.confirmSpectatorBet = function() {
+    const roomId = document.getElementById('spectator-bet-room-id')?.value || (window.gameState && window.gameState.onlineRoomID);
+    const color = document.getElementById('spectator-bet-color')?.value;
+    const amount = parseInt(document.getElementById('spectator-bet-amount')?.value) || 0;
 
-window.openMatchmakingModal = function() {
-    const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-    const userTokens = parseInt(profile.tokens) || 0;
-
-    const tiers = [50, 250, 500, 1000, 2500, 5000, 10000];
-
-    tiers.forEach(bet => {
-        const lockEl = document.getElementById(`mm-lock-${bet}`);
-        const btnEl = document.getElementById(`mm-btn-${bet}`);
-        
-        if (userTokens < bet) {
-            if (lockEl) lockEl.style.display = 'flex';
-            if (btnEl) {
-                btnEl.disabled = true;
-                btnEl.style.opacity = '0.5';
-                btnEl.style.pointerEvents = 'none';
-            }
-        } else {
-            if (lockEl) lockEl.style.display = 'none';
-            if (btnEl) {
-                btnEl.disabled = false;
-                btnEl.style.opacity = '1';
-                btnEl.style.pointerEvents = 'auto';
-            }
-        }
-    });
-
-    window.openAppModal('matchmaking-stakes-modal');
-};
-
-window.startMatchmakingWithBet = function(betAmount) {
-    window.closeAppModal('matchmaking-stakes-modal');
-    
-    const timerEl = document.getElementById('mm-timer');
-    if (timerEl) timerEl.textContent = '00:00';
-    
-    if (window.gameState) {
-        window.gameState.mmStartTime = Date.now();
-        if (window.gameState.mmInterval) clearInterval(window.gameState.mmInterval);
-        window.gameState.mmInterval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - window.gameState.mmStartTime) / 1000);
-            const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
-            const s = String(elapsed % 60).padStart(2, '0');
-            if (timerEl) timerEl.textContent = `${m}:${s}`;
-        }, 1000);
+    if (!roomId) {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("خطأ في تحديد الغرفة للمراهنة!");
+        return;
+    }
+    if (!color) {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء اختيار اللاعب المتوقع فوزه أولاً (أبيض أو أسود)!");
+        return;
+    }
+    if (amount <= 0) {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء تحديد مبلغ الرهان!");
+        return;
     }
 
-    window.openAppModal('matchmaking-modal');
-    
-    if (window.socketManager && typeof window.socketManager.handleRoomAction === 'function') {
-        window.socketManager.handleRoomAction('joinMatchmakingPool', null, null, betAmount);
+    if (window.socket && window.socket.connected) {
+        const profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+        
+        window.socket.emit('placeSpectatorBet', {
+            roomID: String(roomId).trim(),
+            color: color,
+            amount: amount,
+            guestId: profile.id
+        });
+        
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('spectator-bet-modal');
+        }
+    } else {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("يرجى الاتصال بالإنترنت أولاً!");
     }
 };
