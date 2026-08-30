@@ -9,10 +9,10 @@
  * 📐 (تحديث التنسيق Layout): فصل كلمة (مجاني/خاص) عن (عامة) بخط فاصل في قائمة الغرف.
  * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية.
  * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة (اللوبي الأساسي) عند انتهاء المباراة بدلاً من فتح نافذة الغرف للطرفين.
- * 🎤 (مُحدّث أمنياً): إصلاح تداخل الـ WebRTC بتحديد (المُتصل) و (المُتلقي) لضمان عمل المايك.
  * 👁️ (تحديث جديد): إظهار شريط (المشاهدين والمراهنات) للاعبين أنفسهم داخل الغرف الداعمة للمراهنة.
  * 💰 (تحديث جديد): إظهار رسالة واضحة للمشاهدين بنتيجة مراهناتهم في الغرف المختلفة.
  * 🛑 (الإصلاح الجديد): إخفاء بطاقة (الغرفة الخاصة باللاعب) من تبويب الرهانات/المشاهدة.
+ * 🎤 (إصلاح الكارثة): تنظيف الملف من أحداث (voice-offer/answer) الخاصة بالسيرفر والتي كانت تُسقط الاتصال وتمنع عمل المايك.
  */
 
 import { gameState } from './gameState.js'; 
@@ -41,7 +41,7 @@ window.currentRoomSearchQuery = '';
 window.currentRoomSortMode = 'vip'; 
 window.lastRoomsList = [];
 window.lastRenderStateHash = null; 
-window.currentRoomTab = 'play'; // متغير جديد لتتبع التبويب النشط
+window.currentRoomTab = 'play'; 
 
 window.openCreateRoomModal = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
@@ -143,7 +143,7 @@ window.applyRoomSort = function(mode, element) {
 };
 
 window.switchRoomTab = function(tab) {
-    window.currentRoomTab = tab; // حفظ التبويب النشط الحالي
+    window.currentRoomTab = tab; 
     document.getElementById('room-tab-play').classList.remove('active'); 
     document.getElementById('room-tab-bet').classList.remove('active');
     
@@ -199,7 +199,7 @@ window.renderRoomsList = function() {
         r: rooms,
         s: window.currentRoomSearchQuery,
         m: window.currentRoomSortMode,
-        t: window.currentRoomTab // إضافة التبويب لحالة الرسم لضمان الاستجابة للتغيير
+        t: window.currentRoomTab 
     });
 
     if (window.lastRenderStateHash === currentRenderState) {
@@ -219,8 +219,6 @@ window.renderRoomsList = function() {
     const myRoom = rooms.find(r => r.hostId === currentUserId);
     const myRoomCard = document.getElementById('my-waiting-room-card');
     
-    // 🛑 [هام جداً]: إظهار غرفة اللاعب فقط في تبويب "العب" وإخفاؤها في تبويب "المشاهدة والرهانات"
-    // يرجى عدم تغيير أو حذف هذا الشرط
     if (myRoom && window.currentRoomTab === 'play') {
         window.myCurrentRoomId = myRoom.id;
         
@@ -258,7 +256,6 @@ window.renderRoomsList = function() {
         if (myRoomCard && myRoomCard.style.display !== 'flex') myRoomCard.style.display = 'flex';
         
     } else {
-        // إخفاء بطاقة اللاعب إذا كان في تبويب الرهان أو لا يمتلك غرفة
         if (myRoomCard && myRoomCard.style.display !== 'none') myRoomCard.style.display = 'none';
     }
 
@@ -1033,7 +1030,6 @@ export const socketManager = {
             if (bettorsEl) bettorsEl.innerText = data.totalBettors;
         });
 
-        // ✅ التعديل هنا: إظهار نتيجة الرهان للمشاهد بشكل واضح عبر نافذة مخصصة تتضمن اسم الغرفة من السيرفر
         socket.on('betResult', (data) => {
             if (data && data.msg) {
                 if (typeof ui.showCustomAlert === 'function' && data.won) {
@@ -1205,7 +1201,6 @@ export const socketManager = {
                 ui.toggleOnlineUILayout(true, gameState.currentOpponentName, gameState.currentOpponentAvatar);
                 ui.setDisplay('bottom-control-panel', 'flex'); 
                 
-                // ✅ إظهار إحصائيات الغرفة للاعبين أنفسهم (إذا كانت تدعم المراهنة)
                 if (data.allowSpectatorBetting) {
                     ui.setDisplay('spectator-stats-container', 'flex');
                     const bettorsEl = document.getElementById('bettors-count-display');
