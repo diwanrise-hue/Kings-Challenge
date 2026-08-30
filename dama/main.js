@@ -7,6 +7,7 @@
  * ⏱️ (مُحدّث): تصفير مؤقتات المصباح وتهيئته عند إعادة اللعب (Rematch).
  * ✅ (مُحدّث للإصلاح): تنظيف تضارب زر "إنشاء الغرفة" ليعمل باستجابة فورية 100% ويظهر حقل الـ VIP.
  * 🎡 (مُحدّث): تغيير نص تأكيد عجلة الحظ المدفوعة إلى "نعم" لتناسب النافذة.
+ * 🎯 (مُحدّث جذرياً): إصلاح زر الأونلاين ليفتح نافذة الرهانات فقط ولا يرسل طلباً بقيمة (0) للسيرفر.
  */
 import { gameState } from './gameState.js';
 import { ui } from './uiController.js';
@@ -20,7 +21,6 @@ function formatCompactNumber(num) {
     return num;
 }
 
-// 🛠️ (مُحدّث): إزالة الوميض الأسود واستبداله بإعادة حساب الأبعاد الآمنة (Reflow)
 document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible') {
         setTimeout(() => {
@@ -47,7 +47,6 @@ socket.on('connect', () => {
     }, 300);
 });
 
-// 🛡️ ربط الدوال الحيوية بكائن window لحل مشكلة الـ Circular Dependency مع uiController
 export function saveGameState() { }
 window.saveGameState = saveGameState;
 
@@ -172,7 +171,6 @@ window.addEventListener('load', async () => {
         window.currentOpponentId = data.opponent ? data.opponent.guestId : null;
     });
 
-    // 🌟 (مُحدّث): نظام الطابور للهدايا لمنع تداخل الأصوات والفيديوهات 🌟
     const giftQueue = [];
     let isProcessingGift = false;
 
@@ -268,13 +266,12 @@ window.addEventListener('load', async () => {
                 fill: 'forwards'
             });
             
-            // 🌟 الانتقال للهدية التالية بعد انتهاء الحالية
             setTimeout(() => {
                 celebrationOverlay.style.opacity = '0';
                 setTimeout(() => {
                     celebrationOverlay.remove();
                     isProcessingGift = false;
-                    processGiftQueue(); // تشغيل الهدية القادمة في الطابور
+                    processGiftQueue(); 
                 }, 500);
             }, isVideoGift ? animDuration - 500 : animDuration);
         };
@@ -313,7 +310,6 @@ window.addEventListener('load', async () => {
                 }, 400);
             }
             
-            // إضافة الهدية للطابور
             giftQueue.push(data);
             processGiftQueue();
         }
@@ -334,7 +330,6 @@ window.addEventListener('load', async () => {
             const confirmBtn = document.getElementById('online-create-btn');
             if (confirmBtn) confirmBtn.innerText = "تأكيد وإنشاء";
             
-            // ✅ الحل الجذري: استدعاء دالة الفحص المخصصة التي تظهر حقل الـ VIP
             if (typeof window.openCreateRoomModal === 'function') {
                 window.openCreateRoomModal();
             } else if (typeof window.openAppModal === 'function') {
@@ -342,10 +337,56 @@ window.addEventListener('load', async () => {
             }
         };
     }
+
+    // 🌟 التعديل هنا: منع إرسال الطلب للسيرفر عند الضغط على زر "أونلاين"
+    const onlineBtn = document.getElementById('online-toggle-btn');
+    if (onlineBtn) {
+        onlineBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            if (gameState.isOnlineMode) { 
+                if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('already_match')); 
+                return; 
+            }
+            
+            if (!socket || !socket.connected) { 
+                if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected')); 
+                return; 
+            }
+
+            if (window.myCurrentRoomId || gameState.myCurrentRoomId) {
+                if (socketManager) {
+                    socket.emit('leaveRoom', { roomID: window.myCurrentRoomId || gameState.myCurrentRoomId });
+                    window.myCurrentRoomId = null;
+                    gameState.myCurrentRoomId = null; 
+                }
+            }
+
+            if (typeof window.openMatchmakingModal === 'function') {
+                window.openMatchmakingModal();
+            }
+        });
+    }
+
+    const cancelMmBtn = document.getElementById('mm-cancel-btn');
+    if (cancelMmBtn) {
+        cancelMmBtn.addEventListener('click', (e) => {
+            e.preventDefault(); 
+            clearInterval(gameState.mmInterval); 
+            gameState.mmInterval = null;
+            
+            const mmModal = document.getElementById('matchmaking-modal');
+            if (mmModal) { 
+                mmModal.style.display = 'none'; 
+                if (gameState.modalStack) {
+                    gameState.modalStack = gameState.modalStack.filter(id => id !== 'matchmaking-modal'); 
+                }
+            }
+            if (socket && socket.connected) { socket.emit('leaveMatchmakingPool'); }
+        });
+    }
 });
 
-
-// 🌟 تغليف أحداث الأزرار داخل DOMContentLoaded لحل مشكلة Circular Dependency
 document.addEventListener('DOMContentLoaded', () => {
 
     ui.onClick('diff-quick-select', saveGameState);
@@ -541,7 +582,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (socket && socket.connected) {
             if(typeof ui.showCustomAlert === 'function') {
-                // ✅ التعديل هنا: استخدام عبارة "نعم" فقط بدلاً من "نعم، لف العجلة!"
                 ui.showCustomAlert(`سيتم خصم 200 🪙 من رصيدك مقابل هذه اللفة الإضافية. هل أنت مستعد؟`, "تأكيد اللفة", () => {
                     const btn = document.getElementById('spin-paid-btn');
                     if (btn) { btn.innerText = "جاري الدفع..."; btn.style.pointerEvents = 'none'; }
@@ -553,95 +593,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const onlineBtn = document.getElementById('online-toggle-btn');
-    if (onlineBtn) {
-        onlineBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            if (gameState.isOnlineMode) { 
-                if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('already_match')); 
-                return; 
-            }
-            
-            if (!socket || !socket.connected) { 
-                if (ui && typeof ui.showCustomAlert === 'function') ui.showCustomAlert(t('server_disconnected')); 
-                return; 
-            }
-
-            if (window.myCurrentRoomId || gameState.myCurrentRoomId) {
-                if (socketManager) {
-                    socket.emit('leaveRoom', { roomID: window.myCurrentRoomId || gameState.myCurrentRoomId });
-                    window.myCurrentRoomId = null;
-                    gameState.myCurrentRoomId = null; 
-                }
-            }
-
-            const mmModal = document.getElementById('matchmaking-modal');
-            if (mmModal) {
-                mmModal.style.display = 'flex';
-                if (gameState.modalStack && !gameState.modalStack.includes('matchmaking-modal')) { 
-                    gameState.modalStack.push('matchmaking-modal'); 
-                    history.pushState({ modalOpen: 'matchmaking-modal' }, ''); 
-                }
-            }
-
-            const profile = gameState.userProfile || {};
-            const myNameEl = document.getElementById('mm-my-name'); 
-            const myAvatarEl = document.getElementById('mm-my-avatar');
-
-            if (myNameEl) myNameEl.innerText = profile.name || t('badge_you');
-            if (myAvatarEl) {
-                let avatarSrc = profile.avatar || "1000132081.webp";
-                if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
-                    let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
-                    avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
-                }
-                myAvatarEl.style.backgroundImage = 'none';
-                myAvatarEl.innerHTML = `<img src="${avatarSrc}" onerror="this.style.display='none'; this.parentNode.textContent='👤';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
-            }
-
-            const oppNameEl = document.getElementById('mm-opp-name'); 
-            const oppAvatarEl = document.getElementById('mm-opp-avatar'); 
-            const statusLabelEl = document.getElementById('mm-status-label');
-            
-            if (oppNameEl) oppNameEl.innerText = t('mm_opp'); 
-            if (statusLabelEl) statusLabelEl.innerText = t('searching');
-            if (oppAvatarEl) { oppAvatarEl.innerHTML = "❓"; oppAvatarEl.style.backgroundImage = 'none'; }
-
-            socket.emit('joinMatchmakingPool', { guestId: profile.id, name: profile.name, avatar: profile.avatar });
-            
-            gameState.mmTimeLeft = 0;
-            const timerEl = document.getElementById('mm-timer'); 
-            if (timerEl) timerEl.innerText = "00:00";
-            
-            if (gameState.mmInterval) clearInterval(gameState.mmInterval);
-            gameState.mmInterval = setInterval(() => {
-                gameState.mmTimeLeft++; 
-                let m = String(Math.floor(gameState.mmTimeLeft / 60)).padStart(2, '0'); 
-                let s = String(gameState.mmTimeLeft % 60).padStart(2, '0');
-                if (timerEl) timerEl.innerText = `${m}:${s}`;
-            }, 1000);
-        });
-    }
-
-    const cancelMmBtn = document.getElementById('mm-cancel-btn');
-    if (cancelMmBtn) {
-        cancelMmBtn.addEventListener('click', (e) => {
-            e.preventDefault(); 
-            clearInterval(gameState.mmInterval); 
-            gameState.mmInterval = null;
-            
-            const mmModal = document.getElementById('matchmaking-modal');
-            if (mmModal) { 
-                mmModal.style.display = 'none'; 
-                if (gameState.modalStack) {
-                    gameState.modalStack = gameState.modalStack.filter(id => id !== 'matchmaking-modal'); 
-                }
-            }
-            if (socket && socket.connected) { socket.emit('leaveMatchmakingPool'); }
-        });
-    }
-
     ui.onClick('room-portal-btn', () => { 
         if(typeof window.openAppModal === 'function') window.openAppModal('online-modal'); 
     });
@@ -650,7 +601,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(typeof window.closeAppModal === 'function') window.closeAppModal('online-modal'); 
     });
 
-    // 🚀 ربط الحدث بشكل آمن ودون تكرار.
     ui.onClick('online-create-btn', () => {
         let betAmt = parseInt(document.getElementById('room-bet-input')?.value) || 0;
         let allowSpectatorBetting = document.getElementById('allow-betting-checkbox')?.checked ?? true;
