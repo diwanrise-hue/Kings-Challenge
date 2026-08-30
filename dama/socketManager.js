@@ -8,7 +8,8 @@
  * 🌟 (مُحدّث حصري): إضافة الفرز حسب (أعلى مشاهدة) وإظهار/إخفاء الخيارات ديناميكياً.
  * 📐 (تحديث التنسيق Layout): تباعد مثالي بين النصوص والصور والأزرار، وتعديل عرض الأزرار وطول الخط الذهبي.
  * 🚀 (ترقية الأداء القصوى): نظام Virtual DOM Diffing لمنع إعادة الرسم الوهمية.
- * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة (اللوبي الرئيسي) عند انتهاء المباراة بدلاً من فتح نافذة الغرف.
+ * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة (اللوبي الأساسي) عند انتهاء المباراة بدلاً من فتح نافذة الغرف.
+ * 🎤 (مُحدّث أمنياً): إصلاح تداخل الـ WebRTC بتحديد (المُتصل) و (المُتلقي) لضمان عمل المايك.
  */
 
 import { gameState } from './gameState.js'; 
@@ -41,8 +42,12 @@ window.lastRenderStateHash = null;
 window.openCreateRoomModal = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     const vipContainer = document.getElementById('vip-title-container');
+    
     if (vipContainer) {
-        if (profile && profile.vipLevel && parseInt(profile.vipLevel) >= 3) {
+        // ✅ فحص رقمي دقيق لمستوى الـ VIP
+        const currentVip = parseInt(profile.vipLevel) || 0;
+        
+        if (currentVip >= 3) {
             vipContainer.style.display = 'block';
         } else {
             vipContainer.style.display = 'none';
@@ -50,6 +55,7 @@ window.openCreateRoomModal = function() {
             if (titleInput) titleInput.value = '';
         }
     }
+    
     if (typeof window.openAppModal === 'function') {
         window.openAppModal('create-room-modal');
     }
@@ -968,7 +974,7 @@ export const socketManager = {
         socket.on('kickedFromRoom', (data) => {
             if (gameState.isSpectator && gameState.userProfile && gameState.userProfile.id === data.targetId) {
                 this._showToast("⚠️ لقد تم طردك من هذه الغرفة بواسطة المالك!");
-                this.handleExitGame(); 
+                this.handleExitGame(true); 
             }
         });
 
@@ -1351,13 +1357,13 @@ export const socketManager = {
         socket.on('playerDisconnected', () => {
             if (!gameState.isOnlineMode) { socket.disconnect(); return; }
             this._showToast(getNotifyMsg('oppLeftRoom'));
-            this.handleExitGame(); // 🌟 تم التعديل
+            this.handleExitGame(true); // 🌟 تم التعديل
         });
 
         socket.on('opponentLeftRoom', data => {
             if (!gameState.isOnlineMode) return;
             this._showToast((data && data.message) || getNotifyMsg('oppLeftMatch'));
-            this.handleExitGame(); // 🌟 تم التعديل
+            this.handleExitGame(true); // 🌟 تم التعديل
         });
 
         socket.on('gameOverByServer', data => {
@@ -1435,7 +1441,7 @@ export const socketManager = {
                                 socketManager.isAlertShown = false;
                                 if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
                                 else ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(); // 🌟 تم التعديل
+                                socketManager.handleExitGame(true); 
                             };
                         }
                     }
@@ -1469,7 +1475,7 @@ export const socketManager = {
             const reasonMsg = data && data.reason ? data.reason : getNotifyMsg('rematchTimeout');
             this._showToast(reasonMsg);
             
-            this.handleExitGame(); // 🌟 تم التعديل
+            this.handleExitGame(true); // 🌟 تم التعديل
         });
 
         socket.on('error', msg => {
@@ -1551,10 +1557,11 @@ export const socketManager = {
             } else {
                 const responderName = (data && data.responderName) || (gameState.lang === 'ar' ? 'الصديق' : 'Friend');
                 this._showToast(getNotifyMsg('challengeDeclined', responderName));
-                this.handleExitGame(); // 🌟 تم التعديل
+                this.handleExitGame(true); // 🌟 تم التعديل
             }
         });
 
+        // 🌟 تحديث نظام المحادثة الصوتية لتمرير تحديد من المتصل ومن المستقبل
         socket.on('mic-request', (data) => {
             if (!gameState.isOnlineMode || gameState.isSpectator) return;
             const modal = document.getElementById('mic-request-modal');
@@ -1563,7 +1570,8 @@ export const socketManager = {
                 document.getElementById('mic-accept-btn').onclick = () => {
                     modal.style.display = 'none';
                     socket.emit('mic-response', { roomID: gameState.onlineRoomID, accept: true, senderId: data.senderId });
-                    if (window.voiceChat) window.voiceChat.forceStartCall();
+                    // ✅ المتلقي (Receiver) ينتظر ولا يولد Offer
+                    if (window.voiceChat) window.voiceChat.startVoiceInteraction(false);
                 };
                 document.getElementById('mic-reject-btn').onclick = () => {
                     modal.style.display = 'none';
@@ -1575,7 +1583,8 @@ export const socketManager = {
         socket.on('mic-response', (data) => {
             if (data.accept) {
                 this._showToast(getNotifyMsg('micAccepted'));
-                if (window.voiceChat) window.voiceChat.forceStartCall();
+                // ✅ المُتصل (Caller) هو من يولد الـ Offer
+                if (window.voiceChat) window.voiceChat.startVoiceInteraction(true);
             } else {
                 this._showToast(getNotifyMsg('micRejected'));
                 if (window.voiceChat) window.voiceChat.updateMicUI(false);
@@ -1650,8 +1659,8 @@ export const socketManager = {
         }
     },
 
-    // 🌟 1. تم إرجاع دالة الخروج لوضعها الأصلي لإظهار الواجهة الرئيسية
-    handleExitGame() {
+    // 🌟 1. تحديث دالة الخروج لتقبل خيار الرجوع للوبي
+    handleExitGame(returnToLobby = false) {
         if (window.voiceChat && typeof window.voiceChat.closeCall === 'function') {
             window.voiceChat.closeCall();
             window.voiceChat.updateMicUI(false);
@@ -1717,8 +1726,15 @@ export const socketManager = {
 
         if (ui && typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
 
-        if (window.parent && window.parent !== window) {
-            window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
+        // 🌟 السر هنا: إذا كان المطلوب الرجوع للوبي، نفتح نافذة الأونلاين بدلاً من طرده
+        if (returnToLobby) {
+            if (typeof window.openAppModal === 'function') {
+                window.openAppModal('online-modal');
+            }
+        } else {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
+            }
         }
     },
 
@@ -1747,7 +1763,7 @@ export const socketManager = {
                                 socketManager.isAlertShown = false;
                                 if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
                                 else if (ui) ui.setDisplay('custom-alert-modal', 'none');
-                                socketManager.handleExitGame(); 
+                                socketManager.handleExitGame(true); // 🌟 تم التعديل
                             };
                         }
                     }
