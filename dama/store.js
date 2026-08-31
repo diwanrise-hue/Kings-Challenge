@@ -1,8 +1,7 @@
 // ملف store.js 
 // النسخة النهائية المحدثة الشاملة المدمجة (متوافق 100% مع السيرفر)
-// 🌟 (مُحدّث جذرياً): حل مشكلة تسرب الذاكرة (Memory Leak) في CSS الديناميكي.
-// 🌟 (مُحدّث): إصلاح تصميم الـ Gap Killer ليعمل بكفاءة دون تشويه شاشات الـ PC.
-// 🌟 (مُحدّث مالي): توحيد جمع الخصومات (VIP + قسيمة) لتكون عادلة وشفافة للاعب.
+// 🌟 (مُحدّث جذرياً): حل مشكلة الحقيبة الفارغة واختفاء العناصر المشتراة.
+// 🌟 (مُحدّث): تطبيق الساحة والأحجار فوراً عند الضغط عليها (Equip Fix).
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -580,7 +579,6 @@ export const storeManager = {
             const board = document.getElementById('board');
             if (!board) return;
 
-            // 🛡️ (مُحدّث للـ UI/UX): تطبيق الـ 100vw فقط على الشاشات الصغيرة لتجنب تمزق اللعبة على الـ PC
             const isMobile = window.innerWidth <= 768;
             if (isMobile) {
                 board.style.setProperty('width', '100vw', 'important');
@@ -607,7 +605,6 @@ export const storeManager = {
 
         applyGapKillerStyles();
         
-        // 🛡️ (مُحدّث للأداء): إضافة Debounce حقيقي 250ms لمنع تجميد المتصفح أثناء التدوير
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
@@ -634,7 +631,6 @@ export const storeManager = {
         document.body.appendChild(style);
     },
 
-    // 🛡️ (مُحدّث للأداء): منع إعادة إنشاء ستايل الـ CSS في كل مرة يفتح فيها المتجر
     injectDynamicPieceStyles() {
         if (document.getElementById('dynamic-pieces-css')) return;
         
@@ -825,6 +821,17 @@ export const storeManager = {
 
         if (window['socket'] && window['socket'].connected) { 
             window['socket'].emit('requestEquip', { guestId: profile.id, userId: profile.id, itemId: itemId, itemType: item ? item.type : 'pc' }); 
+            // 🌟 تحديث فوري مرئي (Optimistic UI) لتسريع الاستجابة 🌟
+            if (item) {
+                if (item.type === 'bg') { profile.equippedBg = itemId; if(item.linkedScore) profile.equippedScore = item.linkedScore; }
+                else if (item.type === 'fr') profile.equippedFr = itemId;
+                else if (item.type === 'pc') profile.equippedPc = itemId;
+                else if (item.type === 'score') profile.equippedScore = itemId;
+                
+                if (window.gameState) window.gameState.userProfile = profile;
+                if (window.applyTheme) window.applyTheme(profile);
+                this.renderUI();
+            }
         } else {
             if (!item) return;
             
@@ -1024,7 +1031,17 @@ export const storeManager = {
                 if (!window.__STORE_SOCKET_INIT) {
                     window.__STORE_SOCKET_INIT = true;
                     
+                    // 🌟 (الحل الجذري 1 و 3): دمج البيانات بقوة لإنهاء مشكلة الحقيبة الفارغة واختفاء المشتريات
                     window['socket'].on('profileUpdated', (updatedProfile) => {
+                        if (updatedProfile && window.gameState) {
+                            window.gameState.userProfile = { ...window.gameState.userProfile, ...updatedProfile };
+                            localStorage.setItem('hub_user_profile', JSON.stringify(window.gameState.userProfile));
+                            
+                            // 🌟 (الحل الجذري 2): تطبيق الساحة فوراً عند التجهيز
+                            if (typeof window.applyTheme === 'function') {
+                                window.applyTheme(window.gameState.userProfile);
+                            }
+                        }
                         this.renderUI();
                     });
                     
@@ -1048,6 +1065,8 @@ export const storeManager = {
                         if (typeof window.triggerPurchaseCelebration === 'function') {
                             window.triggerPurchaseCelebration();
                         }
+                        // طلب تحديث قسري للملف الشخصي بعد الشراء لضمان التزامن المطلق
+                        if (prof && prof.id) window['socket'].emit('syncProfile', { id: prof.id });
                         this.renderUI();
                     });
                 }
@@ -1164,7 +1183,7 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         return num;
     }
 
-    // 🛡️ (مُحدّث): حل خلل حساب التخفيض المزدوج (Issue #43) لتكون الخصومات عادلة للاعب 
+    // 🛡️ (مُحدّث): حل خلل حساب التخفيض المزدوج لتكون الخصومات عادلة للاعب 
     function updatePriceDisplay() {
         if(!costEl) return;
         let ticketDiscount = (discountSelect && discountContainer && discountContainer.style.display !== 'none') ? (parseInt(discountSelect.value) || 0) : 0;
