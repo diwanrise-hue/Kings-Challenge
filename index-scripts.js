@@ -702,7 +702,10 @@ window.toggleAuthMode = function() {
 let customPopupCallback = null;
 
 window.showCustomPopup = function(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
-    document.getElementById('custom-popup-modal').style.display = 'flex';
+    const popupModal = document.getElementById('custom-popup-modal');
+    popupModal.style.display = 'flex';
+    popupModal.style.setProperty('z-index', '9999999', 'important');
+    
     document.getElementById('custom-popup-msg').innerText = msg;
     
     const inputContainer = document.getElementById('custom-popup-input-group');
@@ -726,11 +729,25 @@ window.showCustomPopup = function(msg, isPrompt = false, defaultValue = "", show
         okBtn.innerText = translations[currentLang].btn_ok;
         cancelBtn.innerText = translations[currentLang].btn_cancel;
     }
+    
+    // 🌟 خفض طبقة العجلة إن كانت مفتوحة
+    const spinModal = document.getElementById('lucky-spin-modal');
+    if (spinModal && spinModal.style.display !== 'none') {
+        spinModal.style.setProperty('z-index', '10', 'important');
+    }
+
     customPopupCallback = callback;
 };
 
 window.closeCustomPopup = function(isOk) {
     document.getElementById('custom-popup-modal').style.display = 'none';
+    
+    // 🌟 استعادة طبقة العجلة
+    const spinModal = document.getElementById('lucky-spin-modal');
+    if (spinModal) {
+        spinModal.style.setProperty('z-index', '850', 'important');
+    }
+
     if (customPopupCallback) {
         const isPrompt = document.getElementById('custom-popup-input-group').style.display === 'block';
         const inputVal = document.getElementById('custom-popup-input').value;
@@ -738,14 +755,6 @@ window.closeCustomPopup = function(isOk) {
         else customPopupCallback(isOk);
     }
 };
-
-document.addEventListener('DOMContentLoaded', () => {
-    const customPopupOk = document.getElementById('custom-popup-ok');
-    if (customPopupOk) customPopupOk.addEventListener('click', () => closeCustomPopup(true));
-    
-    const customPopupCancel = document.getElementById('custom-popup-cancel');
-    if (customPopupCancel) customPopupCancel.addEventListener('click', () => closeCustomPopup(false));
-});
 
 window.triggerAlertSoon = function() { 
     if(typeof translations !== 'undefined') {
