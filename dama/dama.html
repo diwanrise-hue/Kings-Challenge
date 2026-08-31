@@ -1347,6 +1347,37 @@
         <div id="match-countdown-number" style="font-size: 120px; color: white; font-weight: 900; text-shadow: 0 10px 25px rgba(0,0,0,1); background: linear-gradient(180deg, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">10</div>
     </div>
 
+    <!-- نافذة تأكيد الشراء في المتجر -->
+    <div id="purchase-modal" class="modal-overlay" style="display: none; z-index: 20000001 !important;">
+        <div class="settings-card" dir="auto" style="max-width: 320px; padding: 25px 20px; position: relative;">
+            <button class="modal-close-btn" onclick="document.getElementById('purchase-modal').style.display='none'" style="left:15px; right:auto; z-index: 10;">✕</button>
+            <h3 style="color: #FFD700; margin-bottom: 15px;">تأكيد الشراء</h3>
+            
+            <!-- صورة العنصر -->
+            <div id="modal-item-preview" style="width: 80px; height: 80px; margin: 15px auto; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); border-radius: 12px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);"></div>
+            
+            <!-- اسم العنصر -->
+            <div id="modal-item-name" style="color: white; font-weight: bold; font-size: 16px; margin-bottom: 10px;"></div>
+            
+            <!-- السعر -->
+            <div id="modal-item-cost" style="color: #34c759; font-size: 18px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);"></div>
+            
+            <!-- نظام الخصومات (القسائم) -->
+            <div id="discount-container" style="display: none; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);">
+                <label style="font-size: 12px; color: #a1a1aa; display: block; margin-bottom: 8px; font-weight: 600; text-align: start;">استخدام قسيمة خصم؟</label>
+                <select id="modal-discount-select" class="online-input" style="width: 100%; margin: 0; padding: 0 15px; height: 40px; border-radius: 8px !important; background: #1a1a24 !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white; appearance: auto;">
+                    <option value="0">بدون خصم (حفظ القسائم)</option>
+                </select>
+            </div>
+            
+            <!-- أزرار التحكم -->
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button id="confirm-buy-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 10px rgba(40,167,69,0.3) !important;">شراء</button>
+                <button onclick="document.getElementById('purchase-modal').style.display='none'" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255,69,58,0.15) !important; color: #ff453a !important; border-color: rgba(255,69,58,0.3) !important; box-shadow: none !important;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <script src="icons.js?v=2.0"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
@@ -1499,4 +1530,4 @@
         };
     </script>
 </body>
-    </html>
+</html>
