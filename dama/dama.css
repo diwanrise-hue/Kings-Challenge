@@ -1566,22 +1566,13 @@ body.game-active button#reset-btn.premium-game-btn .btn-icon {
 body.online-mode-active button#reset-btn.premium-game-btn {
     display: none !important;
 }
+
 /* =========================================
-   🛡️ إصلاح وتقييد حجم شارات الرتب (الحدود الصارمة)
+   🛡️ الضبط المستقل والمثالي لجميع شارات الرتب
    ========================================= */
 
-/* 1. تثبيت حجم الحاوية الرئيسية للشارة في اللوبي */
-.boundary-rank-icon { 
-    width: 24px !important;  /* العرض الثابت للحاوية */
-    height: 24px !important; /* الارتفاع الثابت للحاوية */
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-/* 2. تقييد صورة الرتبة (في لوحة الشرف والبروفايل الداخلي فقط) */
-.rank-icon-small img,
-#igp-rank-display img { 
+/* 1. صورة الرتبة الصغيرة (في لوحة الشرف فقط) */
+.rank-icon-small img { 
     max-width: 100% !important;   
     max-height: 100% !important;  
     width: auto !important;       
@@ -1591,17 +1582,32 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     flex-shrink: 0 !important;    
 }
 
-/* 3. رفع صورة الرتبة (الماسي والأسطوري) في إطار البروفايل العلوي 🌟 */
+/* 2. رفع صورة الرتبة للأعلى (في إطار البروفايل العلوي - اللوبي) 🌟 */
 .rank-icon-free img {
     max-width: 120% !important;   
     max-height: 130% !important;  
     width: auto !important;       
     height: auto !important;      
     object-fit: contain !important; 
-    transform: translateY(-7px) !important; /* ⬆️ هذا السطر يرفع الرتبة للأعلى بقوة */
+    transform: translateY(-7px) !important; /* الرفع لتتوسط الخط الأصفر */
     flex-shrink: 0 !important;
 }
 
+/* 3. تكبير وتوسيط الرتبة (داخل نافذة الملف الشخصي المفتوحة) 💎 */
+#igp-rank-display {
+    min-height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+#igp-rank-display img {
+    height: 40px !important;      /* إعطاء الرتبة حجماً كبيراً وفخماً */
+    max-height: 45px !important; 
+    width: auto !important;
+    object-fit: contain !important;
+    transform: translateY(-3px) scale(1.15) !important; /* رفع خفيف مع تكبير بنسبة 15% */
+    flex-shrink: 0 !important;
+}
 
 /* ========================================== */
 /* 🌟 حاوية غرفة اللاعب الخاصة (مستطيل ثابت) 🌟 */
