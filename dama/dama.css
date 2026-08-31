@@ -1605,7 +1605,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     max-height: 45px !important; 
     width: auto !important;
     object-fit: contain !important;
-    transform: translateY(-3px) scale(1.15) !important; /* رفع خفيف مع تكبير بنسبة 15% */
+    transform: translateY(-3px) scale(1.0) !important; /* رفع خفيف مع تكبير بنسبة 15% */
     flex-shrink: 0 !important;
 }
 
