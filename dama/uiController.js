@@ -9,9 +9,10 @@
  * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة عند انتهاء المباراة.
  * 🛡️ (مُحدّث جديد): منع فتح واجهة الخصم عند الضغط على ملفك الشخصي في لوحة الشرف.
  * 🔊 (مُحدّث للصوت): استنساخ مسار الصوت لعجلة الحظ لضمان تداخل التكات بشكل واقعي ومتناسق.
- * 📑 (مُحدّث للطبقات): رفع Z-Index نافذة التنبيهات لتظهر دائماً فوق عجلة الحظ وغيرها.
+ * 📑 (مُحدّث للطبقات): رفع Z-Index نافذة التنبيهات لتظهر دائماً فوق عجلة الحظ وغيرها وإخفاء العجلة برمجياً.
  * 💎 (مُحدّث): محاذاة أيقونات رتب (الماسي والأسطوري) لتتطابق تماماً مع السطر.
  * 🎯 (مُحدّث للإصلاح): إصلاح زر المراهنة الخارجي بتمرير كود الغرفة المخفي (Room ID) بنجاح للسيرفر.
+ * 🛡️ (إصلاح أمني صارم): قفل اختيار الأحجار لمنع اللعب بقطع الخصم نهائياً.
  */
 
 import { gameState } from './gameState.js'; 
@@ -287,52 +288,6 @@ export const ui = {
             if (onCancel) { try { onCancel(); } catch(err) { console.error(err); } }
         });
     },
-  
-    showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null, onCancel = null) {
-        title = title || t('alert_title');
-        const msgContainer = this.getEl('custom-alert-message');
-        if (msgContainer) {
-            msgContainer.innerHTML = '';
-            const safeDiv = document.createElement('div');
-            safeDiv.style.cssText = "line-height: 1.6; font-size: 14px;";
-            safeDiv.textContent = message; 
-            msgContainer.appendChild(safeDiv);
-        }
-        
-        this.setTxt('custom-alert-title', title);
-        this.setTxt('custom-alert-ok', customOkText || t('alert_ok'));
-        this.setTxt('custom-alert-cancel', customCancelText || t('btn_cancel'));
-        
-        const okBtn = this.getEl('custom-alert-ok');
-        if (okBtn) okBtn.style.display = 'inline-block'; 
-        
-        const modalEl = this.getEl('custom-alert-modal');
-        if (modalEl) {
-            modalEl.style.setProperty('z-index', '9999999', 'important');
-            modalEl.style.display = 'flex'; 
-        }
-
-        // 🌟 الحل الجذري: إخضاع نافذة العجلة برمجياً ودفعها للأسفل
-        const spinModal = document.getElementById('lucky-spin-modal');
-        if (spinModal && spinModal.style.display !== 'none') {
-            spinModal.style.setProperty('z-index', '10', 'important');
-        }
-        
-        this.setDisplay('custom-alert-cancel', showCancel ? 'block' : 'none');
-        
-        this.clickHandlers.set('custom-alert-ok', () => {
-            if (modalEl) modalEl.style.display = 'none'; 
-            if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); // استعادة الطبقة
-            if (onConfirm) { try { onConfirm(); } catch(err) { console.error(err); } }
-        });
-
-        this.clickHandlers.set('custom-alert-cancel', () => {
-            if (modalEl) modalEl.style.display = 'none';
-            if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); // استعادة الطبقة
-            if (onCancel) { try { onCancel(); } catch(err) { console.error(err); } }
-        });
-    },
-
 
     calculateLevelInfo(xpStr) {
         let currentXp = parseInt(xpStr) || 0;
@@ -2629,75 +2584,29 @@ ui.onClick('creator-cancel-room-btn', () => {
 window.ui = ui;
 window.updateUITranslations = () => { if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts(); };
 
-document.addEventListener('click', (e) => {
-    let target = e.target;
-    while (target && target !== document) {
-        if (target.id && ui.clickHandlers.has(target.id)) { ui.clickHandlers.get(target.id)(e); return; }
-        target = target.parentNode;
-    }
-
-    const actionElement = e.target.closest('[data-action]');
-    if (actionElement) {
-        const action = actionElement.dataset.action;
-        const fId = (actionElement.dataset.fid || "").toUpperCase(); 
-
-        if (action === 'challenge-friend') {
-            if (typeof window.challengeFriend === 'function') { window.challengeFriend(fId); } 
-            else { ui.showCustomAlert(t('coming_soon')); }
-        } else if (action === 'remove-friend') {
-            let currentFriends = gameState.userProfile.friends || [];
-            gameState.userProfile.friends = currentFriends.filter(f => (typeof f === 'string' ? f.toUpperCase() !== fId : f.id.toUpperCase() !== fId)); 
-            
-            let profileToSave = { ...gameState.userProfile };
-            if (gameState.originalHints !== undefined && gameState.originalHints !== null) { profileToSave.hints = gameState.originalHints; }
-            localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
-            ui.updateProfileUI();
-
-            if (window.socket && window.socket.connected) {
-                window.socket.emit('syncProfile', { id: profileToSave.id, friends: profileToSave.friends });
-            }
-            
-            const toast = document.getElementById('toast-notification'); 
-            if (toast) { toast.textContent = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-        }
-    }
-});
-
-const isMoveValid = (fromR, fromC, toR, toC, color, board, isDama) => {
-    let moves = gameEngine.generateAllTurnMoves(color, board);
-    return moves.some(path =>
-        path.length === 1 &&
-        path[0].fromR === fromR &&
-        path[0].fromC === fromC &&
-        path[0].toR === toR &&
-        path[0].toC === toC &&
-        path[0].midR === null 
-    );
-};
-
-if (!document.getElementById('forced-overlay-style')) {
-    const forcedStyle = document.createElement('style'); forcedStyle.id = 'forced-overlay-style';
-    forcedStyle.innerHTML = `
-        .cell:has(.piece.multi-choice), .cell.multi-choice-cell { position: relative !important; border: 2px solid #ff453a !important; border-radius: inherit; }
-        .cell:has(.piece.multi-choice)::after, .cell.multi-choice-cell::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 20px rgba(255, 69, 58, 0.8); border-radius: inherit; pointer-events: none; animation: gpuPulse 1s infinite alternate ease-in-out; will-change: opacity; }
-        @keyframes gpuPulse { 0% { opacity: 0.3; } 100% { opacity: 1; } }
-        .cell:has(.piece.multi-choice) .piece, .cell.multi-choice-cell .piece { z-index: 2 !important; position: relative !important; transform: scale(1.08) translateZ(0) !important; will-change: transform; transition: transform 0.2s ease; }
-    `;
-    document.head.appendChild(forcedStyle);
-}
-
+// 🛡️ 1. حماية قصوى: منع التدخل إذا كنت مشاهداً، أو اللعبة منتهية
 ui.onClick('board', e => {
-    if ((gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) || (ui.getVal('game-mode') === 'ai' && gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID)) return;
+    if (gameState.isSpectator || !gameState.isGameActive) return;
+
+    // 🛡️ 2. تحديد لونك الفعلي بثقة (سواء كنت تلعب أونلاين أو ضد البوت)
+    const myActualColor = gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor;
+
+    // 🛡️ 3. قفل الدور: منع اللمس نهائياً إذا لم يكن دورك
+    if (gameState.currentTurn !== myActualColor) return;
     
     const target = e.target;
     const cell = target.classList.contains('cell') ? target : target.parentElement;
 
+    // في حالة اختيار حجر جديد (وليس أثناء القفز المتعدد الإجباري)
     if (target.classList.contains('piece') && !gameState.isMultiJumping) {
-        if (gameState.isOnlineMode && !target.classList.contains(gameState.myOnlineColor)) return;
-        if ((gameState.currentTurn === 'white' && !target.classList.contains('white')) || (gameState.currentTurn === 'black' && target.classList.contains('white'))) return;
         
+        // 🛡️ 4. قفل اللون: منع تحديد أي حجر لا يطابق لونك قطعياً!
+        const clickedColor = target.classList.contains('white') ? 'white' : 'black';
+        if (clickedColor !== myActualColor) return;
+
         const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
         
+        // التحقق من الأكل الإجباري
         if (gameState.requiredJumps > 0 && getPieceMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
         
         gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = []; 
@@ -2842,6 +2751,63 @@ ui.onClick('board', e => {
         }
     }
 });
+
+document.addEventListener('click', (e) => {
+    let target = e.target;
+    while (target && target !== document) {
+        if (target.id && ui.clickHandlers.has(target.id)) { ui.clickHandlers.get(target.id)(e); return; }
+        target = target.parentNode;
+    }
+
+    const actionElement = e.target.closest('[data-action]');
+    if (actionElement) {
+        const action = actionElement.dataset.action;
+        const fId = (actionElement.dataset.fid || "").toUpperCase(); 
+
+        if (action === 'challenge-friend') {
+            if (typeof window.challengeFriend === 'function') { window.challengeFriend(fId); } 
+            else { ui.showCustomAlert(t('coming_soon')); }
+        } else if (action === 'remove-friend') {
+            let currentFriends = gameState.userProfile.friends || [];
+            gameState.userProfile.friends = currentFriends.filter(f => (typeof f === 'string' ? f.toUpperCase() !== fId : f.id.toUpperCase() !== fId)); 
+            
+            let profileToSave = { ...gameState.userProfile };
+            if (gameState.originalHints !== undefined && gameState.originalHints !== null) { profileToSave.hints = gameState.originalHints; }
+            localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
+            ui.updateProfileUI();
+
+            if (window.socket && window.socket.connected) {
+                window.socket.emit('syncProfile', { id: profileToSave.id, friends: profileToSave.friends });
+            }
+            
+            const toast = document.getElementById('toast-notification'); 
+            if (toast) { toast.textContent = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+        }
+    }
+});
+
+const isMoveValid = (fromR, fromC, toR, toC, color, board, isDama) => {
+    let moves = gameEngine.generateAllTurnMoves(color, board);
+    return moves.some(path =>
+        path.length === 1 &&
+        path[0].fromR === fromR &&
+        path[0].fromC === fromC &&
+        path[0].toR === toR &&
+        path[0].toC === toC &&
+        path[0].midR === null 
+    );
+};
+
+if (!document.getElementById('forced-overlay-style')) {
+    const forcedStyle = document.createElement('style'); forcedStyle.id = 'forced-overlay-style';
+    forcedStyle.innerHTML = `
+        .cell:has(.piece.multi-choice), .cell.multi-choice-cell { position: relative !important; border: 2px solid #ff453a !important; border-radius: inherit; }
+        .cell:has(.piece.multi-choice)::after, .cell.multi-choice-cell::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 20px rgba(255, 69, 58, 0.8); border-radius: inherit; pointer-events: none; animation: gpuPulse 1s infinite alternate ease-in-out; will-change: opacity; }
+        @keyframes gpuPulse { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+        .cell:has(.piece.multi-choice) .piece, .cell.multi-choice-cell .piece { z-index: 2 !important; position: relative !important; transform: scale(1.08) translateZ(0) !important; will-change: transform; transition: transform 0.2s ease; }
+    `;
+    document.head.appendChild(forcedStyle);
+}
 
 window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'PROFILE_UPDATED') {
