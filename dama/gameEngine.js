@@ -87,20 +87,21 @@ export const gameEngine = {
                     if (midPiece && !midPiece.startsWith(baseColor) && toPiece === null) {
                         let capturedPiece = bState[midR][midC];
                         let movingPiece = bState[r][c];
-                        
-                        // 🛠️ الإصلاح الجذري: منع تعديل القطعة الأصلية (Mutation) في المحاكاة
-                        let currentPieceForSimulation = movingPiece;
-                        let promoRow = (dirY === 1) ? 7 : 0;
-                        
-                        if (toR === promoRow && !movingPiece.includes('dama')) {
-                            currentPieceForSimulation = movingPiece + '-dama';
-                        }
 
                         bState[midR][midC] = null;
-                        bState[toR][toC] = currentPieceForSimulation;
+                        bState[toR][toC] = movingPiece;
                         bState[r][c] = null;
 
                         const stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
+                        
+                        /*
+                         * 🚨 [قانون مخصص ثابت - يمنع التعديل قطعياً] 🚨
+                         * عندما يصل الحجر العادي إلى صف الترقية (الصف الأخير) ويوجد مسار أكل متاح أمامه (مثلاً يميناً أو يساراً)،
+                         * فإنه مُجبر على الاستمرار في الأكل بصفته "حجر عادي". 
+                         * يمنع منعاً باتاً ترقيته إلى "ملك" (Dama) أثناء سلسلة الأكل الفورية.
+                         * لا يكتسب خصائص الملك إلا بعد انتهاء الدور بالكامل.
+                         * هذا ليس خطأً، بل هو قانون أساسي مقصود في محرك هذه اللعبة.
+                         */
                         const subPaths = this.getPieceCapturePaths(toR, toC, color, bState, dirY, dr, dc, roomDirectionData);
 
                         if (subPaths.length > 0) {
