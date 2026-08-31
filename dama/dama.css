@@ -1579,29 +1579,29 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     justify-content: center !important;
 }
 
-/* 2. تقييد أي صورة رتبة (في اللوبي، البروفايل، ولوحة الشرف) */
-.rank-icon-free img, 
+/* 2. تقييد صورة الرتبة (في لوحة الشرف والبروفايل الداخلي فقط) */
 .rank-icon-small img,
 #igp-rank-display img { 
-    max-width: 100% !important;   /* يمنع خروج الصورة عن العرض */
-    max-height: 100% !important;  /* يمنع خروج الصورة عن الارتفاع */
+    max-width: 100% !important;   
+    max-height: 100% !important;  
     width: auto !important;       
     height: auto !important;      
-    object-fit: contain !important; /* 🌟 السحر هنا: يجبر الصورة على الاحتواء داخل المربع */
-    transform: scale(1) !important; /* إلغاء أي تكبير عشوائي سابق يكسر الحدود */
-    flex-shrink: 0 !important;    /* يمنع انضغاط العنصر إذا صغرت الشاشة */
+    object-fit: contain !important; 
+    transform: scale(1) !important; 
+    flex-shrink: 0 !important;    
 }
 
-/* 3. تعديل خاص بنافذة البروفايل الداخلي لإعطائه مساحة أكبر قليلاً ومقيدة */
-#igp-rank-display {
-    min-height: 35px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+/* 3. رفع صورة الرتبة (الماسي والأسطوري) في إطار البروفايل العلوي 🌟 */
+.rank-icon-free img {
+    max-width: 120% !important;   
+    max-height: 130% !important;  
+    width: auto !important;       
+    height: auto !important;      
+    object-fit: contain !important; 
+    transform: translateY(-7px) !important; /* ⬆️ هذا السطر يرفع الرتبة للأعلى بقوة */
+    flex-shrink: 0 !important;
 }
-#igp-rank-display img {
-    max-height: 32px !important; /* حد أقصى خاص بنافذة البروفايل */
-}
+
 
 /* ========================================== */
 /* 🌟 حاوية غرفة اللاعب الخاصة (مستطيل ثابت) 🌟 */
