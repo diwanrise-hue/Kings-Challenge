@@ -313,12 +313,12 @@ export const ui = {
         if (currentXp >= 5000) { 
             rank = "أسطوري"; 
             // ✅ محاذاة رتبة الأسطوري بدقة مع السطر
-            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; transform: translateY(-3px); filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
+            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; transform: translateY(-5px); filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
         }
         else if (currentXp >= 2500) { 
             rank = "ماسي"; 
             // ✅ محاذاة رتبة الماسي بدقة مع السطر
-            rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; transform: translateY(-3px); filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
+            rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; transform: translateY(-5px); filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
         }
         else if (currentXp >= 1200) { rank = "ذهبي"; rankIcon = "🥇"; }
         else if (currentXp >= 500) { rank = "فضي"; rankIcon = "🥈"; }
