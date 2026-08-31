@@ -1518,3 +1518,34 @@ socket.on('matchCountdown', (data) => {
         }, 1500);
     }
 });
+
+// ==========================================
+// 🔊 نظام الصوت الشامل لجميع الأزرار (Global Click Sound)
+// يعمل بشكل مستقل دون التأثير على أي كود آخر
+// ==========================================
+(function() {
+    // الرابط المباشر لملف الصوت من مستودعك
+    const clickSoundUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/click.wav";
+    const clickAudio = new Audio(clickSoundUrl);
+    clickAudio.volume = 0.6; // مستوى الصوت (يمكنك تعديله من 0.0 إلى 1.0)
+
+    document.addEventListener('click', function(event) {
+        // التحقق مما إذا كان العنصر المضغوط هو زر، أو يمتلك onclick، أو من العناصر التفاعلية المعروفة
+        const isClickable = event.target.closest('button, [onclick], .dama-card, .nav-item, .drawer-item, .theme-grid-item, .lb-avatar, .profile-avatar, .bet-option-item, .custom-tab-button');
+        
+        if (isClickable) {
+            try {
+                // استنساخ الصوت للسماح بالضغط السريع المتتالي دون تقطيع
+                let soundClone = clickAudio.cloneNode();
+                soundClone.volume = clickAudio.volume;
+                let playPromise = soundClone.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => { 
+                        // صمت الأخطاء إذا منع المتصفح التشغيل التلقائي قبل تفاعل المستخدم
+                    });
+                }
+            } catch (e) {}
+        }
+    });
+})();
