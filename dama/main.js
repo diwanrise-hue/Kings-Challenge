@@ -362,11 +362,13 @@ window.addEventListener('load', async () => {
                 }
             }
 
-            if (typeof window.openMatchmakingModal === 'function') {
-                window.openMatchmakingModal();
+                        // 🌟 الإصلاح هنا: استدعاء النافذة الصحيحة لساحة التحديات (Stakes)
+            if (typeof window.openAppModal === 'function') {
+                window.openAppModal('matchmaking-stakes-modal');
             }
         });
     }
+
 
     const cancelMmBtn = document.getElementById('mm-cancel-btn');
     if (cancelMmBtn) {
