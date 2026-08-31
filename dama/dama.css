@@ -177,11 +177,14 @@ body {
     display: flex; align-items: center; justify-content: center; 
     width: 100%; height: 100%; 
 }
+
 .rank-icon-free img { 
     height: 26px !important; 
     width: auto !important; 
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); 
+    transform: translateY(-4px) !important; /* 🌟 هذا هو السطر السحري لرفع الصورة لتتوسط المربع 🌟 */
 }
+
 
 /* 🌟 التحسينات الجديدة لأداء GPU لزر التلميح السحري 🌟 */
 @keyframes magicGlowGpu {
