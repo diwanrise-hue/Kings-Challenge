@@ -287,6 +287,51 @@ export const ui = {
             if (onCancel) { try { onCancel(); } catch(err) { console.error(err); } }
         });
     },
+  
+    showCustomAlert(message, title = null, onConfirm = null, showCancel = false, customCancelText = null, customOkText = null, onCancel = null) {
+        title = title || t('alert_title');
+        const msgContainer = this.getEl('custom-alert-message');
+        if (msgContainer) {
+            msgContainer.innerHTML = '';
+            const safeDiv = document.createElement('div');
+            safeDiv.style.cssText = "line-height: 1.6; font-size: 14px;";
+            safeDiv.textContent = message; 
+            msgContainer.appendChild(safeDiv);
+        }
+        
+        this.setTxt('custom-alert-title', title);
+        this.setTxt('custom-alert-ok', customOkText || t('alert_ok'));
+        this.setTxt('custom-alert-cancel', customCancelText || t('btn_cancel'));
+        
+        const okBtn = this.getEl('custom-alert-ok');
+        if (okBtn) okBtn.style.display = 'inline-block'; 
+        
+        const modalEl = this.getEl('custom-alert-modal');
+        if (modalEl) {
+            modalEl.style.setProperty('z-index', '9999999', 'important');
+            modalEl.style.display = 'flex'; 
+        }
+
+        // 🌟 الحل الجذري: إخضاع نافذة العجلة برمجياً ودفعها للأسفل
+        const spinModal = document.getElementById('lucky-spin-modal');
+        if (spinModal && spinModal.style.display !== 'none') {
+            spinModal.style.setProperty('z-index', '10', 'important');
+        }
+        
+        this.setDisplay('custom-alert-cancel', showCancel ? 'block' : 'none');
+        
+        this.clickHandlers.set('custom-alert-ok', () => {
+            if (modalEl) modalEl.style.display = 'none'; 
+            if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); // استعادة الطبقة
+            if (onConfirm) { try { onConfirm(); } catch(err) { console.error(err); } }
+        });
+
+        this.clickHandlers.set('custom-alert-cancel', () => {
+            if (modalEl) modalEl.style.display = 'none';
+            if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); // استعادة الطبقة
+            if (onCancel) { try { onCancel(); } catch(err) { console.error(err); } }
+        });
+    },
 
 
     calculateLevelInfo(xpStr) {
