@@ -263,23 +263,31 @@ export const ui = {
         
         const modalEl = this.getEl('custom-alert-modal');
         if (modalEl) {
-            // ✅ رفع مستوى النافذة (Z-Index) لتكون فوق كل شيء، حتى عجلة الحظ
-            modalEl.style.setProperty('z-index', '999999', 'important');
+            modalEl.style.setProperty('z-index', '9999999', 'important');
             modalEl.style.display = 'flex'; 
+        }
+
+        // 🌟 الحل الجذري: إخضاع نافذة العجلة برمجياً ودفعها للأسفل
+        const spinModal = document.getElementById('lucky-spin-modal');
+        if (spinModal && spinModal.style.display !== 'none') {
+            spinModal.style.setProperty('z-index', '10', 'important');
         }
         
         this.setDisplay('custom-alert-cancel', showCancel ? 'block' : 'none');
         
         this.clickHandlers.set('custom-alert-ok', () => {
             if (modalEl) modalEl.style.display = 'none'; 
+            if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); // استعادة الطبقة
             if (onConfirm) { try { onConfirm(); } catch(err) { console.error(err); } }
         });
 
         this.clickHandlers.set('custom-alert-cancel', () => {
             if (modalEl) modalEl.style.display = 'none';
+            if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); // استعادة الطبقة
             if (onCancel) { try { onCancel(); } catch(err) { console.error(err); } }
         });
     },
+
 
     calculateLevelInfo(xpStr) {
         let currentXp = parseInt(xpStr) || 0;
