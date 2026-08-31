@@ -278,11 +278,9 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 }
 
 /* ضبط أحجام جميع أيقونات الأزرار (SVG) */
+/* 🌟 (مُحدّث): تمت إزالة الألوان الإجبارية للسماح لتدرجات icons.js الأصلية بالظهور 🌟 */
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
 #room-portal-btn svg, #hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
-    fill: #fce8a1 !important;
-    stroke: #fce8a1 !important;
-    color: #fce8a1 !important;
     object-fit: contain;
 }
 
@@ -1568,3 +1566,10 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 .my-waiting-action-btn.settings:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
 .my-waiting-action-btn.delete { background: rgba(255, 69, 58, 0.15); border: 1px solid rgba(255, 69, 58, 0.3); color: #ff453a; }
 .my-waiting-action-btn.delete:hover { background: rgba(255, 69, 58, 0.25); transform: scale(1.05); }
+
+/* ضبط أحجام جميع أيقونات الأزرار (SVG) */
+/* 🌟 (مُحدّث): تمت إزالة الألوان الإجبارية للسماح لتدرجات icons.js الأصلية بالظهور 🌟 */
+#hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
+#room-portal-btn svg, #hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
+    object-fit: contain;
+}
