@@ -1589,7 +1589,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     width: auto !important;       
     height: auto !important;      
     object-fit: contain !important; 
-    transform: translateY(-3px) !important; /* الرفع لتتوسط الخط الأصفر */
+    transform: translateY(-2px) !important; /* الرفع لتتوسط الخط الأصفر */
     flex-shrink: 0 !important;
 }
 
