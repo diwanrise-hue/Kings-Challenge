@@ -1,14 +1,14 @@
 // damapro.js
 // 🛡️ (إصلاح شامل - Bulletproof): تمت معالجة جميع الأخطاء البرمجية وإرجاع البيانات الأصلية لمنع توقف اللعبة.
 // 🚀 (أداء فائق): استخدام الأنيميشن المسرّع عتادياً (Opacity).
-// 👑 (تعديل الأهداف): وضع إطار (Vipprofile.webp) حول نافذة البروفايل *بالكامل*، وإطار (Vipغرفة.webp) حول بطاقة الغرفة *بالكامل*.
+// 👑 (وزنية مثالية): ضبط مقاسات إطارات VIP 3+ بدقة عالية لكي لا تغطي على زر الإغلاق (X) وتبرز الزخارف للخارج بشكل احترافي.
 
 window.frameRank1 = 'Media/register/king1.webp'; 
 window.frameRank2 = 'Media/register/king2.webp'; 
 window.frameRank3 = 'Media/register/king3.webp'; 
 
 document.addEventListener('DOMContentLoaded', () => {
-   console.log("👑 DamaPro: تم تجهيز نظام الـ VIP والإطارات الملكية (البروفايل والغرف) بنجاح.");
+   console.log("👑 DamaPro: تم تجهيز نظام الـ VIP والإطارات الملكية (بوزنية 3D مثالية).");
 });
 
 // ==========================================
@@ -52,14 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             .match-players-flex > div, .match-players-flex > span { position: relative; z-index: 2; }
 
-            /* 🌟 الستايل الجديد المخصص لنافذة البروفايل بالكامل 🌟 */
+            /* ============================================================== */
+            /* 🌟 الستايل الجديد المخصص لنافذة البروفايل بالكامل (مقاسات جديدة) 🌟 */
+            /* ============================================================== */
             .custom-vip3-profile-frame {
                 position: absolute !important; 
                 top: 50% !important; 
                 left: 50% !important; 
                 transform: translate(-50%, -50%) !important; 
-                width: calc(100% + 22px) !important; /* توسعة لتغطي النافذة */
-                height: calc(100% + 22px) !important; 
+                width: calc(100% + 35px) !important; /* توسعة العرض لراحة الإطار */
+                height: calc(100% + 45px) !important; /* توسعة الطول لاستيعاب التاج العلوي والشريط السفلي */
                 z-index: 0 !important; /* خلف النصوص والصور */
                 pointer-events: none !important; 
                 object-fit: fill !important; 
@@ -67,18 +69,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 filter: drop-shadow(0 6px 15px rgba(0,0,0,0.9)) !important;
             }
 
-            /* 🌟 الستايل المخصص لبطاقة الغرفة بالكامل 🌟 */
+            /* 🛡️ إجبار زر الإغلاق (X) ليكون فوق التاج الملكي دائماً */
+            .modal-close-btn { z-index: 100 !important; }
+
+            /* ============================================================== */
+            /* 🌟 الستايل المخصص لبطاقة الغرفة بالكامل (مقاسات جديدة) 🌟 */
+            /* ============================================================== */
             .custom-vip3-card-bg {
                 position: absolute !important;
                 top: 50% !important;
                 left: 50% !important;
                 transform: translate(-50%, -50%) !important;
-                width: calc(100% + 18px) !important; 
-                height: calc(100% + 24px) !important; 
-                z-index: 1 !important; 
+                width: calc(100% + 32px) !important; /* توسعة لتخرج الزخارف خارج البطاقة السوداء */
+                height: calc(100% + 40px) !important; /* توسعة لتبرز الجواهر والتاج للخارج */
+                z-index: 0 !important; /* يجب أن يكون صفر لكي لا يغطي أزرار الإعدادات والدخول */
                 object-fit: fill !important; 
                 pointer-events: none !important;
-                filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8)) !important;
+                filter: drop-shadow(0 6px 12px rgba(0,0,0,0.9)) !important;
             }
 
             .hide-normal-frame { border: none !important; }
@@ -226,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // ==============================================================
             const profileModal = document.getElementById('in-game-profile-modal');
             if (profileModal && profileModal.style.display !== 'none') {
-                // استهداف الحاوية الأساسية للنافذة (البطاقة المظلمة)
                 const profileCard = profileModal.querySelector('.settings-card') || profileModal.firstElementChild;
                 
                 if (profileCard) {
@@ -246,10 +252,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         let existingFrame = profileCard.querySelector('.custom-vip3-profile-frame');
                         
                         if (vipLvl >= 3) {
-                            // إزالة الحدود الصفراء القديمة مع الحفاظ على الخلفية الأصلية للنافذة
                             profileCard.style.setProperty('border', 'none', 'important');
                             
-                            // ضمان أن كل المحتوى يظهر فوق الإطار
                             Array.from(profileCard.children).forEach(child => {
                                 if (!child.classList.contains('custom-vip3-profile-frame')) {
                                     child.style.position = 'relative';
@@ -265,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         } else {
                             if (existingFrame) existingFrame.remove();
-                            // إعادة الحدود الأصلية
                             profileCard.style.setProperty('border', '1.5px solid #a88734', 'important');
                         }
                         profileCard.setAttribute('data-vip3-processed', String(vipLvl));
