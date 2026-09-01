@@ -289,6 +289,7 @@ export const ui = {
         });
     },
 
+                  
     calculateLevelInfo(xpStr) {
         let currentXp = parseInt(xpStr) || 0;
         let level = Math.floor(Math.sqrt(currentXp / 50)) + 1;
@@ -308,20 +309,25 @@ export const ui = {
         else if (level >= 30) title = "خبير";
         else if (level >= 10) title = "مبارز";
 
-        let rank = "برونزي"; let rankIcon = "🥉";
+        let rank = "برونزي"; 
+        let rankIcon = `<img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));">`;
         
         if (currentXp >= 5000) { 
             rank = "أسطوري"; 
-            // ✅ محاذاة رتبة الأسطوري بدقة مع السطر
-            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; transform: translateY(-10px); filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
+            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
         }
         else if (currentXp >= 2500) { 
             rank = "ماسي"; 
-            // ✅ محاذاة رتبة الماسي بدقة مع السطر
-            rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; transform: translateY(-10px); filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
+            rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
         }
-        else if (currentXp >= 1200) { rank = "ذهبي"; rankIcon = "🥇"; }
-        else if (currentXp >= 500) { rank = "فضي"; rankIcon = "🥈"; }
+        else if (currentXp >= 1200) { 
+            rank = "ذهبي"; 
+            rankIcon = `<img src="Media/front/golden.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
+        }
+        else if (currentXp >= 500) { 
+            rank = "فضي"; 
+            rankIcon = `<img src="Media/front/silver.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(192,192,192,0.8));">`; 
+        }
 
         return { level, title, rank, rankIcon, progressXp, requiredXp, percentage };
     },
@@ -1983,7 +1989,7 @@ window.showPlayerProfileFromLB = function(player) {
         
         if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: ${oppTitleText}`;
     } else { 
-        if (oppRankDisplay) oppRankDisplay.innerHTML = `🥉 <span>برونزي</span>`; 
+        if (oppRankDisplay) oppRankDisplay.innerHTML = `<img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));"> <span>برونزي</span>`; 
         if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: مبتدئ`;
     }
     
