@@ -136,16 +136,43 @@
             z-index: 10;
             box-shadow: 0 20px 40px rgba(0,0,0,0.8);
         }
-
+      
+        /* 🌟 تكبير حاوية الصورة 🌟 */
         .mm-card-medal {
-            height: 80px;
-            font-size: 70px;
-            line-height: 1;
+            height: 130px; /* زيادة الارتفاع بشكل كبير */
+            margin-top: -10px; /* رفعها للأعلى قليلاً لتتمركز أجمل */
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.7));
+            perspective: 1000px; /* إضافة عمق 3D */
+        }
+
+        /* 🌟 إضافة الظل للصورة وتهيئتها للأنيميشن 🌟 */
+        .mm-card-medal img {
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8)); /* ظل قوي يبرز الصورة */
+            transform: translateZ(0); 
+            will-change: transform, filter; /* تسريع أداء كارت الشاشة (GPU) */
+            transition: all 0.3s ease;
+        }
+
+        /* 🌟 تأثير الحياة (الطفو والتنفس) يشتغل فقط على البطاقة اللي في المنتصف (النشطة) 🌟 */
+        .mm-card.active .mm-card-medal img {
+            animation: alive3DFloat 3.5s ease-in-out infinite; /* حركة كل 3 ثواني ونصف */
+        }
+
+        /* 🌟 تفاصيل الحركة السلسة 🌟 */
+        @keyframes alive3DFloat {
+            0%, 100% { 
+                transform: translateY(0) scale(1.05); /* الحجم الطبيعي */
+                filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8)) brightness(1);
+            }
+            50% { 
+                transform: translateY(-12px) scale(1.12); /* ترتفع للأعلى وتكبر قليلاً */
+                filter: drop-shadow(0 25px 20px rgba(0,0,0,0.5)) brightness(1.15); /* الظل يكبر وتشع نوراً */
+            }
         }
 
         .mm-card-title {
@@ -1542,4 +1569,4 @@
         };
     </script>
 </body>
-</html>
+                                                                                                                                                                        </html>
