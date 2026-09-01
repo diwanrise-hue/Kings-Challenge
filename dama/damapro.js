@@ -1,6 +1,7 @@
 // damapro.js
 // مخصص لإضافة الإطارات الملكية للوحة الشرف، ونظام عرض شارات الـ VIP الديناميكي مع تأثير "اللهب المشتعل".
 // 🌟 (مُحدّث جذرياً): استخدام نظام الصورة الخلفية (DOM Image) لضمان تطابق الحجم 100% وتدمير التغويش والظلال نهائياً.
+// 👑 (مُحدّث حصري): تخصيص إطارات (Vipprofile.webp) و (Vipغرفة.webp) حصرياً للاعبي VIP 3 فما فوق في البروفايل وقائمة الغرف.
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // 🌟 نظام عرض شارات وإطارات الـ VIP الديناميكي 🌟
 // ==========================================
 (function() {
-    // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP واللهب فقط
+    // 1. حقن التنسيقات (CSS) الخاصة بشارات الـ VIP، اللهب، وإطارات الغرف والبروفايل الحصرية
     const style = document.createElement('style');
     style.innerHTML = `
         /* 🌟 أنيميشن الطفو البطيء والانسيابي مع دوران كل 15 ثانية 🌟 */
@@ -64,14 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
         .vip-badge-match-me { position: absolute; bottom: -15px; right: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d; }
         .vip-badge-match-opp { position: absolute; bottom: -15px; left: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, filter; transform-style: preserve-3d; }
 
-        /* 🎨 تأثيرات اللهب (تم إبطاؤها لتصبح مريحة جداً للعين بـ 2.5 ثانية) */
+        /* 🎨 تأثيرات اللهب */
         .vip-glow-white  { animation: vipFloatAndSpin 15s infinite linear, vipFlameWhite 2.5s infinite alternate ease-in-out; }
         .vip-glow-purple { animation: vipFloatAndSpin 15s infinite linear, vipFlamePurple 2.5s infinite alternate ease-in-out; }
         .vip-glow-red    { animation: vipFloatAndSpin 15s infinite linear, vipFlameRed 2.5s infinite alternate ease-in-out; }
         .vip-glow-mixed  { animation: vipFloatAndSpin 15s infinite linear, vipFlameMixed 2.5s infinite alternate ease-in-out; }
 
         /* ========================================== */
-        /* 🌟 كلاس الإطار الجديد الذي يضمن الحجم الدقيق 🌟 */
+        /* 🌟 كلاس الإطار الجديد داخل المباراة (V23 و 45) 🌟 */
         /* ========================================== */
         .vip-frame-img-layer {
             position: absolute !important;
@@ -91,10 +92,39 @@ document.addEventListener('DOMContentLoaded', () => {
             position: relative;
             z-index: 2;
         }
+
+        /* ========================================== */
+        /* 👑 إطارات VIP 3+ المخصصة للغرف والبروفايل 👑 */
+        /* ========================================== */
+        .custom-vip3-room-frame {
+            position: absolute !important; 
+            top: 50% !important; 
+            left: 50% !important; 
+            transform: translate(-50%, -50%) !important; 
+            width: 145% !important; /* حجم يبرز الإطار خارج الدائرة */
+            height: 145% !important; 
+            z-index: 4 !important; 
+            pointer-events: none !important; 
+            object-fit: contain !important;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)) !important;
+        }
+        
+        .custom-vip3-profile-frame {
+            position: absolute !important; 
+            top: 50% !important; 
+            left: 50% !important; 
+            transform: translate(-50%, -50%) !important; 
+            width: 135% !important; /* حجم متناسق مع البروفايل الشخصي */
+            height: 135% !important; 
+            z-index: 4 !important; 
+            pointer-events: none !important; 
+            object-fit: contain !important;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.9)) !important;
+        }
     `;
     document.head.appendChild(style);
 
-    // 2. دالة رسم أو تحديث شارة الـ VIP والإطارات
+    // 2. دالة رسم أو تحديث شارة الـ VIP والإطارات داخل المباراة
     window.updateVipBadgeUI = function(avatarContainerId, vipLevel) {
         const avatarDiv = document.getElementById(avatarContainerId);
         if (!avatarDiv) return;
@@ -119,12 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let badge = parent.querySelector('.' + badgeClass);
         let lvl = parseInt(vipLevel) || 0;
 
-        // 🌟 تطبيق الإطارات عبر DOM بدلاً من الـ CSS لضمان السيطرة المطلقة 🌟
+        // تطبيق الإطارات أثناء المباراة
         if (matchCardContainer) {
             let frameImg = matchCardContainer.querySelector('.vip-frame-img-layer');
 
             if (lvl > 1) { // يتم عرض الإطار فقط لـ VIP 2 فما فوق
-                // 1. تدمير كل مؤثرات البطاقة القديمة
                 matchCardContainer.style.setProperty('background', 'transparent', 'important');
                 matchCardContainer.style.setProperty('background-color', 'transparent', 'important');
                 matchCardContainer.style.setProperty('border', 'none', 'important');
@@ -132,14 +161,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 matchCardContainer.style.setProperty('backdrop-filter', 'none', 'important');
                 matchCardContainer.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
 
-                // 2. إنشاء طبقة الإطار إذا لم تكن موجودة
                 if (!frameImg) {
                     frameImg = document.createElement('img');
                     frameImg.className = 'vip-frame-img-layer';
                     matchCardContainer.insertBefore(frameImg, matchCardContainer.firstChild);
                 }
 
-                // 3. تحديد الصورة المناسبة للمستوى
                 if (lvl === 2 || lvl === 3) {
                     frameImg.src = 'Media/VIP/V23.webp?v=30';
                 } else if (lvl >= 4) {
@@ -147,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
             } else {
-                // في حال انقضاء الـ VIP أو كان VIP 1، يتم حذف الإطار واستعادة الشكل الأصلي
                 if (frameImg) frameImg.remove();
                 matchCardContainer.style.removeProperty('background');
                 matchCardContainer.style.removeProperty('background-color');
@@ -158,14 +184,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // إضافة شارة اللهب (VIP Badge) تظل تعمل لجميع مستويات VIP بما فيها VIP 1
+        // إضافة شارة اللهب (VIP Badge) 
         if (lvl > 0) {
             if (!badge) {
                 badge = document.createElement('img');
                 parent.appendChild(badge);
             }
             
-            // تحديد لون اللهب
             let glowClass = 'vip-glow-white'; 
             if (lvl === 1 || lvl === 2) glowClass = 'vip-glow-white';
             else if (lvl === 3) glowClass = 'vip-glow-purple';
@@ -183,7 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 3. اعتراض دوال الواجهة الأساسية لتحديث الشارات والإطارات تلقائياً
-    
     let isProfileHooked = false;
     setInterval(() => {
         if (!isProfileHooked && typeof window.applyProfileDataToUI === 'function') {
@@ -220,9 +244,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000); 
     });
 
-    // 4. حلقة فحص (Loop) كل ثانيتين لضمان بقاء الشارة والإطارات
+    // 4. حلقة الفحص السريعة (Loop) للمتجر وشارات الـ VIP والإطارات الملكية (كل 300ms لضمان الاستجابة الفورية)
     setInterval(() => {
         try {
+            // تحديث الشارات العامة
             let profileStr = localStorage.getItem('hub_user_profile');
             if (profileStr) {
                 let p = JSON.parse(profileStr);
@@ -233,7 +258,103 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.isMatchRunning && window.currentOpponentData) {
                 window.updateVipBadgeUI('card-opp-avatar', window.currentOpponentData.vipLevel || 0);
             }
+
+            // ==========================================
+            // 👑 نظام إطارات VIP 3+ المخصصة للغرف والبروفايل 👑
+            // ==========================================
+
+            // أ. معالجة إطار البروفايل الشخصي (Vipprofile.webp)
+            const profileModal = document.getElementById('in-game-profile-modal');
+            if (profileModal && profileModal.style.display !== 'none') {
+                const igpAvatar = document.getElementById('igp-avatar');
+                if (igpAvatar) {
+                    let vipLvl = 0;
+                    
+                    if (document.getElementById('own-profile-actions').style.display === 'block') {
+                        let p = JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+                        vipLvl = parseInt(p.vipLevel) || 0;
+                    } else if (window.gameState && window.gameState.currentViewedPlayer) {
+                        vipLvl = parseInt(window.gameState.currentViewedPlayer.vipLevel) || 0;
+                    } else if (window.currentOpponentData) {
+                        vipLvl = parseInt(window.currentOpponentData.vipLevel) || 0;
+                    }
+
+                    let existingFrame = igpAvatar.querySelector('.custom-vip3-profile-frame');
+                    
+                    if (vipLvl >= 3) {
+                        // إخفاء الإطار العادي إن وجد
+                        const normalFrames = igpAvatar.querySelectorAll('img:not(.custom-vip3-profile-frame):not(:first-child)');
+                        normalFrames.forEach(f => f.style.display = 'none');
+                        
+                        // إزالة حواف الـ CSS لعدم التضارب مع الإطار الجديد
+                        igpAvatar.style.setProperty('border', 'none', 'important');
+                        
+                        if (!existingFrame) {
+                            let frame = document.createElement('img');
+                            frame.src = 'Media/VIP/Vipprofile.webp';
+                            frame.className = 'custom-vip3-profile-frame';
+                            igpAvatar.appendChild(frame);
+                        }
+                    } else {
+                        if (existingFrame) existingFrame.remove();
+                        // استعادة الإطار العادي
+                        igpAvatar.style.setProperty('border', '3px solid #d4af37', 'important');
+                        const normalFrames = igpAvatar.querySelectorAll('img:not(.custom-vip3-profile-frame):not(:first-child)');
+                        normalFrames.forEach(f => f.style.display = 'block');
+                    }
+                }
+            }
+
+            // ب. معالجة إطار الغرف (Vipغرفة.webp) في قائمة الغرف المتاحة
+            const activeRoomsList = document.getElementById('active-rooms-list');
+            if (activeRoomsList) {
+                const vipBadges = activeRoomsList.querySelectorAll('img[src*="Media/VIP/vip"]');
+                vipBadges.forEach(badge => {
+                    const match = badge.src.match(/vip(\d+)\.webp/);
+                    if (match) {
+                        const lvl = parseInt(match[1]);
+                        if (lvl >= 3) {
+                            const avatarContainer = badge.parentElement;
+                            if (avatarContainer) {
+                                let existingRoomFrame = avatarContainer.querySelector('.custom-vip3-room-frame');
+                                
+                                // إخفاء الإطار الافتراضي الذي يولده السيرفر
+                                const normalFrames = avatarContainer.querySelectorAll('img:not(.custom-vip3-room-frame):not([src*="vip"]):not(:first-child)');
+                                normalFrames.forEach(f => f.style.display = 'none');
+                                
+                                // إزالة حواف الـ CSS إن وجدت
+                                avatarContainer.style.setProperty('border', 'none', 'important');
+
+                                if (!existingRoomFrame) {
+                                    let frame = document.createElement('img');
+                                    frame.src = 'Media/VIP/Vipغرفة.webp';
+                                    frame.className = 'custom-vip3-room-frame';
+                                    avatarContainer.appendChild(frame);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // ج. معالجة بطاقة "غرفتي في الانتظار"
+            const myWaitingRoom = document.getElementById('my-waiting-room-card');
+            if (myWaitingRoom && myWaitingRoom.style.display !== 'none') {
+                let p = JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+                let vipLvl = parseInt(p.vipLevel) || 0;
+                const myAvatarContainer = document.getElementById('my-waiting-avatar')?.parentElement;
+                
+                if (myAvatarContainer && vipLvl >= 3) {
+                    const myFrameContainer = document.getElementById('my-waiting-frame');
+                    myAvatarContainer.style.setProperty('border', 'none', 'important'); // إزالة الخط الأصفر
+                    
+                    if (myFrameContainer && !myFrameContainer.querySelector('.custom-vip3-room-frame')) {
+                        myFrameContainer.innerHTML = `<img src="Media/VIP/Vipغرفة.webp" class="custom-vip3-room-frame">`;
+                    }
+                }
+            }
+
         } catch(e) {}
-    }, 2000);
+    }, 300);
 
 })();
