@@ -1096,20 +1096,23 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .theme-grid-item.active::after {
     content: 'مُستخدَم ✔️';
     position: absolute;
-    top: -10px;
-    right: -5px;
+    top: -1px;   /* إرجاع الشارة للداخل لمنع القص */
+    right: -1px; /* إرجاع الشارة للداخل لمنع القص */
     background: linear-gradient(135deg, #34c759, #1e8449);
     color: white;
     font-size: 10px;
     font-weight: 800;
     padding: 3px 8px;
-    border-radius: 8px;
+    border-radius: 0 14px 0 12px; /* تصميم الزوايا ليتطابق مع زاوية البطاقة */
     border: 1px solid #a3f78b;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    border-top: none;
+    border-right: none;
+    box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.4);
     z-index: 10;
-    pointer-events: none; /* لكي لا تعيق الضغط على العنصر */
-    animation: popInBadge 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    pointer-events: none; 
+    animation: popInBadge 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
 
 /* حركة خفيفة لظهور الشارة بأسلوب قفزة (Pop) */
 @keyframes popInBadge {
@@ -1626,4 +1629,4 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
 #room-portal-btn svg, #hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
     object-fit: contain;
-}
+        }
