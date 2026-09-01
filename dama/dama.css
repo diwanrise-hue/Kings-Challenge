@@ -1574,12 +1574,18 @@ body.online-mode-active button#reset-btn.premium-game-btn {
    🛡️ الضبط المستقل والمثالي لجميع شارات الرتب
    ========================================= */
 
-/* 1. صورة الرتبة الصغيرة (في لوحة الشرف فقط) */
+/* 1. صورة الرتبة الصغيرة (في لوحة الشرف بجانب الاسم) */
+.rank-icon-small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 18px !important; /* تحديد ارتفاع الحاوية بشكل صارم */
+}
+
 .rank-icon-small img { 
-    max-width: 100% !important;   
-    max-height: 100% !important;  
+    height: 18px !important;      /* إجبار الصورة على البقاء صغيرة */
+    max-height: 18px !important;  /* خط دفاع إضافي لمنع التمدد */
     width: auto !important;       
-    height: auto !important;      
     object-fit: contain !important; 
     transform: scale(1) !important; 
     flex-shrink: 0 !important;    
@@ -1629,4 +1635,4 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
 #room-portal-btn svg, #hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
     object-fit: contain;
-        }
+}
