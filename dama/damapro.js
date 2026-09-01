@@ -1,158 +1,177 @@
 // damapro.js
-// 🚀 (تحديث الأداء الجذري - الأخير): إزالة أنيميشن الـ drop-shadow الكارثي واستبداله بالـ opacity لتخفيف استهلاك المعالج إلى 0%.
-// 👑 تخصيص إطارات (Vipprofile.webp) و (Vipغرفة.webp) لـ VIP 3+.
+// 🛡️ (إصلاح شامل - Bulletproof): تمت معالجة جميع الأخطاء البرمجية وإرجاع البيانات الأصلية لمنع توقف اللعبة.
+// 🚀 (أداء فائق): استخدام الأنيميشن المسرّع عتادياً (Opacity) وإيقاف الفحص عند خمول اللعبة.
+// 👑 تخصيص إطار البروفايل (Vipprofile.webp)، ووضع إطار الغرفة (Vipغرفة.webp) على *كامل بطاقة الغرفة*.
+
+window.frameRank1 = 'Media/register/king1.webp'; 
+window.frameRank2 = 'Media/register/king2.webp'; 
+window.frameRank3 = 'Media/register/king3.webp'; 
 
 document.addEventListener('DOMContentLoaded', () => {
-    window.frameRank1 = 'Media/register/king1.webp'; 
-    window.frameRank2 = 'Media/register/king2.webp'; 
-    window.frameRank3 = 'Media/register/king3.webp'; 
-   console.log("👑 DamaPro: تم تجهيز إطارات لوحة الشرف الملكية بنجاح (بأداء فائق).");
+   console.log("👑 DamaPro: تم تجهيز نظام الـ VIP والإطارات الملكية للغرف بالكامل.");
 });
 
 // ==========================================
 // 🌟 نظام عرض شارات وإطارات الـ VIP الديناميكي 🌟
 // ==========================================
 (function() {
-    const style = document.createElement('style');
-    style.innerHTML = `
-        /* 🌟 الأنيميشن المسرّع عتادياً (لا يستهلك المعالج) 🌟 */
-        @keyframes vipFloatAndSpin {
-            0%   { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-in-out; }
-            25%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in-out; }
-            50%  { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-in-out; }
-            75%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in-out; }
-            85%  { transform: translateY(0px) rotateY(0deg); }
-            90%  { transform: translateY(-3px) rotateY(0deg); animation-timing-function: ease-in; }
-            95%  { transform: translateY(-6px) rotateY(360deg); animation-timing-function: linear; }
-            100% { transform: translateY(0px) rotateY(720deg); animation-timing-function: ease-out; }
-        }
+    try {
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes vipFloatAndSpin {
+                0%   { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-in-out; }
+                25%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in-out; }
+                50%  { transform: translateY(0px) rotateY(0deg); animation-timing-function: ease-in-out; }
+                75%  { transform: translateY(-6px) rotateY(0deg); animation-timing-function: ease-in-out; }
+                85%  { transform: translateY(0px) rotateY(0deg); }
+                90%  { transform: translateY(-3px) rotateY(0deg); animation-timing-function: ease-in; }
+                95%  { transform: translateY(-6px) rotateY(360deg); animation-timing-function: linear; }
+                100% { transform: translateY(0px) rotateY(720deg); animation-timing-function: ease-out; }
+            }
 
-        /* 🚀 (حل الثقل): استخدام Opacity النبضي بدلاً من تحريك الظلال */
-        @keyframes vipPulseAlpha {
-            0%   { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
+            @keyframes vipPulseAlpha {
+                0%   { opacity: 0.6; }
+                100% { opacity: 1; }
+            }
 
-        .vip-badge-hub { position: absolute; top: 10px; left: 185px; width: 48px; height: 64px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, opacity; transform-style: preserve-3d; }
-        .vip-badge-match-me { position: absolute; bottom: -15px; right: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, opacity; transform-style: preserve-3d; }
-        .vip-badge-match-opp { position: absolute; bottom: -15px; left: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, opacity; transform-style: preserve-3d; }
+            .vip-badge-hub { position: absolute; top: 10px; left: 185px; width: 48px; height: 64px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, opacity; transform-style: preserve-3d; }
+            .vip-badge-match-me { position: absolute; bottom: -15px; right: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, opacity; transform-style: preserve-3d; }
+            .vip-badge-match-opp { position: absolute; bottom: -15px; left: -15px; width: 33px; height: 44px; object-fit: contain; z-index: 1000; pointer-events: none; will-change: transform, opacity; transform-style: preserve-3d; }
 
-        /* ظلال ثابتة (بدون تحريك) مع نبض شفافية فائق السرعة */
-        .vip-glow-white  { filter: drop-shadow(0 -2px 6px rgba(255,255,255,0.8)); animation: vipFloatAndSpin 15s infinite linear, vipPulseAlpha 1.5s infinite alternate ease-in-out; }
-        .vip-glow-purple { filter: drop-shadow(0 -2px 6px rgba(190,40,210,0.8)); animation: vipFloatAndSpin 15s infinite linear, vipPulseAlpha 1.5s infinite alternate ease-in-out; }
-        .vip-glow-red    { filter: drop-shadow(0 -2px 6px rgba(255,69,58,0.8));   animation: vipFloatAndSpin 15s infinite linear, vipPulseAlpha 1.5s infinite alternate ease-in-out; }
-        .vip-glow-mixed  { filter: drop-shadow(0 -2px 6px rgba(255,215,0,0.8));   animation: vipFloatAndSpin 15s infinite linear, vipPulseAlpha 1.5s infinite alternate ease-in-out; }
+            .vip-glow-white  { filter: drop-shadow(0 -2px 6px rgba(255,255,255,0.8)); animation: vipFloatAndSpin 15s infinite linear, vipPulseAlpha 1.5s infinite alternate ease-in-out; }
+            .vip-glow-purple { filter: drop-shadow(0 -2px 6px rgba(190,40,210,0.8)); animation: vipFloatAndSpin 15s infinite linear, vipPulseAlpha 1.5s infinite alternate ease-in-out; }
+            .vip-glow-red    { filter: drop-shadow(0 -2px 6px rgba(255,69,58,0.8));   animation: vipFloatAndSpin 15s infinite linear, vipPulseAlpha 1.5s infinite alternate ease-in-out; }
+            .vip-glow-mixed  { filter: drop-shadow(0 -2px 6px rgba(255,215,0,0.8));   animation: vipFloatAndSpin 15s infinite linear, vipPulseAlpha 1.5s infinite alternate ease-in-out; }
 
-        .vip-frame-img-layer {
-            position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important;
-            object-fit: fill !important; z-index: 0 !important; border-radius: 20px !important; pointer-events: none !important;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)) !important; 
-        }
+            .vip-frame-img-layer {
+                position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important;
+                object-fit: fill !important; z-index: 0 !important; border-radius: 20px !important; pointer-events: none !important;
+                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)) !important; 
+            }
 
-        .match-players-flex > div, .match-players-flex > span { position: relative; z-index: 2; }
+            .match-players-flex > div, .match-players-flex > span { position: relative; z-index: 2; }
 
-        .custom-vip3-room-frame {
-            position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; 
-            width: 145% !important; height: 145% !important; z-index: 4 !important; pointer-events: none !important; 
-            object-fit: contain !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)) !important;
-        }
-        
-        .custom-vip3-profile-frame {
-            position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; 
-            width: 135% !important; height: 135% !important; z-index: 4 !important; pointer-events: none !important; 
-            object-fit: contain !important; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.9)) !important;
-        }
+            /* إطار البروفايل الشخصي (دائري/مربع للنافذة) */
+            .custom-vip3-profile-frame {
+                position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; 
+                width: 135% !important; height: 135% !important; z-index: 4 !important; pointer-events: none !important; 
+                object-fit: contain !important; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.9)) !important;
+            }
 
-        .hide-normal-frame { border: none !important; }
-        .hide-normal-frame img:not(.custom-vip3-profile-frame):not(.custom-vip3-room-frame):not([src*="vip"]):not(:first-child) { display: none !important; }
-    `;
-    document.head.appendChild(style);
+            /* 🌟 الستايل الجديد المخصص لبطاقة الغرفة بالكامل (المستطيل) 🌟 */
+            .custom-vip3-card-bg {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                z-index: 0 !important; /* يجب أن يكون خلف النصوص والصور */
+                object-fit: fill !important; /* يتمدد ليغطي المستطيل بالكامل */
+                border-radius: 12px !important; /* تتوافق مع زوايا البطاقة الأصلية */
+                pointer-events: none !important;
+                filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8)) !important;
+            }
+
+            .hide-normal-frame { border: none !important; }
+            .hide-normal-frame img:not(.custom-vip3-profile-frame):not(.custom-vip3-card-bg):not([src*="vip"]):not(:first-child) { display: none !important; }
+        `;
+        document.head.appendChild(style);
+    } catch(e) { console.error(e); }
 
     window.updateVipBadgeUI = function(avatarContainerId, vipLevel) {
-        const avatarDiv = document.getElementById(avatarContainerId);
-        if (!avatarDiv) return;
-        const parentNode = avatarDiv.parentElement;
-        if (!parentNode) return;
+        try {
+            const avatarDiv = document.getElementById(avatarContainerId);
+            if (!avatarDiv) return;
+            const parentNode = avatarDiv.parentElement;
+            if (!parentNode) return;
 
-        let parent, badgeClass;
-        let matchCardContainer = null; 
+            let parent, badgeClass;
+            let matchCardContainer = null; 
 
-        if (avatarContainerId === 'badge-avatar') {
-            badgeClass = 'vip-badge-hub';
-            parent = parentNode;
-        } else {
-            matchCardContainer = avatarDiv.closest('.match-players-flex');
-            if (!matchCardContainer) return;
-            badgeClass = (avatarContainerId === 'card-my-avatar') ? 'vip-badge-match-me' : 'vip-badge-match-opp';
-            parent = matchCardContainer; 
-        }
-        
-        let badge = parent.querySelector('.' + badgeClass);
-        let lvl = parseInt(vipLevel) || 0;
+            if (avatarContainerId === 'badge-avatar') {
+                badgeClass = 'vip-badge-hub';
+                parent = parentNode;
+            } else {
+                matchCardContainer = avatarDiv.closest('.match-players-flex');
+                if (!matchCardContainer) return;
+                badgeClass = (avatarContainerId === 'card-my-avatar') ? 'vip-badge-match-me' : 'vip-badge-match-opp';
+                parent = matchCardContainer; 
+            }
+            
+            let badge = parent.querySelector('.' + badgeClass);
+            let lvl = parseInt(vipLevel) || 0;
 
-        if (matchCardContainer) {
-            let frameImg = matchCardContainer.querySelector('.vip-frame-img-layer');
-            let isCurrentLevelProcessed = matchCardContainer.getAttribute('data-vip-processed') === String(lvl);
+            if (matchCardContainer) {
+                let frameImg = matchCardContainer.querySelector('.vip-frame-img-layer');
+                let isCurrentLevelProcessed = matchCardContainer.getAttribute('data-vip-processed') === String(lvl);
 
-            if (!isCurrentLevelProcessed) {
-                if (lvl > 1) { 
-                    matchCardContainer.style.setProperty('background', 'transparent', 'important');
-                    matchCardContainer.style.setProperty('border', 'none', 'important');
-                    matchCardContainer.style.setProperty('box-shadow', 'none', 'important');
+                if (!isCurrentLevelProcessed) {
+                    if (lvl > 1) { 
+                        matchCardContainer.style.setProperty('background', 'transparent', 'important');
+                        matchCardContainer.style.setProperty('border', 'none', 'important');
+                        matchCardContainer.style.setProperty('box-shadow', 'none', 'important');
 
-                    if (!frameImg) {
-                        frameImg = document.createElement('img');
-                        frameImg.className = 'vip-frame-img-layer';
-                        matchCardContainer.insertBefore(frameImg, matchCardContainer.firstChild);
+                        if (!frameImg) {
+                            frameImg = document.createElement('img');
+                            frameImg.className = 'vip-frame-img-layer';
+                            matchCardContainer.insertBefore(frameImg, matchCardContainer.firstChild);
+                        }
+
+                        if (lvl === 2 || lvl === 3) frameImg.src = 'Media/VIP/V23.webp?v=30';
+                        else if (lvl >= 4) frameImg.src = 'Media/VIP/45.webp?v=30';
+
+                    } else {
+                        if (frameImg) frameImg.remove();
+                        matchCardContainer.style.removeProperty('background');
+                        matchCardContainer.style.removeProperty('border');
+                        matchCardContainer.style.removeProperty('box-shadow');
                     }
-
-                    if (lvl === 2 || lvl === 3) frameImg.src = 'Media/VIP/V23.webp?v=30';
-                    else if (lvl >= 4) frameImg.src = 'Media/VIP/45.webp?v=30';
-
-                } else {
-                    if (frameImg) frameImg.remove();
-                    matchCardContainer.style.removeProperty('background');
-                    matchCardContainer.style.removeProperty('border');
-                    matchCardContainer.style.removeProperty('box-shadow');
+                    matchCardContainer.setAttribute('data-vip-processed', String(lvl));
                 }
-                matchCardContainer.setAttribute('data-vip-processed', String(lvl));
             }
-        }
 
-        if (lvl > 0) {
-            if (!badge) {
-                badge = document.createElement('img');
-                parent.appendChild(badge);
+            if (lvl > 0) {
+                if (!badge) {
+                    badge = document.createElement('img');
+                    parent.appendChild(badge);
+                }
+                
+                let glowClass = 'vip-glow-white'; 
+                if (lvl === 1 || lvl === 2) glowClass = 'vip-glow-white';
+                else if (lvl === 3) glowClass = 'vip-glow-purple';
+                else if (lvl === 4) glowClass = 'vip-glow-red';
+                else if (lvl >= 5) glowClass = 'vip-glow-mixed';
+
+                const newClass = `${badgeClass} ${glowClass}`;
+                const newSrc = `Media/VIP/vip${lvl}.webp`;
+
+                if (badge.className !== newClass) badge.className = newClass;
+                if (badge.getAttribute('src') !== newSrc) badge.src = newSrc;
+                
+                badge.onerror = function() { this.style.display = 'none'; };
+                if (badge.style.display !== 'block') badge.style.display = 'block';
+            } else {
+                if (badge && badge.style.display !== 'none') badge.style.display = 'none';
             }
-            
-            let glowClass = 'vip-glow-white'; 
-            if (lvl === 1 || lvl === 2) glowClass = 'vip-glow-white';
-            else if (lvl === 3) glowClass = 'vip-glow-purple';
-            else if (lvl === 4) glowClass = 'vip-glow-red';
-            else if (lvl >= 5) glowClass = 'vip-glow-mixed';
-
-            const newClass = `${badgeClass} ${glowClass}`;
-            const newSrc = `Media/VIP/vip${lvl}.webp`;
-
-            if (badge.className !== newClass) badge.className = newClass;
-            if (badge.getAttribute('src') !== newSrc) badge.src = newSrc;
-            
-            badge.onerror = function() { this.style.display = 'none'; };
-            if (badge.style.display !== 'block') badge.style.display = 'block';
-        } else {
-            if (badge && badge.style.display !== 'none') badge.style.display = 'none';
-        }
+        } catch(e) {}
     };
 
     let isProfileHooked = false;
     setInterval(() => {
         if (!isProfileHooked && typeof window.applyProfileDataToUI === 'function') {
             const originalApplyProfile = window.applyProfileDataToUI;
-            window.applyProfileDataToUI = function(profile) {
-                if (originalApplyProfile) originalApplyProfile(profile); 
-                let vipLevel = profile.vipLevel || 0;
-                window.updateVipBadgeUI('card-my-avatar', vipLevel);
-                window.updateVipBadgeUI('badge-avatar', vipLevel);
+            window.applyProfileDataToUI = function() {
+                let res;
+                if (originalApplyProfile) res = originalApplyProfile.apply(this, arguments); 
+                try {
+                    let profile = arguments[0];
+                    let vipLevel = (profile && profile.vipLevel) ? profile.vipLevel : 0;
+                    if (typeof window.updateVipBadgeUI === 'function') {
+                        window.updateVipBadgeUI('card-my-avatar', vipLevel);
+                        window.updateVipBadgeUI('badge-avatar', vipLevel);
+                    }
+                } catch(e) {}
+                return res; 
             };
             isProfileHooked = true;
         }
@@ -162,40 +181,46 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (window.ui && window.ui.toggleOnlineUILayout) {
                 const origToggle = window.ui.toggleOnlineUILayout;
-                window.ui.toggleOnlineUILayout = function(active, oppName, oppAvatar) {
-                    origToggle.call(window.ui, active, oppName, oppAvatar); 
-                    if (active) {
-                        let oppVip = (window.currentOpponentData && window.currentOpponentData.vipLevel) ? window.currentOpponentData.vipLevel : 0;
-                        window.updateVipBadgeUI('card-opp-avatar', oppVip);
-                    } else {
-                        window.updateVipBadgeUI('card-opp-avatar', 0);
-                    }
+                window.ui.toggleOnlineUILayout = function() {
+                    let res = origToggle.apply(this, arguments); 
+                    try {
+                        let active = arguments[0];
+                        if (active) {
+                            let oppVip = (window.currentOpponentData && window.currentOpponentData.vipLevel) ? window.currentOpponentData.vipLevel : 0;
+                            if (typeof window.updateVipBadgeUI === 'function') window.updateVipBadgeUI('card-opp-avatar', oppVip);
+                        } else {
+                            if (typeof window.updateVipBadgeUI === 'function') window.updateVipBadgeUI('card-opp-avatar', 0);
+                        }
+                    } catch(e) {}
+                    return res;
                 };
             }
         }, 1000); 
     });
 
-    // 🚀 تحديث الأداء: إيقاف الحلقة تماماً إذا كان التطبيق في الخلفية
     setInterval(() => {
-        if (document.hidden) return; // توفير 100% من الموارد أثناء عدم استخدام اللعبة
+        if (document.hidden) return;
 
         try {
             let profileStr = localStorage.getItem('hub_user_profile');
-            if (profileStr) {
+            if (profileStr && typeof window.updateVipBadgeUI === 'function') {
                 let p = JSON.parse(profileStr);
                 window.updateVipBadgeUI('card-my-avatar', p.vipLevel || 0);
                 window.updateVipBadgeUI('badge-avatar', p.vipLevel || 0);
             }
-            if (window.isMatchRunning && window.currentOpponentData) {
+            if (window.isMatchRunning && window.currentOpponentData && typeof window.updateVipBadgeUI === 'function') {
                 window.updateVipBadgeUI('card-opp-avatar', window.currentOpponentData.vipLevel || 0);
             }
 
+            // أ. معالجة إطار البروفايل الشخصي (الصورة الدائرية)
             const profileModal = document.getElementById('in-game-profile-modal');
             if (profileModal && profileModal.style.display !== 'none') {
                 const igpAvatar = document.getElementById('igp-avatar');
                 if (igpAvatar) {
                     let vipLvl = 0;
-                    if (document.getElementById('own-profile-actions').style.display === 'block') {
+                    const ownActions = document.getElementById('own-profile-actions');
+                    
+                    if (ownActions && ownActions.style && ownActions.style.display === 'block') {
                         vipLvl = parseInt(JSON.parse(localStorage.getItem('hub_user_profile') || '{}').vipLevel) || 0;
                     } else if (window.gameState && window.gameState.currentViewedPlayer) {
                         vipLvl = parseInt(window.gameState.currentViewedPlayer.vipLevel) || 0;
@@ -223,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // ب. 🌟 معالجة إطار الغرف المتاحة (التطبيق على البطاقة بالكامل) 🌟
             const activeRoomsList = document.getElementById('active-rooms-list');
             if (activeRoomsList) {
                 const vipBadges = activeRoomsList.querySelectorAll('img[src*="Media/VIP/vip"]');
@@ -230,15 +256,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     const match = badge.src.match(/vip(\d+)\.webp/);
                     if (match) {
                         const lvl = parseInt(match[1]);
-                        const avatarContainer = badge.parentElement;
-                        if (lvl >= 3 && avatarContainer) {
-                            if (!avatarContainer.classList.contains('hide-normal-frame')) {
-                                avatarContainer.classList.add('hide-normal-frame');
-                                if (!avatarContainer.querySelector('.custom-vip3-room-frame')) {
+                        if (lvl >= 3) {
+                            // البحث عن الحاوية الأم المستطيلة للغرفة
+                            const roomCard = badge.closest('#active-rooms-list > div') || badge.parentElement.parentElement.parentElement;
+                            
+                            if (roomCard && !roomCard.classList.contains('vip-card-processed')) {
+                                roomCard.classList.add('vip-card-processed');
+                                roomCard.style.position = 'relative';
+                                
+                                // إزالة الخلفية العادية والحدود
+                                roomCard.style.setProperty('border', 'none', 'important');
+                                roomCard.style.setProperty('background', 'transparent', 'important');
+                                roomCard.style.setProperty('box-shadow', 'none', 'important');
+
+                                // التأكد من أن النصوص والصور داخل الغرفة تظهر فوق الإطار
+                                Array.from(roomCard.children).forEach(child => {
+                                    child.style.position = 'relative';
+                                    child.style.zIndex = '2';
+                                });
+
+                                // إضافة المستطيل (Vipغرفة.webp) ليكون خلفية للبطاقة
+                                if (!roomCard.querySelector('.custom-vip3-card-bg')) {
                                     let frame = document.createElement('img');
                                     frame.src = 'Media/VIP/Vipغرفة.webp';
-                                    frame.className = 'custom-vip3-room-frame';
-                                    avatarContainer.appendChild(frame);
+                                    frame.className = 'custom-vip3-card-bg';
+                                    roomCard.insertBefore(frame, roomCard.firstChild);
                                 }
                             }
                         }
@@ -246,18 +288,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
+            // ج. 🌟 معالجة بطاقة غرفتي في الانتظار (التطبيق على البطاقة بالكامل) 🌟
             const myWaitingRoom = document.getElementById('my-waiting-room-card');
-            if (myWaitingRoom && myWaitingRoom.style.display !== 'none') {
+            if (myWaitingRoom && myWaitingRoom.style && myWaitingRoom.style.display !== 'none') {
                 let vipLvl = parseInt(JSON.parse(localStorage.getItem('hub_user_profile') || '{}').vipLevel) || 0;
-                const myAvatarContainer = document.getElementById('my-waiting-avatar')?.parentElement;
                 
-                if (myAvatarContainer && vipLvl >= 3) {
-                    if (!myAvatarContainer.classList.contains('hide-normal-frame')) {
-                        myAvatarContainer.classList.add('hide-normal-frame');
-                        const myFrameContainer = document.getElementById('my-waiting-frame');
-                        if (myFrameContainer && !myFrameContainer.querySelector('.custom-vip3-room-frame')) {
-                            myFrameContainer.innerHTML = `<img src="Media/VIP/Vipغرفة.webp" class="custom-vip3-room-frame">`;
-                        }
+                if (vipLvl >= 3 && !myWaitingRoom.classList.contains('vip-card-processed')) {
+                    myWaitingRoom.classList.add('vip-card-processed');
+                    myWaitingRoom.style.position = 'relative';
+                    myWaitingRoom.style.setProperty('border', 'none', 'important');
+                    myWaitingRoom.style.setProperty('background', 'transparent', 'important');
+                    myWaitingRoom.style.setProperty('box-shadow', 'none', 'important');
+
+                    Array.from(myWaitingRoom.children).forEach(child => {
+                        child.style.position = 'relative';
+                        child.style.zIndex = '2';
+                    });
+
+                    if (!myWaitingRoom.querySelector('.custom-vip3-card-bg')) {
+                        let frame = document.createElement('img');
+                        frame.src = 'Media/VIP/Vipغرفة.webp';
+                        frame.className = 'custom-vip3-card-bg';
+                        myWaitingRoom.insertBefore(frame, myWaitingRoom.firstChild);
                     }
                 }
             }
