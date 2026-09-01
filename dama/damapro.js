@@ -1,14 +1,14 @@
 // damapro.js
 // 🛡️ (إصلاح شامل - Bulletproof): تمت معالجة جميع الأخطاء البرمجية وإرجاع البيانات الأصلية لمنع توقف اللعبة.
-// 🚀 (أداء فائق): استخدام الأنيميشن المسرّع عتادياً (Opacity) وتوقيت 1500ms وإيقاف الفحص عند خمول اللعبة لحل مشكلة ثقل المعالج.
-// 👑 تخصيص إطار البروفايل (Vipprofile.webp)، ووضع إطار الغرفة (Vipغرفة.webp) على *كامل بطاقة الغرفة*.
+// 🚀 (أداء فائق): استخدام الأنيميشن المسرّع عتادياً (Opacity).
+// 👑 (تعديل القياسات): إرجاع الضباب الذهبي للبطاقة، وضبط قياسات إطار (Vipغرفة.webp) ليحيط بالبطاقة من الخارج بشكل احترافي.
 
 window.frameRank1 = 'Media/register/king1.webp'; 
 window.frameRank2 = 'Media/register/king2.webp'; 
 window.frameRank3 = 'Media/register/king3.webp'; 
 
 document.addEventListener('DOMContentLoaded', () => {
-   console.log("👑 DamaPro: تم تجهيز نظام الـ VIP والإطارات الملكية للغرف (بأداء فائق).");
+   console.log("👑 DamaPro: تم تجهيز نظام الـ VIP والإطارات الملكية للغرف (بأداء فائق وقياسات مضبوطة).");
 });
 
 // ==========================================
@@ -51,23 +51,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             .match-players-flex > div, .match-players-flex > span { position: relative; z-index: 2; }
 
-            /* 🌟 إطار البروفايل الشخصي (الصورة الدائرية) 🌟 */
+            /* إطار البروفايل الشخصي */
             .custom-vip3-profile-frame {
                 position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; 
                 width: 135% !important; height: 135% !important; z-index: 4 !important; pointer-events: none !important; 
                 object-fit: contain !important; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.9)) !important;
             }
 
-            /* 🌟 الستايل المخصص لبطاقة الغرفة بالكامل (المستطيل الخارجي) 🌟 */
+            /* 🌟 الستايل المخصص لبطاقة الغرفة بالكامل (تم ضبط المقاسات) 🌟 */
             .custom-vip3-card-bg {
                 position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                z-index: 0 !important; 
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: calc(100% + 18px) !important; /* توسعة العرض لكي لا ينضغط الإطار */
+                height: calc(100% + 24px) !important; /* توسعة الطول لاستيعاب التاج الملكي البارز */
+                z-index: 1 !important; /* خلف النصوص ولكن فوق الخلفية */
                 object-fit: fill !important; 
-                border-radius: 12px !important; 
                 pointer-events: none !important;
                 filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8)) !important;
             }
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     setInterval(() => {
-        if (document.hidden) return; // توفير موارد المعالج
+        if (document.hidden) return;
 
         try {
             let profileStr = localStorage.getItem('hub_user_profile');
@@ -257,17 +257,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (match) {
                         const lvl = parseInt(match[1]);
                         if (lvl >= 3) {
-                            // البحث عن الحاوية الأم المستطيلة للغرفة
                             const roomCard = badge.closest('#active-rooms-list > div') || badge.parentElement.parentElement.parentElement;
                             
                             if (roomCard && !roomCard.classList.contains('vip-card-processed')) {
                                 roomCard.classList.add('vip-card-processed');
                                 roomCard.style.position = 'relative';
                                 
-                                // إزالة الخلفية العادية والحدود
+                                // 🌟 إزالة الحدود فقط، مع إبقاء الخلفية والضباب الذهبي ساطعاً 🌟
                                 roomCard.style.setProperty('border', 'none', 'important');
-                                roomCard.style.setProperty('background', 'transparent', 'important');
-                                roomCard.style.setProperty('box-shadow', 'none', 'important');
 
                                 // التأكد من أن النصوص والصور داخل الغرفة تظهر فوق الإطار
                                 Array.from(roomCard.children).forEach(child => {
@@ -275,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     child.style.zIndex = '2';
                                 });
 
-                                // إضافة المستطيل (Vipغرفة.webp) ليكون خلفية للبطاقة
+                                // إضافة المستطيل (Vipغرفة.webp) ليكون إطاراً خارجياً
                                 if (!roomCard.querySelector('.custom-vip3-card-bg')) {
                                     let frame = document.createElement('img');
                                     frame.src = 'Media/VIP/Vipغرفة.webp';
@@ -296,9 +293,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (vipLvl >= 3 && !myWaitingRoom.classList.contains('vip-card-processed')) {
                     myWaitingRoom.classList.add('vip-card-processed');
                     myWaitingRoom.style.position = 'relative';
+                    
+                    // 🌟 إزالة الحدود فقط، مع إبقاء الخلفية الأصلية 🌟
                     myWaitingRoom.style.setProperty('border', 'none', 'important');
-                    myWaitingRoom.style.setProperty('background', 'transparent', 'important');
-                    myWaitingRoom.style.setProperty('box-shadow', 'none', 'important');
 
                     Array.from(myWaitingRoom.children).forEach(child => {
                         child.style.position = 'relative';
@@ -314,6 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch(e) {}
-    }, 1500); // 🚀 فحص كل ثانية ونصف يضمن نعومة اللعبة وأداء ممتاز
+    }, 1500); 
 
 })();
