@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 50% !important; 
                 left: 50% !important; 
                 /* 🔥 هنا السحر: تم سحب الإطار للأعلى 35 بكسل لترك مساحة للتاج 🔥 */
-                transform: translate(-50%, calc(-50% - 35px)) !important; 
+                transform: translate(-50%, calc(-50% - 5px)) !important; 
                 z-index: 10 !important; 
                 pointer-events: none !important; 
                 object-fit: fill !important; 
