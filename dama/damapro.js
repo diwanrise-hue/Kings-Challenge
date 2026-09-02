@@ -76,9 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 50% !important;
                 left: 50% !important;
                 /* 🔥 تم سحب الإطار للأعلى 12 بكسل لترك مساحة للتاج 🔥 */
-                transform: translate(-50%, calc(-50% - 12px)) !important;
+                transform: translate(-50%, calc(-50% -46 px)) !important;
                 width: calc(100% + 14px) !important; 
-                height: calc(100% + 28px) !important; 
+                height: calc(100% + 22px) !important; 
                 z-index: 10 !important; 
                 object-fit: fill !important; 
                 pointer-events: none !important; 
