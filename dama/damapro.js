@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // مزامنة الحجم بزيادة طفيفة جداً ليتطابق بسلاسة وينسدل التاج للداخل
                         existingFrame.style.width = (profileCard.offsetWidth + 18) + 'px';
-                        existingFrame.style.height = (profileCard.offsetHeight + 28) + 'px';
+                        existingFrame.style.height = (profileCard.offsetHeight + 32) + 'px';
 
                     } else {
                         if (existingFrame) existingFrame.remove();
