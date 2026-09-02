@@ -1,22 +1,18 @@
 // gameAI.js
-// الذكاء الاصطناعي الخاص باللعبة 🤖
-// 🌟 (النسخة الخالية من الثغرات العمياء): إصلاح جذري لخوارزمية Quiescence لمنع التضحيات الغبية.
-// 🌟 (مُحدّث): رفع قيمة "الملك" لزيادة شراسة البوت الدفاعية، ونظام لكسر التكرار (Anti-Looping).
-// ==========================================
+// 🌟 (النسخة المتناسبة): المستوى يطابق العمق بالضبط (Level 1 = Depth 1 ... Level 7 = Depth 7)
+
 import { gameEngine } from './gameEngine.js';
 import { gameState } from './gameState.js'; 
 
 const AI_LEVELS = {
-    1: { id: 1, depth: 1, randomChance: 0.50, maxTime: 500,  name: "مبتدئ جداً" },
-    2: { id: 2, depth: 2, randomChance: 0.20, maxTime: 1000, name: "مبتدئ" },
-    3: { id: 3, depth: 3, randomChance: 0.05, maxTime: 1500, name: "سهل" },
-    4: { id: 4, depth: 3, randomChance: 0.00, maxTime: 2000, name: "متوسط" },
-    5: { id: 5, depth: 4, randomChance: 0.00, maxTime: 3000, name: "صعب" },
-    6: { id: 6, depth: 4, randomChance: 0.00, maxTime: 4000, name: "محترف" },
-    7: { id: 7, depth: 5, randomChance: 0.00, maxTime: 6000, name: "أستاذ" },
-    8: { id: 8, depth: 6, randomChance: 0.00, maxTime: 10000, name: "جراند ماستر" },
-    9: { id: 9, depth: 8, randomChance: 0.00, maxTime: 15000, name: "الزعيم (مستحيل)" },
-    10: { id: 10, depth: 10, randomChance: 0.00, maxTime: 25000, name: "إله الدامة (تلميح حصري)" }
+    1: { id: 1, depth: 1, randomChance: 0.30, maxTime: 500,  name: "عمق 1" },
+    2: { id: 2, depth: 2, randomChance: 0.15, maxTime: 1000, name: "عمق 2" },
+    3: { id: 3, depth: 3, randomChance: 0.05, maxTime: 1500, name: "عمق 3" },
+    4: { id: 4, depth: 4, randomChance: 0.00, maxTime: 2500, name: "عمق 4" },
+    5: { id: 5, depth: 5, randomChance: 0.00, maxTime: 4000, name: "عمق 5" },
+    6: { id: 6, depth: 6, randomChance: 0.00, maxTime: 7000, name: "عمق 6" },
+    7: { id: 7, depth: 7, randomChance: 0.00, maxTime: 12000, name: "الزعيم (عمق 7)" },
+    8: { id: 8, depth: 8, randomChance: 0.00, maxTime: 15000, name: "المصباح السحري" } // مخصص لزر التلميح
 };
 
 export const gameAI = {
@@ -84,17 +80,16 @@ export const gameAI = {
                 let pColor = isMine ? aiColor : oppColor;
                 let eColor = isMine ? oppColor : aiColor;
                 
-                // 🚀 التحسين: رفع قيمة الدامة بشكل هائل ليرتعب البوت من صنع ملك للخصم
                 let pieceValue = isDama ? 2000 : 100;
                 score += pieceValue * sign;
                 
-                if (levelNum >= 4 && !isDama) {
+                if (levelNum >= 3 && !isDama) {
                     let progress = (pDir === 1) ? r : (7 - r);
-                    score += (progress * 3) * sign; // زيادة تشجيع التقدم للأمام
+                    score += (progress * 3) * sign; 
                     if (c === 0 || c === 7) score += 5 * sign; 
                 }
 
-                if (levelNum >= 6 && !isDama) {
+                if (levelNum >= 4 && !isDama) {
                     let backR = r - pDir;
                     if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(pColor)) score += 3 * sign;
                     if ((c > 0 && board[r][c-1] && board[r][c-1].startsWith(pColor)) ||
@@ -103,7 +98,7 @@ export const gameAI = {
                     }
                 }
 
-                if (levelNum >= 7 && !isDama) {
+                if (levelNum >= 5 && !isDama) {
                     let frontR = r + pDir;
                     let backR = r - pDir;
                     if (frontR >= 0 && frontR < 8 && backR >= 0 && backR < 8) {
@@ -115,11 +110,11 @@ export const gameAI = {
                     if (r === backRow) score += 8 * sign;
                 }
 
-                if (levelNum >= 8 && isEndgame) {
+                if (levelNum >= 6 && isEndgame) {
                     if (isDama) {
                         let centerDist = Math.abs(r - 3.5) + Math.abs(c - 3.5);
                         if (myPieces > oppPieces) {
-                            score -= (centerDist * 10) * sign; // مطاردة الخصم للزوايا بفاعلية أكبر
+                            score -= (centerDist * 10) * sign; 
                         } else {
                             score += (centerDist * 5) * sign; 
                         }
@@ -131,26 +126,23 @@ export const gameAI = {
             }
         }
 
-        if (levelNum >= 8 && isEndgame) {
+        if (levelNum >= 7 && isEndgame) {
             if (myDamas > 0 && oppPieces === 0) score += 10000;
         }
 
         return score;
     },
 
-    // 🚀 التحسين الجذري: إصلاح ثغرة (Quiescence Search) في الدامة
     quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, depthLimit) {
         this.nodesEvaluated++;
 
         let allMoves = gameEngine.generateAllTurnMoves(currentTurn, board);
         let captures = allMoves.filter(m => m.some(step => step.midR !== null));
         
-        // 💡 في الدامة، إذا لم يكن هناك أكل إجباري، يمكننا إيقاف البحث والتقييم.
         if (captures.length === 0 || depthLimit <= 0) {
             return this.evaluateBoard(board, aiColor, pieceDirection, levelNum);
         }
 
-        // 🚨 الأكل إجباري! البوت الآن مجبر على استكشاف جميع مسارات الأكل الإجبارية للخصم وله.
         if (isMaximizing) {
             let maxEval = -Infinity;
             for (let move of captures) {
@@ -209,7 +201,7 @@ export const gameAI = {
             if (currentMovesNoProg >= 50) return { score: 0 }; 
 
             if (depth === 0) {
-                if (levelNum >= 7) {
+                if (levelNum >= 5) {
                     return { score: self.quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, 6) };
                 } else {
                     return { score: self.evaluateBoard(board, aiColor, pieceDirection, levelNum) };
@@ -220,7 +212,7 @@ export const gameAI = {
             
             if (possibleMoves.length === 0) return { score: isMaximizing ? -99999 : 99999 };
 
-            if (levelNum >= 8) {
+            if (levelNum >= 6) {
                 possibleMoves.sort((a, b) => {
                     let aCapture = a.some(s => s.midR !== null) ? 100 : 0;
                     let bCapture = b.some(s => s.midR !== null) ? 100 : 0;
@@ -265,7 +257,6 @@ export const gameAI = {
                         }
                     }
 
-                    // 🚀 إضافة (Random Noise) لكسر حالات التعادل الميتة ومنع البوت من التردد يميناً ويساراً
                     let randomNoise = isRoot ? (Math.random() * 2) : 0;
                     let currentScore = result.score + moveRepPenalty + randomNoise;
 
@@ -273,7 +264,7 @@ export const gameAI = {
                     alpha = Math.max(alpha, currentScore);
                     
                     if (beta <= alpha) {
-                        if (levelNum >= 8 && !isCapture) self.killerMoves[depth] = move; 
+                        if (levelNum >= 6 && !isCapture) self.killerMoves[depth] = move; 
                         break; 
                     }
                 }
@@ -298,7 +289,7 @@ export const gameAI = {
                     beta = Math.min(beta, result.score);
                     
                     if (beta <= alpha) {
-                        if (levelNum >= 8 && !isCapture) self.killerMoves[depth] = move;
+                        if (levelNum >= 6 && !isCapture) self.killerMoves[depth] = move;
                         break; 
                     }
                 }
