@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 left: 50% !important;
                 transform: translate(-50%, -50%) !important;
                 width: calc(100% + 28px) !important; 
-                height: calc(100% + 32px) !important; 
+                height: calc(100% + 38px) !important; 
                 z-index: 10 !important; /* 🔥 الأهم: جعله يبرز فوق محتوى البطاقة 🔥 */
                 object-fit: fill !important; 
                 pointer-events: none !important; /* يمنع حجب الأزرار */
@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // مزامنة الحجم بزيادة طفيفة جداً ليتطابق بسلاسة وينسدل التاج للداخل
                         existingFrame.style.width = (profileCard.offsetWidth + 18) + 'px';
-                        existingFrame.style.height = (profileCard.offsetHeight + 32) + 'px';
+                        existingFrame.style.height = (profileCard.offsetHeight + 40) + 'px';
 
                     } else {
                         if (existingFrame) existingFrame.remove();
