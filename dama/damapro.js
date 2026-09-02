@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     } else {
                         if (existingFrame) existingFrame.remove();
-                        profileCard.style.setProperty('border', '1.5px solid #a88734', 'important');
+                        profileCard.style.setProperty('border', '-1.5px solid #a88734', 'important');
                     }
                 }
             } else {
