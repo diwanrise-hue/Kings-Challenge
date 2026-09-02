@@ -520,24 +520,23 @@
         <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
     </button>
 
-    <div id="level-select-modal" class="modal-overlay" style="z-index: 950;">
+     <div id="level-select-modal" class="modal-overlay" style="z-index: 950;">
         <div class="settings-card" dir="auto" style="max-width: 340px; padding: 30px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('level-select-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color:#f5a623; margin-bottom: 5px; font-size: 22px;">مستوى الحاسوب 🤖</h3>
             <p class="settings-label" style="text-align: center; margin-bottom: 25px;">اختر درجة ذكاء البوت</p>
             
-            <div class="level-grid-container">
-                <button id="lvl-btn-1" class="level-btn easy" onclick="setAiLevel(1)">L1<span>سهل جداً</span></button>
-                <button id="lvl-btn-2" class="level-btn easy" onclick="setAiLevel(2)">L2<span>سهل</span></button>
-                <button id="lvl-btn-3" class="level-btn easy active" onclick="setAiLevel(3)">L3<span>متوسط</span></button>
+            <div class="level-grid-container" style="grid-template-columns: repeat(3, 1fr);">
+                <button id="lvl-btn-1" class="level-btn easy" onclick="setAiLevel(1)">L1<span>عمق 1</span></button>
+                <button id="lvl-btn-2" class="level-btn easy" onclick="setAiLevel(2)">L2<span>عمق 2</span></button>
+                <button id="lvl-btn-3" class="level-btn easy active" onclick="setAiLevel(3)">L3<span>عمق 3</span></button>
                 
-                <button id="lvl-btn-4" class="level-btn medium" onclick="setAiLevel(4)">L4<span>متقدم</span></button>
-                <button id="lvl-btn-5" class="level-btn medium" onclick="setAiLevel(5)">L5<span>خبير</span></button>
-                <button id="lvl-btn-6" class="level-btn medium" onclick="setAiLevel(6)">L6<span>محترف</span></button>
+                <button id="lvl-btn-4" class="level-btn medium" onclick="setAiLevel(4)">L4<span>عمق 4</span></button>
+                <button id="lvl-btn-5" class="level-btn medium" onclick="setAiLevel(5)">L5<span>عمق 5</span></button>
+                <button id="lvl-btn-6" class="level-btn medium" onclick="setAiLevel(6)">L6<span>عمق 6</span></button>
                 
-                <button id="lvl-btn-7" class="level-btn hard" onclick="setAiLevel(7)">L7<span>ماستر</span></button>
-                <button id="lvl-btn-8" class="level-btn hard" onclick="setAiLevel(8)">L8<span>جراند</span></button>
-                <button id="lvl-btn-9" class="level-btn hard boss" onclick="setAiLevel(9)">L9<span>مستحيل 👑</span></button>
+                <!-- 🌟 الزعيم: يأخذ مساحة السطر بالكامل -->
+                <button id="lvl-btn-7" class="level-btn hard boss" onclick="setAiLevel(7)" style="grid-column: 1 / -1;">L7<span>الزعيم (عمق 7) 👑</span></button>
             </div>
             
             <button onclick="closeAppModal('level-select-modal')" class="save-settings-btn" style="margin-top: 20px; background: transparent !important; box-shadow: none !important; border: 1.5px solid #a88734 !important;">إلغاء</button>
@@ -1569,4 +1568,4 @@
         };
     </script>
 </body>
-                                                                                                                                                                        </html>
+    </html>
