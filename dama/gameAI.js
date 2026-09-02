@@ -13,10 +13,10 @@ const AI_LEVELS = {
     4: { id: 4, depth: 3, randomChance: 0.00, maxTime: 2000, name: "متوسط" },
     5: { id: 5, depth: 4, randomChance: 0.00, maxTime: 3000, name: "صعب" },
     6: { id: 6, depth: 4, randomChance: 0.00, maxTime: 4000, name: "محترف" },
-    7: { id: 7, depth: 5, randomChance: 0.00, maxTime: 5000, name: "أستاذ" },
-    8: { id: 8, depth: 6, randomChance: 0.00, maxTime: 6000, name: "جراند ماستر" },
-    9: { id: 9, depth: 8, randomChance: 0.00, maxTime: 8000, name: "الزعيم (مستحيل)" },
-    10: { id: 10, depth: 10, randomChance: 0.00, maxTime: 12000, name: "إله الدامة (تلميح حصري)" }
+    7: { id: 7, depth: 5, randomChance: 0.00, maxTime: 6000, name: "أستاذ" },
+    8: { id: 8, depth: 6, randomChance: 0.00, maxTime: 10000, name: "جراند ماستر" },
+    9: { id: 9, depth: 8, randomChance: 0.00, maxTime: 15000, name: "الزعيم (مستحيل)" },
+    10: { id: 10, depth: 10, randomChance: 0.00, maxTime: 25000, name: "إله الدامة (تلميح حصري)" }
 };
 
 export const gameAI = {
@@ -204,8 +204,8 @@ export const gameAI = {
         async function minimax(board, depth, isMaximizing, alpha, beta, currentTurn, currentMovesNoProg, isRoot = false) {
             self.nodesEvaluated++;
             
-            // تجنب تجميد الواجهة (Main Thread) بإعطاء استراحة للمتصفح
-            if (self.nodesEvaluated % 500 === 0) {
+            // تجنب تجميد الواجهة بإعطاء استراحة للمتصفح كل 5000 عقدة بدلاً من 500
+            if (self.nodesEvaluated % 5000 === 0) {
                 await new Promise(r => setTimeout(r, 0)); 
             }
 
