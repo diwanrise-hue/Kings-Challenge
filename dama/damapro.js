@@ -71,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 50% !important;
                 left: 50% !important;
                 transform: translate(-50%, -50%) !important;
-                width: calc(100% + 18px) !important; 
-                height: calc(100% + 28px) !important; 
+                width: calc(100% + 12px) !important; 
+                height: calc(100% + 20px) !important; 
                 z-index: 10 !important; /* 🔥 الأهم: جعله يبرز فوق محتوى البطاقة 🔥 */
                 object-fit: fill !important; 
                 pointer-events: none !important; /* يمنع حجب الأزرار */
