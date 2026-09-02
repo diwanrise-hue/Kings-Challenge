@@ -1,5 +1,6 @@
 // gameAI.js
-// 🌟 (النسخة المتناسبة): المستوى يطابق العمق بالضبط (Level 1 = Depth 1 ... Level 7 = Depth 7)
+// 🌟 (النسخة المتناسبة والهجومية): المستوى يطابق العمق بالضبط (Level 1 = Depth 1 ... Level 7 = Depth 7)
+// ⚔️ (تحديث الزعيم): البوت في المستويات المتقدمة يهاجم من الوسط ويكره اللعب الجبان على الحواف.
 
 import { gameEngine } from './gameEngine.js';
 import { gameState } from './gameState.js'; 
@@ -83,10 +84,25 @@ export const gameAI = {
                 let pieceValue = isDama ? 2000 : 100;
                 score += pieceValue * sign;
                 
+                // 1. تقييم التقدم للأمام
                 if (levelNum >= 3 && !isDama) {
                     let progress = (pDir === 1) ? r : (7 - r);
                     score += (progress * 3) * sign; 
-                    if (c === 0 || c === 7) score += 5 * sign; 
+                    
+                    // 🛡️ المستويات الضعيفة والمتوسطة فقط تحب الجدران للأمان
+                    if (levelNum <= 5 && (c === 0 || c === 7)) {
+                        score += 5 * sign; 
+                    }
+                }
+
+                // ⚔️ 2. شخصية الزعيم (مستويات 6 و 7 و 8): السيطرة الشرسة على الوسط
+                if (levelNum >= 6 && !isDama) {
+                    if (c >= 2 && c <= 5) {
+                        score += 6 * sign; // مكافأة قوية جداً لاحتلال الوسط
+                    }
+                    if (c === 3 || c === 4) {
+                        score += 3 * sign; // مكافأة إضافية لقلب الرقعة
+                    }
                 }
 
                 if (levelNum >= 4 && !isDama) {
@@ -190,6 +206,7 @@ export const gameAI = {
         async function minimax(board, depth, isMaximizing, alpha, beta, currentTurn, currentMovesNoProg, isRoot = false) {
             self.nodesEvaluated++;
             
+            // 🚀 السرعة القصوى: استراحة المتصفح كل 5000 عقدة لتسريع الأداء!
             if (self.nodesEvaluated % 5000 === 0) {
                 await new Promise(r => setTimeout(r, 0)); 
             }
