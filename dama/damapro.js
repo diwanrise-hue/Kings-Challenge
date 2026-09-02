@@ -1,14 +1,14 @@
 // damapro.js
-// 🛡️ (إصلاح شامل - Bulletproof): تمت معالجة جميع الأخطاء البرمجية وإرجاع البيانات الأصلية لمنع توقف اللعبة.
+// 🛡️ (إصلاح شامل): تمت معالجة جميع الأخطاء البرمجية وإرجاع البيانات الأصلية لمنع توقف اللعبة.
 // 🚀 (أداء فائق): استخدام الأنيميشن المسرّع عتادياً (Opacity).
-// 👑 (وزنية مثالية): ضبط مقاسات إطارات VIP 3+ بدقة عالية لكي لا تغطي على زر الإغلاق (X) وتبرز الزخارف للخارج بشكل احترافي.
+// 👑 (حل التمرير): فصل الإطار (Vipprofile.webp) عن المحتوى الداخلي للنافذة ليبقى ثابتاً لا يتأثر بالتمرير (Scroll).
 
 window.frameRank1 = 'Media/register/king1.webp'; 
 window.frameRank2 = 'Media/register/king2.webp'; 
 window.frameRank3 = 'Media/register/king3.webp'; 
 
 document.addEventListener('DOMContentLoaded', () => {
-   console.log("👑 DamaPro: تم تجهيز نظام الـ VIP والإطارات الملكية (بوزنية 3D مثالية).");
+   console.log("👑 DamaPro: تم تجهيز نظام الـ VIP وإطارات النوافذ الثابتة بنجاح.");
 });
 
 // ==========================================
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .vip-glow-red    { filter: drop-shadow(0 -2px 6px rgba(255,69,58,0.8));   animation: vipFloatAndSpin 15s infinite linear, vipPulseAlpha 1.5s infinite alternate ease-in-out; }
             .vip-glow-mixed  { filter: drop-shadow(0 -2px 6px rgba(255,215,0,0.8));   animation: vipFloatAndSpin 15s infinite linear, vipPulseAlpha 1.5s infinite alternate ease-in-out; }
 
-            /* إطارات داخل المباراة */
+            /* إطارات اللاعبين داخل المباراة */
             .vip-frame-img-layer {
                 position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important;
                 object-fit: fill !important; z-index: 0 !important; border-radius: 20px !important; pointer-events: none !important;
@@ -52,37 +52,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             .match-players-flex > div, .match-players-flex > span { position: relative; z-index: 2; }
 
-            /* ============================================================== */
-            /* 🌟 الستايل الجديد المخصص لنافذة البروفايل بالكامل (مقاسات جديدة) 🌟 */
-            /* ============================================================== */
+            /* 🌟 إطار البروفايل الثابت (مفصول عن المحتوى القابل للتمرير) 🌟 */
             .custom-vip3-profile-frame {
                 position: absolute !important; 
                 top: 50% !important; 
                 left: 50% !important; 
                 transform: translate(-50%, -50%) !important; 
-                width: calc(100% + 35px) !important; /* توسعة العرض لراحة الإطار */
-                height: calc(100% + 45px) !important; /* توسعة الطول لاستيعاب التاج العلوي والشريط السفلي */
-                z-index: 0 !important; /* خلف النصوص والصور */
+                z-index: 1 !important; /* سيكون خلف النافذة مباشرة */
                 pointer-events: none !important; 
                 object-fit: fill !important; 
                 border-radius: 32px !important;
                 filter: drop-shadow(0 6px 15px rgba(0,0,0,0.9)) !important;
             }
 
-            /* 🛡️ إجبار زر الإغلاق (X) ليكون فوق التاج الملكي دائماً */
-            .modal-close-btn { z-index: 100 !important; }
-
-            /* ============================================================== */
-            /* 🌟 الستايل المخصص لبطاقة الغرفة بالكامل (مقاسات جديدة) 🌟 */
-            /* ============================================================== */
+            /* 🌟 الستايل المخصص لبطاقة الغرفة بالكامل 🌟 */
             .custom-vip3-card-bg {
                 position: absolute !important;
                 top: 50% !important;
                 left: 50% !important;
                 transform: translate(-50%, -50%) !important;
-                width: calc(100% + 32px) !important; /* توسعة لتخرج الزخارف خارج البطاقة السوداء */
-                height: calc(100% + 40px) !important; /* توسعة لتبرز الجواهر والتاج للخارج */
-                z-index: 0 !important; /* يجب أن يكون صفر لكي لا يغطي أزرار الإعدادات والدخول */
+                width: calc(100% + 32px) !important; 
+                height: calc(100% + 40px) !important; 
+                z-index: 0 !important; 
                 object-fit: fill !important; 
                 pointer-events: none !important;
                 filter: drop-shadow(0 6px 12px rgba(0,0,0,0.9)) !important;
@@ -229,11 +220,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // ==============================================================
-            // أ. 🌟 معالجة نافذة البروفايل بالكامل (البطاقة الكبيرة) 🌟
+            // أ. 🌟 معالجة نافذة البروفايل بالكامل (منع تحرك الإطار مع التمرير) 🌟
             // ==============================================================
             const profileModal = document.getElementById('in-game-profile-modal');
             if (profileModal && profileModal.style.display !== 'none') {
-                const profileCard = profileModal.querySelector('.settings-card') || profileModal.firstElementChild;
+                const profileCard = profileModal.querySelector('.settings-card');
                 
                 if (profileCard) {
                     let vipLvl = 0;
@@ -247,33 +238,38 @@ document.addEventListener('DOMContentLoaded', () => {
                         vipLvl = parseInt(window.currentOpponentData.vipLevel) || 0;
                     }
 
-                    const isProcessed = profileCard.getAttribute('data-vip3-processed') === String(vipLvl);
-                    if (!isProcessed) {
-                        let existingFrame = profileCard.querySelector('.custom-vip3-profile-frame');
-                        
-                        if (vipLvl >= 3) {
-                            profileCard.style.setProperty('border', 'none', 'important');
-                            
-                            Array.from(profileCard.children).forEach(child => {
-                                if (!child.classList.contains('custom-vip3-profile-frame')) {
-                                    child.style.position = 'relative';
-                                    child.style.zIndex = '2';
-                                }
-                            });
+                    // جعل النافذة فوق الإطار
+                    profileCard.style.position = 'relative';
+                    profileCard.style.zIndex = '2';
 
-                            if (!existingFrame) {
-                                let frame = document.createElement('img');
-                                frame.src = 'Media/VIP/Vipprofile.webp';
-                                frame.className = 'custom-vip3-profile-frame';
-                                profileCard.insertBefore(frame, profileCard.firstChild);
-                            }
-                        } else {
-                            if (existingFrame) existingFrame.remove();
-                            profileCard.style.setProperty('border', '1.5px solid #a88734', 'important');
+                    let frameId = 'vip3-static-profile-frame';
+                    let existingFrame = document.getElementById(frameId);
+
+                    if (vipLvl >= 3) {
+                        profileCard.style.setProperty('border', 'none', 'important');
+                        
+                        if (!existingFrame) {
+                            existingFrame = document.createElement('img');
+                            existingFrame.id = frameId;
+                            existingFrame.src = 'Media/VIP/Vipprofile.webp';
+                            existingFrame.className = 'custom-vip3-profile-frame';
+                            // 🔥 السحر هنا: وضع الإطار كأخ للنافذة وليس بداخلها، لكي لا يتأثر بالسكرول 🔥
+                            profileModal.insertBefore(existingFrame, profileCard);
                         }
-                        profileCard.setAttribute('data-vip3-processed', String(vipLvl));
+
+                        // مزامنة حجم الإطار ديناميكياً مع حجم النافذة الفعلي + مساحة للتاج
+                        existingFrame.style.width = (profileCard.offsetWidth + 35) + 'px';
+                        existingFrame.style.height = (profileCard.offsetHeight + 45) + 'px';
+
+                    } else {
+                        if (existingFrame) existingFrame.remove();
+                        profileCard.style.setProperty('border', '1.5px solid #a88734', 'important');
                     }
                 }
+            } else {
+                // تنظيف الإطار إن وجدت النافذة مغلقة
+                let orphanFrame = document.getElementById('vip3-static-profile-frame');
+                if (orphanFrame) orphanFrame.remove();
             }
 
             // ==============================================================
