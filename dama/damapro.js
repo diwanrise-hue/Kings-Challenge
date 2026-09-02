@@ -1,14 +1,14 @@
 // damapro.js
 // 🛡️ (إصلاح شامل): تمت معالجة جميع الأخطاء البرمجية وإرجاع البيانات الأصلية لمنع توقف اللعبة.
 // 🚀 (أداء فائق): استخدام الأنيميشن المسرّع عتادياً (Opacity).
-// 👑 (حل التغطية Z-index): جعل الإطارات تظهر *فوق* النوافذ (z-index: 10) ليبرز التاج والزخارف، مع حماية زر الإغلاق.
+// 👑 (حل التاج): إزاحة الإطارات للأعلى برمجياً (Shift Up) لترك مساحة فارغة للتاج الملكي دون الضغط على محتوى البطاقة.
 
 window.frameRank1 = 'Media/register/king1.webp'; 
 window.frameRank2 = 'Media/register/king2.webp'; 
 window.frameRank3 = 'Media/register/king3.webp'; 
 
 document.addEventListener('DOMContentLoaded', () => {
-   console.log("👑 DamaPro: تم تجهيز نظام الـ VIP وإطارات النوافذ (بأبعاد وتراكب 3D مثالي).");
+   console.log("👑 DamaPro: تم تجهيز نظام الـ VIP وإطارات النوافذ (مع مساحة مخصصة للتاج).");
 });
 
 // ==========================================
@@ -52,30 +52,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
             .match-players-flex > div, .match-players-flex > span { position: relative; z-index: 2; }
 
-            /* 🌟 إطار البروفايل الثابت (الآن يظهر فـوق النافذة ليبرز التاج) 🌟 */
+            /* ============================================================== */
+            /* 🌟 إطار البروفايل الثابت (تحديث: رفعه للأعلى ليبرز التاج) 🌟 */
+            /* ============================================================== */
             .custom-vip3-profile-frame {
                 position: absolute !important; 
                 top: 50% !important; 
                 left: 50% !important; 
-                transform: translate(-50%, -50%) !important; 
-                z-index: 10 !important; /* 🔥 الأهم: جعله فوق النافذة 🔥 */
-                pointer-events: none !important; /* يمنع حجب النقرات */
+                /* 🔥 هنا السحر: تم سحب الإطار للأعلى 35 بكسل لترك مساحة للتاج 🔥 */
+                transform: translate(-50%, calc(-50% - 35px)) !important; 
+                z-index: 10 !important; 
+                pointer-events: none !important; 
                 object-fit: fill !important; 
                 border-radius: 32px !important;
                 filter: drop-shadow(0 6px 15px rgba(0,0,0,0.9)) !important;
             }
 
-            /* 🌟 الستايل المخصص لبطاقة الغرفة بالكامل 🌟 */
+            /* ============================================================== */
+            /* 🌟 الستايل المخصص لبطاقة الغرفة (تحديث: رفعه للأعلى للتاج) 🌟 */
+            /* ============================================================== */
             .custom-vip3-card-bg {
                 position: absolute !important;
                 top: 50% !important;
                 left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                width: calc(100% + 12px) !important; 
-                height: calc(100% + 20px) !important; 
-                z-index: 10 !important; /* 🔥 الأهم: جعله يبرز فوق محتوى البطاقة 🔥 */
+                /* 🔥 تم سحب الإطار للأعلى 12 بكسل لترك مساحة للتاج 🔥 */
+                transform: translate(-50%, calc(-50% - 12px)) !important;
+                width: calc(100% + 14px) !important; 
+                height: calc(100% + 28px) !important; 
+                z-index: 10 !important; 
                 object-fit: fill !important; 
-                pointer-events: none !important; /* يمنع حجب الأزرار */
+                pointer-events: none !important; 
                 filter: drop-shadow(0 6px 12px rgba(0,0,0,0.9)) !important;
             }
 
@@ -223,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // ==============================================================
-            // أ. 🌟 معالجة نافذة البروفايل بالكامل (منع التغطية + منع التحرك) 🌟
+            // أ. 🌟 معالجة نافذة البروفايل بالكامل
             // ==============================================================
             const profileModal = document.getElementById('in-game-profile-modal');
             if (profileModal && profileModal.style.display !== 'none') {
@@ -241,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         vipLvl = parseInt(window.currentOpponentData.vipLevel) || 0;
                     }
 
-                    // جعل النافذة أسفل الإطار
                     profileCard.style.position = 'relative';
                     profileCard.style.zIndex = '2';
 
@@ -256,13 +261,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             existingFrame.id = frameId;
                             existingFrame.src = 'Media/VIP/Vipprofile.webp';
                             existingFrame.className = 'custom-vip3-profile-frame';
-                            // إضافته للنافذة الأم ليكون مستقلاً عن محتوى التمرير
                             profileModal.appendChild(existingFrame);
                         }
 
-                        // مزامنة الحجم بزيادة طفيفة جداً ليتطابق بسلاسة وينسدل التاج للداخل
+                        // 🔥 تعديل: قللنا الارتفاع الإجمالي لأننا رفعنا الإطار بالـ transform
                         existingFrame.style.width = (profileCard.offsetWidth + 18) + 'px';
-                        existingFrame.style.height = (profileCard.offsetHeight + 104) + 'px';
+                        existingFrame.style.height = (profileCard.offsetHeight + 80) + 'px'; 
 
                     } else {
                         if (existingFrame) existingFrame.remove();
@@ -275,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // ==============================================================
-            // ب. 🌟 معالجة إطار الغرف المتاحة (التطبيق فوق البطاقة بالكامل) 🌟
+            // ب. 🌟 معالجة إطار الغرف المتاحة
             // ==============================================================
             const activeRoomsList = document.getElementById('active-rooms-list');
             if (activeRoomsList) {
@@ -297,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     let frame = document.createElement('img');
                                     frame.src = 'Media/VIP/Vipغرفة.webp';
                                     frame.className = 'custom-vip3-card-bg';
-                                    roomCard.appendChild(frame); // يُضاف ليكون الأعلى طبقياً
+                                    roomCard.appendChild(frame);
                                 }
                             }
                         }
@@ -306,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // ==============================================================
-            // ج. 🌟 معالجة بطاقة غرفتي في الانتظار (التطبيق فوق البطاقة بالكامل) 🌟
+            // ج. 🌟 معالجة بطاقة غرفتي في الانتظار
             // ==============================================================
             const myWaitingRoom = document.getElementById('my-waiting-room-card');
             if (myWaitingRoom && myWaitingRoom.style && myWaitingRoom.style.display !== 'none') {
@@ -322,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         let frame = document.createElement('img');
                         frame.src = 'Media/VIP/Vipغرفة.webp';
                         frame.className = 'custom-vip3-card-bg';
-                        myWaitingRoom.appendChild(frame); // يُضاف ليكون الأعلى طبقياً
+                        myWaitingRoom.appendChild(frame); 
                     }
                 }
             }
