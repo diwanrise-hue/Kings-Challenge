@@ -1,4 +1,6 @@
 // hintSystem.js
+// 🌟 (مُحدّث جذرياً): حماية من انهيار القفز المتعدد، ترقية المصباح لمستوى الجراند ماستر، وحماية وقت الدور.
+
 import { gameState } from './gameState.js';
 import { gameEngine } from './gameEngine.js';
 import { gameAI } from './gameAI.js';
@@ -9,8 +11,21 @@ import { t } from './i18n.js';
 export const hintSystem = {
     async requestHint() {
         try {
+            // 1. التحقق من الدور
             if (gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) return;
             if (!gameState.isOnlineMode && gameState.currentTurn !== gameState.playerColor) return;
+
+            // 🚀 التحسين 1: منع التلميح أثناء القفز المتعدد (لمنع انهيار منطق اللعبة)
+            if (gameState.isMultiJumping) {
+                ui.showCustomAlert("لا يمكنك استخدام التلميح في منتصف القفزة! أكمل حركتك الإجبارية أولاً.", "تنبيه ⚠️");
+                return;
+            }
+
+            // 🚀 التحسين 2: حماية وقت اللاعب في الأونلاين (المصباح يحتاج وقتاً للتفكير)
+            if (gameState.isOnlineMode && gameState.turnTimeLeft && gameState.turnTimeLeft <= 10) {
+                ui.showCustomAlert("الوقت المتبقي قليل جداً! المصباح يحتاج إلى 10 ثوانٍ على الأقل للتفكير.", "تنبيه الوقت ⏳");
+                return;
+            }
 
             let profile = gameState.userProfile;
             if (!profile) return;
@@ -42,10 +57,17 @@ export const hintSystem = {
                 hintBtn.style.opacity = '0.5';
             }
             
-            ui.setTxt('turn-countdown', 'المصباح يفكر... 💡');
+            ui.setTxt('turn-countdown', 'المصباح يقرأ أفكار الخصم... 💡');
 
-            let bestMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, 5, myColor, gameState.pieceDirection);
+            // 🚀 التحسين 3: رفع مستوى المصباح إلى 8 (جراند ماستر) ليعطي حركات أسطورية لا تقهر!
+            let bestMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, 8, myColor, gameState.pieceDirection);
             
+            // 🚀 التحسين 4: التحقق مما إذا كان الدور قد انتهى أو تغير أثناء تفكير المصباح
+            if (gameState.currentTurn !== myColor) {
+                if (hintBtn) { hintBtn.style.pointerEvents = 'auto'; hintBtn.style.opacity = '1'; }
+                return;
+            }
+
             if (!gameState.isTutorialMode && profile) {
                 profile.hints--;
                 if (gameState.isOnlineMode) gameState.onlineHintsUsed = (gameState.onlineHintsUsed || 0) + 1;
@@ -78,7 +100,13 @@ export const hintSystem = {
             hintBtn.style.pointerEvents = 'auto';
             hintBtn.style.opacity = '1';
         }
-        ui.setTxt('turn-countdown', ''); 
+        
+        // استعادة العداد الطبيعي للوقت بعد انتهاء التلميح
+        if (gameState.isOnlineMode) {
+             ui.setTxt('turn-countdown', `⏳ المتبقي للدور: ${gameState.turnTimeLeft || 0}s`);
+        } else {
+             ui.setTxt('turn-countdown', ''); 
+        }
 
         if (!moveObj || moveObj.length === 0) return;
         
@@ -110,11 +138,11 @@ export const hintSystem = {
                     width: 85% !important;
                     height: 85% !important;
                     border-radius: 50% !important;
-                    background: rgba(255, 215, 0, 0.3) !important; /* تعبئة ذهبية شفافة */
-                    border: 4px solid #ffd700 !important; /* إطار ذهبي صلب */
+                    background: rgba(255, 215, 0, 0.3) !important;
+                    border: 4px solid #ffd700 !important;
                     pointer-events: none !important;
                     z-index: 999999 !important;
-                    animation: hintGoldPulse 0.8s infinite alternate ease-in-out !important; /* نبض هادئ كل 0.8 ثانية */
+                    animation: hintGoldPulse 0.8s infinite alternate ease-in-out !important; 
                 }
                 .cell { position: relative; }
             `;
