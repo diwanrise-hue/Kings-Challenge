@@ -1413,15 +1413,15 @@ export const ui = {
                             else { displayReward = isBetMatch ? gameState.roomBet : 0; }
                         }
                     } else {
-                        if (isMeWin) {
-                            xpGained = 0; 
-                            if (lvl <= 2) displayReward = 10;
-                            else if (lvl <= 4) displayReward = 15;
-                            else if (lvl <= 6) displayReward = 50;
-                            else if (lvl <= 8) displayReward = 100;
-                            else if (lvl === 9) { displayReward = "100 أو 400"; isBossLevel = true; }
-                        } else { xpGained = 0; displayReward = 0; }
-                    }
+                     if (isMeWin) {
+                        xpGained = 0; 
+                        if (lvl <= 2) displayReward = 10;
+                        else if (lvl <= 4) displayReward = 15;
+                        else if (lvl <= 6) displayReward = 50;
+                        else if (lvl <= 8) displayReward = 100;
+                        else if (lvl === 9) { displayReward = "100 أو 400"; isBossLevel = true; }
+                    } else { xpGained = 0; displayReward = 0; }
+
 
                     if (displayReward !== 0 || isDraw || (isBetMatch && !isDraw && !isMeWin)) {
                         let rewardText = ""; let alertColor = "#f5a623";
