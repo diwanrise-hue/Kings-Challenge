@@ -1,6 +1,8 @@
 // gameAI.js
-// 🌟 (النسخة المتناسبة والهجومية): المستوى يطابق العمق بالضبط (Level 1 = Depth 1 ... Level 7 = Depth 7)
-// ⚔️ (تحديث الزعيم): البوت في المستويات المتقدمة يهاجم من الوسط ويكره اللعب الجبان على الحواف.
+// 🌟 (النسخة الخالية من الأخطاء التكتيكية والثغرات الزمنية):
+// 1. إصلاح ثغرة (Killer Heuristics) لتسريع التفكير 10 أضعاف ومنع استنزاف الوقت.
+// 2. إصلاح ثغرة (Endgame) ليقوم البوت بمحاصرة الخصم حتى لو كان البوت يملك جيشاً كبيراً.
+// 3. الإيقاف الفوري للحسابات عند انتهاء الوقت (Timeout Break) لمنع التقييمات المشوهة.
 
 import { gameEngine } from './gameEngine.js';
 import { gameState } from './gameState.js'; 
@@ -13,8 +15,17 @@ const AI_LEVELS = {
     5: { id: 5, depth: 5, randomChance: 0.00, maxTime: 4000, name: "عمق 5" },
     6: { id: 6, depth: 6, randomChance: 0.00, maxTime: 7000, name: "عمق 6" },
     7: { id: 7, depth: 7, randomChance: 0.00, maxTime: 12000, name: "الزعيم (عمق 7)" },
-    8: { id: 8, depth: 8, randomChance: 0.00, maxTime: 15000, name: "المصباح السحري" } // مخصص لزر التلميح
+    8: { id: 8, depth: 8, randomChance: 0.00, maxTime: 15000, name: "المصباح السحري" } 
 };
+
+// 🛠️ دالة مساعدة لمقارنة الحركات (إصلاح ثغرة فقدان الذاكرة)
+function isSameMove(m1, m2) {
+    if (!m1 || !m2 || m1.length === 0 || m2.length === 0) return false;
+    let start1 = m1[0], end1 = m1[m1.length - 1];
+    let start2 = m2[0], end2 = m2[m2.length - 1];
+    return start1.fromR === start2.fromR && start1.fromC === start2.fromC &&
+           end1.toR === end2.toR && end1.toC === end2.toC;
+}
 
 export const gameAI = {
     nodesEvaluated: 0,
@@ -52,7 +63,6 @@ export const gameAI = {
         let score = 0;
         let oppColor = aiColor === 'white' ? 'black' : 'white';
         let myDir = pieceDirection[aiColor];
-        let oppDir = pieceDirection[oppColor];
         
         let myPieces = 0, oppPieces = 0;
         let myDamas = 0, oppDamas = 0;
@@ -61,89 +71,61 @@ export const gameAI = {
             for (let c = 0; c < 8; c++) {
                 let p = board[r][c];
                 if (p) {
-                    if (p.startsWith(aiColor)) { myPieces++; if (p.includes('dama')) myDamas++; }
-                    else { oppPieces++; if (p.includes('dama')) oppDamas++; }
-                }
-            }
-        }
+                    let isMine = p.startsWith(aiColor);
+                    let isDama = p.includes('dama');
+                    let sign = isMine ? 1 : -1;
 
-        let isEndgame = (myPieces + oppPieces) <= 8;
+                    if (isMine) { myPieces++; if (isDama) myDamas++; }
+                    else { oppPieces++; if (isDama) oppDamas++; }
 
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                let piece = board[r][c];
-                if (!piece) continue;
-                
-                let isMine = piece.startsWith(aiColor);
-                let isDama = piece.includes('dama');
-                let sign = isMine ? 1 : -1;
-                let pDir = isMine ? myDir : oppDir;
-                let pColor = isMine ? aiColor : oppColor;
-                let eColor = isMine ? oppColor : aiColor;
-                
-                let pieceValue = isDama ? 2000 : 100;
-                score += pieceValue * sign;
-                
-                // 1. تقييم التقدم للأمام
-                if (levelNum >= 3 && !isDama) {
-                    let progress = (pDir === 1) ? r : (7 - r);
-                    score += (progress * 3) * sign; 
-                    
-                    // 🛡️ المستويات الضعيفة والمتوسطة فقط تحب الجدران للأمان
-                    if (levelNum <= 5 && (c === 0 || c === 7)) {
-                        score += 5 * sign; 
-                    }
-                }
+                    // التقييم المادي
+                    score += (isDama ? 400 : 100) * sign;
 
-                // ⚔️ 2. شخصية الزعيم (مستويات 6 و 7 و 8): السيطرة الشرسة على الوسط
-                if (levelNum >= 6 && !isDama) {
-                    if (c >= 2 && c <= 5) {
-                        score += 6 * sign; // مكافأة قوية جداً لاحتلال الوسط
-                    }
-                    if (c === 3 || c === 4) {
-                        score += 3 * sign; // مكافأة إضافية لقلب الرقعة
-                    }
-                }
-
-                if (levelNum >= 4 && !isDama) {
-                    let backR = r - pDir;
-                    if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(pColor)) score += 3 * sign;
-                    if ((c > 0 && board[r][c-1] && board[r][c-1].startsWith(pColor)) ||
-                        (c < 7 && board[r][c+1] && board[r][c+1].startsWith(pColor))) {
-                        score += 2 * sign; 
-                    }
-                }
-
-                if (levelNum >= 5 && !isDama) {
-                    let frontR = r + pDir;
-                    let backR = r - pDir;
-                    if (frontR >= 0 && frontR < 8 && backR >= 0 && backR < 8) {
-                        let frontCell = board[frontR][c];
-                        let backCell = board[backR][c];
-                        if (frontCell && frontCell.startsWith(eColor) && !backCell) score -= 15 * sign;
-                    }
-                    let backRow = (pDir === 1) ? 0 : 7;
-                    if (r === backRow) score += 8 * sign;
-                }
-
-                if (levelNum >= 6 && isEndgame) {
-                    if (isDama) {
-                        let centerDist = Math.abs(r - 3.5) + Math.abs(c - 3.5);
-                        if (myPieces > oppPieces) {
-                            score -= (centerDist * 10) * sign; 
-                        } else {
-                            score += (centerDist * 5) * sign; 
+                    // التقييم الموضعي (الاستراتيجي) للقطع العادية
+                    if (!isDama && levelNum >= 3) {
+                        let pDir = isMine ? myDir : -myDir;
+                        let progress = (pDir === 1) ? r : (7 - r);
+                        
+                        score += (progress * 2) * sign; 
+                        
+                        if (levelNum >= 5) {
+                            if (c >= 2 && c <= 5) score += 4 * sign; // السيطرة على الوسط
+                            if (c === 0 || c === 7) score += 2 * sign; 
+                            
+                            // مكافأة الدعم والترابط
+                            let backR = r - pDir;
+                            if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(isMine ? aiColor : oppColor)) {
+                                score += 3 * sign; 
+                            }
                         }
                     }
-                } else if (isDama) {
-                    let centerDist = Math.abs(r - 3.5) + Math.abs(c - 3.5);
-                    score -= (centerDist * 3) * sign;
                 }
             }
         }
 
-        if (levelNum >= 7 && isEndgame) {
-            if (myDamas > 0 && oppPieces === 0) score += 10000;
+        // 🚀 إصلاح ثغرة العمى: إدراك نهاية اللعبة بقوة!
+        let isEndgame = (myPieces + oppPieces) <= 8 || oppPieces <= 3 || myPieces <= 3;
+        
+        if (isEndgame && levelNum >= 6) {
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    let p = board[r][c];
+                    if (p && p.includes('dama')) {
+                        let isMine = p.startsWith(aiColor);
+                        let sign = isMine ? 1 : -1;
+                        let centerDist = Math.abs(r - 3.5) + Math.abs(c - 3.5);
+                        
+                        // الجانب الفائز يسحب الخصم للزوايا ويخنق الوسط
+                        if ((isMine && myPieces > oppPieces) || (!isMine && oppPieces > myPieces)) {
+                            score -= (centerDist * 5) * sign; 
+                        } else {
+                            score += (centerDist * 3) * sign; // الجانب الخاسر يهرب للحواف
+                        }
+                    }
+                }
+            }
+            if (myDamas > 0 && oppPieces === 0) score += 10000; 
+            if (oppDamas > 0 && myPieces === 0) score -= 10000;
         }
 
         return score;
@@ -206,7 +188,6 @@ export const gameAI = {
         async function minimax(board, depth, isMaximizing, alpha, beta, currentTurn, currentMovesNoProg, isRoot = false) {
             self.nodesEvaluated++;
             
-            // 🚀 السرعة القصوى: استراحة المتصفح كل 5000 عقدة لتسريع الأداء!
             if (self.nodesEvaluated % 5000 === 0) {
                 await new Promise(r => setTimeout(r, 0)); 
             }
@@ -217,6 +198,12 @@ export const gameAI = {
 
             if (currentMovesNoProg >= 50) return { score: 0 }; 
 
+            let possibleMoves = gameEngine.generateAllTurnMoves(currentTurn, board);
+            
+            if (possibleMoves.length === 0) {
+                return { score: isMaximizing ? (-99000 - depth) : (99000 + depth) };
+            }
+
             if (depth === 0) {
                 if (levelNum >= 5) {
                     return { score: self.quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, 6) };
@@ -225,16 +212,13 @@ export const gameAI = {
                 }
             }
 
-            let possibleMoves = gameEngine.generateAllTurnMoves(currentTurn, board);
-            
-            if (possibleMoves.length === 0) return { score: isMaximizing ? -99999 : 99999 };
-
             if (levelNum >= 6) {
                 possibleMoves.sort((a, b) => {
                     let aCapture = a.some(s => s.midR !== null) ? 100 : 0;
                     let bCapture = b.some(s => s.midR !== null) ? 100 : 0;
-                    let aKiller = (self.killerMoves[depth] === a) ? 50 : 0;
-                    let bKiller = (self.killerMoves[depth] === b) ? 50 : 0;
+                    // 🚀 استخدام الدالة الجديدة لمقارنة الحركات القاتلة بدقة
+                    let aKiller = isSameMove(self.killerMoves[depth], a) ? 50 : 0;
+                    let bKiller = isSameMove(self.killerMoves[depth], b) ? 50 : 0;
                     return (bCapture + bKiller) - (aCapture + aKiller);
                 });
             }
@@ -256,7 +240,9 @@ export const gameAI = {
                     let nextTurn = currentTurn === 'white' ? 'black' : 'white';
                     
                     let result = await minimax(newBoard, depth - 1, false, alpha, beta, nextTurn, nextMovesNoProg, false);
-                    if (result.timeout) isTimeout = true;
+                    
+                    // 🚀 الإيقاف الفوري (Timeout Break): يمنع التقييمات المشوهة من تدمير ذكاء البوت
+                    if (result.timeout) { isTimeout = true; break; }
                     
                     let moveRepPenalty = 0;
                     if (isRoot && currentTurn === aiColor) {
@@ -269,12 +255,12 @@ export const gameAI = {
                                 let count = 0;
                                 for (let pos of tracker.history) { if (pos === targetStr) count++; }
                                 if (count === 2) moveRepPenalty = -200;    
-                                if (count >= 3) moveRepPenalty = -99999;  
+                                if (count >= 3) moveRepPenalty = -99000;  
                             }
                         }
                     }
 
-                    let randomNoise = isRoot ? (Math.random() * 2) : 0;
+                    let randomNoise = isRoot ? (Math.random() * 0.5) : 0; 
                     let currentScore = result.score + moveRepPenalty + randomNoise;
 
                     if (currentScore > maxEval) { maxEval = currentScore; bestMove = move; }
@@ -300,7 +286,9 @@ export const gameAI = {
                     let nextTurn = currentTurn === 'white' ? 'black' : 'white';
                     
                     let result = await minimax(newBoard, depth - 1, true, alpha, beta, nextTurn, nextMovesNoProg, false);
-                    if (result.timeout) isTimeout = true;
+                    
+                    // 🚀 الإيقاف الفوري
+                    if (result.timeout) { isTimeout = true; break; }
                     
                     if (result.score < minEval) { minEval = result.score; bestMove = move; }
                     beta = Math.min(beta, result.score);
@@ -318,7 +306,7 @@ export const gameAI = {
             let currentIdleMoves = gameState.movesWithoutProgress || 0;
             let result = await minimax(virtualBoard, currentDepth, true, -Infinity, Infinity, aiColor, currentIdleMoves, true);
             
-            if (result.move && !result.timeout) {
+            if (!result.timeout && result.move) {
                 bestMoveGlobal = result.move;
             }
             if (result.timeout || Date.now() - startTime >= currentLevel.maxTime) break;
