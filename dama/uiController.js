@@ -13,6 +13,7 @@
  * 💎 (مُحدّث): محاذاة أيقونات رتب (الماسي والأسطوري) لتتطابق تماماً مع السطر.
  * 🎯 (مُحدّث للإصلاح): إصلاح زر المراهنة الخارجي بتمرير كود الغرفة المخفي (Room ID) بنجاح للسيرفر.
  * 🛡️ (إصلاح أمني صارم): قفل اختيار الأحجار لمنع اللعب بقطع الخصم نهائياً.
+ * 🤖 (تحديث جديد): إزالة الإطار الأصفر عن صورة البوت في جميع النوافذ وضبط حجمه المثالي.
  */
 
 import { gameState } from './gameState.js'; 
@@ -180,7 +181,7 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            botScale = 'scale(1.1)'; 
+            botScale = 'scale(1.4)'; 
         }
         else {
             frameZ = '5';
@@ -189,7 +190,6 @@ export const ui = {
             botScale = 'scale(1.2)';
         }
 
-      
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
@@ -200,14 +200,12 @@ export const ui = {
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
                 });
-                // ✅ الحفاظ على النسبة والتناسب عبر preserveAspectRatio
-                botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; display: block; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
+                botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
             }
             
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <!-- ✅ تحديد أبعاد ثابتة مربعة (45x45) مطابقة تماماً لزر اللوبي، ثم تكبيرها باستخدام botScale -->
-                    <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 1; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));">
                         ${botContent}
                     </div>
             `;
@@ -221,7 +219,6 @@ export const ui = {
             el.innerHTML = innerHTML;
             return;
         }
-
 
         const defaultAvatar = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
         let finalSrc = avatarStr;
