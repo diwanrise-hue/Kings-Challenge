@@ -1,4 +1,5 @@
 // uiController.js
+
 /**
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
@@ -13,8 +14,6 @@
  * 🎯 (مُحدّث للإصلاح): إصلاح زر المراهنة الخارجي بتمرير كود الغرفة المخفي (Room ID) بنجاح للسيرفر.
  * 🛡️ (إصلاح أمني صارم): قفل اختيار الأحجار لمنع اللعب بقطع الخصم نهائياً.
  */
-
-
 
 import { gameState } from './gameState.js'; 
 import { saveGameState, restoreOfflineHintSystem } from './main.js';
@@ -196,7 +195,7 @@ export const ui = {
             let botContent = `<span style="font-size: 35px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🤖</span>`;
             
 
-            if (botSvg) {
+        if (botSvg) {
                 let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
@@ -211,6 +210,7 @@ export const ui = {
                         ${botContent}
                     </div>
             `;
+
 
           
             if (overlayFrameSrc) {
