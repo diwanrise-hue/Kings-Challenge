@@ -180,7 +180,7 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            botScale = 'scale(1.1)'; 
+            botScale = 'scale(1.4)'; 
         }
         else {
             frameZ = '5';
