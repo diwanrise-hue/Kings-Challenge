@@ -189,30 +189,29 @@ export const ui = {
             botScale = 'scale(1.2)';
         }
 
+      
         if (avatarStr === "AI_BOT") {
             el.classList.add('modern-bot-avatar');
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
             let botContent = `<span style="font-size: 35px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🤖</span>`;
             
-
-        if (botSvg) {
+            if (botSvg) {
                 let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
                 });
-                // ✅ السماح للـ SVG بالحفاظ على نسبة الأبعاد الأصلية (بدون تشوه)
-                botContent = botContent.replace('<svg', '<svg style="width: 100%; height: auto; display: block;"');
+                // ✅ الحفاظ على النسبة والتناسب عبر preserveAspectRatio
+                botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; display: block; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
             }
             
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <div style="width: 85%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));">
+                    <!-- ✅ تحديد أبعاد ثابتة مربعة (45x45) مطابقة تماماً لزر اللوبي، ثم تكبيرها باستخدام botScale -->
+                    <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
                         ${botContent}
                     </div>
             `;
 
-
-          
             if (overlayFrameSrc) {
                 let finalX = moveRight - moveLeft; let finalY = moveDown - moveUp;
                 innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(calc(-50% + ${finalX}px), calc(-50% + ${finalY}px)); width: ${frameScale}; height: ${frameScale}; z-index: ${frameZ}; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
@@ -222,6 +221,7 @@ export const ui = {
             el.innerHTML = innerHTML;
             return;
         }
+
 
         const defaultAvatar = 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
         let finalSrc = avatarStr;
