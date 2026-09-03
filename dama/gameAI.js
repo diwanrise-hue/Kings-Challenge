@@ -1,7 +1,7 @@
 // gameAI.js
-// 🌟 (النسخة المعمارية المطلقة): 
-// تم إضافة (Transposition Table / الذاكرة الفائقة) لتسريع التفكير 50 ضعفاً.
-// البوت الآن لن ينتهي وقته قبل الوصول للعمق المطلوب (عمق 7) وسيقرأ جميع الفخاخ المعقدة.
+// 🌟 (النسخة الاحترافية المطلقة): 
+// تم إضافة خوارزمية "تمديد المسار الإجباري (Forced Move Extension)".
+// البوت الآن سيرى فخاخ التضحية بـ 3 أحجار (وحتى 5 أحجار) بوضوح تام ولن يتوقف عن الحساب في المنتصف!
 
 import { gameEngine } from './gameEngine.js';
 import { gameState } from './gameState.js'; 
@@ -13,7 +13,7 @@ const AI_LEVELS = {
     4: { id: 4, depth: 4, randomChance: 0.00, maxTime: 2500, name: "عمق 4" },
     5: { id: 5, depth: 5, randomChance: 0.00, maxTime: 4000, name: "عمق 5" },
     6: { id: 6, depth: 6, randomChance: 0.00, maxTime: 8000, name: "عمق 6" },
-    7: { id: 7, depth: 7, randomChance: 0.00, maxTime: 15000, name: "الزعيم (عمق 7)" }, // 👈 زدنا الوقت قليلاً لضمان إنهاء العمق
+    7: { id: 7, depth: 7, randomChance: 0.00, maxTime: 15000, name: "الزعيم (عمق 7)" }, 
     8: { id: 8, depth: 8, randomChance: 0.00, maxTime: 20000, name: "المصباح السحري" } 
 };
 
@@ -29,7 +29,6 @@ export const gameAI = {
     nodesEvaluated: 0,
     killerMoves: new Array(30).fill(null), 
     
-    // 🚀 جديد: دالة تشفير الرقعة لتسجيلها في الذاكرة
     generateBoardHash(board, currentTurn) {
         let hash = currentTurn === 'white' ? 'W' : 'B';
         for (let r = 0; r < 8; r++) {
@@ -101,6 +100,7 @@ export const gameAI = {
                         oppPiecesList.push({r, c}); 
                     }
 
+                    // وزن الدامة 400، الحجر 100 (للتضحية بـ 3 مقابل דامة)
                     score += (isDama ? 400 : 100) * sign;
 
                     if (!isDama && levelNum >= 3) {
@@ -231,10 +231,10 @@ export const gameAI = {
         this.nodesEvaluated = 0;
         this.killerMoves.fill(null);
         
-        // 🚀 جديد: تهيئة الذاكرة الفائقة (Transposition Table) لتخزين الرقع المتكررة
         const tt = new Map();
 
-        async function minimax(board, depth, isMaximizing, alpha, beta, currentTurn, currentMovesNoProg, isRoot = false) {
+        // 🚀 أضفنا (extensions) لتتبع عدد الحركات الإجبارية المجانية
+        async function minimax(board, depth, isMaximizing, alpha, beta, currentTurn, currentMovesNoProg, isRoot = false, extensions = 0) {
             self.nodesEvaluated++;
             
             if (self.nodesEvaluated % 5000 === 0) {
@@ -247,11 +247,8 @@ export const gameAI = {
 
             if (currentMovesNoProg >= 50) return { score: 0 }; 
 
-            // 🚀 جديد: فحص الذاكرة. إذا كنا قد حسبنا هذه الرقعة بنفس العمق أو أعمق، لا تضيع الوقت وأعطني النتيجة فوراً!
             let boardHash = self.generateBoardHash(board, currentTurn) + "-" + depth;
-            if (tt.has(boardHash)) {
-                return tt.get(boardHash);
-            }
+            if (tt.has(boardHash)) return tt.get(boardHash);
 
             let possibleMoves = gameEngine.generateAllTurnMoves(currentTurn, board);
             
@@ -259,7 +256,16 @@ export const gameAI = {
                 return { score: isMaximizing ? (-99000 - depth) : (99000 + depth) };
             }
 
-            if (depth === 0) {
+            // 🚀 السر العبقري هنا (Forced Move Extension):
+            // إذا كانت الحركة إجبارية (الخصم مجبر على الأكل)، نرد العمق الذي تم خصمه!
+            // نعطي البوت حتى 8 خطوات مجانية إضافية لاكتشاف فخاخ التضحية الكبيرة.
+            let isForced = (possibleMoves.length === 1);
+            if (isForced && !isRoot && extensions < 8) {
+                depth++; // استرداد العمق (حركة مجانية بدون استهلاك طاقة)
+                extensions++;
+            }
+
+            if (depth <= 0) {
                 let finalScore = 0;
                 if (levelNum >= 5) {
                     finalScore = self.quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, 6);
@@ -298,7 +304,8 @@ export const gameAI = {
                     let newBoard = self.applyMoveToBoard(board, move, currentTurn, pieceDirection);
                     let nextTurn = currentTurn === 'white' ? 'black' : 'white';
                     
-                    let result = await minimax(newBoard, depth - 1, false, alpha, beta, nextTurn, nextMovesNoProg, false);
+                    // تمرير (extensions) للحلقة القادمة
+                    let result = await minimax(newBoard, depth - 1, false, alpha, beta, nextTurn, nextMovesNoProg, false, extensions);
                     
                     if (result.timeout) { isTimeout = true; break; }
                     
@@ -339,7 +346,7 @@ export const gameAI = {
                     let newBoard = self.applyMoveToBoard(board, move, currentTurn, pieceDirection);
                     let nextTurn = currentTurn === 'white' ? 'black' : 'white';
                     
-                    let result = await minimax(newBoard, depth - 1, true, alpha, beta, nextTurn, nextMovesNoProg, false);
+                    let result = await minimax(newBoard, depth - 1, true, alpha, beta, nextTurn, nextMovesNoProg, false, extensions);
                     
                     if (result.timeout) { isTimeout = true; break; }
                     
@@ -354,25 +361,20 @@ export const gameAI = {
                 bestScoreObj = { score: minEval, move: bestMove, timeout: isTimeout };
             }
 
-            // 🚀 جديد: تخزين النتيجة في الذاكرة للمستقبل بشرط ألا تكون قادمة من تايم آوت
-            if (!bestScoreObj.timeout) {
-                tt.set(boardHash, bestScoreObj);
-            }
+            if (!bestScoreObj.timeout) tt.set(boardHash, bestScoreObj);
             return bestScoreObj;
         }
 
         for (let currentDepth = 2; currentDepth <= currentLevel.depth; currentDepth++) {
             let currentIdleMoves = gameState.movesWithoutProgress || 0;
-            let result = await minimax(virtualBoard, currentDepth, true, -Infinity, Infinity, aiColor, currentIdleMoves, true);
+            let result = await minimax(virtualBoard, currentDepth, true, -Infinity, Infinity, aiColor, currentIdleMoves, true, 0);
             
-            if (!result.timeout && result.move) {
-                bestMoveGlobal = result.move;
-            }
+            if (!result.timeout && result.move) bestMoveGlobal = result.move;
             if (result.timeout || Date.now() - startTime >= currentLevel.maxTime) break;
             if (Math.abs(result.score) > 90000) break; 
         }
 
-        tt.clear(); // تنظيف الذاكرة بعد الانتهاء لمنع تضخم الرام
+        tt.clear();
         return bestMoveGlobal;
     }
 };
