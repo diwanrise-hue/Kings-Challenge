@@ -1636,3 +1636,22 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 #room-portal-btn svg, #hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
     object-fit: contain;
 }
+
+
+/* ========================================== */
+/* 🌟 إصلاح جذري لمنع انضغاط أو تشوه وجه البوت (SVG) 🌟 */
+/* ========================================== */
+
+.modern-bot-avatar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.modern-bot-avatar svg {
+    width: 90% !important; /* ترك مساحة تنفس صغيرة من الجوانب */
+    height: auto !important; /* 🌟 السر هنا: الطول سيتكيف تلقائياً ليمنع تشوه أو عصر الصورة */
+    max-height: 85% !important; 
+    object-fit: contain !important;
+    display: block !important;
+}
