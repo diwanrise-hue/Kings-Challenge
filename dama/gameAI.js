@@ -1,7 +1,4 @@
 // gameAI.js
-// 🌟 (النسخة الاحترافية المطلقة): 
-// تم إضافة خوارزمية "تمديد المسار الإجباري (Forced Move Extension)".
-// البوت الآن سيرى فخاخ التضحية بـ 3 أحجار (وحتى 5 أحجار) بوضوح تام ولن يتوقف عن الحساب في المنتصف!
 
 import { gameEngine } from './gameEngine.js';
 import { gameState } from './gameState.js'; 
@@ -13,21 +10,26 @@ const AI_LEVELS = {
     4: { id: 4, depth: 4, randomChance: 0.00, maxTime: 2500, name: "عمق 4" },
     5: { id: 5, depth: 5, randomChance: 0.00, maxTime: 4000, name: "عمق 5" },
     6: { id: 6, depth: 6, randomChance: 0.00, maxTime: 8000, name: "عمق 6" },
-    7: { id: 7, depth: 11, randomChance: 0.00, maxTime: 15000, name: "الزعيم (عمق 7)" }, 
+    7: { id: 7, depth: 7, randomChance: 0.00, maxTime: 15000, name: "الزعيم (عمق 7)" }, 
     8: { id: 8, depth: 8, randomChance: 0.00, maxTime: 20000, name: "المصباح السحري" } 
 };
 
+const MAX_TT_SIZE = 300000; 
+
 function isSameMove(m1, m2) {
-    if (!m1 || !m2 || m1.length === 0 || m2.length === 0) return false;
-    let start1 = m1[0], end1 = m1[m1.length - 1];
-    let start2 = m2[0], end2 = m2[m2.length - 1];
-    return start1.fromR === start2.fromR && start1.fromC === start2.fromC &&
-           end1.toR === end2.toR && end1.toC === end2.toC;
+    if (!m1 || !m2 || m1.length !== m2.length) return false;
+    for (let i = 0; i < m1.length; i++) {
+        if (m1[i].fromR !== m2[i].fromR || m1[i].fromC !== m2[i].fromC ||
+            m1[i].toR !== m2[i].toR || m1[i].toC !== m2[i].toC ||
+            m1[i].midR !== m2[i].midR || m1[i].midC !== m2[i].midC) return false;
+    }
+    return true;
 }
 
 export const gameAI = {
     nodesEvaluated: 0,
-    killerMoves: new Array(30).fill(null), 
+    killerMoves: new Array(100).fill(null).map(() => [null, null]), 
+    historyHeuristic: { 'white': new Array(4096).fill(0), 'black': new Array(4096).fill(0) },
     
     generateBoardHash(board, currentTurn) {
         let hash = currentTurn === 'white' ? 'W' : 'B';
@@ -45,7 +47,9 @@ export const gameAI = {
     },
 
     applyMoveToBoard(board, movePath, color, pieceDir) {
-        let newBoard = board.map(row => [...row]);
+        let newBoard = [];
+        for (let i = 0; i < 8; i++) newBoard.push(board[i].slice());
+        
         if (!movePath || movePath.length === 0) return newBoard;
         
         let startR = movePath[0].fromR;
@@ -58,7 +62,7 @@ export const gameAI = {
         let endC = lastStep.toC;
         
         for (let step of movePath) {
-            if (step.midR !== null && step.midC !== null && step.midR !== undefined) {
+            if (step.midR != null && step.midC != null) {
                 newBoard[step.midR][step.midC] = null;
             }
         }
@@ -100,7 +104,6 @@ export const gameAI = {
                         oppPiecesList.push({r, c}); 
                     }
 
-                    // وزن الدامة 400، الحجر 100 (للتضحية بـ 3 مقابل דامة)
                     score += (isDama ? 400 : 100) * sign;
 
                     if (!isDama && levelNum >= 3) {
@@ -177,38 +180,60 @@ export const gameAI = {
         return score;
     },
 
-    quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, depthLimit) {
+    quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, depthLimit, startTime, maxTime) {
         this.nodesEvaluated++;
 
+        if (Date.now() - startTime >= maxTime) {
+            return { timeout: true };
+        }
+
         let allMoves = gameEngine.generateAllTurnMoves(currentTurn, board);
-        let captures = allMoves.filter(m => m.some(step => step.midR !== null));
+        
+        let captures = allMoves.filter(move =>
+            move.some(step => step.midR != null && step.midC != null)
+        );
         
         if (captures.length === 0 || depthLimit <= 0) {
-            return this.evaluateBoard(board, aiColor, pieceDirection, levelNum);
+            return { score: this.evaluateBoard(board, aiColor, pieceDirection, levelNum), timeout: false };
         }
+
+        captures.sort((a, b) => {
+            let aCapCount = a.filter(s => s.midR != null).length;
+            let bCapCount = b.filter(s => s.midR != null).length;
+            if (aCapCount !== bCapCount) return bCapCount - aCapCount;
+            let aPromo = (a[a.length - 1].toR === (pieceDirection[currentTurn] === 1 ? 7 : 0)) && !board[a[0].fromR][a[0].fromC].includes('dama') ? 1 : 0;
+            let bPromo = (b[b.length - 1].toR === (pieceDirection[currentTurn] === 1 ? 7 : 0)) && !board[b[0].fromR][b[0].fromC].includes('dama') ? 1 : 0;
+            return bPromo - aPromo;
+        });
 
         if (isMaximizing) {
             let maxEval = -Infinity;
             for (let move of captures) {
                 let newBoard = this.applyMoveToBoard(board, move, currentTurn, pieceDirection);
                 let nextTurn = currentTurn === 'white' ? 'black' : 'white';
-                let score = this.quiescence(newBoard, alpha, beta, false, nextTurn, aiColor, pieceDirection, levelNum, depthLimit - 1);
-                maxEval = Math.max(maxEval, score);
-                alpha = Math.max(alpha, score);
+                
+                let result = this.quiescence(newBoard, alpha, beta, false, nextTurn, aiColor, pieceDirection, levelNum, depthLimit - 1, startTime, maxTime);
+                if (result.timeout) return { timeout: true };
+                
+                maxEval = Math.max(maxEval, result.score);
+                alpha = Math.max(alpha, result.score);
                 if (beta <= alpha) break;
             }
-            return maxEval;
+            return { score: maxEval, timeout: false };
         } else {
             let minEval = Infinity;
             for (let move of captures) {
                 let newBoard = this.applyMoveToBoard(board, move, currentTurn, pieceDirection);
                 let nextTurn = currentTurn === 'white' ? 'black' : 'white';
-                let score = this.quiescence(newBoard, alpha, beta, true, nextTurn, aiColor, pieceDirection, levelNum, depthLimit - 1);
-                minEval = Math.min(minEval, score);
-                beta = Math.min(beta, score);
+                
+                let result = this.quiescence(newBoard, alpha, beta, true, nextTurn, aiColor, pieceDirection, levelNum, depthLimit - 1, startTime, maxTime);
+                if (result.timeout) return { timeout: true };
+                
+                minEval = Math.min(minEval, result.score);
+                beta = Math.min(beta, result.score);
                 if (beta <= alpha) break;
             }
-            return minEval;
+            return { score: minEval, timeout: false };
         }
     },
 
@@ -229,12 +254,30 @@ export const gameAI = {
         let bestMoveGlobal = moves[0]; 
         const self = this;
         this.nodesEvaluated = 0;
-        this.killerMoves.fill(null);
+        
+        this.killerMoves = new Array(100).fill(null).map(() => [null, null]);
+        this.historyHeuristic['white'].fill(0);
+        this.historyHeuristic['black'].fill(0);
         
         const tt = new Map();
+        let previousPV = []; 
 
-        // 🚀 أضفنا (extensions) لتتبع عدد الحركات الإجبارية المجانية
-        async function minimax(board, depth, isMaximizing, alpha, beta, currentTurn, currentMovesNoProg, isRoot = false, extensions = 0) {
+        function getMoveScore(move, ttMove, pvMoveLocal, isCapture, ply, currentTurn) {
+            if (ttMove && isSameMove(move, ttMove)) return 1000000;
+            if (pvMoveLocal && isSameMove(move, pvMoveLocal)) return 900000;
+            if (isCapture) {
+                let capCount = move.filter(s => s.midR != null && s.midC != null).length;
+                return 100000 + (capCount * 1000);
+            }
+            if (self.killerMoves[ply][0] && isSameMove(move, self.killerMoves[ply][0])) return 90000;
+            if (self.killerMoves[ply][1] && isSameMove(move, self.killerMoves[ply][1])) return 80000;
+            
+            let fromIdx = move[0].fromR * 8 + move[0].fromC;
+            let toIdx = move[move.length - 1].toR * 8 + move[move.length - 1].toC;
+            return self.historyHeuristic[currentTurn][fromIdx * 64 + toIdx];
+        }
+
+        async function minimax(board, nominalDepth, searchDepth, isMaximizing, alpha, beta, currentTurn, currentMovesNoProg, isRoot = false, extensions = 0, ply = 0) {
             self.nodesEvaluated++;
             
             if (self.nodesEvaluated % 5000 === 0) {
@@ -242,59 +285,67 @@ export const gameAI = {
             }
 
             if (Date.now() - startTime >= currentLevel.maxTime) {
-                return { score: self.evaluateBoard(board, aiColor, pieceDirection, levelNum), timeout: true };
+                return { timeout: true };
             }
 
-            if (currentMovesNoProg >= 50) return { score: 0 }; 
+            if (currentMovesNoProg >= 50) return { score: 0, timeout: false, pv: [] }; 
 
-            let boardHash = self.generateBoardHash(board, currentTurn) + "-" + depth;
-            if (tt.has(boardHash)) return tt.get(boardHash);
-
+            const originalAlpha = alpha;
+            const originalBeta = beta;
+            
             let possibleMoves = gameEngine.generateAllTurnMoves(currentTurn, board);
             
             if (possibleMoves.length === 0) {
-                return { score: isMaximizing ? (-99000 - depth) : (99000 + depth) };
+                return { score: isMaximizing ? (-99000 + ply) : (99000 - ply), timeout: false, pv: [] };
             }
 
-            // 🚀 السر العبقري هنا (Forced Move Extension):
-            // إذا كانت الحركة إجبارية (الخصم مجبر على الأكل)، نرد العمق الذي تم خصمه!
-            // نعطي البوت حتى 8 خطوات مجانية إضافية لاكتشاف فخاخ التضحية الكبيرة.
             let isForced = (possibleMoves.length === 1);
             if (isForced && !isRoot && extensions < 8) {
-                depth++; // استرداد العمق (حركة مجانية بدون استهلاك طاقة)
+                searchDepth++; 
                 extensions++;
             }
 
-            if (depth <= 0) {
-                let finalScore = 0;
-                if (levelNum >= 5) {
-                    finalScore = self.quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, 6);
-                } else {
-                    finalScore = self.evaluateBoard(board, aiColor, pieceDirection, levelNum);
+            let boardHash = self.generateBoardHash(board, currentTurn) + '|NP:' + currentMovesNoProg + '|EXT:' + extensions;
+            
+            if (tt.has(boardHash)) {
+                let cached = tt.get(boardHash);
+                if (cached.depth >= searchDepth) {
+                    if (cached.flag === 'EXACT') return { score: cached.score, move: cached.move, pv: [], timeout: false };
+                    if (cached.flag === 'LOWERBOUND' && cached.score >= beta) return { score: cached.score, move: cached.move, pv: [], timeout: false };
+                    if (cached.flag === 'UPPERBOUND' && cached.score <= alpha) return { score: cached.score, move: cached.move, pv: [], timeout: false };
                 }
-                let result = { score: finalScore };
-                tt.set(boardHash, result);
-                return result;
             }
 
+            if (searchDepth <= 0) {
+                let qResult = { score: 0, timeout: false };
+                if (levelNum >= 5) {
+                    qResult = self.quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, 6, startTime, currentLevel.maxTime);
+                } else {
+                    qResult.score = self.evaluateBoard(board, aiColor, pieceDirection, levelNum);
+                }
+                if (qResult.timeout) return { timeout: true };
+                return { score: qResult.score, timeout: false, pv: [] };
+            }
+
+            let ttMove = tt.has(boardHash) ? tt.get(boardHash).move : null;
+            let pvMoveLocal = (previousPV && previousPV[ply]) ? previousPV[ply] : null;
+
             if (levelNum >= 5) {
-                possibleMoves.sort((a, b) => {
-                    let aCaptureCount = a.filter(s => s.midR !== null).length * 100;
-                    let bCaptureCount = b.filter(s => s.midR !== null).length * 100;
-                    let aKiller = isSameMove(self.killerMoves[depth], a) ? 50 : 0;
-                    let bKiller = isSameMove(self.killerMoves[depth], b) ? 50 : 0;
-                    return (bCaptureCount + bKiller) - (aCaptureCount + aKiller);
+                let scoredMoves = possibleMoves.map(move => {
+                    let isCapture = move.some(s => s.midR != null && s.midC != null);
+                    return { move, score: getMoveScore(move, ttMove, pvMoveLocal, isCapture, ply, currentTurn) };
                 });
+                scoredMoves.sort((a, b) => b.score - a.score);
+                possibleMoves = scoredMoves.map(m => m.move);
             }
 
             let bestMove = null;
-            let isTimeout = false;
-            let bestScoreObj = null;
+            let bestPV = [];
 
             if (isMaximizing) {
                 let maxEval = -Infinity;
                 for (let move of possibleMoves) {
-                    let isCapture = move.some(s => s.midR !== null);
+                    let isCapture = move.some(s => s.midR != null && s.midC != null);
                     let lastStep = move[move.length - 1];
                     let piece = board[move[0].fromR][move[0].fromC];
                     let promoRow = (pieceDirection[currentTurn] === 1) ? 7 : 0;
@@ -304,10 +355,9 @@ export const gameAI = {
                     let newBoard = self.applyMoveToBoard(board, move, currentTurn, pieceDirection);
                     let nextTurn = currentTurn === 'white' ? 'black' : 'white';
                     
-                    // تمرير (extensions) للحلقة القادمة
-                    let result = await minimax(newBoard, depth - 1, false, alpha, beta, nextTurn, nextMovesNoProg, false, extensions);
+                    let result = await minimax(newBoard, nominalDepth - 1, searchDepth - 1, false, alpha, beta, nextTurn, nextMovesNoProg, false, extensions, ply + 1);
                     
-                    if (result.timeout) { isTimeout = true; break; }
+                    if (result.timeout) return { timeout: true };
                     
                     let moveRepPenalty = 0;
                     if (isRoot && currentTurn === aiColor && gameState.pieceHistories && gameState.pieceHistories[aiColor]) {
@@ -317,26 +367,71 @@ export const gameAI = {
                             let count = 0;
                             for (let pos of tracker.history) { if (pos === targetStr) count++; }
                             if (count === 2) moveRepPenalty = -200;    
-                            if (count >= 3) moveRepPenalty = -99000;  
+                            if (count >= 3 && result.score < 90000) moveRepPenalty = -99000;  
                         }
                     }
 
-                    let randomNoise = isRoot ? (Math.random() * 0.5) : 0; 
-                    let currentScore = result.score + moveRepPenalty + randomNoise;
+                    let currentScore = result.score + moveRepPenalty;
 
-                    if (currentScore > maxEval) { maxEval = currentScore; bestMove = move; }
+                    if (currentScore > maxEval) { 
+                        maxEval = currentScore; 
+                        bestMove = move; 
+                        bestPV = [move].concat(result.pv || []); 
+                    }
                     alpha = Math.max(alpha, currentScore);
                     
                     if (beta <= alpha) {
-                        if (levelNum >= 6 && !isCapture) self.killerMoves[depth] = move; 
+                        if (levelNum >= 5 && !isCapture) {
+                            let fromIdx = move[0].fromR * 8 + move[0].fromC;
+                            let toIdx = move[move.length - 1].toR * 8 + move[move.length - 1].toC;
+                            self.historyHeuristic[currentTurn][fromIdx * 64 + toIdx] += searchDepth * searchDepth;
+                            if (self.historyHeuristic[currentTurn][fromIdx * 64 + toIdx] > 10000) {
+                                self.historyHeuristic[currentTurn][fromIdx * 64 + toIdx] = 10000;
+                            }
+                            if (!isSameMove(move, self.killerMoves[ply][0])) {
+                                self.killerMoves[ply][1] = self.killerMoves[ply][0];
+                                self.killerMoves[ply][0] = move;
+                            }
+                        }
                         break; 
                     }
                 }
-                bestScoreObj = { score: maxEval, move: bestMove, timeout: isTimeout };
+                
+                let flag = 'EXACT';
+                if (maxEval <= originalAlpha) flag = 'UPPERBOUND';
+                else if (maxEval >= originalBeta) flag = 'LOWERBOUND';
+                
+                let shouldReplace = true;
+                if (tt.has(boardHash)) {
+                    let cached = tt.get(boardHash);
+                    if (cached.depth > searchDepth) shouldReplace = false;
+                    else if (cached.depth === searchDepth && cached.flag === 'EXACT' && flag !== 'EXACT') shouldReplace = false;
+                }
+                if (shouldReplace) {
+                    if (tt.size >= MAX_TT_SIZE && !tt.has(boardHash)) {
+                        let iterator = tt.keys();
+                        let deleted = false;
+                        for (let i = 0; i < 3; i++) {
+                            let key = iterator.next().value;
+                            if (!key) break;
+                            let cached = tt.get(key);
+                            if (cached.flag !== 'EXACT' || cached.depth < searchDepth) {
+                                tt.delete(key);
+                                deleted = true;
+                                break;
+                            }
+                        }
+                        if (!deleted) tt.delete(tt.keys().next().value);
+                    }
+                    tt.set(boardHash, { score: maxEval, move: bestMove, flag: flag, depth: searchDepth });
+                }
+                
+                return { score: maxEval, move: bestMove, pv: bestPV, timeout: false };
+
             } else {
                 let minEval = Infinity;
                 for (let move of possibleMoves) {
-                    let isCapture = move.some(s => s.midR !== null);
+                    let isCapture = move.some(s => s.midR != null && s.midC != null);
                     let lastStep = move[move.length - 1];
                     let piece = board[move[0].fromR][move[0].fromC];
                     let promoRow = (pieceDirection[currentTurn] === 1) ? 7 : 0;
@@ -346,32 +441,114 @@ export const gameAI = {
                     let newBoard = self.applyMoveToBoard(board, move, currentTurn, pieceDirection);
                     let nextTurn = currentTurn === 'white' ? 'black' : 'white';
                     
-                    let result = await minimax(newBoard, depth - 1, true, alpha, beta, nextTurn, nextMovesNoProg, false, extensions);
+                    let result = await minimax(newBoard, nominalDepth - 1, searchDepth - 1, true, alpha, beta, nextTurn, nextMovesNoProg, false, extensions, ply + 1);
                     
-                    if (result.timeout) { isTimeout = true; break; }
+                    if (result.timeout) return { timeout: true };
                     
-                    if (result.score < minEval) { minEval = result.score; bestMove = move; }
+                    if (result.score < minEval) { 
+                        minEval = result.score; 
+                        bestMove = move; 
+                        bestPV = [move].concat(result.pv || []); 
+                    }
                     beta = Math.min(beta, result.score);
                     
                     if (beta <= alpha) {
-                        if (levelNum >= 6 && !isCapture) self.killerMoves[depth] = move;
+                        if (levelNum >= 5 && !isCapture) {
+                            let fromIdx = move[0].fromR * 8 + move[0].fromC;
+                            let toIdx = move[move.length - 1].toR * 8 + move[move.length - 1].toC;
+                            self.historyHeuristic[currentTurn][fromIdx * 64 + toIdx] += searchDepth * searchDepth;
+                            if (self.historyHeuristic[currentTurn][fromIdx * 64 + toIdx] > 10000) {
+                                self.historyHeuristic[currentTurn][fromIdx * 64 + toIdx] = 10000;
+                            }
+                            if (!isSameMove(move, self.killerMoves[ply][0])) {
+                                self.killerMoves[ply][1] = self.killerMoves[ply][0];
+                                self.killerMoves[ply][0] = move;
+                            }
+                        }
                         break; 
                     }
                 }
-                bestScoreObj = { score: minEval, move: bestMove, timeout: isTimeout };
+                
+                let flag = 'EXACT';
+                if (minEval >= originalBeta) flag = 'LOWERBOUND';
+                else if (minEval <= originalAlpha) flag = 'UPPERBOUND';
+                
+                let shouldReplace = true;
+                if (tt.has(boardHash)) {
+                    let cached = tt.get(boardHash);
+                    if (cached.depth > searchDepth) shouldReplace = false;
+                    else if (cached.depth === searchDepth && cached.flag === 'EXACT' && flag !== 'EXACT') shouldReplace = false;
+                }
+                if (shouldReplace) {
+                    if (tt.size >= MAX_TT_SIZE && !tt.has(boardHash)) {
+                        let iterator = tt.keys();
+                        let deleted = false;
+                        for (let i = 0; i < 3; i++) {
+                            let key = iterator.next().value;
+                            if (!key) break;
+                            let cached = tt.get(key);
+                            if (cached.flag !== 'EXACT' || cached.depth < searchDepth) {
+                                tt.delete(key);
+                                deleted = true;
+                                break;
+                            }
+                        }
+                        if (!deleted) tt.delete(tt.keys().next().value);
+                    }
+                    tt.set(boardHash, { score: minEval, move: bestMove, flag: flag, depth: searchDepth });
+                }
+                
+                return { score: minEval, move: bestMove, pv: bestPV, timeout: false };
             }
-
-            if (!bestScoreObj.timeout) tt.set(boardHash, bestScoreObj);
-            return bestScoreObj;
         }
 
-        for (let currentDepth = 2; currentDepth <= currentLevel.depth; currentDepth++) {
+        const startDepth = currentLevel.depth === 1 ? 1 : 2;
+        let previousScore = 0;
+        
+        for (let currentDepth = startDepth; currentDepth <= currentLevel.depth; currentDepth++) {
             let currentIdleMoves = gameState.movesWithoutProgress || 0;
-            let result = await minimax(virtualBoard, currentDepth, true, -Infinity, Infinity, aiColor, currentIdleMoves, true, 0);
             
-            if (!result.timeout && result.move) bestMoveGlobal = result.move;
-            if (result.timeout || Date.now() - startTime >= currentLevel.maxTime) break;
-            if (Math.abs(result.score) > 90000) break; 
+            let alpha = -Infinity;
+            let beta = Infinity;
+            let windowSteps = [150, 300, 600, 1200, Infinity];
+            let windowIdx = 0;
+            
+            if (levelNum >= 6 && currentDepth >= 3) {
+                alpha = previousScore - windowSteps[0];
+                beta = previousScore + windowSteps[0];
+            }
+
+            let timeoutOccurred = false;
+
+            while (true) {
+                let result = await minimax(virtualBoard, currentDepth, currentDepth, true, alpha, beta, aiColor, currentIdleMoves, true, 0, 0);
+                
+                if (result.timeout) {
+                    timeoutOccurred = true;
+                    break;
+                }
+                
+                if ((alpha > -Infinity && result.score <= alpha) || (beta < Infinity && result.score >= beta)) {
+                    windowIdx++;
+                    if (windowSteps[windowIdx] === Infinity) {
+                        alpha = -Infinity;
+                        beta = Infinity;
+                    } else {
+                        alpha = previousScore - windowSteps[windowIdx];
+                        beta = previousScore + windowSteps[windowIdx];
+                    }
+                    continue; 
+                }
+                
+                bestMoveGlobal = result.move;
+                previousScore = result.score;
+                previousPV = result.pv || [];
+                break;
+            }
+
+            if (timeoutOccurred) {
+                break; 
+            }
         }
 
         tt.clear();
