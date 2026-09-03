@@ -16,7 +16,6 @@ const AI_LEVELS = {
 
 const MAX_TT_SIZE = 300000;
 
-// نظام Zobrist Hashing فائق السرعة
 const ZOBRIST = {
     pieces: {
         'white': new Array(64),
@@ -390,6 +389,9 @@ export const gameAI = {
         }
 
         let startTime = Date.now();
+        // تحسين الـ Yielding: السماح للواجهة بالتنفس فقط إذا استغرق الإطار وقتاً طويلاً
+        let lastYieldTime = Date.now(); 
+        
         let bestMoveGlobal = moves[0]; 
         const self = this;
         this.nodesEvaluated = 0;
@@ -431,8 +433,12 @@ export const gameAI = {
         async function minimax(board, nominalDepth, searchDepth, isMaximizing, alpha, beta, currentTurn, currentMovesNoProg, currentZobrist, isRoot = false, extensions = 0, ply = 0) {
             self.nodesEvaluated++;
             
+            // تحسين الأداء: فحص الوقت بدلاً من عدد العقد لمنع توقف اللعبة المتكرر
             if ((self.nodesEvaluated & 4095) === 0) {
-                await new Promise(r => setTimeout(r, 0)); 
+                if (Date.now() - lastYieldTime > 15) {
+                    await new Promise(r => setTimeout(r, 0));
+                    lastYieldTime = Date.now();
+                }
             }
 
             if (Date.now() - startTime >= currentLevel.maxTime) {
@@ -491,7 +497,6 @@ export const gameAI = {
             let ttMove = tt.has(entryHash) ? tt.get(entryHash).move : null;
             let pvMoveLocal = (previousPV && previousPV[ply]) ? previousPV[ply] : null;
 
-            // تحسين شامل لأداء الفرز المسبق باستخدام Array.prototype.sort
             if (levelNum >= 5) {
                 const len = possibleMoves.length;
                 let scoredMoves = new Array(len);
@@ -733,20 +738,8 @@ export const gameAI = {
         const totalTime = Math.max(1, Date.now() - startTime);
         const nps = Math.round((self.nodesEvaluated / totalTime) * 1000);
 
-        console.log(
-            `%c🤖 AI LEVEL ${levelNum}\n` +
-            `%cCompleted Depth: %c${completedDepth}\n` +
-            `%cNodes:           %c${self.nodesEvaluated.toLocaleString('en-US')}\n` +
-            `%cTime:            %c${totalTime.toLocaleString()} ms\n` +
-            `%cTimeout:         %c${timeoutOccurred ? 'YES ⚠️' : 'NO ✅'}\n` +
-            `%cNPS:             %c${nps.toLocaleString('en-US')} nodes/s`,
-            'color: #00ffcc; font-weight: bold; font-size: 14px;',
-            'color: #888; font-weight: bold;', 'color: #fff;',
-            'color: #888; font-weight: bold;', 'color: #00ff00;',
-            'color: #888; font-weight: bold;', 'color: #ffa500;',
-            'color: #888; font-weight: bold;', timeoutOccurred ? 'color: #ff4444; font-weight: bold;' : 'color: #00ffcc; font-weight: bold;',
-            'color: #888; font-weight: bold;', 'color: #38bdf8; font-weight: bold;'
-        );
+        // رسالة نصية خفيفة بدون تنسيقات لمنع اللاج في الكونسل
+        console.log(`🤖 AI L${levelNum} | Depth: ${completedDepth} | Nodes: ${self.nodesEvaluated} | Time: ${totalTime}ms | Timeout: ${timeoutOccurred ? 'Yes' : 'No'} | NPS: ${nps}`);
 
         tt.clear();
         return bestMoveGlobal;
