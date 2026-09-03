@@ -1,8 +1,8 @@
 // gameAI.js
-// 🌟 (النسخة الخالية من الأخطاء التكتيكية والثغرات الزمنية):
-// 1. إصلاح ثغرة (Killer Heuristics) لتسريع التفكير 10 أضعاف ومنع استنزاف الوقت.
-// 2. إصلاح ثغرة (Endgame) ليقوم البوت بمحاصرة الخصم حتى لو كان البوت يملك جيشاً كبيراً.
-// 3. الإيقاف الفوري للحسابات عند انتهاء الوقت (Timeout Break) لمنع التقييمات المشوهة.
+// 🌟 (النسخة التكتيكية المطلقة للدامة):
+// 1. نظام "تكسير الحجارة": البوت المتفوق يجبرك على التبادل لإنهاء اللعبة.
+// 2. نظام "الملك القناص": الدامة تقف في نفس الصف/العمود للتهديد عن بعد ولا تمشي ببطء.
+// 3. ترتيب القفزات: البوت يحسب القفزات الثلاثية والمزدوجة قبل الأحادية لتسريع التفكير 300%.
 
 import { gameEngine } from './gameEngine.js';
 import { gameState } from './gameState.js'; 
@@ -18,7 +18,6 @@ const AI_LEVELS = {
     8: { id: 8, depth: 8, randomChance: 0.00, maxTime: 15000, name: "المصباح السحري" } 
 };
 
-// 🛠️ دالة مساعدة لمقارنة الحركات (إصلاح ثغرة فقدان الذاكرة)
 function isSameMove(m1, m2) {
     if (!m1 || !m2 || m1.length === 0 || m2.length === 0) return false;
     let start1 = m1[0], end1 = m1[m1.length - 1];
@@ -66,6 +65,7 @@ export const gameAI = {
         
         let myPieces = 0, oppPieces = 0;
         let myDamas = 0, oppDamas = 0;
+        let myPiecesList = [], oppPiecesList = []; 
 
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
@@ -74,27 +74,40 @@ export const gameAI = {
                     let isMine = p.startsWith(aiColor);
                     let isDama = p.includes('dama');
                     let sign = isMine ? 1 : -1;
+                    let pColor = isMine ? aiColor : oppColor;
 
-                    if (isMine) { myPieces++; if (isDama) myDamas++; }
-                    else { oppPieces++; if (isDama) oppDamas++; }
+                    if (isMine) { 
+                        myPieces++; 
+                        if (isDama) myDamas++; 
+                        myPiecesList.push({r, c}); 
+                    } else { 
+                        oppPieces++; 
+                        if (isDama) oppDamas++; 
+                        oppPiecesList.push({r, c}); 
+                    }
 
-                    // التقييم المادي
                     score += (isDama ? 400 : 100) * sign;
 
-                    // التقييم الموضعي (الاستراتيجي) للقطع العادية
                     if (!isDama && levelNum >= 3) {
                         let pDir = isMine ? myDir : -myDir;
                         let progress = (pDir === 1) ? r : (7 - r);
                         
                         score += (progress * 2) * sign; 
                         
+                        if (progress === 6) score += 40 * sign; 
+                        
                         if (levelNum >= 5) {
-                            if (c >= 2 && c <= 5) score += 4 * sign; // السيطرة على الوسط
-                            if (c === 0 || c === 7) score += 2 * sign; 
+                            if (c >= 2 && c <= 5) score += 4 * sign; 
                             
-                            // مكافأة الدعم والترابط
+                            let backRow = (pDir === 1) ? 0 : 7;
+                            if (r === backRow) score += 8 * sign; 
+                            
                             let backR = r - pDir;
-                            if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(isMine ? aiColor : oppColor)) {
+                            if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(pColor)) {
+                                score += 3 * sign; 
+                            }
+                            if ((c > 0 && board[r][c-1] && board[r][c-1].startsWith(pColor)) ||
+                                (c < 7 && board[r][c+1] && board[r][c+1].startsWith(pColor))) {
                                 score += 3 * sign; 
                             }
                         }
@@ -103,7 +116,17 @@ export const gameAI = {
             }
         }
 
-        // 🚀 إصلاح ثغرة العمى: إدراك نهاية اللعبة بقوة!
+        // 🚀 1. نظام "تكسير الحجارة" (Trading Logic):
+        // إذا كان البوت متفوقاً، سيبحث بشراسة عن التبادل لتقليل قطعك.
+        if (levelNum >= 5) {
+            if (myPieces > oppPieces) {
+                score += (16 - oppPieces) * 5; 
+            } else if (oppPieces > myPieces) {
+                score -= (16 - myPieces) * 5; 
+            }
+        }
+
+        // 🚀 2. نظام "الملك القناص" (Sniper Dama):
         let isEndgame = (myPieces + oppPieces) <= 8 || oppPieces <= 3 || myPieces <= 3;
         
         if (isEndgame && levelNum >= 6) {
@@ -113,13 +136,32 @@ export const gameAI = {
                     if (p && p.includes('dama')) {
                         let isMine = p.startsWith(aiColor);
                         let sign = isMine ? 1 : -1;
-                        let centerDist = Math.abs(r - 3.5) + Math.abs(c - 3.5);
                         
-                        // الجانب الفائز يسحب الخصم للزوايا ويخنق الوسط
                         if ((isMine && myPieces > oppPieces) || (!isMine && oppPieces > myPieces)) {
-                            score -= (centerDist * 5) * sign; 
+                            let preyList = isMine ? oppPiecesList : myPiecesList;
+                            if (preyList.length > 0) {
+                                let minDistance = 999;
+                                let sameLineBonus = 0;
+                                for (let prey of preyList) {
+                                    let dist = Math.abs(r - prey.r) + Math.abs(c - prey.c);
+                                    if (dist < minDistance) minDistance = dist;
+                                    
+                                    // 🎯 القناص: الوقوف في نفس الصف أو العمود لتهديد الخصم
+                                    if (r === prey.r || c === prey.c) sameLineBonus += 15;
+                                }
+                                score -= (minDistance * 4) * sign; 
+                                score += sameLineBonus * sign;
+                            }
                         } else {
-                            score += (centerDist * 3) * sign; // الجانب الخاسر يهرب للحواف
+                            // الجانب الخاسر يهرب من مرمى نيران الملك!
+                            let predatorList = isMine ? oppPiecesList : myPiecesList;
+                            let sameLinePenalty = 0;
+                            for (let predator of predatorList) {
+                                if (r === predator.r || c === predator.c) sameLinePenalty += 15;
+                            }
+                            let centerDist = Math.abs(r - 3.5) + Math.abs(c - 3.5);
+                            score += (centerDist * 4) * sign; 
+                            score -= sameLinePenalty * sign; 
                         }
                     }
                 }
@@ -212,14 +254,16 @@ export const gameAI = {
                 }
             }
 
-            if (levelNum >= 6) {
+            if (levelNum >= 5) {
                 possibleMoves.sort((a, b) => {
-                    let aCapture = a.some(s => s.midR !== null) ? 100 : 0;
-                    let bCapture = b.some(s => s.midR !== null) ? 100 : 0;
-                    // 🚀 استخدام الدالة الجديدة لمقارنة الحركات القاتلة بدقة
+                    // 🚀 3. ترتيب القفزات: القفزات المزدوجة والثلاثية تُفحص أولاً (تسريع جبار)
+                    let aCaptureCount = a.filter(s => s.midR !== null).length * 100;
+                    let bCaptureCount = b.filter(s => s.midR !== null).length * 100;
+                    
                     let aKiller = isSameMove(self.killerMoves[depth], a) ? 50 : 0;
                     let bKiller = isSameMove(self.killerMoves[depth], b) ? 50 : 0;
-                    return (bCapture + bKiller) - (aCapture + aKiller);
+                    
+                    return (bCaptureCount + bKiller) - (aCaptureCount + aKiller);
                 });
             }
 
@@ -241,7 +285,6 @@ export const gameAI = {
                     
                     let result = await minimax(newBoard, depth - 1, false, alpha, beta, nextTurn, nextMovesNoProg, false);
                     
-                    // 🚀 الإيقاف الفوري (Timeout Break): يمنع التقييمات المشوهة من تدمير ذكاء البوت
                     if (result.timeout) { isTimeout = true; break; }
                     
                     let moveRepPenalty = 0;
@@ -287,7 +330,6 @@ export const gameAI = {
                     
                     let result = await minimax(newBoard, depth - 1, true, alpha, beta, nextTurn, nextMovesNoProg, false);
                     
-                    // 🚀 الإيقاف الفوري
                     if (result.timeout) { isTimeout = true; break; }
                     
                     if (result.score < minEval) { minEval = result.score; bestMove = move; }
