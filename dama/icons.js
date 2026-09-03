@@ -338,7 +338,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 11. زر الراديو - (تم تكبيره إلى 36px وإزالة اللمعة البيضاء نهائياً)
+    // 11. زر الراديو
     radioBtn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" width="36" height="36" style="transform: scale(1.25);">
         <defs>
             <style>@keyframes floatAnimRadioBtn { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } } .anim-f-radio-btn { animation: floatAnimRadioBtn 3.5s ease-in-out infinite; }</style>
@@ -376,7 +376,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 12. أيقونة الراديو للقائمة الجانبية - (تم تكبيره إلى 36px وإزالة اللمعة البيضاء نهائياً)
+    // 12. أيقونة الراديو للقائمة الجانبية
     radioSide: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 130" width="36" height="36" style="transform: scale(1.3);">
         <defs>
             <style>@keyframes floatAnimRadioSide { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } } .anim-f-radio-side { animation: floatAnimRadioSide 3.5s ease-in-out infinite; }</style>
@@ -423,7 +423,7 @@ const SVGIcons = {
         <circle cx="12" cy="20" r="1.5" fill="#ffffff" stroke="none" />
     </svg>`,
 
-    // 14. أيقونة عجلة الحظ الملونة 🌟
+    // 14. أيقونة عجلة الحظ الملونة
     luckySpin: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" style="vertical-align: middle; display: inline-block;">
         <defs>
             <linearGradient id="spin-gold" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -518,7 +518,7 @@ const SVGIcons = {
         </g>
     </svg>`,
 
-    // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍 (بدوران أفقي واقعي للكرة الأرضية)
+    // 16. أيقونة الكرة الأرضية لزر الأونلاين 🌍
     globeBtn: `<svg viewBox="0 0 100 100" width="100%" height="100%" style="transform: scale(1.3); transform-origin: center; overflow: visible;">
         <defs>
             <radialGradient id="oceanBlueCombo" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="45%" stop-color="#0284c7"/><stop offset="80%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
@@ -527,18 +527,14 @@ const SVGIcons = {
             <linearGradient id="glossHighlightCombo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
             <clipPath id="globeClipCombo"><circle cx="50" cy="50" r="36"/></clipPath>
             <style>
-                /* 🌟 حركة دوران أفقي (بانوراما) للكرة الأرضية 🌟 */
                 @keyframes panGlobeMap { 0% { transform: translateX(0); } 100% { transform: translateX(-75px); } }
                 .anim-globe-pan { animation: panGlobeMap 12s linear infinite; }
             </style>
         </defs>
         
         <g transform="translate(50, 50) scale(1.20) translate(-50, -50)">
-            <!-- المحيط (ثابت) -->
             <circle cx="50" cy="50" r="36" fill="url(#oceanBlueCombo)"/>
-            
             <g clip-path="url(#globeClipCombo)">
-                <!-- الشبكة والإحداثيات (ثابتة لتعطي عمقاً 3D) -->
                 <g stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3">
                     <line x1="10" y1="50" x2="90" y2="50"/>
                     <ellipse cx="50" cy="50" rx="36" ry="18"/>
@@ -547,10 +543,7 @@ const SVGIcons = {
                     <ellipse cx="50" cy="50" rx="18" ry="36"/>
                     <ellipse cx="50" cy="50" rx="30" ry="36"/>
                 </g>
-                
-                <!-- 🌟 الخريطة تتحرك أفقياً لعمل وهم الدوران 🌟 -->
                 <g class="anim-globe-pan">
-                    <!-- النسخة الأولى من القارات -->
                     <g fill="url(#landGradCombo)" stroke="#0284c7" stroke-width="0.3" opacity="0.92">
                         <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
                         <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
@@ -559,7 +552,6 @@ const SVGIcons = {
                         <circle cx="38" cy="23" r="1.8"/>
                         <circle cx="62" cy="58" r="1.5"/>
                     </g>
-                    <!-- النسخة الثانية مكررة ومزاحة لليمين 75 بيكسل لعمل حلقة لا نهائية (Loop) -->
                     <g fill="url(#landGradCombo)" stroke="#0284c7" stroke-width="0.3" opacity="0.92" transform="translate(75, 0)">
                         <path d="M 22 28 C 26 24, 32 26, 30 34 C 28 40, 24 42, 28 48 C 30 52, 35 58, 32 66 C 29 72, 26 75, 23 70 C 21 62, 25 54, 21 46 C 18 40, 19 32, 22 28 Z"/>
                         <path d="M 46 22 C 52 20, 58 24, 56 28 C 52 32, 45 30, 44 35 C 43 42, 50 45, 54 52 C 58 60, 52 72, 45 74 C 40 75, 41 64, 39 56 C 38 48, 41 40, 44 32 Z"/>
@@ -571,19 +563,17 @@ const SVGIcons = {
                 </g>
             </g>
             
-            <!-- الغلاف الجوي واللمعة الزجاجية (ثابتة) -->
             <circle cx="50" cy="50" r="36" fill="url(#atmosphereGlowCombo)"/>
             <path d="M 20 32 A 34 34 0 0 1 80 32 A 36 36 0 0 0 20 32 Z" fill="url(#glossHighlightCombo)"/>
         </g>
 
-        <!-- الأشخاص الذهبيون (ثابتون ولا يدورون مع الكرة) -->
         <svg x="40" y="38" width="60" height="60" viewBox="0 0 24 24" fill="#ffd700">
             <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" stroke="#1a1a24" stroke-width="0.8" style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.9));"/>
         </svg>
     </svg>`,
 
-    // 17. أيقونة الروبوت الفخم 🤖 (تم حل مشكلة الانضغاط وتعارض الـ Style)
-    robotBtn: `<svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" width="100%" height="100%">
+    // 17. أيقونة الروبوت الفخم 🤖 (تم حل مشكلة الانضغاط وتعارض الـ Style ومنع القص)
+    robotBtn: `<svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" overflow="visible">
         <defs>
             <style>
                 .bot-wrapper {
@@ -717,7 +707,6 @@ const SVGIcons = {
             </g>
         </g>
     </svg>`
-
 };
 
 window.SVGIcons = SVGIcons;
