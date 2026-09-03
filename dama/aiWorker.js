@@ -9,7 +9,7 @@ const AI_LEVELS = {
     5: { id: 5, depth: 5, randomChance: 0.00, maxTime: 4000 },
     6: { id: 6, depth: 6, randomChance: 0.00, maxTime: 8000 },
     7: { id: 7, depth: 8, randomChance: 0.00, maxTime: 15000 }, // ترقية العمق
-    8: { id: 8, depth: 10, randomChance: 0.00, maxTime: 20000 }
+    8: { id: 8, depth: 9, randomChance: 0.00, maxTime: 20000 }
 };
 
 const MAX_TT_SIZE = 300000;
