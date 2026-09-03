@@ -3,7 +3,6 @@
  * النسخة المطابقة تماماً لمحرك السيرفر (game-logic.js) لضمان التوافق 100%
  * 🌟 (مُحدّث): نظام "التعادل الذكي" لإنهاء المطاردة المملة.
  * 🛡️ (مُحدّث أمني): منع تسجيل إحصائيات اللعب (فوز/خسارة) عند اللعب ضد البوت لحماية السجل!
- * 🛠️ (مُحدّث جذرياً): إصلاح تلف أسماء القطع (white-dama-dama) أثناء محاكاة القفز المتعدد.
  */
 
 import { gameState } from './gameState.js'; 
@@ -85,31 +84,28 @@ export const gameEngine = {
                 if (this.isValidPos(toR, toC)) {
                     const midPiece = bState[midR][midC], toPiece = bState[toR][toC];
                     if (midPiece && !midPiece.startsWith(baseColor) && toPiece === null) {
-                        let capturedPiece = bState[midR][midC];
-                        let movingPiece = bState[r][c];
+                        let capturedPiece = bState[midR][midC], movingPiece = bState[r][c];
+
+                        let isMidAirPromotion = false;
+                        let promoRow = (dirY === 1) ? 7 : 0;
+                        
+                        if (toR === promoRow && !movingPiece.includes('dama')) {
+                            movingPiece += '-dama';
+                            isMidAirPromotion = true;
+                        }
 
                         bState[midR][midC] = null;
                         bState[toR][toC] = movingPiece;
                         bState[r][c] = null;
 
                         const stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
-                        
-                        /*
-                         * 🚨 [قانون مخصص ثابت - يمنع التعديل قطعياً] 🚨
-                         * عندما يصل الحجر العادي إلى صف الترقية (الصف الأخير) ويوجد مسار أكل متاح أمامه (مثلاً يميناً أو يساراً)،
-                         * فإنه مُجبر على الاستمرار في الأكل بصفته "حجر عادي". 
-                         * يمنع منعاً باتاً ترقيته إلى "ملك" (Dama) أثناء سلسلة الأكل الفورية.
-                         * لا يكتسب خصائص الملك إلا بعد انتهاء الدور بالكامل.
-                         * هذا ليس خطأً، بل هو قانون أساسي مقصود في محرك هذه اللعبة.
-                         */
                         const subPaths = this.getPieceCapturePaths(toR, toC, color, bState, dirY, dr, dc, roomDirectionData);
 
                         if (subPaths.length > 0) {
                             for (const sp of subPaths) paths.push([stepObj, ...sp]);
                         } else { paths.push([stepObj]); }
 
-                        // إرجاع القطعة الأصلية السليمة إلى مكانها الأول
-                        bState[r][c] = movingPiece;
+                        bState[r][c] = isMidAirPromotion ? movingPiece.replace('-dama', '') : movingPiece;
                         bState[toR][toC] = null;
                         bState[midR][midC] = capturedPiece;
                     }
@@ -145,44 +141,86 @@ export const gameEngine = {
         return moves;
     },
 
-    generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = null, activeDc = null, roomDirectionData = null) {
-        let allCapturePaths = [], maxJumps = 0;
-        const baseColor = color.split('-')[0];
-        const dirY = this.getPieceDirection(baseColor, bState, roomDirectionData); 
+generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = null, activeDc = null, roomDirectionData = null) {
+    const baseColor = color.split('-')[0];
+    const dirY = this.getPieceDirection(baseColor, bState, roomDirectionData);
 
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const piece = bState[r][c];
-                if (piece && piece.startsWith(baseColor)) {
-                    if (activeR !== null && activeC !== null && (r !== activeR || c !== activeC)) continue;
-                    const initDr = (r === activeR && c === activeC) ? activeDr : null;
-                    const initDc = (r === activeR && c === activeC) ? activeDc : null;
+    // جمع قطع اللاعب مرة واحدة فقط
+    const pieces = [];
 
-                    const paths = this.getPieceCapturePaths(r, c, baseColor, bState, dirY, initDr, initDc, roomDirectionData);
-                    for (const p of paths) {
-                        if (p.length > maxJumps) maxJumps = p.length;
-                        allCapturePaths.push(p);
-                    }
-                }
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = bState[r][c];
+
+            if (!piece || !piece.startsWith(baseColor)) continue;
+
+            if (
+                activeR !== null &&
+                activeC !== null &&
+                (r !== activeR || c !== activeC)
+            ) {
+                continue;
+            }
+
+            pieces.push({
+                r,
+                c,
+                initDr: (r === activeR && c === activeC) ? activeDr : null,
+                initDc: (r === activeR && c === activeC) ? activeDc : null
+            });
+        }
+    }
+
+    // البحث عن مسارات الأكل مع الاحتفاظ فقط بأطول المسارات
+    let allCapturePaths = [];
+    let maxJumps = 0;
+
+    for (const piece of pieces) {
+        const paths = this.getPieceCapturePaths(
+            piece.r,
+            piece.c,
+            baseColor,
+            bState,
+            dirY,
+            piece.initDr,
+            piece.initDc,
+            roomDirectionData
+        );
+
+        for (const path of paths) {
+            if (path.length > maxJumps) {
+                maxJumps = path.length;
+                allCapturePaths = [path];
+            } else if (path.length === maxJumps) {
+                allCapturePaths.push(path);
             }
         }
+    }
 
-        if (maxJumps > 0) return allCapturePaths.filter(p => p.length === maxJumps);
-        
-        let allSimpleMoves = [];
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const piece = bState[r][c];
-                if (piece && piece.startsWith(baseColor)) {
-                    if (activeR !== null && activeC !== null && (r !== activeR || c !== activeC)) continue;
-                    
-                    allSimpleMoves.push(...this.getPieceSimpleMoves(r, c, baseColor, bState, dirY));
-                }
-            }
-        }
-        return allSimpleMoves;
-    },
+    // إذا يوجد أكل إجباري، نعيد فقط أطول سلاسل الأكل
+    if (maxJumps > 0) {
+        return allCapturePaths;
+    }
 
+    // لا يوجد أكل → النقلات العادية
+    const allSimpleMoves = [];
+
+    for (const piece of pieces) {
+        allSimpleMoves.push(
+            ...this.getPieceSimpleMoves(
+                piece.r,
+                piece.c,
+                baseColor,
+                bState,
+                dirY
+            )
+        );
+    }
+
+    return allSimpleMoves;
+},
+
+  
     applyPathToBoard(path, bState, roomDirectionData = null) {
         let newBoard = bState.map(row => [...row]);
         if (!path || path.length === 0) return newBoard;
@@ -345,4 +383,4 @@ export const gameEngine = {
 
 if (typeof window !== 'undefined') {
     window.gameEngine = gameEngine;
-}
+                                             }
