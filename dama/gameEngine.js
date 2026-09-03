@@ -141,86 +141,88 @@ export const gameEngine = {
         return moves;
     },
 
-generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = null, activeDc = null, roomDirectionData = null) {
-    const baseColor = color.split('-')[0];
-    const dirY = this.getPieceDirection(baseColor, bState, roomDirectionData);
+    generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = null, activeDc = null, roomDirectionData = null) {
+        const baseColor = color.split('-')[0];
+        const dirY = this.getPieceDirection(baseColor, bState, roomDirectionData);
 
-    // جمع قطع اللاعب مرة واحدة فقط
-    const pieces = [];
+        const pieces = [];
+        const hasActive = activeR !== null && activeC !== null;
 
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-            const piece = bState[r][c];
+        // المرحلة الأولى: جمع القطع (فحص اللوحة مرة واحدة فقط)
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const piece = bState[r][c];
 
-            if (!piece || !piece.startsWith(baseColor)) continue;
+                if (!piece || !piece.startsWith(baseColor)) {
+                    continue;
+                }
 
-            if (
-                activeR !== null &&
-                activeC !== null &&
-                (r !== activeR || c !== activeC)
-            ) {
-                continue;
-            }
+                if (hasActive && (r !== activeR || c !== activeC)) {
+                    continue;
+                }
 
-            pieces.push({
-                r,
-                c,
-                initDr: (r === activeR && c === activeC) ? activeDr : null,
-                initDc: (r === activeR && c === activeC) ? activeDc : null
-            });
-        }
-    }
-
-    // البحث عن مسارات الأكل مع الاحتفاظ فقط بأطول المسارات
-    let allCapturePaths = [];
-    let maxJumps = 0;
-
-    for (const piece of pieces) {
-        const paths = this.getPieceCapturePaths(
-            piece.r,
-            piece.c,
-            baseColor,
-            bState,
-            dirY,
-            piece.initDr,
-            piece.initDc,
-            roomDirectionData
-        );
-
-        for (const path of paths) {
-            if (path.length > maxJumps) {
-                maxJumps = path.length;
-                allCapturePaths = [path];
-            } else if (path.length === maxJumps) {
-                allCapturePaths.push(path);
+                pieces.push({
+                    r,
+                    c,
+                    initDr: hasActive ? activeDr : null,
+                    initDc: hasActive ? activeDc : null
+                });
             }
         }
-    }
 
-    // إذا يوجد أكل إجباري، نعيد فقط أطول سلاسل الأكل
-    if (maxJumps > 0) {
-        return allCapturePaths;
-    }
+        // المرحلة الثانية: البحث عن الأسر
+        let allCapturePaths = [];
+        let maxJumps = 0;
 
-    // لا يوجد أكل → النقلات العادية
-    const allSimpleMoves = [];
+        for (const piece of pieces) {
+            const paths = this.getPieceCapturePaths(
+                piece.r,
+                piece.c,
+                baseColor,
+                bState,
+                dirY,
+                piece.initDr,
+                piece.initDc,
+                roomDirectionData
+            );
 
-    for (const piece of pieces) {
-        allSimpleMoves.push(
-            ...this.getPieceSimpleMoves(
+            for (let i = 0; i < paths.length; i++) {
+                const path = paths[i];
+                const jumps = path.length;
+
+                if (jumps > maxJumps) {
+                    maxJumps = jumps;
+                    allCapturePaths = [path];
+                } else if (jumps === maxJumps) {
+                    allCapturePaths.push(path);
+                }
+            }
+        }
+
+        if (maxJumps > 0) {
+            return allCapturePaths;
+        }
+
+        // المرحلة الثالثة: النقلات العادية (إذا لم يوجد أسر)
+        const allSimpleMoves = [];
+
+        for (const piece of pieces) {
+            const moves = this.getPieceSimpleMoves(
                 piece.r,
                 piece.c,
                 baseColor,
                 bState,
                 dirY
-            )
-        );
-    }
+            );
 
-    return allSimpleMoves;
-},
+            for (let i = 0; i < moves.length; i++) {
+                allSimpleMoves.push(moves[i]);
+            }
+        }
 
-  
+        return allSimpleMoves;
+    },
+
     applyPathToBoard(path, bState, roomDirectionData = null) {
         let newBoard = bState.map(row => [...row]);
         if (!path || path.length === 0) return newBoard;
@@ -383,4 +385,4 @@ generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = n
 
 if (typeof window !== 'undefined') {
     window.gameEngine = gameEngine;
-                                             }
+}
