@@ -194,22 +194,24 @@ export const ui = {
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
             let botContent = `<span style="font-size: 35px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🤖</span>`;
             
+
             if (botSvg) {
                 let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
                 });
-                botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
+                // ✅ السماح للـ SVG بالحفاظ على نسبة الأبعاد الأصلية (بدون تشوه)
+                botContent = botContent.replace('<svg', '<svg style="width: 100%; height: auto; display: block;"');
             }
             
-                        let innerHTML = `
+            let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 1; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));">
+                    <div style="width: 85%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));">
                         ${botContent}
                     </div>
             `;
 
-
+          
             if (overlayFrameSrc) {
                 let finalX = moveRight - moveLeft; let finalY = moveDown - moveUp;
                 innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(calc(-50% + ${finalX}px), calc(-50% + ${finalY}px)); width: ${frameScale}; height: ${frameScale}; z-index: ${frameZ}; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
