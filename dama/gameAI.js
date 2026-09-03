@@ -10,7 +10,7 @@ const AI_LEVELS = {
     4: { id: 4, depth: 4, randomChance: 0.00, maxTime: 2500, name: "عمق 4" },
     5: { id: 5, depth: 5, randomChance: 0.00, maxTime: 4000, name: "عمق 5" },
     6: { id: 6, depth: 6, randomChance: 0.00, maxTime: 8000, name: "عمق 6" },
-    7: { id: 7, depth: 7, randomChance: 0.00, maxTime: 15000, name: "الزعيم (عمق 7)" }, 
+    7: { id: 7, depth: 12, randomChance: 0.00, maxTime: 15000, name: "الزعيم (عمق 7)" }, 
     8: { id: 8, depth: 8, randomChance: 0.00, maxTime: 20000, name: "المصباح السحري" } 
 };
 
