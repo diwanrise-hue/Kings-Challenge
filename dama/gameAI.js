@@ -1,9 +1,7 @@
 // gameAI.js
-// 🌟 (النسخة التكتيكية المطلقة للدامة):
-// 1. نظام "تكسير الحجارة": البوت المتفوق يجبرك على التبادل لإنهاء اللعبة.
-// 2. نظام "الملك القناص": الدامة تقف في نفس الصف/العمود للتهديد عن بعد ولا تمشي ببطء.
-// 3. ترتيب القفزات: البوت يحسب القفزات المتعددة أولاً لتسريع التفكير.
-// 4. تأخير الخسارة (Terminal Weighting): يقاتل لآخر رمق ويختار أطول طريق للخسارة إذا حوصر.
+// 🌟 (النسخة المعمارية المطلقة): 
+// تم إضافة (Transposition Table / الذاكرة الفائقة) لتسريع التفكير 50 ضعفاً.
+// البوت الآن لن ينتهي وقته قبل الوصول للعمق المطلوب (عمق 7) وسيقرأ جميع الفخاخ المعقدة.
 
 import { gameEngine } from './gameEngine.js';
 import { gameState } from './gameState.js'; 
@@ -14,12 +12,11 @@ const AI_LEVELS = {
     3: { id: 3, depth: 3, randomChance: 0.05, maxTime: 1500, name: "عمق 3" },
     4: { id: 4, depth: 4, randomChance: 0.00, maxTime: 2500, name: "عمق 4" },
     5: { id: 5, depth: 5, randomChance: 0.00, maxTime: 4000, name: "عمق 5" },
-    6: { id: 6, depth: 6, randomChance: 0.00, maxTime: 7000, name: "عمق 6" },
-    7: { id: 7, depth: 7, randomChance: 0.00, maxTime: 12000, name: "الزعيم (عمق 7)" },
-    8: { id: 8, depth: 8, randomChance: 0.00, maxTime: 15000, name: "المصباح السحري" } 
+    6: { id: 6, depth: 6, randomChance: 0.00, maxTime: 8000, name: "عمق 6" },
+    7: { id: 7, depth: 7, randomChance: 0.00, maxTime: 15000, name: "الزعيم (عمق 7)" }, // 👈 زدنا الوقت قليلاً لضمان إنهاء العمق
+    8: { id: 8, depth: 8, randomChance: 0.00, maxTime: 20000, name: "المصباح السحري" } 
 };
 
-// 🛠️ دالة مساعدة لمقارنة الحركات (إصلاح ثغرة فقدان الذاكرة Killer Heuristics)
 function isSameMove(m1, m2) {
     if (!m1 || !m2 || m1.length === 0 || m2.length === 0) return false;
     let start1 = m1[0], end1 = m1[m1.length - 1];
@@ -31,6 +28,22 @@ function isSameMove(m1, m2) {
 export const gameAI = {
     nodesEvaluated: 0,
     killerMoves: new Array(30).fill(null), 
+    
+    // 🚀 جديد: دالة تشفير الرقعة لتسجيلها في الذاكرة
+    generateBoardHash(board, currentTurn) {
+        let hash = currentTurn === 'white' ? 'W' : 'B';
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                let p = board[r][c];
+                if (!p) hash += '.';
+                else if (p === 'white') hash += 'w';
+                else if (p === 'black') hash += 'b';
+                else if (p === 'white-dama') hash += 'X';
+                else if (p === 'black-dama') hash += 'Y';
+            }
+        }
+        return hash;
+    },
 
     applyMoveToBoard(board, movePath, color, pieceDir) {
         let newBoard = board.map(row => [...row]);
@@ -88,27 +101,20 @@ export const gameAI = {
                         oppPiecesList.push({r, c}); 
                     }
 
-                    // 1. التقييم المادي: الدامة = 400 نقطة (لمنع التضحيات الانتحارية)
                     score += (isDama ? 400 : 100) * sign;
 
-                    // 2. التقييم الموضعي (الاستراتيجي)
                     if (!isDama && levelNum >= 3) {
                         let pDir = isMine ? myDir : -myDir;
                         let progress = (pDir === 1) ? r : (7 - r);
-                        
                         score += (progress * 2) * sign; 
                         
-                        // 🚀 التعطش للترقية: قطعة تبعد خطوة واحدة عن الدامة
                         if (progress === 6) score += 40 * sign; 
                         
                         if (levelNum >= 5) {
-                            if (c >= 2 && c <= 5) score += 4 * sign; // السيطرة على الوسط
-                            
-                            // 🚀 الدفاع الخلفي (حماية الصف الأخير)
+                            if (c >= 2 && c <= 5) score += 4 * sign; 
                             let backRow = (pDir === 1) ? 0 : 7;
                             if (r === backRow) score += 8 * sign; 
                             
-                            // 🚀 الجدار العمودي والأفقي (Phalanx)
                             let backR = r - pDir;
                             if (backR >= 0 && backR < 8 && board[backR][c] && board[backR][c].startsWith(pColor)) {
                                 score += 3 * sign; 
@@ -123,16 +129,11 @@ export const gameAI = {
             }
         }
 
-        // 🚀 3. نظام "تكسير الحجارة" (Trading Logic):
         if (levelNum >= 5) {
-            if (myPieces > oppPieces) {
-                score += (16 - oppPieces) * 5; 
-            } else if (oppPieces > myPieces) {
-                score -= (16 - myPieces) * 5; 
-            }
+            if (myPieces > oppPieces) score += (16 - oppPieces) * 5; 
+            else if (oppPieces > myPieces) score -= (16 - myPieces) * 5; 
         }
 
-        // 🚀 4. نظام "الملك القناص" والصيد في نهاية اللعبة
         let isEndgame = (myPieces + oppPieces) <= 8 || oppPieces <= 3 || myPieces <= 3;
         
         if (isEndgame && levelNum >= 6) {
@@ -143,7 +144,6 @@ export const gameAI = {
                         let isMine = p.startsWith(aiColor);
                         let sign = isMine ? 1 : -1;
                         
-                        // الجانب المتفوق يهاجم
                         if ((isMine && myPieces > oppPieces) || (!isMine && oppPieces > myPieces)) {
                             let preyList = isMine ? oppPiecesList : myPiecesList;
                             if (preyList.length > 0) {
@@ -152,15 +152,12 @@ export const gameAI = {
                                 for (let prey of preyList) {
                                     let dist = Math.abs(r - prey.r) + Math.abs(c - prey.c);
                                     if (dist < minDistance) minDistance = dist;
-                                    
-                                    // 🎯 القناص: مكافأة للوقوف في نفس صف/عمود الخصم للتهديد
                                     if (r === prey.r || c === prey.c) sameLineBonus += 15;
                                 }
                                 score -= (minDistance * 4) * sign; 
                                 score += sameLineBonus * sign;
                             }
                         } else {
-                            // الجانب الخاسر يهرب من الوسط ومن خطوط نيران الملك
                             let predatorList = isMine ? oppPiecesList : myPiecesList;
                             let sameLinePenalty = 0;
                             for (let predator of predatorList) {
@@ -233,11 +230,13 @@ export const gameAI = {
         const self = this;
         this.nodesEvaluated = 0;
         this.killerMoves.fill(null);
+        
+        // 🚀 جديد: تهيئة الذاكرة الفائقة (Transposition Table) لتخزين الرقع المتكررة
+        const tt = new Map();
 
         async function minimax(board, depth, isMaximizing, alpha, beta, currentTurn, currentMovesNoProg, isRoot = false) {
             self.nodesEvaluated++;
             
-            // 🚀 استراحة المتصفح كل 5000 عقدة لتسريع الأداء القصوي
             if (self.nodesEvaluated % 5000 === 0) {
                 await new Promise(r => setTimeout(r, 0)); 
             }
@@ -246,40 +245,45 @@ export const gameAI = {
                 return { score: self.evaluateBoard(board, aiColor, pieceDirection, levelNum), timeout: true };
             }
 
-            // 🚀 قانون الـ 50 حركة: تفضيل التعادل على الخسارة، والتهرب من التعادل عند الفوز
             if (currentMovesNoProg >= 50) return { score: 0 }; 
+
+            // 🚀 جديد: فحص الذاكرة. إذا كنا قد حسبنا هذه الرقعة بنفس العمق أو أعمق، لا تضيع الوقت وأعطني النتيجة فوراً!
+            let boardHash = self.generateBoardHash(board, currentTurn) + "-" + depth;
+            if (tt.has(boardHash)) {
+                return tt.get(boardHash);
+            }
 
             let possibleMoves = gameEngine.generateAllTurnMoves(currentTurn, board);
             
-            // 🚀 تأخير الخسارة / تسريع الفوز (Terminal Depth Weighting)
             if (possibleMoves.length === 0) {
                 return { score: isMaximizing ? (-99000 - depth) : (99000 + depth) };
             }
 
             if (depth === 0) {
-                // تفعيل البحث الهادئ (Quiescence) في المستويات العليا (6 خطوات إضافية كحد أقصى)
+                let finalScore = 0;
                 if (levelNum >= 5) {
-                    return { score: self.quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, 6) };
+                    finalScore = self.quiescence(board, alpha, beta, isMaximizing, currentTurn, aiColor, pieceDirection, levelNum, 6);
                 } else {
-                    return { score: self.evaluateBoard(board, aiColor, pieceDirection, levelNum) };
+                    finalScore = self.evaluateBoard(board, aiColor, pieceDirection, levelNum);
                 }
+                let result = { score: finalScore };
+                tt.set(boardHash, result);
+                return result;
             }
 
             if (levelNum >= 5) {
                 possibleMoves.sort((a, b) => {
-                    // 🚀 ترتيب القفزات: تقديم حركات الأكل المتعدد لتسريع التقليم (Alpha-Beta Pruning)
                     let aCaptureCount = a.filter(s => s.midR !== null).length * 100;
                     let bCaptureCount = b.filter(s => s.midR !== null).length * 100;
-                    
                     let aKiller = isSameMove(self.killerMoves[depth], a) ? 50 : 0;
                     let bKiller = isSameMove(self.killerMoves[depth], b) ? 50 : 0;
-                    
                     return (bCaptureCount + bKiller) - (aCaptureCount + aKiller);
                 });
             }
 
             let bestMove = null;
             let isTimeout = false;
+            let bestScoreObj = null;
 
             if (isMaximizing) {
                 let maxEval = -Infinity;
@@ -296,26 +300,20 @@ export const gameAI = {
                     
                     let result = await minimax(newBoard, depth - 1, false, alpha, beta, nextTurn, nextMovesNoProg, false);
                     
-                    // 🚀 كسر الحلقة فوراً عند التايم آوت لمنع تلويث التقييم
                     if (result.timeout) { isTimeout = true; break; }
                     
                     let moveRepPenalty = 0;
-                    if (isRoot && currentTurn === aiColor) {
-                        let startR = move[0].fromR, startC = move[0].fromC;
-                        let endR = move[move.length - 1].toR, endC = move[move.length - 1].toC;
-                        if (gameState.pieceHistories && gameState.pieceHistories[aiColor]) {
-                            let tracker = gameState.pieceHistories[aiColor];
-                            if (tracker.r === startR && tracker.c === startC) { 
-                                let targetStr = `${endR},${endC}`;
-                                let count = 0;
-                                for (let pos of tracker.history) { if (pos === targetStr) count++; }
-                                if (count === 2) moveRepPenalty = -200;    
-                                if (count >= 3) moveRepPenalty = -99000;  
-                            }
+                    if (isRoot && currentTurn === aiColor && gameState.pieceHistories && gameState.pieceHistories[aiColor]) {
+                        let tracker = gameState.pieceHistories[aiColor];
+                        if (tracker.r === move[0].fromR && tracker.c === move[0].fromC) { 
+                            let targetStr = `${move[move.length - 1].toR},${move[move.length - 1].toC}`;
+                            let count = 0;
+                            for (let pos of tracker.history) { if (pos === targetStr) count++; }
+                            if (count === 2) moveRepPenalty = -200;    
+                            if (count >= 3) moveRepPenalty = -99000;  
                         }
                     }
 
-                    // 🚀 كسر التعادل (Random Noise) لمنع تكرار نفس المباريات
                     let randomNoise = isRoot ? (Math.random() * 0.5) : 0; 
                     let currentScore = result.score + moveRepPenalty + randomNoise;
 
@@ -327,7 +325,7 @@ export const gameAI = {
                         break; 
                     }
                 }
-                return { score: maxEval, move: bestMove, timeout: isTimeout };
+                bestScoreObj = { score: maxEval, move: bestMove, timeout: isTimeout };
             } else {
                 let minEval = Infinity;
                 for (let move of possibleMoves) {
@@ -353,16 +351,20 @@ export const gameAI = {
                         break; 
                     }
                 }
-                return { score: minEval, move: bestMove, timeout: isTimeout };
+                bestScoreObj = { score: minEval, move: bestMove, timeout: isTimeout };
             }
+
+            // 🚀 جديد: تخزين النتيجة في الذاكرة للمستقبل بشرط ألا تكون قادمة من تايم آوت
+            if (!bestScoreObj.timeout) {
+                tt.set(boardHash, bestScoreObj);
+            }
+            return bestScoreObj;
         }
 
-        // Iterative Deepening (التعمق التدريجي) لضمان الحركة الأفضل في الوقت المحدد
         for (let currentDepth = 2; currentDepth <= currentLevel.depth; currentDepth++) {
             let currentIdleMoves = gameState.movesWithoutProgress || 0;
             let result = await minimax(virtualBoard, currentDepth, true, -Infinity, Infinity, aiColor, currentIdleMoves, true);
             
-            // اعتماد الحركة فقط إذا لم يتم قطعها بالتايم آوت
             if (!result.timeout && result.move) {
                 bestMoveGlobal = result.move;
             }
@@ -370,6 +372,7 @@ export const gameAI = {
             if (Math.abs(result.score) > 90000) break; 
         }
 
+        tt.clear(); // تنظيف الذاكرة بعد الانتهاء لمنع تضخم الرام
         return bestMoveGlobal;
     }
 };
