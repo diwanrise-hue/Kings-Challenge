@@ -180,7 +180,7 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            botScale = 'scale(1.4)'; 
+            botScale = 'scale(1.1)'; 
         }
         else {
             frameZ = '5';
@@ -202,14 +202,13 @@ export const ui = {
                 botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
             }
             
-            let innerHTML = `
+                        let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <div style="width: 100%; height: 100%; background: #1a1a24; border-radius: 50%; border: 2px solid #ffd700; display: flex; align-items: center; justify-content: center; overflow: visible; z-index: 1; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
-                        <div style="width: 80%; height: 80%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative;">
-                            ${botContent}
-                        </div>
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 1; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));">
+                        ${botContent}
                     </div>
             `;
+
 
             if (overlayFrameSrc) {
                 let finalX = moveRight - moveLeft; let finalY = moveDown - moveUp;
