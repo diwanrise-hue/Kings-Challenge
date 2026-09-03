@@ -582,20 +582,23 @@ const SVGIcons = {
         </svg>
     </svg>`,
 
-    // 17. أيقونة الروبوت الفخم 🤖 (يطفو ويرمش رمشتين كل 5 ثوانٍ + إضاءة نيون للعيون المغلقة والابتسامة)
-    robotBtn: `<svg viewBox="0 0 800 600" width="100%" height="100%" style="transform: scale(1.4); transform-origin: center; filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5)) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.9));">
+    // 17. أيقونة الروبوت الفخم 🤖 (تم حل مشكلة الانضغاط وتعارض الـ Style)
+    robotBtn: `<svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" width="100%" height="100%">
         <defs>
             <style>
+                .bot-wrapper {
+                    transform: scale(1.4); 
+                    transform-origin: center; 
+                    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5)) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.9));
+                }
                 @keyframes floatAlive { 
                     0%, 100% { transform: translateY(0); } 
                     50% { transform: translateY(-20px); } 
                 }
-                /* حركة رمشتين متتاليتين كل 5 ثواني للعين المفتوحة */
                 @keyframes blinkOpen {
                     0%, 90%, 94%, 98%, 100% { opacity: 1; }
                     92%, 96% { opacity: 0; }
                 }
-                /* حركة رمشتين متتاليتين كل 5 ثواني للعين المغلقة (الخط المضيء) */
                 @keyframes blinkClosed {
                     0%, 90%, 94%, 98%, 100% { opacity: 0; }
                     92%, 96% { opacity: 1; }
@@ -645,73 +648,76 @@ const SVGIcons = {
             </filter>
         </defs>
 
-        <g class="bot-alive">
-            <!-- إضاءة خلفية -->
-            <circle cx="400" cy="300" r="380" fill="url(#botBacklightGlow)" />
+        <g class="bot-wrapper">
+            <g class="bot-alive">
+                <!-- إضاءة خلفية -->
+                <circle cx="400" cy="300" r="380" fill="url(#botBacklightGlow)" />
 
-            <!-- الأذنين -->
-            <rect x="40" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
-            <rect x="35" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
-            <rect x="45" y="285" width="30" height="8" fill="url(#botGoldV)" />
-            <rect x="45" y="305" width="30" height="8" fill="url(#botGoldV)" />
-            <rect x="45" y="325" width="30" height="8" fill="url(#botGoldV)" />
+                <!-- الأذنين -->
+                <rect x="40" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
+                <rect x="35" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
+                <rect x="45" y="285" width="30" height="8" fill="url(#botGoldV)" />
+                <rect x="45" y="305" width="30" height="8" fill="url(#botGoldV)" />
+                <rect x="45" y="325" width="30" height="8" fill="url(#botGoldV)" />
 
-            <rect x="700" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
-            <rect x="715" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
-            <rect x="725" y="285" width="30" height="8" fill="url(#botGoldV)" />
-            <rect x="725" y="305" width="30" height="8" fill="url(#botGoldV)" />
-            <rect x="725" y="325" width="30" height="8" fill="url(#botGoldV)" />
+                <rect x="700" y="250" width="60" height="140" rx="25" fill="url(#botGoldV)" />
+                <rect x="715" y="270" width="50" height="100" rx="15" fill="url(#botDarkMetalEar)" />
+                <rect x="725" y="285" width="30" height="8" fill="url(#botGoldV)" />
+                <rect x="725" y="305" width="30" height="8" fill="url(#botGoldV)" />
+                <rect x="725" y="325" width="30" height="8" fill="url(#botGoldV)" />
 
-            <!-- الهوائي العلوي -->
-            <rect x="392" y="70" width="16" height="80" fill="url(#botGoldV)" />
-            <path d="M 340 150 Q 400 95 460 150 Z" fill="url(#botGoldV)" />
-            <ellipse cx="400" cy="150" rx="60" ry="12" fill="url(#botGoldH)" />
-            <circle cx="400" cy="55" r="32" fill="url(#botGoldH)" />
-            <circle cx="400" cy="55" r="22" fill="url(#botEyeGlow)" />
-            <ellipse cx="400" cy="42" rx="12" ry="5" fill="rgba(255,255,255,0.8)" />
+                <!-- الهوائي العلوي -->
+                <rect x="392" y="70" width="16" height="80" fill="url(#botGoldV)" />
+                <path d="M 340 150 Q 400 95 460 150 Z" fill="url(#botGoldV)" />
+                <ellipse cx="400" cy="150" rx="60" ry="12" fill="url(#botGoldH)" />
+                <circle cx="400" cy="55" r="32" fill="url(#botGoldH)" />
+                <circle cx="400" cy="55" r="22" fill="url(#botEyeGlow)" />
+                <ellipse cx="400" cy="42" rx="12" ry="5" fill="rgba(255,255,255,0.8)" />
 
-            <!-- الرأس الأساسي -->
-            <rect x="70" y="140" width="660" height="400" rx="180" fill="url(#botDarkMetal)" />
-            <rect x="95" y="165" width="610" height="350" rx="155" fill="url(#botGoldV)" />
-            <rect x="115" y="185" width="570" height="310" rx="135" fill="#050608" />
-            <rect x="120" y="190" width="560" height="300" rx="130" fill="url(#botFaceGrad)" />
+                <!-- الرأس الأساسي -->
+                <rect x="70" y="140" width="660" height="400" rx="180" fill="url(#botDarkMetal)" />
+                <rect x="95" y="165" width="610" height="350" rx="155" fill="url(#botGoldV)" />
+                <rect x="115" y="185" width="570" height="310" rx="135" fill="#050608" />
+                <rect x="120" y="190" width="560" height="300" rx="130" fill="url(#botFaceGrad)" />
 
-            <!-- قاعدة العيون الدائمة (الحلقة الذهبية والخلفية السوداء) -->
-            <circle cx="275" cy="330" r="80" fill="url(#botGoldH)" filter="url(#botEyeShadow)" />
-            <circle cx="275" cy="330" r="70" fill="#030406" />
-            
-            <circle cx="525" cy="330" r="80" fill="url(#botGoldH)" filter="url(#botEyeShadow)" />
-            <circle cx="525" cy="330" r="70" fill="#030406" />
-
-            <!-- مجموعة العين المفتوحة (تختفي عند الرمش) -->
-            <g class="bot-eye-open">
-                <!-- يسار -->
-                <circle cx="275" cy="330" r="62" fill="url(#botEyeGlow)" />
-                <path d="M 216 310 A 62 62 0 0 1 334 310 C 315 310 235 310 220 312 Z" fill="rgba(255,255,255,0.4)" />
-                <g transform="translate(250, 305) rotate(45)"><ellipse rx="12" ry="8" fill="rgba(255,255,255,0.85)" /></g>
-
-                <!-- يمين -->
-                <circle cx="525" cy="330" r="62" fill="url(#botEyeGlow)" />
-                <path d="M 466 310 A 62 62 0 0 1 584 310 C 565 310 485 310 470 312 Z" fill="rgba(255,255,255,0.4)" />
-                <g transform="translate(500, 305) rotate(45)"><ellipse rx="12" ry="8" fill="rgba(255,255,255,0.85)" /></g>
-            </g>
-
-            <!-- مجموعة العين المغلقة - الخط المضيء (تظهر فقط عند الرمش) -->
-            <g class="bot-eye-closed" style="opacity: 0;">
-                <!-- يسار -->
-                <path d="M 225 330 Q 275 350 325 330" fill="none" stroke="#00f3ff" stroke-width="8" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
-                <path d="M 225 330 Q 275 350 325 330" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+                <!-- قاعدة العيون الدائمة (الحلقة الذهبية والخلفية السوداء) -->
+                <circle cx="275" cy="330" r="80" fill="url(#botGoldH)" filter="url(#botEyeShadow)" />
+                <circle cx="275" cy="330" r="70" fill="#030406" />
                 
-                <!-- يمين -->
-                <path d="M 475 330 Q 525 350 575 330" fill="none" stroke="#00f3ff" stroke-width="8" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
-                <path d="M 475 330 Q 525 350 575 330" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-            </g>
+                <circle cx="525" cy="330" r="80" fill="url(#botGoldH)" filter="url(#botEyeShadow)" />
+                <circle cx="525" cy="330" r="70" fill="#030406" />
 
-            <!-- الابتسامة المضيئة -->
-            <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#00f3ff" stroke-width="12" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
-            <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+                <!-- مجموعة العين المفتوحة (تختفي عند الرمش) -->
+                <g class="bot-eye-open">
+                    <!-- يسار -->
+                    <circle cx="275" cy="330" r="62" fill="url(#botEyeGlow)" />
+                    <path d="M 216 310 A 62 62 0 0 1 334 310 C 315 310 235 310 220 312 Z" fill="rgba(255,255,255,0.4)" />
+                    <g transform="translate(250, 305) rotate(45)"><ellipse rx="12" ry="8" fill="rgba(255,255,255,0.85)" /></g>
+
+                    <!-- يمين -->
+                    <circle cx="525" cy="330" r="62" fill="url(#botEyeGlow)" />
+                    <path d="M 466 310 A 62 62 0 0 1 584 310 C 565 310 485 310 470 312 Z" fill="rgba(255,255,255,0.4)" />
+                    <g transform="translate(500, 305) rotate(45)"><ellipse rx="12" ry="8" fill="rgba(255,255,255,0.85)" /></g>
+                </g>
+
+                <!-- مجموعة العين المغلقة - الخط المضيء (تظهر فقط عند الرمش) -->
+                <g class="bot-eye-closed" style="opacity: 0;">
+                    <!-- يسار -->
+                    <path d="M 225 330 Q 275 350 325 330" fill="none" stroke="#00f3ff" stroke-width="8" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
+                    <path d="M 225 330 Q 275 350 325 330" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+                    
+                    <!-- يمين -->
+                    <path d="M 475 330 Q 525 350 575 330" fill="none" stroke="#00f3ff" stroke-width="8" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
+                    <path d="M 475 330 Q 525 350 575 330" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+                </g>
+
+                <!-- الابتسامة المضيئة -->
+                <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#00f3ff" stroke-width="12" stroke-linecap="round" filter="url(#botNeonBlurBase)" />
+                <path d="M 310 430 C 360 470, 440 470, 490 430" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+            </g>
         </g>
     </svg>`
+
 };
 
 window.SVGIcons = SVGIcons;
