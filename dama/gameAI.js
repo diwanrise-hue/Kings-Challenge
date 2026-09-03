@@ -504,7 +504,9 @@ export const gameAI = {
 
         const startDepth = currentLevel.depth === 1 ? 1 : 2;
         let previousScore = 0;
-        
+        let completedDepth = startDepth; // تم تعريف المتغير خارج الحلقة لتجنب خطأ ReferenceError
+        let timeoutOccurred = false;     // تم تعريف مؤشر انتهاء الوقت هنا أيضاً
+
         for (let currentDepth = startDepth; currentDepth <= currentLevel.depth; currentDepth++) {
             let currentIdleMoves = gameState.movesWithoutProgress || 0;
             
@@ -518,7 +520,7 @@ export const gameAI = {
                 beta = previousScore + windowSteps[0];
             }
 
-            let timeoutOccurred = false;
+            timeoutOccurred = false;
 
             while (true) {
                 let result = await minimax(virtualBoard, currentDepth, currentDepth, true, alpha, beta, aiColor, currentIdleMoves, true, 0, 0);
@@ -549,16 +551,15 @@ export const gameAI = {
             if (timeoutOccurred) {
                 break; 
             }
+            
+            completedDepth = currentDepth; // حفظ العمق الذي اكتمل بنجاح تام
         }
 
         // --- طباعة الإحصائيات الاحترافية في الـ Console ---
         let totalTime = Date.now() - startTime;
-        let finalDepthReached = startDepth; // سيتم تحديثه عبر الـ PV أو المتابعة إذا احتجنا، أو نضع العمق الذي اكتمل
-        // ملاحظة: currentDepth وصل للـ break أو انتهى الحلقات
-        // لتجنب تعقيد المتغيرات، يمكننا إظهار إحصائيات الأداء الحقيقية:
         console.log(
             `%c🤖 AI LEVEL ${levelNum}\n` +
-            `%cDepth:   %c${currentDepth - 1}\n` +
+            `%cDepth:   %c${completedDepth}\n` +
             `%cNodes:   %c${self.nodesEvaluated.toLocaleString('en-US')}\n` +
             `%cTime:    %c${totalTime.toLocaleString()} ms\n` +
             `%cTimeout: %c${timeoutOccurred ? 'YES ⚠️' : 'NO ✅'}`,
