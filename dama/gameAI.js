@@ -551,6 +551,25 @@ export const gameAI = {
             }
         }
 
+        // --- طباعة الإحصائيات الاحترافية في الـ Console ---
+        let totalTime = Date.now() - startTime;
+        let finalDepthReached = startDepth; // سيتم تحديثه عبر الـ PV أو المتابعة إذا احتجنا، أو نضع العمق الذي اكتمل
+        // ملاحظة: currentDepth وصل للـ break أو انتهى الحلقات
+        // لتجنب تعقيد المتغيرات، يمكننا إظهار إحصائيات الأداء الحقيقية:
+        console.log(
+            `%c🤖 AI LEVEL ${levelNum}\n` +
+            `%cDepth:   %c${currentDepth - 1}\n` +
+            `%cNodes:   %c${self.nodesEvaluated.toLocaleString('en-US')}\n` +
+            `%cTime:    %c${totalTime.toLocaleString()} ms\n` +
+            `%cTimeout: %c${timeoutOccurred ? 'YES ⚠️' : 'NO ✅'}`,
+            'color: #00ffcc; font-weight: bold; font-size: 14px;',
+            'color: #888; font-weight: bold;', 'color: #fff;',
+            'color: #888; font-weight: bold;', 'color: #00ff00;',
+            'color: #888; font-weight: bold;', 'color: #ffa500;',
+            'color: #888; font-weight: bold;', timeoutOccurred ? 'color: #ff4444; font-weight: bold;' : 'color: #00ffcc; font-weight: bold;'
+        );
+        // ----------------------------------------------------
+
         tt.clear();
         return bestMoveGlobal;
     }
