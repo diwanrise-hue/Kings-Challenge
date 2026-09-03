@@ -745,3 +745,4 @@ export const gameAI = {
         return bestMoveGlobal;
     }
 };
+
