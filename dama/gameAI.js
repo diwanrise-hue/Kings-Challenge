@@ -389,7 +389,6 @@ export const gameAI = {
         }
 
         let startTime = Date.now();
-        // تحسين الـ Yielding: السماح للواجهة بالتنفس فقط إذا استغرق الإطار وقتاً طويلاً
         let lastYieldTime = Date.now(); 
         
         let bestMoveGlobal = moves[0]; 
@@ -433,7 +432,6 @@ export const gameAI = {
         async function minimax(board, nominalDepth, searchDepth, isMaximizing, alpha, beta, currentTurn, currentMovesNoProg, currentZobrist, isRoot = false, extensions = 0, ply = 0) {
             self.nodesEvaluated++;
             
-            // تحسين الأداء: فحص الوقت بدلاً من عدد العقد لمنع توقف اللعبة المتكرر
             if ((self.nodesEvaluated & 4095) === 0) {
                 if (Date.now() - lastYieldTime > 15) {
                     await new Promise(r => setTimeout(r, 0));
@@ -461,6 +459,39 @@ export const gameAI = {
                 if (possibleMoves[0][i].midR != null && possibleMoves[0][i].midC != null) {
                     isCaptureMove = true;
                     break;
+                }
+            }
+
+            // ----------------------------------------------------
+            // 🌟 1. تقنية Null Move Pruning (NMP) المحسّنة
+            // ----------------------------------------------------
+            if (!isRoot && searchDepth >= 3 && !isCaptureMove && currentMovesNoProg < 45 && levelNum >= 6) {
+                // التأكد من وجود قطع كافية لمنع أخطاء الـ Zugzwang في النهايات
+                let pieceCount = 0;
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (board[r][c]) pieceCount++;
+                    }
+                }
+
+                if (pieceCount > 6) {
+                    const R = searchDepth > 5 ? 3 : 2;
+                    const nextTurnNull = currentTurn === 'white' ? 'black' : 'white';
+                    const nullHash = currentZobrist ^ ZOBRIST.blackTurn;
+
+                    if (isMaximizing) {
+                        let nullRes = await minimax(board, nominalDepth - 1, searchDepth - 1 - R, false, beta - 1, beta, nextTurnNull, currentMovesNoProg + 1, nullHash, false, extensions, ply + 1);
+                        if (nullRes.timeout) return { timeout: true };
+                        if (nullRes.score >= beta) {
+                            return { score: beta, timeout: false, pv: [] }; // Beta Cutoff
+                        }
+                    } else {
+                        let nullRes = await minimax(board, nominalDepth - 1, searchDepth - 1 - R, true, alpha, alpha + 1, nextTurnNull, currentMovesNoProg + 1, nullHash, false, extensions, ply + 1);
+                        if (nullRes.timeout) return { timeout: true };
+                        if (nullRes.score <= alpha) {
+                            return { score: alpha, timeout: false, pv: [] }; // Alpha Cutoff
+                        }
+                    }
                 }
             }
 
@@ -534,10 +565,24 @@ export const gameAI = {
                     const undo = self.makeMove(board, move, currentTurn, pieceDirection, currentZobrist);
                     let result;
 
+                    // ----------------------------------------------------
+                    // 🌟 2. تطبيق Late Move Reductions (LMR)
+                    // ----------------------------------------------------
                     if (i === 0) {
                         result = await minimax(board, nominalDepth - 1, searchDepth - 1, false, alpha, beta, nextTurn, nextMovesNoProg, undo.nextHash, false, extensions, ply + 1);
                     } else {
-                        result = await minimax(board, nominalDepth - 1, searchDepth - 1, false, alpha, alpha + 1, nextTurn, nextMovesNoProg, undo.nextHash, false, extensions, ply + 1);
+                        // شروط الـ LMR للنقلات الهادئة اللاحقة
+                        const canLMR = (i >= 3 && searchDepth >= 3 && !isCap && !isPromo && levelNum >= 6);
+                        
+                        if (canLMR) {
+                            // بحث بعمق مخفض بمقدار 1 مع نافذة صفرية
+                            result = await minimax(board, nominalDepth - 1, searchDepth - 2, false, alpha, alpha + 1, nextTurn, nextMovesNoProg, undo.nextHash, false, extensions, ply + 1);
+                        } else {
+                            // نافذة صفرية اعتيادية للـ PVS
+                            result = await minimax(board, nominalDepth - 1, searchDepth - 1, false, alpha, alpha + 1, nextTurn, nextMovesNoProg, undo.nextHash, false, extensions, ply + 1);
+                        }
+
+                        // إذا تجاوزت النتيجة حد Alpha (النقلة واعدة)، نعيد البحث بالعمق الكامل
                         if (!result.timeout && result.score > alpha && result.score < beta) {
                             result = await minimax(board, nominalDepth - 1, searchDepth - 1, false, alpha, beta, nextTurn, nextMovesNoProg, undo.nextHash, false, extensions, ply + 1);
                         }
@@ -621,10 +666,20 @@ export const gameAI = {
                     const undo = self.makeMove(board, move, currentTurn, pieceDirection, currentZobrist);
                     let result;
 
+                    // ----------------------------------------------------
+                    // 🌟 2. تطبيق Late Move Reductions (LMR) للخصم
+                    // ----------------------------------------------------
                     if (i === 0) {
                         result = await minimax(board, nominalDepth - 1, searchDepth - 1, true, alpha, beta, nextTurn, nextMovesNoProg, undo.nextHash, false, extensions, ply + 1);
                     } else {
-                        result = await minimax(board, nominalDepth - 1, searchDepth - 1, true, beta - 1, beta, nextTurn, nextMovesNoProg, undo.nextHash, false, extensions, ply + 1);
+                        const canLMR = (i >= 3 && searchDepth >= 3 && !isCap && !isPromo && levelNum >= 6);
+                        
+                        if (canLMR) {
+                            result = await minimax(board, nominalDepth - 1, searchDepth - 2, true, beta - 1, beta, nextTurn, nextMovesNoProg, undo.nextHash, false, extensions, ply + 1);
+                        } else {
+                            result = await minimax(board, nominalDepth - 1, searchDepth - 1, true, beta - 1, beta, nextTurn, nextMovesNoProg, undo.nextHash, false, extensions, ply + 1);
+                        }
+
                         if (!result.timeout && result.score > alpha && result.score < beta) {
                             result = await minimax(board, nominalDepth - 1, searchDepth - 1, true, alpha, beta, nextTurn, nextMovesNoProg, undo.nextHash, false, extensions, ply + 1);
                         }
@@ -738,11 +793,9 @@ export const gameAI = {
         const totalTime = Math.max(1, Date.now() - startTime);
         const nps = Math.round((self.nodesEvaluated / totalTime) * 1000);
 
-        // رسالة نصية خفيفة بدون تنسيقات لمنع اللاج في الكونسل
         console.log(`🤖 AI L${levelNum} | Depth: ${completedDepth} | Nodes: ${self.nodesEvaluated} | Time: ${totalTime}ms | Timeout: ${timeoutOccurred ? 'Yes' : 'No'} | NPS: ${nps}`);
 
         tt.clear();
         return bestMoveGlobal;
     }
 };
-
