@@ -8,6 +8,7 @@
  * 🛡️ (مُحدّث جذرياً): تنظيف مدخلات XSS ومسح الذاكرة عند إغلاق لوحة الشرف.
  * 🔊 (مُحدّث جديد): نظام الصوت الشامل لجميع الأزرار القابلة للضغط.
  * 🎡 (مُحدّث): التمرير الجانبي (Carousel) لساحة التحديات.
+ * 📊 (تحديث جديد): نظام شريط الرتب التفاعلي (Interactive Rank Slider) مع الصور والجوائز.
  */
 
 // 🛡️ دالة لتنظيف أي نصوص قادمة من السيرفر لمنع ثغرة XSS
@@ -722,7 +723,7 @@ window.switchLbTab = function(tabId) {
     clickAudio.volume = 0.6; 
 
     document.addEventListener('click', function(event) {
-        const isClickable = event.target.closest('button, [onclick], .dama-card, .nav-item, .drawer-item, .theme-grid-item, .lb-avatar, .profile-avatar, .bet-option-item, .custom-tab-button');
+        const isClickable = event.target.closest('button, [onclick], .dama-card, .nav-item, .drawer-item, .theme-grid-item, .lb-avatar, .profile-avatar, .bet-option-item, .custom-tab-button, .rank-nav-btn');
         
         if (isClickable) {
             try {
@@ -791,4 +792,125 @@ window.scrollMmCarousel = function(direction) {
     if(scroller) {
         scroller.scrollBy({ left: direction * 240, behavior: 'smooth' });
     }
+};
+
+// ==========================================
+// 📊 نظام شريط الرتبة التفاعلي (Interactive Rank Slider)
+// ==========================================
+
+const RANK_SYSTEM = [
+    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', reward: '10 🪙' },
+    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', reward: '50 🪙' },
+    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', reward: '100 🪙' },
+    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', reward: '250 🪙' },
+    { id: 'legendary', name: 'أسطوري', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', reward: '500 🪙' },
+    { id: 'royal', name: 'ملكي', min: 5000, max: Infinity, icon: 'Media/front/legendary.webp', reward: '1000 🪙 + إطار' } 
+];
+
+window.currentViewedRankIndex = 0;
+window.actualPlayerRankIndex = 0;
+window.actualPlayerScore = 0;
+
+window.initMatchmakingRankBar = function() {
+    const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    window.actualPlayerScore = parseInt(profile.score) || 0;
+
+    // تحديد رتبة اللاعب الحقيقية
+    window.actualPlayerRankIndex = 0;
+    for (let i = 0; i < RANK_SYSTEM.length; i++) {
+        if (window.actualPlayerScore >= RANK_SYSTEM[i].min && window.actualPlayerScore <= RANK_SYSTEM[i].max) {
+            window.actualPlayerRankIndex = i;
+            break;
+        }
+    }
+    
+    // ضبط الواجهة لتعرض الرتبة الحالية للاعب عند فتح النافذة
+    window.currentViewedRankIndex = window.actualPlayerRankIndex;
+    window.renderRankTrack();
+};
+
+window.changeRankView = function(dir) {
+    let newIndex = window.currentViewedRankIndex + dir;
+    if (newIndex >= 0 && newIndex < RANK_SYSTEM.length) {
+        window.currentViewedRankIndex = newIndex;
+        window.renderRankTrack();
+    }
+};
+
+window.renderRankTrack = function() {
+    const container = document.getElementById('mm-tiers-container');
+    const fillBar = document.getElementById('mm-rank-fill-bar');
+    const prevBtn = document.getElementById('rank-prev-btn');
+    const nextBtn = document.getElementById('rank-next-btn');
+
+    if (!container || !fillBar) return;
+
+    const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
+    const romanTiers = ["I", "II", "III", "IV"];
+    
+    // تعطيل الأسهم إذا وصلنا للبداية أو النهاية
+    prevBtn.disabled = window.currentViewedRankIndex === 0;
+    nextBtn.disabled = window.currentViewedRankIndex === RANK_SYSTEM.length - 1;
+
+    let html = '';
+    let fillPercent = 0;
+
+    // حساب نسبة الامتلاء للشريط البرتقالي المضيء
+    if (window.currentViewedRankIndex < window.actualPlayerRankIndex) {
+        fillPercent = 100; // اجتاز هذه الرتبة مسبقاً
+    } else if (window.currentViewedRankIndex > window.actualPlayerRankIndex) {
+        fillPercent = 0; // لم يصل لهذه الرتبة بعد
+    } else {
+        // يعرض تقدمه الحالي في رتبته
+        if (rankData.max === Infinity) {
+            fillPercent = 100; // وصل للقمة المطلقة
+        } else {
+            const rankRange = rankData.max - rankData.min + 1;
+            const scoreInRank = window.actualPlayerScore - rankData.min;
+            fillPercent = (scoreInRank / rankRange) * 100;
+        }
+    }
+
+    fillBar.style.width = `${fillPercent}%`;
+
+    // حساب عدد الطبقات (الصور) التي اجتازها (من 0 إلى 4)
+    let tiersReached = Math.floor(fillPercent / 25);
+    if (fillPercent === 100) tiersReached = 4;
+
+    // رسم الصور الـ 4 لكل طبقة
+    for (let i = 0; i < 4; i++) {
+        let isReached = i < tiersReached;
+        
+        // إجبار التلوين للرتب القديمة وإلغاؤه للرتب القادمة
+        if (window.currentViewedRankIndex < window.actualPlayerRankIndex) isReached = true;
+        if (window.currentViewedRankIndex > window.actualPlayerRankIndex) isReached = false;
+
+        let reachedClass = isReached ? 'reached' : '';
+        
+        // تأثير خاص للرتبة الملكية (تلوين الأيقونة الأسطورية بالبرتقالي المحمر)
+        let iconFilter = '';
+        if (rankData.id === 'royal') {
+            iconFilter = 'filter: hue-rotate(-20deg) drop-shadow(0 0 8px rgba(255,100,0,0.9));';
+        }
+
+        html += `
+            <div class="mm-tier-node ${reachedClass}">
+                <div class="mm-tier-reward">جائزة: ${rankData.reward}</div>
+                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}" onerror="this.style.display='none'">
+                <div class="mm-tier-dot"></div>
+                <span class="mm-tier-label">${rankData.name} ${romanTiers[i]}</span>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+};
+
+// تشغيل النظام فور فتح نافذة البحث الأونلاين
+const originalOpenAppModal = window.openAppModal;
+window.openAppModal = function(id) {
+    if (id === 'matchmaking-stakes-modal') {
+        window.initMatchmakingRankBar();
+    }
+    if (originalOpenAppModal) originalOpenAppModal(id);
 };
