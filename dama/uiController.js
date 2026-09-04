@@ -176,7 +176,7 @@ export const ui = {
             frameZ = '10';
             if (overlayFrameSrc) { frameScale = '155%'; avatarScale = 'scale(1.05)'; } 
             else { frameScale = '140%'; avatarScale = 'scale(1)'; }
-            botScale = 'scale(1.4)';
+            botScale = 'scale(1.15)';
         }
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
