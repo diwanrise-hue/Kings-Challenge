@@ -1534,10 +1534,7 @@ export const ui = {
             if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
 
             const badgeTitleEl = this.getEl('profile-stat-title-badge');
-            
-            // فحص وتحديث الألقاب الجديدة سراً
-            window.checkAndUnlockTitles(prof);
-
+          
             let currentTitleKey = prof.equippedTitle || 'novice';
             let titleObj = TITLES_DB[currentTitleKey] || TITLES_DB['novice'];
 
