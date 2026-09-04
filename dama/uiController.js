@@ -257,13 +257,20 @@ export const ui = {
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
             let botContent = `<span style="font-size: 35px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🤖</span>`;
             
-            if (botSvg) {
+
+         if (botSvg) {
                 let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
+                
+                // ✅ تمت إعادة سطر إصلاح التدرجات اللونية (Gradients) لتعود الأجزاء المعدنية
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
+                }).replace(/url\(#([^)]+)\)/g, function(match, p1) {
+                    return 'url(#' + p1 + uniqueSuffix + ')';
                 });
+
                 botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; display: block; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
             }
+
             
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
