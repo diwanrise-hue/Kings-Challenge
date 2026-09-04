@@ -14,7 +14,7 @@
 
     <style>
         /* ========================================== */
-        /* ساحة التحديات (Matchmaking Stakes) - تصميم مطابق مع خطوط وإطارات وتباين ثلاثي الأبعاد */
+        /* ساحة التحديات (Matchmaking Stakes) - تأثيرات البطاقات */
         /* ========================================== */
         #matchmaking-stakes-modal {
             align-items: center !important;
@@ -95,7 +95,7 @@
             display: flex;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
-            padding: 40px calc(50vw - 145px); /* المركز الدقيق للبطاقة */
+            padding: 40px calc(50vw - 145px);
             scrollbar-width: none;
             -ms-overflow-style: none;
             direction: rtl;
@@ -117,7 +117,6 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            /* ✅ إزالة الحافة السفلية السميكة والاعتماد على ظل نظيف يعطي بُعداً بدون قطع الأطراف */
             box-shadow: 0 10px 25px rgba(0,0,0,0.6);
             margin: 0 -40px; 
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out, box-shadow 0.3s ease;
@@ -130,48 +129,43 @@
         }
         
         .mm-card.active {
-            /* ✅ رفع البطاقة بشكل أنيق مع ظل عميق يعطي إحساساً بالطفو */
             transform: scale(1) translateY(-4px); 
             opacity: 1;
             z-index: 10;
             box-shadow: 0 20px 40px rgba(0,0,0,0.8);
         }
       
-        /* 🌟 تكبير حاوية الصورة 🌟 */
         .mm-card-medal {
-            height: 130px; /* زيادة الارتفاع بشكل كبير */
-            margin-top: -10px; /* رفعها للأعلى قليلاً لتتمركز أجمل */
+            height: 130px;
+            margin-top: -10px;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            perspective: 1000px; /* إضافة عمق 3D */
+            perspective: 1000px;
         }
 
-        /* 🌟 إضافة الظل للصورة وتهيئتها للأنيميشن 🌟 */
         .mm-card-medal img {
             height: 100%;
             object-fit: contain;
-            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8)); /* ظل قوي يبرز الصورة */
+            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8));
             transform: translateZ(0); 
-            will-change: transform, filter; /* تسريع أداء كارت الشاشة (GPU) */
+            will-change: transform, filter;
             transition: all 0.3s ease;
         }
 
-        /* 🌟 تأثير الحياة (الطفو والتنفس) يشتغل فقط على البطاقة اللي في المنتصف (النشطة) 🌟 */
         .mm-card.active .mm-card-medal img {
-            animation: alive3DFloat 3.5s ease-in-out infinite; /* حركة كل 3 ثواني ونصف */
+            animation: alive3DFloat 3.5s ease-in-out infinite;
         }
 
-        /* 🌟 تفاصيل الحركة السلسة 🌟 */
         @keyframes alive3DFloat {
             0%, 100% { 
-                transform: translateY(0) scale(1.05); /* الحجم الطبيعي */
+                transform: translateY(0) scale(1.05); 
                 filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8)) brightness(1);
             }
             50% { 
-                transform: translateY(-12px) scale(1.12); /* ترتفع للأعلى وتكبر قليلاً */
-                filter: drop-shadow(0 25px 20px rgba(0,0,0,0.5)) brightness(1.15); /* الظل يكبر وتشع نوراً */
+                transform: translateY(-12px) scale(1.12); 
+                filter: drop-shadow(0 25px 20px rgba(0,0,0,0.5)) brightness(1.15); 
             }
         }
 
@@ -183,7 +177,6 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
-        /* تنسيق خطوط الرهان (يمين ويسار) */
         .mm-card-bet-row {
             display: flex;
             align-items: center;
@@ -207,16 +200,15 @@
             white-space: nowrap;
         }
 
-        /* صندوق الإطار الخاص بجائزة الفوز */
         .mm-card-prize-box {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            margin-top: auto; /* ✅ يدفعه لأسفل البطاقة */
-            margin-bottom: 15px; /* ✅ يترك مسافة صغيرة وجميلة بينه وبين الزر */
+            margin-top: auto; 
+            margin-bottom: 15px; 
             width: 85%;
-            background: rgba(0, 0, 0, 0.35); /* خلفية داكنة شفافة */
+            background: rgba(0, 0, 0, 0.35); 
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 12px;
@@ -254,19 +246,16 @@
             font-size: 16px;
             font-weight: 800;
             cursor: pointer;
-            /* ✅ إزالة الضباب اللوني ليكون النص حاداً جداً */
             text-shadow: none !important; 
             font-family: 'Tajawal', sans-serif;
             margin-top: 10px;
-            border: none !important; /* ✅ إزالة الحواف الصلبة المزعجة */
-            /* ✅ بناء شكل 3D احترافي باستخدام الظل فقط (الجزء السفلي الداكن) */
+            border: none !important; 
             box-shadow: 0 5px 0 rgba(0, 0, 0, 0.5), 0 10px 15px rgba(0,0,0,0.4) !important;
             transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.2s ease !important;
             position: relative;
         }
 
         .mm-card-btn:active { 
-            /* ✅ محاكاة الضغط الفيزيائي: الزر ينزل للأسفل ويختفي الظل السفلي */
             transform: translateY(5px) !important; 
             box-shadow: 0 0px 0 rgba(0,0,0,0.5), 0 5px 5px rgba(0,0,0,0.4) !important;
         }
@@ -275,7 +264,6 @@
             filter: brightness(1.15); 
         }
 
-        /* الألوان المستوحاة من الصور */
         .theme-gray { background: linear-gradient(180deg, #333 0%, #111 100%); border: 2px solid #555; }
         .theme-gray.active { border-color: #aaa; box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 20px 40px rgba(0,0,0,0.9); }
         .theme-gray .mm-card-btn { background: linear-gradient(180deg, #666, #333); color: #fff; }
@@ -320,6 +308,7 @@
     
     <input type="hidden" id="game-mode" value="ai">
 
+    <!-- Profile Badge -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) window.openMyProfile()">
         <div id="badge-avatar" class="profile-avatar-capsule"></div>
         <div class="text-boundary boundary-level">
@@ -363,6 +352,7 @@
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
     <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" data-icon="bagQuick"></button>
 
+    <!-- Toast & Challenge Notifications -->
     <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(24,23,29,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 1040; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="font-weight: bold; font-size: 14px; color: #34c759;">تحدي جديد ⚔️</span>
@@ -382,6 +372,7 @@
         </div>
     </div>
 
+    <!-- Match Players Area -->
     <div id="status-area">
         <div id="match-players-card" style="display: none; width: 100%; justify-content: center; align-items: center; position: relative; z-index: 10;">
             <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center;">
@@ -423,15 +414,16 @@
         </div>
     </div>
 
+    <!-- Game Board -->
     <div class="scoreboard">
         <div id="opponent-score-row" class="score-row"></div>
         <div id="my-score-row" class="score-row"></div>
     </div>
-    
     <div class="game-container">
         <div id="board"></div> 
     </div>
 
+    <!-- Side Menu -->
     <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
         <div class="side-menu-panel">
             <div class="side-menu-header">
@@ -486,6 +478,7 @@
         </div>
     </div>
 
+    <!-- Modals -->
     <div id="daily-quests-modal" class="modal-overlay" style="z-index: 900;">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')">✕</button>
@@ -520,7 +513,7 @@
         <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
     </button>
 
-     <div id="level-select-modal" class="modal-overlay" style="z-index: 950;">
+    <div id="level-select-modal" class="modal-overlay" style="z-index: 950;">
         <div class="settings-card" dir="auto" style="max-width: 340px; padding: 30px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('level-select-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color:#f5a623; margin-bottom: 5px; font-size: 22px;">مستوى الحاسوب 🤖</h3>
@@ -535,7 +528,6 @@
                 <button id="lvl-btn-5" class="level-btn medium" onclick="setAiLevel(5)">L5<span>عمق 5</span></button>
                 <button id="lvl-btn-6" class="level-btn medium" onclick="setAiLevel(6)">L6<span>عمق 6</span></button>
                 
-                <!-- 🌟 الزعيم: يأخذ مساحة السطر بالكامل -->
                 <button id="lvl-btn-7" class="level-btn hard boss" onclick="setAiLevel(7)" style="grid-column: 1 / -1;">L7<span>الزعيم (عمق 7) 👑</span></button>
             </div>
             
@@ -603,12 +595,10 @@
             <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
             
             <div style="display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 20px; width: 100%; gap: 12px;">
-                
                 <div style="flex: 1; background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(0,0,0,0.6)); padding: 12px; border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
                     <div id="igp-rank-display" style="color: #ffd700; font-size: 20px; font-weight: 900; text-shadow: 0 2px 5px rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; gap: 8px;">
                      <img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));"> <span>برونزي</span>
                      </div>
-
                     <div style="width: 80%; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);"></div>
                     <div id="igp-title-display" style="color: #e0e0e0; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
                         اللقب: مبتدئ
@@ -622,7 +612,6 @@
                         <span id="igp-popularity-val">0</span>
                     </div>
                 </div>
-
             </div>
 
             <div id="igp-xp-container" style="width: 100%; margin-bottom: 20px;">
@@ -1225,6 +1214,22 @@
                     
                 </div>
             </div>
+
+            <!-- شريط تقدم الرتب التفاعلي بالأسهم -->
+            <div class="mm-rank-bar-wrapper" id="mm-rank-progress-wrapper">
+                <button class="rank-nav-btn" id="rank-prev-btn" onclick="window.changeRankView(-1)">&#10094;</button>
+                
+                <div class="mm-rank-slider">
+                    <div class="mm-track-bg">
+                        <div class="mm-track-fill" id="mm-rank-fill-bar"></div>
+                    </div>
+                    <div class="mm-tiers-row" id="mm-tiers-container">
+                        <!-- يتم حقن الطبقات الـ 4 وصورها هنا برمجياً -->
+                    </div>
+                </div>
+                
+                <button class="rank-nav-btn" id="rank-next-btn" onclick="window.changeRankView(1)">&#10095;</button>
+            </div>
         </div>
     </div>
 
@@ -1391,16 +1396,12 @@
             <button class="modal-close-btn" onclick="document.getElementById('purchase-modal').style.display='none'" style="left:15px; right:auto; z-index: 10;">✕</button>
             <h3 style="color: #FFD700; margin-bottom: 15px;">تأكيد الشراء</h3>
             
-            <!-- صورة العنصر -->
             <div id="modal-item-preview" style="width: 80px; height: 80px; margin: 15px auto; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); border-radius: 12px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);"></div>
             
-            <!-- اسم العنصر -->
             <div id="modal-item-name" style="color: white; font-weight: bold; font-size: 16px; margin-bottom: 10px;"></div>
             
-            <!-- السعر -->
             <div id="modal-item-cost" style="color: #34c759; font-size: 18px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);"></div>
             
-            <!-- نظام الخصومات (القسائم) -->
             <div id="discount-container" style="display: none; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);">
                 <label style="font-size: 12px; color: #a1a1aa; display: block; margin-bottom: 8px; font-weight: 600; text-align: start;">استخدام قسيمة خصم؟</label>
                 <select id="modal-discount-select" class="online-input" style="width: 100%; margin: 0; padding: 0 15px; height: 40px; border-radius: 8px !important; background: #1a1a24 !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white; appearance: auto;">
@@ -1408,7 +1409,6 @@
                 </select>
             </div>
             
-            <!-- أزرار التحكم -->
             <div style="display: flex; gap: 10px; margin-top: 10px;">
                 <button id="confirm-buy-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 10px rgba(40,167,69,0.3) !important;">شراء</button>
                 <button onclick="document.getElementById('purchase-modal').style.display='none'" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255,69,58,0.15) !important; color: #ff453a !important; border-color: rgba(255,69,58,0.3) !important; box-shadow: none !important;">إلغاء</button>
@@ -1416,6 +1416,7 @@
         </div>
     </div>
 
+    <!-- تأكد من بقاء ترتيب الملفات هكذا -->
     <script src="icons.js?v=2.0"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
@@ -1444,7 +1445,6 @@
 
             let isScrolling;
             
-            // كود محسن جداً لمنع التقطيع (يفصل القراءة عن الكتابة في الـ DOM)
             const updateActiveCard = () => {
                 const scrollerRect = scroller.getBoundingClientRect();
                 const scrollerCenter = scrollerRect.left + (scrollerRect.width / 2);
@@ -1452,14 +1452,12 @@
                 let closestCard = null;
                 let closestDistance = Infinity;
 
-                // 1. مرحلة القراءة فقط (تمنع التقطيع)
                 const distances = Array.from(cards).map(card => {
                     const rect = card.getBoundingClientRect();
                     const cardCenter = rect.left + (rect.width / 2);
                     return { card, distance: Math.abs(scrollerCenter - cardCenter) };
                 });
 
-                // 2. إيجاد الأقرب
                 distances.forEach(item => {
                     if (item.distance < closestDistance) {
                         closestDistance = item.distance;
@@ -1467,7 +1465,6 @@
                     }
                 });
 
-                // 3. مرحلة الكتابة (تغيير الكلاسات فقط عند الحاجة)
                 cards.forEach(c => {
                     if (c === closestCard) {
                         if (!c.classList.contains('active')) c.classList.add('active');
@@ -1480,22 +1477,19 @@
             scroller.addEventListener('scroll', () => {
                 if (isScrolling) window.cancelAnimationFrame(isScrolling);
                 isScrolling = window.requestAnimationFrame(updateActiveCard);
-            }, { passive: true }); // passive: true تجعل السحب باللمس أسرع
+            }, { passive: true });
 
             const modal = document.getElementById('matchmaking-stakes-modal');
             let initialScrollDone = false;
-
           
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
                         if (!initialScrollDone) {
                             setTimeout(() => {
-                                // 1. قراءة الرهان المحفوظ في ذاكرة الهاتف
                                 const lastBet = localStorage.getItem('last_selected_mm_bet');
                                 let targetCard = null;
 
-                                // 2. إذا كان هناك رهان محفوظ، ابحث عن بطاقته
                                 if (lastBet !== null) {
                                     targetCard = Array.from(cards).find(card => {
                                         const btn = card.querySelector('.mm-card-btn');
@@ -1503,12 +1497,10 @@
                                     });
                                 }
 
-                                // ✅ 3. التعديل هنا: إذا لم يكن هناك رهان محفوظ (أول مرة)، افتح على البطاقة الأولى (تدريب مجاني)
                                 if (!targetCard) {
                                     targetCard = cards[0]; 
                                 }
 
-                                // 4. تحريك الشاشة إلى البطاقة المستهدفة
                                 const scrollPos = targetCard.offsetLeft - (scroller.clientWidth / 2) + (targetCard.clientWidth / 2);
                                 
                                 scroller.style.scrollBehavior = 'smooth';
@@ -1535,7 +1527,7 @@
             const scroller = document.getElementById('mm-carousel-scroller');
             if(scroller) {
                 const cardWidth = 290; 
-                const margin = -40; // مسافة البطاقات في ال CSS
+                const margin = -40;
                 scroller.style.scrollBehavior = 'smooth';
                 scroller.scrollBy({ left: direction * (cardWidth + (margin * 2)) });
                 setTimeout(() => { scroller.style.scrollBehavior = 'auto'; }, 300);
@@ -1568,4 +1560,4 @@
         };
     </script>
 </body>
-    </html>
+</html>
