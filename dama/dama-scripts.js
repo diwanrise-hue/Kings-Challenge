@@ -8,7 +8,7 @@
  * 🛡️ (مُحدّث جذرياً): تنظيف مدخلات XSS ومسح الذاكرة عند إغلاق لوحة الشرف.
  * 🔊 (مُحدّث جديد): نظام الصوت الشامل لجميع الأزرار القابلة للضغط.
  * 🎡 (مُحدّث): التمرير الجانبي (Carousel) لساحة التحديات.
- * 📊 (تحديث جديد): نظام شريط الرتب التفاعلي (Interactive Rank Slider) مع الصور والجوائز.
+ * 📊 (تحديث جديد): نظام شريط الرتب التفاعلي الشامل (ماسي، تاجي، أسطوري) وظهور فوري.
  */
 
 // 🛡️ دالة لتنظيف أي نصوص قادمة من السيرفر لمنع ثغرة XSS
@@ -798,13 +798,14 @@ window.scrollMmCarousel = function(direction) {
 // 📊 نظام شريط الرتبة التفاعلي (Interactive Rank Slider)
 // ==========================================
 
+// ✅ تم تعديل الأسماء (ماسي، تاجي، أسطوري) وتدرج الجوائز
 const RANK_SYSTEM = [
-    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', reward: '10 🪙' },
-    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', reward: '50 🪙' },
-    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', reward: '100 🪙' },
-    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', reward: '250 🪙' },
-    { id: 'legendary', name: 'أسطوري', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', reward: '500 🪙' },
-    { id: 'royal', name: 'ملكي', min: 5000, max: Infinity, icon: 'Media/front/legendary.webp', reward: '1000 🪙 + إطار' } 
+    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', reward: '50 🪙' },
+    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', reward: '100 🪙' },
+    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', reward: '300 🪙' },
+    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', reward: '500 🪙' },
+    { id: 'crown', name: 'تاجي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', reward: '800 🪙' }, 
+    { id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/legendary.webp', reward: '1000 🪙' } 
 ];
 
 window.currentViewedRankIndex = 0;
@@ -815,7 +816,6 @@ window.initMatchmakingRankBar = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     window.actualPlayerScore = parseInt(profile.score) || 0;
 
-    // تحديد رتبة اللاعب الحقيقية
     window.actualPlayerRankIndex = 0;
     for (let i = 0; i < RANK_SYSTEM.length; i++) {
         if (window.actualPlayerScore >= RANK_SYSTEM[i].min && window.actualPlayerScore <= RANK_SYSTEM[i].max) {
@@ -824,7 +824,6 @@ window.initMatchmakingRankBar = function() {
         }
     }
     
-    // ضبط الواجهة لتعرض الرتبة الحالية للاعب عند فتح النافذة
     window.currentViewedRankIndex = window.actualPlayerRankIndex;
     window.renderRankTrack();
 };
@@ -848,22 +847,19 @@ window.renderRankTrack = function() {
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
     const romanTiers = ["I", "II", "III", "IV"];
     
-    // تعطيل الأسهم إذا وصلنا للبداية أو النهاية
     prevBtn.disabled = window.currentViewedRankIndex === 0;
     nextBtn.disabled = window.currentViewedRankIndex === RANK_SYSTEM.length - 1;
 
     let html = '';
     let fillPercent = 0;
 
-    // حساب نسبة الامتلاء للشريط البرتقالي المضيء
     if (window.currentViewedRankIndex < window.actualPlayerRankIndex) {
-        fillPercent = 100; // اجتاز هذه الرتبة مسبقاً
+        fillPercent = 100; 
     } else if (window.currentViewedRankIndex > window.actualPlayerRankIndex) {
-        fillPercent = 0; // لم يصل لهذه الرتبة بعد
+        fillPercent = 0; 
     } else {
-        // يعرض تقدمه الحالي في رتبته
         if (rankData.max === Infinity) {
-            fillPercent = 100; // وصل للقمة المطلقة
+            fillPercent = 100; 
         } else {
             const rankRange = rankData.max - rankData.min + 1;
             const scoreInRank = window.actualPlayerScore - rankData.min;
@@ -873,24 +869,23 @@ window.renderRankTrack = function() {
 
     fillBar.style.width = `${fillPercent}%`;
 
-    // حساب عدد الطبقات (الصور) التي اجتازها (من 0 إلى 4)
     let tiersReached = Math.floor(fillPercent / 25);
     if (fillPercent === 100) tiersReached = 4;
 
-    // رسم الصور الـ 4 لكل طبقة
     for (let i = 0; i < 4; i++) {
         let isReached = i < tiersReached;
         
-        // إجبار التلوين للرتب القديمة وإلغاؤه للرتب القادمة
         if (window.currentViewedRankIndex < window.actualPlayerRankIndex) isReached = true;
         if (window.currentViewedRankIndex > window.actualPlayerRankIndex) isReached = false;
 
         let reachedClass = isReached ? 'reached' : '';
         
-        // تأثير خاص للرتبة الملكية (تلوين الأيقونة الأسطورية بالبرتقالي المحمر)
+        // تمييز بصري بين التاجي والأسطوري
         let iconFilter = '';
-        if (rankData.id === 'royal') {
-            iconFilter = 'filter: hue-rotate(-20deg) drop-shadow(0 0 8px rgba(255,100,0,0.9));';
+        if (rankData.id === 'crown') {
+            iconFilter = 'filter: hue-rotate(270deg) drop-shadow(0 0 6px rgba(200,0,255,0.7));'; 
+        } else if (rankData.id === 'legendary') {
+            iconFilter = 'filter: hue-rotate(-20deg) drop-shadow(0 0 8px rgba(255,100,0,0.9));'; 
         }
 
         html += `
@@ -906,11 +901,16 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
-// تشغيل النظام فور فتح نافذة البحث الأونلاين
+// ✅ حل مشكلة التأخير في الظهور عند الضغط على زر أونلاين
 const originalOpenAppModal = window.openAppModal;
 window.openAppModal = function(id) {
+    if (originalOpenAppModal) originalOpenAppModal(id); 
+    
     if (id === 'matchmaking-stakes-modal') {
-        window.initMatchmakingRankBar();
+        setTimeout(() => {
+            if (typeof window.initMatchmakingRankBar === 'function') {
+                window.initMatchmakingRankBar();
+            }
+        }, 50);
     }
-    if (originalOpenAppModal) originalOpenAppModal(id);
 };
