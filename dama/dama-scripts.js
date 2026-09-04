@@ -5,10 +5,12 @@
  * 🌟 (مُحدّث): سقف مراهنات الـ VIP العالي للمشاهدين، ودالة تأكيد الرهان.
  * 🌟 (مُحدّث أمني): تشفير هوية الخصم (Masked ID) لمنع انتحال الشخصية.
  * 🚷 (مُحدّث جديد): إضافة دوال جلب قائمة المشاهدين وطرد الهاكرز (VIP 4+).
- * 🛡️ (مُحدّث جذرياً): تنظيف مدخلات XSS ومسح الذاكرة عند إغلاق لوحة الشرف (Bug 40 & 47).
+ * 🛡️ (مُحدّث جذرياً): تنظيف مدخلات XSS ومسح الذاكرة عند إغلاق لوحة الشرف.
+ * 🔊 (مُحدّث جديد): نظام الصوت الشامل لجميع الأزرار القابلة للضغط.
+ * 🎡 (مُحدّث): التمرير الجانبي (Carousel) لساحة التحديات.
  */
 
-// 🛡️ (مُحدّث أمنياً): دالة لتنظيف أي نصوص قادمة من السيرفر (أسماء اللاعبين) لمنع ثغرة XSS
+// 🛡️ دالة لتنظيف أي نصوص قادمة من السيرفر لمنع ثغرة XSS
 function escapeHTML(str) {
     if (!str) return '';
     const div = document.createElement('div');
@@ -469,7 +471,6 @@ window.renderSpectatorsList = function(spectators) {
 
         // 🛡️ (مُحدّث أمنياً): تنظيف الاسم قبل إدراجه
         const safeName = escapeHTML(spec.name);
-        // لا نحتاج لتنظيف الـ ID لأنه مجرد أحرف وأرقام ولكن زيادة في الأمان نستخدمه عبر دالة محكمة
         const safeId = escapeHTML(spec.id);
 
         let kickBtnHTML = canKick ? `
@@ -713,13 +714,37 @@ window.switchLbTab = function(tabId) {
 };
 
 // ==========================================
-// 🎡 نظام ساحة التحديات (Matchmaking Stakes) التأثير ثلاثي الأبعاد
+// 🔊 نظام الصوت الشامل لجميع الأزرار (Global Click Sound)
+// ==========================================
+(function() {
+    const clickSoundUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/click.wav";
+    const clickAudio = new Audio(clickSoundUrl);
+    clickAudio.volume = 0.6; 
+
+    document.addEventListener('click', function(event) {
+        const isClickable = event.target.closest('button, [onclick], .dama-card, .nav-item, .drawer-item, .theme-grid-item, .lb-avatar, .profile-avatar, .bet-option-item, .custom-tab-button');
+        
+        if (isClickable) {
+            try {
+                let soundClone = clickAudio.cloneNode();
+                soundClone.volume = clickAudio.volume;
+                let playPromise = soundClone.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => { });
+                }
+            } catch (e) {}
+        }
+    });
+})();
+
+// ==========================================
+// 🎡 نظام التمرير لساحة التحديات
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const scroller = document.getElementById('mm-carousel-scroller');
     if (!scroller) return;
 
-    // دالة لتحديث البطاقة النشطة (المتمركزة)
     const updateActiveCard = () => {
         const cards = scroller.querySelectorAll('.mm-card');
         const scrollerCenter = scroller.getBoundingClientRect().left + (scroller.clientWidth / 2);
@@ -741,10 +766,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (closestCard) closestCard.classList.add('active');
     };
 
-    // الاستماع لحدث التمرير لتطبيق التأثير
     scroller.addEventListener('scroll', updateActiveCard);
     
-    // تركيز مبدئي على البطاقة الحمراء (ساحة الأبطال) عند فتح النافذة
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
@@ -763,42 +786,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
 });
 
-// دالة الأسهم الجانبية
 window.scrollMmCarousel = function(direction) {
     const scroller = document.getElementById('mm-carousel-scroller');
     if(scroller) {
-        // تمرير بمقدار عرض بطاقة تقريباً (مع الفراغات)
         scroller.scrollBy({ left: direction * 240, behavior: 'smooth' });
     }
 };
-
-// ==========================================
-// 🔊 نظام الصوت الشامل لجميع الأزرار (Global Click Sound)
-// يعمل بشكل مستقل دون التأثير على أي كود آخر
-// ==========================================
-(function() {
-    // الرابط المباشر لملف الصوت من مستودعك
-    const clickSoundUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/click.wav";
-    const clickAudio = new Audio(clickSoundUrl);
-    clickAudio.volume = 0.6; // مستوى الصوت (يمكنك تعديله من 0.0 إلى 1.0)
-
-    document.addEventListener('click', function(event) {
-        // التحقق مما إذا كان العنصر المضغوط هو زر، أو يمتلك onclick، أو من العناصر التفاعلية المعروفة
-        const isClickable = event.target.closest('button, [onclick], .dama-card, .nav-item, .drawer-item, .theme-grid-item, .lb-avatar, .profile-avatar, .bet-option-item, .custom-tab-button');
-        
-        if (isClickable) {
-            try {
-                // استنساخ الصوت للسماح بالضغط السريع المتتالي دون تقطيع
-                let soundClone = clickAudio.cloneNode();
-                soundClone.volume = clickAudio.volume;
-                let playPromise = soundClone.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => { 
-                        // صمت الأخطاء إذا منع المتصفح التشغيل التلقائي قبل تفاعل المستخدم
-                    });
-                }
-            } catch (e) {}
-        }
-    });
-})();
