@@ -50,11 +50,11 @@ const PROFILE_FRAMES_DB = {
     'pf_noble': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile7.webp'
 };
 
-
 // ==========================================
-// 🏷️ قاعدة بيانات الألقاب الشاملة (20 لقباً بشروط حقيقية)
+// 🏷️ قاعدة بيانات الألقاب الشاملة (30 لقباً بشروط حقيقية وأسطورية)
 // ==========================================
 const TITLES_DB = {
+    // الألقاب العادية والمتوسطة
     'novice': { name: 'مبتدئ', desc: 'متاح لجميع اللاعبين منذ البداية.' },
     'amateur': { name: 'هاوي الدامة', desc: 'العب 50 مباراة كاملة.' },
     'veteran': { name: 'المخضرم', desc: 'العب 500 مباراة كاملة.' },
@@ -75,11 +75,25 @@ const TITLES_DB = {
     'rich': { name: 'المليونير', desc: 'اجمع 500,000 عملة ذهبية في رصيدك.' },
     
     'genius': { name: 'العبقري', desc: 'نسبة فوز 70% (يجب لعب 50 مباراة على الأقل).' },
-    'reaper': { name: 'حاصد الأرواح', desc: 'التقط 7 قطع للخصم في حركة واحدة (قفزة متعددة).' }, // تم التعديل
-    'kingmaker': { name: 'صانع الملوك', desc: 'اصنع 5 ملوك (دامة) في مباراة واحدة.' }, // تم التعديل
-    'shark': { name: 'القرش', desc: 'العب واربح 3 مرات متتالية في مباراة برهان 10,000 عملة فأكثر.' }, // تم التعديل
+    'reaper': { name: 'حاصد الأرواح', desc: 'التقط 7 قطع للخصم في حركة واحدة (قفزة متعددة).' },
+    'kingmaker': { name: 'صانع الملوك', desc: 'اصنع 5 ملوك (دامة) في مباراة واحدة.' },
+    'shark': { name: 'القرش', desc: 'العب واربح 3 مرات متتالية في مباراة برهان 10,000 عملة فأكثر.' },
     'generous': { name: 'حاتم الطائي', desc: 'أرسل 50 هدية شعبية للاعبين الآخرين.' },
-    'unlucky': { name: 'المنحوس', desc: 'اخسر 10 مباريات متتالية.' }
+    'unlucky': { name: 'المنحوس', desc: 'اخسر 10 مباريات متتالية.' },
+
+    // 🔥 الألقاب الأسطورية الـ 10 (الجديدة) 🔥
+    'mythical_streak': { name: 'قاهر السيرفر', desc: 'مستحيل تقريباً: حقق 50 انتصاراً متتالياً بدون خسارة.' },
+    'dama_god': { name: 'الأسطورة الخالدة', desc: 'للمحترفين فقط: حقق 5,000 فوز إجمالي في مسيرتك.' },
+    'perfect_mind': { name: 'المعصوم', desc: 'حافظ على نسبة فوز تتجاوز 90% (بعد لعب 500 مباراة على الأقل).' },
+    'whale': { name: 'حوت المراهنات', desc: 'اربح مباراة واحدة برهان يصل إلى 100,000 عملة.' },
+    'emperor_wealth': { name: 'إمبراطور الثروة', desc: 'اجمع ثروة ضخمة تصل إلى 10,000,000 عملة ذهبية.' },
+    'million_pop': { name: 'معشوق الملايين', desc: 'اجمع 1,000,000 نقطة شعبية لتتربع على عرش القلوب.' },
+    'sage': { name: 'حكيم الزمان', desc: 'الولاء المطلق: العب 10,000 مباراة كاملة.' },
+    'king_army': { name: 'قائد الملوك', desc: 'الإذلال الكامل: اصنع 7 ملوك (دامة) في مباراة واحدة.' },
+    'executioner': { name: 'الجلاد', desc: 'ضربة قاضية: قم بالتقاط 10 قطع للخصم في قفزة واحدة.' },
+    
+    // 👑 اللقب السري (خاص بالشحن VIP فقط)
+    'vip_exclusive': { name: 'صاحب الفخامة', desc: 'لقب سري ونادر يُمنح لنخبة النخبة في عالم الدامة.' }
 };
 
 window.TITLES_DB = TITLES_DB; 
@@ -106,7 +120,7 @@ window.checkAndUnlockTitles = function(profile) {
     let pop = profile.popularity || 0;
     let coins = profile.tokens || 0;
 
-    // شروط فتح الألقاب الجديدة بدقة
+    // 🟢 شروط الألقاب العادية والمتوسطة
     checkUnlock('amateur', games >= 50);
     checkUnlock('veteran', games >= 500);
     checkUnlock('addict', games >= 1000);
@@ -126,13 +140,26 @@ window.checkAndUnlockTitles = function(profile) {
     checkUnlock('rich', coins >= 500000);
     
     checkUnlock('genius', winRate >= 70 && games >= 50);
-    
-    // التعديلات الجديدة:
-    checkUnlock('reaper', (profile.maxMultiJump || 0) >= 7); // القفز فوق 7 قطع
-    checkUnlock('kingmaker', (profile.maxKingsInGame || 0) >= 5); // صنع 5 ملوك
-    checkUnlock('shark', (profile.sharkWinStreak || 0) >= 3); // 3 انتصارات متتالية برهان 10k+
+    checkUnlock('reaper', (profile.maxMultiJump || 0) >= 7); 
+    checkUnlock('kingmaker', (profile.maxKingsInGame || 0) >= 5); 
+    checkUnlock('shark', (profile.sharkWinStreak || 0) >= 3); 
     checkUnlock('generous', (profile.giftsSent || 0) >= 50); 
     checkUnlock('unlucky', (profile.currentLosingStreak || 0) >= 10); 
+
+    // 🔥 شروط الألقاب الأسطورية الجديدة (صعبة جداً) 🔥
+    checkUnlock('mythical_streak', maxStreak >= 50); // 50 فوز متتالي
+    checkUnlock('dama_god', wins >= 5000); // 5000 فوز
+    checkUnlock('perfect_mind', winRate >= 90 && games >= 500); // نسبة فوز 90% لـ 500 مباراة
+    checkUnlock('whale', (profile.highestWinBet || 0) >= 100000); // الفوز برهان 100k
+    checkUnlock('emperor_wealth', coins >= 10000000); // 10 مليون عملة
+    checkUnlock('million_pop', pop >= 1000000); // مليون شعبية
+    checkUnlock('sage', games >= 10000); // 10,000 مباراة لعبت
+    checkUnlock('king_army', (profile.maxKingsInGame || 0) >= 7); // صنع 7 ملوك في مباراة
+    checkUnlock('executioner', (profile.maxMultiJump || 0) >= 10); // أكل 10 قطع بقفزة واحدة
+    
+    // 👑 شرط اللقب السري (خاص بالشحن/VIP)
+    // اللاعب لن يعرف الشرط من النص، لكن الكود سيفحصه هنا بصمت!
+    checkUnlock('vip_exclusive', (profile.vipLevel || 0) >= 1);
     
     if (unlockedNew) {
         if (window.ui && typeof window.ui.saveAndSyncProfile === 'function') {
