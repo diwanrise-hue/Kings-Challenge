@@ -905,9 +905,8 @@ window.openAppModal = function(id) {
 };
 
 // ==========================================
-// 👑 نظام فتح نافذة الألقاب الشاملة (90% من الشاشة مع تبويبات)
+// 👑 نظام فتح نافذة الألقاب الشاملة (التبويبات + 90% من الشاشة)
 // ==========================================
-
 window.openTitlesModal = function() {
     let profile = null;
     try {
@@ -919,7 +918,7 @@ window.openTitlesModal = function() {
     } catch(e) { console.error("Error loading profile", e); }
 
     if (!profile) return;
-    
+
     // تحديث الألقاب
     if (typeof window.checkAndUnlockTitles === 'function') {
         window.checkAndUnlockTitles(profile);
@@ -928,69 +927,75 @@ window.openTitlesModal = function() {
         if (!profile.equippedTitle) profile.equippedTitle = 'novice';
     }
 
-    // إزالة النافذة القديمة إن وجدت
+    // إزالة النافذة الجديدة إن كانت مفتوحة مسبقاً لإعادة رسمها
     const oldModal = document.getElementById('custom-titles-modal');
     if (oldModal) oldModal.remove();
 
-    // إنشاء النافذة الجديدة
+    // إخفاء نافذة التنبيهات الافتراضية إذا كانت مفتوحة (لتجنب التداخل)
+    if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
+
+    // إنشاء النافذة الجديدة المستقلة برمجياً
     const modalOverlay = document.createElement('div');
     modalOverlay.id = 'custom-titles-modal';
     modalOverlay.className = 'modal-overlay';
     modalOverlay.style.cssText = 'display: flex; z-index: 10000; align-items: center; justify-content: center; padding: 0;';
-    
+
     let unlockedHtml = '<div id="titles-unlocked-list" class="scrollable-content" style="display:flex; flex-direction:column; gap:10px; flex: 1; padding-right: 5px;">';
     let lockedHtml = '<div id="titles-locked-list" class="scrollable-content" style="display:none; flex-direction:column; gap:10px; flex: 1; padding-right: 5px;">';
-    
+
     let unlockedCount = 0;
-    let totalCount = Object.keys(window.TITLES_DB).length;
+    let totalCount = window.TITLES_DB ? Object.keys(window.TITLES_DB).length : 0;
 
-    Object.keys(window.TITLES_DB).forEach(tKey => {
-        const tObj = window.TITLES_DB[tKey];
-        const isUnlocked = profile.unlockedTitles && profile.unlockedTitles.includes(tKey);
-        const isEquipped = profile.equippedTitle === tKey;
-        
-        if (isUnlocked) {
-            unlockedCount++;
-            let borderStyle = isEquipped ? '1.5px solid #30d158' : '1px solid rgba(255,255,255,0.1)';
-            let bgStyle = isEquipped ? 'rgba(48,209,88,0.1)' : 'rgba(255,255,255,0.05)';
-            let textStatus = isEquipped ? '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>' : '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid #555; padding: 4px 8px; border-radius: 8px;">تحديد</span>';
+    if (window.TITLES_DB) {
+        Object.keys(window.TITLES_DB).forEach(tKey => {
+            const tObj = window.TITLES_DB[tKey];
+            const isUnlocked = profile.unlockedTitles && profile.unlockedTitles.includes(tKey);
+            const isEquipped = profile.equippedTitle === tKey;
 
-            unlockedHtml += `
-                <div onclick="window.equipTitle('${tKey}')" style="display: flex; flex-direction: column; padding: 14px 15px; background: ${bgStyle}; border: ${borderStyle}; border-radius: 16px; cursor: pointer; transition: 0.2s;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span style="color: white; font-weight: 900; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${tObj.name}</span>
-                        ${textStatus}
+            if (isUnlocked) {
+                unlockedCount++;
+                let borderStyle = isEquipped ? '1.5px solid #30d158' : '1px solid rgba(255,255,255,0.1)';
+                let bgStyle = isEquipped ? 'rgba(48,209,88,0.1)' : 'rgba(255,255,255,0.05)';
+                let textStatus = isEquipped ? '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>' : '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid #555; padding: 4px 8px; border-radius: 8px;">تحديد</span>';
+
+                unlockedHtml += `
+                    <div onclick="window.equipTitle('${tKey}')" style="display: flex; flex-direction: column; padding: 14px 15px; background: ${bgStyle}; border: ${borderStyle}; border-radius: 16px; cursor: pointer; transition: 0.2s;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="color: white; font-weight: 900; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${tObj.name}</span>
+                            ${textStatus}
+                        </div>
+                        <span style="color: #a1a1aa; font-size: 12px; text-align: right; line-height: 1.5; font-weight: 500;">${tObj.desc}</span>
                     </div>
-                    <span style="color: #a1a1aa; font-size: 12px; text-align: right; line-height: 1.5; font-weight: 500;">${tObj.desc}</span>
-                </div>
-            `;
-        } else {
-            lockedHtml += `
-                <div style="display: flex; flex-direction: column; padding: 14px 15px; background: rgba(0,0,0,0.6); border: 1px dashed rgba(255,69,58,0.4); border-radius: 16px; opacity: 0.85;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span style="color: #8e8e93; font-weight: 900; font-size: 16px;">${tObj.name}</span>
-                        <span style="color: #ff453a; font-size: 16px; filter: drop-shadow(0 0 4px rgba(255,69,58,0.6));" title="مقفل">🔒</span>
+                `;
+            } else {
+                lockedHtml += `
+                    <div style="display: flex; flex-direction: column; padding: 14px 15px; background: rgba(0,0,0,0.6); border: 1px dashed rgba(255,69,58,0.4); border-radius: 16px; opacity: 0.85;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="color: #8e8e93; font-weight: 900; font-size: 16px;">${tObj.name}</span>
+                            <span style="color: #ff453a; font-size: 16px; filter: drop-shadow(0 0 4px rgba(255,69,58,0.6));" title="مقفل">🔒</span>
+                        </div>
+                        <span style="color: #ff453a; font-size: 12px; text-align: right; line-height: 1.5; font-weight: 600;">الشرط: ${tObj.desc}</span>
                     </div>
-                    <span style="color: #ff453a; font-size: 12px; text-align: right; line-height: 1.5; font-weight: 600;">الشرط: ${tObj.desc}</span>
-                </div>
-            `;
-        }
-    });
-    
+                `;
+            }
+        });
+    }
+
     unlockedHtml += '</div>';
     lockedHtml += '</div>';
 
+    // تركيب النافذة الضخمة
     modalOverlay.innerHTML = `
         <div class="settings-card" dir="auto" style="width: 90vw; height: 90vh; max-width: 500px; max-height: 800px; padding: 25px 15px; display: flex; flex-direction: column; position: relative; border-radius: 24px !important;">
             <button class="modal-close-btn" onclick="document.getElementById('custom-titles-modal').remove()" style="left:15px; right:auto; background: rgba(255,255,255,0.08) !important;">✕</button>
             <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 24px; text-shadow: 0 2px 10px rgba(255,215,0,0.4);">سجل الألقاب 🏆</h3>
             <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-weight: 600;">أكملت <span style="color: #30d158;">${unlockedCount}</span> من أصل ${totalCount} ألقاب</p>
-            
+
             <div class="custom-nav-tabs" style="margin-bottom: 20px; height: 45px; padding: 5px;">
                 <button id="titles-tab-unlocked-btn" class="custom-tab-button active" onclick="window.switchTitlesTab('unlocked')" style="font-size: 14px; border-radius: 12px !important;">مكتملة (${unlockedCount})</button>
                 <button id="titles-tab-locked-btn" class="custom-tab-button" onclick="window.switchTitlesTab('locked')" style="font-size: 14px; border-radius: 12px !important;">قيد الإنجاز (${totalCount - unlockedCount})</button>
             </div>
-            
+
             <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
                 ${unlockedHtml}
                 ${lockedHtml}
@@ -1001,6 +1006,7 @@ window.openTitlesModal = function() {
     document.body.appendChild(modalOverlay);
 };
 
+// دالة التبديل بين الأقسام
 window.switchTitlesTab = function(tab) {
     document.getElementById('titles-tab-unlocked-btn').classList.remove('active');
     document.getElementById('titles-tab-locked-btn').classList.remove('active');
@@ -1011,6 +1017,7 @@ window.switchTitlesTab = function(tab) {
     document.getElementById('titles-' + tab + '-list').style.display = 'flex';
 };
 
+// دالة التجهيز وإظهار إشعار Toast
 window.equipTitle = function(titleKey) {
     let profile = null;
     try {
@@ -1024,7 +1031,7 @@ window.equipTitle = function(titleKey) {
         if (typeof window.ui !== 'undefined' && typeof window.ui.saveAndSyncProfile === 'function') {
             window.ui.saveAndSyncProfile(profile);
             window.ui.updateProfileUI();
-            
+
             // ✅ ظهور الإشعار الصغير (Toast) وتجنب تدمير النافذة
             const toast = document.getElementById('toast-notification');
             if (toast) { 
@@ -1032,7 +1039,7 @@ window.equipTitle = function(titleKey) {
                 toast.classList.add('show'); 
                 setTimeout(() => toast.classList.remove('show'), 2500); 
             }
-            
+
             // إعادة رسم النافذة بهدوء لتحديث ألوان الزر المختار
             window.openTitlesModal();
         }
