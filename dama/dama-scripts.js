@@ -906,7 +906,7 @@ window.openAppModal = function(id) {
 
 
 // ==========================================
-// 👑 نظام فتح نافذة الألقاب الشاملة (تحديث سلس 100% بدون وميض)
+// 👑 نظام فتح نافذة الألقاب الشاملة (تحديث مباشر للعناصر = بدون أي وميض نهائياً)
 // ==========================================
 
 window.openTitlesModal = function() {
@@ -921,7 +921,6 @@ window.openTitlesModal = function() {
 
     if (!profile) return;
 
-    // تحديث الألقاب
     if (typeof window.checkAndUnlockTitles === 'function') {
         window.checkAndUnlockTitles(profile);
     } else {
@@ -942,15 +941,16 @@ window.openTitlesModal = function() {
 
             if (isUnlocked) {
                 unlockedCount++;
-                let borderStyle = isEquipped ? '1.5px solid #30d158' : '1px solid rgba(255,255,255,0.1)';
+                let borderStyle = isEquipped ? '1.5px solid #30d158' : '1px solid rgba(255,255,255,0.2)';
                 let bgStyle = isEquipped ? 'rgba(48,209,88,0.1)' : 'rgba(255,255,255,0.05)';
                 let textStatus = isEquipped ? '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>' : '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px;">تحديد</span>';
 
+                // 🟢 أضفنا ID لكل كارت ولكل حالة للتحكم بها مباشرة بدون إعادة بناء 🟢
                 unlockedHtml += `
-                    <div onclick="window.equipTitle('${tKey}')" style="display: flex; flex-direction: column; padding: 14px 15px; background: ${bgStyle}; border: ${borderStyle}; border-radius: 16px; cursor: pointer; transition: 0.2s;">
+                    <div id="title-card-${tKey}" onclick="window.equipTitle('${tKey}')" style="display: flex; flex-direction: column; padding: 14px 15px; background: ${bgStyle}; border: ${borderStyle}; border-radius: 16px; cursor: pointer; transition: 0.2s;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <span style="color: white; font-weight: 900; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${tObj.name}</span>
-                            ${textStatus}
+                            <div id="title-status-${tKey}">${textStatus}</div>
                         </div>
                         <span style="color: #a1a1aa; font-size: 12px; text-align: right; line-height: 1.5; font-weight: 500;">${tObj.desc}</span>
                     </div>
@@ -969,25 +969,10 @@ window.openTitlesModal = function() {
         });
     }
 
-    // 🟢 الحل الجذري: إذا كانت النافذة مفتوحة أصلاً، قم بتحديث المحتوى فقط واخرج! 🟢
+    // بناء النافذة لأول مرة فقط
     const existingModal = document.getElementById('custom-titles-modal');
-    if (existingModal) {
-        const unlockedList = document.getElementById('titles-unlocked-list');
-        const lockedList = document.getElementById('titles-locked-list');
-        const unlockedBtn = document.getElementById('titles-tab-unlocked-btn');
-        const lockedBtn = document.getElementById('titles-tab-locked-btn');
-        const headerCount = document.getElementById('titles-header-count');
+    if (existingModal) existingModal.remove();
 
-        if (unlockedList) unlockedList.innerHTML = unlockedHtml;
-        if (lockedList) lockedList.innerHTML = lockedHtml;
-        if (unlockedBtn) unlockedBtn.innerText = `مكتملة (${unlockedCount})`;
-        if (lockedBtn) lockedBtn.innerText = `قيد الإنجاز (${totalCount - unlockedCount})`;
-        if (headerCount) headerCount.innerHTML = `أكملت <span style="color: #30d158;">${unlockedCount}</span> من أصل ${totalCount} ألقاب`;
-        
-        return; // نوقف الدالة هنا حتى لا يتم بناء النافذة من جديد وتختفي
-    }
-
-    // إذا لم تكن موجودة (أول ضغطة من المستخدم)، يتم بناؤها
     if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
 
     const modalOverlay = document.createElement('div');
@@ -1051,8 +1036,27 @@ window.equipTitle = function(titleKey) {
                 setTimeout(() => toast.classList.remove('show'), 2500); 
             }
 
-            // الآن عند استدعاء هذه الدالة، لن تختفي النافذة، بل ستحدث نفسها داخلياً وتتغير الأزرار بسلاسة
-            window.openTitlesModal();
+            // 🟢 هنا يكمن السحر: تحديث الألوان برمجياً في نفس اللحظة بدون إغلاق أو تحميل النافذة 🟢
+            if (window.TITLES_DB) {
+                Object.keys(window.TITLES_DB).forEach(tKey => {
+                    const card = document.getElementById('title-card-' + tKey);
+                    const status = document.getElementById('title-status-' + tKey);
+                    
+                    if (card && status) {
+                        if (tKey === titleKey) {
+                            // تلوين اللقب المختار بالأخضر
+                            card.style.border = '1.5px solid #30d158';
+                            card.style.background = 'rgba(48,209,88,0.1)';
+                            status.innerHTML = '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>';
+                        } else {
+                            // إعادة البقية للون الرمادي العادي
+                            card.style.border = '1px solid rgba(255,255,255,0.2)';
+                            card.style.background = 'rgba(255,255,255,0.05)';
+                            status.innerHTML = '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px;">تحديد</span>';
+                        }
+                    }
+                });
+            }
         }
     }
 };
