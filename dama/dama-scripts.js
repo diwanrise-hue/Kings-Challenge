@@ -209,7 +209,7 @@ window.showOpponentProfile = function() {
     const opp = window.currentOpponentData;
     document.getElementById('igp-name').innerText = opp.name || "الخصم";
     
-    // تشفير الـ ID لمنع السرقات (تظهر أول 3 حروف، وتشفير الباقي مع إظهار آخر 4 أرقام)
+    // تشفير الـ ID لمنع السرقات
     let safeId = "---";
     if (opp.guestId) {
         let parts = opp.guestId.split('-');
@@ -396,7 +396,6 @@ function startSeasonCountdown() {
 document.addEventListener('DOMContentLoaded', () => {
     startSeasonCountdown();
     
-    // 🛡️ (مُحدّث للأداء): اعتراض دالة إغلاق النوافذ لمسح الذاكرة عند إغلاق لوحة الشرف
     const originalCloseAppModal = window.closeAppModal;
     window.closeAppModal = function(id) {
         if (id === 'leaderboard-modal') {
@@ -470,7 +469,6 @@ window.renderSpectatorsList = function(spectators) {
         
         let vipIcon = spec.vipLevel > 0 ? `<img src="Media/VIP/vip${spec.vipLevel}.webp" style="width: 16px; height: 16px; margin-right: 4px;" onerror="this.style.display='none';">` : '';
 
-        // 🛡️ (مُحدّث أمنياً): تنظيف الاسم قبل إدراجه
         const safeName = escapeHTML(spec.name);
         const safeId = escapeHTML(spec.id);
 
@@ -513,10 +511,9 @@ window.kickSpectator = function(targetId, targetName) {
     }
 };
 
-// 🛡️ (مُحدّث أمنياً): تأمين إدخالات لوحة الشرف
 window.createLbItemHTML = function(rank, playerObj, type) {
     let score = playerObj.score || playerObj.wins || 0; 
-    let name = escapeHTML(playerObj.name); // تنظيف الاسم
+    let name = escapeHTML(playerObj.name); 
     let avatarStr = playerObj.avatar; 
     let playerRankInfo = playerObj.rankInfo;
     
@@ -748,27 +745,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const cards = scroller.querySelectorAll('.mm-card');
 
-    // 🔥 التقنية الذكية: مراقبة تقاطع البطاقات مع منتصف الشاشة بدلاً من حدث التمرير الثقيل
     const observerOptions = {
         root: scroller,
-        rootMargin: '0px -45% 0px -45%', // نراقب شريحة ضيقة جداً في منتصف الشاشة فقط
+        rootMargin: '0px -45% 0px -45%', 
         threshold: 0
     };
 
     const cardObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                // البطاقة دخلت منتصف الشاشة -> نفعّلها ونلغي تفعيل البقية
                 cards.forEach(c => c.classList.remove('active'));
                 entry.target.classList.add('active');
             }
         });
     }, observerOptions);
 
-    // تفعيل المراقبة لجميع البطاقات
     cards.forEach(card => cardObserver.observe(card));
     
-    // مراقبة فتح النافذة لعمل التمركز الأولي
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
@@ -897,7 +890,6 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
-// ✅ حل مشكلة التأخير في الظهور عند الضغط على زر أونلاين
 const originalOpenAppModal = window.openAppModal;
 window.openAppModal = function(id) {
     if (originalOpenAppModal) originalOpenAppModal(id); 
