@@ -1560,8 +1560,8 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 /* 📊 شريط الرتب التفاعلي (Interactive Rank Bar) */
 /* ========================================== */
 .mm-rank-bar-wrapper {
-    position: absolute;
-    bottom: 20px;
+    position: fixed;
+    bottom: 25px;
     width: 95%;
     max-width: 420px;
     background: rgba(15, 18, 25, 0.85);
