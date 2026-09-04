@@ -906,8 +906,9 @@ window.openAppModal = function(id) {
 
 
 // ==========================================
-// 👑 نظام فتح نافذة الألقاب الشاملة (تحديث سلس بدون وميض)
+// 👑 نظام فتح نافذة الألقاب الشاملة (تحديث سلس 100% بدون وميض)
 // ==========================================
+
 window.openTitlesModal = function() {
     let profile = null;
     try {
@@ -920,6 +921,7 @@ window.openTitlesModal = function() {
 
     if (!profile) return;
 
+    // تحديث الألقاب
     if (typeof window.checkAndUnlockTitles === 'function') {
         window.checkAndUnlockTitles(profile);
     } else {
@@ -942,7 +944,7 @@ window.openTitlesModal = function() {
                 unlockedCount++;
                 let borderStyle = isEquipped ? '1.5px solid #30d158' : '1px solid rgba(255,255,255,0.1)';
                 let bgStyle = isEquipped ? 'rgba(48,209,88,0.1)' : 'rgba(255,255,255,0.05)';
-                let textStatus = isEquipped ? '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>' : '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid #555; padding: 4px 8px; border-radius: 8px;">تحديد</span>';
+                let textStatus = isEquipped ? '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>' : '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px;">تحديد</span>';
 
                 unlockedHtml += `
                     <div onclick="window.equipTitle('${tKey}')" style="display: flex; flex-direction: column; padding: 14px 15px; background: ${bgStyle}; border: ${borderStyle}; border-radius: 16px; cursor: pointer; transition: 0.2s;">
@@ -967,17 +969,25 @@ window.openTitlesModal = function() {
         });
     }
 
-    // ✅ التحديث السلس: إذا كانت النافذة مفتوحة مسبقاً، نحدث محتواها فقط دون وميض!
+    // 🟢 الحل الجذري: إذا كانت النافذة مفتوحة أصلاً، قم بتحديث المحتوى فقط واخرج! 🟢
     const existingModal = document.getElementById('custom-titles-modal');
     if (existingModal) {
-        document.getElementById('titles-unlocked-list').innerHTML = unlockedHtml;
-        document.getElementById('titles-locked-list').innerHTML = lockedHtml;
-        document.getElementById('titles-tab-unlocked-btn').innerText = `مكتملة (${unlockedCount})`;
-        document.getElementById('titles-tab-locked-btn').innerText = `قيد الإنجاز (${totalCount - unlockedCount})`;
-        return; 
+        const unlockedList = document.getElementById('titles-unlocked-list');
+        const lockedList = document.getElementById('titles-locked-list');
+        const unlockedBtn = document.getElementById('titles-tab-unlocked-btn');
+        const lockedBtn = document.getElementById('titles-tab-locked-btn');
+        const headerCount = document.getElementById('titles-header-count');
+
+        if (unlockedList) unlockedList.innerHTML = unlockedHtml;
+        if (lockedList) lockedList.innerHTML = lockedHtml;
+        if (unlockedBtn) unlockedBtn.innerText = `مكتملة (${unlockedCount})`;
+        if (lockedBtn) lockedBtn.innerText = `قيد الإنجاز (${totalCount - unlockedCount})`;
+        if (headerCount) headerCount.innerHTML = `أكملت <span style="color: #30d158;">${unlockedCount}</span> من أصل ${totalCount} ألقاب`;
+        
+        return; // نوقف الدالة هنا حتى لا يتم بناء النافذة من جديد وتختفي
     }
 
-    // إذا لم تكن مفتوحة، نقوم ببنائها وإظهارها
+    // إذا لم تكن موجودة (أول ضغطة من المستخدم)، يتم بناؤها
     if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
 
     const modalOverlay = document.createElement('div');
@@ -989,7 +999,7 @@ window.openTitlesModal = function() {
         <div class="settings-card" dir="auto" style="width: 90vw; height: 90vh; max-width: 500px; max-height: 800px; padding: 25px 15px; display: flex; flex-direction: column; position: relative; border-radius: 24px !important;">
             <button class="modal-close-btn" onclick="document.getElementById('custom-titles-modal').remove()" style="left:15px; right:auto; background: rgba(255,255,255,0.08) !important;">✕</button>
             <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 24px; text-shadow: 0 2px 10px rgba(255,215,0,0.4);">سجل الألقاب 🏆</h3>
-            <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-weight: 600;">أكملت <span style="color: #30d158;">${unlockedCount}</span> من أصل ${totalCount} ألقاب</p>
+            <p id="titles-header-count" style="color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-weight: 600;">أكملت <span style="color: #30d158;">${unlockedCount}</span> من أصل ${totalCount} ألقاب</p>
 
             <div class="custom-nav-tabs" style="margin-bottom: 20px; height: 45px; padding: 5px; flex-shrink: 0;">
                 <button id="titles-tab-unlocked-btn" class="custom-tab-button active" onclick="window.switchTitlesTab('unlocked')" style="font-size: 14px; border-radius: 12px !important;">مكتملة (${unlockedCount})</button>
@@ -1010,8 +1020,6 @@ window.openTitlesModal = function() {
     document.body.appendChild(modalOverlay);
 };
 
-
-// دالة التبديل بين الأقسام
 window.switchTitlesTab = function(tab) {
     document.getElementById('titles-tab-unlocked-btn').classList.remove('active');
     document.getElementById('titles-tab-locked-btn').classList.remove('active');
@@ -1022,7 +1030,6 @@ window.switchTitlesTab = function(tab) {
     document.getElementById('titles-' + tab + '-list').style.display = 'flex';
 };
 
-// دالة التجهيز وإظهار إشعار Toast
 window.equipTitle = function(titleKey) {
     let profile = null;
     try {
@@ -1037,7 +1044,6 @@ window.equipTitle = function(titleKey) {
             window.ui.saveAndSyncProfile(profile);
             window.ui.updateProfileUI();
 
-            // ✅ ظهور الإشعار الصغير (Toast) وتجنب تدمير النافذة
             const toast = document.getElementById('toast-notification');
             if (toast) { 
                 toast.textContent = '✨ تم اختيار اللقب بنجاح!'; 
@@ -1045,7 +1051,7 @@ window.equipTitle = function(titleKey) {
                 setTimeout(() => toast.classList.remove('show'), 2500); 
             }
 
-            // إعادة رسم النافذة بهدوء لتحديث ألوان الزر المختار
+            // الآن عند استدعاء هذه الدالة، لن تختفي النافذة، بل ستحدث نفسها داخلياً وتتغير الأزرار بسلاسة
             window.openTitlesModal();
         }
     }
