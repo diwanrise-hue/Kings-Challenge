@@ -150,7 +150,7 @@
             object-fit: contain;
             filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8));
             transform: translateZ(0); 
-            will-change: transform, filter;
+            will-change: transform;
             transition: all 0.3s ease;
         }
 
@@ -161,13 +161,12 @@
         @keyframes alive3DFloat {
             0%, 100% { 
                 transform: translateY(0) scale(1.05); 
-                filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8)) brightness(1);
             }
             50% { 
                 transform: translateY(-12px) scale(1.12); 
-                filter: drop-shadow(0 25px 20px rgba(0,0,0,0.5)) brightness(1.15); 
             }
         }
+
 
         .mm-card-title {
             color: #ffffff;
@@ -1560,4 +1559,4 @@
         };
     </script>
 </body>
-</html>
+                        </html>
