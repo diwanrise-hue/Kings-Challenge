@@ -50,25 +50,40 @@ const PROFILE_FRAMES_DB = {
     'pf_noble': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile7.webp'
 };
 
+
 // ==========================================
-// 🏷️ قاعدة بيانات الألقاب (Titles) ونظام الفتح
+// 🏷️ قاعدة بيانات الألقاب الشاملة (20 لقباً بشروط حقيقية)
 // ==========================================
 const TITLES_DB = {
     'novice': { name: 'مبتدئ', desc: 'متاح لجميع اللاعبين منذ البداية.' },
-    'streak_king': { name: 'ملك السلسلة', desc: 'حقق 10 انتصارات متتالية بدون خسارة.' },
-    'popular': { name: 'نجم المجتمع', desc: 'اجمع 100,000 نقطة شعبية من الهدايا.' },
-    'rich': { name: 'المليونير', desc: 'اجمع 100,000 عملة ذهبية في رصيدك.' },
+    'amateur': { name: 'هاوي الدامة', desc: 'العب 50 مباراة كاملة.' },
     'veteran': { name: 'المخضرم', desc: 'العب 500 مباراة كاملة.' },
+    'addict': { name: 'مدمن الدامة', desc: 'العب 1000 مباراة كاملة.' },
+    
+    'winner': { name: 'المنتصر', desc: 'حقق 20 فوزاً إجمالياً.' },
+    'conqueror': { name: 'الفاتح', desc: 'حقق 100 فوز إجمالي.' },
+    'invincible': { name: 'الذي لا يقهر', desc: 'حقق 500 فوز إجمالي.' },
+    
+    'streak_5': { name: 'شعلة النار', desc: 'حقق 5 انتصارات متتالية بدون خسارة.' },
+    'streak_king': { name: 'ملك السلسلة', desc: 'حقق 10 انتصارات متتالية بدون خسارة.' },
+    'legendary_streak': { name: 'الأسطورة الحية', desc: 'حقق 20 انتصاراً متتالياً بدون خسارة.' },
+    
+    'popular': { name: 'محبوب الجماهير', desc: 'اجمع 10,000 نقطة شعبية من الهدايا.' },
+    'super_star': { name: 'نجم المجتمع', desc: 'اجمع 100,000 نقطة شعبية من الهدايا.' },
+    
+    'wealthy': { name: 'التاجر', desc: 'اجمع 50,000 عملة ذهبية في رصيدك.' },
+    'rich': { name: 'المليونير', desc: 'اجمع 500,000 عملة ذهبية في رصيدك.' },
+    
     'genius': { name: 'العبقري', desc: 'نسبة فوز 70% (يجب لعب 50 مباراة على الأقل).' },
-    'reaper': { name: 'حاصد الأرواح', desc: 'التقط 4 قطع للخصم في حركة واحدة (قفزة متعددة).' },
-    'kingmaker': { name: 'صانع الملوك', desc: 'اصنع 3 ملوك (دامة) في مباراة واحدة.' },
-    'shark': { name: 'القرش', desc: 'العب واربح في مباراة برهان 10,000 فأكثر.' },
+    'reaper': { name: 'حاصد الأرواح', desc: 'التقط 7 قطع للخصم في حركة واحدة (قفزة متعددة).' }, // تم التعديل
+    'kingmaker': { name: 'صانع الملوك', desc: 'اصنع 5 ملوك (دامة) في مباراة واحدة.' }, // تم التعديل
+    'shark': { name: 'القرش', desc: 'العب واربح 3 مرات متتالية في مباراة برهان 10,000 عملة فأكثر.' }, // تم التعديل
     'generous': { name: 'حاتم الطائي', desc: 'أرسل 50 هدية شعبية للاعبين الآخرين.' },
-    'lucky': { name: 'ابن الحظ', desc: 'اربح الجائزة الكبرى في عجلة الحظ.' },
     'unlucky': { name: 'المنحوس', desc: 'اخسر 10 مباريات متتالية.' }
 };
-// لكي يقرأها النظام في كل مكان بوضوح:
-window.TITLES_DB = TITLES_DB;
+
+window.TITLES_DB = TITLES_DB; 
+
 
 window.checkAndUnlockTitles = function(profile) {
     if (!profile.unlockedTitles) profile.unlockedTitles = ['novice'];
@@ -83,35 +98,50 @@ window.checkAndUnlockTitles = function(profile) {
         }
     };
 
-    // الشروط الذكية لفتح الألقاب بناءً على إحصائيات اللاعب
-    checkUnlock('streak_king', (profile.highestStreak || 0) >= 10);
-    checkUnlock('popular', (profile.popularity || 0) >= 100000);
-    checkUnlock('rich', (profile.tokens || 0) >= 100000);
-    checkUnlock('veteran', (profile.gamesPlayed || 0) >= 500);
+    // تجهيز المتغيرات للحساب بطريقة آمنة
+    let games = profile.gamesPlayed || profile.games || 0;
+    let wins = profile.wins || 0;
+    let winRate = games > 0 ? (wins / games) * 100 : 0;
+    let maxStreak = profile.highestStreak || 0;
+    let pop = profile.popularity || 0;
+    let coins = profile.tokens || 0;
+
+    // شروط فتح الألقاب الجديدة بدقة
+    checkUnlock('amateur', games >= 50);
+    checkUnlock('veteran', games >= 500);
+    checkUnlock('addict', games >= 1000);
     
-    let winRate = profile.gamesPlayed > 0 ? (profile.wins / profile.gamesPlayed) * 100 : 0;
-    checkUnlock('genius', winRate >= 70 && (profile.gamesPlayed || 0) >= 50);
+    checkUnlock('winner', wins >= 20);
+    checkUnlock('conqueror', wins >= 100);
+    checkUnlock('invincible', wins >= 500);
     
-    checkUnlock('reaper', (profile.maxMultiJump || 0) >= 4); 
-    checkUnlock('kingmaker', (profile.maxKingsInGame || 0) >= 3); 
-    checkUnlock('shark', (profile.highestWinBet || 0) >= 10000); 
+    checkUnlock('streak_5', maxStreak >= 5);
+    checkUnlock('streak_king', maxStreak >= 10);
+    checkUnlock('legendary_streak', maxStreak >= 20);
+    
+    checkUnlock('popular', pop >= 10000);
+    checkUnlock('super_star', pop >= 100000);
+    
+    checkUnlock('wealthy', coins >= 50000);
+    checkUnlock('rich', coins >= 500000);
+    
+    checkUnlock('genius', winRate >= 70 && games >= 50);
+    
+    // التعديلات الجديدة:
+    checkUnlock('reaper', (profile.maxMultiJump || 0) >= 7); // القفز فوق 7 قطع
+    checkUnlock('kingmaker', (profile.maxKingsInGame || 0) >= 5); // صنع 5 ملوك
+    checkUnlock('shark', (profile.sharkWinStreak || 0) >= 3); // 3 انتصارات متتالية برهان 10k+
     checkUnlock('generous', (profile.giftsSent || 0) >= 50); 
-    checkUnlock('lucky', (profile.jackpotWon || false) === true); 
     checkUnlock('unlucky', (profile.currentLosingStreak || 0) >= 10); 
     
     if (unlockedNew) {
         if (window.ui && typeof window.ui.saveAndSyncProfile === 'function') {
             window.ui.saveAndSyncProfile(profile);
         }
-        const toast = document.getElementById('toast-notification');
-        if (toast) { 
-            toast.textContent = '🎉 مبروك! لقد فتحت لقباً جديداً!'; 
-            toast.classList.add('show'); 
-            setTimeout(() => toast.classList.remove('show'), 3000); 
-        }
     }
     return profile;
 };
+
 
 // ==========================================
 // 🎵 المؤثرات الصوتية
@@ -1504,16 +1534,35 @@ export const ui = {
 
                     if (!gameState.isOnlineMode && isMeWin) { socket.emit('claimBotReward', { isWin: true, level: lvl }); }
                 }
+              
             } else {
                 const offlineMsg = t('offline_mode') || "أنت تلعب بدون إنترنت (لن يتم حساب الخبرة أو الجوائز)";
                 box.appendChild(this.makeEl('div', 'offline-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", offlineMsg));
             }
             
+            // ==========================================
+            // 🦈 تحديث عداد السلسلة للقب "القرش"
+            // ==========================================
+            if (gameState.isOnlineMode) {
+                if (isMeWin && gameState.roomBet >= 10000) {
+                    // إذا فاز وكان الرهان 10,000 أو أكثر، نزيد العداد
+                    gameState.userProfile.sharkWinStreak = (gameState.userProfile.sharkWinStreak || 0) + 1;
+                } else if (!isDraw) {
+                    // إذا خسر، أو فاز برهان قليل (أقل من 10,000)، يتم تصفير العداد!
+                    gameState.userProfile.sharkWinStreak = 0;
+                }
+                // ملاحظة: التعادل (isDraw) لا يكسر السلسلة ولا يزيدها
+            }
+            // ==========================================
+
             if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+            
+            // هنا سيتم استدعاء فحص الألقاب، وسيرى النظام أن عداد القرش أصبح 3 وسيفتح اللقب!
             this.updateProfileUI(); 
         }
         this.toggleOfflineInMatchUI(false);
     },
+
 
     updateProfileUI() {
         if (!gameState.userProfile) return;
