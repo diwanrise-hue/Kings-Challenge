@@ -14,6 +14,7 @@
  * 🎯 (مُحدّث للإصلاح): إصلاح زر المراهنة الخارجي بتمرير كود الغرفة المخفي (Room ID) بنجاح للسيرفر.
  * 🛡️ (إصلاح أمني صارم): قفل اختيار الأحجار لمنع اللعب بقطع الخصم نهائياً.
  * 🤖 (تحديث جديد): إزالة الإطار الأصفر عن صورة البوت في جميع النوافذ وضبط حجمه المثالي.
+ * 👑 (تحديث جديد): فصل الرتبة عن اللقب، وبرمجة "خزانة الألقاب" المبنية على إنجازات اللاعب!
  */
 
 import { gameState } from './gameState.js'; 
@@ -47,6 +48,67 @@ const PROFILE_FRAMES_DB = {
     'pf_ruby': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profil2.webp',
     'pf_dragon': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile4.webp',
     'pf_noble': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile7.webp'
+};
+
+// ==========================================
+// 🏷️ قاعدة بيانات الألقاب (Titles) ونظام الفتح
+// ==========================================
+const TITLES_DB = {
+    'novice': { name: 'مبتدئ', icon: '🌱' },
+    'streak_king': { name: 'ملك السلسلة', icon: '🔥' },
+    'popular': { name: 'نجم المجتمع', icon: '💙' },
+    'rich': { name: 'المليونير', icon: '💰' },
+    'veteran': { name: 'المخضرم', icon: '🛡️' },
+    'genius': { name: 'العبقري', icon: '🎓' },
+    'reaper': { name: 'حاصد الأرواح', icon: '☠️' },
+    'kingmaker': { name: 'صانع الملوك', icon: '👑' },
+    'shark': { name: 'القرش', icon: '🦈' },
+    'generous': { name: 'حاتم الطائي', icon: '🎩' },
+    'lucky': { name: 'ابن الحظ', icon: '🍀' },
+    'unlucky': { name: 'المنحوس', icon: '💔' }
+};
+
+window.checkAndUnlockTitles = function(profile) {
+    if (!profile.unlockedTitles) profile.unlockedTitles = ['novice'];
+    if (!profile.equippedTitle) profile.equippedTitle = 'novice';
+    
+    let unlockedNew = false;
+    
+    const checkUnlock = (key, condition) => {
+        if (condition && !profile.unlockedTitles.includes(key)) {
+            profile.unlockedTitles.push(key);
+            unlockedNew = true;
+        }
+    };
+
+    // الشروط الذكية لفتح الألقاب بناءً على إحصائيات اللاعب
+    checkUnlock('streak_king', (profile.highestStreak || 0) >= 10);
+    checkUnlock('popular', (profile.popularity || 0) >= 100000);
+    checkUnlock('rich', (profile.tokens || 0) >= 100000);
+    checkUnlock('veteran', (profile.gamesPlayed || 0) >= 500);
+    
+    let winRate = profile.gamesPlayed > 0 ? (profile.wins / profile.gamesPlayed) * 100 : 0;
+    checkUnlock('genius', winRate >= 70 && (profile.gamesPlayed || 0) >= 50);
+    
+    checkUnlock('reaper', (profile.maxMultiJump || 0) >= 4); 
+    checkUnlock('kingmaker', (profile.maxKingsInGame || 0) >= 3); 
+    checkUnlock('shark', (profile.highestWinBet || 0) >= 10000); 
+    checkUnlock('generous', (profile.giftsSent || 0) >= 50); 
+    checkUnlock('lucky', (profile.jackpotWon || false) === true); 
+    checkUnlock('unlucky', (profile.currentLosingStreak || 0) >= 10); 
+    
+    if (unlockedNew) {
+        if (window.ui && typeof window.ui.saveAndSyncProfile === 'function') {
+            window.ui.saveAndSyncProfile(profile);
+        }
+        const toast = document.getElementById('toast-notification');
+        if (toast) { 
+            toast.textContent = '🎉 مبروك! لقد فتحت لقباً جديداً!'; 
+            toast.classList.add('show'); 
+            setTimeout(() => toast.classList.remove('show'), 3000); 
+        }
+    }
+    return profile;
 };
 
 // ==========================================
@@ -176,7 +238,7 @@ export const ui = {
             frameZ = '10';
             if (overlayFrameSrc) { frameScale = '155%'; avatarScale = 'scale(1.05)'; } 
             else { frameScale = '140%'; avatarScale = 'scale(1)'; }
-            botScale = 'scale(1.15)';
+            botScale = 'scale(1.4)';
         }
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
@@ -195,23 +257,17 @@ export const ui = {
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
             let botContent = `<span style="font-size: 35px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🤖</span>`;
             
-          if (botSvg) {
+            if (botSvg) {
                 let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
-                
-                // ✅ التعديل هنا: إصلاح روابط الألوان والتدرجات (Gradients) لكي لا تختفي الأجزاء المعدنية
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
-                }).replace(/url\(#([^)]+)\)/g, function(match, p1) {
-                    return 'url(#' + p1 + uniqueSuffix + ')';
                 });
-
-                botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
+                botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; display: block; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
             }
-
             
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 1; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));">
+                    <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
                         ${botContent}
                     </div>
             `;
@@ -273,7 +329,6 @@ export const ui = {
             modalEl.style.display = 'flex'; 
         }
 
-        // 🌟 الحل الجذري: إخضاع نافذة العجلة برمجياً ودفعها للأسفل
         const spinModal = document.getElementById('lucky-spin-modal');
         if (spinModal && spinModal.style.display !== 'none') {
             spinModal.style.setProperty('z-index', '10', 'important');
@@ -283,20 +338,21 @@ export const ui = {
         
         this.clickHandlers.set('custom-alert-ok', () => {
             if (modalEl) modalEl.style.display = 'none'; 
-            if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); // استعادة الطبقة
+            if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); 
             if (onConfirm) { try { onConfirm(); } catch(err) { console.error(err); } }
         });
 
         this.clickHandlers.set('custom-alert-cancel', () => {
             if (modalEl) modalEl.style.display = 'none';
-            if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); // استعادة الطبقة
+            if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); 
             if (onCancel) { try { onCancel(); } catch(err) { console.error(err); } }
         });
     },
 
-                  
-    calculateLevelInfo(xpStr) {
+    calculateLevelInfo(xpStr, scoreNum) {
         let currentXp = parseInt(xpStr) || 0;
+        let currentScore = parseInt(scoreNum) || 0; 
+        
         let level = Math.floor(Math.sqrt(currentXp / 50)) + 1;
         if (level > 200) level = 200; 
         
@@ -308,33 +364,31 @@ export const ui = {
         let requiredXp = xpForNextLevel - xpForCurrentLevel;
         let percentage = level === 200 ? 100 : Math.min(100, Math.max(0, (progressXp / requiredXp) * 100));
 
-        let title = "مبتدئ";
-        if (level >= 100) title = "جراند ماستر";
-        else if (level >= 50) title = "معلم الدامة";
-        else if (level >= 30) title = "خبير";
-        else if (level >= 10) title = "مبارز";
-
         let rank = "برونزي"; 
         let rankIcon = `<img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));">`;
         
-        if (currentXp >= 5000) { 
+        if (currentScore >= 5000) { 
+            rank = "ملكي"; 
+            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: hue-rotate(-20deg) drop-shadow(0 0 5px rgba(255,100,0,0.9)); transform: scale(1.1);">`; 
+        }
+        else if (currentScore >= 2500) { 
             rank = "أسطوري"; 
-            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
+            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(255,215,0,0.8));">`; 
         }
-        else if (currentXp >= 2500) { 
+        else if (currentScore >= 1200) { 
             rank = "ماسي"; 
-            rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(0,210,255,0.8));">`; 
+            rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(0,210,255,0.8));">`; 
         }
-        else if (currentXp >= 1200) { 
+        else if (currentScore >= 500) { 
             rank = "ذهبي"; 
-            rankIcon = `<img src="Media/front/golden.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">`; 
+            rankIcon = `<img src="Media/front/golden.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(255,215,0,0.8));">`; 
         }
-        else if (currentXp >= 500) { 
+        else if (currentScore >= 150) { 
             rank = "فضي"; 
-            rankIcon = `<img src="Media/front/silver.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(192,192,192,0.8));">`; 
+            rankIcon = `<img src="Media/front/silver.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(192,192,192,0.8));">`; 
         }
 
-        return { level, title, rank, rankIcon, progressXp, requiredXp, percentage };
+        return { level, rank, rankIcon, progressXp, requiredXp, percentage, score: currentScore };
     },
 
     showLevelUpModal(newLevel, title, rewardsHtml) {
@@ -390,7 +444,6 @@ export const ui = {
             if (currentPin > lastPinPassed) {
                 lastPinPassed = currentPin;
                 
-                // ✅ استنساخ مسار الصوت (Clone) لضمان تداخل التكات بدون تقطيع
                 try {
                     if (tickAudio) {
                         let clone = tickAudio.cloneNode();
@@ -459,11 +512,9 @@ export const ui = {
     },
 
     showSpectatorBetModal(roomID, p1, p2) {
-        // ✅ 1. تعيين كود الغرفة المستهدفة في الحقل المخفي فوراً ليعمل زر المراهنة الخارجي
         const roomIdInput = this.getEl('spectator-bet-room-id');
         if (roomIdInput) roomIdInput.value = roomID;
 
-        // 2. تصفير الاختيارات السابقة
         const colorInput = this.getEl('spectator-bet-color');
         if (colorInput) colorInput.value = '';
         const amtInput = this.getEl('spectator-bet-amount');
@@ -471,13 +522,11 @@ export const ui = {
         const displayTxt = this.getEl('spectator-bet-display-text');
         if (displayTxt) displayTxt.innerText = 'اختر المبلغ...';
 
-        // 3. إزالة التحديد القديم عن البطاقات
         const p1Card = document.getElementById('bet-p1-card');
         const p2Card = document.getElementById('bet-p2-card');
         if (p1Card) { p1Card.style.border = '2px solid transparent'; p1Card.style.background = 'transparent'; p1Card.style.boxShadow = 'none'; p1Card.style.transform = 'scale(1)'; }
         if (p2Card) { p2Card.style.border = '2px solid transparent'; p2Card.style.background = 'transparent'; p2Card.style.boxShadow = 'none'; p2Card.style.transform = 'scale(1)'; }
 
-        // 4. عرض بيانات اللاعبين
         this.setTxt('bet-p1-name', p1?.name || 'اللاعب 1');
         this.applyAvatar('bet-p1-avatar', p1?.avatar, p1?.isCustomAvatar || p1?.avatar?.startsWith('data:'), p1?.equippedProfileFrame);
         
@@ -540,7 +589,7 @@ export const ui = {
 
         this.applyAvatar('card-my-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'), p1?.equippedProfileFrame);
         this.setTxt('card-my-name', p1?.name || 'اللاعب 1');
-        let p1LvlInfo = this.calculateLevelInfo(p1?.xp || 0);
+        let p1LvlInfo = this.calculateLevelInfo(p1?.xp || 0, p1?.score || 0);
         const p1LvlEl = this.getEl('card-my-level');
         if(p1LvlEl) {
             p1LvlEl.textContent = `Lv.${p1LvlInfo.level}`;
@@ -551,7 +600,7 @@ export const ui = {
         
         this.applyAvatar('card-opp-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'), p2?.equippedProfileFrame);
         this.setTxt('card-opp-name', p2?.name || 'اللاعب 2');
-        let p2LvlInfo = this.calculateLevelInfo(p2?.xp || 0);
+        let p2LvlInfo = this.calculateLevelInfo(p2?.xp || 0, p2?.score || 0);
         const p2LvlEl = this.getEl('card-opp-level');
         if(p2LvlEl) {
             p2LvlEl.textContent = `Lv.${p2LvlInfo.level}`;
@@ -651,7 +700,7 @@ export const ui = {
             
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'), gameState.currentOpponentProfileFrame);
           
-            let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0);
+            let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0, gameState.userProfile.score || 0);
             let myCardLevel = this.getEl('card-my-level');
             if (myCardLevel) {
                 myCardLevel.textContent = `Lv.${myLvlInfo.level}`;
@@ -663,7 +712,7 @@ export const ui = {
             let oppCardLevel = this.getEl('card-opp-level');
             if (oppCardLevel) {
                 if (gameState.currentOpponentXp !== undefined) {
-                    let oppLvlInfo = this.calculateLevelInfo(gameState.currentOpponentXp);
+                    let oppLvlInfo = this.calculateLevelInfo(gameState.currentOpponentXp || 0, window.currentOpponentData?.score || 0);
                     oppCardLevel.textContent = `Lv.${oppLvlInfo.level}`;
                     oppCardLevel.style.background = "rgba(255,69,58,0.2)"; 
                     oppCardLevel.style.borderColor = "#ff453a"; 
@@ -1463,7 +1512,7 @@ export const ui = {
             if (typeof window.applyProfileDataToUI === 'function') { window.applyProfileDataToUI(gameState.userProfile); }
 
             let prof = gameState.userProfile;
-            let lvlInfo = this.calculateLevelInfo(prof.xp || 0);
+            let lvlInfo = this.calculateLevelInfo(prof.xp || 0, prof.score || 0);
 
             const badgeLevel = this.getEl('badge-level');
             const xpProgressPath = this.getEl('xp-progress-path');
@@ -1471,8 +1520,15 @@ export const ui = {
             if (badgeLevel) badgeLevel.textContent = `Lv.${lvlInfo.level}`;
 
             const badgeTitleEl = this.getEl('profile-stat-title-badge');
+            
+            // فحص وتحديث الألقاب الجديدة سراً
+            window.checkAndUnlockTitles(prof);
+
+            let currentTitleKey = prof.equippedTitle || 'novice';
+            let titleObj = TITLES_DB[currentTitleKey] || TITLES_DB['novice'];
+
             if (badgeTitleEl) {
-                badgeTitleEl.textContent = lvlInfo.title;
+                badgeTitleEl.textContent = titleObj.name;
             }
 
             if (xpProgressPath) {
@@ -1491,7 +1547,10 @@ export const ui = {
             const igpTitleDisplay = this.getEl('igp-title-display');
             
             if (igpRankDisplay) igpRankDisplay.innerHTML = `${lvlInfo.rankIcon} <span>${lvlInfo.rank}</span>`;
-            if (igpTitleDisplay) igpTitleDisplay.textContent = `اللقب: ${lvlInfo.title}`;
+            
+            if (igpTitleDisplay) {
+                igpTitleDisplay.innerHTML = `<span style="color: #a1a1aa; font-size: 11px;">اللقب</span> <span style="color: #ffd700; font-size: 14px; font-weight: 800; cursor: pointer; border-bottom: 1px dashed #ffd700; padding-bottom: 2px;" onclick="window.openTitlesModal()" title="تغيير اللقب">${titleObj.name} ${titleObj.icon}</span>`;
+            }
             
             const badgeRankEl = this.getEl('profile-stat-rank-badge');
             const badgeRankIconEl = this.getEl('profile-stat-rank-icon-badge');
@@ -2921,5 +2980,71 @@ window.confirmSpectatorBet = function() {
         }
     } else {
         if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("يرجى الاتصال بالإنترنت أولاً!");
+    }
+};
+
+// ==========================================
+// 👑 نظام فتح نافذة الألقاب وتبديلها
+// ==========================================
+window.openTitlesModal = function() {
+    const profile = window.gameState.userProfile;
+    if (!profile) return;
+    
+    window.checkAndUnlockTitles(profile);
+    
+    let html = '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px; max-height: 250px; overflow-y: auto; padding-right: 5px;">';
+    
+    (profile.unlockedTitles || ['novice']).forEach(tKey => {
+        const tObj = TITLES_DB[tKey];
+        if (!tObj) return; // حماية إضافية
+        const isEquipped = profile.equippedTitle === tKey;
+        
+        let borderStyle = isEquipped ? '1.5px solid #30d158' : '1px solid rgba(255,255,255,0.1)';
+        let bgStyle = isEquipped ? 'rgba(48,209,88,0.1)' : 'rgba(255,255,255,0.05)';
+        let textStatus = isEquipped ? '<span style="color: #30d158; font-size: 11px; font-weight: bold;">مُستخدَم ✔️</span>' : '<span style="color: #a1a1aa; font-size: 11px;">تحديد</span>';
+
+        html += `
+            <div onclick="window.equipTitle('${tKey}')" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: ${bgStyle}; border: ${borderStyle}; border-radius: 12px; cursor: pointer; transition: 0.2s;">
+                <span style="color: white; font-weight: bold; font-size: 14px;">${tObj.name} <span style="font-size: 16px;">${tObj.icon}</span></span>
+                ${textStatus}
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+        window.ui.showCustomAlert(
+            "", 
+            "خزانة الألقاب 🏷️", 
+            null, 
+            false, 
+            null, 
+            "إغلاق"
+        );
+        
+        const msgContainer = document.getElementById('custom-alert-message');
+        if (msgContainer) msgContainer.innerHTML = html;
+        
+        const alertBox = document.querySelector('#custom-alert-modal .settings-card');
+        if (alertBox) alertBox.style.padding = "25px 20px";
+    }
+};
+
+window.equipTitle = function(titleKey) {
+    if (window.gameState.userProfile) {
+        window.gameState.userProfile.equippedTitle = titleKey;
+        if (window.ui && typeof window.ui.saveAndSyncProfile === 'function') {
+            window.ui.saveAndSyncProfile(window.gameState.userProfile);
+            window.ui.updateProfileUI();
+            
+            const toast = document.getElementById('toast-notification');
+            if (toast) { 
+                toast.textContent = '✨ تم تجهيز اللقب بنجاح!'; 
+                toast.classList.add('show'); 
+                setTimeout(() => toast.classList.remove('show'), 2500); 
+            }
+            
+            window.openTitlesModal();
+        }
     }
 };
