@@ -7,7 +7,7 @@
  * 🚷 (مُحدّث جديد): إضافة دوال جلب قائمة المشاهدين وطرد الهاكرز (VIP 4+).
  * 🛡️ (مُحدّث جذرياً): تنظيف مدخلات XSS ومسح الذاكرة عند إغلاق لوحة الشرف.
  * 🔊 (مُحدّث جديد): نظام الصوت الشامل لجميع الأزرار القابلة للضغط.
- * 🎡 (مُحدّث): التمرير الجانبي (Carousel) لساحة التحديات.
+ * 🚀 (تحسين الأداء GPU/CPU): استبدال حدث التمرير الثقيل بنظام IntersectionObserver الذكي.
  * 📊 (تحديث جديد): نظام شريط الرتب التفاعلي الشامل (ماسي، تاجي، أسطوري) وظهور فوري.
  */
 
@@ -740,35 +740,35 @@ window.switchLbTab = function(tabId) {
 })();
 
 // ==========================================
-// 🎡 نظام التمرير لساحة التحديات
+// 🎡 نظام التمرير لساحة التحديات (مُحسّن الأداء بصفر استهلاك CPU)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const scroller = document.getElementById('mm-carousel-scroller');
     if (!scroller) return;
 
-    const updateActiveCard = () => {
-        const cards = scroller.querySelectorAll('.mm-card');
-        const scrollerCenter = scroller.getBoundingClientRect().left + (scroller.clientWidth / 2);
-        
-        let closestCard = null;
-        let closestDistance = Infinity;
+    const cards = scroller.querySelectorAll('.mm-card');
 
-        cards.forEach(card => {
-            const cardCenter = card.getBoundingClientRect().left + (card.clientWidth / 2);
-            const distance = Math.abs(scrollerCenter - cardCenter);
-            
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestCard = card;
-            }
-        });
-
-        cards.forEach(c => c.classList.remove('active'));
-        if (closestCard) closestCard.classList.add('active');
+    // 🔥 التقنية الذكية: مراقبة تقاطع البطاقات مع منتصف الشاشة بدلاً من حدث التمرير الثقيل
+    const observerOptions = {
+        root: scroller,
+        rootMargin: '0px -45% 0px -45%', // نراقب شريحة ضيقة جداً في منتصف الشاشة فقط
+        threshold: 0
     };
 
-    scroller.addEventListener('scroll', updateActiveCard);
+    const cardObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // البطاقة دخلت منتصف الشاشة -> نفعّلها ونلغي تفعيل البقية
+                cards.forEach(c => c.classList.remove('active'));
+                entry.target.classList.add('active');
+            }
+        });
+    }, observerOptions);
+
+    // تفعيل المراقبة لجميع البطاقات
+    cards.forEach(card => cardObserver.observe(card));
     
+    // مراقبة فتح النافذة لعمل التمركز الأولي
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
@@ -776,7 +776,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const redCard = document.querySelector('.mm-card.theme-red');
                     if (redCard) {
                         redCard.scrollIntoView({ behavior: 'auto', inline: 'center' });
-                        updateActiveCard();
                     }
                 }, 50);
             }
@@ -797,8 +796,6 @@ window.scrollMmCarousel = function(direction) {
 // ==========================================
 // 📊 نظام شريط الرتبة التفاعلي (Interactive Rank Slider)
 // ==========================================
-
-// ✅ تم تعديل الأسماء (ماسي، تاجي، أسطوري) وتدرج الجوائز
 const RANK_SYSTEM = [
     { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', reward: '50 🪙' },
     { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', reward: '100 🪙' },
@@ -880,7 +877,6 @@ window.renderRankTrack = function() {
 
         let reachedClass = isReached ? 'reached' : '';
         
-        // تمييز بصري بين التاجي والأسطوري
         let iconFilter = '';
         if (rankData.id === 'crown') {
             iconFilter = 'filter: hue-rotate(270deg) drop-shadow(0 0 6px rgba(200,0,255,0.7));'; 
