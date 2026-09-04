@@ -243,7 +243,7 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            botScale = 'scale(1.4)'; 
+            botScale = 'scale(1.05)'; 
         }
         else {
             frameZ = '5';
