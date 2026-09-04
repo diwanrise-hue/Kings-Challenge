@@ -1,4 +1,4 @@
-/* dama.css    */
+/* dama.css */
 /* ========================================== */
 :root { 
     --light-cell: #DEB887; 
@@ -147,7 +147,7 @@ body {
 /* زر الانسحاب (بدون الطبقة الحمراء) */
 #resign-btn { 
     background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
-    color: #ff6b6b !important; /* أبقينا النص أحمر ليدل على الخطر */
+    color: #ff6b6b !important;
     height: 44px; padding: 0 15px; border-radius: 14px !important; 
     font-weight: bold; border: 1.5px solid #a88734 !important; 
     border-bottom: 3.5px solid #6b5319 !important;
@@ -161,30 +161,19 @@ body {
 }
 
 /* 🌟 إخفاء النص وتوسيط الشارة بدلاً منه 🌟 */
-.boundary-rank { 
-    display: none !important; 
-}
-.boundary-rank-icon { 
-    top: 50px !important; 
-    left: 95px !important; 
-    width: 18px !important; 
-    height: 18px !important; 
-    z-index: 25 !important; 
-}
-.rank-icon-free { 
-    font-size: 20px !important; 
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); 
-    display: flex; align-items: center; justify-content: center; 
-    width: 100%; height: 100%; 
-}
-
+.boundary-rank { display: none !important; }
+.boundary-rank-icon { top: 50px !important; left: 95px !important; width: 18px !important; height: 18px !important; z-index: 25 !important; }
+.rank-icon-free { font-size: 20px !important; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
 .rank-icon-free img { 
-    height: 26px !important; 
-    width: auto !important; 
+    max-width: 120% !important;   
+    max-height: 130% !important;  
+    width: auto !important;       
+    height: auto !important;      
+    object-fit: contain !important; 
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); 
-    transform: translateY(-4px) !important; /* 🌟 هذا هو السطر السحري لرفع الصورة لتتوسط المربع 🌟 */
+    transform: translateY(-1.8px) !important;
+    flex-shrink: 0 !important;
 }
-
 
 /* 🌟 التحسينات الجديدة لأداء GPU لزر التلميح السحري 🌟 */
 @keyframes magicGlowGpu {
@@ -253,7 +242,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     border-radius: 14px !important; 
     transition: all 0.15s ease !important;
     display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
-    position: relative !important; /* هام جداً لمنع التكدس مع الـ Flexbox */
+    position: relative !important; 
     z-index: 10 !important;
     box-sizing: border-box !important;
     width: 44px !important; 
@@ -272,29 +261,25 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     display: flex; align-items: center; justify-content: flex-start !important; cursor: pointer; 
     padding: 0 8px !important; 
     box-sizing: border-box !important;
-    position: relative !important; /* هام جداً ليتناسق مع المصباح والراديو */
+    position: relative !important; 
     width: auto !important;
-    min-width: 170px !important; /* 🌟 تم زيادة العرض هنا 🌟 */
+    min-width: 170px !important; 
     height: 60px !important; 
     margin-top: -8px !important;
     margin-bottom: -8px !important;
 }
 
-/* ضبط أحجام جميع أيقونات الأزرار (SVG) */
-/* 🌟 (مُحدّث): تمت إزالة الألوان الإجبارية للسماح لتدرجات icons.js الأصلية بالظهور 🌟 */
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
 #room-portal-btn svg, #hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
     object-fit: contain;
 }
 
-/* تقييد حجم أيقونات الأزرار المربعة فقط (تم استثناء زر الراديو ليكبر بشكل طبيعي) */
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
 #hint-btn svg, #undo-btn svg,  #mic-toggle-btn svg * {
     width: 22px !important;
     height: 22px !important;
 }
 
-/* تأثير الضغط على كل الأزرار المذكورة */
 #hamburger-menu-btn:active, #bag-quick-btn:active, #floating-quests-btn:active, 
 #room-portal-btn:active, #hint-btn:active, #undo-btn:active, #dama-radio-toggle:active, #mic-toggle-btn:active {
     transform: translateY(3px) !important;
@@ -305,14 +290,12 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 /* ========================================== */
 /* 🌟 تصميم الأزرار الزجاجية الفخمة (أونلاين وبوت) 🌟 */
 /* ========================================== */
-
-/* 1. التنسيق الأساسي في شاشة اللوبي */
 .premium-game-btn {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex-direction: row-reverse !important; 
-    gap: 22px !important; /* 🌟 تم التوسعة بين الأيقونة والنص 🌟 */
+    gap: 22px !important; 
     
     border-radius: 14px !important; 
     background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
@@ -334,10 +317,6 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     transform: translateY(3px) !important;
     border-bottom-width: 1px !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
-}
-
-.btn-green, .btn-brown { 
-    background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
 }
 
 .premium-game-btn .btn-icon {
@@ -378,7 +357,6 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     white-space: nowrap !important;
 }
 
-/* 🌟 التحسينات الجديدة لأداء GPU للنقطة الخضراء (أونلاين) 🌟 */
 .online-glow-dot {
     position: absolute !important; 
     top: -2px !important;          
@@ -395,11 +373,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     will-change: transform, opacity;
     z-index: 10 !important;
 }
-
-@keyframes pulseGlowGpu {
-    0% { transform: scale(0.85); opacity: 0.8; }
-    100% { transform: scale(1.15); opacity: 1; }
-}
+@keyframes pulseGlowGpu { 0% { transform: scale(0.85); opacity: 0.8; } 100% { transform: scale(1.15); opacity: 1; } }
 
 /* ========================================== */
 /* 🌟 نظام البروفايل الجديد المتمركز (أسود/ذهبي) */
@@ -440,16 +414,9 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
     -webkit-backdrop-filter: none !important;
     transform: scale(0.85) !important; 
 }
-html[dir="rtl"] #profile-badge.profile-badge-container { 
-    left: 15px !important; right: auto !important; transform-origin: top left !important; 
-}
-html[dir="ltr"] #profile-badge.profile-badge-container { 
-    right: 15px !important; left: auto !important; transform-origin: top right !important; 
-}
-#profile-badge.profile-badge-container:hover { 
-    transform: scale(0.82) !important; 
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)) drop-shadow(0 0 8px rgba(212, 175, 55, 0.6)) !important;
-}
+html[dir="rtl"] #profile-badge.profile-badge-container { left: 15px !important; right: auto !important; transform-origin: top left !important; }
+html[dir="ltr"] #profile-badge.profile-badge-container { right: 15px !important; left: auto !important; transform-origin: top right !important; }
+#profile-badge.profile-badge-container:hover { transform: scale(0.82) !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)) drop-shadow(0 0 8px rgba(212, 175, 55, 0.6)) !important; }
 
 #profile-badge #badge-avatar.profile-avatar-capsule { 
     position: absolute !important; 
@@ -459,16 +426,14 @@ html[dir="ltr"] #profile-badge.profile-badge-container {
     height: 55.3px !important;     
     border-radius: 50% !important; 
     border: none !important; 
-    z-index: 30 !important; /* 🌟 الإطار فوق الشريط السفلي */
+    z-index: 30 !important; 
     display: flex; align-items: center; justify-content: center; 
     overflow: visible !important;
     background-color: transparent !important;
     transform: translateZ(0); 
 }
 
-#profile-badge #badge-avatar.profile-avatar-capsule > div > img:first-child {
-    width: 100% !important; height: 100% !important; object-fit: cover !important; border-radius: 50% !important;
-}
+#profile-badge #badge-avatar.profile-avatar-capsule > div > img:first-child { width: 100% !important; height: 100% !important; object-fit: cover !important; border-radius: 50% !important; }
 
 .boundary-level { bottom: 11.4px !important; right: 2.5px !important; width: 22px !important; height: 12px !important; z-index: 25 !important; }
 .boundary-name { top: 27.6px !important; left: 99px !important; right: 16px !important; height: 18px !important; direction: rtl !important; }
@@ -480,42 +445,12 @@ html[dir="ltr"] #profile-badge.profile-badge-container {
 .title-text-free { color: #ff9800 !important; font-weight: 700 !important; font-size: 11px !important; transform: scale(0.75) !important; letter-spacing: 0.5px !important; direction: rtl !important; }
 .xp-text-free { color: #ffffff !important; font-weight: 800 !important; font-size: 10px !important; transform: scale(0.43) !important; text-shadow: 0 1px 2px #000000, 0 0 3px #000000 !important; letter-spacing: 0.5px !important; direction: ltr !important; }
 
-.vertical-divider-free {
-    position: absolute !important; 
-    top: 53.00px !important; 
-    left: 129.00px !important;
-    width: 0.80px !important; 
-    height: 11.50px !important; 
-    background: rgba(255, 255, 63, 0.57) !important; 
-    z-index: 20 !important;
-    box-shadow: 0 0 2px rgba(255, 255, 0, 0.8) !important;
-}
+.vertical-divider-free { position: absolute !important; top: 53.00px !important; left: 129.00px !important; width: 0.80px !important; height: 11.50px !important; background: rgba(255, 255, 63, 0.57) !important; z-index: 20 !important; box-shadow: 0 0 2px rgba(255, 255, 0, 0.8) !important; }
 
-.xp-wrapper {
-    position: absolute !important; bottom: 16.11px !important; left: 68.6px !important;
-    width: 88px !important; height: 5px !important;
-    background: rgba(10, 15, 10, 0.85) !important; 
-    border: 0.5px solid rgba(0, 255, 128, 0.35) !important;
-    border-radius: 4px !important; overflow: hidden !important; direction: ltr !important; z-index: 10 !important;
-}
-.straight-xp-fill {
-    height: 100% !important; width: 0%; 
-    background: linear-gradient(180deg, #a3f78b 0%, #2ecc71 45%, #1b8a47 100%) !important;
-    box-shadow: 0 0 6px #2ecc71 !important;
-    transition: width 0.5s ease-out !important;
-}
+.xp-wrapper { position: absolute !important; bottom: 16.11px !important; left: 68.6px !important; width: 88px !important; height: 5px !important; background: rgba(10, 15, 10, 0.85) !important; border: 0.5px solid rgba(0, 255, 128, 0.35) !important; border-radius: 4px !important; overflow: hidden !important; direction: ltr !important; z-index: 10 !important; }
+.straight-xp-fill { height: 100% !important; width: 0%; background: linear-gradient(180deg, #a3f78b 0%, #2ecc71 45%, #1b8a47 100%) !important; box-shadow: 0 0 6px #2ecc71 !important; transition: width 0.5s ease-out !important; }
 
-.bottom-stats-frame {
-    position: absolute !important; top: 88.8px !important; left: 54% !important; transform: translateX(-50%) !important;
-    width: 193px !important; height: 22px !important;
-    background-image: url('Media/front/tape.webp') !important; background-size: 100% 100% !important;
-    background-repeat: no-repeat !important; background-color: transparent !important;
-    box-shadow: none !important; border-radius: 0 !important;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) !important;
-    z-index: 10 !important;
-    display: flex !important; align-items: center !important; justify-content: space-around !important;
-    padding: 0 22px !important; box-sizing: border-box !important; direction: ltr !important;
-}
+.bottom-stats-frame { position: absolute !important; top: 88.8px !important; left: 54% !important; transform: translateX(-50%) !important; width: 193px !important; height: 22px !important; background-image: url('Media/front/tape.webp') !important; background-size: 100% 100% !important; background-repeat: no-repeat !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) !important; z-index: 10 !important; display: flex !important; align-items: center !important; justify-content: space-around !important; padding: 0 22px !important; box-sizing: border-box !important; direction: ltr !important; }
 .stat-item { display: flex !important; align-items: center !important; gap: 3px !important; color: #ffea79 !important; font-size: 9.5px !important; font-weight: 800 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important; white-space: nowrap !important; }
 .stat-icon { font-size: 10px !important; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8)) !important; }
 .frame-divider { width: 1px !important; height: 12px !important; background: linear-gradient(180deg, transparent, #ffd700, transparent) !important; opacity: 0.6 !important; }
@@ -1075,35 +1010,32 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 /* 🌟 تصميم احترافي للعنصر المُستخدَم (Equipped) في الحقيبة 🌟 */
 /* ========================================== */
 
-/* تأثير مرور الماوس على العناصر العادية */
 .theme-grid-item:hover { 
     border-color: #d4af37 !important; 
     background: rgba(212, 175, 55, 0.1) !important; 
     transform: translateY(-2px);
 }
 
-/* تصميم العنصر المفعل (المُستخدم حالياً) */
 .theme-grid-item.active {
-    border: 1.5px solid #30d158 !important; /* إطار أخضر زاهي يعبر عن التفعيل */
+    border: 1.5px solid #30d158 !important; 
     background: linear-gradient(135deg, rgba(48, 209, 88, 0.15), rgba(0, 0, 0, 0.4)) !important;
     box-shadow: 0 0 15px rgba(48, 209, 88, 0.3), inset 0 0 8px rgba(48, 209, 88, 0.2) !important;
-    transform: scale(1.03) !important; /* تكبير خفيف ليبرز عن البقية */
+    transform: scale(1.03) !important; 
     position: relative;
     z-index: 5;
 }
 
-/* شارة (مُستخدَم ✔️) تظهر فوق العنصر بأسلوب الـ 3D */
 .theme-grid-item.active::after {
     content: 'مُستخدَم ✔️';
     position: absolute;
-    top: -1px;   /* إرجاع الشارة للداخل لمنع القص */
-    right: -1px; /* إرجاع الشارة للداخل لمنع القص */
+    top: -1px;   
+    right: -1px; 
     background: linear-gradient(135deg, #34c759, #1e8449);
     color: white;
     font-size: 10px;
     font-weight: 800;
     padding: 3px 8px;
-    border-radius: 0 14px 0 12px; /* تصميم الزوايا ليتطابق مع زاوية البطاقة */
+    border-radius: 0 14px 0 12px; 
     border: 1px solid #a3f78b;
     border-top: none;
     border-right: none;
@@ -1113,8 +1045,6 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     animation: popInBadge 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-
-/* حركة خفيفة لظهور الشارة بأسلوب قفزة (Pop) */
 @keyframes popInBadge {
     0% { transform: scale(0) rotate(-10deg); opacity: 0; }
     100% { transform: scale(1) rotate(0deg); opacity: 1; }
@@ -1227,14 +1157,13 @@ body.game-active:not(.online-mode-active) #bag-quick-btn {
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
-    z-index: 850 !important; /* 🌟 تم التعديل هنا لعدم تغطية النوافذ المفتوحة */
+    z-index: 850 !important; 
 }
 
 body.online-mode-active { padding-top: 15px !important; }
 body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #bag-quick-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn, body.online-mode-active #room-portal-btn { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
 body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
 
-/* تطبيق عرض البطاقات المنفصلة في وضع الأونلاين */
 body.online-mode-active #match-players-card { 
     width: 95vw !important; 
     max-width: 480px !important; 
@@ -1503,12 +1432,11 @@ body.online-mode-active .game-container { order: 3 !important; }
 /* 🌟 السحر النهائي: سلوك الأزرار أثناء اللعب (game-active) 🌟 */
 /* ========================================== */
 
-/* 1. وضع الزرين جنباً إلى جنب في الشاشة الرئيسية (اللوبي) */
 body:not(.game-active) button#online-toggle-btn.premium-game-btn,
 body:not(.game-active) button#reset-btn.premium-game-btn {
     position: fixed !important;
     bottom: 74px !important; 
-    z-index: 800 !important; /* 🌟 تم التعديل هنا لعدم تغطية النوافذ المفتوحة */
+    z-index: 800 !important; 
     width: calc(50vw - 15px) !important; 
     max-width: 180px !important;   
     height: 66px !important;       
@@ -1529,7 +1457,6 @@ body:not(.game-active) button#reset-btn.premium-game-btn {
     display: flex !important; 
 }
 
-/* 2. إخفاء زر أونلاين تماماً بمجرد بدء أي مباراة (أوفلاين أو أونلاين) */
 body.game-active button#online-toggle-btn.premium-game-btn {
     display: none !important;
     visibility: hidden !important;
@@ -1537,7 +1464,6 @@ body.game-active button#online-toggle-btn.premium-game-btn {
     pointer-events: none !important;
 }
 
-/* 3. ترحيل وتغيير شكل زر بدء (ضد البوت) ليصبح متناسقاً في الشريط السفلي */
 body.game-active button#reset-btn.premium-game-btn {
     position: relative !important;
     right: auto !important;
@@ -1552,7 +1478,6 @@ body.game-active button#reset-btn.premium-game-btn {
     display: inline-flex !important;
 }
 
-/* 4. جعل النص أبيض ناصع وإخفاء النصوص المزدوجة والأيقونة الخاصة باللوبي أثناء المباراة */
 body.game-active button#reset-btn.premium-game-btn .btn-main-text { 
     color: #ffffff !important; 
     font-size: 14px !important; 
@@ -1565,7 +1490,6 @@ body.game-active button#reset-btn.premium-game-btn .btn-icon {
     display: none !important; 
 }
 
-/* إخفاء زر ضد البوت تماماً في وضع الأونلاين */
 body.online-mode-active button#reset-btn.premium-game-btn {
     display: none !important;
 }
@@ -1574,35 +1498,22 @@ body.online-mode-active button#reset-btn.premium-game-btn {
    🛡️ الضبط المستقل والمثالي لجميع شارات الرتب
    ========================================= */
 
-/* 1. صورة الرتبة الصغيرة (في لوحة الشرف بجانب الاسم) */
 .rank-icon-small {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 18px !important; /* تحديد ارتفاع الحاوية بشكل صارم */
+    height: 18px !important; 
 }
 
 .rank-icon-small img { 
-    height: 18px !important;      /* إجبار الصورة على البقاء صغيرة */
-    max-height: 18px !important;  /* خط دفاع إضافي لمنع التمدد */
+    height: 18px !important;      
+    max-height: 18px !important;  
     width: auto !important;       
     object-fit: contain !important; 
     transform: scale(1) !important; 
     flex-shrink: 0 !important;    
 }
 
-/* 2. رفع صورة الرتبة للأعلى (في إطار البروفايل العلوي - اللوبي) 🌟 */
-.rank-icon-free img {
-    max-width: 120% !important;   
-    max-height: 130% !important;  
-    width: auto !important;       
-    height: auto !important;      
-    object-fit: contain !important; 
-    transform: translateY(-1.8px) !important; /* الرفع لتتوسط الخط الأصفر */
-    flex-shrink: 0 !important;
-}
-
-/* 3. تكبير وتوسيط الرتبة (داخل نافذة الملف الشخصي المفتوحة) 💎 */
 #igp-rank-display {
     min-height: 35px !important;
     display: flex !important;
@@ -1610,11 +1521,11 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     justify-content: center !important;
 }
 #igp-rank-display img {
-    height: 40px !important;      /* إعطاء الرتبة حجماً كبيراً وفخماً */
+    height: 40px !important;      
     max-height: 32px !important; 
     width: auto !important;
     object-fit: contain !important;
-    transform: translateY(-3px) scale(1.0) !important; /* رفع خفيف مع تكبير بنسبة 15% */
+    transform: translateY(-3px) scale(1.0) !important; 
     flex-shrink: 0 !important;
 }
 
@@ -1630,18 +1541,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 .my-waiting-action-btn.delete { background: rgba(255, 69, 58, 0.15); border: 1px solid rgba(255, 69, 58, 0.3); color: #ff453a; }
 .my-waiting-action-btn.delete:hover { background: rgba(255, 69, 58, 0.25); transform: scale(1.05); }
 
-/* ضبط أحجام جميع أيقونات الأزرار (SVG) */
-/* 🌟 (مُحدّث): تمت إزالة الألوان الإجبارية للسماح لتدرجات icons.js الأصلية بالظهور 🌟 */
-#hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
-#room-portal-btn svg, #hint-btn svg, #undo-btn svg, #dama-radio-toggle svg, #mic-toggle-btn svg * {
-    object-fit: contain;
-}
-
-
-/* ========================================== */
-/* 🌟 إصلاح جذري لمنع انضغاط أو تشوه وجه البوت (SVG) 🌟 */
-/* ========================================== */
-
+/* 🌟 إصلاح شكل أيقونة البوت (SVG) في جميع النوافذ لمنع التشوه 🌟 */
 .modern-bot-avatar {
     display: flex !important;
     align-items: center !important;
@@ -1649,9 +1549,185 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 }
 
 .modern-bot-avatar svg {
-    width: 90% !important; /* ترك مساحة تنفس صغيرة من الجوانب */
-    height: auto !important; /* 🌟 السر هنا: الطول سيتكيف تلقائياً ليمنع تشوه أو عصر الصورة */
+    width: 90% !important; 
+    height: auto !important; 
     max-height: 85% !important; 
     object-fit: contain !important;
     display: block !important;
+}
+
+/* ========================================== */
+/* 📊 شريط الرتب التفاعلي (Interactive Rank Bar) */
+/* ========================================== */
+.mm-rank-bar-wrapper {
+    position: absolute;
+    bottom: 20px;
+    width: 95%;
+    max-width: 420px;
+    background: rgba(15, 18, 25, 0.85);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 20px;
+    padding: 15px 10px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 2px 10px rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 20;
+    box-sizing: border-box;
+    direction: ltr; /* هام جداً: نجعل الاتجاه من اليسار لليمين لمسار التقدم */
+}
+
+.rank-nav-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #ffd700;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s ease;
+    flex-shrink: 0;
+    font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.rank-nav-btn:hover:not(:disabled) {
+    background: rgba(255,215,0,0.2);
+    border-color: #ffd700;
+    transform: scale(1.1);
+}
+
+.rank-nav-btn:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+}
+
+.mm-rank-slider {
+    flex: 1;
+    position: relative;
+    margin: 0 10px;
+}
+
+.mm-track-bg {
+    position: absolute;
+    top: 48px; /* يمر بالضبط من منتصف النقاط */
+    left: 25px;
+    right: 25px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    z-index: 1;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+}
+
+.mm-track-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #f5a623, #ffd700);
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+    transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.mm-tiers-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.mm-tier-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 50px;
+    position: relative;
+}
+
+.mm-tier-img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+    transition: all 0.4s ease;
+}
+
+.mm-tier-dot {
+    width: 14px;
+    height: 14px;
+    background: #1a1a24;
+    border: 2px solid #555;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s ease;
+}
+
+/* التنسيقات عند عبور الطبقة (الوصول إليها) */
+.mm-tier-node.reached .mm-tier-img {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+}
+
+.mm-tier-node.reached .mm-tier-dot {
+    border-color: #ffd700;
+    background: #d4af37;
+    box-shadow: 0 0 10px #ffd700;
+}
+
+.mm-tier-node.reached .mm-tier-dot::after {
+    content: '✓';
+    color: #000;
+    font-size: 9px;
+    font-weight: 900;
+}
+
+/* التنسيقات للطبقات التي لم نصلها بعد */
+.mm-tier-node:not(.reached) .mm-tier-img {
+    filter: grayscale(100%) opacity(0.4);
+    transform: scale(0.9);
+}
+
+.mm-tier-label {
+    color: #a1a1aa;
+    font-size: 10px;
+    font-weight: 800;
+    text-shadow: 0 1px 2px black;
+    white-space: nowrap;
+    direction: rtl; /* نعيد النص للعربية رغم أن الشريط ltr */
+    transition: color 0.3s;
+}
+
+.mm-tier-node.reached .mm-tier-label {
+    color: #ffd700;
+}
+
+.mm-tier-reward {
+    position: absolute;
+    top: -20px;
+    background: rgba(0,0,0,0.8);
+    border: 1px solid #ffd700;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 6px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: 0.3s ease;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.mm-tier-node:hover .mm-tier-reward {
+    opacity: 1;
+    transform: translateY(0);
 }
