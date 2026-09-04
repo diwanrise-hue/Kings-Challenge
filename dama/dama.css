@@ -1560,7 +1560,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 /* 📊 شريط الرتب التفاعلي (Interactive Rank Bar) */
 /* ========================================== */
 .mm-rank-bar-wrapper {
-    position: fixed;
+    position: fixed; 
     bottom: 25px;
     width: 95%;
     max-width: 420px;
@@ -1575,7 +1575,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     -webkit-backdrop-filter: blur(10px);
     z-index: 20;
     box-sizing: border-box;
-    direction: ltr; /* هام جداً: نجعل الاتجاه من اليسار لليمين لمسار التقدم */
+    direction: ltr; 
 }
 
 .rank-nav-btn {
@@ -1614,7 +1614,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 
 .mm-track-bg {
     position: absolute;
-    top: 48px; /* يمر بالضبط من منتصف النقاط */
+    top: 48px; 
     left: 25px;
     right: 25px;
     height: 4px;
@@ -1689,9 +1689,9 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     font-weight: 900;
 }
 
-/* التنسيقات للطبقات التي لم نصلها بعد */
+/* التنسيقات للطبقات التي لم نصلها بعد (يحافظ على جزء من اللون للتمييز) */
 .mm-tier-node:not(.reached) .mm-tier-img {
-    filter: grayscale(100%) opacity(0.4);
+    filter: saturate(30%) brightness(0.7) opacity(0.6);
     transform: scale(0.9);
 }
 
@@ -1701,7 +1701,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     font-weight: 800;
     text-shadow: 0 1px 2px black;
     white-space: nowrap;
-    direction: rtl; /* نعيد النص للعربية رغم أن الشريط ltr */
+    direction: rtl; 
     transition: color 0.3s;
 }
 
