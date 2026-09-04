@@ -1636,18 +1636,18 @@ export const ui = {
             
             if (igpTitleDisplay) {
                 let titleObj = window.TITLES_DB ? (window.TITLES_DB[currentTitleKey] || window.TITLES_DB['novice']) : { name: 'مبتدئ' };
-                // ✅ استخدام Flexbox وتصغير النص لمنع خروج اللقب من المربع (بدون الأيقونة)
+                // ✅ اللقب للعرض فقط (بدون أي خط تحته)
                 igpTitleDisplay.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 22px; cursor: pointer;" onclick="window.openTitlesModal()" title="تصفح الألقاب">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 22px; cursor: default;">
                         <span style="color: #a1a1aa; font-size: 11px; flex-shrink: 0;">اللقب:</span>
                         <div class="text-boundary" style="position: relative !important; display: inline-flex !important; flex: 1; min-width: 0; align-items: center;">
-                            <span class="shrink-text" style="color: #ffd700; font-size: 13px; font-weight: 800; border-bottom: 1px dashed #ffd700; padding-bottom: 1px; white-space: nowrap;">${titleObj.name}</span>
+                            <span class="shrink-text" style="color: #ffd700; font-size: 13px; font-weight: 800; white-space: nowrap;">${titleObj.name}</span>
                         </div>
                     </div>`;
                 
                 setTimeout(() => { if (typeof window.applyAutoShrink === 'function') window.applyAutoShrink(); }, 50);
             }
-    
+
             const badgeRankEl = this.getEl('profile-stat-rank-badge');
             const badgeRankIconEl = this.getEl('profile-stat-rank-icon-badge');
             
