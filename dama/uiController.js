@@ -4,10 +4,17 @@
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء، ولوحة الشرف.
- * 🤖 (إصلاح): استعادة الأجزاء المعدنية لوجه البوت (Gradients Fix) وتقليل حجمه لتوازن الواجهة.
- * 👑 (تحديث جديد): نافذة "سجل الألقاب" الشاملة (تعرض الألقاب المفتوحة والمقفلة مع شروطها).
- * 📐 (إصلاح UI): منع تشوه مربع اللقب في البروفايل باستخدام Flexbox و Auto-shrink.
- * 📊 (مُحدّث): فصل الرتبة عن اللقب، واعتماد نقاط التصنيف (Score) للترقية والهبوط.
+ * 🌟 (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
+ * 🎡 (مُحدّث جديد): برمجة نظام "ساحة التحديات" والمراهنات.
+ * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة عند انتهاء المباراة.
+ * 🛡️ (مُحدّث جديد): منع فتح واجهة الخصم عند الضغط على ملفك الشخصي في لوحة الشرف.
+ * 🔊 (مُحدّث للصوت): استنساخ مسار الصوت لعجلة الحظ لضمان تداخل التكات بشكل واقعي ومتناسق.
+ * 📑 (مُحدّث للطبقات): رفع Z-Index نافذة التنبيهات لتظهر دائماً فوق عجلة الحظ وغيرها وإخفاء العجلة برمجياً.
+ * 💎 (مُحدّث): محاذاة أيقونات رتب (الماسي والأسطوري) لتتطابق تماماً مع السطر.
+ * 🎯 (مُحدّث للإصلاح): إصلاح زر المراهنة الخارجي بتمرير كود الغرفة المخفي (Room ID) بنجاح للسيرفر.
+ * 🛡️ (إصلاح أمني صارم): قفل اختيار الأحجار لمنع اللعب بقطع الخصم نهائياً.
+ * 🤖 (تحديث جديد): إزالة الإطار الأصفر عن صورة البوت في جميع النوافذ وضبط حجمه المثالي.
+ * 👑 (تحديث جديد): فصل الرتبة عن اللقب، وبرمجة "خزانة الألقاب" المبنية على إنجازات اللاعب!
  */
 
 import { gameState } from './gameState.js'; 
@@ -47,19 +54,21 @@ const PROFILE_FRAMES_DB = {
 // 🏷️ قاعدة بيانات الألقاب (Titles) ونظام الفتح
 // ==========================================
 const TITLES_DB = {
-    'novice': { name: 'مبتدئ', icon: '🌱', desc: 'متاح لجميع اللاعبين منذ البداية.' },
-    'streak_king': { name: 'ملك السلسلة', icon: '🔥', desc: 'حقق 10 انتصارات متتالية بدون خسارة.' },
-    'popular': { name: 'نجم المجتمع', icon: '💙', desc: 'اجمع 100,000 نقطة شعبية من الهدايا.' },
-    'rich': { name: 'المليونير', icon: '💰', desc: 'اجمع 100,000 عملة ذهبية في رصيدك.' },
-    'veteran': { name: 'المخضرم', icon: '🛡️', desc: 'العب 500 مباراة كاملة.' },
-    'genius': { name: 'العبقري', icon: '🎓', desc: 'نسبة فوز 70% (يجب لعب 50 مباراة على الأقل).' },
-    'reaper': { name: 'حاصد الأرواح', icon: '☠️', desc: 'التقط 4 قطع للخصم في حركة واحدة (قفزة متعددة).' },
-    'kingmaker': { name: 'صانع الملوك', icon: '👑', desc: 'اصنع 3 ملوك (دامة) في مباراة واحدة.' },
-    'shark': { name: 'القرش', icon: '🦈', desc: 'العب واربح في مباراة برهان 10,000 فأكثر.' },
-    'generous': { name: 'حاتم الطائي', icon: '🎩', desc: 'أرسل 50 هدية شعبية للاعبين الآخرين.' },
-    'lucky': { name: 'ابن الحظ', icon: '🍀', desc: 'اربح الجائزة الكبرى في عجلة الحظ.' },
-    'unlucky': { name: 'المنحوس', icon: '💔', desc: 'اخسر 10 مباريات متتالية.' }
+    'novice': { name: 'مبتدئ', desc: 'متاح لجميع اللاعبين منذ البداية.' },
+    'streak_king': { name: 'ملك السلسلة', desc: 'حقق 10 انتصارات متتالية بدون خسارة.' },
+    'popular': { name: 'نجم المجتمع', desc: 'اجمع 100,000 نقطة شعبية من الهدايا.' },
+    'rich': { name: 'المليونير', desc: 'اجمع 100,000 عملة ذهبية في رصيدك.' },
+    'veteran': { name: 'المخضرم', desc: 'العب 500 مباراة كاملة.' },
+    'genius': { name: 'العبقري', desc: 'نسبة فوز 70% (يجب لعب 50 مباراة على الأقل).' },
+    'reaper': { name: 'حاصد الأرواح', desc: 'التقط 4 قطع للخصم في حركة واحدة (قفزة متعددة).' },
+    'kingmaker': { name: 'صانع الملوك', desc: 'اصنع 3 ملوك (دامة) في مباراة واحدة.' },
+    'shark': { name: 'القرش', desc: 'العب واربح في مباراة برهان 10,000 فأكثر.' },
+    'generous': { name: 'حاتم الطائي', desc: 'أرسل 50 هدية شعبية للاعبين الآخرين.' },
+    'lucky': { name: 'ابن الحظ', desc: 'اربح الجائزة الكبرى في عجلة الحظ.' },
+    'unlucky': { name: 'المنحوس', desc: 'اخسر 10 مباريات متتالية.' }
 };
+// لكي يقرأها النظام في كل مكان بوضوح:
+window.TITLES_DB = TITLES_DB;
 
 window.checkAndUnlockTitles = function(profile) {
     if (!profile.unlockedTitles) profile.unlockedTitles = ['novice'];
@@ -74,6 +83,7 @@ window.checkAndUnlockTitles = function(profile) {
         }
     };
 
+    // الشروط الذكية لفتح الألقاب بناءً على إحصائيات اللاعب
     checkUnlock('streak_king', (profile.highestStreak || 0) >= 10);
     checkUnlock('popular', (profile.popularity || 0) >= 100000);
     checkUnlock('rich', (profile.tokens || 0) >= 100000);
@@ -235,7 +245,7 @@ export const ui = {
         else if (el.classList.contains('result-avatar')) {
             frameZ = '10';
             frameScale = '140%'; avatarScale = 'scale(1)';
-            botScale = 'scale(1.15)'; // ✅ تصغير حجم البوت ليتوازن مع إطار اللاعب
+            botScale = 'scale(1.05)'; 
         }
         else {
             frameZ = '5';
@@ -249,10 +259,11 @@ export const ui = {
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
             let botContent = `<span style="font-size: 35px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🤖</span>`;
             
-            if (botSvg) {
+
+           if (botSvg) {
                 let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
                 
-                // ✅ إصلاح روابط الألوان والتدرجات (Gradients) لكي لا تختفي الأجزاء المعدنية
+                // ✅ إصلاح التدرجات اللونية (Gradients) لتعود الأجزاء المعدنية للبوت
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
                 }).replace(/url\(#([^)]+)\)/g, function(match, p1) {
@@ -261,6 +272,8 @@ export const ui = {
 
                 botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; display: block; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
             }
+
+
             
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -365,12 +378,12 @@ export const ui = {
         let rankIcon = `<img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));">`;
         
         if (currentScore >= 5000) { 
-            rank = "أسطوري"; 
+            rank = "ملكي"; 
             rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: hue-rotate(-20deg) drop-shadow(0 0 5px rgba(255,100,0,0.9)); transform: scale(1.1);">`; 
         }
         else if (currentScore >= 2500) { 
-            rank = "تاجي"; 
-            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: hue-rotate(270deg) drop-shadow(0 0 6px rgba(200,0,255,0.7));">`; 
+            rank = "أسطوري"; 
+            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(255,215,0,0.8));">`; 
         }
         else if (currentScore >= 1200) { 
             rank = "ماسي"; 
@@ -1518,6 +1531,7 @@ export const ui = {
 
             const badgeTitleEl = this.getEl('profile-stat-title-badge');
             
+            // فحص وتحديث الألقاب الجديدة سراً
             window.checkAndUnlockTitles(prof);
 
             let currentTitleKey = prof.equippedTitle || 'novice';
@@ -1545,18 +1559,19 @@ export const ui = {
             if (igpRankDisplay) igpRankDisplay.innerHTML = `${lvlInfo.rankIcon} <span>${lvlInfo.rank}</span>`;
             
             if (igpTitleDisplay) {
-                // ✅ استخدام Flexbox وتصغير النص لمنع خروج اللقب من المربع
+                let titleObj = window.TITLES_DB ? (window.TITLES_DB[currentTitleKey] || window.TITLES_DB['novice']) : { name: 'مبتدئ' };
+                // ✅ استخدام Flexbox وتصغير النص لمنع خروج اللقب من المربع (بدون الأيقونة)
                 igpTitleDisplay.innerHTML = `
                     <div style="display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 22px; cursor: pointer;" onclick="window.openTitlesModal()" title="تصفح الألقاب">
                         <span style="color: #a1a1aa; font-size: 11px; flex-shrink: 0;">اللقب:</span>
                         <div class="text-boundary" style="position: relative !important; display: inline-flex !important; flex: 1; min-width: 0; align-items: center;">
-                            <span class="shrink-text" style="color: #ffd700; font-size: 13px; font-weight: 800; border-bottom: 1px dashed #ffd700; padding-bottom: 1px; white-space: nowrap;">${titleObj.name} ${titleObj.icon}</span>
+                            <span class="shrink-text" style="color: #ffd700; font-size: 13px; font-weight: 800; border-bottom: 1px dashed #ffd700; padding-bottom: 1px; white-space: nowrap;">${titleObj.name}</span>
                         </div>
                     </div>`;
                 
                 setTimeout(() => { if (typeof window.applyAutoShrink === 'function') window.applyAutoShrink(); }, 50);
             }
-            
+    
             const badgeRankEl = this.getEl('profile-stat-rank-badge');
             const badgeRankIconEl = this.getEl('profile-stat-rank-icon-badge');
             
@@ -2049,7 +2064,7 @@ window.showPlayerProfileFromLB = function(player) {
     if (player.rankInfo) { 
         if (oppRankDisplay) oppRankDisplay.innerHTML = `${player.rankInfo.icon} <span>${player.rankInfo.title}</span>`; 
         
-        let oppLevel = Math.floor(Math.sqrt(Math.max(0, player.xp || player.score || 0) / 50)) + 1;
+        let oppLevel = Math.floor(Math.sqrt(Math.max(0, player.score || 0) / 50)) + 1;
         let oppTitleText = "مبتدئ";
         if (oppLevel >= 100) oppTitleText = "جراند ماستر";
         else if (oppLevel >= 50) oppTitleText = "معلم الدامة";
@@ -2239,7 +2254,7 @@ window.copyMyId = function() {
 
 window.createLbItemHTML = function(rank, playerObj, type) {
     let score = playerObj.score || playerObj.wins || 0; 
-    let name = escapeHTML(playerObj.name); 
+    let name = playerObj.name; 
     let avatarStr = playerObj.avatar; 
     let playerRankInfo = playerObj.rankInfo;
     
@@ -2255,7 +2270,7 @@ window.createLbItemHTML = function(rank, playerObj, type) {
 
     const div = document.createElement('div'); 
     div.className = 'lb-item';
-    let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${escapeHTML(playerRankInfo.title)}">${playerRankInfo.icon}</span>` : '';
+    let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${playerRankInfo.title}">${playerRankInfo.icon}</span>` : '';
     const nameEl = document.createElement('div'); 
     nameEl.className = 'lb-name'; 
     nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
@@ -2360,7 +2375,6 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
         }
         
         let overlayFrameSrc = player.equippedProfileFrame && PROFILE_FRAMES_DB[player.equippedProfileFrame] ? PROFILE_FRAMES_DB[player.equippedProfileFrame] : null;
-        let safeName = escapeHTML(player.name || 'Guest');
 
         card.innerHTML = `
             <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
@@ -2377,7 +2391,7 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
 
             <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
                 <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
-                <div class="lb-podium-name" style="width: 100%; text-align: center; margin-bottom: 0;">${safeName}</div>
+                <div class="lb-podium-name" style="width: 100%; text-align: center; margin-bottom: 0;">${player.name || 'Guest'}</div>
             </div>
         `;
         
@@ -2437,45 +2451,585 @@ window.switchLbTab = function(tabId) {
     }
 };
 
-// ==========================================
-// 🔊 نظام الصوت الشامل لجميع الأزرار (Global Click Sound)
-// ==========================================
-(function() {
-    const clickSoundUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/click.wav";
-    const clickAudio = new Audio(clickSoundUrl);
-    clickAudio.volume = 0.6; 
+window.showEquipNotification = function(itemType) {
+    const toast = document.getElementById('toast-notification'); if (!toast) return;
+    let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
+    if (itemType === 'bg') msg = window.t ? window.t('toast_bg') : "تم تغيير الساحة بنجاح";
+    else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
+    else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
+    else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
+    toast.textContent = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
 
-    document.addEventListener('click', function(event) {
-        const isClickable = event.target.closest('button, [onclick], .dama-card, .nav-item, .drawer-item, .theme-grid-item, .lb-avatar, .profile-avatar, .bet-option-item, .custom-tab-button, .rank-nav-btn');
-        
-        if (isClickable) {
-            try {
-                let soundClone = clickAudio.cloneNode();
-                soundClone.volume = clickAudio.volume;
-                let playPromise = soundClone.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => { });
+    setTimeout(() => {
+        try {
+            let profStr = localStorage.getItem('hub_user_profile');
+            if (profStr) {
+                let prof = JSON.parse(profStr);
+                if (!gameState.isOnlineMode) {
+                    if (typeof window.applyTheme === 'function') window.applyTheme(prof);
+                    if (window.ui && typeof window.ui.renderBoard === 'function') window.ui.renderBoard(true);
                 }
-            } catch (e) {}
-        }
-    });
-})();
+            }
+        } catch(e) {}
+    }, 50);
+};
+
+window.triggerCustomAlertNotification = function(msg) {
+    if (typeof ui.showCustomAlert === 'function') { ui.showCustomAlert(msg); } else {
+        const alertModal = document.getElementById('custom-alert-modal'); const alertMsg = document.getElementById('custom-alert-message'); const alertOk = document.getElementById('custom-alert-ok'); const alertCancel = document.getElementById('custom-alert-cancel');
+        if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').textContent = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.textContent = msg; if(alertCancel) alertCancel.style.display = 'none'; window.openAppModal('custom-alert-modal'); alertOk.onclick = () => window.closeAppModal('custom-alert-modal'); } else { alert(msg); }
+    }
+};
+
+window.currentLang = 'ar';
+window.updateHtmlTexts = function() {
+    if (!window.t) return;
+    const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = window.t(key); };
+    setTxt('menu-title-text', 'menu_title'); 
+    setTxt('menu-bag-text', 'menu_bag'); 
+    setTxt('menu-radio-text', 'menu_radio'); 
+    setTxt('menu-room-text', 'menu_room'); 
+    setTxt('menu-leaderboard-text', 'menu_leaderboard'); 
+    setTxt('menu-settings-text', 'menu_settings'); 
+    setTxt('menu-exit-text', 'menu_exit'); 
+    
+    const lbTitle = document.getElementById('lb-title-text');
+    if(lbTitle) lbTitle.textContent = "لوحة الشرف";
+    const lbWins = document.getElementById('lb-tab-wins');
+    if(lbWins) lbWins.textContent = "فوز";
+    const lbXp = document.getElementById('lb-tab-xp');
+    if(lbXp) lbXp.textContent = "مستوى";
+
+    setTxt('tutorial-mode-label', 'tutorial_mode'); 
+    setTxt('menu-quests-text', 'menu_quests');
+    if (document.getElementById('matchmaking-modal').style.display === 'flex') setTxt('mm-status-label', 'searching');
+};
+
+window.toggleRadioMusic = function() {
+    const dot = document.getElementById('dama-radio-status'); let isActive = false;
+    if (dot) { isActive = dot.classList.toggle('active'); }
+    if (isActive) { window.parent.postMessage({ type: 'PLAY_RADIO' }, '*'); } else { window.parent.postMessage({ type: 'STOP_RADIO' }, '*'); }
+};
+
+window.syncRadioStatusDot = function() { 
+    const statusDot = document.getElementById('dama-radio-status'); 
+    if (statusDot) { 
+        const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; 
+        if (isPlaying) statusDot.classList.add('active'); else statusDot.classList.remove('active'); 
+    } 
+};
+
+window.addEventListener('storage', (e) => {
+    if (e.key === 'hub_music_enabled') { window.syncRadioStatusDot(); }
+    if (e.key === 'hub_user_profile') { forceLockedGlobalAvatar(); }
+});
 
 // ==========================================
-// 👑 نظام فتح نافذة الألقاب الشاملة (المقفلة والمفتوحة)
+// 🌟 دوال التفاعلات للأزرار والاستماع (Event Listeners)
+// ==========================================
+function hasPlayerMoved() {
+    if (!gameState.boardHistory) return false;
+    if (gameState.playerColor === 'white') { return gameState.boardHistory.length > 1; } 
+    else { return gameState.boardHistory.length > 2; }
+}
+
+ui.onClick('reset-btn', () => {
+    if (gameState.isSpectator) {
+        if (window.socketManager && typeof window.socketManager.handleExitGame === 'function') {
+            window.socketManager.handleExitGame();
+        }
+        return;
+    }
+
+    if (window.isMatchRunning && !gameState.isOnlineMode && !gameState.isGameOver) {
+        if (hasPlayerMoved()) {
+            ui.showCustomAlert(
+                t('new_game_warn'),
+                t('alert_title'),
+                () => { 
+                    if (!gameState.isTutorialMode && gameState.userProfile) {
+                        ui.updateProfileUI();
+                        if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+                    }
+                    ui.drawEmptyBoard();
+                    if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal');
+                },
+                true, t('btn_cancel'), t('resign')
+            );
+        } else {
+            if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal');
+        }
+    } else {
+        if (typeof window.openAppModal === 'function') window.openAppModal('new-game-modal');
+    }
+});
+
+ui.onClick('resign-btn', () => {
+    if (gameState.isOnlineMode) {
+        ui.showCustomAlert(
+            t('resign_confirm'), t('alert_title'),
+            () => { if (socketManager && typeof socketManager.sendSurrender === 'function') { socketManager.sendSurrender(); } },
+            true, t('btn_cancel'), t('alert_ok')
+        );
+    } else {
+        if (!hasPlayerMoved()) {
+            ui.showCustomAlert(t('confirm_exit_msg'), t('confirm_exit_title'), () => { ui.drawEmptyBoard(); }, true, t('btn_cancel'), t('alert_ok'));
+        } else {
+            ui.showCustomAlert(
+                t('resign_loss_confirm'), t('alert_title'),
+                () => { let opponentColor = gameState.playerColor === 'white' ? 'black' : 'white'; ui.showResultsModal(opponentColor); },
+                true, t('btn_cancel'), t('alert_ok')
+            );
+        }
+    }
+});
+
+ui.onClick('undo-btn', () => {
+    if (gameState.isOnlineMode || gameState.currentTurn !== gameState.playerColor) return; 
+    if (!gameState.boardHistory || gameState.boardHistory.length <= 1) return;
+
+    gameState.gameId = Date.now();
+    if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
+
+    gameState.boardHistory.pop();
+    if (gameState.boardHistoryStr && gameState.boardHistoryStr.length > 0) gameState.boardHistoryStr.pop();
+
+    while (gameState.boardHistory.length > 1 && gameState.boardHistory[gameState.boardHistory.length - 1].turn !== gameState.playerColor) {
+        gameState.boardHistory.pop();
+        if (gameState.boardHistoryStr && gameState.boardHistoryStr.length > 0) gameState.boardHistoryStr.pop();
+    }
+
+    let prevState = gameState.boardHistory[gameState.boardHistory.length - 1];
+    if (prevState) {
+        gameState.virtualBoard = prevState.board.map(row => [...row]); 
+        gameState.currentTurn = prevState.turn;
+        
+        ui.clearHighlights(); 
+        const boardElUndo = document.getElementById('board');
+        if (boardElUndo) {
+            const lastMoves = boardElUndo.getElementsByClassName('last-move');
+            while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
+        }
+
+        if (gameState.selectedPiece) { gameState.selectedPiece.classList.remove('selected'); gameState.selectedPiece = null; }
+        gameState.isMultiJumping = false; gameState.jumpsCount = 0; gameState.requiredJumps = 0;
+        
+        ui.renderBoard(); ui.playSound(ui.sfx.move); ui.startTurn();
+    }
+});
+
+ui.onClick('hint-btn', () => { hintSystem.requestHint(); });
+
+ui.onClick('match-gift-btn-p2', () => {
+    if (gameState.isSpectator) {
+        window.openGiftPanel(); 
+    } else {
+        let targetId = window.matchPlayer2Id || window.currentOpponentId;
+        if (targetId) {
+            window.openGiftPanel(targetId);
+        } else {
+            const toast = document.getElementById('toast-notification');
+            if (toast) { 
+                toast.textContent = `⚠️ لا يمكن تحديد الخصم حالياً`; 
+                toast.classList.add('show'); 
+                setTimeout(() => toast.classList.remove('show'), 2500); 
+            }
+        }
+    }
+});
+
+ui.onClick('match-gift-btn-p1', () => {
+    let targetId = window.matchPlayer1Id;
+    if (targetId) {
+        window.openGiftPanel(targetId);
+    }
+});
+
+
+ui.onClick('creator-update-bet-btn', () => {
+    const roomIdEl = document.getElementById('creator-target-room-id');
+    const newBetEl = document.getElementById('edit-room-bet-input');
+    
+    if (roomIdEl && newBetEl && typeof socket !== 'undefined' && socket.connected) {
+        const roomId = roomIdEl.value;
+        const newBet = parseInt(newBetEl.value) || 0;
+        socket.emit('updateRoomBet', { roomID: roomId, newBet: newBet });
+        
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('creator-room-settings-modal');
+        }
+    }
+});
+
+ui.onClick('creator-cancel-room-btn', () => {
+    const roomIdEl = document.getElementById('creator-target-room-id');
+    if (roomIdEl) {
+        window.deleteMyRoom(roomIdEl.value);
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('creator-room-settings-modal');
+        }
+    }
+});
+
+window.ui = ui;
+window.updateUITranslations = () => { if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts(); };
+
+// 🛡️ 1. حماية قصوى: منع التدخل إذا كنت مشاهداً، أو اللعبة منتهية
+ui.onClick('board', e => {
+    if (gameState.isSpectator || !gameState.isGameActive) return;
+
+    // 🛡️ 2. تحديد لونك الفعلي بثقة (سواء كنت تلعب أونلاين أو ضد البوت)
+    const myActualColor = gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor;
+
+    // 🛡️ 3. قفل الدور: منع اللمس نهائياً إذا لم يكن دورك
+    if (gameState.currentTurn !== myActualColor) return;
+    
+    const target = e.target;
+    const cell = target.classList.contains('cell') ? target : target.parentElement;
+
+    // في حالة اختيار حجر جديد (وليس أثناء القفز المتعدد الإجباري)
+    if (target.classList.contains('piece') && !gameState.isMultiJumping) {
+        
+        // 🛡️ 4. قفل اللون: منع تحديد أي حجر لا يطابق لونك قطعياً!
+        const clickedColor = target.classList.contains('white') ? 'white' : 'black';
+        if (clickedColor !== myActualColor) return;
+
+        const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
+        
+        // التحقق من الأكل الإجباري
+        if (gameState.requiredJumps > 0 && getPieceMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
+        
+        gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = []; 
+        
+        if (gameState.selectedPiece) gameState.selectedPiece.classList.remove('selected');
+        gameState.selectedPiece = target; gameState.selectedPiece.classList.add('selected');
+        
+        if (gameState.currentTurn !== gameState.playerColor && !gameState.isOnlineMode) { gameState.opponentStartRow = r; gameState.opponentStartCol = c; }
+        ui.showValidMovesHighlights(r, c); return;
+    }
+
+    if (gameState.selectedPiece && cell.classList.contains('cell') && cell.children.length === 0) {
+        const fromRow = parseInt(gameState.selectedPiece.parentElement.dataset.row);
+        const fromCol = parseInt(gameState.selectedPiece.parentElement.dataset.col);
+        const toRow = parseInt(cell.dataset.row); const toCol = parseInt(cell.dataset.col);
+        const rDiff = toRow - fromRow; const cDiff = toCol - fromCol;
+        const isDama = gameState.selectedPiece.classList.contains('dama');
+        const pieceColor = gameState.selectedPiece.classList.contains('white') ? 'white' : 'black';
+
+        if (gameState.moveSequenceStartR === undefined || gameState.moveSequenceStartR === null) {
+            gameState.moveSequenceStartR = fromRow; gameState.moveSequenceStartC = fromCol; gameState.movePath = [{r: fromRow, c: fromCol}];
+        }
+
+        if (gameState.requiredJumps > 0) {
+            let isValidJump = false, midRow = -1, midCol = -1, currDr = Math.sign(rDiff), currDc = Math.sign(cDiff);
+            
+            let moves = (gameState.isMultiJumping)
+                ? gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, fromRow, fromCol, gameState.lastJumpDir.dr, gameState.lastJumpDir.dc)
+                : gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
+
+            let validStep = moves.map(p => p[0]).find(s => s && s.fromR === fromRow && s.fromC === fromCol && s.toR === toRow && s.toC === toCol && s.midR !== null);
+
+            if (validStep) {
+                isValidJump = true;
+                midRow = validStep.midR;
+                midCol = validStep.midC;
+            }
+
+            if (isValidJump) {
+                let tempBoard = gameState.virtualBoard.map(row => [...row]); 
+                let movingPieceStr = tempBoard[fromRow][fromCol];
+
+                tempBoard[midRow][midCol] = null; tempBoard[toRow][toCol] = movingPieceStr; tempBoard[fromRow][fromCol] = null;
+                gameState.movePath.push({r: toRow, c: toCol}); 
+
+                if (1 + getPieceMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
+                    if (typeof ui.playSound === 'function') { ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied); }
+                    
+                    gameState.virtualBoard = tempBoard; gameState.jumpsCount++; gameState.lastJumpDir = { dr: currDr, dc: currDc };
+                    if (window.questsManager) { window.questsManager.updateProgress('capture', 1, gameState.isOnlineMode ? 'online' : 'bot'); }
+
+                    let isFinalJump = (gameState.jumpsCount === gameState.requiredJumps);
+
+                    if (isFinalJump) {
+                        let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
+                        if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
+                            gameState.virtualBoard[toRow][toCol] += '-dama'; 
+                            if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                        }
+                        
+                        gameState.movesWithoutProgress = 0; 
+                        gameState.boardHistoryStr = [];
+                        gameState.pieceHistories = {}; 
+                        
+                        ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
+                        gameState.selectedPiece = null; ui.clearHighlights();
+                        gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+                        
+                        ui.renderBoard();
+
+                        if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                            socketManager.sendMoveToServer(
+                                gameState.moveSequenceStartR, gameState.moveSequenceStartC, 
+                                toRow, toCol, gameState.movePath, gameState.currentTurn
+                            );
+                        }
+                        
+                        saveGameState(); ui.startTurn();
+                        gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
+                    } else { 
+                        gameState.isMultiJumping = true; ui.renderBoard();
+                        const boardEl = document.getElementById('board');
+                        const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
+                        if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
+
+                        if (!gameState.isOnlineMode) {
+                            if (!gameState.boardHistory) gameState.boardHistory = [];
+                            gameState.boardHistory.push({ 
+                                board: gameState.virtualBoard.map(row => [...row]), 
+                                turn: gameState.currentTurn,
+                                moves: gameState.movesWithoutProgress
+                            });
+                            if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
+                        }
+                        ui.showValidMovesHighlights(toRow, toCol); 
+                    }
+                } else { ui.showCustomAlert(t('must_capture')); }
+            }
+        } 
+        else {
+            if (isMoveValid(fromRow, fromCol, toRow, toCol, gameState.currentTurn, gameState.virtualBoard, isDama)) {
+                
+                let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
+                gameState.virtualBoard[fromRow][fromCol] = null; gameState.virtualBoard[toRow][toCol] = movingPieceStr;
+                gameState.movePath.push({r: toRow, c: toCol}); 
+                
+                let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
+                let isPromotion = false;
+                
+                if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
+                    gameState.virtualBoard[toRow][toCol] += '-dama'; isPromotion = true;
+                    if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                }
+                
+                if (isPromotion) {
+                    gameState.movesWithoutProgress = 0;
+                    gameState.boardHistoryStr = [];
+                    gameState.pieceHistories = {}; 
+                } else {
+                    gameState.movesWithoutProgress++;
+                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(fromRow, fromCol, toRow, toCol, gameState.currentTurn); 
+                }
+                
+                if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
+                ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
+                gameState.selectedPiece = null; ui.clearHighlights();
+                gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+                
+                ui.renderBoard();
+
+                if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                    socketManager.sendMoveToServer(
+                        fromRow, fromCol, 
+                        toRow, toCol, gameState.movePath, gameState.currentTurn
+                    ); 
+                }
+                
+                saveGameState(); ui.startTurn();
+                gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
+            }
+        }
+    }
+});
+
+document.addEventListener('click', (e) => {
+    let target = e.target;
+    while (target && target !== document) {
+        if (target.id && ui.clickHandlers.has(target.id)) { ui.clickHandlers.get(target.id)(e); return; }
+        target = target.parentNode;
+    }
+
+    const actionElement = e.target.closest('[data-action]');
+    if (actionElement) {
+        const action = actionElement.dataset.action;
+        const fId = (actionElement.dataset.fid || "").toUpperCase(); 
+
+        if (action === 'challenge-friend') {
+            if (typeof window.challengeFriend === 'function') { window.challengeFriend(fId); } 
+            else { ui.showCustomAlert(t('coming_soon')); }
+        } else if (action === 'remove-friend') {
+            let currentFriends = gameState.userProfile.friends || [];
+            gameState.userProfile.friends = currentFriends.filter(f => (typeof f === 'string' ? f.toUpperCase() !== fId : f.id.toUpperCase() !== fId)); 
+            
+            let profileToSave = { ...gameState.userProfile };
+            if (gameState.originalHints !== undefined && gameState.originalHints !== null) { profileToSave.hints = gameState.originalHints; }
+            localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
+            ui.updateProfileUI();
+
+            if (window.socket && window.socket.connected) {
+                window.socket.emit('syncProfile', { id: profileToSave.id, friends: profileToSave.friends });
+            }
+            
+            const toast = document.getElementById('toast-notification'); 
+            if (toast) { toast.textContent = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+        }
+    }
+});
+
+const isMoveValid = (fromR, fromC, toR, toC, color, board, isDama) => {
+    let moves = gameEngine.generateAllTurnMoves(color, board);
+    return moves.some(path =>
+        path.length === 1 &&
+        path[0].fromR === fromR &&
+        path[0].fromC === fromC &&
+        path[0].toR === toR &&
+        path[0].toC === toC &&
+        path[0].midR === null 
+    );
+};
+
+if (!document.getElementById('forced-overlay-style')) {
+    const forcedStyle = document.createElement('style'); forcedStyle.id = 'forced-overlay-style';
+    forcedStyle.innerHTML = `
+        .cell:has(.piece.multi-choice), .cell.multi-choice-cell { position: relative !important; border: 2px solid #ff453a !important; border-radius: inherit; }
+        .cell:has(.piece.multi-choice)::after, .cell.multi-choice-cell::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 20px rgba(255, 69, 58, 0.8); border-radius: inherit; pointer-events: none; animation: gpuPulse 1s infinite alternate ease-in-out; will-change: opacity; }
+        @keyframes gpuPulse { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+        .cell:has(.piece.multi-choice) .piece, .cell.multi-choice-cell .piece { z-index: 2 !important; position: relative !important; transform: scale(1.08) translateZ(0) !important; will-change: transform; transition: transform 0.2s ease; }
+    `;
+    document.head.appendChild(forcedStyle);
+}
+
+window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'PROFILE_UPDATED') {
+        const profile = event.data.profile;
+        if (profile) {
+            if (!gameState.userProfile) gameState.userProfile = {};
+            Object.assign(gameState.userProfile, profile);
+
+            if (typeof window.applyProfileDataToUI === 'function') {
+                window.applyProfileDataToUI(profile);
+            }
+            if (window.ui && typeof window.ui.updateProfileUI === 'function') {
+                window.ui.updateProfileUI(); 
+            }
+
+            if (!gameState.isOnlineMode) {
+                if (typeof window.applyTheme === 'function') {
+                    window.applyTheme(profile);
+                }
+                if (window.ui && typeof window.ui.renderBoard === 'function') {
+                    window.ui.renderBoard(true);
+                }
+            }
+
+            if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
+                window.storeManager.renderUI();
+            }
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    let globalProfile = localStorage.getItem('hub_user_profile'); 
+    let initialAvatar = '1000132081.webp';
+    let userObj = { id: '#00000', name: t('badge_you') || 'أنت', avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0, currentStreak: 0, highestStreak: 0 };
+    
+    if (globalProfile) { 
+        try { 
+            const parsed = JSON.parse(globalProfile); 
+            userObj = { ...userObj, ...parsed };
+            if (parsed.avatar) userObj.avatar = parsed.avatar;
+        } catch(e) {} 
+    }
+
+    gameState.userProfile = userObj;
+
+    if (typeof window.applyTheme === 'function') {
+        window.applyTheme(userObj);
+    }
+
+    ui.drawEmptyBoard();
+
+    setTimeout(() => {
+        if (typeof window.applyProfileDataToUI === 'function') { 
+            window.applyProfileDataToUI(userObj); 
+        }
+        
+        if (window.ui && typeof window.ui.updateProfileUI === 'function') {
+            window.ui.updateProfileUI();
+        }
+
+        if (typeof window.syncRadioStatusDot === 'function') {
+            window.syncRadioStatusDot();
+        }
+        
+    }, 500); 
+});
+
+// ✅ دالة تأكيد رهان المشاهد المدمجة بنجاح
+window.confirmSpectatorBet = function() {
+    const roomId = document.getElementById('spectator-bet-room-id')?.value || (window.gameState && window.gameState.onlineRoomID);
+    const color = document.getElementById('spectator-bet-color')?.value;
+    const amount = parseInt(document.getElementById('spectator-bet-amount')?.value) || 0;
+
+    if (!roomId) {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("خطأ في تحديد الغرفة للمراهنة!");
+        return;
+    }
+    if (!color) {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء اختيار اللاعب المتوقع فوزه أولاً (أبيض أو أسود)!");
+        return;
+    }
+    if (amount <= 0) {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء تحديد مبلغ الرهان!");
+        return;
+    }
+
+    if (window.socket && window.socket.connected) {
+        const profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+        
+        window.socket.emit('placeSpectatorBet', {
+            roomID: String(roomId).trim(),
+            color: color,
+            amount: amount,
+            guestId: profile.id
+        });
+        
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('spectator-bet-modal');
+        }
+    } else {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("يرجى الاتصال بالإنترنت أولاً!");
+    }
+};
+
+// ==========================================
+// 👑 نظام فتح نافذة الألقاب وتبديلها
 // ==========================================
 window.openTitlesModal = function() {
-    const profile = window.gameState.userProfile;
+    let profile = null;
+    try {
+        if (window.gameState && window.gameState.userProfile) {
+            profile = window.gameState.userProfile;
+        } else {
+            profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+        }
+    } catch(e) { console.error("Error loading profile", e); }
+
     if (!profile) return;
     
-    window.checkAndUnlockTitles(profile);
+    if (typeof window.checkAndUnlockTitles === 'function') {
+        window.checkAndUnlockTitles(profile);
+    } else {
+        if (!profile.unlockedTitles) profile.unlockedTitles = ['novice'];
+        if (!profile.equippedTitle) profile.equippedTitle = 'novice';
+    }
     
     let html = '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;">';
     
-    Object.keys(TITLES_DB).forEach(tKey => {
-        const tObj = TITLES_DB[tKey];
-        const isUnlocked = profile.unlockedTitles.includes(tKey);
+    Object.keys(window.TITLES_DB).forEach(tKey => {
+        const tObj = window.TITLES_DB[tKey];
+        const isUnlocked = profile.unlockedTitles && profile.unlockedTitles.includes(tKey);
         const isEquipped = profile.equippedTitle === tKey;
         
         if (isUnlocked) {
@@ -2486,7 +3040,7 @@ window.openTitlesModal = function() {
             html += `
                 <div onclick="window.equipTitle('${tKey}')" style="display: flex; flex-direction: column; padding: 10px 15px; background: ${bgStyle}; border: ${borderStyle}; border-radius: 12px; cursor: pointer; transition: 0.2s;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="color: white; font-weight: bold; font-size: 14px;">${tObj.name} <span style="font-size: 16px;">${tObj.icon}</span></span>
+                        <span style="color: white; font-weight: bold; font-size: 14px;">${tObj.name}</span>
                         ${textStatus}
                     </div>
                     <span style="color: #a1a1aa; font-size: 10px; text-align: right; line-height: 1.4;">${tObj.desc}</span>
@@ -2496,7 +3050,7 @@ window.openTitlesModal = function() {
             html += `
                 <div style="display: flex; flex-direction: column; padding: 10px 15px; background: rgba(0,0,0,0.5); border: 1px dashed rgba(255,69,58,0.3); border-radius: 12px; opacity: 0.8;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="color: #8e8e93; font-weight: bold; font-size: 14px;">${tObj.name} <span style="font-size: 16px; filter: grayscale(100%);">${tObj.icon}</span></span>
+                        <span style="color: #8e8e93; font-weight: bold; font-size: 14px;">${tObj.name}</span>
                         <span style="color: #ff453a; font-size: 14px;" title="مقفل">🔒</span>
                     </div>
                     <span style="color: #ff453a; font-size: 10px; text-align: right; line-height: 1.4;">الشرط: ${tObj.desc}</span>
@@ -2504,32 +3058,37 @@ window.openTitlesModal = function() {
             `;
         }
     });
-    
     html += '</div>';
     
-    if (window.ui && typeof window.ui.showCustomAlert === 'function') {
-        window.ui.showCustomAlert(
-            "", 
-            "سجل الألقاب 🏷️", 
-            null, 
-            false, 
-            null, 
-            "إغلاق"
-        );
+    if (typeof window.ui !== 'undefined' && typeof window.ui.showCustomAlert === 'function') {
+        window.ui.showCustomAlert("", "سجل الألقاب 🏆", null, false, null, "إغلاق");
         
-        const msgContainer = document.getElementById('custom-alert-message');
-        if (msgContainer) msgContainer.innerHTML = html;
-        
-        const alertBox = document.querySelector('#custom-alert-modal .settings-card');
-        if (alertBox) alertBox.style.padding = "25px 20px";
+        setTimeout(() => {
+            const msgContainer = document.getElementById('custom-alert-message');
+            if (msgContainer) msgContainer.innerHTML = html;
+            
+            const alertBox = document.querySelector('#custom-alert-modal .settings-card');
+            if (alertBox) alertBox.style.padding = "25px 20px";
+        }, 50);
     }
 };
 
 window.equipTitle = function(titleKey) {
-    if (window.gameState.userProfile) {
-        window.gameState.userProfile.equippedTitle = titleKey;
-        if (window.ui && typeof window.ui.saveAndSyncProfile === 'function') {
-            window.ui.saveAndSyncProfile(window.gameState.userProfile);
+    let profile = null;
+    try {
+        if (window.gameState && window.gameState.userProfile) {
+            profile = window.gameState.userProfile;
+        } else {
+            profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+        }
+    } catch(e) {}
+
+    if (profile) {
+        profile.equippedTitle = titleKey;
+        if (window.gameState) window.gameState.userProfile = profile;
+
+        if (typeof window.ui !== 'undefined' && typeof window.ui.saveAndSyncProfile === 'function') {
+            window.ui.saveAndSyncProfile(profile);
             window.ui.updateProfileUI();
             
             const toast = document.getElementById('toast-notification');
@@ -2538,179 +3097,8 @@ window.equipTitle = function(titleKey) {
                 toast.classList.add('show'); 
                 setTimeout(() => toast.classList.remove('show'), 2500); 
             }
-            
             window.openTitlesModal();
         }
     }
 };
-
-// ==========================================
-// 🎡 نظام التمرير لساحة التحديات
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    const scroller = document.getElementById('mm-carousel-scroller');
-    if (!scroller) return;
-
-    const updateActiveCard = () => {
-        const cards = scroller.querySelectorAll('.mm-card');
-        const scrollerCenter = scroller.getBoundingClientRect().left + (scroller.clientWidth / 2);
-        
-        let closestCard = null;
-        let closestDistance = Infinity;
-
-        cards.forEach(card => {
-            const cardCenter = card.getBoundingClientRect().left + (card.clientWidth / 2);
-            const distance = Math.abs(scrollerCenter - cardCenter);
-            
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestCard = card;
-            }
-        });
-
-        cards.forEach(c => c.classList.remove('active'));
-        if (closestCard) closestCard.classList.add('active');
-    };
-
-    scroller.addEventListener('scroll', updateActiveCard);
-    
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
-                setTimeout(() => {
-                    const redCard = document.querySelector('.mm-card.theme-red');
-                    if (redCard) {
-                        redCard.scrollIntoView({ behavior: 'auto', inline: 'center' });
-                        updateActiveCard();
-                    }
-                }, 50);
-            }
-        });
-    });
-
-    const modal = document.getElementById('matchmaking-stakes-modal');
-    if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
-});
-
-window.scrollMmCarousel = function(direction) {
-    const scroller = document.getElementById('mm-carousel-scroller');
-    if(scroller) {
-        scroller.scrollBy({ left: direction * 240, behavior: 'smooth' });
-    }
-};
-
-// ==========================================
-// 📊 نظام شريط الرتبة التفاعلي (Interactive Rank Slider)
-// ==========================================
-
-const RANK_SYSTEM = [
-    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', reward: '50 🪙' },
-    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', reward: '100 🪙' },
-    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', reward: '300 🪙' },
-    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', reward: '500 🪙' },
-    { id: 'crown', name: 'تاجي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', reward: '800 🪙' }, 
-    { id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/legendary.webp', reward: '1000 🪙' } 
-];
-
-window.currentViewedRankIndex = 0;
-window.actualPlayerRankIndex = 0;
-window.actualPlayerScore = 0;
-
-window.initMatchmakingRankBar = function() {
-    const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-    window.actualPlayerScore = parseInt(profile.score) || 0;
-
-    window.actualPlayerRankIndex = 0;
-    for (let i = 0; i < RANK_SYSTEM.length; i++) {
-        if (window.actualPlayerScore >= RANK_SYSTEM[i].min && window.actualPlayerScore <= RANK_SYSTEM[i].max) {
-            window.actualPlayerRankIndex = i;
-            break;
-        }
-    }
-    
-    window.currentViewedRankIndex = window.actualPlayerRankIndex;
-    window.renderRankTrack();
-};
-
-window.changeRankView = function(dir) {
-    let newIndex = window.currentViewedRankIndex + dir;
-    if (newIndex >= 0 && newIndex < RANK_SYSTEM.length) {
-        window.currentViewedRankIndex = newIndex;
-        window.renderRankTrack();
-    }
-};
-
-window.renderRankTrack = function() {
-    const container = document.getElementById('mm-tiers-container');
-    const fillBar = document.getElementById('mm-rank-fill-bar');
-    const prevBtn = document.getElementById('rank-prev-btn');
-    const nextBtn = document.getElementById('rank-next-btn');
-
-    if (!container || !fillBar) return;
-
-    const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
-    const romanTiers = ["I", "II", "III", "IV"];
-    
-    prevBtn.disabled = window.currentViewedRankIndex === 0;
-    nextBtn.disabled = window.currentViewedRankIndex === RANK_SYSTEM.length - 1;
-
-    let html = '';
-    let fillPercent = 0;
-
-    if (window.currentViewedRankIndex < window.actualPlayerRankIndex) {
-        fillPercent = 100; 
-    } else if (window.currentViewedRankIndex > window.actualPlayerRankIndex) {
-        fillPercent = 0; 
-    } else {
-        if (rankData.max === Infinity) {
-            fillPercent = 100; 
-        } else {
-            const rankRange = rankData.max - rankData.min + 1;
-            const scoreInRank = window.actualPlayerScore - rankData.min;
-            fillPercent = (scoreInRank / rankRange) * 100;
-        }
-    }
-
-    fillBar.style.width = `${fillPercent}%`;
-
-    let tiersReached = Math.floor(fillPercent / 25);
-    if (fillPercent === 100) tiersReached = 4;
-
-    for (let i = 0; i < 4; i++) {
-        let isReached = i < tiersReached;
-        
-        if (window.currentViewedRankIndex < window.actualPlayerRankIndex) isReached = true;
-        if (window.currentViewedRankIndex > window.actualPlayerRankIndex) isReached = false;
-
-        let reachedClass = isReached ? 'reached' : '';
-        
-        let iconFilter = '';
-        if (rankData.id === 'crown') {
-            iconFilter = 'filter: hue-rotate(270deg) drop-shadow(0 0 6px rgba(200,0,255,0.7));'; 
-        } else if (rankData.id === 'legendary') {
-            iconFilter = 'filter: hue-rotate(-20deg) drop-shadow(0 0 8px rgba(255,100,0,0.9));'; 
-        }
-
-        html += `
-            <div class="mm-tier-node ${reachedClass}">
-                <div class="mm-tier-reward">جائزة: ${rankData.reward}</div>
-                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}" onerror="this.style.display='none'">
-                <div class="mm-tier-dot"></div>
-                <span class="mm-tier-label">${rankData.name} ${romanTiers[i]}</span>
-            </div>
-        `;
-    }
-
-    container.innerHTML = html;
-};
-
-const originalOpenAppModal = window.openAppModal;
-window.openAppModal = function(id) {
-    if (originalOpenAppModal) originalOpenAppModal(id);
-    
-    if (id === 'matchmaking-stakes-modal') {
-        setTimeout(() => {
-            window.initMatchmakingRankBar();
-        }, 50);
-    }
-};
+                                        
