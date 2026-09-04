@@ -904,8 +904,9 @@ window.openAppModal = function(id) {
     }
 };
 
+
 // ==========================================
-// 👑 نظام فتح نافذة الألقاب الشاملة (التبويبات + 90% من الشاشة)
+// 👑 نظام فتح نافذة الألقاب الشاملة (تحديث سلس بدون وميض)
 // ==========================================
 window.openTitlesModal = function() {
     let profile = null;
@@ -919,7 +920,6 @@ window.openTitlesModal = function() {
 
     if (!profile) return;
 
-    // تحديث الألقاب
     if (typeof window.checkAndUnlockTitles === 'function') {
         window.checkAndUnlockTitles(profile);
     } else {
@@ -927,22 +927,8 @@ window.openTitlesModal = function() {
         if (!profile.equippedTitle) profile.equippedTitle = 'novice';
     }
 
-    // إزالة النافذة الجديدة إن كانت مفتوحة مسبقاً لإعادة رسمها
-    const oldModal = document.getElementById('custom-titles-modal');
-    if (oldModal) oldModal.remove();
-
-    // إخفاء نافذة التنبيهات الافتراضية إذا كانت مفتوحة (لتجنب التداخل)
-    if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
-
-    // إنشاء النافذة الجديدة المستقلة برمجياً
-    const modalOverlay = document.createElement('div');
-    modalOverlay.id = 'custom-titles-modal';
-    modalOverlay.className = 'modal-overlay';
-    modalOverlay.style.cssText = 'display: flex; z-index: 10000; align-items: center; justify-content: center; padding: 0;';
-
-    let unlockedHtml = '<div id="titles-unlocked-list" class="scrollable-content" style="display:flex; flex-direction:column; gap:10px; flex: 1; padding-right: 5px;">';
-    let lockedHtml = '<div id="titles-locked-list" class="scrollable-content" style="display:none; flex-direction:column; gap:10px; flex: 1; padding-right: 5px;">';
-
+    let unlockedHtml = '';
+    let lockedHtml = '';
     let unlockedCount = 0;
     let totalCount = window.TITLES_DB ? Object.keys(window.TITLES_DB).length : 0;
 
@@ -981,30 +967,49 @@ window.openTitlesModal = function() {
         });
     }
 
-    unlockedHtml += '</div>';
-    lockedHtml += '</div>';
+    // ✅ التحديث السلس: إذا كانت النافذة مفتوحة مسبقاً، نحدث محتواها فقط دون وميض!
+    const existingModal = document.getElementById('custom-titles-modal');
+    if (existingModal) {
+        document.getElementById('titles-unlocked-list').innerHTML = unlockedHtml;
+        document.getElementById('titles-locked-list').innerHTML = lockedHtml;
+        document.getElementById('titles-tab-unlocked-btn').innerText = `مكتملة (${unlockedCount})`;
+        document.getElementById('titles-tab-locked-btn').innerText = `قيد الإنجاز (${totalCount - unlockedCount})`;
+        return; 
+    }
 
-    // تركيب النافذة الضخمة
+    // إذا لم تكن مفتوحة، نقوم ببنائها وإظهارها
+    if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'custom-titles-modal';
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.style.cssText = 'display: flex; z-index: 10000; align-items: center; justify-content: center; padding: 0;';
+
     modalOverlay.innerHTML = `
         <div class="settings-card" dir="auto" style="width: 90vw; height: 90vh; max-width: 500px; max-height: 800px; padding: 25px 15px; display: flex; flex-direction: column; position: relative; border-radius: 24px !important;">
             <button class="modal-close-btn" onclick="document.getElementById('custom-titles-modal').remove()" style="left:15px; right:auto; background: rgba(255,255,255,0.08) !important;">✕</button>
             <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 24px; text-shadow: 0 2px 10px rgba(255,215,0,0.4);">سجل الألقاب 🏆</h3>
             <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-weight: 600;">أكملت <span style="color: #30d158;">${unlockedCount}</span> من أصل ${totalCount} ألقاب</p>
 
-            <div class="custom-nav-tabs" style="margin-bottom: 20px; height: 45px; padding: 5px;">
+            <div class="custom-nav-tabs" style="margin-bottom: 20px; height: 45px; padding: 5px; flex-shrink: 0;">
                 <button id="titles-tab-unlocked-btn" class="custom-tab-button active" onclick="window.switchTitlesTab('unlocked')" style="font-size: 14px; border-radius: 12px !important;">مكتملة (${unlockedCount})</button>
                 <button id="titles-tab-locked-btn" class="custom-tab-button" onclick="window.switchTitlesTab('locked')" style="font-size: 14px; border-radius: 12px !important;">قيد الإنجاز (${totalCount - unlockedCount})</button>
             </div>
 
             <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
-                ${unlockedHtml}
-                ${lockedHtml}
+                <div id="titles-unlocked-list" class="scrollable-content" style="display:flex; flex-direction:column; gap:10px; flex: 1; padding-right: 5px;">
+                    ${unlockedHtml}
+                </div>
+                <div id="titles-locked-list" class="scrollable-content" style="display:none; flex-direction:column; gap:10px; flex: 1; padding-right: 5px;">
+                    ${lockedHtml}
+                </div>
             </div>
         </div>
     `;
 
     document.body.appendChild(modalOverlay);
 };
+
 
 // دالة التبديل بين الأقسام
 window.switchTitlesTab = function(tab) {
