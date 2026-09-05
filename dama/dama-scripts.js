@@ -787,6 +787,7 @@ window.scrollMmCarousel = function(direction) {
     }
 };
 
+
 // ==========================================
 // 📊 نظام شريط الرتبة التفاعلي (Interactive Rank Slider)
 // ==========================================
@@ -805,7 +806,9 @@ window.actualPlayerScore = 0;
 
 window.initMatchmakingRankBar = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-    window.actualPlayerScore = parseInt(profile.score) || 0;
+    
+    // 🟢 الإصلاح هنا: استخدام xp بدلاً من score
+    window.actualPlayerScore = parseInt(profile.xp) || 0;
 
     window.actualPlayerRankIndex = 0;
     for (let i = 0; i < RANK_SYSTEM.length; i++) {
@@ -838,8 +841,8 @@ window.renderRankTrack = function() {
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
     const romanTiers = ["I", "II", "III", "IV"];
     
-    prevBtn.disabled = window.currentViewedRankIndex === 0;
-    nextBtn.disabled = window.currentViewedRankIndex === RANK_SYSTEM.length - 1;
+    if(prevBtn) prevBtn.disabled = window.currentViewedRankIndex === 0;
+    if(nextBtn) nextBtn.disabled = window.currentViewedRankIndex === RANK_SYSTEM.length - 1;
 
     let html = '';
     let fillPercent = 0;
@@ -891,18 +894,23 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
-const originalOpenAppModal = window.openAppModal;
-window.openAppModal = function(id) {
-    if (originalOpenAppModal) originalOpenAppModal(id); 
-    
-    if (id === 'matchmaking-stakes-modal') {
-        setTimeout(() => {
-            if (typeof window.initMatchmakingRankBar === 'function') {
-                window.initMatchmakingRankBar();
+// 🟢 الإصلاح الجذري: مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
+document.addEventListener('DOMContentLoaded', () => {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
+                setTimeout(() => {
+                    if (typeof window.initMatchmakingRankBar === 'function') {
+                        window.initMatchmakingRankBar();
+                    }
+                }, 50);
             }
-        }, 50);
-    }
-};
+        });
+    });
+
+    const modal = document.getElementById('matchmaking-stakes-modal');
+    if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+});
 
 
 // ==========================================
