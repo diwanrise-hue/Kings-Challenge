@@ -780,40 +780,55 @@ window.scrollMmCarousel = function(direction) {
 // 📊 نظام شريط الرتبة التفاعلي (Interactive Rank Slider)
 // ==========================================
 const RANK_SYSTEM = [
-    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', reward: '50 🪙' },
-    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', reward: '100 🪙' },
-    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', reward: '300 🪙' },
-    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', reward: '500 🪙' },
-    { id: 'crown', name: 'تاجي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', reward: '800 🪙' }, 
-    { id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/legendary.webp', reward: '1000 🪙' } 
+    { 
+        id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', 
+        tierRewards: ['20 🪙', '30 🪙', '40 🪙', '50 🪙'] 
+    },
+    { 
+        id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', 
+        tierRewards: ['60 🪙', '70 🪙', '80 🪙', '100 🪙'] 
+    },
+    { 
+        id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', 
+        tierRewards: ['120 🪙', '150 🪙', '200 🪙', '300 🪙'] 
+    },
+    { 
+        id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', 
+        tierRewards: ['350 🪙', '400 🪙', '450 🪙', '500 🪙'] 
+    },
+    { 
+        id: 'crown', name: 'تاجي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', 
+        tierRewards: ['550 🪙', '600 🪙', '700 🪙', '800 🪙'] 
+    }, 
+    { 
+        id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/legendary.webp', 
+        tierRewards: ['850 🪙', '900 🪙', '950 🪙', '1000 🪙'] 
+    } 
 ];
 
 window.currentViewedRankIndex = 0;
 window.actualPlayerRankIndex = 0;
-window.highestPlayerRankIndex = 0; // 🟢 جديد: لحفظ أعلى رتبة وصل لها تاريخياً
+window.highestPlayerRankIndex = 0;
 window.actualPlayerScore = 0;
 
 window.initMatchmakingRankBar = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     
     window.actualPlayerScore = parseInt(profile.score) || parseInt(profile.xp) || 0;
-    let highestScore = parseInt(profile.highestScoreReached) || window.actualPlayerScore; // جلب أعلى رقم وصل له
+    let highestScore = parseInt(profile.highestScoreReached) || window.actualPlayerScore;
 
     window.actualPlayerRankIndex = 0;
     window.highestPlayerRankIndex = 0;
 
     for (let i = 0; i < RANK_SYSTEM.length; i++) {
-        // تحديد رتبته الحالية
         if (window.actualPlayerScore >= RANK_SYSTEM[i].min && window.actualPlayerScore <= RANK_SYSTEM[i].max) {
             window.actualPlayerRankIndex = i;
         }
-        // تحديد أعلى رتبة وصل لها تاريخياً (لإخفاء الجوائز المستلمة)
         if (highestScore >= RANK_SYSTEM[i].min && highestScore <= RANK_SYSTEM[i].max) {
             window.highestPlayerRankIndex = i;
         }
     }
     
-    // حماية للأرقام الكبيرة جداً
     if(highestScore >= RANK_SYSTEM[RANK_SYSTEM.length-1].min) window.highestPlayerRankIndex = RANK_SYSTEM.length - 1;
     if(window.actualPlayerScore >= RANK_SYSTEM[RANK_SYSTEM.length-1].min) window.actualPlayerRankIndex = RANK_SYSTEM.length - 1;
 
@@ -856,13 +871,14 @@ window.renderRankTrack = function() {
         } else {
             const rankRange = rankData.max - rankData.min + 1;
             const scoreInRank = window.actualPlayerScore - rankData.min;
-            fillPercent = (scoreInRank / rankRange) * 100;
+            fillPercent = Math.min(100, Math.max(0, (scoreInRank / rankRange) * 100));
         }
     }
 
     fillBar.style.width = `${fillPercent}%`;
 
     for (let i = 0; i < 4; i++) {
+        // حساب إنجاز كل طبقة فرعية (0%, 33.3%, 66.6%, 100%)
         let requiredPercentForNode = i * 33.33;
         let isReached = fillPercent >= requiredPercentForNode;
         
@@ -878,17 +894,34 @@ window.renderRankTrack = function() {
             iconFilter = 'filter: hue-rotate(-20deg) drop-shadow(0 0 8px rgba(255,100,0,0.9));'; 
         }
 
-        // 🟢 السحر هنا: تظهر الجائزة تحت النص، وفي الطبقة الأولى (I) فقط، وفقط إذا لم يصل لهذه الرتبة تاريخياً!
-        let rewardHtml = '';
-        if (i === 0 && window.currentViewedRankIndex > window.highestPlayerRankIndex) { 
-            rewardHtml = `<span class="mm-tier-reward" style="color: #f1c40f; font-weight: 800; font-size: 11px; margin-top: 4px; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">🎁 ${rankData.reward}</span>`;
-        }
+        // 🟢 الجائزة لكل طبقة (I, II, III, IV)
+        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
+
+        // 🟢 التنسيق عند إكمال الطبقة: خافت (opacity) + علامة صح (✔️) على الركن
+        let rewardContainerStyle = isReached 
+            ? 'opacity: 0.45; filter: grayscale(40%);' 
+            : 'opacity: 1; filter: none;';
+            
+        let checkmarkBadge = isReached 
+            ? `<span style="position: absolute; top: -6px; right: -8px; font-size: 10px; background: #34c759; color: #fff; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 4px rgba(52,199,89,0.8); font-weight: 900;">✓</span>` 
+            : '';
+
+        let rewardHtml = `
+            <div style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 4px; ${rewardContainerStyle}">
+                <div style="width: 28px; height: 1.5px; background: rgba(255, 255, 255, 0.25); margin: 3px auto; position: relative;">
+                    ${checkmarkBadge}
+                </div>
+                <span class="mm-tier-reward" style="color: #ffd700; font-weight: 800; font-size: 10.5px; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap;">
+                    🪙 ${tierRewardText}
+                </span>
+            </div>
+        `;
 
         html += `
-            <div class="mm-tier-node ${reachedClass}">
+            <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
                 <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}" onerror="this.style.display='none'">
                 <div class="mm-tier-dot"></div>
-                <span class="mm-tier-label">${rankData.name} ${romanTiers[i]}</span>
+                <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap;">${rankData.name} ${romanTiers[i]}</span>
                 ${rewardHtml}
             </div>
         `;
@@ -896,6 +929,8 @@ window.renderRankTrack = function() {
 
     container.innerHTML = html;
 };
+
+
 
 // 🟢 مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
 document.addEventListener('DOMContentLoaded', () => {
