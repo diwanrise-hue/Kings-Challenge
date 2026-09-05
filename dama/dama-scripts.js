@@ -855,8 +855,8 @@ window.renderRankTrack = function() {
     // 🟢 تقليل الفراغات الداخلية ودفع الإطار للأسفل مسافة 15 بيكسل لحماية البطاقات
     const wrapper = container.parentElement;
     if (wrapper) {
-        wrapper.style.setProperty('padding-top', '1px', 'important');
-        wrapper.style.setProperty('padding-bottom', '1px', 'important');
+        wrapper.style.setProperty('padding-top', '4px', 'important');
+        wrapper.style.setProperty('padding-bottom', '4px', 'important');
         wrapper.style.setProperty('transform', 'translateY(15px)', 'important'); 
     }
 
