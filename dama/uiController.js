@@ -1765,6 +1765,14 @@ window.openAppModal = function(id) {
         if (id === 'online-modal' && window.socket && window.socket.connected) {
             window.socket.emit('requestActiveRooms');
         }
+        // 🟢 الحل الجذري لشريط الرتب: استدعاؤه فور فتح ساحة التحديات
+        if (id === 'matchmaking-stakes-modal') {
+            setTimeout(() => {
+                if (typeof window.initMatchmakingRankBar === 'function') {
+                    window.initMatchmakingRankBar();
+                }
+            }, 50);
+        }
     }
 };
 
