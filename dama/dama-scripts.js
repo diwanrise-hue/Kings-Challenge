@@ -801,7 +801,7 @@ const RANK_SYSTEM = [
         tierRewards: ['800 🪙', '800 🪙', '800 🪙', '800 🪙'] 
     }, 
     { 
-        id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/legendary.webp', 
+        id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', 
         tierRewards: ['1000 🪙', '1000 🪙', '1000 🪙', '1000 🪙'] 
     } 
 ];
@@ -852,6 +852,14 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
+    // 🟢 تقليل الفراغات الداخلية ودفع الإطار للأسفل مسافة 15 بيكسل لحماية البطاقات
+    const wrapper = container.parentElement;
+    if (wrapper) {
+        wrapper.style.setProperty('padding-top', '4px', 'important');
+        wrapper.style.setProperty('padding-bottom', '4px', 'important');
+        wrapper.style.setProperty('transform', 'translateY(15px)', 'important'); 
+    }
+
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
     const romanTiers = ["I", "II", "III", "IV"];
     
@@ -888,26 +896,28 @@ window.renderRankTrack = function() {
         
         let iconFilter = '';
         if (rankData.id === 'crown') {
+            // التاجي بالفلتر البنفسجي
             iconFilter = 'filter: hue-rotate(270deg) drop-shadow(0 0 6px rgba(200,0,255,0.7));'; 
         } else if (rankData.id === 'legendary') {
-            iconFilter = 'filter: hue-rotate(-20deg) drop-shadow(0 0 8px rgba(255,100,0,0.9));'; 
+            // الأسطوري بمسار صورته الجديدة وألوانه الطبيعية المذهلة
+            iconFilter = 'filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));'; 
         }
 
-        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '';
+        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
 
         // تنسيق خفوت اللون عند الإنجاز
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
         
-        // علامة الصح باللون الأزرق
+        // علامة الصح باللون الأزرق المضيء
         let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 10;">✓</div>` : '';
 
-        // الجائزة تظهر الآن تحت جميع الطبقات دائماً
+        // عرض ثابت ودائم للجائزة والخط بدون فراغات زائدة
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
-                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 0px 0 2px 0; position: relative; display: block !important;">
+                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 2px 0 2px 0; position: relative; display: block !important;">
                     ${checkmark}
                 </div>
-                <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important;">
+                <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important; margin-top: 1px;">
                     ${tierRewardText}
                 </span>
             </div>
@@ -915,9 +925,9 @@ window.renderRankTrack = function() {
 
         html += `
             <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
-                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}" onerror="this.style.display='none'">
-                <div class="mm-tier-dot"></div>
-                <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 1px;">${rankData.name} ${romanTiers[i]}</span>
+                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; margin-bottom: 1px;" onerror="this.style.display='none'">
+                <div class="mm-tier-dot" style="margin-bottom: 1px;"></div>
+                <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 0px;">${rankData.name} ${romanTiers[i]}</span>
                 ${rewardDisplayHtml}
             </div>
         `;
@@ -926,7 +936,7 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
-// 🟢 مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
+// مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
 document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -943,7 +953,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('matchmaking-stakes-modal');
     if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
 });
-
 
 
 // ==========================================
