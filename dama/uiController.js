@@ -363,11 +363,11 @@ export const ui = {
         let rankIcon = `<img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));">`;
         
         if (currentScore >= 5000) { 
-            rank = "ملكي"; 
-            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: hue-rotate(-20deg) drop-shadow(0 0 5px rgba(255,100,0,0.9)); transform: scale(1.1);">`; 
+            rank = "أسطوري"; 
+            rankIcon = `<img src="Media/front/os6ory.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 5px rgba(255,100,0,0.9));">`; 
         }
         else if (currentScore >= 2500) { 
-            rank = "أسطوري"; 
+            rank = "ملكي"; 
             rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(255,215,0,0.8));">`; 
         }
         else if (currentScore >= 1200) { 
