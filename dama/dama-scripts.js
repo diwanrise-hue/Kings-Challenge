@@ -908,61 +908,51 @@ window.openAppModal = function(id) {
 // ==========================================
 // 👑 نظام فتح نافذة الألقاب الشاملة 
 // ==========================================
-window.openTitlesModal = function() {
+window.equipTitle = function(titleKey) {
     let profile = null;
     try {
-        if (window.gameState && window.gameState.userProfile) {
-            profile = window.gameState.userProfile;
-        } else {
-            profile = JSON.parse(localStorage.getItem('hub_user_profile'));
-        }
-    } catch(e) { console.error("Error loading profile", e); }
+        profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile'));
+    } catch(e) {}
 
-    if (!profile) return;
+    if (profile) {
+        profile.equippedTitle = titleKey;
+        if (window.gameState) window.gameState.userProfile = profile;
 
-    // 🟢 تأمين المتغيرات فقط (بدون فحص الشروط لأن السيرفر قام بذلك)
-    if (!profile.unlockedTitles) profile.unlockedTitles = ['novice'];
-    if (!profile.equippedTitle) profile.equippedTitle = 'novice';
+        if (typeof window.ui !== 'undefined' && typeof window.ui.saveAndSyncProfile === 'function') {
+            window.ui.saveAndSyncProfile(profile);
+            window.ui.updateProfileUI(); // تحديث اللقب في خلفية الشاشة
 
-    let unlockedHtml = '';
-    let lockedHtml = '';
-    let unlockedCount = 0;
-    let totalCount = window.TITLES_DB ? Object.keys(window.TITLES_DB).length : 0;
-
-    if (window.TITLES_DB) {
-        Object.keys(window.TITLES_DB).forEach(tKey => {
-            const tObj = window.TITLES_DB[tKey];
-            const isUnlocked = profile.unlockedTitles && profile.unlockedTitles.includes(tKey);
-            const isEquipped = profile.equippedTitle === tKey;
-
-            if (isUnlocked) {
-                unlockedCount++;
-                let borderStyle = isEquipped ? '1.5px solid #30d158' : '1px solid rgba(255,255,255,0.2)';
-                let bgStyle = isEquipped ? 'rgba(48,209,88,0.1)' : 'rgba(255,255,255,0.05)';
-                let textStatus = isEquipped ? '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>' : '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px;">تحديد</span>';
-
-                unlockedHtml += `
-                    <div id="title-card-${tKey}" onclick="window.equipTitle('${tKey}')" style="display: flex; flex-direction: column; padding: 14px 15px; background: ${bgStyle}; border: ${borderStyle}; border-radius: 16px; cursor: pointer; transition: 0.2s;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="color: white; font-weight: 900; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${tObj.name}</span>
-                            <div id="title-status-${tKey}">${textStatus}</div>
-                        </div>
-                        <span style="color: #a1a1aa; font-size: 12px; text-align: right; line-height: 1.5; font-weight: 500;">${tObj.desc}</span>
-                    </div>
-                `;
-            } else {
-                lockedHtml += `
-                    <div style="display: flex; flex-direction: column; padding: 14px 15px; background: rgba(0,0,0,0.6); border: 1px dashed rgba(255,69,58,0.4); border-radius: 16px; opacity: 0.85;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="color: #8e8e93; font-weight: 900; font-size: 16px;">${tObj.name}</span>
-                            <span style="color: #ff453a; font-size: 16px; filter: drop-shadow(0 0 4px rgba(255,69,58,0.6));" title="مقفل">🔒</span>
-                        </div>
-                        <span style="color: #ff453a; font-size: 12px; text-align: right; line-height: 1.5; font-weight: 600;">الشرط: ${tObj.desc}</span>
-                    </div>
-                `;
+            const toast = document.getElementById('toast-notification');
+            if (toast) { 
+                toast.textContent = '✨ تم اختيار اللقب بنجاح!'; 
+                toast.classList.add('show'); 
+                setTimeout(() => toast.classList.remove('show'), 2500); 
             }
-        });
+
+            // 🟢 السحر الحقيقي: تحديث الألوان برمجياً بدون مسح أو تدمير النافذة (Zero Flicker)
+            if (window.TITLES_DB) {
+                Object.keys(window.TITLES_DB).forEach(tKey => {
+                    const card = document.getElementById('title-card-' + tKey);
+                    const status = document.getElementById('title-status-' + tKey);
+                    
+                    if (card && status) {
+                        if (tKey === titleKey) {
+                            // تلوين اللقب المختار بالأخضر
+                            card.style.border = '1.5px solid #30d158';
+                            card.style.background = 'rgba(48,209,88,0.1)';
+                            status.innerHTML = '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>';
+                        } else {
+                            // إعادة البقية للون الرمادي العادي
+                            card.style.border = '1px solid rgba(255,255,255,0.2)';
+                            card.style.background = 'rgba(255,255,255,0.05)';
+                            status.innerHTML = '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px;">تحديد</span>';
+                        }
+                    }
+                });
+            }
+        }
     }
+};
 
     const existingModal = document.getElementById('custom-titles-modal');
     if (existingModal) existingModal.remove();
