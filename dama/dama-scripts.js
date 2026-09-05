@@ -1053,3 +1053,149 @@ window.equipTitle = function(titleKey) {
         }
     }
 };
+// ==========================================
+// 👑 نظام فتح نافذة الألقاب الشاملة (النسخة النهائية السريعة وبدون وميض)
+// ==========================================
+
+window.openTitlesModal = function() {
+    let profile = null;
+    try {
+        if (window.gameState && window.gameState.userProfile) {
+            profile = window.gameState.userProfile;
+        } else {
+            profile = JSON.parse(localStorage.getItem('hub_user_profile'));
+        }
+    } catch(e) { console.error("Error loading profile", e); }
+
+    if (!profile) return;
+
+    if (!profile.unlockedTitles) profile.unlockedTitles = ['novice'];
+    if (!profile.equippedTitle) profile.equippedTitle = 'novice';
+
+    let unlockedHtml = '';
+    let lockedHtml = '';
+    let unlockedCount = 0;
+    let totalCount = window.TITLES_DB ? Object.keys(window.TITLES_DB).length : 0;
+
+    if (window.TITLES_DB) {
+        Object.keys(window.TITLES_DB).forEach(tKey => {
+            const tObj = window.TITLES_DB[tKey];
+            const isUnlocked = profile.unlockedTitles && profile.unlockedTitles.includes(tKey);
+            const isEquipped = profile.equippedTitle === tKey;
+
+            if (isUnlocked) {
+                unlockedCount++;
+                let borderStyle = isEquipped ? '1.5px solid #30d158' : '1px solid rgba(255,255,255,0.2)';
+                let bgStyle = isEquipped ? 'rgba(48,209,88,0.1)' : 'rgba(255,255,255,0.05)';
+                let textStatus = isEquipped ? '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>' : '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px;">تحديد</span>';
+
+                unlockedHtml += `
+                    <div id="title-card-${tKey}" onclick="window.equipTitle('${tKey}')" style="display: flex; flex-direction: column; padding: 14px 15px; background: ${bgStyle}; border: ${borderStyle}; border-radius: 16px; cursor: pointer; transition: 0.2s;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="color: white; font-weight: 900; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${tObj.name}</span>
+                            <div id="title-status-${tKey}">${textStatus}</div>
+                        </div>
+                        <span style="color: #a1a1aa; font-size: 12px; text-align: right; line-height: 1.5; font-weight: 500;">${tObj.desc}</span>
+                    </div>
+                `;
+            } else {
+                lockedHtml += `
+                    <div style="display: flex; flex-direction: column; padding: 14px 15px; background: rgba(0,0,0,0.6); border: 1px dashed rgba(255,69,58,0.4); border-radius: 16px; opacity: 0.85;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="color: #8e8e93; font-weight: 900; font-size: 16px;">${tObj.name}</span>
+                            <span style="color: #ff453a; font-size: 16px; filter: drop-shadow(0 0 4px rgba(255,69,58,0.6));" title="مقفل">🔒</span>
+                        </div>
+                        <span style="color: #ff453a; font-size: 12px; text-align: right; line-height: 1.5; font-weight: 600;">الشرط: ${tObj.desc}</span>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    const existingModal = document.getElementById('custom-titles-modal');
+    if (existingModal) existingModal.remove();
+
+    if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'custom-titles-modal';
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.style.cssText = 'display: flex; z-index: 10000; align-items: center; justify-content: center; padding: 0;';
+
+    modalOverlay.innerHTML = `
+        <div class="settings-card" dir="auto" style="width: 90vw; height: 90vh; max-width: 500px; max-height: 800px; padding: 25px 15px; display: flex; flex-direction: column; position: relative; border-radius: 24px !important;">
+            <button class="modal-close-btn" onclick="document.getElementById('custom-titles-modal').remove()" style="left:15px; right:auto; background: rgba(255,255,255,0.08) !important;">✕</button>
+            <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 24px; text-shadow: 0 2px 10px rgba(255,215,0,0.4);">سجل الألقاب 🏆</h3>
+            <p id="titles-header-count" style="color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-weight: 600;">أكملت <span style="color: #30d158;">${unlockedCount}</span> من أصل ${totalCount} ألقاب</p>
+
+            <div class="custom-nav-tabs" style="margin-bottom: 20px; height: 45px; padding: 5px; flex-shrink: 0;">
+                <button id="titles-tab-unlocked-btn" class="custom-tab-button active" onclick="window.switchTitlesTab('unlocked')" style="font-size: 14px; border-radius: 12px !important;">مكتملة (${unlockedCount})</button>
+                <button id="titles-tab-locked-btn" class="custom-tab-button" onclick="window.switchTitlesTab('locked')" style="font-size: 14px; border-radius: 12px !important;">قيد الإنجاز (${totalCount - unlockedCount})</button>
+            </div>
+
+            <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+                <div id="titles-unlocked-list" class="scrollable-content" style="display:flex; flex-direction:column; gap:10px; flex: 1; padding-right: 5px;">
+                    ${unlockedHtml}
+                </div>
+                <div id="titles-locked-list" class="scrollable-content" style="display:none; flex-direction:column; gap:10px; flex: 1; padding-right: 5px;">
+                    ${lockedHtml}
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modalOverlay);
+};
+
+window.switchTitlesTab = function(tab) {
+    document.getElementById('titles-tab-unlocked-btn').classList.remove('active');
+    document.getElementById('titles-tab-locked-btn').classList.remove('active');
+    document.getElementById('titles-unlocked-list').style.display = 'none';
+    document.getElementById('titles-locked-list').style.display = 'none';
+
+    document.getElementById('titles-tab-' + tab + '-btn').classList.add('active');
+    document.getElementById('titles-' + tab + '-list').style.display = 'flex';
+};
+
+window.equipTitle = function(titleKey) {
+    let profile = null;
+    try {
+        profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile'));
+    } catch(e) {}
+
+    if (profile) {
+        profile.equippedTitle = titleKey;
+        if (window.gameState) window.gameState.userProfile = profile;
+
+        if (typeof window.ui !== 'undefined' && typeof window.ui.saveAndSyncProfile === 'function') {
+            window.ui.saveAndSyncProfile(profile);
+            window.ui.updateProfileUI();
+
+            const toast = document.getElementById('toast-notification');
+            if (toast) { 
+                toast.textContent = '✨ تم اختيار اللقب بنجاح!'; 
+                toast.classList.add('show'); 
+                setTimeout(() => toast.classList.remove('show'), 2500); 
+            }
+
+            if (window.TITLES_DB) {
+                Object.keys(window.TITLES_DB).forEach(tKey => {
+                    const card = document.getElementById('title-card-' + tKey);
+                    const status = document.getElementById('title-status-' + tKey);
+                    
+                    if (card && status) {
+                        if (tKey === titleKey) {
+                            card.style.border = '1.5px solid #30d158';
+                            card.style.background = 'rgba(48,209,88,0.1)';
+                            status.innerHTML = '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>';
+                        } else {
+                            card.style.border = '1px solid rgba(255,255,255,0.2)';
+                            card.style.background = 'rgba(255,255,255,0.05)';
+                            status.innerHTML = '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px;">تحديد</span>';
+                        }
+                    }
+                });
+            }
+        }
+    }
+};
