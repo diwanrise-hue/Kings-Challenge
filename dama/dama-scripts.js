@@ -776,7 +776,6 @@ window.scrollMmCarousel = function(direction) {
     }
 };
 
-
 // ==========================================
 // 📊 نظام شريط الرتبة التفاعلي (Interactive Rank Slider)
 // ==========================================
@@ -915,7 +914,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('matchmaking-stakes-modal');
     if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
 });
-
 
 // ==========================================
 // 👑 نظام فتح نافذة الألقاب الشاملة (النسخة النهائية السريعة وبدون وميض)
