@@ -878,7 +878,6 @@ window.renderRankTrack = function() {
     fillBar.style.width = `${fillPercent}%`;
 
     for (let i = 0; i < 4; i++) {
-        // حساب إنجاز كل طبقة فرعية (0%, 33.3%, 66.6%, 100%)
         let requiredPercentForNode = i * 33.33;
         let isReached = fillPercent >= requiredPercentForNode;
         
@@ -894,43 +893,37 @@ window.renderRankTrack = function() {
             iconFilter = 'filter: hue-rotate(-20deg) drop-shadow(0 0 8px rgba(255,100,0,0.9));'; 
         }
 
-        // 🟢 الجائزة لكل طبقة (I, II, III, IV)
         let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
 
-        // 🟢 التنسيق عند إكمال الطبقة: خافت (opacity) + علامة صح (✔️) على الركن
-        let rewardContainerStyle = isReached 
-            ? 'opacity: 0.45; filter: grayscale(40%);' 
-            : 'opacity: 1; filter: none;';
-            
-        let checkmarkBadge = isReached 
-            ? `<span style="position: absolute; top: -6px; right: -8px; font-size: 10px; background: #34c759; color: #fff; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 4px rgba(52,199,89,0.8); font-weight: 900;">✓</span>` 
-            : '';
+        // 🟢 تنسيق شفافية الجائزة: إذا أخذها اللاعب تصبح خافتة
+        let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
+        
+        // 🟢 علامة الصح توضع على الركن الأيسر للخط
+        let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #34c759; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(52,199,89,0.8); z-index: 10;">✓</div>` : '';
 
-        let rewardHtml = `
-            <div style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 4px; ${rewardContainerStyle}">
-                <div style="width: 28px; height: 1.5px; background: rgba(255, 255, 255, 0.25); margin: 3px auto; position: relative;">
-                    ${checkmarkBadge}
-                </div>
-                <span class="mm-tier-reward" style="color: #ffd700; font-weight: 800; font-size: 10.5px; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap;">
-                    🪙 ${tierRewardText}
-                </span>
-            </div>
-        `;
-
+        // 🟢 التصميم الثابت الجديد (استخدام style مباشر بدل الكلاسات القديمة لضمان ظهوره دائماً)
         html += `
             <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
                 <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}" onerror="this.style.display='none'">
                 <div class="mm-tier-dot"></div>
-                <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap;">${rankData.name} ${romanTiers[i]}</span>
-                ${rewardHtml}
+                <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 4px;">${rankData.name} ${romanTiers[i]}</span>
+                
+                <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
+                    
+                    <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 2px 0 4px 0; position: relative; display: block !important;">
+                        ${checkmark}
+                    </div>
+                    
+                    <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important;">
+                        ${tierRewardText}
+                    </span>
+                </div>
             </div>
         `;
     }
 
     container.innerHTML = html;
 };
-
-
 
 // 🟢 مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
 document.addEventListener('DOMContentLoaded', () => {
@@ -949,6 +942,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('matchmaking-stakes-modal');
     if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
 });
+
 
 // ==========================================
 // 👑 نظام فتح نافذة الألقاب الشاملة (النسخة النهائية السريعة وبدون وميض)
