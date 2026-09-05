@@ -1,4 +1,3 @@
-// dama-scripts.js
 /**
  * dama-scripts.js
  * المساعد العام للتنسيق والمزامنة
@@ -210,7 +209,6 @@ window.showOpponentProfile = function() {
     const opp = window.currentOpponentData;
     document.getElementById('igp-name').innerText = opp.name || "الخصم";
     
-    // تشفير الـ ID لمنع السرقات
     let safeId = "---";
     if (opp.guestId) {
         let parts = opp.guestId.split('-');
@@ -305,9 +303,6 @@ window.selectSpectatorBetColor = function(color) {
     }
 };
 
-// ==========================================
-// 🎯 دالة تأكيد رهان المشاهدين (متوافقة مع VIP)
-// ==========================================
 window.confirmSpectatorBet = function() {
     if (!window.gameState || !window.gameState.onlineRoomID) return;
 
@@ -352,9 +347,6 @@ window.openRadioModal = function() { if (window.parent && window.parent !== wind
 window.exitDamaGame = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); };
 window.openBetSelectorForEdit = function() { window.isEditingBet = true; if (typeof window.openAppModal === 'function') window.openAppModal('bet-selector-modal'); };
 
-// ==========================================
-// ⏱️ عداد نهاية الموسم للوحة الشرف
-// ==========================================
 let seasonTimerInterval = null;
 
 function startSeasonCountdown() {
@@ -408,9 +400,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 window.startSeasonCountdown = startSeasonCountdown;
 
-// ==========================================
-// 🚷 نظام إدارة وطرد المشاهدين (VIP 4+)
-// ==========================================
 window.requestSpectatorList = function() {
     if (!window.gameState || !window.gameState.onlineRoomID) return;
     
@@ -536,7 +525,7 @@ window.createLbItemHTML = function(rank, playerObj, type) {
     nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
     
     let secureImgSrc = getSecureAvatarUrl(avatarStr);
-    let overlayFrameSrc = playerObj.equippedProfileFrame && PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] ? PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] : null;
+    let overlayFrameSrc = playerObj.equippedProfileFrame && window.PROFILE_FRAMES_DB && window.PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] ? window.PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] : null;
 
     div.innerHTML = `
         <div class="lb-rank">#${rank}</div>
@@ -634,7 +623,7 @@ window.renderDynamicLeaderboardUI = function(playersList, tabType) {
             }
         }
         
-        let overlayFrameSrc = player.equippedProfileFrame && PROFILE_FRAMES_DB[player.equippedProfileFrame] ? PROFILE_FRAMES_DB[player.equippedProfileFrame] : null;
+        let overlayFrameSrc = player.equippedProfileFrame && window.PROFILE_FRAMES_DB && window.PROFILE_FRAMES_DB[player.equippedProfileFrame] ? window.PROFILE_FRAMES_DB[player.equippedProfileFrame] : null;
         let safeName = escapeHTML(player.name || 'Guest');
 
         card.innerHTML = `
@@ -807,7 +796,6 @@ window.actualPlayerScore = 0;
 window.initMatchmakingRankBar = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     
-    // 🟢 الإصلاح هنا: استخدام xp بدلاً من score
     window.actualPlayerScore = parseInt(profile.xp) || 0;
 
     window.actualPlayerRankIndex = 0;
@@ -894,7 +882,6 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
-// 🟢 الإصلاح الجذري: مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
 document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -913,146 +900,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ==========================================
-// 👑 نظام فتح نافذة الألقاب الشاملة 
-// ==========================================
-window.equipTitle = function(titleKey) {
-    let profile = null;
-    try {
-        profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile'));
-    } catch(e) {}
-
-    if (profile) {
-        profile.equippedTitle = titleKey;
-        if (window.gameState) window.gameState.userProfile = profile;
-
-        if (typeof window.ui !== 'undefined' && typeof window.ui.saveAndSyncProfile === 'function') {
-            window.ui.saveAndSyncProfile(profile);
-            window.ui.updateProfileUI(); // تحديث اللقب في خلفية الشاشة
-
-            const toast = document.getElementById('toast-notification');
-            if (toast) { 
-                toast.textContent = '✨ تم اختيار اللقب بنجاح!'; 
-                toast.classList.add('show'); 
-                setTimeout(() => toast.classList.remove('show'), 2500); 
-            }
-
-            // 🟢 السحر الحقيقي: تحديث الألوان برمجياً بدون مسح أو تدمير النافذة (Zero Flicker)
-            if (window.TITLES_DB) {
-                Object.keys(window.TITLES_DB).forEach(tKey => {
-                    const card = document.getElementById('title-card-' + tKey);
-                    const status = document.getElementById('title-status-' + tKey);
-                    
-                    if (card && status) {
-                        if (tKey === titleKey) {
-                            // تلوين اللقب المختار بالأخضر
-                            card.style.border = '1.5px solid #30d158';
-                            card.style.background = 'rgba(48,209,88,0.1)';
-                            status.innerHTML = '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>';
-                        } else {
-                            // إعادة البقية للون الرمادي العادي
-                            card.style.border = '1px solid rgba(255,255,255,0.2)';
-                            card.style.background = 'rgba(255,255,255,0.05)';
-                            status.innerHTML = '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px;">تحديد</span>';
-                        }
-                    }
-                });
-            }
-        }
-    }
-};
-
-    const existingModal = document.getElementById('custom-titles-modal');
-    if (existingModal) existingModal.remove();
-
-    if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
-
-    const modalOverlay = document.createElement('div');
-    modalOverlay.id = 'custom-titles-modal';
-    modalOverlay.className = 'modal-overlay';
-    modalOverlay.style.cssText = 'display: flex; z-index: 10000; align-items: center; justify-content: center; padding: 0;';
-
-    modalOverlay.innerHTML = `
-        <div class="settings-card" dir="auto" style="width: 90vw; height: 90vh; max-width: 500px; max-height: 800px; padding: 25px 15px; display: flex; flex-direction: column; position: relative; border-radius: 24px !important;">
-            <button class="modal-close-btn" onclick="document.getElementById('custom-titles-modal').remove()" style="left:15px; right:auto; background: rgba(255,255,255,0.08) !important;">✕</button>
-            <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 24px; text-shadow: 0 2px 10px rgba(255,215,0,0.4);">سجل الألقاب 🏆</h3>
-            <p id="titles-header-count" style="color: #a1a1aa; font-size: 13px; margin-bottom: 20px; font-weight: 600;">أكملت <span style="color: #30d158;">${unlockedCount}</span> من أصل ${totalCount} ألقاب</p>
-
-            <div class="custom-nav-tabs" style="margin-bottom: 20px; height: 45px; padding: 5px; flex-shrink: 0;">
-                <button id="titles-tab-unlocked-btn" class="custom-tab-button active" onclick="window.switchTitlesTab('unlocked')" style="font-size: 14px; border-radius: 12px !important;">مكتملة (${unlockedCount})</button>
-                <button id="titles-tab-locked-btn" class="custom-tab-button" onclick="window.switchTitlesTab('locked')" style="font-size: 14px; border-radius: 12px !important;">قيد الإنجاز (${totalCount - unlockedCount})</button>
-            </div>
-
-            <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
-                <div id="titles-unlocked-list" class="scrollable-content" style="display:flex; flex-direction:column; gap:10px; flex: 1; padding-right: 5px;">
-                    ${unlockedHtml}
-                </div>
-                <div id="titles-locked-list" class="scrollable-content" style="display:none; flex-direction:column; gap:10px; flex: 1; padding-right: 5px;">
-                    ${lockedHtml}
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(modalOverlay);
-};
-
-
-window.switchTitlesTab = function(tab) {
-    document.getElementById('titles-tab-unlocked-btn').classList.remove('active');
-    document.getElementById('titles-tab-locked-btn').classList.remove('active');
-    document.getElementById('titles-unlocked-list').style.display = 'none';
-    document.getElementById('titles-locked-list').style.display = 'none';
-
-    document.getElementById('titles-tab-' + tab + '-btn').classList.add('active');
-    document.getElementById('titles-' + tab + '-list').style.display = 'flex';
-};
-
-window.equipTitle = function(titleKey) {
-    let profile = null;
-    try {
-        profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile'));
-    } catch(e) {}
-
-    if (profile) {
-        profile.equippedTitle = titleKey;
-        if (window.gameState) window.gameState.userProfile = profile;
-
-        if (typeof window.ui !== 'undefined' && typeof window.ui.saveAndSyncProfile === 'function') {
-            window.ui.saveAndSyncProfile(profile);
-            window.ui.updateProfileUI();
-
-            const toast = document.getElementById('toast-notification');
-            if (toast) { 
-                toast.textContent = '✨ تم اختيار اللقب بنجاح!'; 
-                toast.classList.add('show'); 
-                setTimeout(() => toast.classList.remove('show'), 2500); 
-            }
-
-            // 🟢 هنا يكمن السحر: تحديث الألوان برمجياً في نفس اللحظة بدون إغلاق أو تحميل النافذة 🟢
-            if (window.TITLES_DB) {
-                Object.keys(window.TITLES_DB).forEach(tKey => {
-                    const card = document.getElementById('title-card-' + tKey);
-                    const status = document.getElementById('title-status-' + tKey);
-                    
-                    if (card && status) {
-                        if (tKey === titleKey) {
-                            // تلوين اللقب المختار بالأخضر
-                            card.style.border = '1.5px solid #30d158';
-                            card.style.background = 'rgba(48,209,88,0.1)';
-                            status.innerHTML = '<span style="color: #30d158; font-size: 11px; font-weight: bold; background: rgba(48,209,88,0.15); padding: 4px 8px; border-radius: 8px;">مُستخدَم ✔️</span>';
-                        } else {
-                            // إعادة البقية للون الرمادي العادي
-                            card.style.border = '1px solid rgba(255,255,255,0.2)';
-                            card.style.background = 'rgba(255,255,255,0.05)';
-                            status.innerHTML = '<span style="color: #a1a1aa; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px;">تحديد</span>';
-                        }
-                    }
-                });
-            }
-        }
-    }
-};
 // ==========================================
 // 👑 نظام فتح نافذة الألقاب الشاملة (النسخة النهائية السريعة وبدون وميض)
 // ==========================================
