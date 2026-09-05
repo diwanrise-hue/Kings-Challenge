@@ -791,22 +791,33 @@ const RANK_SYSTEM = [
 
 window.currentViewedRankIndex = 0;
 window.actualPlayerRankIndex = 0;
+window.highestPlayerRankIndex = 0; // 🟢 جديد: لحفظ أعلى رتبة وصل لها تاريخياً
 window.actualPlayerScore = 0;
 
 window.initMatchmakingRankBar = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     
-    // يقرأ نقاط الرتبة التنافسية، وإذا كان لاعباً قديماً يعطيه نقاط الـ XP كبداية له
-window.actualPlayerScore = parseInt(profile.score) || parseInt(profile.xp) || 0;
+    window.actualPlayerScore = parseInt(profile.score) || parseInt(profile.xp) || 0;
+    let highestScore = parseInt(profile.highestScoreReached) || window.actualPlayerScore; // جلب أعلى رقم وصل له
 
     window.actualPlayerRankIndex = 0;
+    window.highestPlayerRankIndex = 0;
+
     for (let i = 0; i < RANK_SYSTEM.length; i++) {
+        // تحديد رتبته الحالية
         if (window.actualPlayerScore >= RANK_SYSTEM[i].min && window.actualPlayerScore <= RANK_SYSTEM[i].max) {
             window.actualPlayerRankIndex = i;
-            break;
+        }
+        // تحديد أعلى رتبة وصل لها تاريخياً (لإخفاء الجوائز المستلمة)
+        if (highestScore >= RANK_SYSTEM[i].min && highestScore <= RANK_SYSTEM[i].max) {
+            window.highestPlayerRankIndex = i;
         }
     }
     
+    // حماية للأرقام الكبيرة جداً
+    if(highestScore >= RANK_SYSTEM[RANK_SYSTEM.length-1].min) window.highestPlayerRankIndex = RANK_SYSTEM.length - 1;
+    if(window.actualPlayerScore >= RANK_SYSTEM[RANK_SYSTEM.length-1].min) window.actualPlayerRankIndex = RANK_SYSTEM.length - 1;
+
     window.currentViewedRankIndex = window.actualPlayerRankIndex;
     window.renderRankTrack();
 };
@@ -852,7 +863,6 @@ window.renderRankTrack = function() {
 
     fillBar.style.width = `${fillPercent}%`;
 
-    // 🟢 الإصلاح: ربط علامة الصح بالمسافة الفيزيائية للدوائر (0%, 33.3%, 66.6%, 100%)
     for (let i = 0; i < 4; i++) {
         let requiredPercentForNode = i * 33.33;
         let isReached = fillPercent >= requiredPercentForNode;
@@ -869,12 +879,18 @@ window.renderRankTrack = function() {
             iconFilter = 'filter: hue-rotate(-20deg) drop-shadow(0 0 8px rgba(255,100,0,0.9));'; 
         }
 
+        // 🟢 السحر هنا: تظهر الجائزة تحت النص، وفي الطبقة الأولى (I) فقط، وفقط إذا لم يصل لهذه الرتبة تاريخياً!
+        let rewardHtml = '';
+        if (i === 0 && window.currentViewedRankIndex > window.highestPlayerRankIndex) { 
+            rewardHtml = `<span class="mm-tier-reward" style="color: #f1c40f; font-weight: 800; font-size: 11px; margin-top: 4px; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">🎁 ${rankData.reward}</span>`;
+        }
+
         html += `
             <div class="mm-tier-node ${reachedClass}">
-                <div class="mm-tier-reward">جائزة: ${rankData.reward}</div>
                 <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}" onerror="this.style.display='none'">
                 <div class="mm-tier-dot"></div>
                 <span class="mm-tier-label">${rankData.name} ${romanTiers[i]}</span>
+                ${rewardHtml}
             </div>
         `;
     }
@@ -882,7 +898,7 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
-
+// 🟢 مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
 document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
