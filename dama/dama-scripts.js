@@ -796,7 +796,8 @@ window.actualPlayerScore = 0;
 window.initMatchmakingRankBar = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     
-    window.actualPlayerScore = parseInt(profile.xp) || 0;
+    // يقرأ نقاط الرتبة التنافسية، وإذا كان لاعباً قديماً يعطيه نقاط الـ XP كبداية له
+window.actualPlayerScore = parseInt(profile.score) || parseInt(profile.xp) || 0;
 
     window.actualPlayerRankIndex = 0;
     for (let i = 0; i < RANK_SYSTEM.length; i++) {
@@ -851,11 +852,10 @@ window.renderRankTrack = function() {
 
     fillBar.style.width = `${fillPercent}%`;
 
-    let tiersReached = Math.floor(fillPercent / 25);
-    if (fillPercent === 100) tiersReached = 4;
-
+    // 🟢 الإصلاح: ربط علامة الصح بالمسافة الفيزيائية للدوائر (0%, 33.3%, 66.6%, 100%)
     for (let i = 0; i < 4; i++) {
-        let isReached = i < tiersReached;
+        let requiredPercentForNode = i * 33.33;
+        let isReached = fillPercent >= requiredPercentForNode;
         
         if (window.currentViewedRankIndex < window.actualPlayerRankIndex) isReached = true;
         if (window.currentViewedRankIndex > window.actualPlayerRankIndex) isReached = false;
@@ -881,6 +881,7 @@ window.renderRankTrack = function() {
 
     container.innerHTML = html;
 };
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
