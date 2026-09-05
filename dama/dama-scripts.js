@@ -782,27 +782,27 @@ window.scrollMmCarousel = function(direction) {
 const RANK_SYSTEM = [
     { 
         id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', 
-        tierRewards: ['20 🪙', '30 🪙', '40 🪙', '50 🪙'] 
+        tierRewards: ['50 🪙', '50 🪙', '50 🪙', '50 🪙'] 
     },
     { 
         id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', 
-        tierRewards: ['60 🪙', '70 🪙', '80 🪙', '100 🪙'] 
+        tierRewards: ['100 🪙', '100 🪙', '100 🪙', '100 🪙'] 
     },
     { 
         id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', 
-        tierRewards: ['120 🪙', '150 🪙', '200 🪙', '300 🪙'] 
+        tierRewards: ['300 🪙', '300 🪙', '300 🪙', '300 🪙'] 
     },
     { 
         id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', 
-        tierRewards: ['350 🪙', '400 🪙', '450 🪙', '500 🪙'] 
+        tierRewards: ['500 🪙', '500 🪙', '500 🪙', '500 🪙'] 
     },
     { 
         id: 'crown', name: 'تاجي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', 
-        tierRewards: ['550 🪙', '600 🪙', '700 🪙', '800 🪙'] 
+        tierRewards: ['800 🪙', '800 🪙', '800 🪙', '800 🪙'] 
     }, 
     { 
         id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/legendary.webp', 
-        tierRewards: ['850 🪙', '900 🪙', '950 🪙', '1000 🪙'] 
+        tierRewards: ['1000 🪙', '1000 🪙', '1000 🪙', '1000 🪙'] 
     } 
 ];
 
@@ -893,31 +893,32 @@ window.renderRankTrack = function() {
             iconFilter = 'filter: hue-rotate(-20deg) drop-shadow(0 0 8px rgba(255,100,0,0.9));'; 
         }
 
-        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
+        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '';
 
-        // 🟢 تنسيق شفافية الجائزة: إذا أخذها اللاعب تصبح خافتة
+        // تنسيق خفوت اللون عند الإنجاز
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
         
-        // 🟢 علامة الصح توضع على الركن الأيسر للخط
-        let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #34c759; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(52,199,89,0.8); z-index: 10;">✓</div>` : '';
+        // علامة الصح باللون الأزرق
+        let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 10;">✓</div>` : '';
 
-        // 🟢 التصميم الثابت الجديد (استخدام style مباشر بدل الكلاسات القديمة لضمان ظهوره دائماً)
+        // الجائزة تظهر الآن تحت جميع الطبقات دائماً
+        let rewardDisplayHtml = `
+            <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
+                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 0px 0 2px 0; position: relative; display: block !important;">
+                    ${checkmark}
+                </div>
+                <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important;">
+                    ${tierRewardText}
+                </span>
+            </div>
+        `;
+
         html += `
             <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
                 <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}" onerror="this.style.display='none'">
                 <div class="mm-tier-dot"></div>
-                <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 4px;">${rankData.name} ${romanTiers[i]}</span>
-                
-                <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
-                    
-                    <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 2px 0 4px 0; position: relative; display: block !important;">
-                        ${checkmark}
-                    </div>
-                    
-                    <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important;">
-                        ${tierRewardText}
-                    </span>
-                </div>
+                <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 1px;">${rankData.name} ${romanTiers[i]}</span>
+                ${rewardDisplayHtml}
             </div>
         `;
     }
@@ -942,6 +943,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('matchmaking-stakes-modal');
     if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
 });
+
 
 
 // ==========================================
