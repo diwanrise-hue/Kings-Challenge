@@ -855,9 +855,9 @@ window.renderRankTrack = function() {
     // 🟢 تقليل الفراغات الداخلية ودفع الإطار للأسفل مسافة 15 بيكسل لحماية البطاقات
     const wrapper = container.parentElement;
     if (wrapper) {
-        wrapper.style.setProperty('padding-top', '2px', 'important');
-        wrapper.style.setProperty('padding-bottom', '2px', 'important');
-        wrapper.style.setProperty('transform', 'translateY(25px)', 'important'); 
+        wrapper.style.setProperty('padding-top', '4px', 'important');
+        wrapper.style.setProperty('padding-bottom', '4px', 'important');
+        wrapper.style.setProperty('transform', 'translateY(5px)', 'important'); 
     }
 
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
