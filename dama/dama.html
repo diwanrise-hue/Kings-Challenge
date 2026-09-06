@@ -25,21 +25,23 @@
             -webkit-backdrop-filter: blur(15px);
         }
 
+        /* 🌟 زر الإغلاق X منقول للزاوية العليا الثابتة 🌟 */
         #matchmaking-stakes-modal .modal-close-btn {
-            top: 25px;
-            left: 20px;
+            position: fixed !important; 
+            top: 25px !important; 
+            left: 20px !important; 
             background: rgba(0, 0, 0, 0.7) !important;
             border: 1px solid #FFD700 !important;
             color: #FFD700;
             width: 36px;
             height: 36px;
             font-size: 18px;
-            z-index: 100;
+            z-index: 9999 !important;
         }
 
         .mm-header-wrapper {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 0px !important; /* 🌟 تصفير المسافة السفلية لسحب الكروت للأعلى 🌟 */
             margin-top: -30px;
             width: 100%;
             position: relative;
@@ -87,6 +89,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-top: -10px !important; /* 🌟 سحب إضافي للكروت لتلامس الخط الأحمر 🌟 */
         }
 
         .mm-nav-arrow { display: none; }
@@ -95,7 +98,7 @@
             display: flex;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
-            padding: 40px calc(50vw - 145px);
+            padding: 10px calc(50vw - 145px) 40px calc(50vw - 145px) !important; /* 🌟 تقليل المساحة العلوية 🌟 */
             scrollbar-width: none;
             -ms-overflow-style: none;
             direction: rtl;
@@ -300,13 +303,169 @@
             border-radius: 18px; flex-direction: column; justify-content: center; align-items: center; 
             z-index: 20; border: 1px solid rgba(255,69,58,0.4); 
         }
+
+        /* ========================================== */
+        /* 📊 شريط الرتب التفاعلي (النسخة النهائية المثبتة) */
+        /* ========================================== */
+        .mm-rank-bar-wrapper {
+            position: fixed !important; /* 🌟 التثبيت في أسفل الشاشة 🌟 */
+            bottom: 25px !important; 
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 95% !important;
+            max-width: 420px !important;
+            background: rgba(15, 18, 25, 0.95) !important;
+            border: 1px solid rgba(255, 215, 0, 0.3) !important;
+            border-radius: 20px !important;
+            padding: 15px 10px !important;
+            display: flex !important;
+            align-items: flex-start !important; 
+            justify-content: space-between !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 2px 10px rgba(255,255,255,0.05) !important;
+            z-index: 9999 !important; 
+            box-sizing: border-box !important;
+            direction: ltr !important; 
+        }
+
+        .rank-nav-btn {
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            color: #ffd700 !important;
+            width: 34px !important; 
+            height: 34px !important; 
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            flex-shrink: 0 !important;
+            font-size: 16px !important;
+            transition: 0.2s ease !important;
+            margin-top: 30px !important; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important;
+        }
+
+        .rank-nav-btn:hover:not(:disabled) {
+            background: rgba(255,215,0,0.2) !important;
+            border-color: #ffd700 !important;
+            transform: scale(1.1) !important;
+        }
+
+        .rank-nav-btn:disabled {
+            opacity: 0.2 !important;
+            cursor: not-allowed !important;
+        }
+
+        .mm-rank-slider {
+            flex: 1 !important;
+            position: relative !important;
+            margin: 0 15px !important; 
+        }
+
+        .mm-track-bg {
+            position: absolute !important;
+            top: 40px !important; 
+            left: 10% !important;
+            right: 10% !important;
+            height: 3px !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-radius: 2px !important;
+            z-index: 1 !important;
+        }
+
+        .mm-track-fill {
+            height: 100% !important;
+            background: linear-gradient(90deg, #f5a623, #ffd700) !important;
+            border-radius: 2px !important;
+            transition: width 0.6s ease !important;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.8) !important;
+        }
+
+        .mm-tiers-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            position: relative !important;
+            z-index: 2 !important;
+        }
+
+        .mm-tier-node {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            width: 65px !important; 
+            gap: 4px !important; 
+            position: relative !important;
+        }
+
+        .mm-tier-img {
+            width: 38px !important;
+            height: 38px !important;
+            object-fit: contain !important;
+            z-index: 5 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .mm-tier-dot {
+            width: 14px !important;
+            height: 14px !important;
+            background: #1a1a24 !important;
+            border: 2px solid #777 !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+            z-index: 5 !important;
+            margin: 0 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .mm-tier-node.reached .mm-tier-dot {
+            border-color: #ffd700 !important;
+            background: #d4af37 !important;
+            box-shadow: 0 0 10px #ffd700 !important;
+        }
+        .mm-tier-node.reached .mm-tier-dot::after {
+            content: '✓';
+            color: #000;
+            font-size: 10px;
+            font-weight: 900;
+        }
+        .mm-tier-node.reached .mm-tier-img {
+            transform: scale(1.1) !important;
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5)) !important;
+        }
+
+        .mm-tier-node:not(.reached) .mm-tier-img {
+            filter: saturate(30%) brightness(0.6) !important; 
+            transform: scale(0.9) !important;
+        }
+
+        .mm-tier-label { 
+            font-size: 11px !important; 
+            font-weight: bold !important; 
+            margin-top: 4px !important; 
+            color: #a1a1aa !important; 
+        }
+        .mm-tier-node.current .mm-tier-label { 
+            color: #ffd700 !important; 
+        }
+        .mm-tier-score { 
+            color: #f5a623 !important; 
+            font-size: 11px !important; 
+            font-weight: bold !important; 
+            display: flex !important; 
+            align-items: center !important; 
+            gap: 4px !important; 
+            margin-top: 2px !important; 
+        }
     </style>
 </head>
 <body data-piece-style="pc_original">
     
     <input type="hidden" id="game-mode" value="ai">
 
-    <!-- Profile Badge -->
     <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) window.openMyProfile()">
         <div id="badge-avatar" class="profile-avatar-capsule"></div>
         <div class="text-boundary boundary-level">
@@ -350,7 +509,6 @@
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
     <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" data-icon="bagQuick"></button>
 
-    <!-- Toast & Challenge Notifications -->
     <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(24,23,29,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 1040; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="font-weight: bold; font-size: 14px; color: #34c759;">تحدي جديد ⚔️</span>
@@ -370,7 +528,6 @@
         </div>
     </div>
 
-    <!-- Match Players Area -->
     <div id="status-area">
         <div id="match-players-card" style="display: none; width: 100%; justify-content: center; align-items: center; position: relative; z-index: 10;">
             <div class="match-players-flex" style="display: flex; flex-direction: column; align-items: center;">
@@ -412,7 +569,6 @@
         </div>
     </div>
 
-    <!-- Game Board -->
     <div class="scoreboard">
         <div id="opponent-score-row" class="score-row"></div>
         <div id="my-score-row" class="score-row"></div>
@@ -421,7 +577,6 @@
         <div id="board"></div> 
     </div>
 
-    <!-- Side Menu -->
     <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
         <div class="side-menu-panel">
             <div class="side-menu-header">
@@ -476,7 +631,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <div id="daily-quests-modal" class="modal-overlay" style="z-index: 900;">
         <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
             <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')">✕</button>
@@ -584,7 +738,6 @@
         <div class="settings-card" dir="auto" style="max-width: 340px; padding: 40px 15px; display: flex; flex-direction: column; align-items: center; position: relative;">
             <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
             
-            <!-- 🏆 الزر الجديد للإنجازات (مضبوط بدقة مقابلاً لزر الإغلاق) -->
             <button onclick="window.openTitlesModal()" style="position: absolute; top: 160px; right: 20px; background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.5); border-radius: 12px; padding: 6px 14px; color: #ffd700; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 50; transition: all 0.2s ease; margin: 0;" onmouseover="this.style.background='rgba(255, 215, 0, 0.25)'; this.style.transform='scale(1.05)';" onmouseout="this.style.background='rgba(255, 215, 0, 0.15)'; this.style.transform='scale(1)';">
                 <span style="font-size: 16px; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">🏆</span> الإنجازات
             </button>
@@ -1219,7 +1372,6 @@
                 </div>
             </div>
 
-            <!-- شريط تقدم الرتب التفاعلي بالأسهم -->
             <div class="mm-rank-bar-wrapper" id="mm-rank-progress-wrapper">
                 <button class="rank-nav-btn" id="rank-prev-btn" onclick="window.changeRankView(-1)">&#10094;</button>
                 
@@ -1228,8 +1380,7 @@
                         <div class="mm-track-fill" id="mm-rank-fill-bar"></div>
                     </div>
                     <div class="mm-tiers-row" id="mm-tiers-container">
-                        <!-- يتم حقن الطبقات الـ 4 وصورها هنا برمجياً -->
-                    </div>
+                        </div>
                 </div>
                 
                 <button class="rank-nav-btn" id="rank-next-btn" onclick="window.changeRankView(1)">&#10095;</button>
@@ -1394,7 +1545,6 @@
         <div id="match-countdown-number" style="font-size: 120px; color: white; font-weight: 900; text-shadow: 0 10px 25px rgba(0,0,0,1); background: linear-gradient(180deg, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">10</div>
     </div>
 
-    <!-- نافذة تأكيد الشراء في المتجر -->
     <div id="purchase-modal" class="modal-overlay" style="display: none; z-index: 20000001 !important;">
         <div class="settings-card" dir="auto" style="max-width: 320px; padding: 25px 20px; position: relative;">
             <button class="modal-close-btn" onclick="document.getElementById('purchase-modal').style.display='none'" style="left:15px; right:auto; z-index: 10;">✕</button>
@@ -1420,7 +1570,6 @@
         </div>
     </div>
 
-    <!-- تأكد من بقاء ترتيب الملفات هكذا -->
     <script src="icons.js?v=2.0"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
     
