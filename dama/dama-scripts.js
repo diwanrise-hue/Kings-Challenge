@@ -669,106 +669,131 @@ window.switchLbTab = function(tabId) {
 })();
 
 // ==========================================
-// 🏆 بيانات شريط الرتب (مطابق للصورة)
+// 📊 نظام شريط الرتبة التفاعلي (الأساسي الحقيقي)
 // ==========================================
-window.MATCHMAKING_RANKS = [
-    { id: 't1', name: 'تاجي I', score: 800, icon: 'Media/front/تاج1.webp' }, 
-    { id: 't2', name: 'تاجي II', score: 800, icon: 'Media/front/تاج2.webp' },
-    { id: 't3', name: 'تاجي III', score: 800, icon: 'Media/front/تاج3.webp' },
-    { id: 't4', name: 'تاجي IV', score: 800, icon: 'Media/front/تاج4.webp' },
-    { id: 't5', name: 'تاجي V', score: 800, icon: 'Media/front/تاج5.webp' },
-    { id: 't6', name: 'تاجي VI', score: 800, icon: 'Media/front/تاج6.webp' }
+const RANK_SYSTEM = [
+    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', tierRewards: ['50 🪙', '50 🪙', '50 🪙', '50 🪙'] },
+    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', tierRewards: ['100 🪙', '100 🪙', '100 🪙', '100 🪙'] },
+    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', tierRewards: ['300 🪙', '300 🪙', '300 🪙', '300 🪙'] },
+    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', tierRewards: ['500 🪙', '500 🪙', '500 🪙', '500 🪙'] },
+    { id: 'royal', name: 'ملكي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', tierRewards: ['800 🪙', '800 🪙', '800 🪙', '800 🪙'] }, 
+    { id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', tierRewards: ['1000 🪙', '1000 🪙', '1000 🪙', '1000 🪙'] } 
 ];
 
-window.currentRankStartIndex = 0;
+window.currentViewedRankIndex = 0;
+window.actualPlayerRankIndex = 0;
+window.highestPlayerRankIndex = 0;
+window.actualPlayerScore = 0;
 
-// ==========================================
-// ⚙️ تهيئة وبناء شريط الرتب والمستويات
-// ==========================================
 window.initMatchmakingRankBar = function() {
-    let playerRankIndex = 0; 
+    const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     
-    window.currentRankStartIndex = Math.max(0, playerRankIndex - 1);
-    if (window.currentRankStartIndex > window.MATCHMAKING_RANKS.length - 4) {
-        window.currentRankStartIndex = Math.max(0, window.MATCHMAKING_RANKS.length - 4);
+    window.actualPlayerScore = parseInt(profile.score) || parseInt(profile.xp) || 0;
+    let highestScore = parseInt(profile.highestScoreReached) || window.actualPlayerScore;
+
+    window.actualPlayerRankIndex = 0;
+    window.highestPlayerRankIndex = 0;
+
+    for (let i = 0; i < RANK_SYSTEM.length; i++) {
+        if (window.actualPlayerScore >= RANK_SYSTEM[i].min && window.actualPlayerScore <= RANK_SYSTEM[i].max) {
+            window.actualPlayerRankIndex = i;
+        }
+        if (highestScore >= RANK_SYSTEM[i].min && highestScore <= RANK_SYSTEM[i].max) {
+            window.highestPlayerRankIndex = i;
+        }
     }
     
-    window.renderRankBar();
+    if(highestScore >= RANK_SYSTEM[RANK_SYSTEM.length-1].min) window.highestPlayerRankIndex = RANK_SYSTEM.length - 1;
+    if(window.actualPlayerScore >= RANK_SYSTEM[RANK_SYSTEM.length-1].min) window.actualPlayerRankIndex = RANK_SYSTEM.length - 1;
+
+    window.currentViewedRankIndex = window.actualPlayerRankIndex;
+    window.renderRankTrack();
 };
 
-window.changeRankView = function(direction) {
-    const maxStart = Math.max(0, window.MATCHMAKING_RANKS.length - 4);
-    window.currentRankStartIndex += direction;
-    
-    if (window.currentRankStartIndex < 0) {
-        window.currentRankStartIndex = 0;
+window.changeRankView = function(dir) {
+    let newIndex = window.currentViewedRankIndex + dir;
+    if (newIndex >= 0 && newIndex < RANK_SYSTEM.length) {
+        window.currentViewedRankIndex = newIndex;
+        window.renderRankTrack();
     }
-    if (window.currentRankStartIndex > maxStart) {
-        window.currentRankStartIndex = maxStart;
-    }
-    
-    window.renderRankBar();
 };
 
-window.renderRankBar = function() {
+window.renderRankTrack = function() {
     const container = document.getElementById('mm-tiers-container');
     const fillBar = document.getElementById('mm-rank-fill-bar');
     const prevBtn = document.getElementById('rank-prev-btn');
     const nextBtn = document.getElementById('rank-next-btn');
-    
+
     if (!container || !fillBar) return;
 
-    container.innerHTML = '';
+    const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
+    const romanTiers = ["I", "II", "III", "IV"];
     
-    const visibleRanks = window.MATCHMAKING_RANKS.slice(window.currentRankStartIndex, window.currentRankStartIndex + 4);
-    
-    let playerCurrentRankIndex = 0; 
+    if(prevBtn) prevBtn.disabled = window.currentViewedRankIndex === 0;
+    if(nextBtn) nextBtn.disabled = window.currentViewedRankIndex === RANK_SYSTEM.length - 1;
 
-    visibleRanks.forEach((rank, index) => {
-        const globalIndex = window.currentRankStartIndex + index;
-        const isReached = globalIndex <= playerCurrentRankIndex;
-        const isCurrent = globalIndex === playerCurrentRankIndex;
+    let html = '';
+    let fillPercent = 0;
+
+    if (window.currentViewedRankIndex < window.actualPlayerRankIndex) {
+        fillPercent = 100; 
+    } else if (window.currentViewedRankIndex > window.actualPlayerRankIndex) {
+        fillPercent = 0; 
+    } else {
+        if (rankData.max === Infinity) {
+            fillPercent = 100; 
+        } else {
+            const rankRange = rankData.max - rankData.min + 1;
+            const scoreInRank = window.actualPlayerScore - rankData.min;
+            fillPercent = Math.min(100, Math.max(0, (scoreInRank / rankRange) * 100));
+        }
+    }
+
+    fillBar.style.width = `${fillPercent}%`;
+
+    for (let i = 0; i < 4; i++) {
+        let requiredPercentForNode = i * 33.33;
+        let isReached = fillPercent >= requiredPercentForNode;
         
-        const node = document.createElement('div');
-        node.className = `mm-tier-node ${isReached ? 'reached' : ''} ${isCurrent ? 'current' : ''}`;
+        if (window.currentViewedRankIndex < window.actualPlayerRankIndex) isReached = true;
+        if (window.currentViewedRankIndex > window.actualPlayerRankIndex) isReached = false;
+
+        let reachedClass = isReached ? 'reached' : '';
         
-        // 🛠️ الحل الجذري لمنع التكرار اللانهائي (Infinite Loop)
-        // عبر استبدال الصورة بعنصر نصي بدلاً من إضافة عنصر جديد بداخلها.
-        node.innerHTML = `
-            <img src="${rank.icon}" class="mm-tier-img" onerror="this.outerHTML='<span style=\\'font-size:26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); margin-bottom: 2px;\\'>👑</span>'">
-            <div class="mm-tier-dot" style="margin-bottom: 2px;"></div>
-            <div class="mm-tier-label" style="${isCurrent ? 'color: #ffd700;' : 'color: #a1a1aa;'} margin-top: 4px;">${rank.name}</div>
-            <div class="mm-tier-score" style="color: #f5a623; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
-                ${rank.score} <span style="font-size: 13px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));">🪙</span>
+        let iconFilter = '';
+        if (rankData.id === 'royal' || rankData.id === 'legendary') {
+            iconFilter = 'filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));'; 
+        }
+
+        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
+
+        let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
+        
+        let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
+
+        let rewardDisplayHtml = `
+            <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
+                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 3px 0 2px 0; position: relative; display: block !important;">
+                    ${checkmark}
+                </div>
+                <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important; margin-top: 2px;">
+                    ${tierRewardText}
+                </span>
             </div>
         `;
-        container.appendChild(node);
-    });
-    
-    let fillPercentage = 0;
-    let relativeIndex = playerCurrentRankIndex - window.currentRankStartIndex;
-    
-    if (relativeIndex >= 0 && relativeIndex < 4) {
-        fillPercentage = (relativeIndex / 3) * 100;
-    } else if (relativeIndex >= 4) {
-        fillPercentage = 100;
-    } else {
-        fillPercentage = 0;
+
+        // 🛠️ الحل السحري الجذري لمنع التكرار اللانهائي عبر استخدام outerHTML بدلاً من innerHTML +=
+        html += `
+            <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
+                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; margin-bottom: 2px;" onerror="this.outerHTML='<span style=\\'font-size:26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); margin-bottom: 2px;\\'>👑</span>'">
+                <div class="mm-tier-dot" style="margin-bottom: 2px;"></div>
+                <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 0px;">${rankData.name} ${romanTiers[i]}</span>
+                ${rewardDisplayHtml}
+            </div>
+        `;
     }
-    
-    fillBar.style.width = fillPercentage + '%';
-    
-    if (prevBtn) {
-        prevBtn.disabled = window.currentRankStartIndex === 0;
-        prevBtn.style.opacity = prevBtn.disabled ? '0.3' : '1';
-        prevBtn.style.cursor = prevBtn.disabled ? 'not-allowed' : 'pointer';
-    }
-    if (nextBtn) {
-        const maxStart = Math.max(0, window.MATCHMAKING_RANKS.length - 4);
-        nextBtn.disabled = window.currentRankStartIndex >= maxStart;
-        nextBtn.style.opacity = nextBtn.disabled ? '0.3' : '1';
-        nextBtn.style.cursor = nextBtn.disabled ? 'not-allowed' : 'pointer';
-    }
+
+    container.innerHTML = html;
 };
 
 // ==========================================
