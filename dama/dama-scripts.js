@@ -852,26 +852,34 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🟢 تعديل التموضع ليصبح في أسفل الشاشة بمسافة 1px
+    // 🟢 التموضع الثابت في الأسفل وإصلاح مشكلة التمدد والانفصال
     const wrapper = container.parentElement;
     if (wrapper) {
         wrapper.style.setProperty('padding-top', '4px', 'important');
         wrapper.style.setProperty('padding-bottom', '4px', 'important');
         
-        // التموضع الثابت في الأسفل
-        wrapper.style.setProperty('position', 'fixed', 'important'); // fixed لضمان بقائه في أسفل الشاشة حتى مع التمرير
+        // 💡 السر هنا: منع الـ CSS القديم من تمطيط الحاوية وتفريق محتوياتها
+        wrapper.style.setProperty('top', 'auto', 'important');
+        wrapper.style.setProperty('height', 'auto', 'important');
+        
+        // التموضع الثابت في الأسفل تماماً
+        wrapper.style.setProperty('position', 'fixed', 'important'); 
         wrapper.style.setProperty('bottom', '1px', 'important');
         
-        // التوسيط الأفقي
-        wrapper.style.setProperty('left', '50%', 'important');
-        wrapper.style.setProperty('transform', 'translateX(-50%)', 'important');
+        // التوسيط الأفقي بطريقة آمنة بدون إرباك الـ Transform
+        wrapper.style.setProperty('left', '0', 'important');
+        wrapper.style.setProperty('right', '0', 'important');
+        wrapper.style.setProperty('margin', '0 auto', 'important');
         
-        // ضبط العرض ليتناسب مع الشاشة (يمكنك تعديل القيمة 40px حسب الهوامش المطلوبة)
+        // إزالة أي تحريك (transform) قديم يتضارب مع التوسيط
+        wrapper.style.setProperty('transform', 'none', 'important');
+        
+        // ضبط العرض ليتناسب مع الشاشة
         wrapper.style.setProperty('width', 'calc(100% - 40px)', 'important');
         wrapper.style.setProperty('max-width', '500px', 'important'); 
         
         // ضمان بقائه فوق العناصر الأخرى
-        wrapper.style.setProperty('z-index', '999', 'important');
+        wrapper.style.setProperty('z-index', '9999', 'important');
     }
 
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
