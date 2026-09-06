@@ -795,7 +795,7 @@ window.renderRankTrack = function() {
         mainBox.style.setProperty('position', 'absolute', 'important');
         
         // 🎛️ للتحكم في النزول والصعود (جرب 0px أو 5px أو حتى أرقام سالبة)
-        mainBox.style.setProperty('bottom', '2px', 'important'); 
+        mainBox.style.setProperty('bottom', '-5px', 'important'); 
         
         mainBox.style.setProperty('left', '50%', 'important');
         mainBox.style.setProperty('transform', 'translateX(-50%)', 'important');
