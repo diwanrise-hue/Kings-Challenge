@@ -1564,11 +1564,11 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 /* 1. الإطار الرئيسي */
 .mm-rank-bar-wrapper {
     position: absolute !important; 
-    bottom: 10px !important; /* تثبيت الإطار أسفل النافذة بمسافة أمان */
+    bottom: 2px !important; /* تثبيت الإطار أسفل النافذة بمسافة أمان */
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: 95% !important;
-    max-width: 420px !important;
+    max-width: 440px !important;
     background: rgba(15, 18, 25, 0.95) !important;
     border: 1px solid rgba(255, 215, 0, 0.3) !important;
     border-radius: 20px !important;
