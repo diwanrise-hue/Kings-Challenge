@@ -852,29 +852,27 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🟢 التموضع الثابت في الأسفل وإصلاح مشكلة التمدد والانفصال
+    // 🟢 التموضع الثابت في الأسفل مع ضمان بقاء التيجان والعناصر محبوسة ومترابطة مع الإطار
     const wrapper = container.parentElement;
     if (wrapper) {
         wrapper.style.setProperty('padding-top', '4px', 'important');
         wrapper.style.setProperty('padding-bottom', '4px', 'important');
         
-        // 💡 السر هنا: منع الـ CSS القديم من تمطيط الحاوية وتفريق محتوياتها
+        // 1- إلغاء التموضع العلوي لمنع تمدد الإطار بشكل بشع
         wrapper.style.setProperty('top', 'auto', 'important');
-        wrapper.style.setProperty('height', 'auto', 'important');
         
-        // التموضع الثابت في الأسفل تماماً
+        // 2- تثبيت الإطار في أسفل الشاشة بمسافة 1 بيكسل
         wrapper.style.setProperty('position', 'fixed', 'important'); 
         wrapper.style.setProperty('bottom', '1px', 'important');
         
-        // التوسيط الأفقي بطريقة آمنة بدون إرباك الـ Transform
-        wrapper.style.setProperty('left', '0', 'important');
-        wrapper.style.setProperty('right', '0', 'important');
-        wrapper.style.setProperty('margin', '0 auto', 'important');
+        // 3- التوسيط الأفقي
+        wrapper.style.setProperty('left', '50%', 'important');
         
-        // إزالة أي تحريك (transform) قديم يتضارب مع التوسيط
-        wrapper.style.setProperty('transform', 'none', 'important');
+        // 4- 💡 السر الحقيقي: إعادة الـ Transform للحفاظ على محتويات الطبقات ملتصقة ببعضها (Containing Block)
+        // عدم وضع هذا السطر هو ما تسبب في طيران التيجان للأعلى في المرة السابقة
+        wrapper.style.setProperty('transform', 'translateX(-50%)', 'important');
         
-        // ضبط العرض ليتناسب مع الشاشة
+        // ضبط العرض ليتناسب مع الهاتف
         wrapper.style.setProperty('width', 'calc(100% - 40px)', 'important');
         wrapper.style.setProperty('max-width', '500px', 'important'); 
         
@@ -918,22 +916,16 @@ window.renderRankTrack = function() {
         
         let iconFilter = '';
         if (rankData.id === 'crown') {
-            // التاجي بالفلتر البنفسجي
             iconFilter = 'filter: hue-rotate(270deg) drop-shadow(0 0 6px rgba(200,0,255,0.7));'; 
         } else if (rankData.id === 'legendary') {
-            // الأسطوري بمسار صورته الجديدة وألوانه الطبيعية المذهلة
             iconFilter = 'filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));'; 
         }
 
         let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
 
-        // تنسيق خفوت اللون عند الإنجاز
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
-        
-        // علامة الصح باللون الأزرق المضيء
         let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 10;">✓</div>` : '';
 
-        // عرض ثابت ودائم للجائزة والخط بدون فراغات زائدة
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
                 <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 2px 0 2px 0; position: relative; display: block !important;">
@@ -958,7 +950,6 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
-// مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
 document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
