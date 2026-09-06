@@ -788,19 +788,28 @@ window.renderRankTrack = function() {
     container.style.setProperty('padding', '0 80px', 'important'); 
     container.style.setProperty('box-sizing', 'border-box', 'important');
 
-    // 🟢 إعدادات الإطار الخارجي (ثابت أسفل الشاشة بـ 2px)
-    const wrapper = container.parentElement;
-    if (wrapper) {
-        wrapper.style.setProperty('position', 'absolute', 'important');
-        wrapper.style.setProperty('bottom', '-8px', 'important'); 
-        wrapper.style.setProperty('left', '50%', 'important');
-        wrapper.style.setProperty('transform', 'translateX(-50%)', 'important');
-        wrapper.style.setProperty('width', 'calc(100% - 10px)', 'important');
-        wrapper.style.setProperty('padding-top', '25px', 'important'); 
-        wrapper.style.setProperty('padding-bottom', '25px', 'important');
-        wrapper.style.setProperty('z-index', '10', 'important');
-        wrapper.style.setProperty('margin', '0', 'important');
+    // 🟢 الحل الأكيد: استهداف الصندوق الأسود الخارجي بالكامل (الذي يضم الأسهم والطبقات)
+    const mainBox = prevBtn ? prevBtn.parentElement : container.parentElement;
+    
+    if (mainBox) {
+        mainBox.style.setProperty('position', 'absolute', 'important');
+        
+        // 🎛️ للتحكم في النزول والصعود (جرب 0px أو 5px أو حتى أرقام سالبة)
+        mainBox.style.setProperty('bottom', '2px', 'important'); 
+        
+        mainBox.style.setProperty('left', '50%', 'important');
+        mainBox.style.setProperty('transform', 'translateX(-50%)', 'important');
+        mainBox.style.setProperty('width', 'calc(100% - 10px)', 'important');
+        
+        // 🎛️ للتحكم في ارتفاع الصندوق وسمكه (الآن سيستجيب لتغييراتك فوراً!)
+        mainBox.style.setProperty('padding-top', '8px', 'important'); 
+        mainBox.style.setProperty('padding-bottom', '6px', 'important');
+        
+        mainBox.style.setProperty('z-index', '10', 'important');
+        mainBox.style.setProperty('margin', '0', 'important');
+        mainBox.style.setProperty('box-sizing', 'border-box', 'important');
     }
+
 
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
     const romanTiers = ["I", "II", "III", "IV"];
