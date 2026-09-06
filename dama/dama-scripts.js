@@ -788,6 +788,7 @@ window.renderRankTrack = function() {
         mainBox.style.setProperty('box-sizing', 'border-box', 'important');
     }
 
+    
     // 2️⃣ حماية الرتب من التداخل مع الأسهم
     container.style.setProperty('padding', '0 32px', 'important');
     container.style.setProperty('box-sizing', 'border-box', 'important');
