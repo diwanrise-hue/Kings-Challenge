@@ -852,12 +852,18 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🟢 تقليل الفراغات الداخلية ودفع الإطار للأسفل مسافة 15 بيكسل لحماية البطاقات
+    // 🟢 دفع الإطار إلى أسفل الشاشة تماماً باستخدام position absolute
     const wrapper = container.parentElement;
     if (wrapper) {
+        wrapper.style.setProperty('position', 'absolute', 'important');
+        wrapper.style.setProperty('bottom', '5px', 'important'); // في أسفل الشاشة تماماً
+        wrapper.style.setProperty('left', '50%', 'important');
+        wrapper.style.setProperty('transform', 'translateX(-50%)', 'important');
+        wrapper.style.setProperty('width', 'calc(100% - 20px)', 'important');
         wrapper.style.setProperty('padding-top', '4px', 'important');
         wrapper.style.setProperty('padding-bottom', '4px', 'important');
-        wrapper.style.setProperty('transform', 'translateY(1px)', 'important'); 
+        wrapper.style.setProperty('z-index', '10', 'important');
+        wrapper.style.setProperty('margin', '0', 'important');
     }
 
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
@@ -896,22 +902,17 @@ window.renderRankTrack = function() {
         
         let iconFilter = '';
         if (rankData.id === 'crown') {
-            // التاجي بالفلتر البنفسجي
             iconFilter = 'filter: hue-rotate(270deg) drop-shadow(0 0 6px rgba(200,0,255,0.7));'; 
         } else if (rankData.id === 'legendary') {
-            // الأسطوري بمسار صورته الجديدة وألوانه الطبيعية المذهلة
             iconFilter = 'filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));'; 
         }
 
         let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
 
-        // تنسيق خفوت اللون عند الإنجاز
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
         
-        // علامة الصح باللون الأزرق المضيء
         let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 10;">✓</div>` : '';
 
-        // عرض ثابت ودائم للجائزة والخط بدون فراغات زائدة
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
                 <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 2px 0 2px 0; position: relative; display: block !important;">
@@ -936,7 +937,7 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
-// مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
+// 🟢 مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
 document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -953,7 +954,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('matchmaking-stakes-modal');
     if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
 });
-
 
 // ==========================================
 // 👑 نظام فتح نافذة الألقاب الشاملة (النسخة النهائية السريعة وبدون وميض)
@@ -1099,5 +1099,41 @@ window.equipTitle = function(titleKey) {
                 });
             }
         }
+    }
+};
+
+window.confirmSpectatorBet = function() {
+    const roomId = document.getElementById('spectator-bet-room-id')?.value || (window.gameState && window.gameState.onlineRoomID);
+    const color = document.getElementById('spectator-bet-color')?.value;
+    const amount = parseInt(document.getElementById('spectator-bet-amount')?.value) || 0;
+
+    if (!roomId) {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("خطأ في تحديد الغرفة للمراهنة!");
+        return;
+    }
+    if (!color) {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء اختيار اللاعب المتوقع فوزه أولاً (أبيض أو أسود)!");
+        return;
+    }
+    if (amount <= 0) {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء تحديد مبلغ الرهان!");
+        return;
+    }
+
+    if (window.socket && window.socket.connected) {
+        const profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+        
+        window.socket.emit('placeSpectatorBet', {
+            roomID: String(roomId).trim(),
+            color: color,
+            amount: amount,
+            guestId: profile.id
+        });
+        
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('spectator-bet-modal');
+        }
+    } else {
+        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("يرجى الاتصال بالإنترنت أولاً!");
     }
 };
