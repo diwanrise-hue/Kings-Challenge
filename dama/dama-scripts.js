@@ -785,19 +785,19 @@ window.renderRankTrack = function() {
     if (!container || !fillBar) return;
 
     // 🟢 إبعاد الطبقات عن الأسهم اليمين واليسار
-    container.style.setProperty('padding', '0 10px', 'important'); 
+    container.style.setProperty('padding', '0 80px', 'important'); 
     container.style.setProperty('box-sizing', 'border-box', 'important');
 
     // 🟢 إعدادات الإطار الخارجي (ثابت أسفل الشاشة بـ 2px)
     const wrapper = container.parentElement;
     if (wrapper) {
         wrapper.style.setProperty('position', 'absolute', 'important');
-        wrapper.style.setProperty('bottom', '-2px', 'important'); 
+        wrapper.style.setProperty('bottom', '-8px', 'important'); 
         wrapper.style.setProperty('left', '50%', 'important');
         wrapper.style.setProperty('transform', 'translateX(-50%)', 'important');
         wrapper.style.setProperty('width', 'calc(100% - 10px)', 'important');
-        wrapper.style.setProperty('padding-top', '8px', 'important'); 
-        wrapper.style.setProperty('padding-bottom', '8px', 'important');
+        wrapper.style.setProperty('padding-top', '25px', 'important'); 
+        wrapper.style.setProperty('padding-bottom', '25px', 'important');
         wrapper.style.setProperty('z-index', '10', 'important');
         wrapper.style.setProperty('margin', '0', 'important');
     }
