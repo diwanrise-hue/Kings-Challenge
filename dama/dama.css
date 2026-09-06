@@ -1555,48 +1555,45 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     object-fit: contain !important;
     display: block !important;
 }
-
 /* ========================================== */
-/* 📊 شريط الرتب التفاعلي (Interactive Rank Bar) المطابق للصورة */
+/* 📊 شريط الرتب التفاعلي (الشكل الصحيح والمطابق للصورة) */
 /* ========================================== */
 
-/* 1. الإطار الرئيسي (تثبيته في أسفل النافذة فوق الحافة بقليل) */
+/* 1. الحاوية الرئيسية (إلغاء absolute لعدم التداخل مع الكروت) */
 .mm-rank-bar-wrapper {
-    position: absolute !important; 
-    bottom: 20px !important; /* المسافة من أسفل الشاشة */
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: 92% !important;
+    position: relative !important; /* هذا ما يمنع التشوه والتداخل */
+    width: 95% !important;
     max-width: 420px !important;
-    background: rgba(15, 18, 25, 0.9) !important;
-    border: 1px solid rgba(255, 215, 0, 0.3) !important;
+    margin: 20px auto 10px auto !important; /* مسافة أمان من الكارت الذي فوقه */
+    background: rgba(15, 18, 25, 0.95) !important; /* الخلفية السوداء */
+    border: 1px solid rgba(255, 215, 0, 0.3) !important; /* الإطار الذهبي */
     border-radius: 20px !important;
-    padding: 15px 12px !important;
+    padding: 15px 10px !important;
     display: flex !important;
-    align-items: flex-start !important; /* محاذاة العناصر من الأعلى لضبط الأسهم مع التيجان */
+    align-items: flex-start !important; /* محاذاة من الأعلى لضبط الأسهم مع التيجان */
     justify-content: space-between !important;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.7), inset 0 2px 5px rgba(255,255,255,0.05) !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 2px 10px rgba(255,255,255,0.05) !important;
     z-index: 20 !important;
     box-sizing: border-box !important;
     direction: ltr !important; 
 }
 
-/* 2. الأسهم الجانبية (تحريكها للأعلى لتكون بجوار التيجان تماماً) */
+/* 2. الأسهم الجانبية (محاذاتها للتيجان ومنع انضغاطها) */
 .rank-nav-btn {
     background: rgba(255,255,255,0.05) !important;
     border: 1px solid rgba(255,255,255,0.15) !important;
     color: #ffd700 !important;
-    width: 36px !important;
-    height: 36px !important;
+    width: 34px !important;
+    height: 34px !important;
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    flex-shrink: 0 !important; /* منع السهم من الانضغاط */
+    flex-shrink: 0 !important; /* يمنع السهم من الانضغاط والتشوه */
     font-size: 16px !important;
     transition: 0.2s ease !important;
-    margin-top: 5px !important; /* لضبط السهم عمودياً مع منتصف التاج */
+    margin-top: 5px !important; /* تنزيل السهم قليلاً ليوازي منتصف التاج */
     box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important;
 }
 
@@ -1611,26 +1608,26 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     cursor: not-allowed !important;
 }
 
-/* 3. حاوية الطبقات الوسطى (دفعها عن الأسهم) */
+/* 3. حاوية الطبقات (إبعادها عن الأسهم لتجنب التداخل) */
 .mm-rank-slider {
     flex: 1 !important;
     position: relative !important;
     margin: 0 15px !important; /* مسافة أمان بين التيجان والأسهم */
 }
 
-/* 4. مسار الخط الرمادي (إنزاله ليمر بمنتصف النقاط الدائرية) */
+/* 4. مسار الخط الرمادي (يمر من منتصف الدوائر بالضبط) */
 .mm-track-bg {
     position: absolute !important;
-    top: 50px !important; /* 🌟 هذا الرقم هو المسؤول عن إنزال الخط ليمر بالدوائر 🌟 */
-    left: 10% !important;
-    right: 10% !important;
+    top: 46px !important; /* 🌟 ارتفاع الخط بدقة ليمر خلف النقاط الدائرية 🌟 */
+    left: 8% !important;
+    right: 8% !important;
     height: 3px !important;
     background: rgba(255, 255, 255, 0.15) !important;
     border-radius: 2px !important;
     z-index: 1 !important;
 }
 
-/* 5. مسار الخط الممتلئ (الأصفر) */
+/* 5. الخط الأصفر الممتلئ */
 .mm-track-fill {
     height: 100% !important;
     background: linear-gradient(90deg, #f5a623, #ffd700) !important;
@@ -1639,7 +1636,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     box-shadow: 0 0 8px rgba(255, 215, 0, 0.8) !important;
 }
 
-/* 6. ترتيب العناصر داخلياً لكل طبقة */
+/* 6. ترتيب محتويات التيجان */
 .mm-tiers-row {
     display: flex !important;
     justify-content: space-between !important;
@@ -1652,33 +1649,37 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
+    width: 60px !important; /* عرض ثابت يمنع التداخل */
     gap: 4px !important; /* المسافة بين التاج والنقطة والنص */
-    width: 65px !important;
     position: relative !important;
 }
 
 .mm-tier-img {
-    width: 42px !important;
-    height: 42px !important;
+    width: 38px !important;
+    height: 38px !important;
     object-fit: contain !important;
     z-index: 5 !important;
     transition: all 0.3s ease !important;
 }
 
 .mm-tier-dot {
-    width: 12px !important;
-    height: 12px !important;
+    width: 14px !important;
+    height: 14px !important;
     background: #1a1a24 !important;
     border: 2px solid #777 !important;
     border-radius: 50% !important;
     z-index: 5 !important;
     margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     transition: all 0.3s ease !important;
 }
 
-/* التنسيقات عند عبور الطبقة (علامة الصح) */
+/* التنسيقات عند إنجاز الرتبة (علامة الصح والتوهج) */
 .mm-tier-node.reached .mm-tier-img {
     filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5)) !important;
+    transform: scale(1.1) !important;
 }
 
 .mm-tier-node.reached .mm-tier-dot {
@@ -1687,19 +1688,15 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     box-shadow: 0 0 10px #ffd700 !important;
 }
 
-/* 🌟 إضافة علامة الصح داخل الدائرة 🌟 */
 .mm-tier-node.reached .mm-tier-dot::after {
     content: '✓';
     color: #000;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 900;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
 }
 
+/* تبهيت التيجان التي لم يصل إليها اللاعب */
 .mm-tier-node:not(.reached) .mm-tier-img {
-    filter: saturate(30%) brightness(0.6) !important; /* تبهيت الأيقونات غير المكتملة */
+    filter: saturate(20%) brightness(0.6) !important; 
+    transform: scale(0.9) !important;
 }
