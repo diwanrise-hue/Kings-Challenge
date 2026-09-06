@@ -719,12 +719,32 @@ window.scrollMmCarousel = function(direction) {
 // 📊 نظام شريط الرتبة التفاعلي (Interactive Rank Slider)
 // ==========================================
 const RANK_SYSTEM = [
-    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', tierRewards: ['50', '50', '50', '50'] },
-    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', tierRewards: ['100', '100', '100', '100'] },
-    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', tierRewards: ['300', '300', '300', '300'] },
-    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', tierRewards: ['500', '500', '500', '500'] },
-    { id: 'royal', name: 'ملكي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', tierRewards: ['800', '800', '800', '800'] }, 
-    { id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', tierRewards: ['1000', '1000', '1000', '1000'] } 
+    { 
+        id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', 
+        tierRewards: ['50 🪙', '50 🪙', '50 🪙', '50 🪙'] 
+    },
+    { 
+        id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', 
+        tierRewards: ['100 🪙', '100 🪙', '100 🪙', '100 🪙'] 
+    },
+    { 
+        id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', 
+        tierRewards: ['300 🪙', '300 🪙', '300 🪙', '300 🪙'] 
+    },
+    { 
+        id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', 
+        tierRewards: ['500 🪙', '500 🪙', '500 🪙', '500 🪙'] 
+    },
+    { 
+        // 🟢 الرتبة أصبحت "ملكي" بدلاً من "تاجي"
+        id: 'royal', name: 'ملكي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', 
+        tierRewards: ['800 🪙', '800 🪙', '800 🪙', '800 🪙'] 
+    }, 
+    { 
+        // 🟢 الأسطوري يستخدم صورة الأسد (os6ory.webp)
+        id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', 
+        tierRewards: ['1000 🪙', '1000 🪙', '1000 🪙', '1000 🪙'] 
+    } 
 ];
 
 window.currentViewedRankIndex = 0;
@@ -773,27 +793,19 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🟢 استهداف الصندوق الخارجي الحقيقي الذي يحمل الخلفية السوداء والأسهم معاً
-    const mainBox = prevBtn ? prevBtn.parentElement : container.parentElement;
-    if (mainBox) {
-        mainBox.style.setProperty('position', 'absolute', 'important');
-        mainBox.style.setProperty('bottom', '5px', 'important'); // يطفو قليلاً بشكل أنيق فوق النهاية
-        mainBox.style.setProperty('left', '50%', 'important');
-        mainBox.style.setProperty('transform', 'translateX(-50%)', 'important');
-        mainBox.style.setProperty('width', 'calc(100% - 20px)', 'important');
-        
-        // 🔥 السر هنا: إعادة الـ padding اليمين واليسار بـ 15px لحماية الأسهم من الخروج!
-        mainBox.style.setProperty('padding', '12px 15px 10px 15px', 'important'); 
-        
-        mainBox.style.setProperty('z-index', '100', 'important');
-        mainBox.style.setProperty('margin', '0', 'important');
-        mainBox.style.setProperty('box-sizing', 'border-box', 'important');
+    // 🟢 دفع الإطار إلى أسفل الشاشة تماماً باستخدام position absolute
+    const wrapper = container.parentElement;
+    if (wrapper) {
+        wrapper.style.setProperty('position', 'absolute', 'important');
+        wrapper.style.setProperty('bottom', '5px', 'important'); // مثبت في الأسفل تماماً
+        wrapper.style.setProperty('left', '50%', 'important');
+        wrapper.style.setProperty('transform', 'translateX(-50%)', 'important');
+        wrapper.style.setProperty('width', 'calc(100% - 20px)', 'important');
+        wrapper.style.setProperty('padding-top', '4px', 'important');
+        wrapper.style.setProperty('padding-bottom', '4px', 'important');
+        wrapper.style.setProperty('z-index', '10', 'important');
+        wrapper.style.setProperty('margin', '0', 'important');
     }
-
-    // 🟢 حماية الطبقات وإبعادها عن الأسهم لتتجنب التداخل
-    container.style.setProperty('padding', '0 20px', 'important');
-    container.style.setProperty('box-sizing', 'border-box', 'important');
-    container.style.setProperty('width', '100%', 'important');
 
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
     const romanTiers = ["I", "II", "III", "IV"];
@@ -829,35 +841,34 @@ window.renderRankTrack = function() {
 
         let reachedClass = isReached ? 'reached' : '';
         
+        // 🟢 إزالة فلاتر الألوان للحفاظ على شكل وألوان الرتب الطبيعية (ملكي وأسطوري)
         let iconFilter = '';
         if (rankData.id === 'royal' || rankData.id === 'legendary') {
             iconFilter = 'filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));'; 
         }
 
-        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50';
-        let rewardOpacity = isReached ? 'opacity: 0.5; filter: grayscale(30%);' : 'opacity: 1;';
-        
-        // 🟢 دائرة خضراء دقيقة مطابقة تماماً لصورة الهدف الخاصة بك
-        let greenCheck = isReached ? `<div style="background: #34c759; color: white; border-radius: 50%; width: 12px; height: 12px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; margin-right: 3px;">✓</div>` : '';
+        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
 
-        // 🟢 ترتيب الجائزة مطابق لصورتك 100% (من اليسار لليمين: عملة -> رقم -> علامة صح)
+        let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
+        
+        let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 10;">✓</div>` : '';
+
         let rewardDisplayHtml = `
-            <div dir="ltr" style="display: flex; align-items: center; justify-content: center; margin-top: 5px; ${rewardOpacity}">
-                <span style="font-size: 11px; margin-right: 3px;">🪙</span>
-                <span style="color: #ffd700; font-weight: 800; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${tierRewardText}</span>
-                ${greenCheck}
+            <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
+                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 2px 0 2px 0; position: relative; display: block !important;">
+                    ${checkmark}
+                </div>
+                <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important; margin-top: 1px;">
+                    ${tierRewardText}
+                </span>
             </div>
         `;
 
-        // 🟢 إرجاع أيقونات الرتب لأحجامها الفخمة (height: 26px)، وترك النقطة بدون تدخل لكي يظهر بداخلها "الصح الأصفر الأصلي"
         html += `
             <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
-                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; height: 26px !important; width: auto !important; margin-bottom: 5px !important;" onerror="this.style.display='none'">
-                
-                <div class="mm-tier-dot" style="margin-bottom: 5px !important; position: relative; z-index: 2;"></div>
-                
-                <span class="mm-tier-label" style="font-size: 11px !important; font-weight: bold; white-space: nowrap; margin-bottom: 0px !important; color: #fff;">${rankData.name} ${romanTiers[i]}</span>
-                
+                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; margin-bottom: 1px;" onerror="this.style.display='none'">
+                <div class="mm-tier-dot" style="margin-bottom: 1px;"></div>
+                <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 0px;">${rankData.name} ${romanTiers[i]}</span>
                 ${rewardDisplayHtml}
             </div>
         `;
