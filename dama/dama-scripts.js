@@ -773,23 +773,25 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🟢 استهداف الصندوق الأسود الرئيسي لضبط الارتفاع والمكان بدقة
+    // 🟢 استهداف الصندوق الخارجي الحقيقي الذي يحمل الخلفية السوداء والأسهم معاً
     const mainBox = prevBtn ? prevBtn.parentElement : container.parentElement;
     if (mainBox) {
         mainBox.style.setProperty('position', 'absolute', 'important');
-        mainBox.style.setProperty('bottom', '2px', 'important'); 
+        mainBox.style.setProperty('bottom', '5px', 'important'); // يطفو قليلاً بشكل أنيق فوق النهاية
         mainBox.style.setProperty('left', '50%', 'important');
         mainBox.style.setProperty('transform', 'translateX(-50%)', 'important');
-        mainBox.style.setProperty('width', 'calc(100% - 16px)', 'important');
-        // إعطاء مساحة (Padding) مريحة للصندوق لكي تبدو الأيقونات واضحة وكبيرة
-        mainBox.style.setProperty('padding', '12px 0 10px 0', 'important'); 
+        mainBox.style.setProperty('width', 'calc(100% - 20px)', 'important');
+        
+        // 🔥 السر هنا: إعادة الـ padding اليمين واليسار بـ 15px لحماية الأسهم من الخروج!
+        mainBox.style.setProperty('padding', '12px 15px 10px 15px', 'important'); 
+        
         mainBox.style.setProperty('z-index', '100', 'important');
         mainBox.style.setProperty('margin', '0', 'important');
         mainBox.style.setProperty('box-sizing', 'border-box', 'important');
     }
 
-    // 🟢 حماية المحتوى من الأسهم
-    container.style.setProperty('padding', '0 35px', 'important');
+    // 🟢 حماية الطبقات وإبعادها عن الأسهم لتتجنب التداخل
+    container.style.setProperty('padding', '0 20px', 'important');
     container.style.setProperty('box-sizing', 'border-box', 'important');
     container.style.setProperty('width', '100%', 'important');
 
@@ -835,24 +837,27 @@ window.renderRankTrack = function() {
         let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50';
         let rewardOpacity = isReached ? 'opacity: 0.5; filter: grayscale(30%);' : 'opacity: 1;';
         
-        // 🟢 تصميم الجائزة مطابق للصورة (دائرة خضراء بصح ✓ + الرقم)
-        let greenCheck = isReached ? `<div style="background: #34c759; color: white; border-radius: 50%; width: 13px; height: 13px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(52,199,89,0.6);">✓</div>` : '';
+        // 🟢 دائرة خضراء دقيقة مطابقة تماماً لصورة الهدف الخاصة بك
+        let greenCheck = isReached ? `<div style="background: #34c759; color: white; border-radius: 50%; width: 12px; height: 12px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; margin-right: 3px;">✓</div>` : '';
 
+        // 🟢 ترتيب الجائزة مطابق لصورتك 100% (من اليسار لليمين: عملة -> رقم -> علامة صح)
         let rewardDisplayHtml = `
-            <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 5px; ${rewardOpacity}">
+            <div dir="ltr" style="display: flex; align-items: center; justify-content: center; margin-top: 5px; ${rewardOpacity}">
+                <span style="font-size: 11px; margin-right: 3px;">🪙</span>
+                <span style="color: #ffd700; font-weight: 800; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${tierRewardText}</span>
                 ${greenCheck}
-                <span style="color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap;">
-                    ${tierRewardText} 🪙
-                </span>
             </div>
         `;
 
-        // 🟢 إعادة الصور والنصوص إلى حجمها الطبيعي المريح والكبير
+        // 🟢 إرجاع أيقونات الرتب لأحجامها الفخمة (height: 26px)، وترك النقطة بدون تدخل لكي يظهر بداخلها "الصح الأصفر الأصلي"
         html += `
             <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
-                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; height: 26px !important; width: auto !important; margin-bottom: 6px !important; z-index: 2; position: relative;" onerror="this.style.display='none'">
-                <div class="mm-tier-dot" style="width: 10px !important; height: 10px !important; margin-bottom: 6px !important; z-index: 2; position: relative;"></div>
+                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; height: 26px !important; width: auto !important; margin-bottom: 5px !important;" onerror="this.style.display='none'">
+                
+                <div class="mm-tier-dot" style="margin-bottom: 5px !important; position: relative; z-index: 2;"></div>
+                
                 <span class="mm-tier-label" style="font-size: 11px !important; font-weight: bold; white-space: nowrap; margin-bottom: 0px !important; color: #fff;">${rankData.name} ${romanTiers[i]}</span>
+                
                 ${rewardDisplayHtml}
             </div>
         `;
