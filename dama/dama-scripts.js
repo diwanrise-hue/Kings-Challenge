@@ -778,10 +778,10 @@ window.renderRankTrack = function() {
     if (mainBox) {
         mainBox.style.setProperty('position', 'absolute', 'important');
         // رفع الصندوق قليلاً (12px) لكي لا يلتصق بأسفل شاشة الهاتف بشكل مزعج
-        mainBox.style.setProperty('bottom', '12px', 'important'); 
+        mainBox.style.setProperty('bottom', '2px', 'important'); 
         mainBox.style.setProperty('left', '50%', 'important');
         mainBox.style.setProperty('transform', 'translateX(-50%)', 'important');
-        mainBox.style.setProperty('width', 'calc(100% - 30px)', 'important');
+        mainBox.style.setProperty('width', 'calc(100% - 50px)', 'important');
         // مسافات مريحة للأسهم (يمين ويسار) وللأيقونات (أعلى وأسفل)
         mainBox.style.setProperty('padding', '12px 10px 10px 10px', 'important'); 
         mainBox.style.setProperty('z-index', '100', 'important');
