@@ -1560,8 +1560,10 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 /* 📊 شريط الرتب التفاعلي (Interactive Rank Bar) */
 /* ========================================== */
 .mm-rank-bar-wrapper {
-    position: fixed; 
-    bottom: 25px;
+    position: relative !important; 
+    bottom: auto !important; 
+    margin-top: 20px; 
+    margin-bottom: 25px;
     width: 95%;
     max-width: 420px;
     background: rgba(15, 18, 25, 0.85);
@@ -1609,7 +1611,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 .mm-rank-slider {
     flex: 1;
     position: relative;
-    margin: 0 10px;
+    margin: 0 25px !important;
 }
 
 .mm-track-bg {
@@ -1646,7 +1648,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    width: 50px;
+    width: 65px !important;
     position: relative;
 }
 
