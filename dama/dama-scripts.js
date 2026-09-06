@@ -773,25 +773,23 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🟢 استهداف الصندوق الخارجي الحقيقي الذي يحمل الخلفية السوداء والأسهم معاً
+    // 1️⃣ ضبط الصندوق الأسود الخارجي (مكانه في الشاشة وحجمه)
     const mainBox = prevBtn ? prevBtn.parentElement : container.parentElement;
     if (mainBox) {
         mainBox.style.setProperty('position', 'absolute', 'important');
-        mainBox.style.setProperty('bottom', '5px', 'important'); // يطفو قليلاً بشكل أنيق فوق النهاية
+        // رفع الصندوق قليلاً (12px) لكي لا يلتصق بأسفل شاشة الهاتف بشكل مزعج
+        mainBox.style.setProperty('bottom', '12px', 'important'); 
         mainBox.style.setProperty('left', '50%', 'important');
         mainBox.style.setProperty('transform', 'translateX(-50%)', 'important');
-        mainBox.style.setProperty('width', 'calc(100% - 20px)', 'important');
-        
-        // 🔥 السر هنا: إعادة الـ padding اليمين واليسار بـ 15px لحماية الأسهم من الخروج!
-        mainBox.style.setProperty('padding', '12px 15px 10px 15px', 'important'); 
-        
+        mainBox.style.setProperty('width', 'calc(100% - 30px)', 'important');
+        // مسافات مريحة للأسهم (يمين ويسار) وللأيقونات (أعلى وأسفل)
+        mainBox.style.setProperty('padding', '12px 10px 10px 10px', 'important'); 
         mainBox.style.setProperty('z-index', '100', 'important');
-        mainBox.style.setProperty('margin', '0', 'important');
         mainBox.style.setProperty('box-sizing', 'border-box', 'important');
     }
 
-    // 🟢 حماية الطبقات وإبعادها عن الأسهم لتتجنب التداخل
-    container.style.setProperty('padding', '0 20px', 'important');
+    // 2️⃣ حماية الرتب من التداخل مع الأسهم
+    container.style.setProperty('padding', '0 32px', 'important');
     container.style.setProperty('box-sizing', 'border-box', 'important');
     container.style.setProperty('width', '100%', 'important');
 
@@ -835,24 +833,23 @@ window.renderRankTrack = function() {
         }
 
         let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50';
-        let rewardOpacity = isReached ? 'opacity: 0.5; filter: grayscale(30%);' : 'opacity: 1;';
+        let rewardOpacity = isReached ? 'opacity: 0.6; filter: grayscale(20%);' : 'opacity: 1;';
         
-        // 🟢 دائرة خضراء دقيقة مطابقة تماماً لصورة الهدف الخاصة بك
-        let greenCheck = isReached ? `<div style="background: #34c759; color: white; border-radius: 50%; width: 12px; height: 12px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; margin-right: 3px;">✓</div>` : '';
+        // 3️⃣ تصميم الجوائز مطابق للصورة (دائرة خضراء بصح ✓ + الرقم + العملة)
+        let greenCheck = isReached ? `<div style="background: #34c759; color: white; border-radius: 50%; width: 12px; height: 12px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; margin-right: 4px;">✓</div>` : `<div style="width: 12px; margin-right: 4px;"></div>`; // مساحة فارغة للحفاظ على التوازن إذا لم يكتمل
 
-        // 🟢 ترتيب الجائزة مطابق لصورتك 100% (من اليسار لليمين: عملة -> رقم -> علامة صح)
         let rewardDisplayHtml = `
             <div dir="ltr" style="display: flex; align-items: center; justify-content: center; margin-top: 5px; ${rewardOpacity}">
                 <span style="font-size: 11px; margin-right: 3px;">🪙</span>
-                <span style="color: #ffd700; font-weight: 800; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${tierRewardText}</span>
+                <span style="color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${tierRewardText}</span>
                 ${greenCheck}
             </div>
         `;
 
-        // 🟢 إرجاع أيقونات الرتب لأحجامها الفخمة (height: 26px)، وترك النقطة بدون تدخل لكي يظهر بداخلها "الصح الأصفر الأصلي"
+        // 4️⃣ الأيقونات والنصوص بأحجامها الأصلية الفخمة
         html += `
             <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
-                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; height: 26px !important; width: auto !important; margin-bottom: 5px !important;" onerror="this.style.display='none'">
+                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; height: 26px !important; width: auto !important; margin-bottom: 6px !important; z-index: 2; position: relative;" onerror="this.style.display='none'">
                 
                 <div class="mm-tier-dot" style="margin-bottom: 5px !important; position: relative; z-index: 2;"></div>
                 
@@ -865,6 +862,7 @@ window.renderRankTrack = function() {
 
     container.innerHTML = html;
 };
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
