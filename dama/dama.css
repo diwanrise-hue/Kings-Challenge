@@ -1555,22 +1555,25 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     object-fit: contain !important;
     display: block !important;
 }
+
+
+
 /* ========================================== */
-/* 📊 شريط الرتب التفاعلي (الشكل الصحيح والمطابق للصورة) */
+/* 📊 شريط الرتب التفاعلي (النسخة النهائية المطابقة للتجربة) */
 /* ========================================== */
 
-/* 1. الحاوية الرئيسية (إلغاء absolute لعدم التداخل مع الكروت) */
+/* 1. الحاوية الرئيسية (الإطار) */
 .mm-rank-bar-wrapper {
-    position: relative !important; /* هذا ما يمنع التشوه والتداخل */
+    position: relative !important;
     width: 95% !important;
     max-width: 420px !important;
-    margin: 20px auto 10px auto !important; /* مسافة أمان من الكارت الذي فوقه */
-    background: rgba(15, 18, 25, 0.95) !important; /* الخلفية السوداء */
-    border: 1px solid rgba(255, 215, 0, 0.3) !important; /* الإطار الذهبي */
+    margin: 20px auto 15px auto !important; /* هذا ما يبقيه في الأسفل بعيداً عن الكروت */
+    background: rgba(15, 18, 25, 0.95) !important;
+    border: 1px solid rgba(255, 215, 0, 0.3) !important;
     border-radius: 20px !important;
-    padding: 15px 10px !important;
+    padding: 20px 10px 15px 10px !important; /* مساحة داخلية لاحتواء التيجان بالكامل */
     display: flex !important;
-    align-items: flex-start !important; /* محاذاة من الأعلى لضبط الأسهم مع التيجان */
+    align-items: flex-start !important; /* المحاذاة من الأعلى لضبط السهم مع التاج */
     justify-content: space-between !important;
     box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 2px 10px rgba(255,255,255,0.05) !important;
     z-index: 20 !important;
@@ -1578,7 +1581,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     direction: ltr !important; 
 }
 
-/* 2. الأسهم الجانبية (محاذاتها للتيجان ومنع انضغاطها) */
+/* 2. الأسهم الجانبية */
 .rank-nav-btn {
     background: rgba(255,255,255,0.05) !important;
     border: 1px solid rgba(255,255,255,0.15) !important;
@@ -1590,10 +1593,10 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    flex-shrink: 0 !important; /* يمنع السهم من الانضغاط والتشوه */
+    flex-shrink: 0 !important;
     font-size: 16px !important;
     transition: 0.2s ease !important;
-    margin-top: 5px !important; /* تنزيل السهم قليلاً ليوازي منتصف التاج */
+    margin-top: 4px !important; /* 🌟 دفع السهم للأسفل قليلاً ليكون بمنتصف التاج تماماً 🌟 */
     box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important;
 }
 
@@ -1608,26 +1611,26 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     cursor: not-allowed !important;
 }
 
-/* 3. حاوية الطبقات (إبعادها عن الأسهم لتجنب التداخل) */
+/* 3. حاوية الطبقات الوسطى */
 .mm-rank-slider {
     flex: 1 !important;
     position: relative !important;
-    margin: 0 15px !important; /* مسافة أمان بين التيجان والأسهم */
+    margin: 0 15px !important; /* المسافة التي تمنع تداخل السهام مع التيجان */
 }
 
-/* 4. مسار الخط الرمادي (يمر من منتصف الدوائر بالضبط) */
+/* 4. مسار الخط الرمادي (تم ضبطه ليمر بمنتصف الدوائر) */
 .mm-track-bg {
     position: absolute !important;
-    top: 46px !important; /* 🌟 ارتفاع الخط بدقة ليمر خلف النقاط الدائرية 🌟 */
-    left: 8% !important;
-    right: 8% !important;
+    top: 50px !important; /* 🌟 ارتفاع الخط خلف الدوائر 🌟 */
+    left: 10% !important;
+    right: 10% !important;
     height: 3px !important;
     background: rgba(255, 255, 255, 0.15) !important;
     border-radius: 2px !important;
     z-index: 1 !important;
 }
 
-/* 5. الخط الأصفر الممتلئ */
+/* 5. الخط الأصفر (التقدم) */
 .mm-track-fill {
     height: 100% !important;
     background: linear-gradient(90deg, #f5a623, #ffd700) !important;
@@ -1636,7 +1639,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     box-shadow: 0 0 8px rgba(255, 215, 0, 0.8) !important;
 }
 
-/* 6. ترتيب محتويات التيجان */
+/* 6. ترتيب الأعمدة */
 .mm-tiers-row {
     display: flex !important;
     justify-content: space-between !important;
@@ -1645,12 +1648,13 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     z-index: 2 !important;
 }
 
+/* 7. العمود الواحد (يضم التاج، النقطة، الكلمة، العملات) */
 .mm-tier-node {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    width: 60px !important; /* عرض ثابت يمنع التداخل */
-    gap: 4px !important; /* المسافة بين التاج والنقطة والنص */
+    width: 65px !important;
+    gap: 4px !important;
     position: relative !important;
 }
 
@@ -1700,3 +1704,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     filter: saturate(20%) brightness(0.6) !important; 
     transform: scale(0.9) !important;
 }
+
+/* نصوص الرتبة والعملات */
+.mm-tier-label { font-size: 11px !important; font-weight: bold !important; margin-top: 4px !important; }
+.mm-tier-score { font-size: 11px !important; font-weight: bold !important; }
