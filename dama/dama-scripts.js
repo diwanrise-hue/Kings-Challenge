@@ -1,8 +1,17 @@
 /**
  * dama-scripts.js
  * المساعد العام للتنسيق والمزامنة
+ * 🌟 (مُحدّث): سقف مراهنات الـ VIP العالي للمشاهدين، ودالة تأكيد الرهان.
+ * 🌟 (مُحدّث أمني): تشفير هوية الخصم (Masked ID) لمنع انتحال الشخصية.
+ * 🚷 (مُحدّث جديد): إضافة دوال جلب قائمة المشاهدين وطرد الهاكرز (VIP 4+).
+ * 🛡️ (مُحدّث جذرياً): تنظيف مدخلات XSS ومسح الذاكرة عند إغلاق لوحة الشرف.
+ * 🔊 (مُحدّث جديد): نظام الصوت الشامل لجميع الأزرار القابلة للضغط.
+ * 🚀 (تحسين الأداء GPU/CPU): استبدال حدث التمرير الثقيل بنظام IntersectionObserver الذكي.
+ * 📊 (تحديث جديد): نظام شريط الرتب التفاعلي الشامل (ماسي، تاجي، أسطوري) وظهور فوري.
+ * 🏆 (تحديث جذري): نافذة ألقاب ضخمة 90%، بتبويبات (مكتمل/غير مكتمل) و 20 لقباً!
  */
 
+// 🛡️ دالة لتنظيف أي نصوص قادمة من السيرفر لمنع ثغرة XSS
 function escapeHTML(str) {
     if (!str) return '';
     const div = document.createElement('div');
@@ -192,6 +201,9 @@ window.renderDamaPopularityStore = function() {
     } else { grid.innerHTML = '<p style="color: #a1a1aa; text-align: center; grid-column: span 3; padding: 15px;">لا توجد عناصر شعبية حالياً.</p>'; }
 };
 
+// ==========================================
+// 🛡️ التشفير الجذري لمعرف الخصم لمنع الاختراق
+// ==========================================
 window.showOpponentProfile = function() {
     if (!window.currentOpponentData) return;
     const opp = window.currentOpponentData;
@@ -249,6 +261,9 @@ window.addEventListener('DOMContentLoaded', syncGlobalBackground);
 window.addEventListener('load', syncGlobalBackground);
 window.addEventListener('storage', (e) => { if (e.key === 'custom_app_bg') syncGlobalBackground(); });
 
+// ==========================================
+// 💡 حل مشكلة رادار الانقطاع الوهمي
+// ==========================================
 (function() {
     let hidePingTimer = null;
     
@@ -285,6 +300,46 @@ window.selectSpectatorBetColor = function(color) {
         document.getElementById('bet-p1-card').style.border = '2px solid #34c759'; document.getElementById('bet-p2-card').style.border = '2px solid transparent';
     } else {
         document.getElementById('bet-p2-card').style.border = '2px solid #34c759'; document.getElementById('bet-p1-card').style.border = '2px solid transparent';
+    }
+};
+
+window.confirmSpectatorBet = function() {
+    if (!window.gameState || !window.gameState.onlineRoomID) return;
+
+    const colorInput = document.getElementById('spectator-bet-color');
+    let selectedColor = colorInput ? colorInput.value : null;
+
+    if (!selectedColor) {
+        if (window.ui && typeof window.ui.showCustomAlert === 'function') window.ui.showCustomAlert("يرجى اختيار اللاعب الذي تتوقع فوزه أولاً!", "تنبيه");
+        return;
+    }
+
+    const modal = document.getElementById('spectator-bet-modal') || document;
+    let amountInput = document.getElementById('spectator-bet-amount') || modal.querySelector('input[type="number"]');
+    let amount = amountInput ? parseInt(amountInput.value) : 0;
+
+    let vipLevel = window.gameState.userProfile ? (window.gameState.userProfile.vipLevel || 0) : 0;
+    let maxBet = 500; 
+    if (vipLevel === 3) maxBet = 2500;
+    else if (vipLevel === 4) maxBet = 10000;
+    else if (vipLevel >= 5) maxBet = 50000;
+
+    if (isNaN(amount) || amount <= 0 || amount > maxBet) {
+        if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+            window.ui.showCustomAlert(`مبلغ الرهان غير صالح! (الحد الأقصى لمستواك هو ${formatCompactNumber(maxBet)} 🪙)`, "عذراً");
+        }
+        return;
+    }
+
+    if (window.socketManager && typeof window.socketManager.placeSpectatorBet === 'function') {
+        window.socketManager.placeSpectatorBet(window.gameState.onlineRoomID, selectedColor, amount);
+        
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('spectator-bet-modal');
+        } else {
+            let modalEl = document.getElementById('spectator-bet-modal');
+            if (modalEl) modalEl.style.display = 'none';
+        }
     }
 };
 
@@ -646,6 +701,9 @@ window.switchLbTab = function(tabId) {
     }
 };
 
+// ==========================================
+// 🔊 نظام الصوت الشامل لجميع الأزرار (Global Click Sound)
+// ==========================================
 (function() {
     const clickSoundUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/click.wav";
     const clickAudio = new Audio(clickSoundUrl);
@@ -668,6 +726,9 @@ window.switchLbTab = function(tabId) {
     });
 })();
 
+// ==========================================
+// 🎡 نظام التمرير لساحة التحديات (مُحسّن الأداء بصفر استهلاك CPU)
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const scroller = document.getElementById('mm-carousel-scroller');
     if (!scroller) return;
@@ -736,12 +797,10 @@ const RANK_SYSTEM = [
         tierRewards: ['500 🪙', '500 🪙', '500 🪙', '500 🪙'] 
     },
     { 
-        // 🟢 الرتبة أصبحت "ملكي" بدلاً من "تاجي"
-        id: 'royal', name: 'ملكي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', 
+        id: 'crown', name: 'تاجي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', 
         tierRewards: ['800 🪙', '800 🪙', '800 🪙', '800 🪙'] 
     }, 
     { 
-        // 🟢 الأسطوري يستخدم صورة الأسد (os6ory.webp)
         id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', 
         tierRewards: ['1000 🪙', '1000 🪙', '1000 🪙', '1000 🪙'] 
     } 
@@ -793,18 +852,12 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🟢 دفع الإطار إلى أسفل الشاشة تماماً باستخدام position absolute
+    // 🟢 تقليل الفراغات الداخلية ودفع الإطار للأسفل مسافة 15 بيكسل لحماية البطاقات
     const wrapper = container.parentElement;
     if (wrapper) {
-        wrapper.style.setProperty('position', 'absolute', 'important');
-        wrapper.style.setProperty('bottom', '5px', 'important'); // مثبت في الأسفل تماماً
-        wrapper.style.setProperty('left', '50%', 'important');
-        wrapper.style.setProperty('transform', 'translateX(-50%)', 'important');
-        wrapper.style.setProperty('width', 'calc(100% - 20px)', 'important');
-        wrapper.style.setProperty('padding-top', '4px', 'important');
-        wrapper.style.setProperty('padding-bottom', '4px', 'important');
-        wrapper.style.setProperty('z-index', '10', 'important');
-        wrapper.style.setProperty('margin', '0', 'important');
+        wrapper.style.setProperty('padding-top', '2px', 'important');
+        wrapper.style.setProperty('padding-bottom', '2px', 'important');
+        wrapper.style.setProperty('transform', 'translateY(25px)', 'important'); 
     }
 
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
@@ -841,18 +894,24 @@ window.renderRankTrack = function() {
 
         let reachedClass = isReached ? 'reached' : '';
         
-        // 🟢 إزالة فلاتر الألوان للحفاظ على شكل وألوان الرتب الطبيعية (ملكي وأسطوري)
         let iconFilter = '';
-        if (rankData.id === 'royal' || rankData.id === 'legendary') {
+        if (rankData.id === 'crown') {
+            // التاجي بالفلتر البنفسجي
+            iconFilter = 'filter: hue-rotate(270deg) drop-shadow(0 0 6px rgba(200,0,255,0.7));'; 
+        } else if (rankData.id === 'legendary') {
+            // الأسطوري بمسار صورته الجديدة وألوانه الطبيعية المذهلة
             iconFilter = 'filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));'; 
         }
 
         let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
 
+        // تنسيق خفوت اللون عند الإنجاز
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
         
+        // علامة الصح باللون الأزرق المضيء
         let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 10;">✓</div>` : '';
 
+        // عرض ثابت ودائم للجائزة والخط بدون فراغات زائدة
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
                 <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 2px 0 2px 0; position: relative; display: block !important;">
@@ -877,6 +936,7 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
+// مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
 document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -894,8 +954,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
 });
 
+
 // ==========================================
-// 👑 نظام فتح نافذة الألقاب الشاملة
+// 👑 نظام فتح نافذة الألقاب الشاملة (النسخة النهائية السريعة وبدون وميض)
 // ==========================================
 
 window.openTitlesModal = function() {
@@ -1038,41 +1099,5 @@ window.equipTitle = function(titleKey) {
                 });
             }
         }
-    }
-};
-
-window.confirmSpectatorBet = function() {
-    const roomId = document.getElementById('spectator-bet-room-id')?.value || (window.gameState && window.gameState.onlineRoomID);
-    const color = document.getElementById('spectator-bet-color')?.value;
-    const amount = parseInt(document.getElementById('spectator-bet-amount')?.value) || 0;
-
-    if (!roomId) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("خطأ في تحديد الغرفة للمراهنة!");
-        return;
-    }
-    if (!color) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء اختيار اللاعب المتوقع فوزه أولاً (أبيض أو أسود)!");
-        return;
-    }
-    if (amount <= 0) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء تحديد مبلغ الرهان!");
-        return;
-    }
-
-    if (window.socket && window.socket.connected) {
-        const profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-        
-        window.socket.emit('placeSpectatorBet', {
-            roomID: String(roomId).trim(),
-            color: color,
-            amount: amount,
-            guestId: profile.id
-        });
-        
-        if (typeof window.closeAppModal === 'function') {
-            window.closeAppModal('spectator-bet-modal');
-        }
-    } else {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("يرجى الاتصال بالإنترنت أولاً!");
     }
 };
