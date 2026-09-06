@@ -776,15 +776,6 @@ window.initMatchmakingRankBar = function() {
     window.currentViewedRankIndex = window.actualPlayerRankIndex;
     window.renderRankTrack();
 };
-
-window.changeRankView = function(dir) {
-    let newIndex = window.currentViewedRankIndex + dir;
-    if (newIndex >= 0 && newIndex < RANK_SYSTEM.length) {
-        window.currentViewedRankIndex = newIndex;
-        window.renderRankTrack();
-    }
-};
-
 window.renderRankTrack = function() {
     const container = document.getElementById('mm-tiers-container');
     const fillBar = document.getElementById('mm-rank-fill-bar');
@@ -793,11 +784,11 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🟢 الحل الذهبي لمنع التداخل: إبعاد الطبقات عن الأسهم باستخدام padding
-    container.style.setProperty('padding', '0 30px', 'important'); // مسافة أمان للاسهم
+    // 🟢 إبعاد الطبقات عن الأسهم اليمين واليسار
+    container.style.setProperty('padding', '0 30px', 'important'); 
     container.style.setProperty('box-sizing', 'border-box', 'important');
 
-    // إعدادات الإطار الخارجي (ثابت في الأسفل)
+    // 🟢 إعدادات الإطار الخارجي (ثابت أسفل الشاشة بـ 2px)
     const wrapper = container.parentElement;
     if (wrapper) {
         wrapper.style.setProperty('position', 'absolute', 'important');
@@ -805,7 +796,7 @@ window.renderRankTrack = function() {
         wrapper.style.setProperty('left', '50%', 'important');
         wrapper.style.setProperty('transform', 'translateX(-50%)', 'important');
         wrapper.style.setProperty('width', 'calc(100% - 10px)', 'important');
-        wrapper.style.setProperty('padding-top', '6px', 'important'); // مساحة تنفس علوية
+        wrapper.style.setProperty('padding-top', '4px', 'important'); 
         wrapper.style.setProperty('padding-bottom', '4px', 'important');
         wrapper.style.setProperty('z-index', '10', 'important');
         wrapper.style.setProperty('margin', '0', 'important');
@@ -854,25 +845,27 @@ window.renderRankTrack = function() {
 
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
         
-        // رفعنا الـ z-index للصح ليكون دائماً فوق الشريط الأصفر
-        let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
+        // 🟢 تصغير علامة الصح لتناسب الإطار الجديد
+        let checkmark = isReached ? `<div style="position: absolute; top: -5px; left: -6px; background: #0a84ff; color: white; border-radius: 50%; width: 11px; height: 11px; display: flex; align-items: center; justify-content: center; font-size: 7.5px; font-weight: bold; box-shadow: 0 0 3px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
 
+        // 🟢 تصغير الخط الفاصل (width: 22px) وتصغير حجم النص (font-size: 9.5px)
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
-                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 3px 0 2px 0; position: relative; display: block !important;">
+                <div style="width: 22px !important; height: 1.5px !important; background: rgba(255, 255, 255, 0.3); margin: 3px 0 2px 0 !important; position: relative; display: block !important;">
                     ${checkmark}
                 </div>
-                <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important; margin-top: 2px;">
+                <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 9.5px !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important; margin-top: 1px !important;">
                     ${tierRewardText}
                 </span>
             </div>
         `;
 
+        // 🟢 تصغير صورة الرتبة (height: 14px) والنقطة وتصغير اسم الرتبة (font-size: 9.5px)
         html += `
             <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
-                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; margin-bottom: 2px;" onerror="this.style.display='none'">
-                <div class="mm-tier-dot" style="margin-bottom: 2px;"></div>
-                <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 0px;">${rankData.name} ${romanTiers[i]}</span>
+                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; height: 14px !important; width: auto !important; margin-bottom: 2px !important;" onerror="this.style.display='none'">
+                <div class="mm-tier-dot" style="width: 5px !important; height: 5px !important; margin-bottom: 2px !important;"></div>
+                <span class="mm-tier-label" style="font-size: 9.5px !important; font-weight: bold; white-space: nowrap; margin-bottom: 0px !important;">${rankData.name} ${romanTiers[i]}</span>
                 ${rewardDisplayHtml}
             </div>
         `;
