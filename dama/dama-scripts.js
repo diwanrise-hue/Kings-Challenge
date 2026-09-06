@@ -1,6 +1,6 @@
 /**
  * dama-scripts.js
- * المساعد العام للتنسيق والمزامنة
+ * المساعد العام للتنسيق والمزامنة وإدارة ساحة التحديات
  */
 
 function escapeHTML(str) {
@@ -732,9 +732,11 @@ window.renderRankBar = function() {
         const node = document.createElement('div');
         node.className = `mm-tier-node ${isReached ? 'reached' : ''} ${isCurrent ? 'current' : ''}`;
         
+        // 🛠️ الحل الجذري لمنع التكرار اللانهائي (Infinite Loop)
+        // عبر استبدال الصورة بعنصر نصي بدلاً من إضافة عنصر جديد بداخلها.
         node.innerHTML = `
-            <img src="${rank.icon}" class="mm-tier-img" onerror="this.style.display='none'; this.parentNode.innerHTML+='<span style=\\'font-size:26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));\\'>👑</span>'">
-            <div class="mm-tier-dot"></div>
+            <img src="${rank.icon}" class="mm-tier-img" onerror="this.outerHTML='<span style=\\'font-size:26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); margin-bottom: 2px;\\'>👑</span>'">
+            <div class="mm-tier-dot" style="margin-bottom: 2px;"></div>
             <div class="mm-tier-label" style="${isCurrent ? 'color: #ffd700;' : 'color: #a1a1aa;'} margin-top: 4px;">${rank.name}</div>
             <div class="mm-tier-score" style="color: #f5a623; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
                 ${rank.score} <span style="font-size: 13px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));">🪙</span>
