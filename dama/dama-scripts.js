@@ -719,32 +719,12 @@ window.scrollMmCarousel = function(direction) {
 // 📊 نظام شريط الرتبة التفاعلي (Interactive Rank Slider)
 // ==========================================
 const RANK_SYSTEM = [
-    { 
-        id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', 
-        tierRewards: ['50 🪙', '50 🪙', '50 🪙', '50 🪙'] 
-    },
-    { 
-        id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', 
-        tierRewards: ['100 🪙', '100 🪙', '100 🪙', '100 🪙'] 
-    },
-    { 
-        id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', 
-        tierRewards: ['300 🪙', '300 🪙', '300 🪙', '300 🪙'] 
-    },
-    { 
-        id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', 
-        tierRewards: ['500 🪙', '500 🪙', '500 🪙', '500 🪙'] 
-    },
-    { 
-        // 🟢 الرتبة أصبحت "ملكي" بدلاً من "تاجي"
-        id: 'royal', name: 'ملكي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', 
-        tierRewards: ['800 🪙', '800 🪙', '800 🪙', '800 🪙'] 
-    }, 
-    { 
-        // 🟢 الأسطوري يستخدم صورة الأسد (os6ory.webp)
-        id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', 
-        tierRewards: ['1000 🪙', '1000 🪙', '1000 🪙', '1000 🪙'] 
-    } 
+    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', tierRewards: ['50', '50', '50', '50'] },
+    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', tierRewards: ['100', '100', '100', '100'] },
+    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', tierRewards: ['300', '300', '300', '300'] },
+    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', tierRewards: ['500', '500', '500', '500'] },
+    { id: 'royal', name: 'ملكي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', tierRewards: ['800', '800', '800', '800'] }, 
+    { id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', tierRewards: ['1000', '1000', '1000', '1000'] } 
 ];
 
 window.currentViewedRankIndex = 0;
@@ -776,6 +756,15 @@ window.initMatchmakingRankBar = function() {
     window.currentViewedRankIndex = window.actualPlayerRankIndex;
     window.renderRankTrack();
 };
+
+window.changeRankView = function(dir) {
+    let newIndex = window.currentViewedRankIndex + dir;
+    if (newIndex >= 0 && newIndex < RANK_SYSTEM.length) {
+        window.currentViewedRankIndex = newIndex;
+        window.renderRankTrack();
+    }
+};
+
 window.renderRankTrack = function() {
     const container = document.getElementById('mm-tiers-container');
     const fillBar = document.getElementById('mm-rank-fill-bar');
@@ -784,32 +773,25 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🟢 إبعاد الطبقات عن الأسهم اليمين واليسار
-    container.style.setProperty('padding', '0 80px', 'important'); 
-    container.style.setProperty('box-sizing', 'border-box', 'important');
-
-    // 🟢 الحل الأكيد: استهداف الصندوق الأسود الخارجي بالكامل (الذي يضم الأسهم والطبقات)
+    // 🟢 استهداف الصندوق الأسود الرئيسي لضبط الارتفاع والمكان بدقة
     const mainBox = prevBtn ? prevBtn.parentElement : container.parentElement;
-    
     if (mainBox) {
         mainBox.style.setProperty('position', 'absolute', 'important');
-        
-        // 🎛️ للتحكم في النزول والصعود (جرب 0px أو 5px أو حتى أرقام سالبة)
-        mainBox.style.setProperty('bottom', '-5px', 'important'); 
-        
+        mainBox.style.setProperty('bottom', '2px', 'important'); 
         mainBox.style.setProperty('left', '50%', 'important');
         mainBox.style.setProperty('transform', 'translateX(-50%)', 'important');
-        mainBox.style.setProperty('width', 'calc(100% - 10px)', 'important');
-        
-        // 🎛️ للتحكم في ارتفاع الصندوق وسمكه (الآن سيستجيب لتغييراتك فوراً!)
-        mainBox.style.setProperty('padding-top', '8px', 'important'); 
-        mainBox.style.setProperty('padding-bottom', '6px', 'important');
-        
-        mainBox.style.setProperty('z-index', '10', 'important');
+        mainBox.style.setProperty('width', 'calc(100% - 16px)', 'important');
+        // إعطاء مساحة (Padding) مريحة للصندوق لكي تبدو الأيقونات واضحة وكبيرة
+        mainBox.style.setProperty('padding', '12px 0 10px 0', 'important'); 
+        mainBox.style.setProperty('z-index', '100', 'important');
         mainBox.style.setProperty('margin', '0', 'important');
         mainBox.style.setProperty('box-sizing', 'border-box', 'important');
     }
 
+    // 🟢 حماية المحتوى من الأسهم
+    container.style.setProperty('padding', '0 35px', 'important');
+    container.style.setProperty('box-sizing', 'border-box', 'important');
+    container.style.setProperty('width', '100%', 'important');
 
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
     const romanTiers = ["I", "II", "III", "IV"];
@@ -850,31 +832,27 @@ window.renderRankTrack = function() {
             iconFilter = 'filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));'; 
         }
 
-        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
-
-        let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
+        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50';
+        let rewardOpacity = isReached ? 'opacity: 0.5; filter: grayscale(30%);' : 'opacity: 1;';
         
-        // 🟢 تصغير علامة الصح لتناسب الإطار الجديد
-        let checkmark = isReached ? `<div style="position: absolute; top: -5px; left: -6px; background: #0a84ff; color: white; border-radius: 50%; width: 11px; height: 11px; display: flex; align-items: center; justify-content: center; font-size: 7.5px; font-weight: bold; box-shadow: 0 0 3px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
+        // 🟢 تصميم الجائزة مطابق للصورة (دائرة خضراء بصح ✓ + الرقم)
+        let greenCheck = isReached ? `<div style="background: #34c759; color: white; border-radius: 50%; width: 13px; height: 13px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(52,199,89,0.6);">✓</div>` : '';
 
-        // 🟢 تصغير الخط الفاصل (width: 22px) وتصغير حجم النص (font-size: 9.5px)
         let rewardDisplayHtml = `
-            <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
-                <div style="width: 22px !important; height: 1.5px !important; background: rgba(255, 255, 255, 0.3); margin: 3px 0 2px 0 !important; position: relative; display: block !important;">
-                    ${checkmark}
-                </div>
-                <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 9.5px !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important; margin-top: 1px !important;">
-                    ${tierRewardText}
+            <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 5px; ${rewardOpacity}">
+                ${greenCheck}
+                <span style="color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap;">
+                    ${tierRewardText} 🪙
                 </span>
             </div>
         `;
 
-        // 🟢 تصغير صورة الرتبة (height: 14px) والنقطة وتصغير اسم الرتبة (font-size: 9.5px)
+        // 🟢 إعادة الصور والنصوص إلى حجمها الطبيعي المريح والكبير
         html += `
             <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
-                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; height: 14px !important; width: auto !important; margin-bottom: 2px !important;" onerror="this.style.display='none'">
-                <div class="mm-tier-dot" style="width: 5px !important; height: 5px !important; margin-bottom: 2px !important;"></div>
-                <span class="mm-tier-label" style="font-size: 9.5px !important; font-weight: bold; white-space: nowrap; margin-bottom: 0px !important;">${rankData.name} ${romanTiers[i]}</span>
+                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; height: 26px !important; width: auto !important; margin-bottom: 6px !important; z-index: 2; position: relative;" onerror="this.style.display='none'">
+                <div class="mm-tier-dot" style="width: 10px !important; height: 10px !important; margin-bottom: 6px !important; z-index: 2; position: relative;"></div>
+                <span class="mm-tier-label" style="font-size: 11px !important; font-weight: bold; white-space: nowrap; margin-bottom: 0px !important; color: #fff;">${rankData.name} ${romanTiers[i]}</span>
                 ${rewardDisplayHtml}
             </div>
         `;
@@ -883,6 +861,22 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
+document.addEventListener('DOMContentLoaded', () => {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
+                setTimeout(() => {
+                    if (typeof window.initMatchmakingRankBar === 'function') {
+                        window.initMatchmakingRankBar();
+                    }
+                }, 50);
+            }
+        });
+    });
+
+    const modal = document.getElementById('matchmaking-stakes-modal');
+    if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+});
 
 // ==========================================
 // 👑 نظام فتح نافذة الألقاب الشاملة
