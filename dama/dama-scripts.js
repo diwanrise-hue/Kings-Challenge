@@ -1,8 +1,17 @@
 /**
  * dama-scripts.js
- * المساعد العام للتنسيق والمزامنة وإدارة ساحة التحديات
+ * المساعد العام للتنسيق والمزامنة
+ * 🌟 (مُحدّث): سقف مراهنات الـ VIP العالي للمشاهدين، ودالة تأكيد الرهان.
+ * 🌟 (مُحدّث أمني): تشفير هوية الخصم (Masked ID) لمنع انتحال الشخصية.
+ * 🚷 (مُحدّث جديد): إضافة دوال جلب قائمة المشاهدين وطرد الهاكرز (VIP 4+).
+ * 🛡️ (مُحدّث جذرياً): تنظيف مدخلات XSS ومسح الذاكرة عند إغلاق لوحة الشرف.
+ * 🔊 (مُحدّث جديد): نظام الصوت الشامل لجميع الأزرار القابلة للضغط.
+ * 🚀 (تحسين الأداء GPU/CPU): استبدال حدث التمرير الثقيل بنظام IntersectionObserver الذكي.
+ * 📊 (تحديث جديد): نظام شريط الرتب التفاعلي الشامل (ماسي، تاجي، أسطوري) وظهور فوري.
+ * 🏆 (تحديث جذري): نافذة ألقاب ضخمة 90%، بتبويبات (مكتمل/غير مكتمل) و 20 لقباً!
  */
 
+// 🛡️ دالة لتنظيف أي نصوص قادمة من السيرفر لمنع ثغرة XSS
 function escapeHTML(str) {
     if (!str) return '';
     const div = document.createElement('div');
@@ -192,6 +201,9 @@ window.renderDamaPopularityStore = function() {
     } else { grid.innerHTML = '<p style="color: #a1a1aa; text-align: center; grid-column: span 3; padding: 15px;">لا توجد عناصر شعبية حالياً.</p>'; }
 };
 
+// ==========================================
+// 🛡️ التشفير الجذري لمعرف الخصم لمنع الاختراق
+// ==========================================
 window.showOpponentProfile = function() {
     if (!window.currentOpponentData) return;
     const opp = window.currentOpponentData;
@@ -249,6 +261,9 @@ window.addEventListener('DOMContentLoaded', syncGlobalBackground);
 window.addEventListener('load', syncGlobalBackground);
 window.addEventListener('storage', (e) => { if (e.key === 'custom_app_bg') syncGlobalBackground(); });
 
+// ==========================================
+// 💡 حل مشكلة رادار الانقطاع الوهمي
+// ==========================================
 (function() {
     let hidePingTimer = null;
     
@@ -285,6 +300,46 @@ window.selectSpectatorBetColor = function(color) {
         document.getElementById('bet-p1-card').style.border = '2px solid #34c759'; document.getElementById('bet-p2-card').style.border = '2px solid transparent';
     } else {
         document.getElementById('bet-p2-card').style.border = '2px solid #34c759'; document.getElementById('bet-p1-card').style.border = '2px solid transparent';
+    }
+};
+
+window.confirmSpectatorBet = function() {
+    if (!window.gameState || !window.gameState.onlineRoomID) return;
+
+    const colorInput = document.getElementById('spectator-bet-color');
+    let selectedColor = colorInput ? colorInput.value : null;
+
+    if (!selectedColor) {
+        if (window.ui && typeof window.ui.showCustomAlert === 'function') window.ui.showCustomAlert("يرجى اختيار اللاعب الذي تتوقع فوزه أولاً!", "تنبيه");
+        return;
+    }
+
+    const modal = document.getElementById('spectator-bet-modal') || document;
+    let amountInput = document.getElementById('spectator-bet-amount') || modal.querySelector('input[type="number"]');
+    let amount = amountInput ? parseInt(amountInput.value) : 0;
+
+    let vipLevel = window.gameState.userProfile ? (window.gameState.userProfile.vipLevel || 0) : 0;
+    let maxBet = 500; 
+    if (vipLevel === 3) maxBet = 2500;
+    else if (vipLevel === 4) maxBet = 10000;
+    else if (vipLevel >= 5) maxBet = 50000;
+
+    if (isNaN(amount) || amount <= 0 || amount > maxBet) {
+        if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+            window.ui.showCustomAlert(`مبلغ الرهان غير صالح! (الحد الأقصى لمستواك هو ${formatCompactNumber(maxBet)} 🪙)`, "عذراً");
+        }
+        return;
+    }
+
+    if (window.socketManager && typeof window.socketManager.placeSpectatorBet === 'function') {
+        window.socketManager.placeSpectatorBet(window.gameState.onlineRoomID, selectedColor, amount);
+        
+        if (typeof window.closeAppModal === 'function') {
+            window.closeAppModal('spectator-bet-modal');
+        } else {
+            let modalEl = document.getElementById('spectator-bet-modal');
+            if (modalEl) modalEl.style.display = 'none';
+        }
     }
 };
 
@@ -646,6 +701,9 @@ window.switchLbTab = function(tabId) {
     }
 };
 
+// ==========================================
+// 🔊 نظام الصوت الشامل لجميع الأزرار (Global Click Sound)
+// ==========================================
 (function() {
     const clickSoundUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/click.wav";
     const clickAudio = new Audio(clickSoundUrl);
@@ -669,15 +727,83 @@ window.switchLbTab = function(tabId) {
 })();
 
 // ==========================================
-// 📊 نظام شريط الرتبة التفاعلي (الأساسي الحقيقي)
+// 🎡 نظام التمرير لساحة التحديات (مُحسّن الأداء بصفر استهلاك CPU)
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const scroller = document.getElementById('mm-carousel-scroller');
+    if (!scroller) return;
+
+    const cards = scroller.querySelectorAll('.mm-card');
+
+    const observerOptions = {
+        root: scroller,
+        rootMargin: '0px -45% 0px -45%', 
+        threshold: 0
+    };
+
+    const cardObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                cards.forEach(c => c.classList.remove('active'));
+                entry.target.classList.add('active');
+            }
+        });
+    }, observerOptions);
+
+    cards.forEach(card => cardObserver.observe(card));
+    
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
+                setTimeout(() => {
+                    const redCard = document.querySelector('.mm-card.theme-red');
+                    if (redCard) {
+                        redCard.scrollIntoView({ behavior: 'auto', inline: 'center' });
+                    }
+                }, 50);
+            }
+        });
+    });
+
+    const modal = document.getElementById('matchmaking-stakes-modal');
+    if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+});
+
+window.scrollMmCarousel = function(direction) {
+    const scroller = document.getElementById('mm-carousel-scroller');
+    if(scroller) {
+        scroller.scrollBy({ left: direction * 240, behavior: 'smooth' });
+    }
+};
+
+// ==========================================
+// 📊 نظام شريط الرتبة التفاعلي (Interactive Rank Slider)
 // ==========================================
 const RANK_SYSTEM = [
-    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', tierRewards: ['50 🪙', '50 🪙', '50 🪙', '50 🪙'] },
-    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', tierRewards: ['100 🪙', '100 🪙', '100 🪙', '100 🪙'] },
-    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', tierRewards: ['300 🪙', '300 🪙', '300 🪙', '300 🪙'] },
-    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', tierRewards: ['500 🪙', '500 🪙', '500 🪙', '500 🪙'] },
-    { id: 'royal', name: 'ملكي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', tierRewards: ['800 🪙', '800 🪙', '800 🪙', '800 🪙'] }, 
-    { id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', tierRewards: ['1000 🪙', '1000 🪙', '1000 🪙', '1000 🪙'] } 
+    { 
+        id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', 
+        tierRewards: ['50 🪙', '50 🪙', '50 🪙', '50 🪙'] 
+    },
+    { 
+        id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', 
+        tierRewards: ['100 🪙', '100 🪙', '100 🪙', '100 🪙'] 
+    },
+    { 
+        id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', 
+        tierRewards: ['300 🪙', '300 🪙', '300 🪙', '300 🪙'] 
+    },
+    { 
+        id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', 
+        tierRewards: ['500 🪙', '500 🪙', '500 🪙', '500 🪙'] 
+    },
+    { 
+        id: 'crown', name: 'تاجي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', 
+        tierRewards: ['800 🪙', '800 🪙', '800 🪙', '800 🪙'] 
+    }, 
+    { 
+        id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', 
+        tierRewards: ['1000 🪙', '1000 🪙', '1000 🪙', '1000 🪙'] 
+    } 
 ];
 
 window.currentViewedRankIndex = 0;
@@ -726,6 +852,14 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
+    // 🟢 تقليل الفراغات الداخلية ودفع الإطار للأسفل مسافة 15 بيكسل لحماية البطاقات
+    const wrapper = container.parentElement;
+    if (wrapper) {
+        wrapper.style.setProperty('padding-top', '4px', 'important');
+        wrapper.style.setProperty('padding-bottom', '4px', 'important');
+        wrapper.style.setProperty('transform', 'translateY(15px)', 'important'); 
+    }
+
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
     const romanTiers = ["I", "II", "III", "IV"];
     
@@ -761,32 +895,38 @@ window.renderRankTrack = function() {
         let reachedClass = isReached ? 'reached' : '';
         
         let iconFilter = '';
-        if (rankData.id === 'royal' || rankData.id === 'legendary') {
+        if (rankData.id === 'crown') {
+            // التاجي بالفلتر البنفسجي
+            iconFilter = 'filter: hue-rotate(270deg) drop-shadow(0 0 6px rgba(200,0,255,0.7));'; 
+        } else if (rankData.id === 'legendary') {
+            // الأسطوري بمسار صورته الجديدة وألوانه الطبيعية المذهلة
             iconFilter = 'filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));'; 
         }
 
         let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
 
+        // تنسيق خفوت اللون عند الإنجاز
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
         
-        let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
+        // علامة الصح باللون الأزرق المضيء
+        let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 10;">✓</div>` : '';
 
+        // عرض ثابت ودائم للجائزة والخط بدون فراغات زائدة
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
-                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 3px 0 2px 0; position: relative; display: block !important;">
+                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 2px 0 2px 0; position: relative; display: block !important;">
                     ${checkmark}
                 </div>
-                <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important; margin-top: 2px;">
+                <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important; margin-top: 1px;">
                     ${tierRewardText}
                 </span>
             </div>
         `;
 
-        // 🛠️ الحل السحري الجذري لمنع التكرار اللانهائي عبر استخدام outerHTML بدلاً من innerHTML +=
         html += `
             <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
-                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; margin-bottom: 2px;" onerror="this.outerHTML='<span style=\\'font-size:26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); margin-bottom: 2px;\\'>👑</span>'">
-                <div class="mm-tier-dot" style="margin-bottom: 2px;"></div>
+                <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; margin-bottom: 1px;" onerror="this.style.display='none'">
+                <div class="mm-tier-dot" style="margin-bottom: 1px;"></div>
                 <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 0px;">${rankData.name} ${romanTiers[i]}</span>
                 ${rewardDisplayHtml}
             </div>
@@ -796,131 +936,29 @@ window.renderRankTrack = function() {
     container.innerHTML = html;
 };
 
-// ==========================================
-// 🎡 أكواد التمرير للكروت وتأكيد البحث عن خصم
-// ==========================================
+// مراقبة النافذة لتشغيل الشريط فور ظهورها برمجياً
 document.addEventListener('DOMContentLoaded', () => {
-    const scroller = document.getElementById('mm-carousel-scroller');
-    const cards = scroller ? scroller.querySelectorAll('.mm-card') : [];
-    if (!scroller || cards.length === 0) return;
-
-    let isScrolling;
-    
-    const updateActiveCard = () => {
-        const scrollerRect = scroller.getBoundingClientRect();
-        const scrollerCenter = scrollerRect.left + (scrollerRect.width / 2);
-        
-        let closestCard = null;
-        let closestDistance = Infinity;
-
-        const distances = Array.from(cards).map(card => {
-            const rect = card.getBoundingClientRect();
-            const cardCenter = rect.left + (rect.width / 2);
-            return { card, distance: Math.abs(scrollerCenter - cardCenter) };
-        });
-
-        distances.forEach(item => {
-            if (item.distance < closestDistance) {
-                closestDistance = item.distance;
-                closestCard = item.card;
-            }
-        });
-
-        cards.forEach(c => {
-            if (c === closestCard) {
-                if (!c.classList.contains('active')) c.classList.add('active');
-            } else {
-                if (c.classList.contains('active')) c.classList.remove('active');
-            }
-        });
-    };
-
-    scroller.addEventListener('scroll', () => {
-        if (isScrolling) window.cancelAnimationFrame(isScrolling);
-        isScrolling = window.requestAnimationFrame(updateActiveCard);
-    }, { passive: true });
-
-    const modal = document.getElementById('matchmaking-stakes-modal');
-    let initialScrollDone = false;
-    
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
-                if (!initialScrollDone) {
-                    setTimeout(() => {
-                        const lastBet = localStorage.getItem('last_selected_mm_bet');
-                        let targetCard = null;
-
-                        if (lastBet !== null) {
-                            targetCard = Array.from(cards).find(card => {
-                                const btn = card.querySelector('.mm-card-btn');
-                                return btn && btn.getAttribute('onclick') === `window.startMatchmakingWithBet(${lastBet})`;
-                            });
-                        }
-
-                        if (!targetCard) { targetCard = cards[0]; }
-
-                        const scrollPos = targetCard.offsetLeft - (scroller.clientWidth / 2) + (targetCard.clientWidth / 2);
-                        
-                        scroller.style.scrollBehavior = 'smooth';
-                        scroller.scrollTo({ left: scrollPos });
-                        
-                        setTimeout(() => {
-                            scroller.style.scrollBehavior = 'auto'; 
-                            updateActiveCard();
-                        }, 300);
-                        
-                        initialScrollDone = true; 
-                    }, 50);
-                }
-            } else {
-                initialScrollDone = false; 
+                setTimeout(() => {
+                    if (typeof window.initMatchmakingRankBar === 'function') {
+                        window.initMatchmakingRankBar();
+                    }
+                }, 50);
             }
         });
     });
-    
+
+    const modal = document.getElementById('matchmaking-stakes-modal');
     if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
 });
 
-window.scrollMmCarousel = function(direction) {
-    const scroller = document.getElementById('mm-carousel-scroller');
-    if(scroller) {
-        const cardWidth = 290; 
-        const margin = -40;
-        scroller.style.scrollBehavior = 'smooth';
-        scroller.scrollBy({ left: direction * (cardWidth + (margin * 2)) });
-        setTimeout(() => { scroller.style.scrollBehavior = 'auto'; }, 300);
-    }
-};
-
-window.startMatchmakingWithBet = function(betAmount) {
-    localStorage.setItem('last_selected_mm_bet', betAmount);
-    window.closeAppModal('matchmaking-stakes-modal');
-    
-    const timerEl = document.getElementById('mm-timer');
-    if (timerEl) timerEl.textContent = '00:00';
-    
-    if (window.gameState) {
-        window.gameState.mmStartTime = Date.now();
-        if (window.gameState.mmInterval) clearInterval(window.gameState.mmInterval);
-        window.gameState.mmInterval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - window.gameState.mmStartTime) / 1000);
-            const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
-            const s = String(elapsed % 60).padStart(2, '0');
-            if (timerEl) timerEl.textContent = `${m}:${s}`;
-        }, 1000);
-    }
-
-    window.openAppModal('matchmaking-modal');
-    
-    if (window.socketManager && typeof window.socketManager.handleRoomAction === 'function') {
-        window.socketManager.handleRoomAction('joinMatchmakingPool', null, null, betAmount);
-    }
-};
 
 // ==========================================
-// 👑 نظام فتح نافذة الألقاب الشاملة
+// 👑 نظام فتح نافذة الألقاب الشاملة (النسخة النهائية السريعة وبدون وميض)
 // ==========================================
+
 window.openTitlesModal = function() {
     let profile = null;
     try {
@@ -1061,41 +1099,5 @@ window.equipTitle = function(titleKey) {
                 });
             }
         }
-    }
-};
-
-window.confirmSpectatorBet = function() {
-    const roomId = document.getElementById('spectator-bet-room-id')?.value || (window.gameState && window.gameState.onlineRoomID);
-    const color = document.getElementById('spectator-bet-color')?.value;
-    const amount = parseInt(document.getElementById('spectator-bet-amount')?.value) || 0;
-
-    if (!roomId) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("خطأ في تحديد الغرفة للمراهنة!");
-        return;
-    }
-    if (!color) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء اختيار اللاعب المتوقع فوزه أولاً (أبيض أو أسود)!");
-        return;
-    }
-    if (amount <= 0) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء تحديد مبلغ الرهان!");
-        return;
-    }
-
-    if (window.socket && window.socket.connected) {
-        const profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-        
-        window.socket.emit('placeSpectatorBet', {
-            roomID: String(roomId).trim(),
-            color: color,
-            amount: amount,
-            guestId: profile.id
-        });
-        
-        if (typeof window.closeAppModal === 'function') {
-            window.closeAppModal('spectator-bet-modal');
-        }
-    } else {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("يرجى الاتصال بالإنترنت أولاً!");
     }
 };
