@@ -792,12 +792,12 @@ window.renderRankTrack = function() {
     const wrapper = container.parentElement;
     if (wrapper) {
         wrapper.style.setProperty('position', 'absolute', 'important');
-        wrapper.style.setProperty('bottom', '0px', 'important'); 
+        wrapper.style.setProperty('bottom', '-2px', 'important'); 
         wrapper.style.setProperty('left', '50%', 'important');
         wrapper.style.setProperty('transform', 'translateX(-50%)', 'important');
         wrapper.style.setProperty('width', 'calc(100% - 10px)', 'important');
-        wrapper.style.setProperty('padding-top', '4px', 'important'); 
-        wrapper.style.setProperty('padding-bottom', '4px', 'important');
+        wrapper.style.setProperty('padding-top', '8px', 'important'); 
+        wrapper.style.setProperty('padding-bottom', '8px', 'important');
         wrapper.style.setProperty('z-index', '10', 'important');
         wrapper.style.setProperty('margin', '0', 'important');
     }
