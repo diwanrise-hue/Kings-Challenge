@@ -852,12 +852,26 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🟢 تقليل الفراغات الداخلية ودفع الإطار للأسفل مسافة 15 بيكسل لحماية البطاقات
+    // 🟢 تعديل التموضع ليصبح في أسفل الشاشة بمسافة 1px
     const wrapper = container.parentElement;
     if (wrapper) {
         wrapper.style.setProperty('padding-top', '4px', 'important');
         wrapper.style.setProperty('padding-bottom', '4px', 'important');
-        wrapper.style.setProperty('transform', 'translateY(15px)', 'important'); 
+        
+        // التموضع الثابت في الأسفل
+        wrapper.style.setProperty('position', 'fixed', 'important'); // fixed لضمان بقائه في أسفل الشاشة حتى مع التمرير
+        wrapper.style.setProperty('bottom', '1px', 'important');
+        
+        // التوسيط الأفقي
+        wrapper.style.setProperty('left', '50%', 'important');
+        wrapper.style.setProperty('transform', 'translateX(-50%)', 'important');
+        
+        // ضبط العرض ليتناسب مع الشاشة (يمكنك تعديل القيمة 40px حسب الهوامش المطلوبة)
+        wrapper.style.setProperty('width', 'calc(100% - 40px)', 'important');
+        wrapper.style.setProperty('max-width', '500px', 'important'); 
+        
+        // ضمان بقائه فوق العناصر الأخرى
+        wrapper.style.setProperty('z-index', '999', 'important');
     }
 
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
