@@ -857,7 +857,7 @@ window.renderRankTrack = function() {
     if (wrapper) {
         wrapper.style.setProperty('padding-top', '4px', 'important');
         wrapper.style.setProperty('padding-bottom', '4px', 'important');
-        wrapper.style.setProperty('transform', 'translateY(15px)', 'important'); 
+        wrapper.style.setProperty('transform', 'translateY(1px)', 'important'); 
     }
 
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
