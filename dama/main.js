@@ -77,22 +77,37 @@ export function updateSpinTimerDisplay(nextFreeTime) {
     const tick = () => {
         const now = Date.now();
         const timerEl = document.getElementById('spin-timer');
+        const timerWrapper = document.getElementById('spin-timer-wrapper');
+        const hBox = document.getElementById('spin-timer-h');
+        const mBox = document.getElementById('spin-timer-m');
+        const sBox = document.getElementById('spin-timer-s');
         const freeBtn = document.getElementById('spin-free-btn');
         const paidBtn = document.getElementById('spin-paid-btn');
         const menuNotifyBadge = document.getElementById('menu-spin-notify-badge');
 
         if (!nextFreeTime || now >= nextFreeTime) {
-            if (timerEl) timerEl.innerText = "اللفة المجانية جاهزة! 🎁";
+            // اللفة مجانية جاهزة
+            if (timerWrapper) timerWrapper.style.display = 'none';
+            if (timerEl) { timerEl.style.display = 'block'; timerEl.innerText = "اللفة المجانية جاهزة! 🎁"; }
             if (freeBtn) freeBtn.style.display = 'flex';
             if (paidBtn) paidBtn.style.display = 'none';
             if (menuNotifyBadge) menuNotifyBadge.style.display = 'block';
             clearInterval(spinTimerInterval); spinTimerInterval = null;
         } else {
+            // اللفة غير جاهزة (يتم عرض الوقت في المربعات)
+            if (timerWrapper) timerWrapper.style.display = 'flex';
+            if (timerEl) timerEl.style.display = 'none';
+            
             let diff = Math.floor((nextFreeTime - now) / 1000);
             let h = String(Math.floor(diff / 3600)).padStart(2, '0');
             let m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
             let s = String(diff % 60).padStart(2, '0');
-            if (timerEl) timerEl.innerText = `اللفة المجانية القادمة بعد: ${h}:${m}:${s}`;
+            
+            // تحديث مربعات الوقت بشكل منفصل
+            if (hBox) hBox.innerText = h;
+            if (mBox) mBox.innerText = m;
+            if (sBox) sBox.innerText = s;
+
             if (freeBtn) freeBtn.style.display = 'none';
             if (paidBtn) paidBtn.style.display = 'flex';
             if (menuNotifyBadge) menuNotifyBadge.style.display = 'none';
