@@ -122,6 +122,7 @@ export function updateSpinTimerDisplay(nextFreeTime) {
 }
 
 
+
 window.addEventListener('load', async () => {
     if (typeof ui.initProfileSystem === 'function') ui.initProfileSystem();
     if (typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard();
