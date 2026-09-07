@@ -1281,12 +1281,14 @@ body.online-mode-active .game-container { order: 3 !important; }
     );
 }
 
-..wheel-text { 
+.wheel-text { 
     position: absolute; top: 20px; left: 50%; transform-origin: center 108px; 
     text-align: center; font-size: 16px; font-weight: 800; color: #fff; 
     text-shadow: 0px 2px 4px rgba(0,0,0,0.9), 0px 0px 8px rgba(0,0,0,0.5); 
     white-space: nowrap; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+    direction: ltr !important; /* أضف هذا السطر لإصلاح انعكاس النسبة والرموز */
 }
+
 
 .w-1 { transform: translateX(-50%) rotate(22.5deg); } .w-2 { transform: translateX(-50%) rotate(67.5deg); } .w-3 { transform: translateX(-50%) rotate(112.5deg); } .w-4 { transform: translateX(-50%) rotate(157.5deg); } .w-5 { transform: translateX(-50%) rotate(202.5deg); } .w-6 { transform: translateX(-50%) rotate(247.5deg); } .w-7 { transform: translateX(-50%) rotate(292.5deg); } .w-8 { transform: translateX(-50%) rotate(337.5deg); color: #ffd700; font-size: 17px; text-shadow: 0 0 10px #d4af37, 0 2px 4px black; }
 
