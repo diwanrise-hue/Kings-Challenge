@@ -17,13 +17,14 @@
         /* ساحة التحديات (Matchmaking Stakes) - تأثيرات البطاقات */
         /* ========================================== */
         #matchmaking-stakes-modal {
-            align-items: center !important;
-            justify-content: center !important;
-            padding-top: 0 !important;
-            background: rgba(15, 10, 15, 0.85);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-        }
+        align-items: center !important;
+        justify-content: flex-start !important; /* 1. تغيير الوسم من center إلى flex-start لتبدأ العناصر من الأعلى */
+        padding-top: 40px !important;           /* 2. زيادة هذا الرقم (مثلاً 40px أو 50px) لرفع العنوان والزخرفة للمكان الذي تريده بالضبط */
+        background: rgba(15, 10, 15, 0.85);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+ }
+
 
         /* 🌟 زر الإغلاق X منقول للزاوية العليا الثابتة 🌟 */
         #matchmaking-stakes-modal .modal-close-btn {
