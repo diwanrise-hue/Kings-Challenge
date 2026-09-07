@@ -43,6 +43,29 @@
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
+        /* 🌟 كلاس عملة اللعبة الجديد 🌟 */
+        .app-coin-icon {
+            width: 1.2em;
+            height: 1.2em;
+            vertical-align: middle;
+            display: inline-block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+            margin: 0 2px;
+            transform: translateY(-1px);
+        }
+
+        /* 🌟 كلاس بطاقات الخصم الجديد 🌟 */
+        .app-ticket-icon {
+            width: 1.4em;
+            height: 1.4em;
+            vertical-align: middle;
+            display: inline-block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+            margin: 0 2px;
+            transform: translateY(-2px);
+            object-fit: contain;
+        }
+
         html[lang="ar"], html[lang="ku"] { font-family: 'Tajawal', sans-serif; }
         html[lang="en"] { font-family: 'Outfit', sans-serif; }
 
@@ -596,7 +619,7 @@
             </div>
             <div class="hud-group">
                 <div class="hub-token-badge">
-                    🪙 <span id="hub-token-count">0</span>
+                    <img src="Photo/coin.webp" class="app-coin-icon" alt="Coin"> <span id="hub-token-count">0</span>
                 </div>
                 <div class="profile-avatar" id="hub-profile-avatar" onclick="openProfileModal()"></div>
             </div>
@@ -736,7 +759,7 @@
     <div id="store-modal" class="modal-overlay" style="z-index: 2000;">
         <div class="settings-card" dir="auto" style="padding: 0; overflow: hidden; position: relative;">
             <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 100000; background: rgba(0,0,0,0.5) !important;">✕</button>
-            <div style="position: absolute; top: 18px; right: 20px; z-index: 100000; color: white;">🪙 <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
+            <div style="position: absolute; top: 18px; right: 20px; z-index: 100000; color: white;"><img src="Photo/coin.webp" class="app-coin-icon"> <span id="profile-stat-tokens-store" style="color: white; font-size: 13px;">0</span></div>
         </div>
     </div>
 
@@ -834,7 +857,7 @@
                 <button onclick="changePlayerName()" class="btn btn-secondary full-width" data-i18n="profile_change_name">تغيير الاسم</button>
             </div>
             <div class="stats-box">
-                <span data-i18n="profile_balance">🪙 الرصيد الكلي:</span>
+                <span data-i18n="profile_balance"><img src="Photo/coin.webp" class="app-coin-icon"> الرصيد الكلي:</span>
                 <span id="profile-stat-tokens">0</span>
             </div>
             <div class="bottom-actions">
@@ -860,7 +883,7 @@
             </div>
 
             <div id="discount-container" style="display: none; width: 100%; margin-bottom: 25px; background: rgba(52, 199, 89, 0.05); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: 16px; padding: 15px;">
-                <label style="color: #34c759; font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">استخدم قسيمة خصم (اختياري) 🎫:</label>
+                <label style="color: #34c759; font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">استخدم قسيمة خصم (اختياري) <img src="Photo/discount10.webp" class="app-ticket-icon">:</label>
                 <select id="modal-discount-select" class="clean-input" style="height: 40px; font-size: 14px; background: rgba(0,0,0,0.4); border-color: rgba(52, 199, 89, 0.2); color: white;">
                     <option value="0">بدون خصم (حفظ القسائم)</option>
                 </select>
