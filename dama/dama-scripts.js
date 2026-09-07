@@ -684,12 +684,13 @@ window.currentViewedRankIndex = 0;
 window.actualPlayerRankIndex = 0;
 window.highestPlayerRankIndex = 0;
 window.actualPlayerScore = 0;
+window.highestPlayerScore = 0;
 
 window.initMatchmakingRankBar = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     
     window.actualPlayerScore = parseInt(profile.score) || parseInt(profile.xp) || 0;
-    let highestScore = parseInt(profile.highestScoreReached) || window.actualPlayerScore;
+    window.highestPlayerScore = parseInt(profile.highestScoreReached) || window.actualPlayerScore;
 
     window.actualPlayerRankIndex = 0;
     window.highestPlayerRankIndex = 0;
@@ -698,12 +699,12 @@ window.initMatchmakingRankBar = function() {
         if (window.actualPlayerScore >= RANK_SYSTEM[i].min && window.actualPlayerScore <= RANK_SYSTEM[i].max) {
             window.actualPlayerRankIndex = i;
         }
-        if (highestScore >= RANK_SYSTEM[i].min && highestScore <= RANK_SYSTEM[i].max) {
+        if (window.highestPlayerScore >= RANK_SYSTEM[i].min && window.highestPlayerScore <= RANK_SYSTEM[i].max) {
             window.highestPlayerRankIndex = i;
         }
     }
     
-    if(highestScore >= RANK_SYSTEM[RANK_SYSTEM.length-1].min) window.highestPlayerRankIndex = RANK_SYSTEM.length - 1;
+    if(window.highestPlayerScore >= RANK_SYSTEM[RANK_SYSTEM.length-1].min) window.highestPlayerRankIndex = RANK_SYSTEM.length - 1;
     if(window.actualPlayerScore >= RANK_SYSTEM[RANK_SYSTEM.length-1].min) window.actualPlayerRankIndex = RANK_SYSTEM.length - 1;
 
     window.currentViewedRankIndex = window.actualPlayerRankIndex;
@@ -733,8 +734,9 @@ window.renderRankTrack = function() {
     if(nextBtn) nextBtn.disabled = window.currentViewedRankIndex === RANK_SYSTEM.length - 1;
 
     let html = '';
-    let fillPercent = 0;
 
+    // نسبة التعبئة للشريط البصري (يعتمد على النقاط الحالية، ينزل إذا خسر)
+    let fillPercent = 0;
     if (window.currentViewedRankIndex < window.actualPlayerRankIndex) {
         fillPercent = 100; 
     } else if (window.currentViewedRankIndex > window.actualPlayerRankIndex) {
@@ -749,14 +751,36 @@ window.renderRankTrack = function() {
         }
     }
 
+    // نسبة التعبئة للجوائز (تعتمد على أعلى نتيجة، لضمان بقاء علامة الصح)
+    let highestFillPercent = 0;
+    if (window.currentViewedRankIndex < window.highestPlayerRankIndex) {
+        highestFillPercent = 100;
+    } else if (window.currentViewedRankIndex > window.highestPlayerRankIndex) {
+        highestFillPercent = 0;
+    } else {
+        if (rankData.max === Infinity) {
+            highestFillPercent = 100;
+        } else {
+            const rankRange = rankData.max - rankData.min + 1;
+            const highestScoreInRank = window.highestPlayerScore - rankData.min;
+            highestFillPercent = Math.min(100, Math.max(0, (highestScoreInRank / rankRange) * 100));
+        }
+    }
+
     fillBar.style.width = `${fillPercent}%`;
 
     for (let i = 0; i < 4; i++) {
         let requiredPercentForNode = i * 33.33;
-        let isReached = fillPercent >= requiredPercentForNode;
         
-        if (window.currentViewedRankIndex < window.actualPlayerRankIndex) isReached = true;
-        if (window.currentViewedRankIndex > window.actualPlayerRankIndex) isReached = false;
+        let isReached = highestFillPercent >= requiredPercentForNode;
+        
+        if (window.currentViewedRankIndex < window.highestPlayerRankIndex) isReached = true;
+        if (window.currentViewedRankIndex > window.highestPlayerRankIndex) isReached = false;
+
+        // 🟢 الإصلاح الجذري: منع علامة الصح إذا كانت أعلى نتيجة للاعب هي صفر (لاعب جديد)!
+        if (window.currentViewedRankIndex === 0 && i === 0 && window.highestPlayerScore === 0) {
+            isReached = false;
+        }
 
         let reachedClass = isReached ? 'reached' : '';
         
@@ -766,7 +790,6 @@ window.renderRankTrack = function() {
         }
 
         let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
-
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
         
         let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
@@ -782,7 +805,6 @@ window.renderRankTrack = function() {
             </div>
         `;
 
-        // 🛠️ الحل السحري الجذري لمنع التكرار اللانهائي عبر استخدام outerHTML بدلاً من innerHTML +=
         html += `
             <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
                 <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; margin-bottom: 2px;" onerror="this.outerHTML='<span style=\\'font-size:26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); margin-bottom: 2px;\\'>👑</span>'">
