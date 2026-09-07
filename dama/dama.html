@@ -704,9 +704,20 @@
                 <div class="wheel-center-pin"></div>
             </div>
 
-            <div id="spin-timer" style="color: #a1a1aa; font-size: 14px; margin-bottom: 15px; font-weight: 600;">اللفة المجانية جاهزة!</div>
-            <button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important; border-color: #8be8ab !important; border-bottom: 3.5px solid #145a32 !important;">لفة مجانية 🆓</button>
-            <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none; border-color: #f5a623 !important;">لفة إضافية (200 🪙)</button>
+            <div class="spin-timer-container">
+                <span class="timer-label">اللفة المجانية القادمة بعد:</span>
+                <div id="spin-timer">24:00:00</div>
+            </div>
+
+            <button id="spin-free-btn" class="spin-action-btn">
+                <div class="play-icon-circle"><div class="play-triangle"></div></div>
+                <span class="spin-btn-text">لفة مجانية</span>
+            </button>
+
+            <button id="spin-paid-btn" class="spin-action-btn" style="display: none;">
+                <div class="play-icon-circle"><div class="play-triangle"></div></div>
+                <span class="spin-btn-text">200 <span style="font-size: 16px; margin: 0 4px;">🪙</span> لفة إضافية</span>
+            </button>
         </div>
     </div>
 
