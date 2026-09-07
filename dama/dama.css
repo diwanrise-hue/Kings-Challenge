@@ -1198,21 +1198,65 @@ body.online-mode-active .game-container { order: 3 !important; }
 }
 @keyframes pulseAura { 0% { transform: scale(0.9); opacity: 0.6; } 100% { transform: scale(1.1); opacity: 1; } }
 
+/* ========================================== */
+/* 🌟 التعديلات الجديدة: خلفية العجلة والدبوس الفخم 🌟 */
+/* ========================================== */
+
+#lucky-spin-modal .settings-card {
+    background-image: url('Media/front/عجلة.webp') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-color: #0f1015 !important;
+    border: 2px solid #ffd700 !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 40px rgba(255, 215, 0, 0.15) !important;
+}
+
 .wheel-pointer-wrapper { 
     position: absolute; 
-    top: -20px; 
+    top: -28px !important; 
     left: 50%; 
     transform: translateX(-50%); 
     z-index: 30; 
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8));
     transform-origin: top center;
     transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     will-change: transform;
 }
+
 .wheel-pointer-shape {
-    width: 24px; height: 35px;
-    background: linear-gradient(to bottom, #ffe066 0%, #f8b500 50%, #8b6508 100%);
-    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    width: 28px; 
+    height: 45px;
+    background: transparent !important; 
+    clip-path: none !important; 
+    position: relative;
+}
+
+.wheel-pointer-shape::before {
+    content: '';
+    position: absolute;
+    top: 0; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px; 
+    height: 24px;
+    background: radial-gradient(circle at 35% 35%, #ffffff, #ffd700, #a67c00);
+    border: 1px solid #5c4305;
+    border-radius: 50%;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.7);
+    z-index: 2;
+}
+
+.wheel-pointer-shape::after {
+    content: '';
+    position: absolute;
+    top: 15px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px; 
+    height: 30px;
+    background: linear-gradient(to right, #b8860b 0%, #ffe066 50%, #8b6508 100%);
+    clip-path: polygon(15% 0, 85% 0, 50% 100%);
+    z-index: 1;
 }
 
 .wheel-pin {
@@ -1229,7 +1273,7 @@ body.online-mode-active .game-container { order: 3 !important; }
     border: 14px solid #d4af37; 
     box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,0,0,0.8); 
     position: relative; overflow: visible; z-index: 10;
-    transform: translateZ(0); 
+    transform: rotate(337.5deg) translateZ(0); 
     will-change: transform;
     background: conic-gradient(
         #1A365D 0deg 45deg, #2E7D32 45deg 90deg, #00838F 90deg 135deg,
@@ -1259,6 +1303,21 @@ body.online-mode-active .game-container { order: 3 !important; }
     content: ''; width: 35px; height: 35px;
     background: radial-gradient(circle, #d4af37, #8b6508);
     border-radius: 50%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+}
+
+#lucky-spin-modal h3 {
+    text-shadow: 0 2px 15px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,1) !important;
+}
+#lucky-spin-modal p {
+    text-shadow: 0 2px 5px rgba(0,0,0,1) !important;
+    font-weight: 800 !important;
+}
+#spin-timer {
+    text-shadow: 0 2px 5px rgba(0,0,0,1) !important;
+    background: rgba(0,0,0,0.5);
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-block;
 }
 
 /* ========================================== */
@@ -1555,8 +1614,3 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     object-fit: contain !important;
     display: block !important;
 }
-
-
-/* ========================================== */
-/* 📊 شريط الرتب التفاعلي (Interactive Rank Bar) - النسخة النهائية */
-/* ========================================== */
