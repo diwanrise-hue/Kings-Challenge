@@ -1,5 +1,3 @@
-// uiController.js
-
 /**
  * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
@@ -15,6 +13,7 @@
  * 🛡️ (إصلاح أمني صارم): قفل اختيار الأحجار لمنع اللعب بقطع الخصم نهائياً.
  * 🤖 (تحديث جديد): إزالة الإطار الأصفر عن صورة البوت في جميع النوافذ وضبط حجمه المثالي.
  * 👑 (تحديث جديد): فصل الرتبة عن اللقب، وبرمجة "خزانة الألقاب" المبنية على إنجازات اللاعب!
+ * 🪙 (مُحدّث جديد): استبدال الإيموجي في الجوائز بصورة العملة باستخدام innerHTML.
  * 
  * 🚀 الإضافات الجديدة:
  * 1. نظام "تأجيل جوائز الترقية" (Pending Rank Ups).
@@ -184,7 +183,7 @@ export const ui = {
         if (gameState.pendingRankUpData) {
             setTimeout(() => {
                 const data = gameState.pendingRankUpData;
-                let msg = `لقد وصلت إلى المستوى ${data.newLevel}!\nالجوائز المحصلة:\n${data.rewardsHtml || "مكافآت الترقية"}`;
+                let msg = `لقد وصلت إلى المستوى ${data.newLevel}!<br>الجوائز المحصلة:<br>${data.rewardsHtml || "مكافآت الترقية"}`;
                 this.showCustomAlert(msg, `ترقية المستوى 🏆`, null, false, null, "استلام!");
                 // تفريغ البيانات بعد العرض
                 gameState.pendingRankUpData = null; 
@@ -306,7 +305,7 @@ export const ui = {
             msgContainer.innerHTML = '';
             const safeDiv = document.createElement('div');
             safeDiv.style.cssText = "line-height: 1.6; font-size: 14px;";
-            safeDiv.textContent = message; 
+            safeDiv.innerHTML = message; 
             msgContainer.appendChild(safeDiv);
         }
         
@@ -1480,7 +1479,7 @@ export const ui = {
                      window.socket.emit('sendFriendReq', { targetId: window.currentOpponentId });
                 }
                 const toast = document.getElementById('toast-notification');
-                if (toast) { toast.textContent = '📨 تم إرسال طلب الصداقة بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+                if (toast) { toast.innerHTML = '📨 تم إرسال طلب الصداقة بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
             });
             btns.append(addFriendBtn, rBtn, eBtn); // إضافة الأزرار الثلاثة
         } else {
@@ -1527,15 +1526,23 @@ export const ui = {
 
                         if (isBetMatch) {
                             if (isDraw) { rewardText = `🤝 تم استرداد الرهان بأمان`; alertColor = "#f1c40f"; } 
-                            else if (isMeWin) { rewardText = `💰 جائزة الرهان: +${displayReward} 🪙`; alertColor = "#30d158"; } 
-                            else { rewardText = `💸 خسارة الرهان: -${gameState.roomBet} 🪙`; alertColor = "#ff453a"; }
-                        } else if (isBossLevel) { rewardText = `👑 مكافأة الزعيم: +${displayReward} 🪙`; } 
-                        else if (displayReward > 0) { rewardText = `${(t('tokenReward') || 'المكافأة:')} +${displayReward} 🪙`; alertColor = isMeWin ? "#f5a623" : "#87ceeb"; }
+                            else if (isMeWin) { rewardText = `💰 جائزة الرهان: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = "#30d158"; } 
+                            else { rewardText = `💸 خسارة الرهان: -${gameState.roomBet} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = "#ff453a"; }
+                        } else if (isBossLevel) { rewardText = `👑 مكافأة الزعيم: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; } 
+                        else if (displayReward > 0) { rewardText = `${(t('tokenReward') || 'المكافأة:')} +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = isMeWin ? "#f5a623" : "#87ceeb"; }
                         
-                        if (rewardText !== "") { box.appendChild(this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`, rewardText)); }
+                        if (rewardText !== "") { 
+                            const rewardDiv = this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`);
+                            rewardDiv.innerHTML = rewardText;
+                            box.appendChild(rewardDiv);
+                        }
                     }
 
-                    if (xpGained > 0) { box.appendChild(this.makeEl('div', 'xp-reward-alert', "margin-top:8px; color:#34c759; font-weight:800; font-size:15px; text-shadow: 0 0 8px rgba(52, 199, 89, 0.4); animation: modalFadeIn 0.5s ease;", `✨ اكتساب الخبرة: +${xpGained} XP`)); }
+                    if (xpGained > 0) { 
+                        const xpDiv = this.makeEl('div', 'xp-reward-alert', "margin-top:8px; color:#34c759; font-weight:800; font-size:15px; text-shadow: 0 0 8px rgba(52, 199, 89, 0.4); animation: modalFadeIn 0.5s ease;");
+                        xpDiv.innerHTML = `✨ اكتساب الخبرة: +${xpGained} XP`;
+                        box.appendChild(xpDiv); 
+                    }
 
                     if (!gameState.isOnlineMode && isMeWin) { socket.emit('claimBotReward', { isWin: true, level: lvl }); }
                 }
@@ -1776,12 +1783,12 @@ window.openCreatorSettings = function(roomId, currentBet) {
     
     if (betDisplay) {
         let betText = "بدون رهان (مجاني)";
-        if (currentBet == 50) betText = "50 🪙";
-        else if (currentBet == 100) betText = "100 🪙";
-        else if (currentBet == 200) betText = "200 🪙";
-        else if (currentBet == 500) betText = "500 🪙 (الحد الأقصى)";
-        else if (currentBet == 1000) betText = "1000 🪙 (الحد الأقصى)";
-        betDisplay.textContent = betText;
+        if (currentBet == 50) betText = "50 <img src='../Photo/coin.webp' class='app-coin-icon'>";
+        else if (currentBet == 100) betText = "100 <img src='../Photo/coin.webp' class='app-coin-icon'>";
+        else if (currentBet == 200) betText = "200 <img src='../Photo/coin.webp' class='app-coin-icon'>";
+        else if (currentBet == 500) betText = "500 <img src='../Photo/coin.webp' class='app-coin-icon'> (الحد الأقصى)";
+        else if (currentBet == 1000) betText = "1000 <img src='../Photo/coin.webp' class='app-coin-icon'> (الحد الأقصى)";
+        betDisplay.innerHTML = betText;
     }
     
     window.openAppModal('creator-room-settings-modal');
@@ -2000,7 +2007,7 @@ window.acceptFriendReq = function(reqId) {
         }
 
         const toast = document.getElementById('toast-notification'); 
-        if (toast) { toast.textContent = '✅ تمت إضافة الصديق بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+        if (toast) { toast.innerHTML = '✅ تمت إضافة الصديق بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
     }
 };
 
@@ -2028,7 +2035,7 @@ window.sendFriendRequest = function() {
     
     const toast = document.getElementById('toast-notification'); 
     if (toast) { 
-        toast.textContent = '📨 تم إرسال طلب الصداقة بنجاح!'; 
+        toast.innerHTML = '📨 تم إرسال طلب الصداقة بنجاح!'; 
         toast.classList.add('show'); 
         setTimeout(() => toast.classList.remove('show'), 2500); 
     }
@@ -2269,7 +2276,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
 
                 const toast = document.getElementById('toast-notification');
                 if (toast) { 
-                    toast.textContent = `✨ تم إرسال الهدية بنجاح! (+${response.popValue} شعبية)`; 
+                    toast.innerHTML = `✨ تم إرسال الهدية بنجاح! (+${response.popValue} شعبية)`; 
                     toast.classList.add('show'); 
                     setTimeout(() => toast.classList.remove('show'), 2500); 
                 }
@@ -2277,7 +2284,7 @@ window.confirmSendGift = function(giftId, fallbackPopValue) {
             } else {
                 const toast = document.getElementById('toast-notification');
                 if (toast) { 
-                    toast.textContent = `❌ فشل الإرسال (السيرفر رفض العملية)`; 
+                    toast.innerHTML = `❌ فشل الإرسال (السيرفر رفض العملية)`; 
                     toast.classList.add('show'); 
                     toast.style.borderColor = "#ff453a";
                     setTimeout(() => { toast.classList.remove('show'); toast.style.borderColor = ""; }, 2500); 
@@ -2300,7 +2307,7 @@ function fallbackCopyText(text, callback) {
 window.copyMyId = function() {
     const idText = document.getElementById('igp-id-display').textContent;
     if (idText && idText !== '...') {
-        const showToast = () => { const toast = document.getElementById('toast-notification'); if (toast) { toast.textContent = '📋 تم نسخ الـ ID بنجاح'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); } };
+        const showToast = () => { const toast = document.getElementById('toast-notification'); if (toast) { toast.innerHTML = '📋 تم نسخ الـ ID بنجاح'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); } };
         if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(idText).then(showToast).catch(() => { fallbackCopyText(idText, showToast); }); } else { fallbackCopyText(idText, showToast); }
     }
 };
@@ -2511,7 +2518,7 @@ window.showEquipNotification = function(itemType) {
     else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
     else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
     else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
-    toast.textContent = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
+    toast.innerHTML = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
 
     setTimeout(() => {
         try {
@@ -2530,7 +2537,7 @@ window.showEquipNotification = function(itemType) {
 window.triggerCustomAlertNotification = function(msg) {
     if (typeof ui.showCustomAlert === 'function') { ui.showCustomAlert(msg); } else {
         const alertModal = document.getElementById('custom-alert-modal'); const alertMsg = document.getElementById('custom-alert-message'); const alertOk = document.getElementById('custom-alert-ok'); const alertCancel = document.getElementById('custom-alert-cancel');
-        if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').textContent = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.textContent = msg; if(alertCancel) alertCancel.style.display = 'none'; window.openAppModal('custom-alert-modal'); alertOk.onclick = () => window.closeAppModal('custom-alert-modal'); } else { alert(msg); }
+        if (alertModal && alertMsg && alertOk) { document.getElementById('custom-alert-title').textContent = window.t ? window.t('alert_store') : 'إشعار المتجر'; alertMsg.innerHTML = msg; if(alertCancel) alertCancel.style.display = 'none'; window.openAppModal('custom-alert-modal'); alertOk.onclick = () => window.closeAppModal('custom-alert-modal'); } else { alert(msg); }
     }
 };
 
@@ -2683,7 +2690,7 @@ ui.onClick('match-gift-btn-p2', () => {
         } else {
             const toast = document.getElementById('toast-notification');
             if (toast) { 
-                toast.textContent = `⚠️ لا يمكن تحديد الخصم حالياً`; 
+                toast.innerHTML = `⚠️ لا يمكن تحديد الخصم حالياً`; 
                 toast.classList.add('show'); 
                 setTimeout(() => toast.classList.remove('show'), 2500); 
             }
@@ -2918,7 +2925,7 @@ document.addEventListener('click', (e) => {
             }
             
             const toast = document.getElementById('toast-notification'); 
-            if (toast) { toast.textContent = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+            if (toast) { toast.innerHTML = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
         }
     }
 });
@@ -3012,39 +3019,3 @@ document.addEventListener('DOMContentLoaded', () => {
         
     }, 500); 
 });
-
-window.confirmSpectatorBet = function() {
-    const roomId = document.getElementById('spectator-bet-room-id')?.value || (window.gameState && window.gameState.onlineRoomID);
-    const color = document.getElementById('spectator-bet-color')?.value;
-    const amount = parseInt(document.getElementById('spectator-bet-amount')?.value) || 0;
-
-    if (!roomId) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("خطأ في تحديد الغرفة للمراهنة!");
-        return;
-    }
-    if (!color) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء اختيار اللاعب المتوقع فوزه أولاً (أبيض أو أسود)!");
-        return;
-    }
-    if (amount <= 0) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء تحديد مبلغ الرهان!");
-        return;
-    }
-
-    if (window.socket && window.socket.connected) {
-        const profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-        
-        window.socket.emit('placeSpectatorBet', {
-            roomID: String(roomId).trim(),
-            color: color,
-            amount: amount,
-            guestId: profile.id
-        });
-        
-        if (typeof window.closeAppModal === 'function') {
-            window.closeAppModal('spectator-bet-modal');
-        }
-    } else {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("يرجى الاتصال بالإنترنت أولاً!");
-    }
-};
