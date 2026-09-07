@@ -4,6 +4,7 @@
 // 🛡️ (مُحدّث): التحقق الصارم من كلمات المرور وتأمين حسابات الزوار.
 // 🛠️ (مُحدّث): تحديث معرّفات (IDs) نافذة الدخول لمنع التضارب.
 // 💰 (مُحدّث): توحيد منطق الخصومات العادلة.
+// 🪙 (مُحدّث): استخدام صورة العملة بدلاً من الإيموجي في الأسعار.
 
 function formatCompactNumber(num) {
     if (num >= 1000000) {
@@ -118,11 +119,11 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
             priceHtml = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:14px; text-decoration:line-through; color:var(--text-secondary);">${formatCompactNumber(price)}</span>
-                    <span style="color:#34c759;">${formatCompactNumber(finalPrice)} 🪙 <span style="font-size:12px;">(خصم ${totalDiscount}%)</span></span>
+                    <span style="color:#34c759;">${formatCompactNumber(finalPrice)} <img src="Photo/coin.webp" class="app-coin-icon"> <span style="font-size:12px;">(خصم ${totalDiscount}%)</span></span>
                 </div>
             `;
         } else {
-            priceHtml = `${formatCompactNumber(price)} 🪙`;
+            priceHtml = `${formatCompactNumber(price)} <img src="Photo/coin.webp" class="app-coin-icon">`;
         }
         costEl.innerHTML = priceHtml;
     }
