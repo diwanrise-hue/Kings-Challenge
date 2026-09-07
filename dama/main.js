@@ -77,7 +77,6 @@ export function updateSpinTimerDisplay(nextFreeTime) {
     const tick = () => {
         const now = Date.now();
         const timerWrapper = document.getElementById('spin-timer-wrapper');
-        const timerLabel = document.getElementById('spin-timer-label');
         const digitsContainer = document.getElementById('spin-timer-digits');
         const readyText = document.getElementById('spin-ready-text');
         
@@ -88,12 +87,10 @@ export function updateSpinTimerDisplay(nextFreeTime) {
         const paidBtn = document.getElementById('spin-paid-btn');
         const menuNotifyBadge = document.getElementById('menu-spin-notify-badge');
 
-        // التأكد من أن الإطار الرئيسي ظاهر دائماً
         if (timerWrapper) timerWrapper.style.display = 'flex';
 
         if (!nextFreeTime || now >= nextFreeTime) {
-            // اللفة مجانية جاهزة: إخفاء العنوان والأرقام وإظهار نص الجاهزية داخل الإطار
-            if (timerLabel) timerLabel.style.display = 'none';
+            // اللفة جاهزة: إخفاء الأرقام وإظهار نص الجاهزية فقط داخل الحاوية الثابتة
             if (digitsContainer) digitsContainer.style.display = 'none';
             if (readyText) readyText.style.display = 'block';
 
@@ -102,8 +99,7 @@ export function updateSpinTimerDisplay(nextFreeTime) {
             if (menuNotifyBadge) menuNotifyBadge.style.display = 'block';
             clearInterval(spinTimerInterval); spinTimerInterval = null;
         } else {
-            // اللفة قيد الانتظار: إظهار العنوان والأرقام وإخفاء نص الجاهزية
-            if (timerLabel) timerLabel.style.display = 'block';
+            // اللفة قيد الانتظار: إظهار الأرقام وإخفاء نص الجاهزية
             if (digitsContainer) digitsContainer.style.display = 'flex';
             if (readyText) readyText.style.display = 'none';
             
@@ -124,7 +120,6 @@ export function updateSpinTimerDisplay(nextFreeTime) {
     tick();
     if (nextFreeTime && nextFreeTime > Date.now()) { spinTimerInterval = setInterval(tick, 1000); }
 }
-
 
 
 window.addEventListener('load', async () => {
