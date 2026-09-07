@@ -14,6 +14,7 @@
  * 🛑 (الإصلاح الجديد): إخفاء بطاقة (الغرفة الخاصة باللاعب) من تبويب الرهانات/المشاهدة.
  * 🎤 (إصلاح الكارثة): تنظيف الملف من أحداث (voice-offer/answer) الخاصة بالسيرفر والتي كانت تُسقط الاتصال وتمنع عمل المايك.
  * 🏆 (تحديث جديد): استقبال جوائز الترقيات وتجميعها، وإرسال اللقب للسيرفر.
+ * 🪙 (مُحدّث جديد): تفعيل ظهور العملات كصور (coin.webp) في جميع إشعارات السيرفر والرهانات.
  */
 
 import { gameState } from './gameState.js'; 
@@ -246,7 +247,7 @@ window.renderRoomsList = function() {
         if (titleEl && titleEl.innerText !== targetTitle) titleEl.innerText = targetTitle;
         
         const isPrivate = myRoom.hasPassword ? '🔒 خاصة' : '<span style="filter: grayscale(100%);">🌐</span> عامة';
-        const betText = myRoom.betAmount > 0 ? `${myRoom.betAmount} 🪙` : `🆓 مجاني`;
+        const betText = myRoom.betAmount > 0 ? `${myRoom.betAmount} <img src="../Photo/coin.webp" class="app-coin-icon">` : `🆓 مجاني`;
         const detailsEl = document.getElementById('my-waiting-details');
         const targetDetails = `${isPrivate} | ${betText}`;
         if (detailsEl && detailsEl.innerHTML !== targetDetails) detailsEl.innerHTML = targetDetails;
@@ -327,7 +328,7 @@ window.renderRoomsList = function() {
             }
 
             const isPrivate = r.hasPassword ? '🔒 خاصة' : '<span style="filter: grayscale(100%); font-size: 13px;">🌐</span> عامة';
-            const betText = r.betAmount > 0 ? `${r.betAmount} 🪙` : `🆓 مجاني`;
+            const betText = r.betAmount > 0 ? `${r.betAmount} <img src="../Photo/coin.webp" class="app-coin-icon">` : `🆓 مجاني`;
             let displayName = r.customTitle ? ("👑 " + r.customTitle) : r.hostName;
 
             let glowStyle = '';
@@ -506,7 +507,7 @@ export const socketManager = {
     _showToast(msg) {
         let toast = document.getElementById('toast-notification');
         if (toast) {
-            toast.innerText = msg;
+            toast.innerHTML = msg; // 🌟 تم التحديث لدعم الصور (innerHTML)
             toast.classList.add('show');
             
             if (this.toastTimeout) clearTimeout(this.toastTimeout);
@@ -1049,7 +1050,7 @@ export const socketManager = {
                 } else {
                     const toast = document.getElementById('toast-notification');
                     if (toast) {
-                        toast.innerText = data.msg;
+                        toast.innerHTML = data.msg;
                         toast.style.backgroundColor = 'rgba(231, 76, 60, 0.9)';
                         toast.classList.add('show');
                         setTimeout(() => { toast.classList.remove('show'); toast.style.backgroundColor = ''; }, 4000);
@@ -1062,7 +1063,7 @@ export const socketManager = {
 
         socket.on('creatorCutReceived', (data) => {
             if (data && data.amount) {
-                this._showToast(`🎁 مكافأة دعم:حصلت على ${data.amount} 🪙 من رهانات المشاهدين!`);
+                this._showToast(`🎁 مكافأة دعم:حصلت على ${data.amount} <img src="../Photo/coin.webp" class="app-coin-icon"> من رهانات المشاهدين!`);
             }
         });
 
@@ -1540,7 +1541,7 @@ export const socketManager = {
             if (!data) return;
             const profile = this._ensureUserProfile();
             const challengerName = data.challengerName || (gameState.lang === 'ar' ? 'صديق' : 'Friend');
-            const betText = data.betAmount > 0 ? `برهان قدره <b>${data.betAmount} 🪙</b>` : `في مباراة ودية`;
+            const betText = data.betAmount > 0 ? `برهان قدره <b>${data.betAmount} <img src="../Photo/coin.webp" class="app-coin-icon"></b>` : `في مباراة ودية`;
             
             const toast = document.getElementById('challenge-toast');
             const toastMsg = document.getElementById('challenge-toast-msg');
@@ -1643,7 +1644,7 @@ export const socketManager = {
 
         socket.on('levelUpAlert', (data) => {
             if (data && typeof ui.showLevelUpModal === 'function') {
-                let rewardsHtml = `+${data.tokens} 🪙`;
+                let rewardsHtml = `+${data.tokens} <img src="../Photo/coin.webp" class="app-coin-icon">`;
                 if (data.hints > 0) rewardsHtml += `<br>+${data.hints} 💡`;
                 ui.showLevelUpModal(data.newLevel, data.title, rewardsHtml);
             }
