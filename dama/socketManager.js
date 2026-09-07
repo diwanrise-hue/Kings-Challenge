@@ -13,6 +13,7 @@
  * 💰 (تحديث جديد): إظهار رسالة واضحة للمشاهدين بنتيجة مراهناتهم في الغرف المختلفة.
  * 🛑 (الإصلاح الجديد): إخفاء بطاقة (الغرفة الخاصة باللاعب) من تبويب الرهانات/المشاهدة.
  * 🎤 (إصلاح الكارثة): تنظيف الملف من أحداث (voice-offer/answer) الخاصة بالسيرفر والتي كانت تُسقط الاتصال وتمنع عمل المايك.
+ * 🏆 (تحديث جديد): استقبال جوائز الترقيات وتجميعها، وإرسال اللقب للسيرفر.
  */
 
 import { gameState } from './gameState.js'; 
@@ -164,7 +165,7 @@ window.switchRoomTab = function(tab) {
         if (optViews) optViews.style.display = 'none';
         
         if (window.currentRoomSortMode === 'views') {
-            window.currentRoomSortMode = 'vip'; 
+            window.currentRoomSortMode = 'vip';
             document.querySelectorAll('#room-sort-modal .bet-option-item').forEach(el => el.classList.remove('selected'));
             const defaultOpt = document.querySelector('#room-sort-modal .bet-option-item');
             if (defaultOpt) defaultOpt.classList.add('selected');
@@ -388,8 +389,8 @@ window.renderRoomsList = function() {
                 `;
 
                 if (r.isBettingOpen) {
-                    const p1Obj = encodeURIComponent(JSON.stringify({name: r.hostName, avatar: r.hostAvatar, equippedProfileFrame: r.equippedProfileFrame}));
-                    const p2Obj = encodeURIComponent(JSON.stringify({name: r.p2Name || 'الخصم', avatar: r.p2Avatar || '1000132081.webp', equippedProfileFrame: r.p2Frame}));
+                    const p1Obj = encodeURIComponent(JSON.stringify({name: r.hostName, avatar: r.hostAvatar, equippedProfileFrame: r.equippedProfileFrame, equippedTitle: r.equippedTitle}));
+                    const p2Obj = encodeURIComponent(JSON.stringify({name: r.p2Name || 'الخصم', avatar: r.p2Avatar || '1000132081.webp', equippedProfileFrame: r.p2Frame, equippedTitle: r.p2Title}));
 
                     actionBtnHTML = `
                         <div style="display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; z-index: 10; width: 95px; transform: translateZ(0);">
@@ -770,12 +771,22 @@ export const socketManager = {
             'activeRoomsList', 'mic-request', 'mic-response', 'spectatorJoined', 'spectatorCountChanged',
             'spectatorBetsUpdated', 'bettingClosed', 'betResult', 'creatorCutReceived', 'leaderboardData', 'gameOverByServer',
             'matchCountdown', 'countdownAborted', 'serverNotification',
-            'receiveSpectatorsList', 'kickedFromRoom'
+            'receiveSpectatorsList', 'kickedFromRoom', 'rankUpAlert'
         ];
         eventsToTurnOff.forEach(event => socket.off(event));
 
         socket.on('serverNotification', (data) => {
             if (data && data.msg) this._showToast(data.msg);
+        });
+
+        socket.on('rankUpAlert', (data) => {
+            if (!gameState.pendingRankUpData) {
+                gameState.pendingRankUpData = { ranks: [], tokens: 0 };
+            }
+            if (data.ranks) {
+                gameState.pendingRankUpData.ranks.push(data.ranks);
+            }
+            gameState.pendingRankUpData.tokens += (data.tokens || 0);
         });
 
         socket.on('matchCountdown', (data) => {
@@ -1751,6 +1762,11 @@ export const socketManager = {
         }
 
         if (ui && typeof ui.drawEmptyBoard === 'function') ui.drawEmptyBoard(); 
+        
+        // 🌟 استدعاء دالة إظهار الجوائز المجمعة عند الطرد أو الخروج الإجباري
+        if (window.ui && typeof window.ui.checkAndShowPendingRankUps === 'function') {
+            window.ui.checkAndShowPendingRankUps();
+        }
 
         if (fullExitToHub) {
             if (window.parent && window.parent !== window) {
@@ -1826,6 +1842,7 @@ export const socketManager = {
             equippedBg: profile.equippedBg || 'bg_wood',
             equippedPc: profile.equippedPc || 'pc_original',
             equippedProfileFrame: profile.equippedProfileFrame || null,
+            equippedTitle: profile.equippedTitle || 'novice',
             syncThemeOptOut: profile.syncThemeOptOut === true,
             roomTitle: roomTitle 
         };
