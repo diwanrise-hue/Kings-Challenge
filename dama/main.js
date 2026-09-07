@@ -76,8 +76,11 @@ export function updateSpinTimerDisplay(nextFreeTime) {
     if (spinTimerInterval) clearInterval(spinTimerInterval);
     const tick = () => {
         const now = Date.now();
-        const timerEl = document.getElementById('spin-timer');
         const timerWrapper = document.getElementById('spin-timer-wrapper');
+        const timerLabel = document.getElementById('spin-timer-label');
+        const digitsContainer = document.getElementById('spin-timer-digits');
+        const readyText = document.getElementById('spin-ready-text');
+        
         const hBox = document.getElementById('spin-timer-h');
         const mBox = document.getElementById('spin-timer-m');
         const sBox = document.getElementById('spin-timer-s');
@@ -85,25 +88,30 @@ export function updateSpinTimerDisplay(nextFreeTime) {
         const paidBtn = document.getElementById('spin-paid-btn');
         const menuNotifyBadge = document.getElementById('menu-spin-notify-badge');
 
+        // التأكد من أن الإطار الرئيسي ظاهر دائماً
+        if (timerWrapper) timerWrapper.style.display = 'flex';
+
         if (!nextFreeTime || now >= nextFreeTime) {
-            // اللفة مجانية جاهزة
-            if (timerWrapper) timerWrapper.style.display = 'none';
-            if (timerEl) { timerEl.style.display = 'block'; timerEl.innerText = "اللفة المجانية جاهزة! 🎁"; }
+            // اللفة مجانية جاهزة: إخفاء العنوان والأرقام وإظهار نص الجاهزية داخل الإطار
+            if (timerLabel) timerLabel.style.display = 'none';
+            if (digitsContainer) digitsContainer.style.display = 'none';
+            if (readyText) readyText.style.display = 'block';
+
             if (freeBtn) freeBtn.style.display = 'flex';
             if (paidBtn) paidBtn.style.display = 'none';
             if (menuNotifyBadge) menuNotifyBadge.style.display = 'block';
             clearInterval(spinTimerInterval); spinTimerInterval = null;
         } else {
-            // اللفة غير جاهزة (يتم عرض الوقت في المربعات)
-            if (timerWrapper) timerWrapper.style.display = 'flex';
-            if (timerEl) timerEl.style.display = 'none';
+            // اللفة قيد الانتظار: إظهار العنوان والأرقام وإخفاء نص الجاهزية
+            if (timerLabel) timerLabel.style.display = 'block';
+            if (digitsContainer) digitsContainer.style.display = 'flex';
+            if (readyText) readyText.style.display = 'none';
             
             let diff = Math.floor((nextFreeTime - now) / 1000);
             let h = String(Math.floor(diff / 3600)).padStart(2, '0');
             let m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
             let s = String(diff % 60).padStart(2, '0');
             
-            // تحديث مربعات الوقت بشكل منفصل
             if (hBox) hBox.innerText = h;
             if (mBox) mBox.innerText = m;
             if (sBox) sBox.innerText = s;
@@ -116,6 +124,8 @@ export function updateSpinTimerDisplay(nextFreeTime) {
     tick();
     if (nextFreeTime && nextFreeTime > Date.now()) { spinTimerInterval = setInterval(tick, 1000); }
 }
+
+
 
 window.addEventListener('load', async () => {
     if (typeof ui.initProfileSystem === 'function') ui.initProfileSystem();
