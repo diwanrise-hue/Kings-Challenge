@@ -507,7 +507,7 @@
     </button>
 
     <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
-    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" data-icon="bagSide"></button>
+    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" data-icon="bagQuick"></button>
 
     <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(24,23,29,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 1040; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -689,65 +689,24 @@
         </div>
     </div>
 
-    <!-- 🎡 نافذة عجلة الحظ مع التعديلات الجديدة -->
     <div id="lucky-spin-modal" class="modal-overlay" style="z-index: 850;">
         <div class="settings-card" dir="auto" style="max-width: 360px;">
             <button class="modal-close-btn" onclick="closeAppModal('lucky-spin-modal')" style="left:15px; right:auto;">✕</button>
-            
-            <!-- رفعنا النصوص للأعلى لتوسيع المسافة -->
             <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 24px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">عجلة الحظ 🎡</h3>
-            <p class="settings-label" style="text-align:center; margin-bottom: 45px; color: #fdf5c9; font-weight: bold;">جرب حظك واربح جوائز وخصومات نادرة!</p>
+            <p class="settings-label" style="text-align:center; margin-bottom: 25px; color: #fdf5c9;">جرب حظك واربح جوائز وخصومات نادرة!</p>
 
             <div class="wheel-container">
                 <div class="wheel-pointer-wrapper" id="lucky-wheel-pointer"><div class="wheel-pointer-shape"></div></div>
                 <div class="wheel-inner" id="lucky-wheel-inner">
-                    <!-- ترتيب الجوائز لتبدأ 400 في اللون الأحمر من الأعلى -->
-                    <div class="wheel-text w-1">400 🪙</div>
-                    <div class="wheel-text w-2">25% 🎫</div>
-                    <div class="wheel-text w-3">50% 🎫</div>
-                    <div class="wheel-text w-4">250 🪙</div>
-                    <div class="wheel-text w-5">1000 🎁</div>
-                    <div class="wheel-text w-6">50 🪙</div>
-                    <div class="wheel-text w-7">100 🪙</div>
-                    <div class="wheel-text w-8">1 💡</div>
+                    <div class="wheel-text w-1">50 🪙</div><div class="wheel-text w-2">100 🪙</div><div class="wheel-text w-3">1 💡</div><div class="wheel-text w-4">400 🪙</div><div class="wheel-text w-5">25% 🎫</div><div class="wheel-text w-6">50% 🎫</div><div class="wheel-text w-7">250 🪙</div><div class="wheel-text w-8">1000 🎁</div>
                     <div class="wheel-pin" style="transform: rotate(0deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(45deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(90deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(135deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(180deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(225deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(270deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(315deg) translateY(-133px);"></div>
                 </div>
                 <div class="wheel-center-pin"></div>
             </div>
 
-            <!-- حاوية الوقت الجديدة كالموجودة في الصورة -->
-            <div id="spin-timer-wrapper" class="spin-timer-wrapper">
-                <span class="timer-label">اللفة المجانية القادمة بعد:</span>
-                <div class="spin-timer-digits">
-                    <span class="t-box" id="spin-timer-h">00</span>
-                    <span class="time-sep">:</span>
-                    <span class="t-box" id="spin-timer-m">00</span>
-                    <span class="time-sep">:</span>
-                    <span class="t-box" id="spin-timer-s">00</span>
-                </div>
-            </div>
-            <!-- يظهر هذا النص فقط عندما تجهز اللفة -->
-            <div id="spin-timer" style="color: #30d158; font-size: 16px; margin-bottom: 15px; font-weight: bold; display: none; text-align: center;">اللفة المجانية جاهزة! 🎁</div>
-
-            <!-- أزرار اللف اللامعة الجديدة -->
-            <button id="spin-free-btn" class="spin-action-btn">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; direction: ltr;">
-                    <div class="spin-play-icon">▶</div>
-                    <div class="spin-btn-content">
-                        <span class="spin-btn-text">لفة مجانية 🆓</span>
-                    </div>
-                </div>
-            </button>
-
-            <button id="spin-paid-btn" class="spin-action-btn" style="display: none;">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; direction: ltr;">
-                    <div class="spin-play-icon">▶</div>
-                    <div class="spin-btn-content">
-                        <span class="spin-btn-val">200 <span style="font-size:22px;">🪙</span></span>
-                        <span class="spin-btn-text" style="margin-left: 8px;">لفة إضافية</span>
-                    </div>
-                </div>
-            </button>
+            <div id="spin-timer" style="color: #a1a1aa; font-size: 14px; margin-bottom: 15px; font-weight: 600;">اللفة المجانية جاهزة!</div>
+            <button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important; border-color: #8be8ab !important; border-bottom: 3.5px solid #145a32 !important;">لفة مجانية 🆓</button>
+            <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none; border-color: #f5a623 !important;">لفة إضافية (200 🪙)</button>
         </div>
     </div>
 
