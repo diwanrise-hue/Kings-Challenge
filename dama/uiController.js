@@ -15,6 +15,12 @@
  * 🛡️ (إصلاح أمني صارم): قفل اختيار الأحجار لمنع اللعب بقطع الخصم نهائياً.
  * 🤖 (تحديث جديد): إزالة الإطار الأصفر عن صورة البوت في جميع النوافذ وضبط حجمه المثالي.
  * 👑 (تحديث جديد): فصل الرتبة عن اللقب، وبرمجة "خزانة الألقاب" المبنية على إنجازات اللاعب!
+ * 
+ * 🚀 الإضافات الجديدة:
+ * 1. نظام "تأجيل جوائز الترقية" (Pending Rank Ups).
+ * 2. إضافة "زر طلب الصداقة" في نافذة النتائج (Add Friend in Results).
+ * 3. إظهار "الألقاب" (Titles) تحت أسماء اللاعبين في المباراة.
+ * 4. الضبط الفيزيائي الدقيق لـ "عجلة الحظ" (Lucky Spin Precision).
  */
 
 import { gameState } from './gameState.js'; 
@@ -51,37 +57,29 @@ const PROFILE_FRAMES_DB = {
 };
 
 // ==========================================
-// 🏷️ قاعدة بيانات الألقاب الشاملة (30 لقباً بشروط حقيقية وأسطورية)
+// 🏷️ قاعدة بيانات الألقاب الشاملة
 // ==========================================
 const TITLES_DB = {
-    // الألقاب العادية والمتوسطة
     'novice': { name: 'مبتدئ', desc: 'متاح لجميع اللاعبين منذ البداية.' },
     'amateur': { name: 'هاوي الدامة', desc: 'العب 50 مباراة كاملة.' },
     'veteran': { name: 'المخضرم', desc: 'العب 500 مباراة كاملة.' },
     'addict': { name: 'مدمن الدامة', desc: 'العب 1000 مباراة كاملة.' },
-    
     'winner': { name: 'المنتصر', desc: 'حقق 20 فوزاً إجمالياً.' },
     'conqueror': { name: 'الفاتح', desc: 'حقق 100 فوز إجمالي.' },
     'invincible': { name: 'الذي لا يقهر', desc: 'حقق 500 فوز إجمالي.' },
-    
     'streak_5': { name: 'شعلة النار', desc: 'حقق 5 انتصارات متتالية بدون خسارة.' },
     'streak_king': { name: 'ملك السلسلة', desc: 'حقق 10 انتصارات متتالية بدون خسارة.' },
     'legendary_streak': { name: 'الأسطورة الحية', desc: 'حقق 20 انتصاراً متتالياً بدون خسارة.' },
-    
     'popular': { name: 'محبوب الجماهير', desc: 'اجمع 10,000 نقطة شعبية من الهدايا.' },
     'super_star': { name: 'نجم المجتمع', desc: 'اجمع 100,000 نقطة شعبية من الهدايا.' },
-    
     'wealthy': { name: 'التاجر', desc: 'اجمع 50,000 عملة ذهبية في رصيدك.' },
     'rich': { name: 'المليونير', desc: 'اجمع 500,000 عملة ذهبية في رصيدك.' },
-    
     'genius': { name: 'العبقري', desc: 'نسبة فوز 70% (يجب لعب 50 مباراة على الأقل).' },
     'reaper': { name: 'حاصد الأرواح', desc: 'التقط 7 قطع للخصم في حركة واحدة (قفزة متعددة).' },
     'kingmaker': { name: 'صانع الملوك', desc: 'اصنع 5 ملوك (دامة) في مباراة واحدة.' },
     'shark': { name: 'القرش', desc: 'العب واربح 3 مرات متتالية في مباراة برهان 10,000 عملة فأكثر.' },
     'generous': { name: 'حاتم الطائي', desc: 'أرسل 50 هدية شعبية للاعبين الآخرين.' },
     'unlucky': { name: 'المنحوس', desc: 'اخسر 10 مباريات متتالية.' },
-
-    // 🔥 الألقاب الأسطورية الـ 10 (الجديدة) 🔥
     'mythical_streak': { name: 'قاهر السيرفر', desc: 'مستحيل تقريباً: حقق 50 انتصاراً متتالياً بدون خسارة.' },
     'dama_god': { name: 'الأسطورة الخالدة', desc: 'للمحترفين فقط: حقق 5,000 فوز إجمالي في مسيرتك.' },
     'perfect_mind': { name: 'المعصوم', desc: 'حافظ على نسبة فوز تتجاوز 90% (بعد لعب 500 مباراة على الأقل).' },
@@ -91,8 +89,6 @@ const TITLES_DB = {
     'sage': { name: 'حكيم الزمان', desc: 'الولاء المطلق: العب 10,000 مباراة كاملة.' },
     'king_army': { name: 'قائد الملوك', desc: 'الإذلال الكامل: اصنع 7 ملوك (دامة) في مباراة واحدة.' },
     'executioner': { name: 'الجلاد', desc: 'ضربة قاضية: قم بالتقاط 10 قطع للخصم في قفزة واحدة.' },
-    
-    // 👑 اللقب السري (خاص بالشحن VIP فقط)
     'vip_exclusive': { name: 'صاحب الفخامة', desc: 'لقب سري ونادر يُمنح لنخبة النخبة في عالم الدامة.' }
 };
 
@@ -136,7 +132,9 @@ function getUserIdLocally() {
 export const ui = {
     sfx: sfx,
     clickHandlers: new Map(), 
-    currentWheelDeg: 0, 
+    
+    // 🌟 (تحديث جديد: الضبط الفيزيائي الدقيق لعجلة الحظ لتبدأ متمركزة)
+    currentWheelDeg: 337.5, 
 
     getEl: id => document.getElementById(id),
     
@@ -145,11 +143,7 @@ export const ui = {
         if (el) {
             if (id === 'reset-btn') {
                 const mainTextSpan = el.querySelector('#reset-btn-txt') || el.querySelector('.btn-main-text');
-                if (mainTextSpan) {
-                    mainTextSpan.textContent = txt;
-                } else {
-                    el.textContent = txt;
-                }
+                if (mainTextSpan) { mainTextSpan.textContent = txt; } else { el.textContent = txt; }
             } else {
                 el.textContent = txt;
             }
@@ -161,9 +155,7 @@ export const ui = {
         if (el) el.style.setProperty('display', displayState, 'important');
     },
     
-    onClick(id, fn) {
-        this.clickHandlers.set(id, fn);
-    },
+    onClick(id, fn) { this.clickHandlers.set(id, fn); },
     
     playSound(audio) {
         if (!audio) return;
@@ -185,6 +177,19 @@ export const ui = {
         if (cssText) el.style.cssText = cssText;
         if (textContent) el.textContent = textContent;
         return el;
+    },
+
+    // 🌟 (تحديث جديد: نظام تأجيل جوائز الترقية Pending Rank Ups)
+    checkAndShowPendingRankUps() {
+        if (gameState.pendingRankUpData) {
+            setTimeout(() => {
+                const data = gameState.pendingRankUpData;
+                let msg = `لقد وصلت إلى المستوى ${data.newLevel}!\nالجوائز المحصلة:\n${data.rewardsHtml || "مكافآت الترقية"}`;
+                this.showCustomAlert(msg, `ترقية المستوى 🏆`, null, false, null, "استلام!");
+                // تفريغ البيانات بعد العرض
+                gameState.pendingRankUpData = null; 
+            }, 800); // تأخير 800 ملي ثانية لضمان ظهور اللوبي
+        }
     },
 
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
@@ -244,22 +249,16 @@ export const ui = {
             const botSvg = window.SVGIcons && window.SVGIcons.robotBtn ? window.SVGIcons.robotBtn : '';
             let botContent = `<span style="font-size: 35px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🤖</span>`;
             
-
            if (botSvg) {
                 let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
-                
-                // ✅ إصلاح التدرجات اللونية (Gradients) لتعود الأجزاء المعدنية للبوت
                 botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
                     return 'id="' + p1 + uniqueSuffix + '"';
                 }).replace(/url\(#([^)]+)\)/g, function(match, p1) {
                     return 'url(#' + p1 + uniqueSuffix + ')';
                 });
-
                 botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; display: block; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
             }
 
-
-            
             let innerHTML = `
                 <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; transform: ${botScale}; position: relative; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
@@ -396,6 +395,7 @@ export const ui = {
         if (modalEl) modalEl.style.display = 'flex';
     },
 
+    // 🌟 (تحديث جديد: الضبط الفيزيائي الدقيق لعجلة الحظ وتسريع الرسوميات بـ translateZ)
     animateLuckySpin(prizeIndex, onComplete) {
         window.isSpinning = true; 
         const wheel = this.getEl('lucky-wheel-inner');
@@ -433,9 +433,11 @@ export const ui = {
             let easeOut = 1 - Math.pow(1 - t, 3);
             let currentSimulatedAngle = startDeg + (totalChange * easeOut);
 
-            wheel.style.transform = `rotate(${currentSimulatedAngle}deg)`;
+            // إضافة translateZ(0) لدفع معالجة كرت الشاشة وتقليل الارتعاش
+            wheel.style.transform = `rotate(${currentSimulatedAngle}deg) translateZ(0)`;
 
-            let currentPin = Math.floor((currentSimulatedAngle - 22.5) / 45);
+            // حساب المسمار بشكل رياضي دقيق (كل 45 درجة بالضبط)
+            let currentPin = Math.floor(currentSimulatedAngle / 45);
             if (currentPin > lastPinPassed) {
                 lastPinPassed = currentPin;
                 
@@ -444,9 +446,7 @@ export const ui = {
                         let clone = tickAudio.cloneNode();
                         clone.volume = 0.5;
                         let playPromise = clone.play();
-                        if (playPromise !== undefined) {
-                            playPromise.catch(() => {});
-                        }
+                        if (playPromise !== undefined) { playPromise.catch(() => {}); }
                     }
                 } catch(e) {}
 
@@ -566,6 +566,7 @@ export const ui = {
         else this.setDisplay('undo-btn', 'none');
     },
 
+    // 🌟 (تحديث جديد: إظهار الألقاب تحت أسماء اللاعبين للمشاهدين)
     setupSpectatorUI(p1, p2, isBettingOpen, roomID, hasAlreadyBet = false) {
         window.isMatchRunning = true;
         document.body.classList.add('game-active');
@@ -584,6 +585,12 @@ export const ui = {
 
         this.applyAvatar('card-my-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'), p1?.equippedProfileFrame);
         this.setTxt('card-my-name', p1?.name || 'اللاعب 1');
+        
+        // استخراج وعرض اللقب للاعب الأول
+        let p1TitleKey = p1?.equippedTitle || 'novice';
+        let p1TitleName = TITLES_DB[p1TitleKey] ? TITLES_DB[p1TitleKey].name : 'مبتدئ';
+        this.setTxt('card-my-title', p1TitleName); // افترض وجود عنصر بهذا المعرف في HTML
+
         let p1LvlInfo = this.calculateLevelInfo(p1?.xp || 0, p1?.score || 0);
         const p1LvlEl = this.getEl('card-my-level');
         if(p1LvlEl) {
@@ -595,6 +602,12 @@ export const ui = {
         
         this.applyAvatar('card-opp-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'), p2?.equippedProfileFrame);
         this.setTxt('card-opp-name', p2?.name || 'اللاعب 2');
+        
+        // استخراج وعرض اللقب للاعب الثاني
+        let p2TitleKey = p2?.equippedTitle || 'novice';
+        let p2TitleName = TITLES_DB[p2TitleKey] ? TITLES_DB[p2TitleKey].name : 'مبتدئ';
+        this.setTxt('card-opp-title', p2TitleName); // افترض وجود عنصر بهذا المعرف في HTML
+
         let p2LvlInfo = this.calculateLevelInfo(p2?.xp || 0, p2?.score || 0);
         const p2LvlEl = this.getEl('card-opp-level');
         if(p2LvlEl) {
@@ -648,6 +661,7 @@ export const ui = {
         if (giftBtn2) giftBtn2.style.display = 'flex';
     },
 
+    // 🌟 (تحديث جديد: إظهار الألقاب تحت أسماء اللاعبين أثناء اللعب)
     toggleOnlineUILayout(active, oppName = "", oppAvatar = "❓") {
         const normalState = active ? 'none' : 'inline-block';
         const flexState = active ? 'none' : 'flex';
@@ -691,8 +705,19 @@ export const ui = {
         if (active && gameState.userProfile) {
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, gameState.userProfile.equippedProfileFrame);
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
+            
+            // استخراج وعرض اللقب الخاص بك
+            let myTitleKey = gameState.userProfile.equippedTitle || 'novice';
+            let myTitleName = TITLES_DB[myTitleKey] ? TITLES_DB[myTitleKey].name : 'مبتدئ';
+            this.setTxt('card-my-title', myTitleName);
+
             this.setTxt('card-opp-name', oppName);
             
+            // استخراج وعرض اللقب الخاص بالخصم
+            let oppTitleKey = (window.currentOpponentData && window.currentOpponentData.equippedTitle) ? window.currentOpponentData.equippedTitle : 'novice';
+            let oppTitleName = TITLES_DB[oppTitleKey] ? TITLES_DB[oppTitleKey].name : 'مبتدئ';
+            this.setTxt('card-opp-title', oppTitleName);
+
             this.applyAvatar('card-opp-avatar', oppAvatar, oppAvatar?.startsWith('data:image'), gameState.currentOpponentProfileFrame);
           
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0, gameState.userProfile.score || 0);
@@ -1435,9 +1460,34 @@ export const ui = {
             gameState.isOnlineMode = false; gameState.onlineRoomID = null; 
             this.drawEmptyBoard();
             
+            // 🌟 (تحديث جديد: استدعاء الترقية المؤجلة بعد الضغط على خروج من نافذة النتائج)
+            this.checkAndShowPendingRankUps();
         });
         
-        btns.append(rBtn, eBtn); box.appendChild(btns); container.appendChild(box); document.body.appendChild(container);
+        // 🌟 (تحديث جديد: إضافة زر الصداقة داخل نافذة النتائج للأونلاين فقط)
+        if (gameState.isOnlineMode && !gameState.isBotOpponent && window.currentOpponentId) {
+            const addFriendBtn = this.makeEl('button', 'modal-btn-add-friend', "flex:1;background:rgba(48,209,88,0.15);color:#30d158;border:1px solid rgba(48,209,88,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s;outline:none;box-shadow:0 0 3px rgba(48,209,88,0.3);", "إضافة صديق ➕");
+            addFriendBtn.onmouseenter = () => addFriendBtn.style.transform = 'scale(0.96)';
+            addFriendBtn.onmouseleave = () => addFriendBtn.style.transform = 'scale(1)';
+
+            this.clickHandlers.set('modal-btn-add-friend', () => {
+                addFriendBtn.disabled = true;
+                addFriendBtn.textContent = "✓ تم الطلب";
+                addFriendBtn.style.opacity = '0.6';
+                addFriendBtn.style.cursor = 'not-allowed';
+                
+                if (window.socket && window.socket.connected) {
+                     window.socket.emit('sendFriendReq', { targetId: window.currentOpponentId });
+                }
+                const toast = document.getElementById('toast-notification');
+                if (toast) { toast.textContent = '📨 تم إرسال طلب الصداقة بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+            });
+            btns.append(addFriendBtn, rBtn, eBtn); // إضافة الأزرار الثلاثة
+        } else {
+            btns.append(rBtn, eBtn); // الوضع الافتراضي
+        }
+        
+        box.appendChild(btns); container.appendChild(box); document.body.appendChild(container);
 
         if (gameState.userProfile) { 
             const isServerConnected = (typeof socket !== 'undefined' && socket && socket.connected);
@@ -1500,19 +1550,15 @@ export const ui = {
             // ==========================================
             if (gameState.isOnlineMode) {
                 if (isMeWin && gameState.roomBet >= 10000) {
-                    // إذا فاز وكان الرهان 10,000 أو أكثر، نزيد العداد
                     gameState.userProfile.sharkWinStreak = (gameState.userProfile.sharkWinStreak || 0) + 1;
                 } else if (!isDraw) {
-                    // إذا خسر، أو فاز برهان قليل (أقل من 10,000)، يتم تصفير العداد!
                     gameState.userProfile.sharkWinStreak = 0;
                 }
-                // ملاحظة: التعادل (isDraw) لا يكسر السلسلة ولا يزيدها
             }
             // ==========================================
 
             if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
             
-            // هنا سيتم استدعاء فحص الألقاب، وسيرى النظام أن عداد القرش أصبح 3 وسيفتح اللقب!
             this.updateProfileUI(); 
         }
         this.toggleOfflineInMatchUI(false);
@@ -1561,7 +1607,6 @@ export const ui = {
             
             if (igpTitleDisplay) {
                 let titleObj = window.TITLES_DB ? (window.TITLES_DB[currentTitleKey] || window.TITLES_DB['novice']) : { name: 'مبتدئ' };
-                // ✅ اللقب للعرض فقط (بدون أي خط تحته)
                 igpTitleDisplay.innerHTML = `
                     <div style="display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 22px; cursor: default;">
                         <span style="color: #a1a1aa; font-size: 11px; flex-shrink: 0;">اللقب:</span>
@@ -1765,7 +1810,6 @@ window.openAppModal = function(id) {
         if (id === 'online-modal' && window.socket && window.socket.connected) {
             window.socket.emit('requestActiveRooms');
         }
-        // 🟢 الحل الجذري لشريط الرتب: استدعاؤه فور فتح ساحة التحديات
         if (id === 'matchmaking-stakes-modal') {
             setTimeout(() => {
                 if (typeof window.initMatchmakingRankBar === 'function') {
@@ -2683,29 +2727,23 @@ ui.onClick('creator-cancel-room-btn', () => {
 window.ui = ui;
 window.updateUITranslations = () => { if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts(); };
 
-// 🛡️ 1. حماية قصوى: منع التدخل إذا كنت مشاهداً، أو اللعبة منتهية
 ui.onClick('board', e => {
     if (gameState.isSpectator || !gameState.isGameActive) return;
 
-    // 🛡️ 2. تحديد لونك الفعلي بثقة (سواء كنت تلعب أونلاين أو ضد البوت)
     const myActualColor = gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor;
 
-    // 🛡️ 3. قفل الدور: منع اللمس نهائياً إذا لم يكن دورك
     if (gameState.currentTurn !== myActualColor) return;
     
     const target = e.target;
     const cell = target.classList.contains('cell') ? target : target.parentElement;
 
-    // في حالة اختيار حجر جديد (وليس أثناء القفز المتعدد الإجباري)
     if (target.classList.contains('piece') && !gameState.isMultiJumping) {
         
-        // 🛡️ 4. قفل اللون: منع تحديد أي حجر لا يطابق لونك قطعياً!
         const clickedColor = target.classList.contains('white') ? 'white' : 'black';
         if (clickedColor !== myActualColor) return;
 
         const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
         
-        // التحقق من الأكل الإجباري
         if (gameState.requiredJumps > 0 && getPieceMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
         
         gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = []; 
@@ -2975,7 +3013,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500); 
 });
 
-// ✅ دالة تأكيد رهان المشاهد المدمجة بنجاح
 window.confirmSpectatorBet = function() {
     const roomId = document.getElementById('spectator-bet-room-id')?.value || (window.gameState && window.gameState.onlineRoomID);
     const color = document.getElementById('spectator-bet-color')?.value;
