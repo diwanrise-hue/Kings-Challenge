@@ -9,6 +9,29 @@
     --opp-score-border: 1px solid rgba(255,255,255,0.08);
 }
 
+/* 🌟 كلاس عملة اللعبة الجديد 🌟 */
+.app-coin-icon {
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: middle;
+    display: inline-block;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    margin: 0 2px;
+    transform: translateY(-1px);
+}
+
+/* 🌟 كلاس بطاقات الخصم الجديد 🌟 */
+.app-ticket-icon {
+    width: 1.4em;
+    height: 1.4em;
+    vertical-align: middle;
+    display: inline-block;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    margin: 0 2px;
+    transform: translateY(-2px);
+    object-fit: contain;
+}
+
 body { 
     min-height: 100dvh;
     box-sizing: border-box;
