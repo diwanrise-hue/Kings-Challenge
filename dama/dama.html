@@ -1,3 +1,4 @@
+<!--dama.html--->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -238,6 +239,8 @@
             font-size: 30px;
             line-height: 1;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+            display: flex;
+            align-items: center;
         }
 
         .mm-card-btn {
@@ -489,7 +492,7 @@
         </div>
         <div class="bottom-stats-frame" id="profile-stat-tokens-badge-container">
             <div class="stat-item coins-text-format">
-                <span class="stat-icon">🪙</span>
+                <span class="stat-icon"><img src="../Photo/coin.webp" class="app-coin-icon" style="width: 14px; height: 14px; margin-top: 1px;"></span>
                 <span class="tokens-number-ctrl" id="profile-stat-tokens-badge">0</span>
             </div>
             <div class="frame-divider"></div>
@@ -699,7 +702,14 @@
             <div class="wheel-container">
                 <div class="wheel-pointer-wrapper" id="lucky-wheel-pointer"><div class="wheel-pointer-shape"></div></div>
                 <div class="wheel-inner" id="lucky-wheel-inner">
-                    <div class="wheel-text w-1">50 🪙</div><div class="wheel-text w-2">100 🪙</div><div class="wheel-text w-3">1 💡</div><div class="wheel-text w-4">400 🪙</div><div class="wheel-text w-5">25% 🎫</div><div class="wheel-text w-6">50% 🎫</div><div class="wheel-text w-7">250 🪙</div><div class="wheel-text w-8">1000 🎁</div>
+                    <div class="wheel-text w-1">50 <img src="../Photo/coin.webp" class="app-coin-icon"></div>
+                    <div class="wheel-text w-2">100 <img src="../Photo/coin.webp" class="app-coin-icon"></div>
+                    <div class="wheel-text w-3">1 💡</div>
+                    <div class="wheel-text w-4">400 <img src="../Photo/coin.webp" class="app-coin-icon"></div>
+                    <div class="wheel-text w-5">25% <img src="../Photo/discount25.webp" class="app-ticket-icon"></div>
+                    <div class="wheel-text w-6">50% <img src="../Photo/discount50.webp" class="app-ticket-icon"></div>
+                    <div class="wheel-text w-7">250 <img src="../Photo/coin.webp" class="app-coin-icon"></div>
+                    <div class="wheel-text w-8">1000 🎁</div>
                     <div class="wheel-pin" style="transform: rotate(0deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(45deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(90deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(135deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(180deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(225deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(270deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(315deg) translateY(-133px);"></div>
                 </div>
                 <div class="wheel-center-pin"></div>
@@ -708,7 +718,7 @@
             <div id="spin-timer-wrapper" class="spin-timer-wrapper" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 65px; min-height: 65px; max-height: 65px; overflow: hidden; position: relative; margin-bottom: 15px;">
                 
                 <div id="spin-timer-digits" class="spin-timer-digits" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
-                    <div class="timer-label" style="font-size: 12px; margin-bottom: -2px; color: #a1a1aa;">:اللفة المجانية القادمة بعد</div>
+                    <div class="timer-label" style="font-size: 12px; margin-bottom: 2px; color: #a1a1aa;">اللفة المجانية القادمة بعد:</div>
                     <div style="display: flex; gap: 5px; align-items: center; justify-content: center;">
                         <div id="spin-timer-h" class="t-box">00</div>
                         <div class="time-sep">:</div>
@@ -722,7 +732,7 @@
             </div>
 
             <button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important; border-color: #8be8ab !important; border-bottom: 3.5px solid #145a32 !important; display: none;">لفة مجانية 🆓</button>
-            <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none; border-color: #f5a623 !important;">لفة إضافية (200 🪙)</button>
+            <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none; border-color: #f5a623 !important;">لفة إضافية (200 <img src="../Photo/coin.webp" class="app-coin-icon">)</button>
         </div>
     </div> <div id="level-up-modal" class="modal-overlay" style="z-index: 980;">
         <div class="settings-card" dir="auto" style="max-width: 320px; overflow: hidden; position: relative;">
@@ -734,7 +744,7 @@
             <p id="level-up-title" style="color: #f5a623; font-size: 14px; margin: 0 0 20px 0; font-weight: 600;">لقب: مبارز</p>
             <div style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1.5px solid #a88734;">
                 <h4 style="color: #a1a1aa; margin: 0 0 10px 0; font-size: 13px;">المكافآت:</h4>
-                <div id="level-up-rewards" style="color: white; font-weight: bold; font-size: 16px; line-height: 1.8;">+100 🪙</div>
+                <div id="level-up-rewards" style="color: white; font-weight: bold; font-size: 16px; line-height: 1.8;">+100 <img src="../Photo/coin.webp" class="app-coin-icon"></div>
             </div>
             <button onclick="closeAppModal('level-up-modal')" class="save-settings-btn" style="background: linear-gradient(135deg, #f5a623, #d35400) !important; color: white !important; border-color: #ffd700 !important; border-bottom: 3.5px solid #a85400 !important;">استلام الجوائز</button>
         </div>
@@ -885,7 +895,7 @@
         <div class="settings-card" dir="auto" style="max-width: 420px; padding: 25px 15px; position: relative;">
             <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 10;">✕</button>
             <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(255,215,0,0.4);">متجر الدامة 👑</h3>
-            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 12px;">رصيدك الحالي: <span style="color: #f5a623; font-weight: bold;">🪙 <span id="profile-stat-tokens-store">0</span></span></p>
+            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 12px;">رصيدك الحالي: <span style="color: #f5a623; font-weight: bold;"><img src="../Photo/coin.webp" class="app-coin-icon"> <span id="profile-stat-tokens-store">0</span></span></p>
 
             <div class="custom-nav-tabs" style="margin-bottom: 15px;">
                 <button id="dama-tab-bg" class="custom-tab-button active" onclick="window.switchDamaGameStoreTab('bg')">خلفيات 🎨</button>
@@ -949,15 +959,15 @@
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #ffd700;">
                         <span style="font-size: 16px; margin-left: 8px; filter: drop-shadow(0 0 5px rgba(255,215,0,0.5));">🥇</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "الأسطورة" + 35,000 🪙 + 15 💡</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "الأسطورة" + 35,000 <img src="../Photo/coin.webp" class="app-coin-icon"> + 15 💡</div>
                     </div>
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #c0c0c0;">
                         <span style="font-size: 16px; margin-left: 8px;">🥈</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "النخبة" + 20,000 🪙 + 10 💡</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "النخبة" + 20,000 <img src="../Photo/coin.webp" class="app-coin-icon"> + 10 💡</div>
                     </div>
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #cd7f32;">
                         <span style="font-size: 16px; margin-left: 8px;">🥉</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "النخبة" + 15,000 🪙 + 10 💡</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">إطار "النخبة" + 15,000 <img src="../Photo/coin.webp" class="app-coin-icon"> + 10 💡</div>
                     </div>
                 </div>
             </div>
@@ -968,15 +978,15 @@
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #ffd700;">
                         <span style="font-size: 16px; margin-left: 8px;">🥇</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold;">20,000 🪙 + خص المتجر 35%</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold;">20,000 <img src="../Photo/coin.webp" class="app-coin-icon"> + خصم المتجر 35%</div>
                     </div>
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #c0c0c0;">
                         <span style="font-size: 16px; margin-left: 8px;">🥈</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold;">10,000 🪙 + خصم المتجر 20%</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold;">10,000 <img src="../Photo/coin.webp" class="app-coin-icon"> + خصم المتجر 20%</div>
                     </div>
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #cd7f32;">
                         <span style="font-size: 16px; margin-left: 8px;">🥉</span>
-                        <div style="color: white; font-size: 11px; font-weight: bold;">10,000 🪙 + خصم المتجر 15%</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold;">10,000 <img src="../Photo/coin.webp" class="app-coin-icon"> + خصم المتجر 15%</div>
                     </div>
                 </div>
             </div>
@@ -1154,11 +1164,11 @@
             <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
             <div style="display: flex; flex-direction: column; width: 100%;">
                 <div class="bet-option-item selected" onclick="window.selectBetAmount('0', 'بدون رهان (مجاني)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">بدون رهان (مجاني)</div></div>
-                <div class="bet-option-item" onclick="window.selectBetAmount('50', '50 🪙 (الجائزة الكبرى: 100)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 100)</span></div></div>
-                <div class="bet-option-item" onclick="window.selectBetAmount('100', '100 🪙 (الجائزة الكبرى: 200)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 200)</span></div></div>
-                <div class="bet-option-item" onclick="window.selectBetAmount('200', '200 🪙 (الجائزة الكبرى: 400)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 400)</span></div></div>
-                <div class="bet-option-item" onclick="window.selectBetAmount('500', '500 🪙 (الجائزة الكبرى: 1000)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 1000)</span></div></div>
-                <div class="bet-option-item" onclick="window.selectBetAmount('1000', '1000 🪙 (الجائزة الكبرى: 2000)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">1000 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 2000)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('50', '50 🪙 (الجائزة الكبرى: 100)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 100)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('100', '100 🪙 (الجائزة الكبرى: 200)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 200)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('200', '200 🪙 (الجائزة الكبرى: 400)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 400)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('500', '500 🪙 (الجائزة الكبرى: 1000)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 1000)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('1000', '1000 🪙 (الجائزة الكبرى: 2000)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">1000 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 2000)</span></div></div>
             </div>
         </div>
     </div>
@@ -1170,10 +1180,10 @@
             <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-bottom: 20px;">اختر مبلغ الرهان للعب ضد صديقك</p>
             <div style="display: flex; flex-direction: column; width: 100%;">
                 <div class="bet-option-item selected" onclick="window.confirmChallenge('0', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">بدون رهان (مباراة ودية)</div></div>
-                <div class="bet-option-item" onclick="window.confirmChallenge('50', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <span style="font-size:18px;">🪙</span></div></div>
-                <div class="bet-option-item" onclick="window.confirmChallenge('100', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <span style="font-size:18px;">🪙</span></div></div>
-                <div class="bet-option-item" onclick="window.confirmChallenge('200', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <span style="font-size:18px;">🪙</span></div></div>
-                <div class="bet-option-item" onclick="window.confirmChallenge('500', this)"><div class="bet-option-text">500 <span style="font-size:18px;">🪙</span></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('50', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('100', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('200', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('500', this)"><div class="bet-option-text">500 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
             </div>
         </div>
     </div>
@@ -1226,7 +1236,7 @@
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
                                 <span>10</span>
-                                <div class="mm-coin-icon">🪙</div>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
                             </div>
                         </div>
                         <button class="mm-card-btn" onclick="window.startMatchmakingWithBet(0)">بحث عن خصم</button>
@@ -1249,7 +1259,7 @@
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
                                 <span>100</span>
-                                <div class="mm-coin-icon">🪙</div>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
                             </div>
                         </div>
                         <button id="mm-btn-50" class="mm-card-btn" onclick="window.startMatchmakingWithBet(50)">بحث عن خصم</button>
@@ -1272,7 +1282,7 @@
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
                                 <span>500</span>
-                                <div class="mm-coin-icon">🪙</div>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
                             </div>
                         </div>
                         <button id="mm-btn-250" class="mm-card-btn" onclick="window.startMatchmakingWithBet(250)">بحث عن خصم</button>
@@ -1295,7 +1305,7 @@
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
                                 <span>1,000</span>
-                                <div class="mm-coin-icon">🪙</div>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
                             </div>
                         </div>
                         <button id="mm-btn-500" class="mm-card-btn" onclick="window.startMatchmakingWithBet(500)">بحث عن خصم</button>
@@ -1318,7 +1328,7 @@
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
                                 <span>2,000</span>
-                                <div class="mm-coin-icon">🪙</div>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
                             </div>
                         </div>
                         <button id="mm-btn-1000" class="mm-card-btn" onclick="window.startMatchmakingWithBet(1000)">بحث عن خصم</button>
@@ -1341,7 +1351,7 @@
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
                                 <span>5,000</span>
-                                <div class="mm-coin-icon">🪙</div>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
                             </div>
                         </div>
                         <button id="mm-btn-2500" class="mm-card-btn" onclick="window.startMatchmakingWithBet(2500)">بحث عن خصم</button>
@@ -1349,7 +1359,9 @@
 
                     <div class="mm-card theme-cyan">
                         <div id="mm-lock-5000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-medal">🐉</div>
+                        <div class="mm-card-medal">
+                          <img src="Media/front/التنين.webp" style="height: 100%; object-fit: contain;">
+                        </div>
                         <h4 class="mm-card-title">التنين</h4>
                         
                         <div class="mm-card-bet-row">
@@ -1362,7 +1374,7 @@
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
                                 <span>10K</span>
-                                <div class="mm-coin-icon">🪙</div>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
                             </div>
                         </div>
                         <button id="mm-btn-5000" class="mm-card-btn" onclick="window.startMatchmakingWithBet(5000)">بحث عن خصم</button>
@@ -1370,7 +1382,9 @@
 
                     <div class="mm-card theme-magenta">
                         <div id="mm-lock-10000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
-                        <div class="mm-card-medal">🌋</div>
+                        <div class="mm-card-medal">
+                          <img src="Media/front/التاج.webp" style="height: 100%; object-fit: contain;">
+                        </div>
                         <h4 class="mm-card-title">الملوك</h4>
                         
                         <div class="mm-card-bet-row">
@@ -1383,7 +1397,7 @@
                             <span class="mm-prize-label">جائزة الفوز</span>
                             <div class="mm-prize-value">
                                 <span>20K</span>
-                                <div class="mm-coin-icon">🪙</div>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
                             </div>
                         </div>
                         <button id="mm-btn-10000" class="mm-card-btn" onclick="window.startMatchmakingWithBet(10000)">بحث عن خصم</button>
@@ -1453,10 +1467,10 @@
             <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
             <h3 style="color: #ffd700; text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: 800;">تحديد مبلغ الرهان 🪙</h3>
             <div style="display: flex; flex-direction: column; width: 100%;">
-                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('50', '50 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <span style="font-size:18px;">🪙</span></div></div>
-                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('100', '100 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <span style="font-size:18px;">🪙</span></div></div>
-                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('200', '200 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <span style="font-size:18px;">🪙</span></div></div>
-                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('500', '500 🪙 (الحد الأقصى)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <span style="font-size:18px;">🪙</span> <span style="color:#e0e0e0; font-size:13px; margin-right: 4px;">(الحد الأقصى)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('50', '50 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('100', '100 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('200', '200 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('500', '500 🪙 (الحد الأقصى)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:13px; margin-right: 4px;">(الحد الأقصى)</span></div></div>
             </div>
         </div>
     </div>
@@ -1577,7 +1591,7 @@
             <div id="modal-item-cost" style="color: #34c759; font-size: 18px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);"></div>
             
             <div id="discount-container" style="display: none; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);">
-                <label style="font-size: 12px; color: #a1a1aa; display: block; margin-bottom: 8px; font-weight: 600; text-align: start;">استخدام قسيمة خصم؟</label>
+                <label style="font-size: 12px; color: #a1a1aa; display: block; margin-bottom: 8px; font-weight: 600; text-align: start;">استخدام قسيمة خصم؟ <img src="../Photo/discount10.webp" class="app-ticket-icon"></label>
                 <select id="modal-discount-select" class="online-input" style="width: 100%; margin: 0; padding: 0 15px; height: 40px; border-radius: 8px !important; background: #1a1a24 !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white; appearance: auto;">
                     <option value="0">بدون خصم (حفظ القسائم)</option>
                 </select>
@@ -1733,4 +1747,4 @@
         };
     </script>
 </body>
-                </html>
+</html>
