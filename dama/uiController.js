@@ -20,7 +20,7 @@
  * 2. إضافة "زر طلب الصداقة" في نافذة النتائج (Add Friend in Results).
  * 3. إظهار "الألقاب" (Titles) تحت أسماء اللاعبين في المباراة.
  * 4. الضبط الفيزيائي الدقيق لـ "عجلة الحظ" (Lucky Spin Precision).
- */
+ *//
 
 import { gameState } from './gameState.js'; 
 import { saveGameState, restoreOfflineHintSystem } from './main.js';
