@@ -1317,58 +1317,45 @@ body.online-mode-active .game-container { order: 3 !important; }
     font-weight: 800 !important;
 }
 
+
 /* ========================================== */
 /* 🌟 صندوق المؤقت وزر اللف الجديد (Glossy UI) 🌟 */
 /* ========================================== */
-.spin-timer-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: linear-gradient(to bottom, #001a4d, #000a1f);
-    border: 1.5px solid #d4af37;
-    border-radius: 50px;
-    padding: 8px 20px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.1);
-    direction: rtl;
-}
 
-.spin-timer-container .timer-label {
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: bold;
-}
-
+/* 🟢 تم دمج تصميم المؤقت ليحتوي النص القادم من الجافاسكربت بشكل سليم ومرتب */
 #spin-timer {
-    background: #1a1200;
-    border: 1px solid #d4af37;
-    border-radius: 8px;
-    padding: 4px 10px;
-    color: #ffd700;
-    font-size: 16px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    font-family: monospace;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
-    text-shadow: 0 0 5px rgba(255,215,0,0.5);
+    background: linear-gradient(to bottom, #001a4d, #000a1f) !important;
+    border: 1.5px solid #d4af37 !important;
+    border-radius: 50px !important;
+    padding: 8px 20px !important;
+    margin: 0 auto 15px auto !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.1) !important;
+    text-align: center !important;
+    width: fit-content !important;
+    direction: rtl !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
+    white-space: nowrap !important;
 }
 
+/* 🌟 الأزرار الزجاجية الفخمة الجديدة */
 .spin-action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    width: 90%;
-    height: 55px;
-    margin: 0 auto;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 15px !important;
+    width: 90% !important;
+    height: 55px !important;
+    margin: 0 auto !important;
     background: linear-gradient(180deg, #005cff 0%, #003cc8 40%, #001a66 100%) !important;
     border: 2px solid #ffcc00 !important;
     border-radius: 50px !important;
-    cursor: pointer;
+    cursor: pointer !important;
     box-shadow: 0 0 10px rgba(0, 102, 255, 0.5), inset 0 3px 5px rgba(255, 255, 255, 0.5), inset 0 -3px 8px rgba(0, 0, 0, 0.6) !important;
     transition: all 0.2s ease !important;
-    outline: none;
+    outline: none !important;
 }
 
 .spin-action-btn:active {
@@ -1376,36 +1363,40 @@ body.online-mode-active .game-container { order: 3 !important; }
     box-shadow: 0 2px 5px rgba(0,0,0,0.8), inset 0 3px 8px rgba(0,0,0,0.9) !important;
 }
 
+/* أيقونة التشغيل الذهبية الدائرية */
 .play-icon-circle {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #ffee99, #ffcc00, #997a00);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #fff3b3;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.6);
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 50% !important;
+    background: radial-gradient(circle at 30% 30%, #ffee99, #ffcc00, #997a00) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 2px solid #fff3b3 !important;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.6) !important;
+    flex-shrink: 0 !important;
 }
 
 .play-triangle {
-    width: 0; 
-    height: 0; 
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    border-left: 10px solid #3e2723;
-    margin-right: -3px; 
+    width: 0 !important; 
+    height: 0 !important; 
+    border-top: 6px solid transparent !important;
+    border-bottom: 6px solid transparent !important;
+    border-left: 10px solid #3e2723 !important;
+    margin-right: -3px !important; 
 }
 
+/* 🟢 فرض اللون الأبيض الساطع على نص الزر */
 .spin-btn-text {
-    color: #ffcc00;
-    font-size: 20px;
-    font-weight: 900;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    color: #ffffff !important; 
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
 }
+
 
 /* ========================================== */
 /* 🌟 أنيميشن شاشة الترقية (Level Up Modal)  */
@@ -1700,4 +1691,4 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     max-height: 85% !important; 
     object-fit: contain !important;
     display: block !important;
-}
+    }
