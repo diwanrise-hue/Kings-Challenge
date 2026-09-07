@@ -1185,7 +1185,7 @@ body.online-mode-active .game-container { order: 3 !important; }
 .wheel-container { 
     position: relative; 
     width: 280px; height: 280px; 
-    margin: 25px auto 15px auto; /* رفعنا المارجن العلوي لمنع التداخل */
+    margin: 20px auto 15px auto; /* رفعنا المارجن العلوي لمنع التداخل */
 }
 
 .wheel-container::before {
