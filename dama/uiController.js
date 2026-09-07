@@ -748,7 +748,7 @@ export const ui = {
             if (vsBetEl) {
                 if (gameState.roomBet && gameState.roomBet > 0) {
                     vsBetEl.style.display = 'block';
-                    vsBetEl.textContent = `💰 ${gameState.roomBet * 2}`;
+                    vsBetEl.innerHTML = `<img src="../Photo/coin.webp" class="app-coin-icon"> ${gameState.roomBet * 2}`; * 2}`;
                 } else {
                     vsBetEl.style.display = 'none';
                 }
@@ -1525,12 +1525,12 @@ export const ui = {
                         let rewardText = ""; let alertColor = "#f5a623";
 
                         if (isBetMatch) {
-                            if (isDraw) { rewardText = `🤝 تم استرداد الرهان بأمان`; alertColor = "#f1c40f"; } 
-                            else if (isMeWin) { rewardText = `💰 جائزة الرهان: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = "#30d158"; } 
-                            else { rewardText = `💸 خسارة الرهان: -${gameState.roomBet} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = "#ff453a"; }
-                        } else if (isBossLevel) { rewardText = `👑 مكافأة الزعيم: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; } 
-                        else if (displayReward > 0) { rewardText = `${(t('tokenReward') || 'المكافأة:')} +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = isMeWin ? "#f5a623" : "#87ceeb"; }
-                        
+                        if (isDraw) { rewardText = `🤝 تم استرداد الرهان بأمان`; alertColor = "#f1c40f"; } 
+                           else if (isMeWin) { rewardText = `جائزة الرهان: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = "#30d158"; } 
+                           else { rewardText = `خسارة الرهان: -${gameState.roomBet} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = "#ff453a"; }
+                       } 
+                        else if (isBossLevel) { rewardText = `👑 مكافأة الزعيم: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; } 
+                        else if (displayReward > 0) { rewardText = `${(t('tokenReward') || 'المكافأة:')} +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = isMeWin ? "#f5a623" : "#87ceeb"; }     
                         if (rewardText !== "") { 
                             const rewardDiv = this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`);
                             rewardDiv.innerHTML = rewardText;
