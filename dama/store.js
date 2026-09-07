@@ -975,7 +975,7 @@ export const storeManager = {
                     storeCard.style.boxShadow = '0 0 12px rgba(168, 85, 247, 0.15), inset 0 0 6px rgba(0,0,0,0.9)';
                 }
 
-                storeCard.innerHTML = `${legendaryTag} <div class="${legendaryClassText}" style="color: white; font-weight: 600; font-size: 14px; text-align: center; margin-top: ${item.isLegendary ? '10px' : '0'}; line-height: 1.2;">${name}</div> ${visualHtml} <div style="color: #f5a623; font-size: 13px; font-weight: bold; margin-bottom: 2px; margin-top: auto;">🪙 ${item.cost}</div>`;
+                storeCard.innerHTML = `${legendaryTag} <div class="${legendaryClassText}" style="color: white; font-weight: 600; font-size: 14px; text-align: center; margin-top: ${item.isLegendary ? '10px' : '0'}; line-height: 1.2;">${name}</div> ${visualHtml} <div style="color: #f5a623; font-size: 13px; font-weight: bold; margin-bottom: 2px; margin-top: auto;"><img src="../Photo/coin.webp" class="app-coin-icon"> ${item.cost}</div>`;
                 
                 const buyBtn = document.createElement('button');
                 buyBtn.className = `store-buy-btn store-buy-btn-small ${legendaryClassBtn}`; buyBtn.innerText = isAr ? 'شراء' : 'Buy';
@@ -1196,17 +1196,20 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
             
             let finalPrice = Math.floor(price * (1 - (totalDiscount / 100)));
             
+            // استبدل الـ 🪙 في السطر التالي لصورة العملة:
             priceHtml = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">${formatCompact(price)}</span>
-                    <span style="color:#34c759;">${formatCompact(finalPrice)} 🪙 <span style="font-size:12px;">(خصم ${totalDiscount}%)</span></span>
+                    <span style="color:#34c759;">${formatCompact(finalPrice)} <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="font-size:12px;">(خصم ${totalDiscount}%)</span></span>
                 </div>
             `;
         } else {
-            priceHtml = `${formatCompact(price)} 🪙`;
+            // واستبدل الـ 🪙 في السطر التالي أيضاً:
+            priceHtml = `${formatCompact(price)} <img src="../Photo/coin.webp" class="app-coin-icon">`;
         }
         costEl.innerHTML = priceHtml;
     }
+
 
     if(discountSelect) discountSelect.onchange = updatePriceDisplay;
     updatePriceDisplay();
@@ -1262,3 +1265,4 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     const purchaseModal = document.getElementById('purchase-modal');
     if(purchaseModal) purchaseModal.style.display = 'flex';
 };
+
