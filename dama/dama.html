@@ -689,6 +689,7 @@
         </div>
     </div>
 
+
     <div id="lucky-spin-modal" class="modal-overlay" style="z-index: 850;">
         <div class="settings-card" dir="auto" style="max-width: 360px;">
             <button class="modal-close-btn" onclick="closeAppModal('lucky-spin-modal')" style="left:15px; right:auto;">✕</button>
@@ -704,33 +705,29 @@
                 <div class="wheel-center-pin"></div>
             </div>
 
-            <div id="spin-timer" style="color: #a1a1aa; font-size: 14px; margin-bottom: 15px; font-weight: 600; text-align: center;">اللفة المجانية جاهزة! 🎁</div>
-<div id="spin-timer-wrapper" class="spin-timer-wrapper" style="display: flex;">
-    <div id="spin-timer-label" class="timer-label">اللفة المجانية القادمة بعد:</div>
-    
-<div id="spin-timer-wrapper" class="spin-timer-wrapper" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 65px; min-height: 65px; max-height: 65px; overflow: hidden; position: relative;">
-      
-    <div id="spin-timer-digits" class="spin-timer-digits" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
-        <div class="timer-label" style="font-size: 12px; margin-bottom: 4px; color: #a1a1aa;">اللفة المجانية القادمة بعد:</div>
-        <div style="display: flex; gap: 5px; align-items: center; justify-content: center;">
-            <div id="spin-timer-h" class="t-box">00</div>
-            <div class="time-sep">:</div>
-            <div id="spin-timer-m" class="t-box">00</div>
-            <div class="time-sep">:</div>
-            <div id="spin-timer-s" class="t-box">00</div>
+            <div id="spin-timer-wrapper" class="spin-timer-wrapper" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 65px; min-height: 65px; max-height: 65px; overflow: hidden; position: relative; margin-bottom: 15px;">
+                
+                <div id="spin-timer-digits" class="spin-timer-digits" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+                    <div class="timer-label" style="font-size: 12px; margin-bottom: 4px; color: #a1a1aa;">اللفة المجانية القادمة بعد:</div>
+                    <div style="display: flex; gap: 5px; align-items: center; justify-content: center;">
+                        <div id="spin-timer-h" class="t-box">00</div>
+                        <div class="time-sep">:</div>
+                        <div id="spin-timer-m" class="t-box">00</div>
+                        <div class="time-sep">:</div>
+                        <div id="spin-timer-s" class="t-box">00</div>
+                    </div>
+                </div>
+
+                <div id="spin-ready-text" style="color: #34c759; font-size: 16px; font-weight: 800; display: none; text-shadow: 0 0 10px rgba(52,199,89,0.5); text-align: center; width: 100%;">اللفة المجانية جاهزة! 🎁</div>
+            </div>
+
+            <button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important; border-color: #8be8ab !important; border-bottom: 3.5px solid #145a32 !important; display: none;">لفة مجانية 🆓</button>
+            <button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none; border-color: #f5a623 !important;">لفة إضافية (200 🪙)</button>
         </div>
-    </div>
-
-    <div id="spin-ready-text" style="color: #34c759; font-size: 16px; font-weight: 800; display: none; text-shadow: 0 0 10px rgba(52,199,89,0.5); text-align: center; width: 100%;">اللفة المجانية جاهزة! 🎁</div>
-</div>
-
-<button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important; border-color: #8be8ab !important; border-bottom: 3.5px solid #145a32 !important; display: none;">لفة مجانية 🆓</button>
-<button id="spin-paid-btn" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; display: none; border-color: #f5a623 !important;">لفة إضافية (200 🪙)</button>
-
-    
-    <div id="level-up-modal" class="modal-overlay" style="z-index: 980;">
+    </div> <div id="level-up-modal" class="modal-overlay" style="z-index: 980;">
         <div class="settings-card" dir="auto" style="max-width: 320px; overflow: hidden; position: relative;">
-            <div class="level-up-rays"></div> <button class="modal-close-btn" onclick="closeAppModal('level-up-modal')" style="left:15px; right:auto;">✕</button>
+            <div class="level-up-rays"></div> 
+            <button class="modal-close-btn" onclick="closeAppModal('level-up-modal')" style="left:15px; right:auto;">✕</button>
             <h3 style="color:#ffd700; font-size: 26px; text-shadow: 0 0 10px rgba(255,215,0,0.6); margin-bottom: 10px;">ترقية جديدة! ⬆️</h3>
             <div style="font-size: 60px; margin: 15px 0; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));">🏅</div>
             <p style="color: white; font-size: 18px; margin: 0 0 5px 0; font-weight: 700;">وصلت إلى المستوى <span id="level-up-num" style="color: #34c759; font-size: 22px;">2</span></p>
@@ -742,6 +739,9 @@
             <button onclick="closeAppModal('level-up-modal')" class="save-settings-btn" style="background: linear-gradient(135deg, #f5a623, #d35400) !important; color: white !important; border-color: #ffd700 !important; border-bottom: 3.5px solid #a85400 !important;">استلام الجوائز</button>
         </div>
     </div>
+
+
+    
 
     <div id="mic-request-modal" class="modal-overlay" style="z-index: 1000;">
         <div class="settings-card" dir="auto" style="max-width: 300px;">
