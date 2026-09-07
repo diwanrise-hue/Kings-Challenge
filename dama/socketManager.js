@@ -1978,3 +1978,4 @@ function getNotifyMsg(key, name = '') {
 }
 
 window.socketManager = socketManager;
+
