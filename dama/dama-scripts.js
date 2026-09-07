@@ -124,11 +124,11 @@ window.sendFriendReqById = function() {
             let targetId = idInput.value.trim();
             window.socket.emit('sendFriendReq', { targetId: targetId });
             const toast = document.getElementById('toast-notification');
-            if (toast) { toast.innerText = '📨 تم إرسال طلب الصداقة!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+            if (toast) { toast.innerHTML = '📨 تم إرسال طلب الصداقة!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
             idInput.value = '';
         } else {
             const toast = document.getElementById('toast-notification');
-            if (toast) { toast.innerText = '❌ يجب أن تكون متصلاً بالإنترنت!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+            if (toast) { toast.innerHTML = '❌ يجب أن تكون متصلاً بالإنترنت!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
         }
     }
 };
@@ -184,7 +184,7 @@ window.renderDamaPopularityStore = function() {
                 <div style="color: #00d2ff; font-size: 10px; font-weight: bold; margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 3px; filter: drop-shadow(0 0 2px rgba(0, 210, 255, 0.4));">
                     +${formatCompactNumber(gift.popValue)} <span style="font-size: 12px; filter: hue-rotate(210deg) drop-shadow(0 0 2px rgba(0, 210, 255, 0.6));">🔥</span>
                 </div>
-                <div style="color: #f5a623; font-size: 12px; font-weight: bold; margin-top: auto; margin-bottom: 2px;">🪙 ${formatCompactNumber(gift.price)}</div>
+                <div style="color: #f5a623; font-size: 12px; font-weight: bold; margin-top: auto; margin-bottom: 2px;"><img src="../Photo/coin.webp" class="app-coin-icon"> ${formatCompactNumber(gift.price)}</div>
                 <button class="store-buy-btn store-buy-btn-small" onclick="window.openPurchaseModal('${gift.id}', '${safeName}', ${gift.price}, 'popularity')">شراء</button>
             `;
             grid.appendChild(card);
@@ -290,7 +290,11 @@ window.selectSpectatorBetColor = function(color) {
 
 window.openRadioModal = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'OPEN_RADIO_MODAL' }, '*'); };
 window.exitDamaGame = function() { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'EXIT_GAME' }, '*'); };
-window.openBetSelectorForEdit = function() { window.isEditingBet = true; if (typeof window.openAppModal === 'function') window.openAppModal('bet-selector-modal'); };
+
+window.openBetSelectorForEdit = function() { 
+    window.isEditingBet = true; 
+    if (typeof window.openAppModal === 'function') window.openAppModal('bet-selector-modal'); 
+};
 
 let seasonTimerInterval = null;
 
@@ -672,12 +676,12 @@ window.switchLbTab = function(tabId) {
 // 📊 نظام شريط الرتبة التفاعلي (الأساسي الحقيقي)
 // ==========================================
 const RANK_SYSTEM = [
-    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', tierRewards: ['50 🪙', '50 🪙', '50 🪙', '50 🪙'] },
-    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', tierRewards: ['100 🪙', '100 🪙', '100 🪙', '100 🪙'] },
-    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', tierRewards: ['300 🪙', '300 🪙', '300 🪙', '300 🪙'] },
-    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', tierRewards: ['500 🪙', '500 🪙', '500 🪙', '500 🪙'] },
-    { id: 'royal', name: 'ملكي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', tierRewards: ['800 🪙', '800 🪙', '800 🪙', '800 🪙'] }, 
-    { id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', tierRewards: ['1000 🪙', '1000 🪙', '1000 🪙', '1000 🪙'] } 
+    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', tierRewards: ['50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', tierRewards: ['100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', tierRewards: ['300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', tierRewards: ['500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    { id: 'royal', name: 'ملكي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', tierRewards: ['800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">'] }, 
+    { id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', tierRewards: ['1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">'] } 
 ];
 
 window.currentViewedRankIndex = 0;
@@ -789,7 +793,7 @@ window.renderRankTrack = function() {
             iconFilter = 'filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));'; 
         }
 
-        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : '50 🪙';
+        let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : `50 <img src="../Photo/coin.webp" class="app-coin-icon">`;
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
         
         let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
@@ -1059,7 +1063,7 @@ window.equipTitle = function(titleKey) {
 
             const toast = document.getElementById('toast-notification');
             if (toast) { 
-                toast.textContent = '✨ تم اختيار اللقب بنجاح!'; 
+                toast.innerHTML = '✨ تم اختيار اللقب بنجاح!'; 
                 toast.classList.add('show'); 
                 setTimeout(() => toast.classList.remove('show'), 2500); 
             }
@@ -1086,21 +1090,57 @@ window.equipTitle = function(titleKey) {
     }
 };
 
+window.openCreatorSettings = function(roomId, currentBet) {
+    const roomIdInput = document.getElementById('creator-target-room-id');
+    const betInput = document.getElementById('edit-room-bet-input');
+    const betDisplay = document.getElementById('edit-room-bet-display');
+    
+    if (roomIdInput) roomIdInput.value = roomId;
+    if (betInput) betInput.value = currentBet;
+    
+    if (betDisplay) {
+        let betText = "بدون رهان (مجاني)";
+        if (currentBet == 50) betText = "50 <img src='../Photo/coin.webp' class='app-coin-icon'>";
+        else if (currentBet == 100) betText = "100 <img src='../Photo/coin.webp' class='app-coin-icon'>";
+        else if (currentBet == 200) betText = "200 <img src='../Photo/coin.webp' class='app-coin-icon'>";
+        else if (currentBet == 500) betText = "500 <img src='../Photo/coin.webp' class='app-coin-icon'> (الحد الأقصى)";
+        else if (currentBet == 1000) betText = "1000 <img src='../Photo/coin.webp' class='app-coin-icon'> (الحد الأقصى)";
+        betDisplay.innerHTML = betText;
+    }
+    
+    window.openAppModal('creator-room-settings-modal');
+};
+
+window.deleteMyRoom = function(roomId) {
+    if (typeof window.ui !== 'undefined' && typeof window.ui.showCustomAlert === 'function') {
+        window.ui.showCustomAlert(
+            "هل أنت متأكد من رغبتك في إغلاق وحذف هذه الغرفة نهائياً؟",
+            "حذف الغرفة 🗑️",
+            () => {
+                if (typeof window.socket !== 'undefined' && window.socket && window.socket.connected) {
+                    window.socket.emit('leaveRoom', { roomID: roomId });
+                }
+            },
+            true, "إلغاء", "نعم، احذفها"
+        );
+    }
+};
+
 window.confirmSpectatorBet = function() {
     const roomId = document.getElementById('spectator-bet-room-id')?.value || (window.gameState && window.gameState.onlineRoomID);
     const color = document.getElementById('spectator-bet-color')?.value;
     const amount = parseInt(document.getElementById('spectator-bet-amount')?.value) || 0;
 
     if (!roomId) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("خطأ في تحديد الغرفة للمراهنة!");
+        if (typeof window.ui.showCustomAlert === 'function') window.ui.showCustomAlert("خطأ في تحديد الغرفة للمراهنة!");
         return;
     }
     if (!color) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء اختيار اللاعب المتوقع فوزه أولاً (أبيض أو أسود)!");
+        if (typeof window.ui.showCustomAlert === 'function') window.ui.showCustomAlert("الرجاء اختيار اللاعب المتوقع فوزه أولاً (أبيض أو أسود)!");
         return;
     }
     if (amount <= 0) {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("الرجاء تحديد مبلغ الرهان!");
+        if (typeof window.ui.showCustomAlert === 'function') window.ui.showCustomAlert("الرجاء تحديد مبلغ الرهان!");
         return;
     }
 
@@ -1118,6 +1158,6 @@ window.confirmSpectatorBet = function() {
             window.closeAppModal('spectator-bet-modal');
         }
     } else {
-        if (typeof ui.showCustomAlert === 'function') ui.showCustomAlert("يرجى الاتصال بالإنترنت أولاً!");
+        if (typeof window.ui.showCustomAlert === 'function') window.ui.showCustomAlert("يرجى الاتصال بالإنترنت أولاً!");
     }
 };
