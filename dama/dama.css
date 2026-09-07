@@ -1308,7 +1308,10 @@ body.online-mode-active .game-container { order: 3 !important; }
 
 #lucky-spin-modal h3 {
     text-shadow: 0 2px 15px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,1) !important;
+    margin-top: -25px !important; /* 🟢 هذا السطر يسحب النص للأعلى */
 }
+
+
 #lucky-spin-modal p {
     text-shadow: 0 2px 5px rgba(0,0,0,1) !important;
     font-weight: 800 !important;
