@@ -3,6 +3,7 @@
  * مسؤول عن توليد وإدارة محتويات قسم المتجر (Store) ديناميكياً
  * 🌟 (مُحدّث): إضافة Fallback آمن للبيانات لمنع فشل التحميل (Bug #20).
  * 🌟 (مُحدّث): تزامن فوري لرصيد اللاعب عند بناء المتجر لتجنب ظهور "0" مؤقتاً.
+ * 🪙 (مُحدّث): استبدال إيموجي العملة بصورة coin.webp
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -431,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         <!-- باقة 1 -->
                         <div class="store-item-card" style="border-color: rgba(255,255,255,0.1) !important; padding: 15px 10px !important;">
-                            <span style="font-size: 35px; margin: 5px 0;">🪙</span>
+                            <img src="Photo/coin.webp" style="width: 45px; height: 45px; margin: 5px 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
                             <span style="color: #fff; font-size: 16px; font-weight: bold;">5,000</span>
                             <span style="color: var(--text-secondary); font-size: 10px; margin-bottom: 10px;">+ 99 نقطة VIP</span>
                             <button class="store-buy-btn-small" style="background: rgba(255,255,255,0.05) !important; border-color: rgba(0, 210, 255, 0.3) !important; color: #00d2ff !important; height: 32px !important; font-size: 13px !important;" onclick="purchaseRealMoney('package_099', 0.99)">
@@ -591,7 +592,7 @@ window.renderPopularityItems = function() {
                 </div>
 
                 <button class="store-buy-btn-small" onclick="buyPopularityItem('${item.id}')">
-                    ${localFormatCompactNumber(item.price)} <span style="color: gold; font-size: 10px;">🪙</span>
+                    ${localFormatCompactNumber(item.price)} <img src="Photo/coin.webp" class="app-coin-icon">
                 </button>
             `;
             grid.appendChild(card);
@@ -621,9 +622,8 @@ window.triggerAlertSoon = function() {
 };
 
 // ==========================================
-// 🌟 دوال عرض وشراء إطارات البروفايل الشخصية (محدثة للإخفاء بعد الشراء) 🌟
+// 🌟 دوال عرض وشراء إطارات البروفايل الشخصية 
 // ==========================================
-// 🛡️ (مُحدّث): تعريف Fallback آمن لضمان عدم توقف الواجهة إذا تأخر تحميل index-scripts.js
 window.renderProfileFrames = function() {
     const grid = document.getElementById('store-profile-frames-grid');
     if (!grid) return;
@@ -669,7 +669,7 @@ window.renderProfileFrames = function() {
                 <span style="color: #fff; font-size: 12px; font-weight: bold; margin-bottom: 8px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.nameAr}</span>
                 
                 <button class="store-buy-btn-small" style="background: linear-gradient(to right, rgba(197, 155, 66, 0.2), transparent) !important; border: 1px solid var(--accent) !important; color: var(--accent) !important;" onclick="buyProfileFrameItem('${item.id}')">
-                    ${localFormatCompactNumber(item.price)} <span style="font-size: 11px;">🪙</span>
+                    ${localFormatCompactNumber(item.price)} <img src="Photo/coin.webp" class="app-coin-icon">
                 </button>
             `;
             grid.appendChild(card);
