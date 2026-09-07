@@ -1006,7 +1006,6 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 
 .themes-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 5px 0; }
 .theme-grid-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 10px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-
 /* ========================================== */
 /* 🌟 تصميم احترافي للعنصر المُستخدَم (Equipped) في الحقيبة 🌟 */
 /* ========================================== */
@@ -1186,7 +1185,7 @@ body.online-mode-active .game-container { order: 3 !important; }
 .wheel-container { 
     position: relative; 
     width: 280px; height: 280px; 
-    margin: -20px auto 25px auto; /* 🟢 تم رفع العجلة للأعلى */
+    margin: 45px auto 30px auto; /* رفعنا المارجن العلوي لمنع التداخل */
 }
 
 .wheel-container::before {
@@ -1197,7 +1196,6 @@ body.online-mode-active .game-container { order: 3 !important; }
     animation: pulseAura 2.5s infinite alternate ease-in-out;
     pointer-events: none;
 }
-@keyframes pulseAura { 0% { transform: scale(0.9); opacity: 0.6; } 100% { transform: scale(1.1); opacity: 1; } }
 
 /* ========================================== */
 /* 🌟 التعديلات الجديدة: خلفية العجلة والدبوس الفخم 🌟 */
@@ -1269,6 +1267,7 @@ body.online-mode-active .game-container { order: 3 !important; }
     box-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
 
+/* ترتيب ألوان العجلة لتبدأ باللون الأحمر من الأعلى تماماً */
 .wheel-inner { 
     box-sizing: border-box; width: 100%; height: 100%; border-radius: 50%; 
     border: 14px solid #d4af37; 
@@ -1277,9 +1276,14 @@ body.online-mode-active .game-container { order: 3 !important; }
     transform: rotate(337.5deg) translateZ(0); 
     will-change: transform;
     background: conic-gradient(
-        #1A365D 0deg 45deg, #2E7D32 45deg 90deg, #00838F 90deg 135deg,
-        #4527A0 135deg 180deg, #b71c1c 180deg 225deg, #F9A825 225deg 270deg,
-        #4E342E 270deg 315deg, #E65100 315deg 360deg
+        #b71c1c 0deg 45deg,    /* أحمر (الأعلى) */
+        #d35400 45deg 90deg,   
+        #f39c12 90deg 135deg,  
+        #5d4037 135deg 180deg, 
+        #e65100 180deg 225deg, 
+        #1A365D 225deg 270deg, 
+        #2E7D32 270deg 315deg, 
+        #00838F 315deg 360deg  
     );
 }
 
@@ -1290,7 +1294,14 @@ body.online-mode-active .game-container { order: 3 !important; }
     white-space: nowrap; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
 }
 
-.w-1 { transform: translateX(-50%) rotate(22.5deg); } .w-2 { transform: translateX(-50%) rotate(67.5deg); } .w-3 { transform: translateX(-50%) rotate(112.5deg); } .w-4 { transform: translateX(-50%) rotate(157.5deg); } .w-5 { transform: translateX(-50%) rotate(202.5deg); } .w-6 { transform: translateX(-50%) rotate(247.5deg); } .w-7 { transform: translateX(-50%) rotate(292.5deg); } .w-8 { transform: translateX(-50%) rotate(337.5deg); color: #ffd700; font-size: 17px; text-shadow: 0 0 10px #d4af37, 0 2px 4px black; }
+.w-1 { transform: translateX(-50%) rotate(22.5deg); color: #fff; font-size: 18px; text-shadow: 0 0 10px #ff0000, 0 2px 4px black; }
+.w-2 { transform: translateX(-50%) rotate(67.5deg); }
+.w-3 { transform: translateX(-50%) rotate(112.5deg); }
+.w-4 { transform: translateX(-50%) rotate(157.5deg); }
+.w-5 { transform: translateX(-50%) rotate(202.5deg); color: #ffd700; font-size: 18px; text-shadow: 0 0 10px #d4af37, 0 2px 4px black;}
+.w-6 { transform: translateX(-50%) rotate(247.5deg); }
+.w-7 { transform: translateX(-50%) rotate(292.5deg); }
+.w-8 { transform: translateX(-50%) rotate(337.5deg); }
 
 .wheel-center-pin { 
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
@@ -1308,78 +1319,114 @@ body.online-mode-active .game-container { order: 3 !important; }
 
 #lucky-spin-modal h3 {
     text-shadow: 0 2px 15px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,1) !important;
-    margin-top: -15px !important; /* 🟢 تم رفع النص للأعلى */
 }
 #lucky-spin-modal p {
     text-shadow: 0 2px 5px rgba(0,0,0,1) !important;
     font-weight: 800 !important;
-    margin-bottom: 15px !important;
 }
 
-/* ========================================== */
-/* 🌟 تصميم المؤقت وزر اللف (معدل على العناصر القديمة) 🌟 */
-/* ========================================== */
+/* ⏱️ صناديق الوقت (المطابقة للصورة 2) */
+.spin-timer-wrapper {
+    background: linear-gradient(180deg, #0f192b 0%, #050a14 100%);
+    border: 1px solid #1e3a5f;
+    border-radius: 30px;
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px auto 25px auto;
+    width: 90%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+}
+.timer-label {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+}
+.spin-timer-digits {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    direction: ltr;
+}
+.t-box {
+    background: linear-gradient(180deg, #2a1f00 0%, #1a1300 100%);
+    border: 1.5px solid #d4af37;
+    border-radius: 6px;
+    color: #ffd700;
+    font-size: 18px;
+    font-weight: 800;
+    padding: 4px 6px;
+    min-width: 32px;
+    text-align: center;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+    font-family: monospace;
+}
+.time-sep {
+    color: #ffd700;
+    font-size: 18px;
+    font-weight: 800;
+}
 
-#spin-timer {
-    background: linear-gradient(to bottom, #001a4d, #000a1f) !important;
-    border: 1.5px solid #d4af37 !important;
+/* 🔘 أزرار اللف اللامعة الفخمة (المطابقة للصورة 3) */
+.spin-action-btn {
+    background: linear-gradient(180deg, #005cbf 0%, #001f4d 100%) !important;
+    border: 2px solid #ffd700 !important;
     border-radius: 50px !important;
-    padding: 8px 20px !important;
-    margin: 0 auto 15px auto !important;
-    color: #ffffff !important;
-    font-size: 15px !important;
-    font-weight: bold !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.1) !important;
-    text-align: center !important;
-    width: fit-content !important;
-    direction: rtl !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
-    white-space: nowrap !important;
-}
-
-#spin-free-btn, #spin-paid-btn {
+    width: 90%;
+    height: 60px !important;
+    margin: 0 auto !important;
     display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 15px !important;
-    width: 90% !important;
-    height: 55px !important;
-    margin: 0 auto 10px auto !important;
-    background: linear-gradient(180deg, #005cff 0%, #003cc8 40%, #001a66 100%) !important;
-    border: 2px solid #ffcc00 !important;
-    border-radius: 50px !important;
-    color: #ffffff !important;
-    font-size: 18px !important;
-    font-weight: 900 !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
-    cursor: pointer !important;
-    box-shadow: 0 0 10px rgba(0, 102, 255, 0.5), inset 0 3px 5px rgba(255, 255, 255, 0.5), inset 0 -3px 8px rgba(0, 0, 0, 0.6) !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.3) !important;
     transition: all 0.2s ease !important;
-    outline: none !important;
-    flex-direction: row-reverse !important; 
+    position: relative;
+    padding: 0 15px !important;
 }
-
-#spin-free-btn:active, #spin-paid-btn:active {
+.spin-action-btn:active {
     transform: translateY(3px) !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.8), inset 0 3px 8px rgba(0,0,0,0.9) !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.8) !important;
 }
-
-#spin-free-btn::before, #spin-paid-btn::before {
-    content: '\25B6' !important; 
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 34px !important;
-    height: 34px !important;
-    border-radius: 50% !important;
-    background: radial-gradient(circle at 30% 30%, #ffee99, #ffcc00, #997a00) !important;
-    border: 2px solid #fff3b3 !important;
-    color: #3e2723 !important;
-    font-size: 16px !important;
-    padding-right: 2px !important; 
-    text-shadow: none !important;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.6) !important;
-    flex-shrink: 0 !important;
+.spin-action-btn:hover {
+    filter: brightness(1.15);
+}
+.spin-play-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #ffe066, #b8860b);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #4a3500; font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.8);
+    border: 2px solid #fff3a8;
+    padding-left: 3px; 
+    flex-shrink: 0;
+}
+.spin-btn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.spin-btn-text {
+    color: #ffd700;
+    font-size: 20px;
+    font-weight: 900;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    font-family: 'Tajawal', sans-serif;
+}
+.spin-btn-val {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 900;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
 }
 
 /* ========================================== */
