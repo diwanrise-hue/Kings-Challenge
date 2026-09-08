@@ -1568,6 +1568,10 @@ export const ui = {
                 rewardsContainer.appendChild(this.makeEl('div', null, "color:#a1a1aa; font-weight:600; font-size:12px;", "أنت تلعب أوفلاين (بدون جوائز)"));
             }
             
+            // ==========================================
+            // 🦈 تحديث عداد السلسلة للقب "القرش"
+            // ==========================================
+        
             if (gameState.isOnlineMode) {
                 if (isMeWin && gameState.roomBet >= 10000) {
                     gameState.userProfile.sharkWinStreak = (gameState.userProfile.sharkWinStreak || 0) + 1;
@@ -1575,33 +1579,15 @@ export const ui = {
                     gameState.userProfile.sharkWinStreak = 0;
                 }
             }
-
-            if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+            // ==========================================
+            
+          if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
             this.updateProfileUI(); 
         }
 
         box.appendChild(rewardsContainer);
         container.appendChild(box); 
         document.body.appendChild(container);
-        this.toggleOfflineInMatchUI(false);
-    },
-
-            // ==========================================
-            // 🦈 تحديث عداد السلسلة للقب "القرش"
-            // ==========================================
-            if (gameState.isOnlineMode) {
-                if (isMeWin && gameState.roomBet >= 10000) {
-                    gameState.userProfile.sharkWinStreak = (gameState.userProfile.sharkWinStreak || 0) + 1;
-                } else if (!isDraw) {
-                    gameState.userProfile.sharkWinStreak = 0;
-                }
-            }
-            // ==========================================
-
-            if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
-            
-            this.updateProfileUI(); 
-        }
         this.toggleOfflineInMatchUI(false);
     },
 
