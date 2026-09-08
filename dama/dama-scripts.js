@@ -1,8 +1,9 @@
 /**
  * dama-scripts.js
- * المساعد العام للتنسيق والمزامنة وإدارة ساحة التحديات
+ * المساعد العام للتنسيق والمزامنة وإدارة ساحة التحديات ونظام الرتب
  * 🔒 تم التحديث: تفعيل الأقفال وحماية الرصيد في ساحة التحديات.
- * ✨ تم التنظيف: إزالة دوال الملف الشخصي للاعتماد على النسخ المتطورة في uiController.js
+ * 🧮 (مُحدّث جذرياً): نظام الفجوة (Gap) بين الطبقات (Tiers) مع مصفوفة tierScores الدقيقة.
+ * ♾️ (مُحدّث جذرياً): إزالة Infinity من الرتبة الأسطورية ليعمل شريط التقدم بشكل صحيح 100%.
  */
 
 function escapeHTML(str) {
@@ -420,238 +421,18 @@ window.kickSpectator = function(targetId, targetName) {
     }
 };
 
-window.createLbItemHTML = function(rank, playerObj, type) {
-    let score = playerObj.score || playerObj.wins || 0; 
-    let name = escapeHTML(playerObj.name); 
-    let avatarStr = playerObj.avatar; 
-    let playerRankInfo = playerObj.rankInfo;
-    
-    let displayScore = '';
-    
-    if (type === 'xp') {
-        let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1; 
-        if (level > 200) level = 200;
-        displayScore = `<span style="color:#87ceeb; font-weight:800; background: rgba(135,206,235,0.15); border: 1px solid rgba(135,206,235,0.3); padding: 2px 8px; border-radius: 6px;">Lv.${level}</span>`;
-    } else {
-        displayScore = `<span style="color:#f5a623; font-weight:800;">${formatCompactNumber(score)} 🏆</span>`;
-    }
-
-    const div = document.createElement('div'); 
-    div.className = 'lb-item';
-    let rankIconHTML = playerRankInfo && playerRankInfo.icon ? `<span class="rank-icon-small" title="${escapeHTML(playerRankInfo.title)}">${playerRankInfo.icon}</span>` : '';
-    const nameEl = document.createElement('div'); 
-    nameEl.className = 'lb-name'; 
-    nameEl.innerHTML = `<span>${name}</span>${rankIconHTML}`;
-    
-    let secureImgSrc = getSecureAvatarUrl(avatarStr);
-    let overlayFrameSrc = playerObj.equippedProfileFrame && window.PROFILE_FRAMES_DB && window.PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] ? window.PROFILE_FRAMES_DB[playerObj.equippedProfileFrame] : null;
-
-    div.innerHTML = `
-        <div class="lb-rank">#${rank}</div>
-        <div class="lb-avatar" style="padding:0; border:none; display:flex; justify-content:center; align-items:center; overflow:visible; cursor:pointer; transition:all 0.2s; flex-shrink: 0; min-width: 40px; min-height: 40px; width: 40px; height: 40px; border-radius: 50%; background: transparent;" title="عرض الملف الشخصي">
-            <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                <img src="${secureImgSrc}" onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\\'font-size: 22px;\\'>👤</span>';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; position: relative; z-index: 1;">
-                ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none; object-fit: contain; border-radius: 0; max-width: none; max-height: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">` : ''}
-            </div>
-        </div>
-        <div class="lb-info" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
-            <div class="lb-name-container"></div>
-            <div class="lb-score" style="display:flex; align-items:center; justify-content:flex-end;">${displayScore}</div>
-        </div>
-    `;
-    
-    div.querySelector('.lb-name-container').replaceWith(nameEl);
-    const avatarContainer = div.querySelector('.lb-avatar');
-    
-    avatarContainer.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(playerObj); };
-    avatarContainer.onmouseover = () => { avatarContainer.style.transform = 'scale(1.1)'; };
-    avatarContainer.onmouseout = () => { avatarContainer.style.transform = 'scale(1)'; };
-
-    return div;
-};
-
-function getSecureAvatarUrl(src) {
-    if (!src || src === 'null' || src === 'undefined') {
-        return 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/1000132081.webp';
-    }
-    if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
-        return src;
-    }
-    let cleanName = src.replace(/\.\.\//g, '').replace('Photo/', '');
-    return 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/' + cleanName;
-}
-
-function getFormattedLeaderboardScore(player, tabType) {
-    let score = player.score || player.wins || 0;
-    
-    if (tabType === 'wins') {
-        return formatCompactNumber(score) + ' 🏆';
-    }
-    
-    if (tabType === 'xp') {
-        let level = Math.floor(Math.sqrt(Math.max(0, score) / 50)) + 1;
-        if (level > 200) level = 200;
-        return `Lv.${level}`;
-    }
-    
-    return formatCompactNumber(score);
-}
-
-window.renderDynamicLeaderboardUI = function(playersList, tabType) {
-    const podiumContainer = document.getElementById('leaderboard-podium-container');
-    const listContainer = document.getElementById('leaderboard-list-' + tabType); 
-    
-    if (!podiumContainer || !listContainer) return;
-
-    podiumContainer.innerHTML = '';
-    listContainer.innerHTML = '';
-
-    if (!playersList || playersList.length === 0) {
-        listContainer.innerHTML = '<p style="text-align: center; color: #a1a1aa; padding: 20px; width: 100%;">لا توجد بيانات حالياً في هذا التصنيف.</p>';
-        return;
-    }
-
-    const podiumOrder = [
-        { rank: 2, data: playersList[1] },
-        { rank: 1, data: playersList[0] },
-        { rank: 3, data: playersList[2] }
-    ];
-
-    podiumOrder.forEach(item => {
-        if (!item.data) return; 
-        
-        const player = item.data;
-        const card = document.createElement('div');
-        card.className = `lb-podium-card rank-${item.rank}`;
-        
-        let frameOverlay = '';
-
-        if (tabType === 'xp') {
-            const proFrames = { 1: window.frameRank1, 2: window.frameRank2, 3: window.frameRank3 };
-            let frameUrl = proFrames[item.rank];
-            if (frameUrl) {
-                frameOverlay = `
-                    <div style="position: absolute; top: -22%; left: -22%; width: 144%; height: 144%;
-                                background-image: url('${frameUrl}');
-                                background-size: 100% 100%;
-                                background-position: center;
-                                background-repeat: no-repeat;
-                                z-index: 5; pointer-events: none;">
-                    </div>
-                `;
-            }
-        }
-        
-        let overlayFrameSrc = player.equippedProfileFrame && window.PROFILE_FRAMES_DB && window.PROFILE_FRAMES_DB[player.equippedProfileFrame] ? window.PROFILE_FRAMES_DB[player.equippedProfileFrame] : null;
-        let safeName = escapeHTML(player.name || 'Guest');
-
-        card.innerHTML = `
-            <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
-            
-            <div style="position: relative; width: ${item.rank === 1 ? '72px' : '62px'}; height: ${item.rank === 1 ? '72px' : '62px'}; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;">
-                <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1; background: transparent; overflow: visible; border: none; box-shadow: none;">
-                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                        <img src="${getSecureAvatarUrl(player.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 1;">
-                        ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 3; pointer-events: none; object-fit: contain; border-radius: 0; max-width: none; max-height: none;">` : ''}
-                    </div>
-                </div>
-                ${frameOverlay}
-            </div>
-
-            <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
-                <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
-                <div class="lb-podium-name" style="width: 100%; text-align: center; margin-bottom: 0;">${safeName}</div>
-            </div>
-        `;
-        
-        card.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(player); };
-        card.style.cursor = 'pointer';
-
-        podiumContainer.appendChild(card);
-    });
-
-    for (let i = 3; i < playersList.length; i++) {
-        listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
-    }
-};
-
-window.populateLeaderboards = function(winsData, xpData) {
-    document.getElementById('leaderboard-list-wins').innerHTML = '';
-    document.getElementById('leaderboard-list-xp').innerHTML = '';
-    
-    const activeTabBtn = document.querySelector('.lb-tab-button.active');
-    let activeTabId = 'wins';
-    if(activeTabBtn && activeTabBtn.id === 'lb-tab-xp') activeTabId = 'xp';
-
-    window.lastFetchedWinsData = winsData;
-    window.lastFetchedXpData = xpData;
-
-    if(activeTabId === 'wins') {
-        window.renderDynamicLeaderboardUI(winsData, 'wins');
-    } else {
-        window.renderDynamicLeaderboardUI(xpData, 'xp');
-    }
-};
-
-window.showLeaderboard = function() {
-    window.openAppModal('leaderboard-modal'); 
-    const loadingText = window.t ? window.t('lb_loading') : 'جاري التحميل...';
-    document.getElementById('leaderboard-list-wins').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
-    document.getElementById('leaderboard-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
-    if(window.socket && window.socket.connected) window.socket.emit('getLeaderboard');
-};
-
-window.switchLbTab = function(tabId) {
-    document.getElementById('lb-tab-wins').classList.remove('active'); 
-    document.getElementById('lb-tab-xp').classList.remove('active');
-    
-    document.getElementById('leaderboard-list-wins').style.display = 'none'; 
-    document.getElementById('leaderboard-list-xp').style.display = 'none'; 
-    
-    document.getElementById('lb-tab-' + tabId).classList.add('active'); 
-    document.getElementById('leaderboard-list-' + tabId).style.display = 'flex';
-
-    document.getElementById('leaderboard-podium-container').innerHTML = '';
-
-    if (tabId === 'wins' && window.lastFetchedWinsData) {
-        window.renderDynamicLeaderboardUI(window.lastFetchedWinsData, 'wins');
-    } else if (tabId === 'xp' && window.lastFetchedXpData) {
-        window.renderDynamicLeaderboardUI(window.lastFetchedXpData, 'xp');
-    }
-};
-
-(function() {
-    const clickSoundUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/click.wav";
-    const clickAudio = new Audio(clickSoundUrl);
-    clickAudio.volume = 0.6; 
-
-    document.addEventListener('click', function(event) {
-        const isClickable = event.target.closest('button, [onclick], .dama-card, .nav-item, .drawer-item, .theme-grid-item, .lb-avatar, .profile-avatar, .bet-option-item, .custom-tab-button, .rank-nav-btn');
-        
-        if (isClickable) {
-            try {
-                let soundClone = clickAudio.cloneNode();
-                soundClone.volume = clickAudio.volume;
-                let playPromise = soundClone.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => { });
-                }
-            } catch (e) {}
-        }
-    });
-})();
-
 // ==========================================
-// 📊 نظام شريط الرتبة التفاعلي (الأساسي الحقيقي)
+// 📊 نظام شريط الرتبة التفاعلي (مُحدّث بالكامل) 
 // ==========================================
+// تمت إضافة الفجوة (Gap) عبر مصفوفة tierScores
+// وتم تصحيح المدى الأقصى للرتبة الأسطورية (6500)
 const RANK_SYSTEM = [
-    { id: 'bronze', name: 'برونزي', min: 0, max: 149, icon: 'Media/front/Bronze.webp', tierRewards: ['50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
-    { id: 'silver', name: 'فضي', min: 150, max: 499, icon: 'Media/front/silver.webp', tierRewards: ['100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
-    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, icon: 'Media/front/golden.webp', tierRewards: ['300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
-    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, icon: 'Media/front/diamond.webp', tierRewards: ['500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
-    { id: 'royal', name: 'ملكي', min: 2500, max: 4999, icon: 'Media/front/legendary.webp', tierRewards: ['800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">'] }, 
-    { id: 'legendary', name: 'أسطوري', min: 5000, max: Infinity, icon: 'Media/front/os6ory.webp', tierRewards: ['1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">'] } 
+    { id: 'bronze', name: 'برونزي', min: 0, max: 149, tierScores: [0, 50, 100, 140], icon: 'Media/front/Bronze.webp', tierRewards: ['50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    { id: 'silver', name: 'فضي', min: 150, max: 499, tierScores: [150, 266, 383, 479], icon: 'Media/front/silver.webp', tierRewards: ['100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, tierScores: [500, 733, 966, 1149], icon: 'Media/front/golden.webp', tierRewards: ['300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, tierScores: [1200, 1633, 2066, 2399], icon: 'Media/front/diamond.webp', tierRewards: ['500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    { id: 'royal', name: 'ملكي', min: 2500, max: 4999, tierScores: [2500, 3333, 4166, 4799], icon: 'Media/front/legendary.webp', tierRewards: ['800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">'] }, 
+    { id: 'legendary', name: 'أسطوري', min: 5000, max: 6500, tierScores: [5000, 5500, 6000, 6500], icon: 'Media/front/os6ory.webp', tierRewards: ['1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">'] } 
 ];
 
 window.currentViewedRankIndex = 0;
@@ -709,52 +490,26 @@ window.renderRankTrack = function() {
 
     let html = '';
 
-    // نسبة التعبئة للشريط البصري
+    // حساب نسبة التعبئة البصرية للشريط بدقة عالية (بدون Infinity)
     let fillPercent = 0;
     if (window.currentViewedRankIndex < window.actualPlayerRankIndex) {
-        fillPercent = 100; 
+        fillPercent = 100; // رتبة سابقة، إذن الشريط ممتلئ
     } else if (window.currentViewedRankIndex > window.actualPlayerRankIndex) {
-        fillPercent = 0; 
+        fillPercent = 0; // رتبة لم يصلها بعد، إذن الشريط فارغ
     } else {
-        if (rankData.max === Infinity) {
-            fillPercent = 100; 
-        } else {
-            const rankRange = rankData.max - rankData.min + 1;
-            const scoreInRank = window.actualPlayerScore - rankData.min;
-            fillPercent = Math.min(100, Math.max(0, (scoreInRank / rankRange) * 100));
-        }
-    }
-
-    // نسبة التعبئة للجوائز
-    let highestFillPercent = 0;
-    if (window.currentViewedRankIndex < window.highestPlayerRankIndex) {
-        highestFillPercent = 100;
-    } else if (window.currentViewedRankIndex > window.highestPlayerRankIndex) {
-        highestFillPercent = 0;
-    } else {
-        if (rankData.max === Infinity) {
-            highestFillPercent = 100;
-        } else {
-            const rankRange = rankData.max - rankData.min + 1;
-            const highestScoreInRank = window.highestPlayerScore - rankData.min;
-            highestFillPercent = Math.min(100, Math.max(0, (highestScoreInRank / rankRange) * 100));
-        }
+        const rankRange = rankData.max - rankData.min; // المدى الكلي للرتبة المعروضة
+        const scoreInRank = window.actualPlayerScore - rankData.min;
+        // نسبة التعبئة = (السكور داخل الرتبة / المدى) * 100
+        fillPercent = Math.min(100, Math.max(0, (scoreInRank / rankRange) * 100));
     }
 
     fillBar.style.width = `${fillPercent}%`;
 
+    // رسم النقاط الـ 4 والجوائز بناءً على النقاط المحددة مسبقاً (tierScores)
     for (let i = 0; i < 4; i++) {
-        let requiredPercentForNode = i * 33.33;
+        const requiredScoreForTier = rankData.tierScores[i];
         
-        let isReached = highestFillPercent >= requiredPercentForNode;
-        
-        if (window.currentViewedRankIndex < window.highestPlayerRankIndex) isReached = true;
-        if (window.currentViewedRankIndex > window.highestPlayerRankIndex) isReached = false;
-
-        if (window.currentViewedRankIndex === 0 && i === 0 && window.highestPlayerScore === 0) {
-            isReached = false;
-        }
-
+        let isReached = window.highestPlayerScore >= requiredScoreForTier;
         let reachedClass = isReached ? 'reached' : '';
         
         let iconFilter = '';
@@ -767,6 +522,9 @@ window.renderRankTrack = function() {
         
         let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
 
+        // تموضع النقطة على الشريط البصري (نقوم بتوزيعها شكلياً بنسب شبه متساوية)
+        let visualPosition = i * 33.33; 
+        
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
                 <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 3px 0 2px 0; position: relative; display: block !important;">
@@ -779,7 +537,7 @@ window.renderRankTrack = function() {
         `;
 
         html += `
-            <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: relative;">
+            <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: absolute; left: ${visualPosition}%; transform: translateX(-50%);">
                 <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; margin-bottom: 2px;" onerror="this.outerHTML='<span style=\\'font-size:26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); margin-bottom: 2px;\\'>👑</span>'">
                 <div class="mm-tier-dot" style="margin-bottom: 2px;"></div>
                 <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 0px;">${rankData.name} ${romanTiers[i]}</span>
@@ -788,11 +546,13 @@ window.renderRankTrack = function() {
         `;
     }
 
+    container.style.position = 'relative';
+    container.style.height = '70px'; 
     container.innerHTML = html;
 };
 
 // ==========================================
-// 🎡 أكواد التمرير للكروت وتأكيد البحث عن خصم
+// 🎡 أكواد التمرير للكروت (Carousel)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const scroller = document.getElementById('mm-carousel-scroller');
@@ -916,6 +676,16 @@ window.startMatchmakingWithBet = function(betAmount) {
     let profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     let userTokens = parseInt(profile.tokens) || 0;
     
+    // منع الحسابات الجديدة من الرهان لأكثر من 50 حتى لو امتلكوا الرصيد
+    if (betAmount > 50 && (profile.gamesPlayed || 0) < 5) {
+        if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+            window.ui.showCustomAlert("يجب أن تلعب 5 مباريات على الأقل لفتح ساحات المراهنات الكبيرة!");
+        } else {
+            alert("يجب أن تلعب 5 مباريات على الأقل!");
+        }
+        return;
+    }
+
     if (betAmount > 0 && userTokens < betAmount) {
         if (window.ui && typeof window.ui.showCustomAlert === 'function') {
             window.ui.showCustomAlert("رصيدك غير كافٍ لدخول هذه الساحة!");
