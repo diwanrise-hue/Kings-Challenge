@@ -939,3 +939,45 @@ window.confirmSpectatorBet = function() {
         if (typeof window.ui.showCustomAlert === 'function') window.ui.showCustomAlert("يرجى الاتصال بالإنترنت أولاً!");
     }
 };
+// ==========================================
+// 🔊 نظام الصوت الشامل للواجهة خاص داخل لعبة يجب ان لايحذف او يمس  (مُخصص للعمل داخل iframe)
+// ==========================================
+(function() {
+    const clickSoundUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/click.wav";
+    
+    // إنشاء مسبق (Pre-load) لعدة نسخ لتجنب حظر المتصفح داخل الـ iframe بدلاً من cloneNode
+    const audioPool = [];
+    const poolSize = 3; 
+    for(let i = 0; i < poolSize; i++) {
+        let a = new Audio(clickSoundUrl);
+        a.volume = 0.6;
+        audioPool.push(a);
+    }
+    let poolIndex = 0;
+
+    document.addEventListener('click', function(event) {
+        // تحديد جميع أنواع الأزرار (أضفنا data-action لأزرار الصداقة)
+        const isClickable = event.target.closest('button, [onclick], [data-action], .dama-card, .nav-item, .drawer-item, .theme-grid-item, .lb-avatar, .profile-avatar, .bet-option-item, .custom-tab-button, .rank-nav-btn');
+        
+        // منع تشغيل صوت الزر إذا كان اللاعب يضغط على الأحجار أو الرقعة (لأن لها صوت حركة خاص بها)
+        const isGamePiece = event.target.closest('.piece, .cell, #board');
+        
+        if (isClickable && !isGamePiece) {
+            try {
+                let audio = audioPool[poolIndex];
+                audio.pause();
+                audio.currentTime = 0; // إرجاع الصوت للصفر
+                
+                let playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => { 
+                        // صمت الخطأ إذا كان المتصفح متعنتاً في بعض الأجهزة القديمة
+                    });
+                }
+                
+                // الانتقال للصوت التالي في المسبح للضغطة القادمة
+                poolIndex = (poolIndex + 1) % poolSize;
+            } catch (e) {}
+        }
+    });
+})();
