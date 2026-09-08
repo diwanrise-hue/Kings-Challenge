@@ -2,6 +2,7 @@
 // النسخة النهائية المحدثة الشاملة المدمجة (متوافق 100% مع السيرفر)
 // 🌟 (مُحدّث جذرياً): حل مشكلة الحقيبة الفارغة واختفاء العناصر المشتراة.
 // 🌟 (مُحدّث): تطبيق الساحة والأحجار فوراً عند الضغط عليها (Equip Fix).
+// 🛡️ (مُحدّث أمنياً): إصلاح التكرار المزدوج (Double Increment) عند الشراء.
 // ==========================================
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -515,6 +516,7 @@ export const STORE_ITEMS = {
 
 window.STORE_ITEMS = STORE_ITEMS;
 
+// 🛡️ (تم حذفه من حدث الشراء ولكن يتم الاحتفاظ به لأغراض واجهة الهدايا المجانية إن وجدت مستقبلاً)
 window.addPopularityToBag = function(itemId, amount = 1) {
     let profile = storeManager.getProfile();
     if (!profile) return;
@@ -821,7 +823,7 @@ export const storeManager = {
 
         if (window['socket'] && window['socket'].connected) { 
             window['socket'].emit('requestEquip', { guestId: profile.id, userId: profile.id, itemId: itemId, itemType: item ? item.type : 'pc' }); 
-            // 🌟 تحديث فوري مرئي (Optimistic UI) لتسريع الاستجابة 🌟
+            // 🌟 تحديث فوري مرئي (Optimistic UI)
             if (item) {
                 if (item.type === 'bg') { profile.equippedBg = itemId; if(item.linkedScore) profile.equippedScore = item.linkedScore; }
                 else if (item.type === 'fr') profile.equippedFr = itemId;
@@ -1031,13 +1033,11 @@ export const storeManager = {
                 if (!window.__STORE_SOCKET_INIT) {
                     window.__STORE_SOCKET_INIT = true;
                     
-                    // 🌟 (الحل الجذري 1 و 3): دمج البيانات بقوة لإنهاء مشكلة الحقيبة الفارغة واختفاء المشتريات
                     window['socket'].on('profileUpdated', (updatedProfile) => {
                         if (updatedProfile && window.gameState) {
                             window.gameState.userProfile = { ...window.gameState.userProfile, ...updatedProfile };
                             localStorage.setItem('hub_user_profile', JSON.stringify(window.gameState.userProfile));
                             
-                            // 🌟 (الحل الجذري 2): تطبيق الساحة فوراً عند التجهيز
                             if (typeof window.applyTheme === 'function') {
                                 window.applyTheme(window.gameState.userProfile);
                             }
@@ -1053,11 +1053,8 @@ export const storeManager = {
                     window['socket'].on('purchaseSuccess', (data) => { 
                         let msg = typeof data === 'string' ? data : (data.message || 'تم الشراء بنجاح!');
                         
-                        if (data && data.itemId) {
-                            if (data.itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === data.itemId))) {
-                                window.addPopularityToBag(data.itemId, data.amount || 1);
-                            }
-                        }
+                        // 🛡️ (مُحدّث): تم إزالة الاستدعاء اليدوي لـ addPopularityToBag لمنع التكرار (Double Increment)
+                        // يتم الاعتماد الآن حصرياً على حدث profileUpdated الذي يصل في نفس اللحظة من السيرفر.
 
                         if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg); 
                         else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
@@ -1065,7 +1062,7 @@ export const storeManager = {
                         if (typeof window.triggerPurchaseCelebration === 'function') {
                             window.triggerPurchaseCelebration();
                         }
-                        // طلب تحديث قسري للملف الشخصي بعد الشراء لضمان التزامن المطلق
+                        
                         if (prof && prof.id) window['socket'].emit('syncProfile', { id: prof.id });
                         this.renderUI();
                     });
@@ -1128,7 +1125,7 @@ window.switchThemeGridTabCategory = function(category) {
 };
 
 // ===================================================================
-// 🌟 المصدر الوحيد (Single Source of Truth) لدالة الشراء لمنع التضارب 
+// 🌟 المصدر الوحيد (Single Source of Truth) لعمليات الشراء
 // ===================================================================
 window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     window.currentPurchaseItem = { id: itemId, type: itemType, price: price };
@@ -1183,20 +1180,17 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         return num;
     }
 
-    // 🛡️ (مُحدّث): حل خلل حساب التخفيض المزدوج لتكون الخصومات عادلة للاعب 
     function updatePriceDisplay() {
         if(!costEl) return;
         let ticketDiscount = (discountSelect && discountContainer && discountContainer.style.display !== 'none') ? (parseInt(discountSelect.value) || 0) : 0;
         let priceHtml = '';
         
         if (itemType !== 'popularity' && (passiveDiscount > 0 || ticketDiscount > 0) && price > 0) {
-            // نجمع الخصومات بدلاً من خصمها بشكل متسلسل
             let totalDiscount = passiveDiscount + ticketDiscount;
             if (totalDiscount > 100) totalDiscount = 100;
             
             let finalPrice = Math.floor(price * (1 - (totalDiscount / 100)));
             
-            // استبدل الـ 🪙 في السطر التالي لصورة العملة:
             priceHtml = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">${formatCompact(price)}</span>
@@ -1204,12 +1198,10 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
                 </div>
             `;
         } else {
-            // واستبدل الـ 🪙 في السطر التالي أيضاً:
             priceHtml = `${formatCompact(price)} <img src="../Photo/coin.webp" class="app-coin-icon">`;
         }
         costEl.innerHTML = priceHtml;
     }
-
 
     if(discountSelect) discountSelect.onchange = updatePriceDisplay;
     updatePriceDisplay();
@@ -1265,4 +1257,3 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     const purchaseModal = document.getElementById('purchase-modal');
     if(purchaseModal) purchaseModal.style.display = 'flex';
 };
-
