@@ -1361,10 +1361,6 @@ export const ui = {
     showOnlineResultsModal(winnerColor) { this.showResultsModal(winnerColor); },
 
 
-
-  
-
-
     showResultsModal(winnerColor) {
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
         sfx.clock.pause(); sfx.clock.currentTime = 0; this.setTxt('turn-countdown', '');
@@ -1581,13 +1577,8 @@ export const ui = {
         container.appendChild(box); 
         document.body.appendChild(container);
         this.toggleOfflineInMatchUI(false);
-    }
+    };
 
-
-
-  
-        
-  
 
 
     updateProfileUI() {
