@@ -1361,6 +1361,7 @@ export const ui = {
     showOnlineResultsModal(winnerColor) { this.showResultsModal(winnerColor); },
 
 
+
     showResultsModal(winnerColor) {
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
         sfx.clock.pause(); sfx.clock.currentTime = 0; this.setTxt('turn-countdown', '');
@@ -1573,11 +1574,12 @@ export const ui = {
             this.updateProfileUI(); 
         }
 
-               box.appendChild(rewardsContainer);
+        box.appendChild(rewardsContainer);
         container.appendChild(box); 
         document.body.appendChild(container);
         this.toggleOfflineInMatchUI(false);
-    },
+    }
+
 
     updateProfileUI() {
         if (!gameState.userProfile) return;
@@ -2132,95 +2134,74 @@ window.showOpponentProfile = function() {
     window.openAppModal('in-game-profile-modal');
 };
 
-window.showPlayerProfileFromLB = function(player) {
+    window.showPlayerProfileFromLB = function(player) {
     let myProfile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-    if (player.id === myProfile.id) { window.openMyProfile(); return; }
+    
+    // 1. التحقق: إذا كان اللاعب هو أنت، افتح ملفك الشخصي
+    if (player.id === myProfile.id) { 
+        window.openMyProfile(); 
+        return; 
+    }
 
+    // 2. تعيين اللاعب المعروض في حالة اللعبة
     if(window.gameState) window.gameState.currentViewedPlayer = player; 
     
-    const xpContainer = document.getElementById('igp-xp-container'); const statsGrid = document.getElementById('igp-stats-grid'); const levelBadge = document.getElementById('igp-level');
-    if(xpContainer) xpContainer.style.display = 'none'; if(statsGrid) statsGrid.style.display = 'none'; if(levelBadge) levelBadge.style.display = 'none';
+    // 3. إخفاء عناصر (مستوى اللاعب وخبرته) التي لا تخص العرض في هذه النافذة
+    const xpContainer = document.getElementById('igp-xp-container'); 
+    const statsGrid = document.getElementById('igp-stats-grid'); 
+    const levelBadge = document.getElementById('igp-level');
+    if(xpContainer) xpContainer.style.display = 'none'; 
+    if(statsGrid) statsGrid.style.display = 'none'; 
+    if(levelBadge) levelBadge.style.display = 'none';
     
+    // 4. إظهار أزرار التفاعل مع الآخرين وإخفاء أزرار ملفك الشخصي
     document.getElementById('own-profile-actions').style.display = 'none'; 
     document.getElementById('other-profile-actions').style.display = 'flex';
     
-    // 🌟 إخفاء الإنجازات والـ ID للآخرين في لوحة الشرف إجبارياً
+    // 5. [من النسخة الأولى] إخفاء زر الإنجازات وزر نسخ الـ ID إجبارياً للآخرين
     const achBtn = document.getElementById('igp-achievements-btn'); 
     if(achBtn) achBtn.style.setProperty('display', 'none', 'important');
     const idBtn = document.getElementById('copy-id-btn'); 
     if(idBtn) idBtn.style.setProperty('display', 'none', 'important');
 
+    // 6. [من النسخة الثانية] تهيئة وإعادة تفعيل أزرار طلب الصداقة ومنح الشعبية
+    const reqBtn = document.getElementById('send-friend-req-btn'); 
+    if(reqBtn) { 
+        reqBtn.innerHTML = '➕ إرسال طلب صداقة'; 
+        reqBtn.style.cssText = "background: rgba(48,209,88,0.15) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.3) !important; margin: 0;"; 
+        reqBtn.disabled = false; 
+    }
+    const popBtn = document.getElementById('give-pop-btn'); 
+    if(popBtn) { 
+        popBtn.innerHTML = '🔥 منح شعبية'; 
+        popBtn.style.cssText = "background: rgba(0, 210, 255, 0.15) !important; color: #00d2ff !important; border-color: rgba(0, 210, 255, 0.3) !important; margin: 0;"; 
+        popBtn.disabled = false; 
+    }
+
+    // 7. تعيين اسم اللاعب والـ ID الخاص به
     document.getElementById('igp-name').textContent = player.name || 'لاعب مجهول'; 
+    const idDisplay = document.getElementById('igp-id-display');
+    if(idDisplay) idDisplay.textContent = player.id || 'غير متوفر';
     
+    // 8. تنسيق وعرض الشعبية بطريقة مختصرة (K و M)
     const formatPop = (num) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
         return num;
     };
     document.getElementById('igp-popularity-val').textContent = formatPop(player.popularity !== undefined ? player.popularity : 0);
+
+    // 9. عرض أعلى سلسلة انتصارات
     const highestStreakEl = document.getElementById('igp-highest-streak');
     if (highestStreakEl) highestStreakEl.textContent = player.highestStreak || 0;
 
+    // 10. دمج إطار البروفايل والصورة الشخصية وتطبيقها
     let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
     if (typeof window.ui !== 'undefined' && typeof window.ui.applyAvatar === 'function') {
         window.ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
     }
     
-    const oppRankDisplay = document.getElementById('igp-rank-display');
-    const oppTitleDisplay = document.getElementById('igp-title-display');
-    
-    if (player.rankInfo) { 
-        if (oppRankDisplay) oppRankDisplay.innerHTML = `${player.rankInfo.icon} <span>${player.rankInfo.title}</span>`; 
-        let oppLevel = Math.floor(Math.sqrt(Math.max(0, player.score || 0) / 50)) + 1;
-        let oppTitleText = "مبتدئ";
-        if (oppLevel >= 100) oppTitleText = "جراند ماستر";
-        else if (oppLevel >= 50) oppTitleText = "معلم الدامة";
-        else if (oppLevel >= 30) oppTitleText = "خبير";
-        else if (oppLevel >= 10) oppTitleText = "مبارز";
-        if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: ${oppTitleText}`;
-    } else { 
-        if (oppRankDisplay) oppRankDisplay.innerHTML = `<img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));"> <span>برونزي</span>`; 
-        if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: مبتدئ`;
-    }
-    
-    window.openAppModal('in-game-profile-modal');
-};
-
-
-
-
-
-window.showPlayerProfileFromLB = function(player) {
-    let myProfile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
-    
-    if (player.id === myProfile.id) {
-        window.openMyProfile(); 
-        return; 
-    }
-
-    gameState.currentViewedPlayer = player; 
-    const xpContainer = document.getElementById('igp-xp-container'); const statsGrid = document.getElementById('igp-stats-grid'); const levelBadge = document.getElementById('igp-level');
-    if(xpContainer) xpContainer.style.display = 'none'; if(statsGrid) statsGrid.style.display = 'none'; if(levelBadge) levelBadge.style.display = 'none';
-    document.getElementById('own-profile-actions').style.display = 'none'; document.getElementById('other-profile-actions').style.display = 'flex';
-    
-    const reqBtn = document.getElementById('send-friend-req-btn'); if(reqBtn) { reqBtn.innerHTML = '➕ إرسال طلب صداقة'; reqBtn.style.cssText = "background: rgba(48,209,88,0.15) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.3) !important; margin: 0;"; reqBtn.disabled = false; }
-    const popBtn = document.getElementById('give-pop-btn'); if(popBtn) { popBtn.innerHTML = '🔥 منح شعبية'; popBtn.style.cssText = "background: rgba(0, 210, 255, 0.15) !important; color: #00d2ff !important; border-color: rgba(0, 210, 255, 0.3) !important; margin: 0;"; popBtn.disabled = false; }
-
-    document.getElementById('igp-name').textContent = player.name || 'لاعب مجهول'; document.getElementById('igp-id-display').textContent = player.id || 'غير متوفر';
-    
-    const formatPop = (num) => {
-        if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-        return num;
-    };
-    document.getElementById('igp-popularity-val').textContent = formatPop(player.popularity !== undefined ? player.popularity : 0);
-
-    const highestStreakEl = document.getElementById('igp-highest-streak');
-    if (highestStreakEl) highestStreakEl.textContent = player.highestStreak || 0;
-
-    let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
-    ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
-    
+    // 11. حساب وعرض الرتبة واللقب
     const oppRankDisplay = document.getElementById('igp-rank-display');
     const oppTitleDisplay = document.getElementById('igp-title-display');
     
@@ -2240,6 +2221,7 @@ window.showPlayerProfileFromLB = function(player) {
         if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: مبتدئ`;
     }
     
+    // 12. إظهار النافذة المنبثقة
     window.openAppModal('in-game-profile-modal');
 };
 
