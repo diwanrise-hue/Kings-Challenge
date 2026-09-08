@@ -342,7 +342,7 @@ export const ui = {
         });
     },
 
-    calculateLevelInfo(xpStr, scoreNum) {
+  calculateLevelInfo(xpStr, scoreNum) {
         let currentXp = parseInt(xpStr) || 0;
         let currentScore = parseInt(scoreNum) || 0; 
         
@@ -362,11 +362,13 @@ export const ui = {
         
         if (currentScore >= 2500) { 
             rank = "أسطوري"; 
-            rankIcon = `<img src="Media/front/os6ory.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 5px rgba(255,100,0,0.9));">`; 
+            // وميض ذهبي خفيف لا يتداخل مع لون الشارة الأسطورية
+            rankIcon = `<img src="Media/front/os6ory.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.4));">`; 
         }
         else if (currentScore >= 2000) { 
-            rank = "ملكي"; 
-            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(255,215,0,0.8));">`; 
+            rank = "ملكي"; // التاجي
+            // إزالة الفلتر البنفسجي بالكامل ليظهر اللون الحقيقي للصورة
+            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: none;">`; 
         }
         else if (currentScore >= 1200) { 
             rank = "ماسي"; 
@@ -383,6 +385,7 @@ export const ui = {
 
         return { level, rank, rankIcon, progressXp, requiredXp, percentage, score: currentScore };
     },
+
 
     showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
@@ -1357,7 +1360,7 @@ export const ui = {
 
     showOnlineResultsModal(winnerColor) { this.showResultsModal(winnerColor); },
 
-    showResultsModal(winnerColor) {
+   showResultsModal(winnerColor) {
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
         sfx.clock.pause(); sfx.clock.currentTime = 0; this.setTxt('turn-countdown', '');
         
@@ -1375,46 +1378,60 @@ export const ui = {
         
         this.setDisplay('match-gift-btn-p2', 'none');
 
-        const container = this.makeEl('div', 'custom-results-modal-container', "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,18,25,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:4000;font-family:sans-serif;direction:rtl;box-sizing:border-box;padding:20px;");
+        const container = this.makeEl('div', 'custom-results-modal-container', "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,18,25,0.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;justify-content:center;align-items:center;z-index:4000;font-family:'Tajawal', sans-serif;direction:rtl;box-sizing:border-box;padding:20px;");
         container.id = 'custom-results-modal-container';
         
-        const box = this.makeEl('div', null, "background:rgba(45,48,55,0.65);backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:35px 25px;border-radius:32px;width:100%;max-width:320px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);");
-        box.appendChild(this.makeEl('h3', null, "margin:0 0 15px 0;color:#87ceeb;font-size:26px;font-weight:700;text-align:center;", t('go_title')));
+        // 🌟 تصميم المربع الرئيسي (Dark Premium Style)
+        const box = this.makeEl('div', null, "background: linear-gradient(145deg, #1f222b, #15171c); border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 30px 20px; border-radius: 28px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.8), inset 0 2px 10px rgba(255,255,255,0.02); position: relative; overflow: hidden;");
         
+        // توهج خلفي خفيف للكأس
+        box.innerHTML += `<div style="position: absolute; top: -50px; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%); pointer-events: none; z-index: 1;"></div>`;
+
+        box.appendChild(this.makeEl('h3', null, "margin:0 0 10px 0; color: #87ceeb; font-size: 24px; font-weight: 800; text-align: center; z-index: 2; position: relative;", "نتائج المباراة"));
+        
+        // 🌟 الكأس المتحرك
         const isDraw = winnerColor === 'draw';
         const iconStr = isDraw ? "🤝" : "🏆";
-        const trophy = this.makeEl('div', null, "font-size:50px;margin:10px 0 20px 0;text-shadow:0 0 15px rgba(255,215,0,0.4);", iconStr);
+        const trophyColor = isDraw ? "rgba(161, 161, 170, 0.4)" : "rgba(255, 215, 0, 0.6)";
+        
+        // إضافة أنيميشن الطفو محلياً لتجنب الأخطاء
+        const styleId = 'results-anim-styles';
+        if(!document.getElementById(styleId)) {
+            const st = document.createElement('style'); st.id = styleId;
+            st.innerHTML = `@keyframes floatTrophy { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }`;
+            document.head.appendChild(st);
+        }
+
+        const trophy = this.makeEl('div', null, `font-size: 55px; margin: 10px 0 25px 0; text-shadow: 0 10px 25px ${trophyColor}; z-index: 2; position: relative; animation: floatTrophy 3s ease-in-out infinite;`, iconStr);
         box.appendChild(trophy);
         
         const isMeWin = winnerColor === (gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor);
         
+        // 🌟 تصميم بطاقة اللاعبين المزدوجة
         const createPlayerBox = (name, avatar, isCustom, isWin, isDrawMatch, equippedProfileFrame = null) => {
-            const pBox = this.makeEl('div', null, "display:flex;flex-direction:column;align-items:center;width:45%;");
+            const pBox = this.makeEl('div', null, "display:flex; flex-direction:column; align-items:center; flex: 1; z-index: 2;");
             
-            const avContainer = this.makeEl('div', null, "border-radius:50%;padding:0;border:none;background:transparent;box-shadow:none;display:flex;justify-content:center;");
-            
-            const av = this.makeEl('div', 'result-avatar', "position:relative;width:65px;height:65px;min-width:65px;min-height:65px;flex-shrink:0;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:28px;background-size:cover;background-position:center;overflow:visible;"); 
-            
+            const avContainer = this.makeEl('div', null, "position:relative; width: 75px; height: 75px; display:flex; justify-content:center; align-items:center; margin-bottom: 8px;");
+            const av = this.makeEl('div', 'result-avatar', "position:relative; width: 100%; height: 100%; border-radius: 50%; display:flex; justify-content:center; align-items:center; border: 2px solid rgba(255,255,255,0.1); background: #1a1a24;"); 
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
-            
             avContainer.appendChild(av);
             
-            const nameSpan = this.makeEl('span', null, "margin-top:8px;font-size:13px;font-weight:600;color:#ffffff;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;", name);
+            const nameSpan = this.makeEl('span', null, "font-size: 14px; font-weight: 700; color: #ffffff; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);", name);
             
-            let statusBg = isWin ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)';
-            let statusColor = isWin ? '#30d158' : '#ff453a';
+            let statusBg = isWin ? 'rgba(48,209,88,0.1)' : 'rgba(255,69,58,0.1)';
+            let statusColor = isWin ? '#34c759' : '#ff453a';
             let statusBorder = isWin ? 'rgba(48,209,88,0.3)' : 'rgba(255,69,58,0.3)';
-            let statusText = isWin ? t('winner') : t('loser');
+            let statusText = isWin ? "فائز" : "خاسر";
 
-            if (isDrawMatch) { statusBg = 'rgba(241, 196, 15, 0.15)'; statusColor = '#f1c40f'; statusBorder = 'rgba(241, 196, 15, 0.3)'; statusText = 'تعادل'; }
+            if (isDrawMatch) { statusBg = 'rgba(161,161,170,0.1)'; statusColor = '#a1a1aa'; statusBorder = 'rgba(161,161,170,0.3)'; statusText = 'تعادل'; }
 
-            const statusSpan = this.makeEl('span', null, `font-size:12px;margin-top:8px;padding:4px 12px;border-radius:50px;font-weight:600;background:${statusBg};color:${statusColor};border:1px solid ${statusBorder};display:inline-block;`, statusText);
+            const statusSpan = this.makeEl('span', null, `font-size: 12px; padding: 4px 18px; border-radius: 12px; font-weight: 800; background: ${statusBg}; color: ${statusColor}; border: 1px solid ${statusBorder}; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: inline-block;`, statusText);
             
             pBox.append(avContainer, nameSpan, statusSpan);
             return pBox;
         };
         
-        const flex = this.makeEl('div', null, "display:flex;justify-content:center;align-items:center;gap:20px;margin:15px 0;");
+        const flex = this.makeEl('div', null, "display:flex; justify-content:space-around; align-items:center; gap: 15px; margin: 15px 0 25px 0; z-index: 2; position: relative; padding: 0 10px;");
         
         let oppName = gameState.currentOpponentName; let oppAvatar = gameState.currentOpponentAvatar;
         if (!gameState.isOnlineMode) { oppName = "بوت"; oppAvatar = "AI_BOT"; }
@@ -1427,20 +1444,21 @@ export const ui = {
         }
         box.appendChild(flex);
         
-        const btns = this.makeEl('div', null, "display:flex;gap:10px;width:100%;margin-top:25px;");
-        const rBtn = this.makeEl('button', 'modal-btn-rematch', "flex:1;background:rgba(135,206,235,0.15);color:#87ceeb;border:1px solid rgba(135,206,235,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(135,206,235,0.3);", t('go_rematch'));
+        // 🌟 الأزرار الأفقية الـ 3 (مطابقة للصورة)
+        const btns = this.makeEl('div', null, "display:flex; gap: 10px; width: 100%; margin-top: 20px; justify-content: center; z-index: 2; position: relative;");
+        
+        const rBtn = this.makeEl('button', 'modal-btn-rematch', "flex: 1; background: rgba(135,206,235,0.1); color: #87ceeb; border: 1px solid rgba(135,206,235,0.3); border-radius: 14px; height: 42px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;", "إعادة اللعب");
         rBtn.id = 'modal-btn-rematch';
         rBtn.onmouseenter = () => rBtn.style.transform = 'scale(0.96)'; rBtn.onmouseleave = () => rBtn.style.transform = 'scale(1)';
         
         this.clickHandlers.set('modal-btn-rematch', () => {
-            rBtn.disabled = true; rBtn.style.opacity = '0.6'; rBtn.style.cursor = 'not-allowed'; rBtn.textContent = t('waiting'); 
-            
+            rBtn.disabled = true; rBtn.style.opacity = '0.6'; rBtn.style.cursor = 'not-allowed'; rBtn.textContent = "انتظار..."; 
             if (gameState.isOnlineMode && !gameState.isBotOpponent) {
                 if (socketManager && typeof socketManager.sendRematchRequest === 'function') socketManager.sendRematchRequest();
             } else { setTimeout(() => { container.remove(); this.initBoard(); }, 500); }
         });
         
-        const eBtn = this.makeEl('button', 'modal-btn-exit', "flex:1;background:rgba(255,69,58,0.15);color:#ff453a;border:1px solid rgba(255,69,58,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.25, 1, 0.5, 1);outline:none;box-shadow:0 0 3px rgba(255,69,58,0.3);", t('exit') || 'خروج');
+        const eBtn = this.makeEl('button', 'modal-btn-exit', "flex: 1; background: rgba(255,69,58,0.1); color: #ff453a; border: 1px solid rgba(255,69,58,0.3); border-radius: 14px; height: 42px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;", "خروج");
         eBtn.id = 'modal-btn-exit';
         eBtn.onmouseenter = () => eBtn.style.transform = 'scale(0.96)'; eBtn.onmouseleave = () => eBtn.style.transform = 'scale(1)';
         
@@ -1449,7 +1467,6 @@ export const ui = {
                 socket.emit('leaveRoom', { roomID: gameState.onlineRoomID }); socket.emit('rejectRematch', { roomID: gameState.onlineRoomID });
             }
             container.remove(); 
-            
             if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal');
             else this.setDisplay('game-over-modal', 'none'); 
             
@@ -1458,20 +1475,17 @@ export const ui = {
             
             gameState.isOnlineMode = false; gameState.onlineRoomID = null; 
             this.drawEmptyBoard();
-            
-            // 🌟 (تحديث جديد: استدعاء الترقية المؤجلة بعد الضغط على خروج من نافذة النتائج)
             this.checkAndShowPendingRankUps();
         });
         
-        // 🌟 (تحديث جديد: إضافة زر الصداقة داخل نافذة النتائج للأونلاين فقط)
         if (gameState.isOnlineMode && !gameState.isBotOpponent && window.currentOpponentId) {
-            const addFriendBtn = this.makeEl('button', 'modal-btn-add-friend', "flex:1;background:rgba(48,209,88,0.15);color:#30d158;border:1px solid rgba(48,209,88,0.3);border-radius:50px;height:50px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s;outline:none;box-shadow:0 0 3px rgba(48,209,88,0.3);", "إضافة صديق ➕");
+            const addFriendBtn = this.makeEl('button', 'modal-btn-add-friend', "flex: 1; background: rgba(48,209,88,0.1); color: #34c759; border: 1px solid rgba(48,209,88,0.3); border-radius: 14px; height: 42px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;", "إضافة صديق");
             addFriendBtn.onmouseenter = () => addFriendBtn.style.transform = 'scale(0.96)';
             addFriendBtn.onmouseleave = () => addFriendBtn.style.transform = 'scale(1)';
 
             this.clickHandlers.set('modal-btn-add-friend', () => {
                 addFriendBtn.disabled = true;
-                addFriendBtn.textContent = "✓ تم الطلب";
+                addFriendBtn.textContent = "تم الطلب";
                 addFriendBtn.style.opacity = '0.6';
                 addFriendBtn.style.cursor = 'not-allowed';
                 
@@ -1479,21 +1493,25 @@ export const ui = {
                      window.socket.emit('sendFriendReq', { targetId: window.currentOpponentId });
                 }
                 const toast = document.getElementById('toast-notification');
-                if (toast) { toast.innerHTML = '📨 تم إرسال طلب الصداقة بنجاح!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+                if (toast) { toast.innerHTML = '📨 تم إرسال طلب الصداقة!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
             });
-            btns.append(addFriendBtn, rBtn, eBtn); // إضافة الأزرار الثلاثة
+            // الترتيب: إضافة صديق - إعادة لعب - خروج
+            btns.append(eBtn, rBtn, addFriendBtn); 
         } else {
-            btns.append(rBtn, eBtn); // الوضع الافتراضي
+            btns.append(eBtn, rBtn);
         }
         
-        box.appendChild(btns); container.appendChild(box); document.body.appendChild(container);
+        box.appendChild(btns); 
+
+        // 🌟 منطقة المكافآت 
+        const rewardsContainer = this.makeEl('div', null, "margin-top: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 2; position: relative;");
 
         if (gameState.userProfile) { 
             const isServerConnected = (typeof socket !== 'undefined' && socket && socket.connected);
 
             if (isServerConnected) {
                 if (!gameState.isOnlineMode && gameState.isTutorialMode) {
-                    box.appendChild(this.makeEl('div', 'tutorial-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", t('tutorial_mode') || "وضع تعليمي (بدون جوائز) 🚫🪙"));
+                    rewardsContainer.appendChild(this.makeEl('div', null, "color:#a1a1aa; font-weight:600; font-size:12px;", "وضع تعليمي (بدون جوائز) 🚫"));
                 } else {
                     let displayReward = 0; let xpGained = 0; let isBossLevel = false; let isBetMatch = false;
                     let lvl = parseInt(this.getVal('diff-quick-select', '3')) || 3;
@@ -1511,47 +1529,63 @@ export const ui = {
                             else { displayReward = isBetMatch ? gameState.roomBet : 0; }
                         }
                     } else {
-                    if (isMeWin) {
-                        xpGained = 0; 
-                        if (lvl <= 2) displayReward = 10;
-                        else if (lvl <= 4) displayReward = 15;
-                        else if (lvl <= 6) displayReward = 50;
-                        else if (lvl <= 8) displayReward = 100;
-                        else if (lvl === 9) { displayReward = "100 أو 400"; isBossLevel = true; }
-                    } else { xpGained = 0; displayReward = 0; }
-               }
+                        if (isMeWin) {
+                            xpGained = 0; 
+                            if (lvl <= 2) displayReward = 10;
+                            else if (lvl <= 4) displayReward = 15;
+                            else if (lvl <= 6) displayReward = 50;
+                            else if (lvl <= 8) displayReward = 100;
+                            else if (lvl === 9) { displayReward = "100 أو 400"; isBossLevel = true; }
+                        }
+                    }
 
                     if (displayReward !== 0 || isDraw || (isBetMatch && !isDraw && !isMeWin)) {
-                        let rewardText = ""; let alertColor = "#f5a623";
+                        let rewardText = ""; let alertColor = "#87ceeb";
 
                         if (isBetMatch) {
-                            if (isDraw) { rewardText = `🤝 تم استرداد الرهان بأمان`; alertColor = "#f1c40f"; } 
-                            else if (isMeWin) { rewardText = `💰 جائزة الرهان: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = "#30d158"; } 
+                            if (isDraw) { rewardText = `🤝 تم استرداد الرهان`; alertColor = "#f1c40f"; } 
+                            else if (isMeWin) { rewardText = `💰 جائزة الرهان: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = "#34c759"; } 
                             else { rewardText = `💸 خسارة الرهان: -${gameState.roomBet} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = "#ff453a"; }
-                        } else if (isBossLevel) { rewardText = `👑 مكافأة الزعيم: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; } 
-                        else if (displayReward > 0) { rewardText = `${(t('tokenReward') || 'المكافأة:')} +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = isMeWin ? "#f5a623" : "#87ceeb"; }
+                        } else if (isBossLevel) { rewardText = `👑 مكافأة الزعيم: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = "#f5a623"; } 
+                        else if (displayReward > 0) { rewardText = `مكافأة الفوز: +${displayReward} <img src="../Photo/coin.webp" class="app-coin-icon">`; alertColor = isMeWin ? "#87ceeb" : "#a1a1aa"; }
                         
                         if (rewardText !== "") { 
-                            const rewardDiv = this.makeEl('div', 'token-reward-alert', `margin-top:15px;color:${alertColor};font-weight:700;font-size:15px;`);
+                            const rewardDiv = this.makeEl('div', null, `color:${alertColor}; font-weight:700; font-size:13px; display: flex; align-items: center; justify-content: center; gap: 6px;`);
                             rewardDiv.innerHTML = rewardText;
-                            box.appendChild(rewardDiv);
+                            rewardsContainer.appendChild(rewardDiv);
                         }
                     }
 
                     if (xpGained > 0) { 
-                        const xpDiv = this.makeEl('div', 'xp-reward-alert', "margin-top:8px; color:#34c759; font-weight:800; font-size:15px; text-shadow: 0 0 8px rgba(52, 199, 89, 0.4); animation: modalFadeIn 0.5s ease;");
+                        const xpDiv = this.makeEl('div', null, "color:#34c759; font-weight:700; font-size:13px; display: flex; align-items: center; justify-content: center; gap: 6px;");
                         xpDiv.innerHTML = `✨ اكتساب الخبرة: +${xpGained} XP`;
-                        box.appendChild(xpDiv); 
+                        rewardsContainer.appendChild(xpDiv); 
                     }
 
                     if (!gameState.isOnlineMode && isMeWin) { socket.emit('claimBotReward', { isWin: true, level: lvl }); }
                 }
-              
             } else {
-                const offlineMsg = t('offline_mode') || "أنت تلعب بدون إنترنت (لن يتم حساب الخبرة أو الجوائز)";
-                box.appendChild(this.makeEl('div', 'offline-alert', "margin-top:15px;color:#a1a1aa;font-weight:600;font-size:13px;", offlineMsg));
+                rewardsContainer.appendChild(this.makeEl('div', null, "color:#a1a1aa; font-weight:600; font-size:12px;", "أنت تلعب أوفلاين (بدون جوائز)"));
             }
             
+            if (gameState.isOnlineMode) {
+                if (isMeWin && gameState.roomBet >= 10000) {
+                    gameState.userProfile.sharkWinStreak = (gameState.userProfile.sharkWinStreak || 0) + 1;
+                } else if (!isDraw) {
+                    gameState.userProfile.sharkWinStreak = 0;
+                }
+            }
+
+            if (window.parent) window.parent.postMessage({ type: 'SYNC_PROFILE' }, '*');
+            this.updateProfileUI(); 
+        }
+
+        box.appendChild(rewardsContainer);
+        container.appendChild(box); 
+        document.body.appendChild(container);
+        this.toggleOfflineInMatchUI(false);
+    },
+
             // ==========================================
             // 🦈 تحديث عداد السلسلة للقب "القرش"
             // ==========================================
@@ -2053,15 +2087,19 @@ window.sendFriendRequest = function() {
 window.openMyProfile = function() {
     const xpCont = document.getElementById('igp-xp-container'); const statGrid = document.getElementById('igp-stats-grid'); const lvlBadge = document.getElementById('igp-level');
     if(xpCont) xpCont.style.display = 'block'; if(statGrid) statGrid.style.display = 'grid'; if(lvlBadge) lvlBadge.style.display = 'block';
-    document.getElementById('own-profile-actions').style.display = 'block'; document.getElementById('other-profile-actions').style.display = 'none';
+    
+    document.getElementById('own-profile-actions').style.display = 'block'; 
+    document.getElementById('other-profile-actions').style.display = 'none';
+    
+    // 🌟 إظهار الإنجازات والـ ID لأن هذا بروفايلك
+    const achBtn = document.getElementById('igp-achievements-btn'); if(achBtn) achBtn.style.display = 'flex';
+    const idBtn = document.getElementById('copy-id-btn'); if(idBtn) idBtn.style.display = 'inline-flex';
     
     let globalProfile = localStorage.getItem('hub_user_profile');
     if (globalProfile) {
         let prof = cleanExpiredRequests(JSON.parse(globalProfile)); localStorage.setItem('hub_user_profile', JSON.stringify(prof)); 
         window.applyProfileDataToUI(prof);
-        
         ui.applyAvatar('igp-avatar', prof.avatar, prof.avatar?.startsWith('data:image'), prof.equippedProfileFrame);
-        
         let level = Math.floor(Math.sqrt(Math.max(0, prof.xp || 0) / 50)) + 1;
         if(lvlBadge) lvlBadge.textContent = `Lv.${level}`;
         
@@ -2078,14 +2116,77 @@ window.openMyProfile = function() {
             return num;
         };
         document.getElementById('igp-popularity-val').textContent = formatPop(prof.popularity || 0);
-
         const highestStreakEl = document.getElementById('igp-highest-streak');
         if (highestStreakEl) highestStreakEl.textContent = prof.highestStreak || 0;
-
         renderFriendsList(prof.friends); renderFriendRequests();
     }
     window.openAppModal('in-game-profile-modal');
 };
+
+window.showOpponentProfile = function() {
+    if (!window.currentOpponentData) return;
+    const opp = window.currentOpponentData;
+    document.getElementById('igp-name').innerText = opp.name || "الخصم";
+    
+    // 🌟 إخفاء الإنجازات والـ ID بروفايل الخصم
+    const achBtn = document.getElementById('igp-achievements-btn'); if(achBtn) achBtn.style.display = 'none';
+    const idBtn = document.getElementById('copy-id-btn'); if(idBtn) idBtn.style.display = 'none';
+
+    let avatarSrc = opp.avatar || "1000132081.webp";
+    if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
+        let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+        avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
+    }
+    document.getElementById('igp-avatar').innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+    document.getElementById('igp-level').innerText = `Lv.${opp.level || '?'}`;
+    document.getElementById('igp-popularity-val').innerText = formatCompactNumber(opp.popularity || 0);
+    
+    document.getElementById('own-profile-actions').style.display = 'none';
+    document.getElementById('other-profile-actions').style.display = 'flex';
+    window.openAppModal('in-game-profile-modal');
+};
+
+window.showPlayerProfileFromLB = function(player) {
+    let myProfile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    if (player.id === myProfile.id) { window.openMyProfile(); return; }
+
+    gameState.currentViewedPlayer = player; 
+    const xpContainer = document.getElementById('igp-xp-container'); const statsGrid = document.getElementById('igp-stats-grid'); const levelBadge = document.getElementById('igp-level');
+    if(xpContainer) xpContainer.style.display = 'none'; if(statsGrid) statsGrid.style.display = 'none'; if(levelBadge) levelBadge.style.display = 'none';
+    document.getElementById('own-profile-actions').style.display = 'none'; document.getElementById('other-profile-actions').style.display = 'flex';
+    
+    // 🌟 إخفاء الإنجازات والـ ID بروفايل الخصم
+    const achBtn = document.getElementById('igp-achievements-btn'); if(achBtn) achBtn.style.display = 'none';
+    const idBtn = document.getElementById('copy-id-btn'); if(idBtn) idBtn.style.display = 'none';
+
+    document.getElementById('igp-name').textContent = player.name || 'لاعب مجهول'; 
+    document.getElementById('igp-popularity-val').textContent = formatCompactNumber(player.popularity !== undefined ? player.popularity : 0);
+
+    const highestStreakEl = document.getElementById('igp-highest-streak');
+    if (highestStreakEl) highestStreakEl.textContent = player.highestStreak || 0;
+
+    let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
+    window.ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
+    
+    const oppRankDisplay = document.getElementById('igp-rank-display');
+    const oppTitleDisplay = document.getElementById('igp-title-display');
+    
+    if (player.rankInfo) { 
+        if (oppRankDisplay) oppRankDisplay.innerHTML = `${player.rankInfo.icon} <span>${player.rankInfo.title}</span>`; 
+        let oppLevel = Math.floor(Math.sqrt(Math.max(0, player.score || 0) / 50)) + 1;
+        let oppTitleText = "مبتدئ";
+        if (oppLevel >= 100) oppTitleText = "جراند ماستر";
+        else if (oppLevel >= 50) oppTitleText = "معلم الدامة";
+        else if (oppLevel >= 30) oppTitleText = "خبير";
+        else if (oppLevel >= 10) oppTitleText = "مبارز";
+        if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: ${oppTitleText}`;
+    } else { 
+        if (oppRankDisplay) oppRankDisplay.innerHTML = `<img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));"> <span>برونزي</span>`; 
+        if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: مبتدئ`;
+    }
+    window.openAppModal('in-game-profile-modal');
+};
+
 
 window.showPlayerProfileFromLB = function(player) {
     let myProfile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
@@ -3019,4 +3120,3 @@ document.addEventListener('DOMContentLoaded', () => {
         
     }, 500); 
 });
-
