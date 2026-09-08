@@ -1666,12 +1666,41 @@
                 isScrolling = window.requestAnimationFrame(updateActiveCard);
             }, { passive: true });
 
+            // 🌟 دالة جديدة لفحص رصيد اللاعب وإقفال الساحات غير المتاحة
+            const updateMatchmakingLocks = () => {
+                let profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+                let userTokens = parseInt(profile.tokens) || 0;
+                
+                // مبالغ الرهان للساحات
+                const bets = [50, 250, 500, 1000, 2500, 5000, 10000];
+                
+                bets.forEach(bet => {
+                    const lockEl = document.getElementById('mm-lock-' + bet);
+                    const btnEl = document.getElementById('mm-btn-' + bet);
+                    
+                    if (lockEl) {
+                        if (userTokens < bet) {
+                            // الرصيد غير كافٍ: إظهار القفل وتعطيل الزر
+                            lockEl.style.display = 'flex';
+                            if (btnEl) btnEl.style.pointerEvents = 'none'; 
+                        } else {
+                            // الرصيد كافٍ: إخفاء القفل وتفعيل الزر
+                            lockEl.style.display = 'none';
+                            if (btnEl) btnEl.style.pointerEvents = 'auto';
+                        }
+                    }
+                });
+            };
+
             const modal = document.getElementById('matchmaking-stakes-modal');
             let initialScrollDone = false;
           
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
+                        // 🌟 تحديث الأقفال فور فتح نافذة الساحات
+                        updateMatchmakingLocks();
+
                         if (!initialScrollDone) {
                             setTimeout(() => {
                                 const lastBet = localStorage.getItem('last_selected_mm_bet');
@@ -1722,8 +1751,23 @@
         };
 
         window.startMatchmakingWithBet = function(betAmount) {
+            // 🛡️ حماية إضافية: منع بدء البحث نهائياً إذا كان الرصيد غير كافٍ (حتى لو تخطى اللاعب القفل)
+            let profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+            let userTokens = parseInt(profile.tokens) || 0;
+            
+            if (betAmount > 0 && userTokens < betAmount) {
+                if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                    window.ui.showCustomAlert("رصيدك غير كافٍ لدخول هذه الساحة!");
+                } else {
+                    alert("رصيدك غير كافٍ!");
+                }
+                return; // إيقاف دالة البحث فوراً
+            }
+
             localStorage.setItem('last_selected_mm_bet', betAmount);
-            window.closeAppModal('matchmaking-stakes-modal');
+            
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('matchmaking-stakes-modal');
+            else document.getElementById('matchmaking-stakes-modal').style.display = 'none';
             
             const timerEl = document.getElementById('mm-timer');
             if (timerEl) timerEl.textContent = '00:00';
@@ -1739,7 +1783,8 @@
                 }, 1000);
             }
 
-            window.openAppModal('matchmaking-modal');
+            if (typeof window.openAppModal === 'function') window.openAppModal('matchmaking-modal');
+            else document.getElementById('matchmaking-modal').style.display = 'flex';
             
             if (window.socketManager && typeof window.socketManager.handleRoomAction === 'function') {
                 window.socketManager.handleRoomAction('joinMatchmakingPool', null, null, betAmount);
