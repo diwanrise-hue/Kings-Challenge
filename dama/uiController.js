@@ -1573,13 +1573,11 @@ export const ui = {
             this.updateProfileUI(); 
         }
 
-        box.appendChild(rewardsContainer);
+               box.appendChild(rewardsContainer);
         container.appendChild(box); 
         document.body.appendChild(container);
         this.toggleOfflineInMatchUI(false);
     },
-
-
 
     updateProfileUI() {
         if (!gameState.userProfile) return;
