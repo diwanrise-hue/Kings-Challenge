@@ -490,22 +490,21 @@ window.renderRankTrack = function() {
 
     let html = '';
 
-    // حساب نسبة التعبئة البصرية للشريط بدقة عالية (بدون Infinity)
+    // حساب نسبة التعبئة البصرية للشريط 
     let fillPercent = 0;
+    const rankRange = rankData.max - rankData.min; 
+
     if (window.currentViewedRankIndex < window.actualPlayerRankIndex) {
-        fillPercent = 100; // رتبة سابقة، إذن الشريط ممتلئ
+        fillPercent = 100; 
     } else if (window.currentViewedRankIndex > window.actualPlayerRankIndex) {
-        fillPercent = 0; // رتبة لم يصلها بعد، إذن الشريط فارغ
+        fillPercent = 0; 
     } else {
-        const rankRange = rankData.max - rankData.min; // المدى الكلي للرتبة المعروضة
         const scoreInRank = window.actualPlayerScore - rankData.min;
-        // نسبة التعبئة = (السكور داخل الرتبة / المدى) * 100
         fillPercent = Math.min(100, Math.max(0, (scoreInRank / rankRange) * 100));
     }
 
     fillBar.style.width = `${fillPercent}%`;
 
-    // رسم النقاط الـ 4 والجوائز بناءً على النقاط المحددة مسبقاً (tierScores)
     for (let i = 0; i < 4; i++) {
         const requiredScoreForTier = rankData.tierScores[i];
         
@@ -522,8 +521,9 @@ window.renderRankTrack = function() {
         
         let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
 
-        // تموضع النقطة على الشريط البصري (نقوم بتوزيعها شكلياً بنسب شبه متساوية)
-        let visualPosition = i * 33.33; 
+        // 🌟 حساب النسبة المئوية لمكان النقطة على الشريط بناءً على السكور المطلوب لها
+        let nodeScoreInRank = requiredScoreForTier - rankData.min;
+        let nodePercentage = Math.min(100, Math.max(0, (nodeScoreInRank / rankRange) * 100));
         
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
@@ -536,8 +536,9 @@ window.renderRankTrack = function() {
             </div>
         `;
 
+        // دمج المتغير nodePercentage لتحديد المسافة بدقة
         html += `
-            <div class="mm-tier-node ${reachedClass}" style="display: flex; flex-direction: column; align-items: center; position: absolute; left: ${visualPosition}%; transform: translateX(-50%);">
+            <div class="mm-tier-node ${reachedClass}" style="left: ${nodePercentage}%;">
                 <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; margin-bottom: 2px;" onerror="this.outerHTML='<span style=\\'font-size:26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); margin-bottom: 2px;\\'>👑</span>'">
                 <div class="mm-tier-dot" style="margin-bottom: 2px;"></div>
                 <span class="mm-tier-label" style="font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 0px;">${rankData.name} ${romanTiers[i]}</span>
@@ -546,10 +547,9 @@ window.renderRankTrack = function() {
         `;
     }
 
-    container.style.position = 'relative';
-    container.style.height = '70px'; 
     container.innerHTML = html;
 };
+
 
 // ==========================================
 // 🎡 أكواد التمرير للكروت (Carousel)
