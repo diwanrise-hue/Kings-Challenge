@@ -1,10 +1,9 @@
 // ملف: index-scripts.js
-// 🌟 النسخة المحدثة والمتوافقة بالكامل مع السيرفر المركزي وجدار الحماية (AuthToken) 🌟
+// 🌟 النسخة المحدثة والمتوافقة بالكامل مع السيرفر المركزي 🌟
+// 🛡️ (مُحدّث): إزالة دوال الشراء المكررة لمنع الخصم المزدوج (تم نقلها لـ store.js).
+// 🚀 (مُحدّث): إصلاح تسرب الذاكرة (Memory Leak) عند تسجيل الدخول بفيسبوك.
 // 🛡️ (مُحدّث): حماية أزرار التسجيل من الـ Spam.
-// 🛡️ (مُحدّث): التحقق الصارم من كلمات المرور وتأمين حسابات الزوار.
-// 🛠️ (مُحدّث): تحديث معرّفات (IDs) نافذة الدخول لمنع التضارب.
-// 💰 (مُحدّث): توحيد منطق الخصومات العادلة.
-// 🪙 (مُحدّث): استخدام صورة العملة بدلاً من الإيموجي في الأسعار.
+// 🛠️ (مُحدّث): التوافق التام مع أزرار النافذة المنبثقة (حسناً/إلغاء).
 
 function formatCompactNumber(num) {
     if (num >= 1000000) {
@@ -54,167 +53,11 @@ window.PROFILE_FRAMES_ITEMS = [
     { id: 'pf_noble', nameAr: 'إطار النبلاء الأسود', price: 10000, imagePath: GITHUB_PROFILE_BASE + 'Profile7.webp' }
 ];
 
-// 🌟 دالة فتح نافذة تأكيد الشراء (تدعم الآن الشعبية وإطارات البروفايل مع توحيد الخصم)
-let currentPurchaseItem = null;
-
-window.openPurchaseModal = function(itemId, itemName, price, itemType) {
-    currentPurchaseItem = { id: itemId, type: itemType, price: price };
-    
-    const nameEl = document.getElementById('modal-item-name');
-    const costEl = document.getElementById('modal-item-cost');
-    const previewEl = document.getElementById('modal-item-preview');
-    const discountContainer = document.getElementById('discount-container');
-    const discountSelect = document.getElementById('modal-discount-select');
-    
-    const profile = getSafeProfile();
-    
-    if(nameEl) nameEl.innerText = itemName;
-
-    if(discountSelect && discountContainer) {
-        discountSelect.innerHTML = '<option value="0">بدون خصم (حفظ القسائم)</option>';
-        discountSelect.value = "0";
-        discountContainer.style.display = 'none';
-
-        if (itemType !== 'consumable') {
-            let hasTickets = false;
-            if (profile.discountTickets && Array.isArray(profile.discountTickets) && profile.discountTickets.length > 0) {
-                profile.discountTickets.forEach(ticket => {
-                    let val = typeof ticket === 'object' ? ticket.rate : ticket;
-                    let title = typeof ticket === 'object' ? ticket.title : `خصم ${val}%`;
-                    let opt = document.createElement('option');
-                    opt.value = val;
-                    opt.text = title;
-                    discountSelect.appendChild(opt);
-                });
-                hasTickets = true;
-            } else if (profile.discountTicket && profile.discountTicket > 0) {
-                let opt = document.createElement('option');
-                opt.value = profile.discountTicket;
-                opt.text = `خصم ${profile.discountTicket}%`;
-                discountSelect.appendChild(opt);
-                hasTickets = true;
-            }
-            if (hasTickets) discountContainer.style.display = 'block';
-        }
-    }
-
-    let vipLevel = profile.vipLevel || 0;
-    let passiveDiscount = 0;
-    if (vipLevel === 3) passiveDiscount = 5;       
-    else if (vipLevel === 4) passiveDiscount = 10; 
-    else if (vipLevel >= 5) passiveDiscount = 15;  
-
-    // 🛡️ (مُحدّث): حل خلل حساب التخفيض المزدوج لتكون الخصومات عادلة للاعب
-    function updatePriceDisplay() {
-        if(!costEl) return;
-        let ticketDiscount = (discountSelect && discountContainer && discountContainer.style.display !== 'none') ? (parseInt(discountSelect.value) || 0) : 0;
-        let priceHtml = '';
-        
-        if (itemType !== 'popularity' && (passiveDiscount > 0 || ticketDiscount > 0) && price > 0) {
-            let totalDiscount = passiveDiscount + ticketDiscount;
-            if (totalDiscount > 100) totalDiscount = 100;
-            
-            let finalPrice = Math.floor(price * (1 - (totalDiscount / 100)));
-            
-            priceHtml = `
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <span style="font-size:14px; text-decoration:line-through; color:var(--text-secondary);">${formatCompactNumber(price)}</span>
-                    <span style="color:#34c759;">${formatCompactNumber(finalPrice)} <img src="Photo/coin.webp" class="app-coin-icon"> <span style="font-size:12px;">(خصم ${totalDiscount}%)</span></span>
-                </div>
-            `;
-        } else {
-            priceHtml = `${formatCompactNumber(price)} <img src="Photo/coin.webp" class="app-coin-icon">`;
-        }
-        costEl.innerHTML = priceHtml;
-    }
-
-    if(discountSelect) discountSelect.onchange = updatePriceDisplay;
-    updatePriceDisplay();
-    
-    if (previewEl) {
-        let iconHtml = '🎁'; 
-        if (window.STORE_ITEMS && window.STORE_ITEMS[itemId]) {
-            const item = window.STORE_ITEMS[itemId];
-            if (item.isImage) {
-                let imgSrc = item.imagePathWhite || item.imagePath;
-                iconHtml = `<img src="${imgSrc}" style="max-width: 85%; max-height: 85%; object-fit: contain;">`;
-            } else if (item.icon) {
-                iconHtml = item.icon;
-            } else if (itemType === 'consumable') {
-                iconHtml = '💡';
-            }
-        } 
-        else if (itemType === 'popularity' || (window.POPULARITY_ITEMS && window.POPULARITY_ITEMS.some(p => p.id === itemId))) {
-             if (window.POPULARITY_ITEMS) {
-                 const popItem = window.POPULARITY_ITEMS.find(p => p.id === itemId);
-                 if (popItem) {
-                     if (popItem.mediaType === 'video') {
-                         iconHtml = `<video src="${popItem.videoPath}" autoplay loop muted playsinline style="max-width: 100%; max-height: 100%; object-fit: cover;"></video>`;
-                     } else {
-                         iconHtml = `<img src="${popItem.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
-                     }
-                 } else {
-                     iconHtml = '<span style="filter: hue-rotate(210deg);">🔥</span>';
-                 }
-             }
-        } 
-        else if (itemType === 'profile_frame' && window.PROFILE_FRAMES_ITEMS) {
-             const pfItem = window.PROFILE_FRAMES_ITEMS.find(p => p.id === itemId);
-             if (pfItem) {
-                 iconHtml = `<div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                                <img src="Photo/1000132081.webp" style="position: absolute; width: 60%; height: 60%; border-radius: 50%; opacity: 0.5;">
-                                <img src="${pfItem.imagePath}" style="position: relative; width: 90%; height: 90%; object-fit: contain; z-index: 2;">
-                             </div>`;
-             }
-        }
-        else if (itemType === 'consumable') {
-            iconHtml = '💡';
-        }
-        
-        previewEl.innerHTML = iconHtml;
-    }
-    
-    window.openAppModal('purchase-modal');
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    const confirmBuyBtn = document.getElementById('confirm-buy-btn');
-    if (confirmBuyBtn) {
-        confirmBuyBtn.addEventListener('click', () => {
-            const profile = getSafeProfile();
-            
-            if (!profile || !profile.id || profile.id === "GUEST-DEFAULT") {
-                showCustomPopup((typeof translations !== 'undefined' && translations[currentLang] && translations[currentLang].msg_must_login) ? translations[currentLang].msg_must_login : "يرجى تسجيل الدخول أولاً!");
-                return;
-            }
-
-            if (!currentPurchaseItem) return;
-            
-            let appliedDiscountRate = 0;
-            const discountSelect = document.getElementById('modal-discount-select');
-            const discountContainer = document.getElementById('discount-container');
-            if (discountSelect && discountContainer && discountContainer.style.display !== 'none') {
-                appliedDiscountRate = parseInt(discountSelect.value) || 0;
-            }
-
-            window.closeAppModal('purchase-modal');
-
-            if (typeof socket !== 'undefined' && socket.connected) {
-                showLoadingPopup("جاري معالجة الشراء...");
-                socket.emit('requestPurchase', { 
-                    guestId: profile.id, 
-                    userId: profile.id,
-                    itemId: currentPurchaseItem.id,
-                    appliedDiscountRate: appliedDiscountRate 
-                });
-            } else {
-                showCustomPopup("السيرفر غير متصل حالياً!");
-            }
-        });
-    }
-});
-
 // ==========================================
+// تم حذف openPurchaseModal و confirm-buy-btn لمنع التضارب والخصم المزدوج
+// الاعتماد بالكامل أصبح على ملف store.js
+// ==========================================
+
 window.fbAsyncInit = function() {
     FB.init({
         appId      : '2054342995162540', 
@@ -456,23 +299,22 @@ window.getSafeProfile = function() {
     return defaultProfile;
 };
 
-// 🌟 أحداث الاستجابة الجديدة للسيرفر بعد الجدار الناري 🌟
+// 🌟 أحداث الاستجابة من السيرفر
 socket.on('authRegisterSuccess', (data) => {
     const btn = document.getElementById('auth-primary-submit-btn');
-    if (btn) { btn.disabled = false; btn.style.opacity = '1'; } // إعادة تفعيل الزر
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
     
     document.getElementById('custom-popup-modal').style.display = 'none';
     showCustomPopup(data.msg);
     localStorage.setItem('hub_user_profile', JSON.stringify(data.profile));
     
-    // إخفاء نافذة الـ Login المحدثة
     window.closeAppModal('hub-login-modal');
     window.checkUserAuthentication();
 });
 
 socket.on('authLoginSuccess', (data) => {
     const btn = document.getElementById('auth-primary-submit-btn');
-    if (btn) { btn.disabled = false; btn.style.opacity = '1'; } // إعادة تفعيل الزر
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
     
     document.getElementById('custom-popup-modal').style.display = 'none';
     showCustomPopup(data.msg);
@@ -484,7 +326,7 @@ socket.on('authLoginSuccess', (data) => {
 
 socket.on('authError', (data) => {
     const btn = document.getElementById('auth-primary-submit-btn');
-    if (btn) { btn.disabled = false; btn.style.opacity = '1'; } // إعادة تفعيل الزر
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
     
     document.getElementById('custom-popup-modal').style.display = 'none';
     showCustomPopup(data.msg);
@@ -541,32 +383,6 @@ socket.on('royalEntrance', (data) => {
     }, 4000);
 });
 
-socket.on('purchaseSuccess', (msg) => {
-    document.getElementById('custom-popup-modal').style.display = 'none';
-    if(typeof msg === 'string') {
-        showCustomPopup(msg);
-    } else if(msg && msg.message) {
-        showCustomPopup(msg.message);
-    } else {
-        showCustomPopup("تمت عملية الشراء بنجاح!");
-    }
-    
-    if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
-        window.storeManager.renderUI();
-    }
-    
-    setTimeout(() => {
-        if (typeof window.hubRenderProfileFramesInBag === 'function') {
-            window.hubRenderProfileFramesInBag();
-        }
-    }, 500);
-});
-
-socket.on('purchaseFailed', (msg) => {
-    document.getElementById('custom-popup-modal').style.display = 'none';
-    showCustomPopup(msg || "فشلت عملية الشراء!");
-});
-
 window.showLoadingPopup = function(msg) {
     document.getElementById('custom-popup-modal').style.display = 'flex';
     document.getElementById('custom-popup-msg').innerText = msg;
@@ -576,7 +392,7 @@ window.showLoadingPopup = function(msg) {
     customPopupCallback = null;
 };
 
-// 🛡️ (مُحدّث): حل مشكلة تعطل السيرفر عند غياب الصورة، وتمرير الـ Token 
+// 🚀 (مُحدّث): إصلاح تسرب الذاكرة (Memory Leak) باستخدام socket.once
 window.loginWithFacebook = function() {
     if (typeof FB === 'undefined') { showCustomPopup(translations[currentLang].msg_fb_connect); return; }
 
@@ -607,9 +423,8 @@ window.loginWithFacebook = function() {
                         socket.connect();
                         const onConnectFb = () => {
                             socket.emit('loginWithFacebook', payload);
-                            socket.off('connect', onConnectFb);
                         };
-                        socket.on('connect', onConnectFb);
+                        socket.once('connect', onConnectFb); 
                         
                         setTimeout(() => {
                             if (!socket.connected) {
@@ -626,6 +441,7 @@ window.loginWithFacebook = function() {
     }); 
 };
 
+// 🚀 (مُحدّث): إصلاح تسرب الذاكرة (Memory Leak) باستخدام socket.once
 window.linkGuestWithFacebook = function() {
     if (typeof FB === 'undefined') { showCustomPopup(translations[currentLang].msg_fb_connect); return; }
     
@@ -653,9 +469,8 @@ window.linkGuestWithFacebook = function() {
                         socket.connect();
                         const onConnectLink = () => {
                             socket.emit('loginWithFacebook', payload);
-                            socket.off('connect', onConnectLink);
                         };
-                        socket.on('connect', onConnectLink);
+                        socket.once('connect', onConnectLink); 
                         
                         setTimeout(() => {
                             if (!socket.connected) {
@@ -731,7 +546,6 @@ window.showCustomPopup = function(msg, isPrompt = false, defaultValue = "", show
         cancelBtn.innerText = translations[currentLang].btn_cancel;
     }
     
-    // 🌟 خفض طبقة العجلة إن كانت مفتوحة
     const spinModal = document.getElementById('lucky-spin-modal');
     if (spinModal && spinModal.style.display !== 'none') {
         spinModal.style.setProperty('z-index', '10', 'important');
@@ -740,10 +554,10 @@ window.showCustomPopup = function(msg, isPrompt = false, defaultValue = "", show
     customPopupCallback = callback;
 };
 
+// 🛠️ (مُحدّث): التوافق التام مع أزرار النافذة المنبثقة
 window.closeCustomPopup = function(isOk) {
     document.getElementById('custom-popup-modal').style.display = 'none';
     
-    // 🌟 استعادة طبقة العجلة
     const spinModal = document.getElementById('lucky-spin-modal');
     if (spinModal) {
         spinModal.style.setProperty('z-index', '850', 'important');
@@ -765,7 +579,6 @@ window.triggerAlertSoon = function() {
     }
 };
 
-// 🛡️ (مُحدّث): حماية زر التسجيل من الـ Spam والتوافق مع الـ IDs الجديدة
 window.submitManualAuthForm = function() {
     const nameOrIdInput = document.getElementById('hub-login-name-input').value.trim();
     const passInput = document.getElementById('hub-login-password-input').value;
@@ -890,7 +703,7 @@ window.loginAsGuest = function() {
         id: randomId, name: randomName, avatar: 'Photo/1000132081.webp',
         authToken: newAuthToken, 
         isCustomAvatar: false,
-        tokens: 10000, gamesPlayed: 0, wins: 0, losses: 0, friends: [], popularity: 0,
+        tokens: 0, gamesPlayed: 0, wins: 0, losses: 0, friends: [], popularity: 0,
         purchasedItems: [], equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedPc: 'pc_original',
         vipLevel: 0, vipPoints: 0
     };
@@ -940,9 +753,9 @@ window.syncHubProfile = function() {
     const tokenWord = (typeof translations !== 'undefined') ? translations[currentLang].token_word : " Tokens";
     const tokenText = tokenVal + tokenWord;
 
-    if (document.getElementById('hub-token-count')) document.getElementById('hub-token-count').innerText = tokenVal;
+    if (document.getElementById('hub-token-count')) document.getElementById('hub-token-count').innerText = formatCompactNumber(tokenVal);
     if (document.getElementById('profile-stat-tokens')) document.getElementById('profile-stat-tokens').innerText = tokenText;
-    if (document.getElementById('profile-stat-tokens-store')) document.getElementById('profile-stat-tokens-store').innerText = tokenVal;
+    if (document.getElementById('profile-stat-tokens-store')) document.getElementById('profile-stat-tokens-store').innerText = formatCompactNumber(tokenVal);
     
     const nameEl = document.getElementById('profile-display-name');
     if (nameEl) {
@@ -1026,6 +839,7 @@ window.updateHubPopularity = function() {
 window.addEventListener('storage', (event) => {
     if (event.key === 'hub_user_profile') {
         updateHubPopularity();
+        syncHubProfile();
     }
 });
 
@@ -1531,29 +1345,23 @@ socket.on('matchCountdown', (data) => {
 
 // ==========================================
 // 🔊 نظام الصوت الشامل لجميع الأزرار (Global Click Sound)
-// يعمل بشكل مستقل دون التأثير على أي كود آخر
 // ==========================================
 (function() {
-    // الرابط المباشر لملف الصوت من مستودعك
     const clickSoundUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/click.wav";
     const clickAudio = new Audio(clickSoundUrl);
-    clickAudio.volume = 0.6; // مستوى الصوت (يمكنك تعديله من 0.0 إلى 1.0)
+    clickAudio.volume = 0.6; 
 
     document.addEventListener('click', function(event) {
-        // التحقق مما إذا كان العنصر المضغوط هو زر، أو يمتلك onclick، أو من العناصر التفاعلية المعروفة
         const isClickable = event.target.closest('button, [onclick], .dama-card, .nav-item, .drawer-item, .theme-grid-item, .lb-avatar, .profile-avatar, .bet-option-item, .custom-tab-button');
         
         if (isClickable) {
             try {
-                // استنساخ الصوت للسماح بالضغط السريع المتتالي دون تقطيع
                 let soundClone = clickAudio.cloneNode();
                 soundClone.volume = clickAudio.volume;
                 let playPromise = soundClone.play();
                 
                 if (playPromise !== undefined) {
-                    playPromise.catch(error => { 
-                        // صمت الأخطاء إذا منع المتصفح التشغيل التلقائي قبل تفاعل المستخدم
-                    });
+                    playPromise.catch(error => { });
                 }
             } catch (e) {}
         }
