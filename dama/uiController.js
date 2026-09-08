@@ -1578,7 +1578,7 @@ export const ui = {
         container.appendChild(box); 
         document.body.appendChild(container);
         this.toggleOfflineInMatchUI(false);
-    }
+    },
 
 
     updateProfileUI() {
