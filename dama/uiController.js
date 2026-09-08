@@ -179,17 +179,18 @@ export const ui = {
     },
 
     // 🌟 (تحديث جديد: نظام تأجيل جوائز الترقية Pending Rank Ups)
-    checkAndShowPendingRankUps() {
+     checkAndShowPendingRankUps() {
         if (gameState.pendingRankUpData) {
             setTimeout(() => {
                 const data = gameState.pendingRankUpData;
-                let msg = `لقد وصلت إلى المستوى ${data.newLevel}!<br>الجوائز المحصلة:<br>${data.rewardsHtml || "مكافآت الترقية"}`;
-                this.showCustomAlert(msg, `ترقية المستوى 🏆`, null, false, null, "استلام!");
-                // تفريغ البيانات بعد العرض
+                const rankNames = Array.isArray(data.ranks) ? data.ranks.join(' و ') : data.ranks;
+                let msg = `لقد وصلت إلى رتبة:<br><span style="color:#ffd700; font-size:18px; display:block; margin:5px 0;">${rankNames}</span>الجوائز المحصلة:<br><span style="color:#34c759; font-weight:bold; font-size:16px;">+${data.tokens} <img src="../Photo/coin.webp" class="app-coin-icon"></span>`;
+                this.showCustomAlert(msg, `ترقية الرتبة 🎖️`, null, false, null, "استلام!");
                 gameState.pendingRankUpData = null; 
-            }, 800); // تأخير 800 ملي ثانية لضمان ظهور اللوبي
+            }, 800); 
         }
     },
+
 
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
@@ -360,14 +361,12 @@ export const ui = {
         let rank = "برونزي"; 
         let rankIcon = `<img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));">`;
         
-        if (currentScore >= 2500) { 
+        if (currentScore >= 5000) { 
             rank = "أسطوري"; 
-            // وميض ذهبي خفيف لا يتداخل مع لون الشارة الأسطورية
             rankIcon = `<img src="Media/front/os6ory.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.4));">`; 
         }
-        else if (currentScore >= 2000) { 
-            rank = "ملكي"; // التاجي
-            // إزالة الفلتر البنفسجي بالكامل ليظهر اللون الحقيقي للصورة
+        else if (currentScore >= 2500) { 
+            rank = "ملكي"; 
             rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: none;">`; 
         }
         else if (currentScore >= 1200) { 
@@ -385,7 +384,6 @@ export const ui = {
 
         return { level, rank, rankIcon, progressXp, requiredXp, percentage, score: currentScore };
     },
-
 
     showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
@@ -2759,9 +2757,34 @@ ui.onClick('undo-btn', () => {
         if (gameState.selectedPiece) { gameState.selectedPiece.classList.remove('selected'); gameState.selectedPiece = null; }
         gameState.isMultiJumping = false; gameState.jumpsCount = 0; gameState.requiredJumps = 0;
         
-        ui.renderBoard(); ui.playSound(ui.sfx.move); ui.startTurn();
+        ui.renderBoard(); ui.playSound(ui.sfx.move); 
+
+        // إعادة تقييم الحركات الإجبارية للحالة السابقة (Undo Fix)
+        let allMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
+        let isCapture = false;
+        if (allMoves.length > 0 && allMoves[0].some(step => step.midR !== null && step.midR !== undefined)) {
+            isCapture = true;
+            gameState.requiredJumps = allMoves[0].length;
+        }
+        
+        if (isCapture && boardElUndo) {
+            allMoves.forEach(path => {
+                let startStep = path[0];
+                let cell = boardElUndo.querySelector(`[data-row="${startStep.fromR}"][data-col="${startStep.fromC}"]`);
+                if (cell && cell.children.length > 0) {
+                    cell.children[0].classList.add('forced');
+                    if (allMoves.length > 1) {
+                        cell.children[0].classList.add('multi-choice');
+                        cell.classList.add('multi-choice-cell');
+                    }
+                }
+            });
+        }
+
+        ui.startTurn();
     }
 });
+
 
 ui.onClick('hint-btn', () => { hintSystem.requestHint(); });
 
