@@ -1,6 +1,8 @@
 /**
  * dama-scripts.js
  * المساعد العام للتنسيق والمزامنة وإدارة ساحة التحديات
+ * 🌟 تم التحديث: إضافة الحماية الإجبارية (!important) لإخفاء الإنجازات والـ ID للخصوم.
+ * 🔒 تم التحديث: تفعيل الأقفال وحماية الرصيد في ساحة التحديات.
  */
 
 function escapeHTML(str) {
@@ -192,32 +194,87 @@ window.renderDamaPopularityStore = function() {
     } else { grid.innerHTML = '<p style="color: #a1a1aa; text-align: center; grid-column: span 3; padding: 15px;">لا توجد عناصر شعبية حالياً.</p>'; }
 };
 
+// ==========================================
+// 🌟 دوال الملف الشخصي المحمية بالـ !important لإخفاء البيانات 🌟
+// ==========================================
+
+window.openMyProfile = function() {
+    const xpCont = document.getElementById('igp-xp-container'); const statGrid = document.getElementById('igp-stats-grid'); const lvlBadge = document.getElementById('igp-level');
+    if(xpCont) xpCont.style.display = 'block'; if(statGrid) statGrid.style.display = 'grid'; if(lvlBadge) lvlBadge.style.display = 'block';
+    
+    document.getElementById('own-profile-actions').style.display = 'block'; 
+    document.getElementById('other-profile-actions').style.display = 'none';
+    
+    // 🌟 إظهار الإنجازات والـ ID في ملفك الشخصي
+    const achBtn = document.getElementById('igp-achievements-btn'); 
+    if(achBtn) achBtn.style.setProperty('display', 'flex', 'important');
+    
+    const idBtn = document.getElementById('copy-id-btn'); 
+    if(idBtn) idBtn.style.setProperty('display', 'inline-flex', 'important');
+    
+    let globalProfile = localStorage.getItem('hub_user_profile');
+    if (globalProfile) {
+        let prof = JSON.parse(globalProfile);
+        
+        if (typeof window.applyProfileDataToUI === 'function') {
+            window.applyProfileDataToUI(prof);
+        }
+        
+        if (typeof window.ui !== 'undefined' && typeof window.ui.applyAvatar === 'function') {
+            window.ui.applyAvatar('igp-avatar', prof.avatar, prof.avatar?.startsWith('data:image'), prof.equippedProfileFrame);
+        } else {
+            let avatarSrc = prof.avatar || "1000132081.webp";
+            if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
+                let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+                avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
+            }
+            document.getElementById('igp-avatar').innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        }
+        
+        let level = Math.floor(Math.sqrt(Math.max(0, prof.xp || 0) / 50)) + 1;
+        if(lvlBadge) lvlBadge.textContent = `Lv.${level}`;
+        
+        let xpBar = document.getElementById('igp-xp-fill'); let xpText = document.getElementById('igp-xp-text');
+        if(xpBar && xpText) {
+            let currentLevelXp = Math.pow(level - 1, 2) * 50; let nextLevelXp = Math.pow(level, 2) * 50;
+            let progress = ((prof.xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
+            xpBar.style.width = Math.min(100, Math.max(0, progress)) + '%'; xpText.textContent = `${prof.xp || 0} / ${nextLevelXp} XP`;
+        }
+        
+        document.getElementById('igp-popularity-val').textContent = formatCompactNumber(prof.popularity || 0);
+        const highestStreakEl = document.getElementById('igp-highest-streak');
+        if (highestStreakEl) highestStreakEl.textContent = prof.highestStreak || 0;
+
+        if (typeof window.renderFriendsList === 'function') window.renderFriendsList(prof.friends); 
+        if (typeof window.renderFriendRequests === 'function') window.renderFriendRequests();
+    }
+    window.openAppModal('in-game-profile-modal');
+};
+
 window.showOpponentProfile = function() {
     if (!window.currentOpponentData) return;
     const opp = window.currentOpponentData;
     document.getElementById('igp-name').innerText = opp.name || "الخصم";
     
-    let safeId = "---";
-    if (opp.guestId) {
-        let parts = opp.guestId.split('-');
-        if (parts.length > 1) {
-            let prefix = parts[0];
-            let numPart = parts[1];
-            let visibleNum = numPart.length > 4 ? numPart.substring(numPart.length - 4) : numPart;
-            safeId = prefix + "-***" + visibleNum;
-        } else {
-            safeId = opp.guestId.substring(0, 3) + "***" + opp.guestId.substring(opp.guestId.length - 3);
-        }
-    }
+    // 🌟 إخفاء الإنجازات والـ ID في ملف الخصم بشكل إجباري
+    const achBtn = document.getElementById('igp-achievements-btn'); 
+    if(achBtn) achBtn.style.setProperty('display', 'none', 'important');
     
-    document.getElementById('igp-id-display').innerText = safeId;
-    
+    const idBtn = document.getElementById('copy-id-btn'); 
+    if(idBtn) idBtn.style.setProperty('display', 'none', 'important');
+
     let avatarSrc = opp.avatar || "1000132081.webp";
     if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
         let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
         avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
     }
-    document.getElementById('igp-avatar').innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+    
+    if (typeof window.ui !== 'undefined' && typeof window.ui.applyAvatar === 'function') {
+        window.ui.applyAvatar('igp-avatar', avatarSrc, avatarSrc.startsWith('data:image'), opp.equippedProfileFrame);
+    } else {
+        document.getElementById('igp-avatar').innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+    }
+
     document.getElementById('igp-level').innerText = `Lv.${opp.level || '?'}`;
     document.getElementById('igp-popularity-val').innerText = formatCompactNumber(opp.popularity || 0);
     
@@ -225,6 +282,78 @@ window.showOpponentProfile = function() {
     document.getElementById('other-profile-actions').style.display = 'flex';
     window.openAppModal('in-game-profile-modal');
 };
+
+window.showPlayerProfileFromLB = function(player) {
+    let myProfile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    
+    if (player.id === myProfile.id) {
+        window.openMyProfile(); 
+        return; 
+    }
+
+    if(window.gameState) window.gameState.currentViewedPlayer = player; 
+    const xpContainer = document.getElementById('igp-xp-container'); const statsGrid = document.getElementById('igp-stats-grid'); const levelBadge = document.getElementById('igp-level');
+    if(xpContainer) xpContainer.style.display = 'none'; if(statsGrid) statsGrid.style.display = 'none'; if(levelBadge) levelBadge.style.display = 'none';
+    
+    document.getElementById('own-profile-actions').style.display = 'none'; 
+    document.getElementById('other-profile-actions').style.display = 'flex';
+    
+    // 🌟 إخفاء الإنجازات والـ ID للآخرين في لوحة الشرف بشكل إجباري
+    const achBtn = document.getElementById('igp-achievements-btn'); 
+    if(achBtn) achBtn.style.setProperty('display', 'none', 'important');
+    
+    const idBtn = document.getElementById('copy-id-btn'); 
+    if(idBtn) idBtn.style.setProperty('display', 'none', 'important');
+
+    const reqBtn = document.getElementById('send-friend-req-btn'); if(reqBtn) { reqBtn.innerHTML = '➕ إرسال طلب صداقة'; reqBtn.style.cssText = "background: rgba(48,209,88,0.15) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.3) !important; margin: 0;"; reqBtn.disabled = false; }
+    const popBtn = document.getElementById('give-pop-btn'); if(popBtn) { popBtn.innerHTML = '🔥 منح شعبية'; popBtn.style.cssText = "background: rgba(0, 210, 255, 0.15) !important; color: #00d2ff !important; border-color: rgba(0, 210, 255, 0.3) !important; margin: 0;"; popBtn.disabled = false; }
+
+    document.getElementById('igp-name').textContent = player.name || 'لاعب مجهول'; 
+    
+    // تفريغ النص الخاص بالـ ID تحسباً لأي ظهور خاطئ
+    const idDisplay = document.getElementById('igp-id-display');
+    if(idDisplay) idDisplay.textContent = 'مخفي';
+    
+    document.getElementById('igp-popularity-val').textContent = formatCompactNumber(player.popularity !== undefined ? player.popularity : 0);
+
+    const highestStreakEl = document.getElementById('igp-highest-streak');
+    if (highestStreakEl) highestStreakEl.textContent = player.highestStreak || 0;
+
+    let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
+    if (typeof window.ui !== 'undefined' && typeof window.ui.applyAvatar === 'function') {
+        window.ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
+    } else {
+        let avatarSrc = player.avatar || "1000132081.webp";
+        if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('data:')) {
+            let cleanName = avatarSrc.replace(/\.\.\//g, '').replace('Photo/', '');
+            avatarSrc = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/" + cleanName;
+        }
+        document.getElementById('igp-avatar').innerHTML = `<img src="${avatarSrc}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+    }
+    
+    const oppRankDisplay = document.getElementById('igp-rank-display');
+    const oppTitleDisplay = document.getElementById('igp-title-display');
+    
+    if (player.rankInfo) { 
+        if (oppRankDisplay) oppRankDisplay.innerHTML = `${player.rankInfo.icon} <span>${player.rankInfo.title}</span>`; 
+        
+        let oppLevel = Math.floor(Math.sqrt(Math.max(0, player.score || 0) / 50)) + 1;
+        let oppTitleText = "مبتدئ";
+        if (oppLevel >= 100) oppTitleText = "جراند ماستر";
+        else if (oppLevel >= 50) oppTitleText = "معلم الدامة";
+        else if (oppLevel >= 30) oppTitleText = "خبير";
+        else if (oppLevel >= 10) oppTitleText = "مبارز";
+        
+        if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: ${oppTitleText}`;
+    } else { 
+        if (oppRankDisplay) oppRankDisplay.innerHTML = `<img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));"> <span>برونزي</span>`; 
+        if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: مبتدئ`;
+    }
+    
+    window.openAppModal('in-game-profile-modal');
+};
+
+// ==========================================
 
 function syncGlobalBackground() {
     const bg = localStorage.getItem('custom_app_bg'); 
@@ -739,7 +868,7 @@ window.renderRankTrack = function() {
 
     let html = '';
 
-    // نسبة التعبئة للشريط البصري (يعتمد على النقاط الحالية، ينزل إذا خسر)
+    // نسبة التعبئة للشريط البصري
     let fillPercent = 0;
     if (window.currentViewedRankIndex < window.actualPlayerRankIndex) {
         fillPercent = 100; 
@@ -755,7 +884,7 @@ window.renderRankTrack = function() {
         }
     }
 
-    // نسبة التعبئة للجوائز (تعتمد على أعلى نتيجة، لضمان بقاء علامة الصح)
+    // نسبة التعبئة للجوائز
     let highestFillPercent = 0;
     if (window.currentViewedRankIndex < window.highestPlayerRankIndex) {
         highestFillPercent = 100;
@@ -781,7 +910,6 @@ window.renderRankTrack = function() {
         if (window.currentViewedRankIndex < window.highestPlayerRankIndex) isReached = true;
         if (window.currentViewedRankIndex > window.highestPlayerRankIndex) isReached = false;
 
-        // 🟢 الإصلاح الجذري: منع علامة الصح إذا كانت أعلى نتيجة للاعب هي صفر (لاعب جديد)!
         if (window.currentViewedRankIndex === 0 && i === 0 && window.highestPlayerScore === 0) {
             isReached = false;
         }
@@ -866,12 +994,36 @@ document.addEventListener('DOMContentLoaded', () => {
         isScrolling = window.requestAnimationFrame(updateActiveCard);
     }, { passive: true });
 
+    const updateMatchmakingLocks = () => {
+        let profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+        let userTokens = parseInt(profile.tokens) || 0;
+        
+        const bets = [50, 250, 500, 1000, 2500, 5000, 10000];
+        
+        bets.forEach(bet => {
+            const lockEl = document.getElementById('mm-lock-' + bet);
+            const btnEl = document.getElementById('mm-btn-' + bet);
+            
+            if (lockEl) {
+                if (userTokens < bet) {
+                    lockEl.style.display = 'flex';
+                    if (btnEl) btnEl.style.pointerEvents = 'none'; 
+                } else {
+                    lockEl.style.display = 'none';
+                    if (btnEl) btnEl.style.pointerEvents = 'auto';
+                }
+            }
+        });
+    };
+
     const modal = document.getElementById('matchmaking-stakes-modal');
     let initialScrollDone = false;
     
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
+                updateMatchmakingLocks();
+
                 if (!initialScrollDone) {
                     setTimeout(() => {
                         const lastBet = localStorage.getItem('last_selected_mm_bet');
@@ -920,8 +1072,22 @@ window.scrollMmCarousel = function(direction) {
 };
 
 window.startMatchmakingWithBet = function(betAmount) {
+    let profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+    let userTokens = parseInt(profile.tokens) || 0;
+    
+    if (betAmount > 0 && userTokens < betAmount) {
+        if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+            window.ui.showCustomAlert("رصيدك غير كافٍ لدخول هذه الساحة!");
+        } else {
+            alert("رصيدك غير كافٍ!");
+        }
+        return; 
+    }
+
     localStorage.setItem('last_selected_mm_bet', betAmount);
-    window.closeAppModal('matchmaking-stakes-modal');
+    
+    if (typeof window.closeAppModal === 'function') window.closeAppModal('matchmaking-stakes-modal');
+    else document.getElementById('matchmaking-stakes-modal').style.display = 'none';
     
     const timerEl = document.getElementById('mm-timer');
     if (timerEl) timerEl.textContent = '00:00';
@@ -937,7 +1103,8 @@ window.startMatchmakingWithBet = function(betAmount) {
         }, 1000);
     }
 
-    window.openAppModal('matchmaking-modal');
+    if (typeof window.openAppModal === 'function') window.openAppModal('matchmaking-modal');
+    else document.getElementById('matchmaking-modal').style.display = 'flex';
     
     if (window.socketManager && typeof window.socketManager.handleRoomAction === 'function') {
         window.socketManager.handleRoomAction('joinMatchmakingPool', null, null, betAmount);
