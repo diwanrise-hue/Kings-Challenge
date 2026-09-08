@@ -708,9 +708,9 @@
             <div class="input-group" id="custom-popup-input-group" style="display: none; margin-bottom: 25px;">
                 <input type="text" id="custom-popup-input" class="clean-input" style="text-align: center;">
             </div>
-            <div style="display: flex; gap: 10px; width: 100%;">
-                <button id="custom-popup-ok" class="btn btn-primary" style="flex: 1; margin:0;" data-i18n="btn_ok">حسناً</button>
-                <button id="custom-popup-cancel" class="btn btn-secondary" style="flex: 1; display: none; margin:0;" data-i18n="btn_cancel">إلغاء</button>
+             <div style="display: flex; gap: 10px; width: 100%;">
+              <button id="custom-popup-ok" class="btn btn-primary" style="flex: 1; margin:0;" data-i18n="btn_ok" onclick="closeCustomPopup(true)">حسناً</button>
+              <button id="custom-popup-cancel" class="btn btn-secondary" style="flex: 1; display: none; margin:0;" data-i18n="btn_cancel" onclick="closeCustomPopup(false)">إلغاء</button>
             </div>
         </div>
     </div>
@@ -1011,4 +1011,4 @@
     </script>
 
 </body>
-</html>
+                        </html>
