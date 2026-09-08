@@ -15,6 +15,7 @@
  * 🎤 (إصلاح الكارثة): تنظيف الملف من أحداث (voice-offer/answer) الخاصة بالسيرفر والتي كانت تُسقط الاتصال وتمنع عمل المايك.
  * 🏆 (تحديث جديد): استقبال جوائز الترقيات وتجميعها، وإرسال اللقب للسيرفر.
  * 🪙 (مُحدّث جديد): تفعيل ظهور العملات كصور (coin.webp) في جميع إشعارات السيرفر والرهانات.
+ * 🛠️ (إصلاح الرتب): تصحيح مصفوفة الرتب في حدث rankUpAlert لمنع تداخل النصوص.
  */
 
 import { gameState } from './gameState.js'; 
@@ -507,7 +508,7 @@ export const socketManager = {
     _showToast(msg) {
         let toast = document.getElementById('toast-notification');
         if (toast) {
-            toast.innerHTML = msg; // 🌟 تم التحديث لدعم الصور (innerHTML)
+            toast.innerHTML = msg; 
             toast.classList.add('show');
             
             if (this.toastTimeout) clearTimeout(this.toastTimeout);
@@ -780,12 +781,14 @@ export const socketManager = {
             if (data && data.msg) this._showToast(data.msg);
         });
 
+        // 🌟 إصلاح قراءة مصفوفة الرتب لمنع التداخل وظهور (و) برمجياً
         socket.on('rankUpAlert', (data) => {
             if (!gameState.pendingRankUpData) {
                 gameState.pendingRankUpData = { ranks: [], tokens: 0 };
             }
             if (data.ranks) {
-                gameState.pendingRankUpData.ranks.push(data.ranks);
+                const rankArr = typeof data.ranks === 'string' ? data.ranks.split(' و ') : data.ranks;
+                gameState.pendingRankUpData.ranks.push(...rankArr);
             }
             gameState.pendingRankUpData.tokens += (data.tokens || 0);
         });
@@ -1978,4 +1981,3 @@ function getNotifyMsg(key, name = '') {
 }
 
 window.socketManager = socketManager;
-
