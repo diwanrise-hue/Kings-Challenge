@@ -505,6 +505,7 @@ window.renderRankTrack = function() {
 
     fillBar.style.width = `${fillPercent}%`;
 
+    // رسم النقاط الـ 4 والجوائز بناءً على النقاط المحددة مسبقاً (tierScores)
     for (let i = 0; i < 4; i++) {
         const requiredScoreForTier = rankData.tierScores[i];
         
@@ -519,24 +520,21 @@ window.renderRankTrack = function() {
         let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : `50 <img src="../Photo/coin.webp" class="app-coin-icon">`;
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
         
-        let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
-
-        // 🌟 حساب النسبة المئوية لمكان النقطة على الشريط بناءً على السكور المطلوب لها
+        let visualPosition = i * 33.33; 
+        
         let nodeScoreInRank = requiredScoreForTier - rankData.min;
         let nodePercentage = Math.min(100, Math.max(0, (nodeScoreInRank / rankRange) * 100));
         
+        // 🌟 تم تنظيف هذا الجزء من الـ Checkmark العشوائي ليعمل الـ CSS بسلام 🌟
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
-                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 3px 0 2px 0; position: relative; display: block !important;">
-                    ${checkmark}
-                </div>
+                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 3px 0 2px 0; display: block !important;"></div>
                 <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important; margin-top: 2px;">
                     ${tierRewardText}
                 </span>
             </div>
         `;
 
-        // دمج المتغير nodePercentage لتحديد المسافة بدقة
         html += `
             <div class="mm-tier-node ${reachedClass}" style="left: ${nodePercentage}%;">
                 <img class="mm-tier-img" src="${rankData.icon}" style="${iconFilter}; margin-bottom: 2px;" onerror="this.outerHTML='<span style=\\'font-size:26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); margin-bottom: 2px;\\'>👑</span>'">
@@ -546,6 +544,7 @@ window.renderRankTrack = function() {
             </div>
         `;
     }
+
 
     container.innerHTML = html;
 };
