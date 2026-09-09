@@ -422,18 +422,28 @@ window.kickSpectator = function(targetId, targetName) {
 };
 
 // ==========================================
-// 📊 نظام شريط الرتبة التفاعلي (مُحدّث بالكامل) 
+// 📊 نظام شريط الرتبة التفاعلي (النسخة المتطورة) 
 // ==========================================
-// تمت إضافة الفجوة (Gap) عبر مصفوفة tierScores
-// وتم تصحيح المدى الأقصى للرتبة الأسطورية (6500)
 const RANK_SYSTEM = [
+    // برونزي: I عند 0 (لا يحتاج لعب مباراة إضافية)
     { id: 'bronze', name: 'برونزي', min: 0, max: 149, tierScores: [0, 50, 100, 140], icon: 'Media/front/Bronze.webp', tierRewards: ['50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">', '50 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
-    { id: 'silver', name: 'فضي', min: 150, max: 499, tierScores: [150, 266, 383, 479], icon: 'Media/front/silver.webp', tierRewards: ['100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
-    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, tierScores: [500, 733, 966, 1149], icon: 'Media/front/golden.webp', tierRewards: ['300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
-    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, tierScores: [1200, 1633, 2066, 2399], icon: 'Media/front/diamond.webp', tierRewards: ['500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
-    { id: 'royal', name: 'ملكي', min: 2500, max: 4999, tierScores: [2500, 3333, 4166, 4799], icon: 'Media/front/legendary.webp', tierRewards: ['800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">'] }, 
-    { id: 'legendary', name: 'أسطوري', min: 5000, max: 6500, tierScores: [5000, 5500, 6000, 6500], icon: 'Media/front/os6ory.webp', tierRewards: ['1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">'] } 
+    
+    // فضي: الحد الأدنى 150، الرتبة I تبدأ عند 165 (يجب الفوز بمباراة)
+    { id: 'silver', name: 'فضي', min: 150, max: 499, tierScores: [165, 266, 383, 479], icon: 'Media/front/silver.webp', tierRewards: ['100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">', '100 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    
+    // ذهبي: الحد الأدنى 500، الرتبة I تبدأ عند 525
+    { id: 'gold', name: 'ذهبي', min: 500, max: 1199, tierScores: [525, 733, 966, 1149], icon: 'Media/front/golden.webp', tierRewards: ['300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">', '300 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    
+    // ماسي: الحد الأدنى 1200، الرتبة I تبدأ عند 1230
+    { id: 'diamond', name: 'ماسي', min: 1200, max: 2499, tierScores: [1230, 1633, 2066, 2399], icon: 'Media/front/diamond.webp', tierRewards: ['500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">', '500 <img src="../Photo/coin.webp" class="app-coin-icon">'] },
+    
+    // ملكي: الحد الأدنى 2500، الرتبة I تبدأ عند 2550
+    { id: 'royal', name: 'ملكي', min: 2500, max: 4999, tierScores: [2550, 3333, 4166, 4799], icon: 'Media/front/legendary.webp', tierRewards: ['800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">', '800 <img src="../Photo/coin.webp" class="app-coin-icon">'] }, 
+    
+    // أسطوري: الحد الأدنى 5000، الرتبة I تبدأ عند 5050
+    { id: 'legendary', name: 'أسطوري', min: 5000, max: 6500, tierScores: [5050, 5500, 6000, 6500], icon: 'Media/front/os6ory.webp', tierRewards: ['1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">', '1000 <img src="../Photo/coin.webp" class="app-coin-icon">'] } 
 ];
+
 
 window.currentViewedRankIndex = 0;
 window.actualPlayerRankIndex = 0;
@@ -477,6 +487,7 @@ window.changeRankView = function(dir) {
     }
 };
 
+
 window.renderRankTrack = function() {
     const container = document.getElementById('mm-tiers-container');
     const fillBar = document.getElementById('mm-rank-fill-bar');
@@ -485,22 +496,11 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
-    // 🌟 التحكم الديناميكي بأطراف الشريط لمنع تمدده في الأطراف المغلقة 🌟
+    // 🌟 إرجاع الشريط الرمادي لحجمه الطبيعي (0 إلى 0) لكي نستخدم النطاق الداخلي هندسياً
     const trackBg = document.querySelector('.mm-track-bg');
     if (trackBg) {
-        // قطع الزيادة من اليسار إذا كنا في أول رتبة (برونزي)
-        if (window.currentViewedRankIndex === 0) {
-            trackBg.style.setProperty('left', '0px', 'important');
-        } else {
-            trackBg.style.setProperty('left', '-15px', 'important');
-        }
-
-        // قطع الزيادة من اليمين إذا كنا في آخر رتبة (أسطوري)
-        if (window.currentViewedRankIndex === RANK_SYSTEM.length - 1) {
-            trackBg.style.setProperty('right', '0px', 'important');
-        } else {
-            trackBg.style.setProperty('right', '-15px', 'important');
-        }
+        trackBg.style.setProperty('left', '0px', 'important');
+        trackBg.style.setProperty('right', '0px', 'important');
     }
 
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
@@ -509,27 +509,64 @@ window.renderRankTrack = function() {
     if(prevBtn) prevBtn.disabled = window.currentViewedRankIndex === 0;
     if(nextBtn) nextBtn.disabled = window.currentViewedRankIndex === RANK_SYSTEM.length - 1;
 
+    // 🌟 1. تحديد المواقع البصرية الدقيقة والمتباعدة بشكل متساوٍ تماماً 🌟
+    let visualNodes = [];
+    if (window.currentViewedRankIndex === 0) {
+        // برونزي: الطبقة I عند 0%، الطبقة IV عند 90% (فراغ في النهاية فقط)
+        visualNodes = [0, 30, 60, 90];
+    } else if (window.currentViewedRankIndex === RANK_SYSTEM.length - 1) {
+        // أسطوري: الطبقة I عند 10%، الطبقة IV عند 100% (فراغ في البداية فقط)
+        visualNodes = [10, 40, 70, 100];
+    } else {
+        // الرتب الوسطى (فضي، ذهبي، ماسي، ملكي): فراغ في البداية والنهاية
+        visualNodes = [10, 36.66, 63.33, 90];
+    }
+
     let html = '';
 
-    // حساب نسبة التعبئة البصرية للشريط 
+    // 🌟 2. الخوارزمية الذكية لحساب تمدد الشريط الأصفر بين النقاط 🌟
     let fillPercent = 0;
-    const rankRange = rankData.max - rankData.min; 
-
     if (window.currentViewedRankIndex < window.actualPlayerRankIndex) {
         fillPercent = 100; 
     } else if (window.currentViewedRankIndex > window.actualPlayerRankIndex) {
         fillPercent = 0; 
     } else {
-        const scoreInRank = window.actualPlayerScore - rankData.min;
-        fillPercent = Math.min(100, Math.max(0, (scoreInRank / rankRange) * 100));
+        let score = window.actualPlayerScore;
+        
+        // النقاط المرجعية للربط بين السكور الحقيقي والمكان البصري (%)
+        let points = [
+            { s: rankData.min, p: 0 },
+            { s: rankData.tierScores[0], p: visualNodes[0] },
+            { s: rankData.tierScores[1], p: visualNodes[1] },
+            { s: rankData.tierScores[2], p: visualNodes[2] },
+            { s: rankData.tierScores[3], p: visualNodes[3] },
+            { s: rankData.max, p: 100 }
+        ];
+        
+        // حساب النسبة الدقيقة لكي ينمو الشريط تدريجياً
+        for (let j = 0; j < points.length - 1; j++) {
+            let p1 = points[j];
+            let p2 = points[j+1];
+            
+            if (score >= p1.s && score <= p2.s) {
+                if (p2.s === p1.s) {
+                    fillPercent = p2.p; 
+                } else {
+                    let progress = (score - p1.s) / (p2.s - p1.s);
+                    fillPercent = p1.p + (progress * (p2.p - p1.p));
+                }
+                break;
+            }
+        }
     }
 
     fillBar.style.width = `${fillPercent}%`;
 
+    // 🌟 3. رسم الدوائر في المواقع الهندسية
     for (let i = 0; i < 4; i++) {
         const requiredScoreForTier = rankData.tierScores[i];
         
-        let isReached = window.highestPlayerScore >= requiredScoreForTier;
+        let isReached = window.actualPlayerScore >= requiredScoreForTier;
         let reachedClass = isReached ? 'reached' : '';
         
         let iconFilter = '';
@@ -542,8 +579,8 @@ window.renderRankTrack = function() {
         
         let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
 
-        let nodeScoreInRank = requiredScoreForTier - rankData.min;
-        let nodePercentage = Math.min(100, Math.max(0, (nodeScoreInRank / rankRange) * 100));
+        // استخدام الموقع البصري المحسوب بدلاً من العشوائي
+        let nodePercentage = visualNodes[i];
         
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
@@ -570,7 +607,6 @@ window.renderRankTrack = function() {
     container.style.height = '70px'; 
     container.innerHTML = html;
 };
-
 
 
 // ==========================================
