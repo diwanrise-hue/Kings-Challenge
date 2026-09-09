@@ -1288,6 +1288,8 @@ export const socketManager = {
             }
             
             gameState.currentTurn = data.nextTurn;
+            // 🌟 استلام الثواني المتبقية بدقة من السيرفر
+            gameState.turnTimeLeft = data.secondsLeft || 45; 
             if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
 
             ui.renderBoard();
