@@ -3073,8 +3073,8 @@ ui.onClick('board', e => {
                         
                         // 🌟 إعادة العداد لـ 45 وتشغيله بعد الأكل
                         gameState.turnTimeLeft = 45;
-                        if (gameState.isOnlineMode) this.startTurnTimer();
-                        
+                        if (gameState.isOnlineMode) ui.startTurnTimer();
+
                         ui.renderBoard();
 
                         if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
