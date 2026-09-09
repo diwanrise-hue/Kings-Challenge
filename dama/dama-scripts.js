@@ -444,7 +444,9 @@ window.highestPlayerScore = 0;
 window.initMatchmakingRankBar = function() {
     const profile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     
-    window.actualPlayerScore = parseInt(profile.score) || parseInt(profile.xp) || 0;
+    // 🌟 الإصلاح الجذري هنا: قمنا بحذف الاعتماد على (XP) نهائياً
+    // الآن الشريط سيقرأ فقط الـ (Score) الخاص بالرتب التنافسية!
+    window.actualPlayerScore = parseInt(profile.score) || 0;
     window.highestPlayerScore = parseInt(profile.highestScoreReached) || window.actualPlayerScore;
 
     window.actualPlayerRankIndex = 0;
@@ -465,6 +467,7 @@ window.initMatchmakingRankBar = function() {
     window.currentViewedRankIndex = window.actualPlayerRankIndex;
     window.renderRankTrack();
 };
+
 
 window.changeRankView = function(dir) {
     let newIndex = window.currentViewedRankIndex + dir;
