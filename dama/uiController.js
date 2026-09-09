@@ -1142,8 +1142,8 @@ export const ui = {
         if (typeof gameState.turnTimeLeft === 'undefined' || gameState.turnTimeLeft === null) {
             gameState.turnTimeLeft = 45;
         }
-     }
-
+  
+      }
         const updateTimerDisplay = () => {
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
             
@@ -1169,7 +1169,8 @@ export const ui = {
                     }, 1500); 
                 }
             }
-            
+          }
+           
             // إنقاص العداد ثانية بثانية محلياً
             if (gameState.turnTimeLeft > 0) {
                 gameState.turnTimeLeft--;
