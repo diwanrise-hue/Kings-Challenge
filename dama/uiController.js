@@ -1138,16 +1138,11 @@ export const ui = {
 
         let hasPlayedTick = false; 
         
-        // 🌟 الإصلاح: نعتمد على الثواني المتبقية مباشرة ونلغي مقارنة ساعة الهاتف بالسيرفر
+        // 🌟 الإصلاح: نعتمد على الثواني المتبقية مباشرة
         if (typeof gameState.turnTimeLeft === 'undefined' || gameState.turnTimeLeft === null) {
-        gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
-        gameState.turnTimeLeft = 45; // 🌟 إجبار المتغير على 45
-        if (gameState.isOnlineMode) {
-        this.startTurnTimer(); // 🌟 السحر هنا: أمر إجباري بإعادة تشغيل العداد البصري من الصفر!
-    }
-
-
+            gameState.turnTimeLeft = 45;
         }
+     }
 
         const updateTimerDisplay = () => {
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
@@ -3075,6 +3070,10 @@ ui.onClick('board', e => {
                         gameState.selectedPiece = null; ui.clearHighlights();
                         gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                         
+                        // 🌟 إعادة العداد لـ 45 وتشغيله بعد الأكل
+                        gameState.turnTimeLeft = 45;
+                        if (gameState.isOnlineMode) this.startTurnTimer();
+                        
                         ui.renderBoard();
 
                         if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
@@ -3136,6 +3135,10 @@ ui.onClick('board', e => {
                 gameState.selectedPiece = null; ui.clearHighlights();
                 gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                 
+                // 🌟 إعادة العداد لـ 45 وتشغيله بعد الحركة العادية
+                gameState.turnTimeLeft = 45;
+                if (gameState.isOnlineMode) this.startTurnTimer();
+                
                 ui.renderBoard();
 
                 if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
@@ -3147,6 +3150,7 @@ ui.onClick('board', e => {
                 
                 saveGameState(); ui.startTurn();
                 gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
+
             }
         }
     }
