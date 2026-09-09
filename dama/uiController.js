@@ -1509,7 +1509,7 @@ export const ui = {
         const isWinnerForSound = winnerColor === (gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor);
         if (isWinnerForSound || winnerColor === 'draw') {
             // 🌟 تشغيل صوت العملات بعد (0.6 ثانية) ليتداخل بشكل موسيقي ومريح مع نهاية نغمة الفوز!
-            setTimeout(() => { this.playSound(sfx.coinsCollect); }, 600);
+            setTimeout(() => { this.playSound(sfx.coinsCollect); }, 1200);
         }
         
         if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal');
