@@ -160,17 +160,9 @@ export const ui = {
     
     onClick(id, fn) { this.clickHandlers.set(id, fn); },
     
-    playSound(audio) {
+   playSound(audio) {
         if (!audio) return;
         try {
-            // 🌟 منع تشغيل صوت الفوز إذا كان اللاعب يضغط على زر المهام لتجنب التداخل
-            if (audio === this.sfx.win) {
-                const popupMsg = document.getElementById('custom-popup-msg');
-                if (popupMsg && (popupMsg.innerHTML.includes('جمع') || popupMsg.innerHTML.includes('استلام'))) {
-                    return; // نوقف صوت الفوز لأن زر الاستلام سيعزف صوت العملات
-                }
-            }
-
             audio.pause(); 
             audio.currentTime = 0; 
             const playPromise = audio.play();
@@ -3160,23 +3152,24 @@ ui.onClick('board', e => {
 document.addEventListener('click', (e) => {
     let target = e.target;
     
-    // 🌟 التقاط أي زر يحتوي على كلمة "جمع" أو "استلام" لتشغيل صوت ومؤثر العملات 🌟
-    if (target.tagName === 'BUTTON') {
-        const btnText = target.innerText || target.textContent || '';
-        if (target.id === 'collect-all-btn' || btnText.includes('جمع') || btnText.includes('استلام') || btnText.includes('استلم')) {
-            // استثناء أزرار الخروج أو الإلغاء إذا احتوت صدفة على هذه الكلمات
-            if (!btnText.includes('إلغاء') && !btnText.includes('خروج')) {
-                ui.playSound(ui.sfx.coinsCollect);
-                if (typeof ui.spawnCoinShower === 'function') ui.spawnCoinShower();
-            }
+    // 🌟 التقاط الأزرار بذكاء للتفريق بين "استلام فردي" و "جمع الكل"
+    const btn = target.closest('button');
+    if (btn) {
+        const btnText = btn.innerText || btn.textContent || '';
+        
+        // إذا كان الزر هو "استلام" فردي (وليس جمع الكل، وليس تم الاستلام مسبقاً)
+        if ((btnText.includes('استلام') || btnText.includes('استلم')) && btn.id !== 'collect-all-btn' && !btnText.includes('الكل') && !btnText.includes('تم')) {
+            ui.playSound(ui.sfx.coinsCollect);
+            if (typeof ui.spawnCoinShower === 'function') ui.spawnCoinShower();
         }
+        // ملاحظة: لم نضع "جمع الكل" هنا، لأننا سنشغله عند إغلاق النافذة في الخطوة التالية!
     }
 
     while (target && target !== document) {
         if (target.id && ui.clickHandlers.has(target.id)) { ui.clickHandlers.get(target.id)(e); return; }
         target = target.parentNode;
     }
-// ... (يستمر باقي الكود كما هو أسفل هذا)
+// ... (باقي الكود كما هو)
 
     const actionElement = e.target.closest('[data-action]');
     if (actionElement) {
