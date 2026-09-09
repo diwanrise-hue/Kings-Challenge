@@ -163,14 +163,11 @@ export const ui = {
     playSound(audio) {
         if (!audio) return;
         try {
-            // 🌟 نظام الاستبدال الذكي المُحسن: يتدخل فقط إذا كانت نافذة المهام "مفتوحة" فعلياً 🌟
+            // 🌟 منع تشغيل صوت الفوز إذا كان اللاعب يضغط على زر المهام لتجنب التداخل
             if (audio === this.sfx.win) {
-                const popupModal = document.getElementById('custom-popup-modal');
                 const popupMsg = document.getElementById('custom-popup-msg');
-                
-                // التأكد أن النافذة ظاهرة على الشاشة وتحتوي على كلمة جمع
-                if (popupModal && popupModal.style.display !== 'none' && popupMsg && popupMsg.innerHTML.includes('جمع')) {
-                    audio = this.sfx.coinsCollect; 
+                if (popupMsg && (popupMsg.innerHTML.includes('جمع') || popupMsg.innerHTML.includes('استلام'))) {
+                    return; // نوقف صوت الفوز لأن زر الاستلام سيعزف صوت العملات
                 }
             }
 
@@ -180,7 +177,7 @@ export const ui = {
             if (playPromise !== undefined) { playPromise.catch(() => { }); }
         } catch(e) {}
     },
- 
+
     getVal(id, defaultValue = "") {
         const el = this.getEl(id);
         return el ? el.value : defaultValue;
@@ -192,6 +189,59 @@ export const ui = {
         if (cssText) el.style.cssText = cssText;
         if (textContent) el.textContent = textContent;
         return el;
+    },
+  
+    // 🌟 نظام نافورة العملات البصري (VFX) 🌟
+    injectCoinVFXStyles() {
+        if (document.getElementById('coin-vfx-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'coin-vfx-styles';
+        style.innerHTML = `
+            @keyframes coinFountain {
+                0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
+                40% { transform: translate(calc(-50% + var(--tx)), calc(-50% - var(--ty))) scale(1.3) rotate(var(--rot)); opacity: 1; }
+                100% { transform: translate(calc(-50% + var(--tx) * 1.5), 100vh) scale(0.9) rotate(calc(var(--rot) * 2)); opacity: 0; }
+            }
+            .vfx-coin {
+                position: fixed;
+                top: 50%; left: 50%;
+                width: 35px; height: 35px;
+                pointer-events: none;
+                z-index: 99999999;
+                animation: coinFountain 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+                filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));
+            }
+        `;
+        document.head.appendChild(style);
+    },
+
+    spawnCoinShower() {
+        this.injectCoinVFXStyles();
+        const coinPath = window.location.pathname.includes('/dama/') ? '../Photo/coin.webp' : 'Photo/coin.webp';
+        
+        // إنشاء 30 عملة تتطاير في اتجاهات عشوائية
+        for (let i = 0; i < 30; i++) {
+            let coin = document.createElement('img');
+            coin.src = coinPath;
+            coin.className = 'vfx-coin';
+            
+            // حساب مسار فيزيائي عشوائي لكل عملة
+            let tx = (Math.random() - 0.5) * 400; // انتشار يمين ويسار
+            let ty = (Math.random() * 300) + 100; // ارتفاع للأعلى
+            let rot = (Math.random() - 0.5) * 720; // دوران عشوائي
+            
+            coin.style.setProperty('--tx', `${tx}px`);
+            coin.style.setProperty('--ty', `${ty}px`);
+            coin.style.setProperty('--rot', `${rot}deg`);
+            
+            // تأخير بسيط لبعض العملات لتبدو مثل النافورة
+            coin.style.animationDelay = `${Math.random() * 0.2}s`;
+            
+            document.body.appendChild(coin);
+            
+            // تنظيف الرام بعد انتهاء الحركة
+            setTimeout(() => coin.remove(), 1600);
+        }
     },
 
     // 🌟 (تحديث جديد: نظام تأجيل جوائز الترقية Pending Rank Ups)
@@ -406,20 +456,53 @@ export const ui = {
         return { level, rank, rankIcon, progressXp, requiredXp, percentage, score: currentScore };
     },
 
-     showLevelUpModal(newLevel, title, rewardsHtml) {
+   // 🌟 تحديث نافذة الرتب (Rank Up)
+    checkAndShowPendingRankUps() {
+        if (gameState.pendingRankUpData) {
+            setTimeout(() => {
+                const data = gameState.pendingRankUpData;
+                const rankNames = Array.isArray(data.ranks) ? data.ranks.join(' و ') : data.ranks;
+                let msg = `لقد وصلت إلى رتبة:<br><span style="color:#ffd700; font-size:18px; display:block; margin:5px 0;">${rankNames}</span>الجوائز المحصلة:<br><span style="color:#34c759; font-weight:bold; font-size:16px;">+${data.tokens} <img src="../Photo/coin.webp" class="app-coin-icon"></span>`;
+                
+                // 1. تشغيل صوت النجاح والفوز عند ظهور النافذة
+                this.playSound(this.sfx.win);
+
+                // 2. ربط زر الاستلام بصوت العملات والمؤثر البصري
+                this.showCustomAlert(msg, `ترقية الرتبة 🎖️`, () => {
+                    this.playSound(this.sfx.coinsCollect);
+                    this.spawnCoinShower();
+                }, false, null, "استلام!");
+                
+                gameState.pendingRankUpData = null; 
+            }, 800); 
+        }
+    },
+
+    // 🌟 تحديث نافذة المستوى (Level Up)
+    showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
         this.setTxt('level-up-title', `لقب: ${title}`);
         const rewardsContainer = this.getEl('level-up-rewards');
         if (rewardsContainer) rewardsContainer.innerHTML = rewardsHtml;
         
-        this.playSound(sfx.win);
-        // 🌟 تشغيل صوت العملات مباشرة بعد صوت الفوز بنصف ثانية
-        setTimeout(() => { this.playSound(sfx.coinsCollect); }, 400);
+        // 1. تشغيل صوت النجاح والفوز عند ظهور النافذة
+        this.playSound(this.sfx.win);
 
         const modalEl = this.getEl('level-up-modal');
-        if (modalEl) modalEl.style.display = 'flex';
+        if (modalEl) {
+            modalEl.style.display = 'flex';
+            
+            // 2. البحث عن زر "استلام الجوائز" وربطه بصوت العملات والمؤثر البصري
+            const claimBtns = modalEl.querySelectorAll('button');
+            claimBtns.forEach(btn => {
+                btn.onclick = () => {
+                    this.playSound(this.sfx.coinsCollect);
+                    this.spawnCoinShower();
+                    modalEl.style.display = 'none';
+                };
+            });
+        }
     },
-
 
     // 🌟 (تحديث جديد: الضبط الفيزيائي الدقيق لعجلة الحظ وتسريع الرسوميات بـ translateZ)
     animateLuckySpin(prizeIndex, onComplete) {
@@ -3046,12 +3129,24 @@ ui.onClick('board', e => {
 
 document.addEventListener('click', (e) => {
     let target = e.target;
+    
+    // 🌟 التقاط أي زر يحتوي على كلمة "جمع" أو "استلام" لتشغيل صوت ومؤثر العملات 🌟
+    if (target.tagName === 'BUTTON') {
+        const btnText = target.innerText || target.textContent || '';
+        if (target.id === 'collect-all-btn' || btnText.includes('جمع') || btnText.includes('استلام') || btnText.includes('استلم')) {
+            // استثناء أزرار الخروج أو الإلغاء إذا احتوت صدفة على هذه الكلمات
+            if (!btnText.includes('إلغاء') && !btnText.includes('خروج')) {
+                ui.playSound(ui.sfx.coinsCollect);
+                if (typeof ui.spawnCoinShower === 'function') ui.spawnCoinShower();
+            }
+        }
+    }
 
     while (target && target !== document) {
         if (target.id && ui.clickHandlers.has(target.id)) { ui.clickHandlers.get(target.id)(e); return; }
         target = target.parentNode;
     }
-// ... (باقي الكود كما هو)
+// ... (يستمر باقي الكود كما هو أسفل هذا)
 
     const actionElement = e.target.closest('[data-action]');
     if (actionElement) {
