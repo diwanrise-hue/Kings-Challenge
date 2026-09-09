@@ -1130,7 +1130,7 @@ export const ui = {
         });
     },
 
-      startTurnTimer() {
+          startTurnTimer() {
         if (!gameState.isOnlineMode) return;
         
         sfx.clock.pause(); sfx.clock.currentTime = 0;
@@ -1140,10 +1140,11 @@ export const ui = {
 
         let hasPlayedTick = false; 
         
-        // 🌟 الإصلاح: نعتمد على الثواني المتبقية مباشرة (تم إصلاح الأقواس هنا)
+        // 🌟 الإصلاح: نعتمد على الثواني المتبقية مباشرة
         if (typeof gameState.turnTimeLeft === 'undefined' || gameState.turnTimeLeft === null) {
             gameState.turnTimeLeft = 45;
         }
+        // (تم إزالة القوس الزائد الذي كان يسبب انهيار الملف هنا)
 
         const updateTimerDisplay = () => {
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
@@ -1180,7 +1181,6 @@ export const ui = {
         updateTimerDisplay(); 
         gameState.turnTimerInterval = setInterval(updateTimerDisplay, 1000);
     },
-
 
     startTurn() {
         const tInd = this.getEl('turn-indicator'); if (!tInd) return;
