@@ -482,6 +482,24 @@ window.renderRankTrack = function() {
 
     if (!container || !fillBar) return;
 
+    // 🌟 التحكم الديناميكي بأطراف الشريط لمنع تمدده في الأطراف المغلقة 🌟
+    const trackBg = document.querySelector('.mm-track-bg');
+    if (trackBg) {
+        // قطع الزيادة من اليسار إذا كنا في أول رتبة (برونزي)
+        if (window.currentViewedRankIndex === 0) {
+            trackBg.style.setProperty('left', '0px', 'important');
+        } else {
+            trackBg.style.setProperty('left', '-15px', 'important');
+        }
+
+        // قطع الزيادة من اليمين إذا كنا في آخر رتبة (أسطوري)
+        if (window.currentViewedRankIndex === RANK_SYSTEM.length - 1) {
+            trackBg.style.setProperty('right', '0px', 'important');
+        } else {
+            trackBg.style.setProperty('right', '-15px', 'important');
+        }
+    }
+
     const rankData = RANK_SYSTEM[window.currentViewedRankIndex];
     const romanTiers = ["I", "II", "III", "IV"];
     
@@ -505,7 +523,6 @@ window.renderRankTrack = function() {
 
     fillBar.style.width = `${fillPercent}%`;
 
-    // رسم النقاط الـ 4 والجوائز بناءً على النقاط المحددة مسبقاً (tierScores)
     for (let i = 0; i < 4; i++) {
         const requiredScoreForTier = rankData.tierScores[i];
         
@@ -520,15 +537,16 @@ window.renderRankTrack = function() {
         let tierRewardText = (rankData.tierRewards && rankData.tierRewards[i]) ? rankData.tierRewards[i] : `50 <img src="../Photo/coin.webp" class="app-coin-icon">`;
         let opacityStyle = isReached ? 'opacity: 0.45; filter: grayscale(40%);' : 'opacity: 1; filter: none;';
         
-        let visualPosition = i * 33.33; 
-        
+        let checkmark = isReached ? `<div style="position: absolute; top: -6px; left: -8px; background: #0a84ff; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; box-shadow: 0 0 4px rgba(10,132,255,0.8); z-index: 999;">✓</div>` : '';
+
         let nodeScoreInRank = requiredScoreForTier - rankData.min;
         let nodePercentage = Math.min(100, Math.max(0, (nodeScoreInRank / rankRange) * 100));
         
-        // 🌟 تم تنظيف هذا الجزء من الـ Checkmark العشوائي ليعمل الـ CSS بسلام 🌟
         let rewardDisplayHtml = `
             <div style="display: flex !important; flex-direction: column; align-items: center; width: 100%; visibility: visible !important; ${opacityStyle}">
-                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 3px 0 2px 0; display: block !important;"></div>
+                <div style="width: 28px; height: 2px; background: rgba(255, 255, 255, 0.3); margin: 3px 0 2px 0; position: relative; display: block !important;">
+                    ${checkmark}
+                </div>
                 <span style="display: block !important; color: #ffd700; font-weight: 800; font-size: 11px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; visibility: visible !important; margin-top: 2px;">
                     ${tierRewardText}
                 </span>
@@ -545,9 +563,11 @@ window.renderRankTrack = function() {
         `;
     }
 
-
+    container.style.position = 'relative';
+    container.style.height = '70px'; 
     container.innerHTML = html;
 };
+
 
 
 // ==========================================
