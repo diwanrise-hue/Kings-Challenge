@@ -1136,7 +1136,7 @@ export const ui = {
         });
     },
 
-    startTurnTimer() {
+      startTurnTimer() {
         if (!gameState.isOnlineMode) return;
         
         sfx.clock.pause(); sfx.clock.currentTime = 0;
@@ -1146,10 +1146,15 @@ export const ui = {
 
         let hasPlayedTick = false; 
         
-        const updateTimerDisplay = () => {
-            if (gameState.turnEndTime) { gameState.turnTimeLeft = Math.max(0, Math.ceil((gameState.turnEndTime - Date.now()) / 1000)); } 
-            else { gameState.turnTimeLeft--; }
+        // 🌟 الإصلاح: نعتمد على الثواني المتبقية مباشرة ونلغي مقارنة ساعة الهاتف بالسيرفر
+        if (typeof gameState.turnTimeLeft === 'undefined' || gameState.turnTimeLeft === null) {
+            gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+            gameState.turnTimeLeft = 45;
+            ui.renderBoard();
 
+        }
+
+        const updateTimerDisplay = () => {
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
             
             if (gameState.turnTimeLeft <= 10 && gameState.turnTimeLeft > 0 && !hasPlayedTick) {
@@ -1174,12 +1179,17 @@ export const ui = {
                     }, 1500); 
                 }
             }
+            
+            // إنقاص العداد ثانية بثانية محلياً
+            if (gameState.turnTimeLeft > 0) {
+                gameState.turnTimeLeft--;
+            }
         };
 
-        if (!gameState.turnEndTime) { gameState.turnTimeLeft = 45; }
         updateTimerDisplay(); 
         gameState.turnTimerInterval = setInterval(updateTimerDisplay, 1000);
     },
+
 
     startTurn() {
         const tInd = this.getEl('turn-indicator'); if (!tInd) return;
