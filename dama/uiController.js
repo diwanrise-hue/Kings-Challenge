@@ -3222,6 +3222,21 @@ if (!document.getElementById('forced-overlay-style')) {
 }
 
 window.addEventListener('message', (event) => {
+    // 🌟 التقاط إشعار إغلاق النافذة من الواجهة الرئيسية (Hub)
+    if (event.data && event.data.type === 'GLOBAL_POPUP_CLOSED') {
+        const msg = event.data.content || '';
+        
+        // إذا ضغط اللاعب "حسناً" وكانت النافذة تحتوي على جائزة عملات لجمع الكل
+        if (event.data.isOk && (msg.includes('تم جمع') || msg.includes('نجاح')) && msg.includes('coin.webp')) {
+            if (window.ui && typeof window.ui.playSound === 'function') {
+                window.ui.playSound(window.ui.sfx.coinsCollect);
+                if (typeof window.ui.spawnCoinShower === 'function') {
+                    window.ui.spawnCoinShower();
+                }
+            }
+        }
+    }
+
     if (event.data && event.data.type === 'PROFILE_UPDATED') {
         const profile = event.data.profile;
         if (profile) {
