@@ -55,17 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
         /* 🖼️ كلاسات إطارات البطاقة الكاملة (V23 و 45) */
         .vip-card-bg-frame {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: fill; /* لجعل الإطار يغطي حواف البطاقة بالكامل */
-            z-index: 5; /* ليكون فوق خلفية البطاقة الأساسية ولكن تحت النصوص */
-            pointer-events: none; /* لمنع الإطار من حظر النقرات */
-            border-radius: 10px; /* ليتناسب مع زوايا البطاقة */
+            /* 🌟 إصلاح الحجم: تكبير الإطار وإزاحته قليلاً ليغطي الإطار الأساسي بالكامل 🌟 */
+            top: -4px;
+            left: -4px;
+            width: calc(100% + 8px);
+            height: calc(100% + 8px);
+            object-fit: fill; 
+            z-index: 1; /* الإطار في الطبقة السفلية */
+            pointer-events: none; 
+            border-radius: 12px; 
         }
         .vip-card-bg-frame-top {
-            z-index: 6; /* للإطار الثاني في حال دمج V23 و 45 معاً */
+            z-index: 2; /* للإطار الثاني في حال دمج V23 و 45 معاً */
         }
 
         /* 🎨 تأثيرات اللهب */
@@ -92,8 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             badgeClass = 'vip-badge-hub';
             parent = parentNode;
         } else {
-            matchCardContainer = avatarDiv.closest('.match-players-flex');
-            if (!matchCardContainer) return;
+            matchCardContainer = avatarDiv.closest('.match-players-flex') || parentNode; // ضمان إيجاد حاوية البطاقة
             badgeClass = (avatarContainerId === 'card-my-avatar') ? 'vip-badge-match-me' : 'vip-badge-match-opp';
             parent = matchCardContainer; 
         }
@@ -160,6 +160,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     parent.insertBefore(frameImg, parent.firstChild);
                 });
             }
+
+            // 🌟 إصلاح مشكلة اختفاء معلومات اللاعب (الاسم، الصورة، اللقب) 🌟
+            // نقوم بالمرور على جميع العناصر داخل البطاقة ونعطيها z-index أعلى لتظهر فوق الإطار الجديد
+            Array.from(parent.children).forEach(child => {
+                // التأكد من أننا لا نرفع الإطارات نفسها
+                if (!child.classList.contains('vip-card-bg-frame')) {
+                    // إذا لم يكن للعنصر position محدد مسبقاً، نعطيه relative ليتمكن من استخدام الـ z-index
+                    const compStyle = window.getComputedStyle(child);
+                    if (compStyle.position === 'static') {
+                        child.style.position = 'relative';
+                    }
+                    // إعطاء أولوية العرض للمحتويات لتكون فوق الإطار (الذي يحمل z-index: 1 و 2)
+                    child.style.zIndex = '10';
+                }
+            });
         }
     };
 
