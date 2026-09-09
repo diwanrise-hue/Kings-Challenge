@@ -1612,7 +1612,10 @@ export const ui = {
         });
         
         if (gameState.isOnlineMode && !gameState.isBotOpponent && window.currentOpponentId) {
-            const addFriendBtn = this.makeEl('button', 'modal-btn-add-friend', "flex: 1; background: rgba(48,209,88,0.1); color: #34c759; border: 1px solid rgba(48,209,88,0.3); border-radius: 14px; height: 42px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;", "إضافة صديق");
+           const addFriendBtn = this.makeEl('button', 'modal-btn-add-friend', "flex: 1; background: rgba(48,209,88,0.1); color: #34c759; border: 1px solid rgba(48,209,88,0.3); border-radius: 14px; height: 42px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;", "إضافة صديق");
+
+            addFriendBtn.id = 'modal-btn-add-friend';
+          
             addFriendBtn.onmouseenter = () => addFriendBtn.style.transform = 'scale(0.96)';
             addFriendBtn.onmouseleave = () => addFriendBtn.style.transform = 'scale(1)';
 
