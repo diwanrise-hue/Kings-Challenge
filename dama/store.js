@@ -1180,10 +1180,13 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         return num;
     }
 
-    function updatePriceDisplay() {
+  function updatePriceDisplay() {
         if(!costEl) return;
         let ticketDiscount = (discountSelect && discountContainer && discountContainer.style.display !== 'none') ? (parseInt(discountSelect.value) || 0) : 0;
         let priceHtml = '';
+        
+        // 🌟 تحديد المسار الصحيح للصورة بناءً على مكان تواجد اللاعب (في اللوبي أم داخل اللعبة)
+        const coinPath = window.location.pathname.includes('/dama/') ? '../Photo/coin.webp' : 'Photo/coin.webp';
         
         if (itemType !== 'popularity' && (passiveDiscount > 0 || ticketDiscount > 0) && price > 0) {
             let totalDiscount = passiveDiscount + ticketDiscount;
@@ -1194,14 +1197,15 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
             priceHtml = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:14px; text-decoration:line-through; color:#a1a1aa;">${formatCompact(price)}</span>
-                    <span style="color:#34c759;">${formatCompact(finalPrice)} <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="font-size:12px;">(خصم ${totalDiscount}%)</span></span>
+                    <span style="color:#34c759;">${formatCompact(finalPrice)} <img src="${coinPath}" class="app-coin-icon"> <span style="font-size:12px;">(خصم ${totalDiscount}%)</span></span>
                 </div>
             `;
         } else {
-            priceHtml = `${formatCompact(price)} <img src="../Photo/coin.webp" class="app-coin-icon">`;
+            priceHtml = `${formatCompact(price)} <img src="${coinPath}" class="app-coin-icon">`;
         }
         costEl.innerHTML = priceHtml;
     }
+
 
     if(discountSelect) discountSelect.onchange = updatePriceDisplay;
     updatePriceDisplay();
