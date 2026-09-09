@@ -609,49 +609,35 @@ window.renderRankTrack = function() {
 };
 
 
+  
 // ==========================================
-// 🎡 أكواد التمرير للكروت (Carousel)
+// 🎡 أكواد التمرير للكروت (Carousel) - النسخة فائقة الأداء (Zero-Lag)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const scroller = document.getElementById('mm-carousel-scroller');
     const cards = scroller ? scroller.querySelectorAll('.mm-card') : [];
     if (!scroller || cards.length === 0) return;
 
-    let isScrolling;
-    
-    const updateActiveCard = () => {
-        const scrollerRect = scroller.getBoundingClientRect();
-        const scrollerCenter = scrollerRect.left + (scrollerRect.width / 2);
-        
-        let closestCard = null;
-        let closestDistance = Infinity;
-
-        const distances = Array.from(cards).map(card => {
-            const rect = card.getBoundingClientRect();
-            const cardCenter = rect.left + (rect.width / 2);
-            return { card, distance: Math.abs(scrollerCenter - cardCenter) };
-        });
-
-        distances.forEach(item => {
-            if (item.distance < closestDistance) {
-                closestDistance = item.distance;
-                closestCard = item.card;
-            }
-        });
-
-        cards.forEach(c => {
-            if (c === closestCard) {
-                if (!c.classList.contains('active')) c.classList.add('active');
-            } else {
-                if (c.classList.contains('active')) c.classList.remove('active');
-            }
-        });
+    // 🌟 استخدام IntersectionObserver بدلاً من حدث scroll المزعج لإنهاء الـ Layout Thrashing
+    const observerOptions = {
+        root: scroller,
+        rootMargin: '0px',
+        threshold: 0.6 // البطاقة تعتبر نشطة إذا ظهر 60% منها في منتصف الشاشة
     };
 
-    scroller.addEventListener('scroll', () => {
-        if (isScrolling) window.cancelAnimationFrame(isScrolling);
-        isScrolling = window.requestAnimationFrame(updateActiveCard);
-    }, { passive: true });
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // إزالة التفعيل عن كل البطاقات
+                cards.forEach(c => c.classList.remove('active'));
+                // تفعيل البطاقة التي أصبحت في المنتصف
+                entry.target.classList.add('active');
+            }
+        });
+    }, observerOptions);
+
+    // مراقبة جميع البطاقات
+    cards.forEach(card => observer.observe(card));
 
     const updateMatchmakingLocks = () => {
         let profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
@@ -678,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('matchmaking-stakes-modal');
     let initialScrollDone = false;
     
-    const observer = new MutationObserver((mutations) => {
+    const mutationObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
                 updateMatchmakingLocks();
@@ -704,7 +690,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         setTimeout(() => {
                             scroller.style.scrollBehavior = 'auto'; 
-                            updateActiveCard();
                         }, 300);
                         
                         initialScrollDone = true; 
@@ -716,8 +701,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+    if (modal) mutationObserver.observe(modal, { attributes: true, attributeFilter: ['style'] });
 });
+
 
 window.scrollMmCarousel = function(direction) {
     const scroller = document.getElementById('mm-carousel-scroller');
