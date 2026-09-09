@@ -901,10 +901,11 @@ export const ui = {
         gameState.pieceHistories = {};
         
         gameState.currentOpponentProfileFrame = null;
+        gameState.isTutorialMode = false; // 🌟 تصفير الوضع التعليمي عند الخروج من المباراة
 
         this.toggleOfflineInMatchUI(false); this.toggleOnlineUILayout(false); 
         document.body.classList.remove('game-active');
-        
+      
         this.setDisplay('spectator-stats-container', 'none');
         this.setDisplay('match-gift-btn-p2', 'none');
         this.setTxt('reset-btn-txt', 'لعبة جديدة');
@@ -1646,10 +1647,13 @@ export const ui = {
             if (igpXpFill) igpXpFill.style.width = `${lvlInfo.percentage}%`;
             if (igpXpText) igpXpText.textContent = `${lvlInfo.progressXp} / ${lvlInfo.requiredXp} XP`;
 
-            const hintCounter = document.getElementById('hint-counter');
+           const hintCounter = document.getElementById('hint-counter');
             if (hintCounter) {
-                if (gameState.isTutorialMode && !gameState.isOnlineMode) {
-                    hintCounter.textContent = "مجاني"; hintCounter.style.fontSize = "8px"; hintCounter.style.padding = "2px 4px";
+                // 🌟 الإصلاح هنا: أضفنا `gameState.isGameActive` لضمان ظهور "مجاني" أثناء اللعب فقط!
+                if (gameState.isGameActive && gameState.isTutorialMode && !gameState.isOnlineMode) {
+                    hintCounter.textContent = "مجاني"; 
+                    hintCounter.style.fontSize = "8px"; 
+                    hintCounter.style.padding = "2px 4px";
                 } else if (gameState.userProfile) {
                     if (gameState.userProfile.hints === undefined) gameState.userProfile.hints = 5;
                     
@@ -1661,9 +1665,11 @@ export const ui = {
                         hintCounter.textContent = gameState.userProfile.hints; 
                     }
                     
-                    hintCounter.style.fontSize = "11px"; hintCounter.style.padding = "2px 6px";
+                    hintCounter.style.fontSize = "11px"; 
+                    hintCounter.style.padding = "2px 6px";
                 }
             }
+
 
             const fList = this.getEl('igp-friends-list');
             if (fList) {
