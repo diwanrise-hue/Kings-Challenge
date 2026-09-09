@@ -190,26 +190,45 @@ export const ui = {
         if (textContent) el.textContent = textContent;
         return el;
     },
-  
-    // 🌟 نظام نافورة العملات البصري (VFX) 🌟
+
+    // 🌟 نظام نافورة العملات البصري (VFX) - النسخة السينمائية الناعمة 🌟
     injectCoinVFXStyles() {
-        if (document.getElementById('coin-vfx-styles')) return;
+        if (document.getElementById('custom-coin-vfx-styles')) return;
         const style = document.createElement('style');
-        style.id = 'coin-vfx-styles';
+        style.id = 'custom-coin-vfx-styles';
+        // قمنا بإضافة إطارات (40% و 50% و 60%) لعمل "استدارة ناعمة" وتعليق في الهواء عند القمة
         style.innerHTML = `
-            @keyframes coinFountain {
-                0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
-                40% { transform: translate(calc(-50% + var(--tx)), calc(-50% - var(--ty))) scale(1.3) rotate(var(--rot)); opacity: 1; }
-                100% { transform: translate(calc(-50% + var(--tx) * 1.5), 100vh) scale(0.9) rotate(calc(var(--rot) * 2)); opacity: 0; }
+            @keyframes coinFountainSmooth {
+                0% { 
+                    transform: translate(-50%, -50%) scale(0.2) rotate(0deg); 
+                    opacity: 0; 
+                }
+                10% { 
+                    opacity: 1; 
+                }
+                40% { /* الاقتراب من القمة (بداية الاستدارة) */
+                    transform: translate(calc(-50% + (var(--tx) * 0.6)), calc(-50% - (var(--ty) * 0.95))) scale(1.3) rotate(calc(var(--rot) * 0.6)); 
+                }
+                50% { /* القمة (لحظة التعليق في الهواء) */
+                    transform: translate(calc(-50% + (var(--tx) * 0.8)), calc(-50% - var(--ty))) scale(1.4) rotate(var(--rot)); 
+                }
+                60% { /* بداية النزول (إكمال القوس بشكل ناعم) */
+                    transform: translate(calc(-50% + var(--tx)), calc(-50% - (var(--ty) * 0.95))) scale(1.3) rotate(calc(var(--rot) * 1.4)); 
+                }
+                100% { /* السقوط المتسارع للأسفل */
+                    transform: translate(calc(-50% + (var(--tx) * 1.5)), 120vh) scale(0.9) rotate(calc(var(--rot) * 3)); 
+                    opacity: 1; 
+                }
             }
-            .vfx-coin {
+            .vfx-coin-smooth {
                 position: fixed;
                 top: 50%; left: 50%;
-                width: 35px; height: 35px;
+                width: 38px; height: 38px; /* تكبير بسيط لحجم العملة */
                 pointer-events: none;
                 z-index: 99999999;
-                animation: coinFountain 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-                filter: drop-shadow(0 5px 8px rgba(0,0,0,0.6));
+                /* زيادة الوقت إلى 2.4 ثانية وجعل الحركة تبدأ وتنتهي بنعومة (ease-in-out) */
+                animation: coinFountainSmooth 2.4s ease-in-out forwards;
+                filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));
             }
         `;
         document.head.appendChild(style);
@@ -219,30 +238,31 @@ export const ui = {
         this.injectCoinVFXStyles();
         const coinPath = window.location.pathname.includes('/dama/') ? '../Photo/coin.webp' : 'Photo/coin.webp';
         
-        // إنشاء 30 عملة تتطاير في اتجاهات عشوائية
-        for (let i = 0; i < 30; i++) {
+        // إنشاء 35 عملة تتطاير في اتجاهات عشوائية وبمسار ناعم
+        for (let i = 0; i < 35; i++) {
             let coin = document.createElement('img');
             coin.src = coinPath;
-            coin.className = 'vfx-coin';
+            coin.className = 'vfx-coin-smooth';
             
-            // حساب مسار فيزيائي عشوائي لكل عملة
-            let tx = (Math.random() - 0.5) * 400; // انتشار يمين ويسار
-            let ty = (Math.random() * 300) + 100; // ارتفاع للأعلى
-            let rot = (Math.random() - 0.5) * 720; // دوران عشوائي
+            // حساب مسار فيزيائي واسع ومريح للعين
+            let tx = (Math.random() - 0.5) * 600; // انتشار أعرض لليمين واليسار
+            let ty = (Math.random() * 350) + 150; // قفزة أعلى وأكثر وضوحاً
+            let rot = (Math.random() - 0.5) * 1080; // دوران بطيء وجميل أثناء الطيران
             
             coin.style.setProperty('--tx', `${tx}px`);
             coin.style.setProperty('--ty', `${ty}px`);
             coin.style.setProperty('--rot', `${rot}deg`);
             
-            // تأخير بسيط لبعض العملات لتبدو مثل النافورة
-            coin.style.animationDelay = `${Math.random() * 0.2}s`;
+            // تأخير متدرج (من 0 إلى 0.4 ثانية) لتبدو كتدفق مستمر وليس دفعة واحدة
+            coin.style.animationDelay = `${Math.random() * 0.4}s`;
             
             document.body.appendChild(coin);
             
-            // تنظيف الرام بعد انتهاء الحركة
-            setTimeout(() => coin.remove(), 1600);
+            // تنظيف الرام بعد انتهاء الحركة (2.4 ثانية الأنميشن + 0.4 ثانية التأخير)
+            setTimeout(() => coin.remove(), 2900);
         }
     },
+
 
     // 🌟 (تحديث جديد: نظام تأجيل جوائز الترقية Pending Rank Ups)
     checkAndShowPendingRankUps() {
