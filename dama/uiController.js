@@ -1140,9 +1140,12 @@ export const ui = {
         
         // 🌟 الإصلاح: نعتمد على الثواني المتبقية مباشرة ونلغي مقارنة ساعة الهاتف بالسيرفر
         if (typeof gameState.turnTimeLeft === 'undefined' || gameState.turnTimeLeft === null) {
-            gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
-            gameState.turnTimeLeft = 45;
-            ui.renderBoard();
+        gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+        gameState.turnTimeLeft = 45; // 🌟 إجبار المتغير على 45
+        if (gameState.isOnlineMode) {
+        this.startTurnTimer(); // 🌟 السحر هنا: أمر إجباري بإعادة تشغيل العداد البصري من الصفر!
+    }
+
 
         }
 
