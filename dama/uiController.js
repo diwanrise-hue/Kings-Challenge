@@ -163,12 +163,24 @@ export const ui = {
     playSound(audio) {
         if (!audio) return;
         try {
-            audio.pause(); audio.currentTime = 0; 
+            // 🌟 نظام الاستبدال الذكي المُحسن: يتدخل فقط إذا كانت نافذة المهام "مفتوحة" فعلياً 🌟
+            if (audio === this.sfx.win) {
+                const popupModal = document.getElementById('custom-popup-modal');
+                const popupMsg = document.getElementById('custom-popup-msg');
+                
+                // التأكد أن النافذة ظاهرة على الشاشة وتحتوي على كلمة جمع
+                if (popupModal && popupModal.style.display !== 'none' && popupMsg && popupMsg.innerHTML.includes('جمع')) {
+                    audio = this.sfx.coinsCollect; 
+                }
+            }
+
+            audio.pause(); 
+            audio.currentTime = 0; 
             const playPromise = audio.play();
             if (playPromise !== undefined) { playPromise.catch(() => { }); }
         } catch(e) {}
     },
-    
+ 
     getVal(id, defaultValue = "") {
         const el = this.getEl(id);
         return el ? el.value : defaultValue;
@@ -1386,7 +1398,15 @@ export const ui = {
         const oldModal = this.getEl('custom-results-modal-container');
         if (oldModal) oldModal.remove();
 
+        // 1. تشغيل صوت الفوز (الأساسي) فوراً
         this.playSound(sfx.win);
+        
+        // 2. التحقق مما إذا كان اللاعب قد فاز أو تعادل (ليحصل على عملات)
+        const isWinnerForSound = winnerColor === (gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor);
+        if (isWinnerForSound || winnerColor === 'draw') {
+            // 🌟 تشغيل صوت العملات بعد (0.6 ثانية) ليتداخل بشكل موسيقي ومريح مع نهاية نغمة الفوز!
+            setTimeout(() => { this.playSound(sfx.coinsCollect); }, 600);
+        }
         
         if (typeof window.closeAppModal === 'function') window.closeAppModal('game-over-modal');
         else this.setDisplay('game-over-modal', 'none');
@@ -3026,11 +3046,6 @@ ui.onClick('board', e => {
 
 document.addEventListener('click', (e) => {
     let target = e.target;
-    
-    // 🌟 تشغيل صوت العملات عند الضغط على زر "جمع الكل" أو أي زر يحتوي على كلمة "جمع"
-    if (target.id === 'collect-all-btn' || (target.tagName === 'BUTTON' && target.innerText && target.innerText.includes('جمع'))) {
-        ui.playSound(ui.sfx.coinsCollect);
-    }
 
     while (target && target !== document) {
         if (target.id && ui.clickHandlers.has(target.id)) { ui.clickHandlers.get(target.id)(e); return; }
