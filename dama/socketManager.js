@@ -1287,11 +1287,11 @@ export const socketManager = {
                 }
             }
             
-            gameState.currentTurn = data.nextTurn;
-            // 🌟 استلام الثواني المتبقية بدقة من السيرفر
-            gameState.turnTimeLeft = data.secondsLeft || 45; 
-            if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
-
+          gameState.currentTurn = data.nextTurn;
+          gameState.turnTimeLeft = 45; // 🌟 تصفير الوقت
+          if (window.ui && typeof window.ui.startTurnTimer === 'function') {
+          window.ui.startTurnTimer(); // 🌟 إعادة تشغيل العداد فور استقبال حركة الخصم
+    }
             ui.renderBoard();
             
             try {
