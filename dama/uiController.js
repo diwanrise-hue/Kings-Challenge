@@ -103,8 +103,12 @@ export const sfx = {
     kingCreated: new Audio('king_created.mp3'),
     win: new Audio('win.mp3'),
     clock: new Audio('clock.mp3'),
-    spinTick: new Audio('spin_tick.mp3') 
+    spinTick: new Audio('spin_tick.mp3'),
+    // 🌟 إضافة صوت جمع العملات الجديد بالمسار المباشر 🌟
+    coinsCollect: new Audio('https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/coinscollect.mp3')
 };
+// 🌟 تحديد مستوى صوت العملات ليكون واضحاً
+sfx.coinsCollect.volume = 0.8;
 
 window.isMatchRunning = false;
 
@@ -179,17 +183,22 @@ export const ui = {
     },
 
     // 🌟 (تحديث جديد: نظام تأجيل جوائز الترقية Pending Rank Ups)
-     checkAndShowPendingRankUps() {
+    checkAndShowPendingRankUps() {
         if (gameState.pendingRankUpData) {
             setTimeout(() => {
                 const data = gameState.pendingRankUpData;
                 const rankNames = Array.isArray(data.ranks) ? data.ranks.join(' و ') : data.ranks;
                 let msg = `لقد وصلت إلى رتبة:<br><span style="color:#ffd700; font-size:18px; display:block; margin:5px 0;">${rankNames}</span>الجوائز المحصلة:<br><span style="color:#34c759; font-weight:bold; font-size:16px;">+${data.tokens} <img src="../Photo/coin.webp" class="app-coin-icon"></span>`;
+                
+                // 🌟 تشغيل صوت جمع العملات عند ظهور نافذة الترقية
+                this.playSound(sfx.coinsCollect);
+
                 this.showCustomAlert(msg, `ترقية الرتبة 🎖️`, null, false, null, "استلام!");
                 gameState.pendingRankUpData = null; 
             }, 800); 
         }
     },
+
 
 
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
@@ -385,15 +394,20 @@ export const ui = {
         return { level, rank, rankIcon, progressXp, requiredXp, percentage, score: currentScore };
     },
 
-    showLevelUpModal(newLevel, title, rewardsHtml) {
+     showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
         this.setTxt('level-up-title', `لقب: ${title}`);
         const rewardsContainer = this.getEl('level-up-rewards');
         if (rewardsContainer) rewardsContainer.innerHTML = rewardsHtml;
+        
         this.playSound(sfx.win);
+        // 🌟 تشغيل صوت العملات مباشرة بعد صوت الفوز بنصف ثانية
+        setTimeout(() => { this.playSound(sfx.coinsCollect); }, 400);
+
         const modalEl = this.getEl('level-up-modal');
         if (modalEl) modalEl.style.display = 'flex';
     },
+
 
     // 🌟 (تحديث جديد: الضبط الفيزيائي الدقيق لعجلة الحظ وتسريع الرسوميات بـ translateZ)
     animateLuckySpin(prizeIndex, onComplete) {
@@ -3012,10 +3026,17 @@ ui.onClick('board', e => {
 
 document.addEventListener('click', (e) => {
     let target = e.target;
+    
+    // 🌟 تشغيل صوت العملات عند الضغط على زر "جمع الكل" أو أي زر يحتوي على كلمة "جمع"
+    if (target.id === 'collect-all-btn' || (target.tagName === 'BUTTON' && target.innerText && target.innerText.includes('جمع'))) {
+        ui.playSound(ui.sfx.coinsCollect);
+    }
+
     while (target && target !== document) {
         if (target.id && ui.clickHandlers.has(target.id)) { ui.clickHandlers.get(target.id)(e); return; }
         target = target.parentNode;
     }
+// ... (باقي الكود كما هو)
 
     const actionElement = e.target.closest('[data-action]');
     if (actionElement) {
