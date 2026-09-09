@@ -567,13 +567,33 @@ window.showCustomPopup = function(msg, isPrompt = false, defaultValue = "", show
 };
 
 
-// 🛠️ (مُحدّث): التوافق التام مع أزرار النافذة المنبثقة
 window.closeCustomPopup = function(isOk) {
-    document.getElementById('custom-popup-modal').style.display = 'none';
+    const popupModal = document.getElementById('custom-popup-modal');
+    
+    // حفظ محتوى الرسالة
+    let popupMsgContent = "";
+    const popupMsgEl = document.getElementById('custom-popup-msg');
+    if (popupMsgEl) {
+        popupMsgContent = popupMsgEl.innerHTML || popupMsgEl.innerText;
+    }
+
+    if (popupModal) {
+        popupModal.style.display = 'none';
+    }
     
     const spinModal = document.getElementById('lucky-spin-modal');
     if (spinModal) {
         spinModal.style.setProperty('z-index', '850', 'important');
+    }
+
+    // 🌟 السحر المعماري هنا: إرسال رسالة محايدة للعبة النشطة داخل الـ iframe
+    const gameFrame = document.getElementById('game-frame');
+    if (gameFrame && gameFrame.contentWindow) {
+        gameFrame.contentWindow.postMessage({
+            type: 'GLOBAL_POPUP_CLOSED',
+            isOk: isOk,
+            content: popupMsgContent
+        }, '*');
     }
 
     if (customPopupCallback) {
@@ -583,6 +603,7 @@ window.closeCustomPopup = function(isOk) {
         else customPopupCallback(isOk);
     }
 };
+
 
 window.triggerAlertSoon = function() { 
     if(typeof translations !== 'undefined') {
