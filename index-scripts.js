@@ -519,31 +519,43 @@ let customPopupCallback = null;
 
 window.showCustomPopup = function(msg, isPrompt = false, defaultValue = "", showCancel = false, callback = null) {
     const popupModal = document.getElementById('custom-popup-modal');
+    if (!popupModal) return;
+    
     popupModal.style.display = 'flex';
     popupModal.style.setProperty('z-index', '9999999', 'important');
     
-    document.getElementById('custom-popup-msg').innerText = msg;
+    // 🌟 استخدام innerHTML بدلاً من innerText لكي يقبل صور العملات ولا يحولها لنص
+    document.getElementById('custom-popup-msg').innerHTML = msg;
     
     const inputContainer = document.getElementById('custom-popup-input-group');
     const inputEl = document.getElementById('custom-popup-input');
     const cancelBtn = document.getElementById('custom-popup-cancel');
     const okBtn = document.getElementById('custom-popup-ok');
     
-    okBtn.style.display = 'block'; 
+    // 🌟 ربط الأزرار برمجياً لضمان عملها 100% في جميع الحالات
+    if (okBtn) {
+        okBtn.style.display = 'block'; 
+        okBtn.onclick = () => window.closeCustomPopup(true);
+    }
 
     if (isPrompt) {
-        inputContainer.style.display = 'block';
-        inputEl.value = defaultValue;
-        inputEl.focus();
-        cancelBtn.style.display = 'block';
+        if (inputContainer) inputContainer.style.display = 'block';
+        if (inputEl) { inputEl.value = defaultValue; inputEl.focus(); }
+        if (cancelBtn) {
+            cancelBtn.style.display = 'block';
+            cancelBtn.onclick = () => window.closeCustomPopup(false);
+        }
     } else {
-        inputContainer.style.display = 'none';
-        cancelBtn.style.display = showCancel ? 'block' : 'none';
+        if (inputContainer) inputContainer.style.display = 'none';
+        if (cancelBtn) {
+            cancelBtn.style.display = showCancel ? 'block' : 'none';
+            cancelBtn.onclick = () => window.closeCustomPopup(false);
+        }
     }
     
-    if (typeof translations !== 'undefined') {
-        okBtn.innerText = translations[currentLang].btn_ok;
-        cancelBtn.innerText = translations[currentLang].btn_cancel;
+    if (typeof translations !== 'undefined' && translations[currentLang]) {
+        if (okBtn) okBtn.innerText = translations[currentLang].btn_ok || "حسناً";
+        if (cancelBtn) cancelBtn.innerText = translations[currentLang].btn_cancel || "إلغاء";
     }
     
     const spinModal = document.getElementById('lucky-spin-modal');
@@ -553,6 +565,7 @@ window.showCustomPopup = function(msg, isPrompt = false, defaultValue = "", show
 
     customPopupCallback = callback;
 };
+
 
 // 🛠️ (مُحدّث): التوافق التام مع أزرار النافذة المنبثقة
 window.closeCustomPopup = function(isOk) {
