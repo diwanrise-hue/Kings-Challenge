@@ -215,13 +215,15 @@ export const ui = {
             .vfx-coin-smooth {
                 position: fixed;
                 top: 50%; left: 50%;
-                width: 38px; height: 38px; /* تكبير بسيط لحجم العملة */
+                width: 38px; height: 38px;
                 pointer-events: none;
                 z-index: 99999999;
-                /* زيادة الوقت إلى 2.4 ثانية وجعل الحركة تبدأ وتنتهي بنعومة (ease-in-out) */
                 animation: coinFountainSmooth 2.4s ease-in-out forwards;
-                filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));
+                /* 🌟 أزلنا filter: drop-shadow لأنه يدمر المعالج في الهواتف */
+                /* 🌟 استخدمنا will-change لإجبار كرت الشاشة (GPU) على معالجة الحركة بسلاسة */
+                will-change: transform, opacity;
             }
+
         `;
         document.head.appendChild(style);
     },
