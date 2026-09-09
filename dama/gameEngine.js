@@ -3,6 +3,7 @@
  * النسخة المطابقة تماماً لمحرك السيرفر (game-logic.js) لضمان التوافق 100%
  * 🌟 (مُحدّث): نظام "التعادل الذكي" لإنهاء المطاردة المملة.
  * 🛡️ (مُحدّث أمني): منع تسجيل إحصائيات اللعب (فوز/خسارة) عند اللعب ضد البوت لحماية السجل!
+ * ⚖️ (مُحدّث جذرياً): تم تعطيل الترقية الوهمية في منتصف القفز لمطابقة السيرفر ومنع الـ Desync.
  */
 
 import { gameState } from './gameState.js'; 
@@ -30,6 +31,7 @@ export const gameEngine = {
         return color === 'black'; 
     },
 
+    // 🌟 تم تحديث هذه الدالة بالكامل لتتطابق مع السيرفر وتمنع الترقية الوهمية
     getPieceCapturePaths(r, c, color, bState, dirY, parentDr = null, parentDc = null, roomDirectionData = null) {
         const baseColor = color.split('-')[0];
         const isDama = bState[r][c] && bState[r][c].endsWith('-dama');
@@ -84,16 +86,10 @@ export const gameEngine = {
                 if (this.isValidPos(toR, toC)) {
                     const midPiece = bState[midR][midC], toPiece = bState[toR][toC];
                     if (midPiece && !midPiece.startsWith(baseColor) && toPiece === null) {
-                        let capturedPiece = bState[midR][midC], movingPiece = bState[r][c];
-
-                        let isMidAirPromotion = false;
-                        let promoRow = (dirY === 1) ? 7 : 0;
+                        let capturedPiece = bState[midR][midC];
+                        let movingPiece = bState[r][c];
                         
-                        if (toR === promoRow && !movingPiece.includes('dama')) {
-                            movingPiece += '-dama';
-                            isMidAirPromotion = true;
-                        }
-
+                        // تمت إزالة الترقية الوهمية (Mid-Air Promotion) من هنا
                         bState[midR][midC] = null;
                         bState[toR][toC] = movingPiece;
                         bState[r][c] = null;
@@ -105,7 +101,7 @@ export const gameEngine = {
                             for (const sp of subPaths) paths.push([stepObj, ...sp]);
                         } else { paths.push([stepObj]); }
 
-                        bState[r][c] = isMidAirPromotion ? movingPiece.replace('-dama', '') : movingPiece;
+                        bState[r][c] = movingPiece;
                         bState[toR][toC] = null;
                         bState[midR][midC] = capturedPiece;
                     }
