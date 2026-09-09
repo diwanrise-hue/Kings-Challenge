@@ -1144,7 +1144,7 @@ export const ui = {
         if (typeof gameState.turnTimeLeft === 'undefined' || gameState.turnTimeLeft === null) {
             gameState.turnTimeLeft = 45;
         }
-      },
+      }
   
         const updateTimerDisplay = () => {
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
