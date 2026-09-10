@@ -415,13 +415,19 @@ export const ui = {
         
         this.setDisplay('custom-alert-cancel', showCancel ? 'block' : 'none');
         
-            this.clickHandlers.set('custom-alert-ok', () => {
-            // 🌟 الإصلاح السحري: فحص محتوى النافذة قبل إغلاقها 🌟
+        this.clickHandlers.set('custom-alert-ok', () => {
+            // 🌟 الإصلاح السحري: فحص محتوى النافذة قبل إغلاقها لتشمل عجلة الحظ والمهام 🌟
             const msgContainer = this.getEl('custom-alert-message');
             if (msgContainer) {
                 const msgText = msgContainer.innerHTML || '';
-                // إذا كانت رسالة النافذة تخبر اللاعب بأنه "تم جمع" عملات
-                if ((msgText.includes('تم جمع') || msgText.includes('نجاح')) && (msgText.includes('coin.webp') || msgText.includes('🪙'))) {
+                
+                // 💡 الكلمات التي تدل على الفوز بأي جائزة
+                const isPositiveReward = msgText.includes('تم جمع') || msgText.includes('نجاح') || msgText.includes('ربحت') || msgText.includes('حصلت') || msgText.includes('مبروك');
+                
+                // 💡 الكلمات أو الصور التي تدل على أن الجائزة هي "عملات"
+                const hasCoins = msgText.includes('coin.webp') || msgText.includes('🪙') || msgText.includes('عملة');
+
+                if (isPositiveReward && hasCoins) {
                     this.playSound(this.sfx.coinsCollect);
                     if (typeof this.spawnCoinShower === 'function') this.spawnCoinShower();
                 }
@@ -431,6 +437,7 @@ export const ui = {
             if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); 
             if (onConfirm) { try { onConfirm(); } catch(err) { console.error(err); } }
         });
+
 
 
         this.clickHandlers.set('custom-alert-cancel', () => {
