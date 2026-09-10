@@ -1240,6 +1240,8 @@ export const socketManager = {
             let toR = Number(data.to.r);
             let toC = Number(data.to.c);
 
+            let isMyEcho = false;
+            // 🌟 الإصلاح: نحدد أنها حركتنا لكي لا نصدر صوتاً مزعجاً، لكن لا نوقف الكود بـ return
             if (gameState.lastMyMove && 
                 fromR === gameState.lastMyMove.fromR && 
                 fromC === gameState.lastMyMove.fromC &&
@@ -1247,9 +1249,10 @@ export const socketManager = {
                 toC === gameState.lastMyMove.toC) {
                 
                 gameState.lastMyMove = null; 
-                return; 
+                isMyEcho = true; 
+            } else {
+                gameState.lastMyMove = null;
             }
-            gameState.lastMyMove = null; 
 
             if (data.updatedBoard) {
                 gameState.virtualBoard = data.updatedBoard;
@@ -1287,29 +1290,34 @@ export const socketManager = {
                 }
             }
             
-          gameState.currentTurn = data.nextTurn;
-          gameState.turnTimeLeft = 45; // 🌟 تصفير الوقت
-          if (window.ui && typeof window.ui.startTurnTimer === 'function') {
-          window.ui.startTurnTimer(); // 🌟 إعادة تشغيل العداد فور استقبال حركة الخصم
-    }
-            ui.renderBoard();
+            gameState.currentTurn = data.nextTurn;
+            gameState.turnTimeLeft = 45; 
+            if (window.ui && typeof window.ui.startTurnTimer === 'function') {
+                window.ui.startTurnTimer(); 
+            }
             
-            try {
-                if (window.ui && window.ui.sfx && window.ui.sfx.move) {
-                    window.ui.playSound(window.ui.sfx.move);
-                }
-            } catch (err) {}
+            // 🌟 تحديث اللوحة إجبارياً للطرفين
+            ui.renderBoard();
             
             if(gameState.selectedPiece) {
                 gameState.selectedPiece.classList.remove('selected');
                 gameState.selectedPiece = null;
             }
             
-            ui.clearHighlights();
-            if (typeof ui.highlightMove === 'function') ui.highlightMove({r: fromR, c: fromC}, {r: toR, c: toC});
+            // 🌟 تشغيل الصوت وتحديد المربع للخصم فقط (لتجنب الإزعاج إذا كانت حركتك)
+            if (!isMyEcho) {
+                try {
+                    if (window.ui && window.ui.sfx && window.ui.sfx.move) {
+                        window.ui.playSound(window.ui.sfx.move);
+                    }
+                } catch (err) {}
+                
+                ui.clearHighlights();
+                if (typeof ui.highlightMove === 'function') ui.highlightMove({r: fromR, c: fromC}, {r: toR, c: toC});
+            }
             
             let isMultiJumpContinuation = (gameState.currentTurn === data.nextTurn);
-            if (isMultiJumpContinuation) {
+            if (isMultiJumpContinuation && !isMyEcho) {
                 const boardEl = document.getElementById('board');
                 const activeCell = boardEl?.querySelector(`[data-row="${toR}"][data-col="${toC}"]`);
                 if (activeCell && activeCell.children.length > 0) activeCell.children[0].classList.add('forced'); 
@@ -1317,6 +1325,7 @@ export const socketManager = {
             
             ui.startTurn();
         });
+
 
         socket.on('opponentResigned', () => {
             if(gameState.turnTimerInterval) clearInterval(gameState.turnTimerInterval);
