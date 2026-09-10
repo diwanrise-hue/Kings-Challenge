@@ -267,6 +267,9 @@ window.openBetSelectorForEdit = function() {
     if (typeof window.openAppModal === 'function') window.openAppModal('bet-selector-modal'); 
 };
 
+// ==========================================
+// ⏱️ عداد الموسم (نسخة الـ 15 دقيقة للتجارب)
+// ==========================================
 let seasonTimerInterval = null;
 
 function startSeasonCountdown() {
@@ -277,34 +280,33 @@ function startSeasonCountdown() {
 
     function updateTimer() {
         const now = new Date();
-        const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-        const diff = nextMonth - now;
+        
+        // حساب الوقت المتبقي لأقرب ربع ساعة (0, 15, 30, 45)
+        const currentMin = now.getMinutes();
+        const nextMin = (Math.floor(currentMin / 15) * 15) + 15;
+        
+        const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), nextMin, 0);
+        const diff = targetTime - now;
 
         if (diff <= 0) {
-            timerElement.innerText = "تحديث خلال : جاري توزيع الجوائز...";
-            clearInterval(seasonTimerInterval);
+            timerElement.innerText = "تحديث خلال : جاري توزيع الجوائز وتصفير السجل...";
             return;
         }
 
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((diff / 1000 / 60) % 60);
         const seconds = Math.floor((diff / 1000) % 60);
 
-        let timeText = "تحديث خلال : ";
-        if (days > 0) timeText += `${days} يوم و `;
-        
-        const formattedHours = hours < 10 ? `0${hours}` : hours;
         const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
         const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
 
-        timeText += `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-        timerElement.innerText = timeText;
+        timerElement.innerText = `تحديث خلال : ${formattedMinutes}:${formattedSeconds}`;
     }
 
     updateTimer();
     seasonTimerInterval = setInterval(updateTimer, 1000);
 }
+window.startSeasonCountdown = startSeasonCountdown;
+
 
 document.addEventListener('DOMContentLoaded', () => {
     startSeasonCountdown();
