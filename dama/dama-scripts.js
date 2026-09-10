@@ -268,7 +268,7 @@ window.openBetSelectorForEdit = function() {
 };
 
 // ==========================================
-// ⏱️ عداد الموسم (نسخة الـ 15 دقيقة للتجارب)
+// ⏱️ عداد الموسم (نسخة الـ 10 دقائق)
 // ==========================================
 let seasonTimerInterval = null;
 
@@ -281,15 +281,15 @@ function startSeasonCountdown() {
     function updateTimer() {
         const now = new Date();
         
-        // حساب الوقت المتبقي لأقرب ربع ساعة (0, 15, 30, 45)
+        // حساب الوقت المتبقي لأقرب 10 دقائق (0, 10, 20, 30, 40, 50)
         const currentMin = now.getMinutes();
-        const nextMin = (Math.floor(currentMin / 15) * 15) + 15;
+        const nextMin = (Math.floor(currentMin / 10) * 10) + 10;
         
         const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), nextMin, 0);
         const diff = targetTime - now;
 
         if (diff <= 0) {
-            timerElement.innerText = "تحديث خلال : جاري توزيع الجوائز وتصفير السجل...";
+            timerElement.innerText = "تحديث خلال : جاري التوزيع والتصفير...";
             return;
         }
 
