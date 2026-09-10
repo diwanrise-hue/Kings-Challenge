@@ -20,12 +20,10 @@ export const gameEngine = {
         } else if (gameState.pieceDirection && gameState.pieceDirection[baseColor] !== undefined) {
             return gameState.pieceDirection[baseColor];
         }
-        if (gameState.playerColor === 'white') {
-            return baseColor === 'white' ? -1 : 1;
-        } else {
-            return baseColor === 'black' ? -1 : 1;
-        }
+        // 🌟 الإصلاح: الأبيض دائماً للأعلى (-1) والأسود دائماً للأسفل (+1) لتطابق السيرفر
+        return baseColor === 'white' ? -1 : 1;
     },
+
 
     computeOnlineFlip(color) { 
         return color === 'black'; 
@@ -381,4 +379,4 @@ export const gameEngine = {
 
 if (typeof window !== 'undefined') {
     window.gameEngine = gameEngine;
-}
+            }
