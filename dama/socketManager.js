@@ -782,11 +782,35 @@ export const socketManager = {
         });
               // 🌟 استلام جوائز الموسم وعرض نافذة التتويج الفخمة 🌟
         socket.on('seasonRewardPopup', (data) => {
+            
+            // 💡 استنتاج نوع القسيمة لعرض الصورة الصحيحة المطابقة لمجلد Photo لديك
+            let ticketRate = 10; 
+            let ticketImg = "discount10.webp"; 
+
+            if (data.tokens >= 100000) {
+                ticketRate = 50;
+                ticketImg = "discount50.webp"; 
+            } else if (data.tokens >= 20000) {
+                ticketRate = 25;
+                ticketImg = "discount25.webp"; 
+            }
+
             let msg = `<div style="text-align:center; line-height:1.8;">
-                لقد تصدرت لوحة الشرف لهذا الموسم! 🏆<br>
+                <span style="color:#ffffff; font-size:14px; font-weight:bold;">لقد تصدرت لوحة الشرف لهذا الموسم! 🏆</span><br>
                 <span style="color:#a1a1aa; font-size:12px;">إليك مكافأتك الأسطورية:</span><br>
-                <span style="color:#34c759; font-weight:800; font-size:24px;">+${data.tokens} <img src="../Photo/coin.webp" style="width:26px; vertical-align:middle;"></span><br>
-                <span style="color:#f1c40f; font-weight:bold; font-size:14px;">🎫 قسائم خصم للمتجر: ${data.tickets}</span>
+                
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                    <!-- قسم العملات -->
+                    <span style="color:#34c759; font-weight:900; font-size:26px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                        +${data.tokens} <img src="../Photo/coin.webp" style="width:28px; vertical-align:middle; margin-right:4px;">
+                    </span>
+                    
+                    <!-- قسم القسائم المتوافق مع أسماء ملفاتك الحقيقية -->
+                    <span style="color:#f1c40f; font-weight:bold; font-size:15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        قسائم خصم (${ticketRate}%): ${data.tickets} 
+                        <img src="../Photo/${ticketImg}" onerror="this.outerHTML='🎫'" style="width:38px; height:auto; vertical-align:middle; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">
+                    </span>
+                </div>
             </div>`;
 
             if (window.ui && typeof window.ui.showCustomAlert === 'function') {
