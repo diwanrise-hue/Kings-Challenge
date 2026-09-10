@@ -268,7 +268,10 @@ window.openBetSelectorForEdit = function() {
 };
 
 // ==========================================
-// ⏱️ عداد الموسم (نسخة الـ 10 دقائق)
+// ⏱️ عداد الموسم (نسخة الـ 15 دقيقة للتجارب)
+// ==========================================
+// ==========================================
+// ⏱️ العداد التزامني للموسم (الدورة 11 دقيقة: 10 لعب + 1 توزيع وتصفير)
 // ==========================================
 let seasonTimerInterval = null;
 
@@ -279,17 +282,21 @@ function startSeasonCountdown() {
     if (seasonTimerInterval) clearInterval(seasonTimerInterval);
 
     function updateTimer() {
-        const now = new Date();
+        const now = Date.now();
+        const cycleLength = 11 * 60 * 1000; // دورة كاملة 11 دقيقة
+        const rewardTime = 10 * 60 * 1000;  // التوزيع في الدقيقة 10
         
-        // حساب الوقت المتبقي لأقرب 10 دقائق (0, 10, 20, 30, 40, 50)
-        const currentMin = now.getMinutes();
-        const nextMin = (Math.floor(currentMin / 10) * 10) + 10;
+        const elapsedInCycle = now % cycleLength;
         
-        const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), nextMin, 0);
-        const diff = targetTime - now;
-
-        if (diff <= 0) {
-            timerElement.innerText = "تحديث خلال : جاري التوزيع والتصفير...";
+        let diff;
+        if (elapsedInCycle < rewardTime) {
+            // مرحلة اللعب: عداد تنازلي نحو التوزيع
+            diff = rewardTime - elapsedInCycle;
+        } else {
+            // دقيقة التتويج: إظهار رسالة التصفير وعد تنازلي للثواني
+            diff = cycleLength - elapsedInCycle;
+            const secondsLeft = Math.floor(diff / 1000);
+            timerElement.innerText = `تتويج الأبطال.. تصفير خلال: ${secondsLeft}ث`;
             return;
         }
 
