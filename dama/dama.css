@@ -822,9 +822,12 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    padding-top: 3px !important; /* لدفع الرقم للأسفل قليلاً ليتوسط الدائرة */
+    box-sizing: border-box !important;
     font-weight: 900;
     font-size: 15px;
     z-index: 10;
@@ -1739,4 +1742,4 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     max-height: 85% !important; 
     object-fit: contain !important;
     display: block !important;
-        }
+    }
