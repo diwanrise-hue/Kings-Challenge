@@ -3014,7 +3014,7 @@ ui.onClick('board', e => {
         gameState.selectedPiece = target; gameState.selectedPiece.classList.add('selected');
         
         if (gameState.currentTurn !== gameState.playerColor && !gameState.isOnlineMode) { gameState.opponentStartRow = r; gameState.opponentStartCol = c; }
-        ui.showValidMovesHighlights(r, c); return;
+        window.ui.showValidMovesHighlights(r, c); return;
     }
 
     if (gameState.selectedPiece && cell.classList.contains('cell') && cell.children.length === 0) {
@@ -3052,7 +3052,7 @@ ui.onClick('board', e => {
                 gameState.movePath.push({r: toRow, c: toCol}); 
 
                 if (1 + getPieceMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
-                    if (typeof ui.playSound === 'function') { ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? ui.sfx.kingDied : ui.sfx.piecesDied); }
+                    if (typeof window.ui.playSound === 'function') { window.ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? window.ui.sfx.kingDied : window.ui.sfx.piecesDied); }
                     
                     gameState.virtualBoard = tempBoard; gameState.jumpsCount++; gameState.lastJumpDir = { dr: currDr, dc: currDc };
                     if (window.questsManager) { window.questsManager.updateProgress('capture', 1, gameState.isOnlineMode ? 'online' : 'bot'); }
@@ -3063,22 +3063,24 @@ ui.onClick('board', e => {
                         let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
                         if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
                             gameState.virtualBoard[toRow][toCol] += '-dama'; 
-                            if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                            if (typeof window.ui.playSound === 'function') window.ui.playSound(window.ui.sfx.kingCreated); 
                         }
                         
                         gameState.movesWithoutProgress = 0; 
                         gameState.boardHistoryStr = [];
                         gameState.pieceHistories = {}; 
                         
-                        ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
-                        gameState.selectedPiece = null; ui.clearHighlights();
+                        window.ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
+                        gameState.selectedPiece = null; window.ui.clearHighlights();
                         gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                         
-                        // 🌟 إعادة العداد لـ 45 وتشغيله بعد الأكل
+                        // 🌟 إعادة العداد لـ 45 وتشغيله بعد الأكل بشكل آمن
                         gameState.turnTimeLeft = 45;
-                        if (gameState.isOnlineMode) this.startTurnTimer();
+                        if (gameState.isOnlineMode && window.ui && typeof window.ui.startTurnTimer === 'function') {
+                            window.ui.startTurnTimer(); 
+                        }
 
-                        ui.renderBoard();
+                        window.ui.renderBoard();
 
                         if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
                             socketManager.sendMoveToServer(
@@ -3087,10 +3089,10 @@ ui.onClick('board', e => {
                             );
                         }
                         
-                        saveGameState(); ui.startTurn();
+                        saveGameState(); window.ui.startTurn();
                         gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
                     } else { 
-                        gameState.isMultiJumping = true; ui.renderBoard();
+                        gameState.isMultiJumping = true; window.ui.renderBoard();
                         const boardEl = document.getElementById('board');
                         const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
                         if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
@@ -3104,9 +3106,9 @@ ui.onClick('board', e => {
                             });
                             if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
                         }
-                        ui.showValidMovesHighlights(toRow, toCol); 
+                        window.ui.showValidMovesHighlights(toRow, toCol); 
                     }
-                } else { ui.showCustomAlert(t('must_capture')); }
+                } else { window.ui.showCustomAlert(t('must_capture')); }
             }
         } 
         else {
@@ -3121,7 +3123,7 @@ ui.onClick('board', e => {
                 
                 if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
                     gameState.virtualBoard[toRow][toCol] += '-dama'; isPromotion = true;
-                    if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.kingCreated); 
+                    if (typeof window.ui.playSound === 'function') window.ui.playSound(window.ui.sfx.kingCreated); 
                 }
                 
                 if (isPromotion) {
@@ -3134,16 +3136,18 @@ ui.onClick('board', e => {
                     if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(fromRow, fromCol, toRow, toCol, gameState.currentTurn); 
                 }
                 
-                if (typeof ui.playSound === 'function') ui.playSound(ui.sfx.move); 
-                ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
-                gameState.selectedPiece = null; ui.clearHighlights();
+                if (typeof window.ui.playSound === 'function') window.ui.playSound(window.ui.sfx.move); 
+                window.ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
+                gameState.selectedPiece = null; window.ui.clearHighlights();
                 gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                 
-                // 🌟 إعادة العداد لـ 45 وتشغيله بعد الحركة العادية
+                // 🌟 إعادة العداد لـ 45 وتشغيله بعد الحركة العادية بشكل آمن
                 gameState.turnTimeLeft = 45;
-                if (gameState.isOnlineMode) this.startTurnTimer();
+                if (gameState.isOnlineMode && window.ui && typeof window.ui.startTurnTimer === 'function') {
+                    window.ui.startTurnTimer(); 
+                }
                 
-                ui.renderBoard();
+                window.ui.renderBoard();
 
                 if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
                     socketManager.sendMoveToServer(
@@ -3152,7 +3156,7 @@ ui.onClick('board', e => {
                     ); 
                 }
                 
-                saveGameState(); ui.startTurn();
+                saveGameState(); window.ui.startTurn();
                 gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
 
             }
@@ -3168,19 +3172,16 @@ document.addEventListener('click', (e) => {
     if (btn) {
         const btnText = btn.innerText || btn.textContent || '';
         
-        // إذا كان الزر هو "استلام" فردي (وليس جمع الكل، وليس تم الاستلام مسبقاً)
         if ((btnText.includes('استلام') || btnText.includes('استلم')) && btn.id !== 'collect-all-btn' && !btnText.includes('الكل') && !btnText.includes('تم')) {
-            ui.playSound(ui.sfx.coinsCollect);
-            if (typeof ui.spawnCoinShower === 'function') ui.spawnCoinShower();
+            window.ui.playSound(window.ui.sfx.coinsCollect);
+            if (typeof window.ui.spawnCoinShower === 'function') window.ui.spawnCoinShower();
         }
-        // ملاحظة: لم نضع "جمع الكل" هنا، لأننا سنشغله عند إغلاق النافذة في الخطوة التالية!
     }
 
     while (target && target !== document) {
-        if (target.id && ui.clickHandlers.has(target.id)) { ui.clickHandlers.get(target.id)(e); return; }
+        if (target.id && window.ui.clickHandlers.has(target.id)) { window.ui.clickHandlers.get(target.id)(e); return; }
         target = target.parentNode;
     }
-// ... (باقي الكود كما هو)
 
     const actionElement = e.target.closest('[data-action]');
     if (actionElement) {
@@ -3189,7 +3190,7 @@ document.addEventListener('click', (e) => {
 
         if (action === 'challenge-friend') {
             if (typeof window.challengeFriend === 'function') { window.challengeFriend(fId); } 
-            else { ui.showCustomAlert(t('coming_soon')); }
+            else { window.ui.showCustomAlert(t('coming_soon')); }
         } else if (action === 'remove-friend') {
             let currentFriends = gameState.userProfile.friends || [];
             gameState.userProfile.friends = currentFriends.filter(f => (typeof f === 'string' ? f.toUpperCase() !== fId : f.id.toUpperCase() !== fId)); 
@@ -3197,7 +3198,7 @@ document.addEventListener('click', (e) => {
             let profileToSave = { ...gameState.userProfile };
             if (gameState.originalHints !== undefined && gameState.originalHints !== null) { profileToSave.hints = gameState.originalHints; }
             localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
-            ui.updateProfileUI();
+            window.ui.updateProfileUI();
 
             if (window.socket && window.socket.connected) {
                 window.socket.emit('syncProfile', { id: profileToSave.id, friends: profileToSave.friends });
@@ -3233,11 +3234,8 @@ if (!document.getElementById('forced-overlay-style')) {
 }
 
 window.addEventListener('message', (event) => {
-    // 🌟 التقاط إشعار إغلاق النافذة من الواجهة الرئيسية (Hub)
     if (event.data && event.data.type === 'GLOBAL_POPUP_CLOSED') {
         const msg = event.data.content || '';
-        
-        // إذا ضغط اللاعب "حسناً" وكانت النافذة تحتوي على جائزة عملات لجمع الكل
         if (event.data.isOk && (msg.includes('تم جمع') || msg.includes('نجاح')) && msg.includes('coin.webp')) {
             if (window.ui && typeof window.ui.playSound === 'function') {
                 window.ui.playSound(window.ui.sfx.coinsCollect);
@@ -3296,7 +3294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.applyTheme(userObj);
     }
 
-    ui.drawEmptyBoard();
+    window.ui.drawEmptyBoard();
 
     setTimeout(() => {
         if (typeof window.applyProfileDataToUI === 'function') { 
