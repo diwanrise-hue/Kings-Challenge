@@ -796,7 +796,7 @@ export const socketManager = {
                 }
 
                 let msg = `<div style="text-align:center; line-height:1.8;">
-                    <span style="color:#ffffff; font-size:14px; font-weight:bold;">لقد تصدرت لوحة الشرف لهذا الموسم! 🏆</span><br>
+                    <span style="color:#ffffff; font-size:14px; font-weight:bold;">لقد تصدرت لوحة أبطال الموسم لهذا الموسم! 🏆</span><br>
                     <span style="color:#a1a1aa; font-size:12px;">إليك مكافأتك الأسطورية:</span><br>
                     
                     <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
@@ -893,6 +893,14 @@ export const socketManager = {
             }
             if (window.populateLeaderboards) {
                 window.populateLeaderboards(formattedWins, formattedXp);
+            }
+        });
+      
+        socket.on('hallOfFameData', (data) => {
+            let formattedWins = data.wins || []; 
+            let formattedXp = data.xp || []; 
+            if (window.populateHallOfFame) {
+                window.populateHallOfFame(formattedWins, formattedXp);
             }
         });
 
