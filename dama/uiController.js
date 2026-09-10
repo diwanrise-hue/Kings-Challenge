@@ -2169,7 +2169,7 @@ window.acceptFriendReq = function(reqId) {
         
         if (window.socket && window.socket.connected) {
             window.socket.emit('acceptFriendReq', { targetId: reqId });
-            window.socket.emit('syncProfile', { id: prof.id, friends: prof.friends, friendRequests: prof.friendRequests });
+            // 🛑 أزلنا أمر syncProfile من هنا ليتولى السيرفر المهمة بأمان
         }
 
         const toast = document.getElementById('toast-notification'); 
@@ -2188,9 +2188,10 @@ window.rejectFriendReq = function(reqId) {
     renderFriendRequests();
 
     if (window.socket && window.socket.connected) {
-        window.socket.emit('syncProfile', { id: prof.id, friendRequests: prof.friendRequests });
+        window.socket.emit('rejectFriendReq', { targetId: reqId });
     }
 };
+
 
 window.sendFriendRequest = function() {
     if(!gameState.currentViewedPlayer) return;
@@ -3210,10 +3211,11 @@ document.addEventListener('click', (e) => {
             let profileToSave = { ...gameState.userProfile };
             if (gameState.originalHints !== undefined && gameState.originalHints !== null) { profileToSave.hints = gameState.originalHints; }
             localStorage.setItem('hub_user_profile', JSON.stringify(profileToSave)); 
-            window.ui.updateProfileUI();
+            ui.updateProfileUI();
 
             if (window.socket && window.socket.connected) {
-                window.socket.emit('syncProfile', { id: profileToSave.id, friends: profileToSave.friends });
+                // 🌟 استخدام الأمر الجديد والآمن لحذف الصديق
+                window.socket.emit('removeFriend', { targetId: fId });
             }
             
             const toast = document.getElementById('toast-notification'); 
