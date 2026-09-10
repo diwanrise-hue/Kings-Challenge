@@ -642,7 +642,12 @@
                 <span data-icon="medal"></span>
                 <span id="menu-leaderboard-text">سجل الشرف</span>
             </div>
-            
+                        <!-- الزر الجديد: سجل الشرف  -->
+            <div class="side-menu-item" onclick="toggleSideMenu(); window.showHallOfFame()">
+                <span style="font-size: 22px; filter: drop-shadow(0 0 5px rgba(212,175,55,0.8)); display: flex; align-items: center; justify-content: center; width: 34px;">🏛️</span>
+                <span id="menu-hof-text" style="color: #ffd700; font-weight: 800;">سجل الشرف </span>
+            </div>
+
             <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('settings-overlay')">
                 <span data-icon="gear"></span> 
                 <span id="menu-settings-text">الضبط</span>
@@ -1667,6 +1672,31 @@
             </div>
         </div>
     </div>
+    <div id="hall-of-fame-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 900;">
+        <!-- وضعنا فلتر تغيير لون ليصبح مائلاً للأزرق الملكي لتمييزه عن نافذة الموسم -->
+        <div class="leaderboard-full-screen" dir="rtl" style="filter: hue-rotate(345deg);">
+            <button class="lb-close-btn" onclick="window.closeAppModal('hall-of-fame-modal')">✕</button>
+            
+            <div class="lb-header-container">
+                <div class="lb-title-row">
+                    <span class="lb-decor-line left"></span>
+                    <h3 class="lb-header-title" style="background: linear-gradient(180deg, #FFFFFF 0%, #00d2ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">سجل الشرف التاريخي</h3>
+                    <span class="lb-decor-line right"></span>
+                </div>
+                <div class="lb-header-subtitle" style="color: #e0e0e0;">الأساطير المخلدون في اللعبة (دائم)</div>
+            </div>
+
+            <div class="lb-nav-tabs">
+                <button id="hof-tab-wins" class="lb-tab-button active" onclick="window.switchHofTab('wins')">الأكثر فوزاً</button>
+                <button id="hof-tab-xp" class="lb-tab-button" onclick="window.switchHofTab('xp')">الأعلى مستوى</button>
+            </div>
+
+            <div class="lb-podium-container" id="hof-podium-container"></div>
+
+            <div class="lb-list-container" id="hof-list-wins"></div>
+            <div class="lb-list-container" id="hof-list-xp" style="display: none;"></div>
+        </div>
+    </div>
 
     <script src="icons.js?v=2.0"></script>
     <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
@@ -1855,5 +1885,6 @@
             }
         };
     </script>
+  
 </body>
 </html>
