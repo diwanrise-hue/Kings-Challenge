@@ -1637,9 +1637,13 @@ export const ui = {
                 addFriendBtn.style.opacity = '0.6';
                 addFriendBtn.style.cursor = 'not-allowed';
                 
-                if (window.socket && window.socket.connected) {
-                     window.socket.emit('sendFriendReq', { targetId: window.currentOpponentId });
+                // 🌟 الحل البسيط: التقاط ID الخصم بدقة من أكثر من مصدر لضمان عدم ضياعه عند انتهاء المباراة
+                const exactTargetId = window.currentOpponentId || (window.currentOpponentData ? (window.currentOpponentData.guestId || window.currentOpponentData.id) : null);
+                
+                if (window.socket && window.socket.connected && exactTargetId) {
+                     window.socket.emit('sendFriendReq', { targetId: exactTargetId });
                 }
+                
                 const toast = document.getElementById('toast-notification');
                 if (toast) { toast.innerHTML = '📨 تم إرسال طلب الصداقة!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
             });
