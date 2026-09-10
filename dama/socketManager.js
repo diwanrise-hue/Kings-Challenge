@@ -780,6 +780,26 @@ export const socketManager = {
         socket.on('serverNotification', (data) => {
             if (data && data.msg) this._showToast(data.msg);
         });
+              // 🌟 استلام جوائز الموسم وعرض نافذة التتويج الفخمة 🌟
+        socket.on('seasonRewardPopup', (data) => {
+            let msg = `<div style="text-align:center; line-height:1.8;">
+                لقد تصدرت لوحة الشرف لهذا الموسم! 🏆<br>
+                <span style="color:#a1a1aa; font-size:12px;">إليك مكافأتك الأسطورية:</span><br>
+                <span style="color:#34c759; font-weight:800; font-size:24px;">+${data.tokens} <img src="../Photo/coin.webp" style="width:26px; vertical-align:middle;"></span><br>
+                <span style="color:#f1c40f; font-weight:bold; font-size:14px;">🎫 قسائم خصم للمتجر: ${data.tickets}</span>
+            </div>`;
+
+            if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                // 1. تشغيل موسيقى الفوز فور ظهور النافذة
+                window.ui.playSound(window.ui.sfx.win); 
+                
+                // 2. إظهار النافذة، وعند الضغط على "استلام" تتطاير العملات
+                window.ui.showCustomAlert(msg, "تتويج أبطال الموسم 🎁", () => {
+                    window.ui.playSound(window.ui.sfx.coinsCollect);
+                    if (typeof window.ui.spawnCoinShower === 'function') window.ui.spawnCoinShower();
+                }, false, null, "استلام الجوائز!");
+            }
+        });
 
         // 🌟 إصلاح قراءة مصفوفة الرتب لمنع التداخل وظهور (و) برمجياً
         socket.on('rankUpAlert', (data) => {
