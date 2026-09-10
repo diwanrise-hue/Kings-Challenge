@@ -2897,6 +2897,7 @@ window.updateHtmlTexts = function() {
     setTxt('menu-radio-text', 'menu_radio'); 
     setTxt('menu-room-text', 'menu_room'); 
     setTxt('menu-leaderboard-text', 'menu_leaderboard'); 
+    setTxt('menu-hof-text', 'menu_hof');
     setTxt('menu-settings-text', 'menu_settings'); 
     setTxt('menu-exit-text', 'menu_exit'); 
     
