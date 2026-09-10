@@ -780,49 +780,50 @@ export const socketManager = {
         socket.on('serverNotification', (data) => {
             if (data && data.msg) this._showToast(data.msg);
         });
-              // 🌟 استلام جوائز الموسم وعرض نافذة التتويج الفخمة 🌟
+              // 🌟 استلام جوائز الموسم المعلقة وعرض نافذة التتويج فور فتح اللعبة 🌟
         socket.on('seasonRewardPopup', (data) => {
-            
-            // 💡 استنتاج نوع القسيمة لعرض الصورة الصحيحة المطابقة لمجلد Photo لديك
-            let ticketRate = 10; 
-            let ticketImg = "discount10.webp"; 
+            // تأخير بسيط (1.5 ثانية) لضمان تحميل واجهة اللعبة بالكامل واستعداد عناصر الـ DOM
+            setTimeout(() => {
+                let ticketRate = 10; 
+                let ticketImg = "discount10.webp"; 
 
-            if (data.tokens >= 100000) {
-                ticketRate = 50;
-                ticketImg = "discount50.webp"; 
-            } else if (data.tokens >= 20000) {
-                ticketRate = 25;
-                ticketImg = "discount25.webp"; 
-            }
+                if (data.tokens >= 100000) {
+                    ticketRate = 50;
+                    ticketImg = "discount50.webp"; 
+                } else if (data.tokens >= 20000) {
+                    ticketRate = 25;
+                    ticketImg = "discount25.webp"; 
+                }
 
-            let msg = `<div style="text-align:center; line-height:1.8;">
-                <span style="color:#ffffff; font-size:14px; font-weight:bold;">لقد تصدرت لوحة الشرف لهذا الموسم! 🏆</span><br>
-                <span style="color:#a1a1aa; font-size:12px;">إليك مكافأتك الأسطورية:</span><br>
-                
-                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
-                    <!-- قسم العملات -->
-                    <span style="color:#34c759; font-weight:900; font-size:26px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
-                        +${data.tokens} <img src="../Photo/coin.webp" style="width:28px; vertical-align:middle; margin-right:4px;">
-                    </span>
+                let msg = `<div style="text-align:center; line-height:1.8;">
+                    <span style="color:#ffffff; font-size:14px; font-weight:bold;">لقد تصدرت لوحة الشرف لهذا الموسم! 🏆</span><br>
+                    <span style="color:#a1a1aa; font-size:12px;">إليك مكافأتك الأسطورية:</span><br>
                     
-                    <!-- قسم القسائم المتوافق مع أسماء ملفاتك الحقيقية -->
-                    <span style="color:#f1c40f; font-weight:bold; font-size:15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        قسائم خصم (${ticketRate}%): ${data.tickets} 
-                        <img src="../Photo/${ticketImg}" onerror="this.outerHTML='🎫'" style="width:38px; height:auto; vertical-align:middle; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">
-                    </span>
-                </div>
-            </div>`;
+                    <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                        <!-- قسم العملات -->
+                        <span style="color:#34c759; font-weight:900; font-size:26px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                            +${data.tokens} <img src="../Photo/coin.webp" style="width:28px; vertical-align:middle; margin-right:4px;">
+                        </span>
+                        
+                        <!-- قسم القسائم -->
+                        <span style="color:#f1c40f; font-weight:bold; font-size:15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            قسائم خصم (${ticketRate}%): ${data.tickets} 
+                            <img src="../Photo/${ticketImg}" onerror="this.outerHTML='🎫'" style="width:38px; height:auto; vertical-align:middle; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));">
+                        </span>
+                    </div>
+                </div>`;
 
-            if (window.ui && typeof window.ui.showCustomAlert === 'function') {
-                // 1. تشغيل موسيقى الفوز فور ظهور النافذة
-                window.ui.playSound(window.ui.sfx.win); 
-                
-                // 2. إظهار النافذة، وعند الضغط على "استلام" تتطاير العملات
-                window.ui.showCustomAlert(msg, "تتويج أبطال الموسم 🎁", () => {
-                    window.ui.playSound(window.ui.sfx.coinsCollect);
-                    if (typeof window.ui.spawnCoinShower === 'function') window.ui.spawnCoinShower();
-                }, false, null, "استلام الجوائز!");
-            }
+                if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                    // 1. تشغيل موسيقى الفوز
+                    window.ui.playSound(window.ui.sfx.win); 
+                    
+                    // 2. إظهار النافذة وتفجير العملات عند الضغط على استلام
+                    window.ui.showCustomAlert(msg, "تتويج أبطال الموسم 🎁", () => {
+                        window.ui.playSound(window.ui.sfx.coinsCollect);
+                        if (typeof window.ui.spawnCoinShower === 'function') window.ui.spawnCoinShower();
+                    }, false, null, "استلام الجوائز!");
+                }
+            }, 1500); 
         });
 
         // 🌟 إصلاح قراءة مصفوفة الرتب لمنع التداخل وظهور (و) برمجياً
