@@ -965,7 +965,8 @@
     </div>
 
     <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 950;">
-        <div class="settings-card" dir="auto" style="max-width: 380px; padding: 30px 20px; background: linear-gradient(145deg, #1a1a24, #2b2b35) !important; border: 1.5px solid #a88734 !important; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212,175,55,0.05) !important; max-height: 90vh; overflow-y: auto;">
+        <!-- تم التأكد من أن الـ Modal الرئيسي يسمح بالسحب المريح -->
+        <div class="settings-card" dir="auto" style="max-width: 380px; padding: 30px 20px; background: linear-gradient(145deg, #1a1a24, #2b2b35) !important; border: 1.5px solid #a88734 !important; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212,175,55,0.05) !important; max-height: 85vh; overflow-y: auto; overflow-x: hidden;">
             <button class="modal-close-btn" onclick="window.closeAppModal('top3-rewards-modal')" style="left:15px; right:auto; background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important;">✕</button>
             
             <div style="text-align: center; margin-bottom: 20px;">
@@ -974,65 +975,80 @@
                 <p style="color:#a1a1aa; font-size: 12px; margin: 0;">تُوزع لأفضل 10 لاعبين في (عمداء اللعبة) و (أبطال الفوز)</p>
             </div>
             
-            <div style="background: linear-gradient(135deg, rgba(155,89,182,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(155,89,182,0.3); border-radius: 14px; padding: 12px; margin-bottom: 12px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #9b59b6, transparent);"></div>
+            <!-- الصندوق الأول: عمداء اللعبة (XP) -->
+            <!-- تم إزالة overflow: hidden للسماح بظهور جميع العناصر -->
+            <div style="background: linear-gradient(135deg, rgba(155,89,182,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(155,89,182,0.3); border-radius: 14px; padding: 12px; margin-bottom: 20px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #9b59b6, transparent); border-radius: 14px 14px 0 0;"></div>
                 <h4 style="color: #b589d6; margin: 0 0 10px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">🌟 عمداء اللعبة <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأعلى مستوى)</span></h4>
                 
                 <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- المركز الأول -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.5); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #ffd700; box-shadow: inset 0 0 10px rgba(255,215,0,0.1);">
-                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; box-shadow: 0 0 8px rgba(255,215,0,0.6); border: 1px solid #fff; flex-shrink: 0;">1</div>
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; box-shadow: 0 0 8px rgba(255,215,0,0.6); border: 1px solid #fff; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">1</div>
                         <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">300K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ (بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.4));"> × 2)</span></div>
                     </div>
+                    <!-- المركز الثاني -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #c0c0c0;">
-                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #f5f5f5, #9e9e9e); color: #000; box-shadow: 0 0 8px rgba(192,192,192,0.4); border: 1px solid #fff; flex-shrink: 0;">2</div>
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #f5f5f5, #9e9e9e); color: #000; box-shadow: 0 0 8px rgba(192,192,192,0.4); border: 1px solid #fff; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">2</div>
                         <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">150K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle;"></span></div>
                     </div>
+                    <!-- المركز الثالث -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #cd7f32;">
-                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffb07c, #b87333); color: #fff; box-shadow: 0 0 8px rgba(205,127,50,0.4); border: 1px solid #ffd700; flex-shrink: 0;">3</div>
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffb07c, #b87333); color: #fff; box-shadow: 0 0 8px rgba(205,127,50,0.4); border: 1px solid #ffd700; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">3</div>
                         <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">100K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle;"></span></div>
                     </div>
+                    <!-- المركز الرابع -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #3498db;">
-                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0;">4</div>
+                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">4</div>
                         <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">25,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 25% <img src="../Photo/discount25.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
                     </div>
+                    <!-- المركز الخامس -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #3498db;">
-                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0;">5</div>
+                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">5</div>
                         <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">20,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 25% <img src="../Photo/discount25.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
                     </div>
+                    <!-- المراكز من السادس للعاشر -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #a1a1aa;">
-                        <div style="padding: 2px 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; margin-left: 10px; background: rgba(161, 161, 170, 0.2); color: #a1a1aa; border: 1px solid #a1a1aa; flex-shrink: 0; direction: ltr;">6-10</div>
+                        <div style="padding: 2px 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; margin-left: 10px; background: rgba(161, 161, 170, 0.2); color: #a1a1aa; border: 1px solid #a1a1aa; flex-shrink: 0; direction: ltr; line-height: 1; padding-top: 3px; box-sizing: border-box;">6-10</div>
                         <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">10,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 10% <img src="../Photo/discount10.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
                     </div>
                 </div>
             </div>
 
-            <div style="background: linear-gradient(135deg, rgba(52,199,89,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(52,199,89,0.3); border-radius: 14px; padding: 10px; margin-bottom: 12px; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #34c759, transparent);"></div>
+            <!-- الصندوق الثاني: أبطال الفوز -->
+            <div style="background: linear-gradient(135deg, rgba(52,199,89,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(52,199,89,0.3); border-radius: 14px; padding: 12px; margin-bottom: 12px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #34c759, transparent); border-radius: 14px 14px 0 0;"></div>
                 <h4 style="color: #30d158; margin: 0 0 10px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">⚔️ أبطال الفوز <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأكثر فوزاً)</span></h4>
                 
                 <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- المركز الأول -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.5); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #ffd700; box-shadow: inset 0 0 10px rgba(255,215,0,0.1);">
-                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; box-shadow: 0 0 8px rgba(255,215,0,0.6); border: 1px solid #fff; flex-shrink: 0;">1</div>
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; box-shadow: 0 0 8px rgba(255,215,0,0.6); border: 1px solid #fff; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">1</div>
                         <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">300K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ (بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.4));"> × 2)</span></div>
                     </div>
+                    <!-- المركز الثاني -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #c0c0c0;">
-                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #f5f5f5, #9e9e9e); color: #000; box-shadow: 0 0 8px rgba(192,192,192,0.4); border: 1px solid #fff; flex-shrink: 0;">2</div>
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #f5f5f5, #9e9e9e); color: #000; box-shadow: 0 0 8px rgba(192,192,192,0.4); border: 1px solid #fff; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">2</div>
                         <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">150K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle;"></span></div>
                     </div>
+                    <!-- المركز الثالث -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #cd7f32;">
-                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffb07c, #b87333); color: #fff; box-shadow: 0 0 8px rgba(205,127,50,0.4); border: 1px solid #ffd700; flex-shrink: 0;">3</div>
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffb07c, #b87333); color: #fff; box-shadow: 0 0 8px rgba(205,127,50,0.4); border: 1px solid #ffd700; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">3</div>
                         <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">100K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle;"></span></div>
                     </div>
+                    <!-- المركز الرابع -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #3498db;">
-                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0;">4</div>
+                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">4</div>
                         <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">25,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 25% <img src="../Photo/discount25.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
                     </div>
+                    <!-- المركز الخامس -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #3498db;">
-                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0;">5</div>
+                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">5</div>
                         <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">20,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 25% <img src="../Photo/discount25.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
                     </div>
+                    <!-- المراكز من السادس للعاشر -->
                     <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #a1a1aa;">
-                        <div style="padding: 2px 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; margin-left: 10px; background: rgba(161, 161, 170, 0.2); color: #a1a1aa; border: 1px solid #a1a1aa; flex-shrink: 0; direction: ltr;">6-10</div>
+                        <div style="padding: 2px 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; margin-left: 10px; background: rgba(161, 161, 170, 0.2); color: #a1a1aa; border: 1px solid #a1a1aa; flex-shrink: 0; direction: ltr; line-height: 1; padding-top: 3px; box-sizing: border-box;">6-10</div>
                         <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">10,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 10% <img src="../Photo/discount10.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
                     </div>
                 </div>
@@ -1040,7 +1056,6 @@
 
         </div>
     </div>
-
 
     <div id="themes-grid-overlay" class="modal-overlay" style="z-index: 900;">
         <div class="settings-card" dir="auto">
@@ -1841,4 +1856,4 @@
         };
     </script>
 </body>
-</html>
+                    </html>
