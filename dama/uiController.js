@@ -2764,6 +2764,100 @@ window.switchLbTab = function(tabId) {
     }
 };
 
+    window.renderDynamicHofUI = function(playersList, tabType) {
+        const podiumContainer = document.getElementById('hof-podium-container');
+        const listContainer = document.getElementById('hof-list-' + tabType); 
+        
+        if (!podiumContainer || !listContainer) return;
+
+        podiumContainer.innerHTML = ''; listContainer.innerHTML = '';
+
+        if (!playersList || playersList.length === 0) {
+            listContainer.innerHTML = '<p style="text-align: center; color: #a1a1aa; padding: 20px; width: 100%;">لا توجد بيانات حالياً في هذا التصنيف.</p>';
+            return;
+        }
+
+        const podiumOrder = [ { rank: 2, data: playersList[1] }, { rank: 1, data: playersList[0] }, { rank: 3, data: playersList[2] } ];
+
+        podiumOrder.forEach(item => {
+            if (!item.data) return; 
+            const player = item.data;
+            const card = document.createElement('div');
+            card.className = `lb-podium-card rank-${item.rank}`;
+            
+            let frameOverlay = '';
+            if (tabType === 'xp') {
+                const proFrames = { 1: window.frameRank1, 2: window.frameRank2, 3: window.frameRank3 };
+                let frameUrl = proFrames[item.rank];
+                if (frameUrl) {
+                    frameOverlay = `<div style="position: absolute; top: -22%; left: -22%; width: 144%; height: 144%; background-image: url('${frameUrl}'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; z-index: 5; pointer-events: none;"></div>`;
+                }
+            }
+            
+            let overlayFrameSrc = player.equippedProfileFrame && PROFILE_FRAMES_DB[player.equippedProfileFrame] ? PROFILE_FRAMES_DB[player.equippedProfileFrame] : null;
+
+            card.innerHTML = `
+                <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
+                <div style="position: relative; width: ${item.rank === 1 ? '72px' : '62px'}; height: ${item.rank === 1 ? '72px' : '62px'}; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;">
+                    <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1; background: transparent; overflow: visible; border: none; box-shadow: none;">
+                        <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <img src="${getSecureAvatarUrl(player.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 1;">
+                            ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 3; pointer-events: none; object-fit: contain; border-radius: 0; max-width: none; max-height: none;">` : ''}
+                        </div>
+                    </div>
+                    ${frameOverlay}
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
+                    <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
+                    <div class="lb-podium-name" style="width: 100%; text-align: center; margin-bottom: 0;">${player.name || 'Guest'}</div>
+                </div>
+            `;
+            
+            card.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(player); };
+            card.style.cursor = 'pointer';
+            podiumContainer.appendChild(card);
+        });
+
+        for (let i = 3; i < playersList.length; i++) {
+            listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
+        }
+    };
+
+    window.populateHallOfFame = function(winsData, xpData) {
+        document.getElementById('hof-list-wins').innerHTML = ''; document.getElementById('hof-list-xp').innerHTML = '';
+        const activeTabBtn = document.querySelector('#hall-of-fame-modal .lb-tab-button.active');
+        let activeTabId = 'wins';
+        if(activeTabBtn && activeTabBtn.id === 'hof-tab-xp') activeTabId = 'xp';
+
+        window.lastFetchedHofWinsData = winsData; window.lastFetchedHofXpData = xpData;
+
+        if(activeTabId === 'wins') window.renderDynamicHofUI(winsData, 'wins');
+        else window.renderDynamicHofUI(xpData, 'xp');
+    };
+
+    window.showHallOfFame = function() {
+        window.openAppModal('hall-of-fame-modal'); 
+        const loadingText = window.t ? window.t('lb_loading') : 'جاري البحث في السجلات القديمة...';
+        document.getElementById('hof-list-wins').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
+        document.getElementById('hof-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
+        if(window.socket && window.socket.connected) window.socket.emit('getHallOfFame');
+    };
+
+    window.switchHofTab = function(tabId) {
+        document.getElementById('hof-tab-wins').classList.remove('active'); 
+        document.getElementById('hof-tab-xp').classList.remove('active');
+        document.getElementById('hof-list-wins').style.display = 'none'; 
+        document.getElementById('hof-list-xp').style.display = 'none'; 
+        
+        document.getElementById('hof-tab-' + tabId).classList.add('active'); 
+        document.getElementById('hof-list-' + tabId).style.display = 'flex';
+        document.getElementById('hof-podium-container').innerHTML = '';
+
+        if (tabId === 'wins' && window.lastFetchedHofWinsData) window.renderDynamicHofUI(window.lastFetchedHofWinsData, 'wins');
+        else if (tabId === 'xp' && window.lastFetchedHofXpData) window.renderDynamicHofUI(window.lastFetchedHofXpData, 'xp');
+    };
+
+
 window.showEquipNotification = function(itemType) {
     const toast = document.getElementById('toast-notification'); if (!toast) return;
     let msg = window.t ? window.t('toast_default') : "تم تجهيز العنصر بنجاح";
