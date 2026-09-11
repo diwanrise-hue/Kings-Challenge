@@ -1580,8 +1580,8 @@ export const ui = {
             this.applyAvatar(av, avatar, isCustom, equippedProfileFrame);
             avContainer.appendChild(av);
             
-            const nameSpan = this.makeEl('span', null, "font-size: 14px; font-weight: 700; color: #ffffff; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);", name);
-            
+            const nameSpan = this.makeEl('span', null, "font-size: 14px; font-weight: 700; color: #ffffff; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 15px; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);", name);
+
             let statusBg = isWin ? 'rgba(48,209,88,0.1)' : 'rgba(255,69,58,0.1)';
             let statusColor = isWin ? '#34c759' : '#ff453a';
             let statusBorder = isWin ? 'rgba(48,209,88,0.3)' : 'rgba(255,69,58,0.3)';
