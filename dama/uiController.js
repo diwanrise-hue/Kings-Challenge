@@ -734,6 +734,8 @@ export const ui = {
         this.setTxt('card-my-title', p1TitleName); // افترض وجود عنصر بهذا المعرف في HTML
 
         let p1LvlInfo = this.calculateLevelInfo(p1?.xp || 0, p1?.score || 0);
+        const p1RankIconEl = this.getEl('card-my-rank-icon'); // 🌟 شارة اللاعب الأول للمشاهدين
+        if (p1RankIconEl) p1RankIconEl.innerHTML = p1LvlInfo.rankIcon;
         const p1LvlEl = this.getEl('card-my-level');
         if(p1LvlEl) {
             p1LvlEl.textContent = `Lv.${p1LvlInfo.level}`;
@@ -751,6 +753,8 @@ export const ui = {
         this.setTxt('card-opp-title', p2TitleName); // افترض وجود عنصر بهذا المعرف في HTML
 
         let p2LvlInfo = this.calculateLevelInfo(p2?.xp || 0, p2?.score || 0);
+        const p2RankIconEl = this.getEl('card-opp-rank-icon'); // 🌟 شارة اللاعب الثاني للمشاهدين
+        if (p2RankIconEl) p2RankIconEl.innerHTML = p2LvlInfo.rankIcon;
         const p2LvlEl = this.getEl('card-opp-level');
         if(p2LvlEl) {
             p2LvlEl.textContent = `Lv.${p2LvlInfo.level}`;
@@ -864,6 +868,8 @@ export const ui = {
           
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0, gameState.userProfile.score || 0);
             let myCardLevel = this.getEl('card-my-level');
+            let myRankIconEl = this.getEl('card-my-rank-icon'); // 🌟 إظهار شارتك
+            if (myRankIconEl) myRankIconEl.innerHTML = myLvlInfo.rankIcon;
             if (myCardLevel) {
                 myCardLevel.textContent = `Lv.${myLvlInfo.level}`;
                 myCardLevel.style.background = "rgba(135,206,235,0.2)";
@@ -871,8 +877,13 @@ export const ui = {
                 myCardLevel.style.color = "#87ceeb";
             }
             
+            let oppLvlInfo = this.calculateLevelInfo(gameState.currentOpponentXp || 0, window.currentOpponentData?.score || 0);
+            let oppRankIconEl = this.getEl('card-opp-rank-icon'); // 🌟 إظهار شارة الخصم
+            if (oppRankIconEl) oppRankIconEl.innerHTML = oppLvlInfo.rankIcon;
+            
             let oppCardLevel = this.getEl('card-opp-level');
             if (oppCardLevel) {
+
                 if (gameState.currentOpponentXp !== undefined) {
                     let oppLvlInfo = this.calculateLevelInfo(gameState.currentOpponentXp || 0, window.currentOpponentData?.score || 0);
                     oppCardLevel.textContent = `Lv.${oppLvlInfo.level}`;
