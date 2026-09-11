@@ -1299,8 +1299,8 @@ export const socketManager = {
             }
         });
 
-            socket.on('opponentMove', data => {
-            if (!gameState.isOnlineMode) return; // 🌟 حماية من التداخل
+           socket.on('opponentMove', data => {
+            if (!gameState.isOnlineMode) return; 
             if (!data || !data.from || !data.to) return;
             
             let fromR = Number(data.from.r);
@@ -1309,7 +1309,6 @@ export const socketManager = {
             let toC = Number(data.to.c);
 
             let isMyEcho = false;
-            // 🌟 الإصلاح: نحدد أنها حركتنا لكي لا نصدر صوتاً مزعجاً، لكن لا نوقف الكود بـ return
             if (gameState.lastMyMove && 
                 fromR === gameState.lastMyMove.fromR && 
                 fromC === gameState.lastMyMove.fromC &&
@@ -1323,10 +1322,33 @@ export const socketManager = {
             }
 
             if (data.updatedBoard) {
+                // 🌟 الحل هنا: تحديد إذا كان هناك أكل أو ترقية برمجياً بدلاً من التصفير العشوائي!
+                let oldWhite = 0, oldBlack = 0, newWhite = 0, newBlack = 0;
+                gameState.virtualBoard.forEach(row => row.forEach(p => { if (p && p.startsWith('white')) oldWhite++; if (p && p.startsWith('black')) oldBlack++; }));
+                data.updatedBoard.forEach(row => row.forEach(p => { if (p && p.startsWith('white')) newWhite++; if (p && p.startsWith('black')) newBlack++; }));
+                
+                let isCapture = (oldWhite !== newWhite || oldBlack !== newBlack);
+                let movingPieceStr = gameState.virtualBoard[fromR][fromC];
+                let finalPieceStr = data.updatedBoard[toR][toC];
+                let isPromotion = movingPieceStr && !movingPieceStr.includes('dama') && finalPieceStr && finalPieceStr.includes('dama');
+
                 gameState.virtualBoard = data.updatedBoard;
-                gameState.movesWithoutProgress = 0; 
-                gameState.pieceHistories = {};
+
+                if (isCapture || isPromotion) {
+                    gameState.movesWithoutProgress = 0;
+                    gameState.boardHistoryStr = [];
+                    gameState.pieceHistories = {};
+                } else {
+                    // 🌟 إذا كانت حركة عادية، نستمر في عد الحركات وتسجيل التكرار!
+                    gameState.movesWithoutProgress++;
+                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                    let oppColor = data.nextTurn === 'white' ? 'black' : 'white';
+                    if (gameEngine.trackPieceHistory && !isMyEcho) {
+                        gameEngine.trackPieceHistory(fromR, fromC, toR, toC, oppColor);
+                    }
+                }
             } else {
+                // ... (بقية الكود الخاص بـ else يبقى كما هو)
                 let possibleMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
                 let executedPath = possibleMoves.find(p => p[p.length - 1].toR === toR && p[p.length - 1].toC === toC);
                 
@@ -1351,20 +1373,21 @@ export const socketManager = {
                     } else {
                         gameState.movesWithoutProgress++;
                         gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
-                        if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(executedPath[0].fromR, executedPath[0].fromC, lastStep.toR, lastStep.toC, gameState.currentTurn);
+                        let oppColor = data.nextTurn === 'white' ? 'black' : 'white';
+                        if (gameEngine.trackPieceHistory && !isMyEcho) {
+                            gameEngine.trackPieceHistory(executedPath[0].fromR, executedPath[0].fromC, lastStep.toR, lastStep.toC, oppColor);
+                        }
                     }
                 } else {
                     if(socket.connected) socket.emit('requestGameState', { roomID: String(gameState.onlineRoomID).trim() });
                 }
             }
             
+            // ... (بقية الأكواد أسفل البلوك تبقى كما هي)
             gameState.currentTurn = data.nextTurn;
             gameState.turnTimeLeft = 45; 
-            if (window.ui && typeof window.ui.startTurnTimer === 'function') {
-                window.ui.startTurnTimer(); 
-            }
+            if (window.ui && typeof window.ui.startTurnTimer === 'function') window.ui.startTurnTimer(); 
             
-            // 🌟 تحديث اللوحة إجبارياً للطرفين
             ui.renderBoard();
             
             if(gameState.selectedPiece) {
@@ -1372,12 +1395,9 @@ export const socketManager = {
                 gameState.selectedPiece = null;
             }
             
-            // 🌟 تشغيل الصوت وتحديد المربع للخصم فقط (لتجنب الإزعاج إذا كانت حركتك)
             if (!isMyEcho) {
                 try {
-                    if (window.ui && window.ui.sfx && window.ui.sfx.move) {
-                        window.ui.playSound(window.ui.sfx.move);
-                    }
+                    if (window.ui && window.ui.sfx && window.ui.sfx.move) window.ui.playSound(window.ui.sfx.move);
                 } catch (err) {}
                 
                 ui.clearHighlights();
@@ -1393,6 +1413,7 @@ export const socketManager = {
             
             ui.startTurn();
         });
+
 
 
             socket.on('opponentResigned', () => {
