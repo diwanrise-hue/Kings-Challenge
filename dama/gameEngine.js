@@ -284,23 +284,23 @@ export const gameEngine = {
         return false;
     },
 
-    checkRepetitionAndStalling() {
+    checkRepetitionAndStalling(color) {
         if (gameState.movesWithoutProgress === 0) {
             gameState.pieceHistories = {};
             return 0;
         }
 
-        if (!gameState.pieceHistories) return 0;
+        // 🌟 الحل هنا: يجب أن يجلب تاريخ القطع للون (اللاعب) المحدد فقط!
+        if (!gameState.pieceHistories || !gameState.pieceHistories[color]) return 0;
         
+        let tracker = gameState.pieceHistories[color];
+        let counts = {};
         let maxRep = 0;
-        for (let color in gameState.pieceHistories) {
-            let tracker = gameState.pieceHistories[color];
-            let counts = {};
-            for (let pos of tracker.history) {
-                counts[pos] = (counts[pos] || 0) + 1;
-                if (counts[pos] > maxRep) {
-                    maxRep = counts[pos];
-                }
+        
+        for (let pos of tracker.history) {
+            counts[pos] = (counts[pos] || 0) + 1;
+            if (counts[pos] > maxRep) {
+                maxRep = counts[pos];
             }
         }
 
@@ -379,4 +379,4 @@ export const gameEngine = {
 
 if (typeof window !== 'undefined') {
     window.gameEngine = gameEngine;
-            }
+}
