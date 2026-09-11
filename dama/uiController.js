@@ -3002,40 +3002,47 @@ ui.onClick('resign-btn', () => {
         }
     }
 });
-// 🌟 دالة حفظ الإعدادات (الصوت ومزامنة الساحة) 🌟
+
+// 🌟 دالة حفظ الإعدادات (مفصولة الأصوات) 🌟
 ui.onClick('save-settings-btn', () => {
-    // 1. حفظ مستوى الصوت
+    // 1. حفظ مستوى صوت التحريك (حركة الأحجار فقط)
     const volInput = document.getElementById('sfx-volume');
     if (volInput) {
         const vol = parseFloat(volInput.value);
-        localStorage.setItem('hub_sfx_volume', vol); // حفظ في ذاكرة الهاتف
-        
-        // تطبيق مستوى الصوت على جميع المؤثرات في اللعبة فوراً
-        Object.values(ui.sfx).forEach(audio => {
-            if (audio) audio.volume = vol;
-        });
-        // رفع صوت العملات قليلاً ليبقى واضحاً وممتعاً
-        if (ui.sfx.coinsCollect) ui.sfx.coinsCollect.volume = Math.min(1, vol + 0.15); 
+        localStorage.setItem('hub_sfx_volume', vol);
+        if (ui.sfx.move) ui.sfx.move.volume = vol; // تطبيق على التحريك فقط
     }
 
-    // 2. حفظ تفضيل (استخدام ساحة اللاعب الأعلى مستوى)
+    // 2. حفظ مستوى صوت الإشعارات (الفوز، العملات، الموت، الوقت، إلخ)
+    const alertsVolInput = document.getElementById('alerts-volume');
+    if (alertsVolInput) {
+        const alertsVol = parseFloat(alertsVolInput.value);
+        localStorage.setItem('hub_alerts_volume', alertsVol);
+        
+        // تطبيق على جميع الأصوات باستثناء حركة الأحجار
+        Object.keys(ui.sfx).forEach(key => {
+            if (key !== 'move' && ui.sfx[key]) {
+                ui.sfx[key].volume = alertsVol;
+            }
+        });
+        // رفع صوت العملات قليلاً ليبقى ممتعاً
+        if (ui.sfx.coinsCollect) ui.sfx.coinsCollect.volume = Math.min(1, alertsVol + 0.15); 
+    }
+
+    // 3. حفظ تفضيل (استخدام ساحة اللاعب الأعلى مستوى)
     const syncCheckbox = document.getElementById('sync-theme-optout');
     if (syncCheckbox && gameState.userProfile) {
-        // إذا كان المربع "صح"، يعني أنه (يوافق على المزامنة) فنعطل الـ OptOut
-        // إذا كان المربع "فارغ"، يعني أنه (يرفض المزامنة) فنفعل الـ OptOut
         gameState.userProfile.syncThemeOptOut = !syncCheckbox.checked;
-        
-        // حفظ البروفايل في الهاتف وإرساله للسيرفر
         ui.saveAndSyncProfile(gameState.userProfile);
     }
 
-    // 3. إغلاق النافذة وإظهار إشعار نجاح الحفظ
+    // 4. إغلاق النافذة وإظهار إشعار الحفظ
     if (typeof window.closeAppModal === 'function') window.closeAppModal('settings-overlay');
-    
     if (window.socketManager && typeof window.socketManager._showToast === 'function') {
         window.socketManager._showToast("تم حفظ الإعدادات بنجاح ✅");
     }
 });
+
 
 ui.onClick('undo-btn', () => {
     if (gameState.isOnlineMode || gameState.currentTurn !== gameState.playerColor) return; 
@@ -3348,18 +3355,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     gameState.userProfile = userObj;
 
-    // 🌟 تحميل مستوى الصوت المحفوظ وتطبيقه 🌟
+    // 🌟 تحميل مستوى صوت التحريك 🌟
     let savedVol = localStorage.getItem('hub_sfx_volume');
     if (savedVol !== null) {
         let vol = parseFloat(savedVol);
         const volInput = document.getElementById('sfx-volume');
         if (volInput) volInput.value = vol;
-        
-        Object.values(ui.sfx).forEach(audio => {
-            if (audio) audio.volume = vol;
-        });
-        if (ui.sfx.coinsCollect) ui.sfx.coinsCollect.volume = Math.min(1, vol + 0.15);
+        if (ui.sfx.move) ui.sfx.move.volume = vol; // تحريك الأحجار فقط
     }
+
+    // 🌟 تحميل مستوى صوت الإشعارات 🌟
+    let savedAlertsVol = localStorage.getItem('hub_alerts_volume');
+    if (savedAlertsVol !== null) {
+        let alertsVol = parseFloat(savedAlertsVol);
+        const alertsVolInput = document.getElementById('alerts-volume');
+        if (alertsVolInput) alertsVolInput.value = alertsVol;
+        
+        // تطبيق على باقي المؤثرات (باستثناء التحريك)
+        Object.keys(ui.sfx).forEach(key => {
+            if (key !== 'move' && ui.sfx[key]) {
+                ui.sfx[key].volume = alertsVol;
+            }
+        });
+        if (ui.sfx.coinsCollect) ui.sfx.coinsCollect.volume = Math.min(1, alertsVol + 0.15);
+    }
+
 
     if (typeof window.applyTheme === 'function') {
         window.applyTheme(userObj);
@@ -3382,6 +3402,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
     }, 500); 
 });
+
+// 🌟 دالة الاستماع للضغطات (تم إصلاح السطر المفقود هنا) 🌟
+document.addEventListener('click', (e) => {
+    let target = e.target;
+    
     // 🌟 التقاط الأزرار بذكاء للتفريق بين "استلام فردي" و "جمع الكل"
     const btn = target.closest('button');
     if (btn) {
@@ -3420,109 +3445,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const toast = document.getElementById('toast-notification'); 
-            if (toast) { toast.innerHTML = '🗑️ تم حذف الصديق'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-        }
-    }
-});
-
-const isMoveValid = (fromR, fromC, toR, toC, color, board, isDama) => {
-    let moves = gameEngine.generateAllTurnMoves(color, board);
-    return moves.some(path =>
-        path.length === 1 &&
-        path[0].fromR === fromR &&
-        path[0].fromC === fromC &&
-        path[0].toR === toR &&
-        path[0].toC === toC &&
-        path[0].midR === null 
-    );
-};
-
-if (!document.getElementById('forced-overlay-style')) {
-    const forcedStyle = document.createElement('style'); forcedStyle.id = 'forced-overlay-style';
-    forcedStyle.innerHTML = `
-        .cell:has(.piece.multi-choice), .cell.multi-choice-cell { position: relative !important; border: 2px solid #ff453a !important; border-radius: inherit; }
-        .cell:has(.piece.multi-choice)::after, .cell.multi-choice-cell::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 20px rgba(255, 69, 58, 0.8); border-radius: inherit; pointer-events: none; animation: gpuPulse 1s infinite alternate ease-in-out; will-change: opacity; }
-        @keyframes gpuPulse { 0% { opacity: 0.3; } 100% { opacity: 1; } }
-        .cell:has(.piece.multi-choice) .piece, .cell.multi-choice-cell .piece { z-index: 2 !important; position: relative !important; transform: scale(1.08) translateZ(0) !important; will-change: transform; transition: transform 0.2s ease; }
-    `;
-    document.head.appendChild(forcedStyle);
-}
-
-window.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'GLOBAL_POPUP_CLOSED') {
-        const msg = event.data.content || '';
-        if (event.data.isOk && (msg.includes('تم جمع') || msg.includes('نجاح')) && msg.includes('coin.webp')) {
-            if (window.ui && typeof window.ui.playSound === 'function') {
-                window.ui.playSound(window.ui.sfx.coinsCollect);
-                if (typeof window.ui.spawnCoinShower === 'function') {
-                    window.ui.spawnCoinShower();
-                }
+            if (toast) { 
+                toast.innerHTML = '🗑️ تم حذف الصديق'; 
+                toast.className = 'toast-side-cyan show'; // 👈 استخدام الإشعار الجانبي الفخم
+                setTimeout(() => toast.classList.remove('show'), 2000); 
             }
         }
     }
-
-    if (event.data && event.data.type === 'PROFILE_UPDATED') {
-        const profile = event.data.profile;
-        if (profile) {
-            if (!gameState.userProfile) gameState.userProfile = {};
-            Object.assign(gameState.userProfile, profile);
-
-            if (typeof window.applyProfileDataToUI === 'function') {
-                window.applyProfileDataToUI(profile);
-            }
-            if (window.ui && typeof window.ui.updateProfileUI === 'function') {
-                window.ui.updateProfileUI(); 
-            }
-
-            if (!gameState.isOnlineMode) {
-                if (typeof window.applyTheme === 'function') {
-                    window.applyTheme(profile);
-                }
-                if (window.ui && typeof window.ui.renderBoard === 'function') {
-                    window.ui.renderBoard(true);
-                }
-            }
-
-            if (window.storeManager && typeof window.storeManager.renderUI === 'function') {
-                window.storeManager.renderUI();
-            }
-        }
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    let globalProfile = localStorage.getItem('hub_user_profile'); 
-    let initialAvatar = '1000132081.webp';
-    let userObj = { id: '#00000', name: t('badge_you') || 'أنت', avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0, currentStreak: 0, highestStreak: 0 };
-    
-    if (globalProfile) { 
-        try { 
-            const parsed = JSON.parse(globalProfile); 
-            userObj = { ...userObj, ...parsed };
-            if (parsed.avatar) userObj.avatar = parsed.avatar;
-        } catch(e) {} 
-    }
-
-    gameState.userProfile = userObj;
-
-    if (typeof window.applyTheme === 'function') {
-        window.applyTheme(userObj);
-    }
-
-    window.ui.drawEmptyBoard();
-
-    setTimeout(() => {
-        if (typeof window.applyProfileDataToUI === 'function') { 
-            window.applyProfileDataToUI(userObj); 
-        }
-        
-        if (window.ui && typeof window.ui.updateProfileUI === 'function') {
-            window.ui.updateProfileUI();
-        }
-
-        if (typeof window.syncRadioStatusDot === 'function') {
-            window.syncRadioStatusDot();
-        }
-        
-    }, 500); 
 });
