@@ -1212,16 +1212,14 @@ export const ui = {
         gameState.turnTimerInterval = setInterval(updateTimerDisplay, 1000);
     },
 
-    startTurn() {
+        startTurn() {
         const tInd = this.getEl('turn-indicator'); if (!tInd) return;
 
         if (gameState.virtualBoard.every(row => row.every(cell => cell === null))) return; 
 
         this.updateVirtualBoardState();
 
-         const isBotMatch = !gameState.isOnlineMode;
-        
-        // 🌟 إظهار التحذيرات دائماً سواء كان السيرفر متصلاً أم لا (إلا في الوضع التعليمي)
+        // 🌟 إظهار التحذيرات دائماً (إلا في الوضع التعليمي)
         const isExemptFromStalling = gameState.isTutorialMode;
 
         let myColor = gameState.playerColor;
@@ -1304,14 +1302,13 @@ export const ui = {
             return;
         }
 
-        if (!gameState.isOnlineMode) {
-            if (!gameState.boardHistory) gameState.boardHistory = [];
-            let currentBoardStr = JSON.stringify(gameState.virtualBoard);
-            let lastSavedStr = gameState.boardHistory.length > 0 ? JSON.stringify(gameState.boardHistory[gameState.boardHistory.length - 1].board) : "";
-            if (currentBoardStr !== lastSavedStr) {
-                gameState.boardHistory.push({ board: gameState.virtualBoard.map(row => [...row]), turn: gameState.currentTurn });
-                if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
-            }
+        // 🌟 إصلاح تسجيل الحركات (لتعمل التحذيرات أونلاين بشكل سليم)
+        if (!gameState.boardHistory) gameState.boardHistory = [];
+        let currentBoardStr = JSON.stringify(gameState.virtualBoard);
+        let lastSavedStr = gameState.boardHistory.length > 0 ? JSON.stringify(gameState.boardHistory[gameState.boardHistory.length - 1].board) : "";
+        if (currentBoardStr !== lastSavedStr) {
+            gameState.boardHistory.push({ board: gameState.virtualBoard.map(row => [...row]), turn: gameState.currentTurn });
+            if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
         }
         
         gameState.lastJumpDir = { dr: null, dc: null };
@@ -3311,11 +3308,11 @@ ui.onClick('board', e => {
                         const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
                         if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
 
-                        if (!gameState.isOnlineMode) {
-                            if (!gameState.boardHistory) gameState.boardHistory = [];
-                            gameState.boardHistory.push({ board: gameState.virtualBoard.map(row => [...row]), turn: gameState.currentTurn, moves: gameState.movesWithoutProgress });
-                            if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
-                        }
+                        // 🌟 إصلاح تسجيل الحركات (إزالة شرط if (!gameState.isOnlineMode))
+                        if (!gameState.boardHistory) gameState.boardHistory = [];
+                        gameState.boardHistory.push({ board: gameState.virtualBoard.map(row => [...row]), turn: gameState.currentTurn, moves: gameState.movesWithoutProgress });
+                        if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
+                        
                         window.ui.showValidMovesHighlights(toRow, toCol); 
                     }
                 } else { window.ui.showCustomAlert(t('must_capture')); }
@@ -3363,6 +3360,7 @@ ui.onClick('board', e => {
         }
     }
 });
+
 
 // 🌟🌟🌟 5. تهيئة التطبيق عند البداية 🌟🌟🌟
 document.addEventListener('DOMContentLoaded', () => {
