@@ -1743,3 +1743,67 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     object-fit: contain !important;
     display: block !important;
     }
+
+/* ========================================== */
+/* 🌟 إصلاح المسافات ومنع السحب (Scroll) في وضع الأونلاين 🌟 */
+/* ========================================== */
+
+/* 1. منع تأثير السحب المطاطي (البراوزر) في الآيفون والأندرويد */
+html, body {
+    overscroll-behavior-y: none !important; 
+}
+
+/* 2. قفل الشاشة بالكامل في وضع الأونلاين وتوزيع المسافات */
+body.online-mode-active {
+    height: 100dvh !important; /* طول الشاشة بالضبط */
+    min-height: 100dvh !important;
+    overflow: hidden !important; /* 👈 هذا السطر يمنع الشاشة من النزول والصعود نهائياً */
+    padding-top: 15px !important;
+    padding-bottom: 75px !important; /* مساحة دقيقة للشريط السفلي فقط */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-evenly !important; /* يوزع المسافات بالتساوي بين البطاقات واللوحة */
+}
+
+body.online-mode-active #status-area {
+    flex-shrink: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+body.online-mode-active #match-players-card {
+    margin-bottom: 5px !important; /* تقليل المسافة السفلية للبطاقات */
+}
+
+body.online-mode-active .scoreboard {
+    flex-shrink: 0 !important;
+    margin-bottom: 5px !important;
+}
+
+/* 3. حاوية رقعة اللعب (تأخذ المساحة المتبقية بذكاء) */
+body.online-mode-active .game-container {
+    flex: 1 !important; 
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-height: 52vh !important; /* يمنع اللوحة من التمدد خارج الشاشة */
+    overflow: hidden !important;
+}
+
+/* 4. رقعة اللعب (مربع مثالي يتجاوب مع الشاشة) */
+body.online-mode-active #board {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 95vw !important;
+    max-height: 100% !important;
+    aspect-ratio: 1 / 1 !important; /* يحافظ على شكل المربع التام */
+    margin: 0 auto !important;
+}
+
+/* 5. حماية إضافية للهواتف القصيرة جداً */
+@media (max-height: 700px) {
+    body.online-mode-active #board {
+        max-width: 48vh !important; /* يعتمد على الطول بدلاً من العرض لكي لا تُقص اللوحة */
+    }
+}
+
