@@ -1204,9 +1204,8 @@ body.online-mode-active #match-players-card {
     padding: 5px 10px !important; 
     margin-bottom: 15px !important; 
     gap: 5px !important;
- 
-    margin-top: -30px !important;
 }
+
 body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #d4af37 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 body.online-mode-active .scoreboard { order: 2 !important; }
 body.online-mode-active .game-container { order: 3 !important; }
@@ -1743,4 +1742,4 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     max-height: 85% !important; 
     object-fit: contain !important;
     display: block !important;
-                                                                   }
+    }
