@@ -505,16 +505,24 @@ export const socketManager = {
     lastPingValue: null, 
     hidePingTimer: null, 
 
+        // 🌟 دالة الإشعار الجانبي الفخم (المحدثة) 🌟
     _showToast(msg) {
+        if (!msg) return;
+        
         let toast = document.getElementById('toast-notification');
         if (toast) {
             toast.innerHTML = msg; 
-            toast.classList.add('show');
             
+            // التأكد من أن الكلاس الصحيح موجود، وحذف الكلاسات القديمة إن وجدت
+            toast.className = 'toast-side-cyan show';
+            
+            // إلغاء أي مؤقت سابق لمنع التداخل
             if (this.toastTimeout) clearTimeout(this.toastTimeout);
+            
+            // إخفاء الإشعار بعد ثانيتين (2000 ملي ثانية) بناءً على طلبك
             this.toastTimeout = setTimeout(() => {
                 toast.classList.remove('show');
-            }, 3000);
+            }, 2000); 
         }
     },
 
