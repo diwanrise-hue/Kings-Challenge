@@ -3244,7 +3244,6 @@ ui.onClick('board', e => {
                         gameState.selectedPiece = null; window.ui.clearHighlights();
                         gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                         
-                        // 🌟 إعادة العداد لـ 45 وتشغيله بعد الأكل بشكل آمن
                         gameState.turnTimeLeft = 45;
                         if (gameState.isOnlineMode && window.ui && typeof window.ui.startTurnTimer === 'function') {
                             window.ui.startTurnTimer(); 
@@ -3282,69 +3281,65 @@ ui.onClick('board', e => {
             }
         } 
         else {
-              if (isMoveValid(fromRow, fromCol, toRow, toCol, gameState.currentTurn, gameState.virtualBoard, isDama)) {
-                  
-                  let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
-                  gameState.virtualBoard[fromRow][fromCol] = null; 
-                  gameState.virtualBoard[toRow][toCol] = movingPieceStr;
-                  
-                  // 🌟 تصحيح مصفوفة مسار الحركة لتشمل البداية والنهاية
-                  gameState.movePath = [{r: fromRow, c: fromCol}, {r: toRow, c: toCol}]; 
-                  
-                  let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
-                  let isPromotion = false;
-                  
-                  if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
-                      gameState.virtualBoard[toRow][toCol] += '-dama'; 
-                      isPromotion = true;
-                      if (typeof window.ui.playSound === 'function') window.ui.playSound(window.ui.sfx.kingCreated); 
-                  }
-                  
-                  if (isPromotion) {
-                      gameState.movesWithoutProgress = 0;
-                      gameState.boardHistoryStr = [];
-                      gameState.pieceHistories = {}; 
-                  } else {
-                      gameState.movesWithoutProgress++;
-                      gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
-                      if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(fromRow, fromCol, toRow, toCol, gameState.currentTurn); 
-                  }
-                  
-                  if (typeof window.ui.playSound === 'function') window.ui.playSound(window.ui.sfx.move); 
-                  window.ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
-                  gameState.selectedPiece = null; 
-                  window.ui.clearHighlights();
-              
-                  // 🚀 إرسال الحركة للسيرفر بالدور الحالي أولاً قبل التغيير المحلي
-                  let currentMovingTurn = gameState.currentTurn;
-                  
-                  if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                      socketManager.sendMoveToServer(
-                          fromRow, fromCol, 
-                          toRow, toCol, gameState.movePath, currentMovingTurn
-                      ); 
-                  }
-              
-                  // تغيير الدور محلياً بعد الإرسال
-                  gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
-                  
-                  gameState.turnTimeLeft = 45;
-                  if (gameState.isOnlineMode && window.ui && typeof window.ui.startTurnTimer === 'function') {
-                      window.ui.startTurnTimer(); 
-                  }
-                  
-                  window.ui.renderBoard();
-                  saveGameState(); 
-                  window.ui.startTurn();
-    
+            if (isMoveValid(fromRow, fromCol, toRow, toCol, gameState.currentTurn, gameState.virtualBoard, isDama)) {
+                
+                let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
+                gameState.virtualBoard[fromRow][fromCol] = null; 
+                gameState.virtualBoard[toRow][toCol] = movingPieceStr;
+                
+                gameState.movePath = [{r: fromRow, c: fromCol}, {r: toRow, c: toCol}]; 
+                
+                let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
+                let isPromotion = false;
+                
+                if (toRow === promoRow && !movingPieceStr.includes('dama')) { 
+                    gameState.virtualBoard[toRow][toCol] += '-dama'; 
+                    isPromotion = true;
+                    if (typeof window.ui.playSound === 'function') window.ui.playSound(window.ui.sfx.kingCreated); 
+                }
+                
+                if (isPromotion) {
+                    gameState.movesWithoutProgress = 0;
+                    gameState.boardHistoryStr = [];
+                    gameState.pieceHistories = {}; 
+                } else {
+                    gameState.movesWithoutProgress++;
+                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
+                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(fromRow, fromCol, toRow, toCol, gameState.currentTurn); 
+                }
+                
+                if (typeof window.ui.playSound === 'function') window.ui.playSound(window.ui.sfx.move); 
+                window.ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
+                gameState.selectedPiece = null; 
+                window.ui.clearHighlights();
+            
+                let currentMovingTurn = gameState.currentTurn;
+                
+                if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                    socketManager.sendMoveToServer(
+                        fromRow, fromCol, 
+                        toRow, toCol, gameState.movePath, currentMovingTurn
+                    ); 
+                }
+            
+                gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+                
+                gameState.turnTimeLeft = 45;
+                if (gameState.isOnlineMode && window.ui && typeof window.ui.startTurnTimer === 'function') {
+                    window.ui.startTurnTimer(); 
+                }
+                
+                window.ui.renderBoard();
+                saveGameState(); 
+                window.ui.startTurn();
+
                 gameState.moveSequenceStartR = null; 
                 gameState.moveSequenceStartC = null; 
                 gameState.movePath = [];
             }
-
         }
     }
-});
+}); // 👈 إغلاق دالة لوحة اللعب بشكل صحيح هنا
 
 document.addEventListener('DOMContentLoaded', () => {
     let globalProfile = localStorage.getItem('hub_user_profile'); 
@@ -3357,7 +3352,6 @@ document.addEventListener('DOMContentLoaded', () => {
             userObj = { ...userObj, ...parsed };
             if (parsed.avatar) userObj.avatar = parsed.avatar;
             
-            // 🌟 ضبط مربع الصح (المزامنة) حسب حفظ اللاعب السابق 🌟
             const syncCheckbox = document.getElementById('sync-theme-optout');
             if (syncCheckbox) {
                 syncCheckbox.checked = !(userObj.syncThemeOptOut === true);
@@ -3367,23 +3361,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     gameState.userProfile = userObj;
 
-    // 🌟 تحميل مستوى صوت التحريك 🌟
     let savedVol = localStorage.getItem('hub_sfx_volume');
     if (savedVol !== null) {
         let vol = parseFloat(savedVol);
         const volInput = document.getElementById('sfx-volume');
         if (volInput) volInput.value = vol;
-        if (ui.sfx.move) ui.sfx.move.volume = vol; // تحريك الأحجار فقط
+        if (ui.sfx.move) ui.sfx.move.volume = vol;
     }
 
-    // 🌟 تحميل مستوى صوت الإشعارات 🌟
     let savedAlertsVol = localStorage.getItem('hub_alerts_volume');
     if (savedAlertsVol !== null) {
         let alertsVol = parseFloat(savedAlertsVol);
         const alertsVolInput = document.getElementById('alerts-volume');
         if (alertsVolInput) alertsVolInput.value = alertsVol;
         
-        // تطبيق على باقي المؤثرات (باستثناء التحريك)
         Object.keys(ui.sfx).forEach(key => {
             if (key !== 'move' && ui.sfx[key]) {
                 ui.sfx[key].volume = alertsVol;
@@ -3410,15 +3401,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof window.syncRadioStatusDot === 'function') {
             window.syncRadioStatusDot();
         }
-        
     }, 500); 
 });
 
-// 🌟 دالة الاستماع للضغطات لجميع الأزرار 🌟
 document.addEventListener('click', (e) => {
     let target = e.target;
     
-    // 🌟 التقاط الأزرار بذكاء للتفريق بين "استلام فردي" و "جمع الكل"
     const btn = target.closest('button');
     if (btn) {
         const btnText = btn.innerText || btn.textContent || '';
