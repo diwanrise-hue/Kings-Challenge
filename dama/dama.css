@@ -514,7 +514,7 @@ html[dir="ltr"] .side-menu-overlay.open .side-menu-panel { left: 0; }
 body.game-active #turn-box-container { visibility: visible; opacity: 1; }
 body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 
-#turn-indicator, #turn-countdown { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; }
+#turn-indicator, #turn-countdown { text-align: center; white-space: nowrap; overflow: visible; text-overflow: ellipsis; width: 100%; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; }
 #turn-indicator { color: white; font-size: 15px; font-weight: 600; margin: 0; }
 #turn-countdown { color: #fce8a1; font-weight: 600; font-size: 12px; height: 15px; }
 .thinking-dots { display: flex; align-items: center; justify-content: center; gap: 5px; height: 20px; }
