@@ -1055,12 +1055,7 @@ export const storeManager = {
                         let purchasedItemId = data.itemId;
                         let itemType = data.itemType;
                         
-                        // 1. إظهار الإشعار الأخضر السفلي (Toast)
-                        if (window.socketManager && typeof window.socketManager._showToast === 'function') {
-                            window.socketManager._showToast(msg); 
-                        }
-                        
-                        // 2. إظهار النافذة المنبثقة السوداء الفخمة مع زر "استلام" وتفجير العملات 🌟
+                        //  إظهار النافذة المنبثقة السوداء الفخمة مع زر "استلام" وتفجير العملات 🌟
                         if (window.ui && typeof window.ui.showCustomAlert === 'function') {
                             window.ui.playSound(window.ui.sfx.coinsCollect); 
                             const title = window.t ? window.t('alert_store') : "إشعار المتجر 🛒";
