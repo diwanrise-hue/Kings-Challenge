@@ -3002,6 +3002,40 @@ ui.onClick('resign-btn', () => {
         }
     }
 });
+// 🌟 دالة حفظ الإعدادات (الصوت ومزامنة الساحة) 🌟
+ui.onClick('save-settings-btn', () => {
+    // 1. حفظ مستوى الصوت
+    const volInput = document.getElementById('sfx-volume');
+    if (volInput) {
+        const vol = parseFloat(volInput.value);
+        localStorage.setItem('hub_sfx_volume', vol); // حفظ في ذاكرة الهاتف
+        
+        // تطبيق مستوى الصوت على جميع المؤثرات في اللعبة فوراً
+        Object.values(ui.sfx).forEach(audio => {
+            if (audio) audio.volume = vol;
+        });
+        // رفع صوت العملات قليلاً ليبقى واضحاً وممتعاً
+        if (ui.sfx.coinsCollect) ui.sfx.coinsCollect.volume = Math.min(1, vol + 0.15); 
+    }
+
+    // 2. حفظ تفضيل (استخدام ساحة اللاعب الأعلى مستوى)
+    const syncCheckbox = document.getElementById('sync-theme-optout');
+    if (syncCheckbox && gameState.userProfile) {
+        // إذا كان المربع "صح"، يعني أنه (يوافق على المزامنة) فنعطل الـ OptOut
+        // إذا كان المربع "فارغ"، يعني أنه (يرفض المزامنة) فنفعل الـ OptOut
+        gameState.userProfile.syncThemeOptOut = !syncCheckbox.checked;
+        
+        // حفظ البروفايل في الهاتف وإرساله للسيرفر
+        ui.saveAndSyncProfile(gameState.userProfile);
+    }
+
+    // 3. إغلاق النافذة وإظهار إشعار نجاح الحفظ
+    if (typeof window.closeAppModal === 'function') window.closeAppModal('settings-overlay');
+    
+    if (window.socketManager && typeof window.socketManager._showToast === 'function') {
+        window.socketManager._showToast("تم حفظ الإعدادات بنجاح ✅");
+    }
+});
 
 ui.onClick('undo-btn', () => {
     if (gameState.isOnlineMode || gameState.currentTurn !== gameState.playerColor) return; 
@@ -3293,9 +3327,61 @@ ui.onClick('board', e => {
     }
 });
 
-document.addEventListener('click', (e) => {
-    let target = e.target;
+document.addEventListener('DOMContentLoaded', () => {
+    let globalProfile = localStorage.getItem('hub_user_profile'); 
+    let initialAvatar = '1000132081.webp';
+    let userObj = { id: '#00000', name: t('badge_you') || 'أنت', avatar: initialAvatar, games: 0, wins: 0, losses: 0, tokens: 0, discountTicket: 0, currentStreak: 0, highestStreak: 0 };
     
+    if (globalProfile) { 
+        try { 
+            const parsed = JSON.parse(globalProfile); 
+            userObj = { ...userObj, ...parsed };
+            if (parsed.avatar) userObj.avatar = parsed.avatar;
+            
+            // 🌟 ضبط مربع الصح (المزامنة) حسب حفظ اللاعب السابق 🌟
+            const syncCheckbox = document.getElementById('sync-theme-optout');
+            if (syncCheckbox) {
+                syncCheckbox.checked = !(userObj.syncThemeOptOut === true);
+            }
+        } catch(e) {} 
+    }
+
+    gameState.userProfile = userObj;
+
+    // 🌟 تحميل مستوى الصوت المحفوظ وتطبيقه 🌟
+    let savedVol = localStorage.getItem('hub_sfx_volume');
+    if (savedVol !== null) {
+        let vol = parseFloat(savedVol);
+        const volInput = document.getElementById('sfx-volume');
+        if (volInput) volInput.value = vol;
+        
+        Object.values(ui.sfx).forEach(audio => {
+            if (audio) audio.volume = vol;
+        });
+        if (ui.sfx.coinsCollect) ui.sfx.coinsCollect.volume = Math.min(1, vol + 0.15);
+    }
+
+    if (typeof window.applyTheme === 'function') {
+        window.applyTheme(userObj);
+    }
+
+    window.ui.drawEmptyBoard();
+
+    setTimeout(() => {
+        if (typeof window.applyProfileDataToUI === 'function') { 
+            window.applyProfileDataToUI(userObj); 
+        }
+        
+        if (window.ui && typeof window.ui.updateProfileUI === 'function') {
+            window.ui.updateProfileUI();
+        }
+
+        if (typeof window.syncRadioStatusDot === 'function') {
+            window.syncRadioStatusDot();
+        }
+        
+    }, 500); 
+});
     // 🌟 التقاط الأزرار بذكاء للتفريق بين "استلام فردي" و "جمع الكل"
     const btn = target.closest('button');
     if (btn) {
