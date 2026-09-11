@@ -550,14 +550,19 @@
 
     <div id="status-area">
         <div id="match-players-card" style="display: none; width: 100%; justify-content: center; align-items: center; position: relative; z-index: 10;">
-            <!-- بطاقة اللاعب الأول (أنت) -->
+                      <!-- بطاقة اللاعب الأول (أنت) -->
             <div class="match-players-flex">
-                <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; position: relative;">
+                <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 12px;">
                     <div id="card-my-avatar" class="profile-avatar-capsule" style="width: 75%; height: 75%; border-radius: 50%; overflow: visible; border: 2px solid #ffd700; background: #1a1a24; display: flex; align-items: center; justify-content: center;"></div>
                 </div>
-                <div class="level-badge-small" id="card-my-level" style="background: rgba(135,206,235,0.2); border: 1px solid #87ceeb; color: #87ceeb; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; margin-top: -10px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Lv.1</div>
+                <div class="level-badge-small" id="card-my-level" style="background: rgba(135,206,235,0.2); border: 1px solid #87ceeb; color: #87ceeb; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; margin-top: -6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Lv.1</div>
                 <span id="card-my-name" class="match-players-name" style="color: white; font-size: 13px; font-weight: 700; margin-top: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">أنت</span>
-                <span id="card-my-title" style="color: #ff9800; font-size: 9.5px; font-weight: 700; margin-top: 0px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">مبتدئ</span>
+                
+                <!-- 🌟 التعديل هنا: دمج شارة الرتبة مع اللقب -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 2px;">
+                    <span id="card-my-rank-icon" style="display: flex; align-items: center;"></span>
+                    <span id="card-my-title" style="color: #ff9800; font-size: 10px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">مبتدئ</span>
+                </div>
             </div>
 
             <!-- علامة VS والمشاهدين -->
@@ -572,15 +577,20 @@
 
             <!-- بطاقة اللاعب الثاني (الخصم) -->
             <div class="match-players-flex">
-                <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;" onclick="window.showOpponentProfile()">
+                <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; margin-bottom: 12px;" onclick="window.showOpponentProfile()">
                     <div id="card-opp-avatar" class="profile-avatar-capsule" style="width: 75%; height: 75%; border-radius: 50%; overflow: visible; border: 2px solid #ff453a; background: #1a1a24; display: flex; align-items: center; justify-content: center;">❓</div>
                 </div>
-                <div class="level-badge-small" id="card-opp-level" style="background: rgba(255,69,58,0.2); border: 1px solid #ff453a; color: #ff453a; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; margin-top: -10px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Lv.?</div>
+                <div class="level-badge-small" id="card-opp-level" style="background: rgba(255,69,58,0.2); border: 1px solid #ff453a; color: #ff453a; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; margin-top: -6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Lv.?</div>
                 <span id="card-opp-name" class="match-players-name" style="color: white; font-size: 13px; font-weight: 700; margin-top: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">الخصم</span>
-                <span id="card-opp-title" style="color: #ff9800; font-size: 9.5px; font-weight: 700; margin-top: 0px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">مبتدئ</span>
+                
+                <!-- 🌟 التعديل هنا: دمج شارة الرتبة مع اللقب -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 2px;">
+                    <span id="card-opp-rank-icon" style="display: flex; align-items: center;"></span>
+                    <span id="card-opp-title" style="color: #ff9800; font-size: 10px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">مبتدئ</span>
+                </div>
             </div>
-        </div>
 
+         
 
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
             <div id="mini-disconnect-radar" data-icon="disconnectIcon" style="display: none; position: absolute; bottom: 22px; left: calc(50% + 138px); transform: translateX(-50%); width: 22px; height: 22px; z-index: 800; align-items: center; justify-content: center; pointer-events: none;"></div>
