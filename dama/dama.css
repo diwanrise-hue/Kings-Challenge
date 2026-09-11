@@ -662,7 +662,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .lb-rewards-btn { 
     position: absolute; 
     top: 14px; 
-    right: 12px; 
+    right: 14px; 
     background: rgba(255, 215, 0, 0.15); 
     border: 1px solid #ffd700; 
     border-radius: 10px; 
@@ -1147,7 +1147,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     background: linear-gradient(145deg, rgba(30, 32, 40, 0.95), rgba(15, 18, 25, 0.9)) !important;
     border: 1.5px solid rgba(212, 175, 55, 0.3) !important;
     border-radius: 16px !important; /* 🌟 زوايا أنعم */
-    padding: 8px 4px 6px 4px !important; /* 🌟 تقليل الحشوة العلوية والسفلية */
+    padding: 12px 4px 6px 4px !important; /* 🌟 تقليل الحشوة العلوية والسفلية */
     box-shadow: 0 8px 15px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.05) !important;
     backdrop-filter: blur(4px);
 }
@@ -1204,8 +1204,9 @@ body.online-mode-active #match-players-card {
     padding: 5px 10px !important; 
     margin-bottom: 15px !important; 
     gap: 5px !important;
+ 
+    margin-top: -30px !important;
 }
-
 body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #d4af37 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 body.online-mode-active .scoreboard { order: 2 !important; }
 body.online-mode-active .game-container { order: 3 !important; }
@@ -1742,4 +1743,4 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     max-height: 85% !important; 
     object-fit: contain !important;
     display: block !important;
-    }
+                                                                   }
