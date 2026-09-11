@@ -1807,3 +1807,39 @@ body.online-mode-active #board {
     }
 }
 
+/* ========================================== */
+/* 🌟 إشعار الأجناب الفخم (أسود وزجاجي سمائي) 🌟 */
+/* ========================================== */
+.toast-side-cyan {
+    position: fixed;
+    top: 110px; /* يظهر تحت بروفايل الخصم بقليل */
+    right: -350px; /* 👈 مخفي خارج الشاشة من اليمين */
+    background: linear-gradient(145deg, rgba(15, 18, 25, 0.95), rgba(25, 30, 40, 0.95)); /* أسود زجاجي */
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-right: 5px solid #00d2ff; /* 👈 خط سمائي عريض من اليمين */
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 12px 0 0 12px; /* حواف دائرية من اليسار فقط */
+    font-weight: 700;
+    font-size: 13px;
+    z-index: 9999999;
+    opacity: 0;
+    visibility: hidden;
+    /* 👈 حركة ارتداد سلسة جداً عند الدخول والخروج */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    box-shadow: -5px 5px 15px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 210, 255, 0.05);
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 80vw;
+    white-space: pre-wrap;
+}
+
+/* حالة الظهور (الدخول للشاشة) */
+.toast-side-cyan.show {
+    right: 0px !important; /* 👈 يلتصق بالحافة اليمنى للشاشة */
+    opacity: 1 !important;
+    visibility: visible !important;
+}
