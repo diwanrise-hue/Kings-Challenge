@@ -3380,7 +3380,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ui.sfx.coinsCollect) ui.sfx.coinsCollect.volume = Math.min(1, alertsVol + 0.15);
     }
 
-
     if (typeof window.applyTheme === 'function') {
         window.applyTheme(userObj);
     }
@@ -3403,7 +3402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500); 
 });
 
-// 🌟 دالة الاستماع للضغطات (تم إصلاح السطر المفقود هنا) 🌟
+// 🌟 دالة الاستماع للضغطات لجميع الأزرار 🌟
 document.addEventListener('click', (e) => {
     let target = e.target;
     
@@ -3447,7 +3446,7 @@ document.addEventListener('click', (e) => {
             const toast = document.getElementById('toast-notification'); 
             if (toast) { 
                 toast.innerHTML = '🗑️ تم حذف الصديق'; 
-                toast.className = 'toast-side-cyan show'; // 👈 استخدام الإشعار الجانبي الفخم
+                toast.className = 'toast-side-cyan show'; 
                 setTimeout(() => toast.classList.remove('show'), 2000); 
             }
         }
