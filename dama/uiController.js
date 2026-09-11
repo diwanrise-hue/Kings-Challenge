@@ -1219,10 +1219,10 @@ export const ui = {
 
         this.updateVirtualBoardState();
 
-        const isConnected = (typeof socket !== 'undefined' && socket && socket.connected);
-        const isBotMatch = !gameState.isOnlineMode;
+         const isBotMatch = !gameState.isOnlineMode;
         
-        const isExemptFromStalling = gameState.isTutorialMode || (isBotMatch && !isConnected);
+        // 🌟 إظهار التحذيرات دائماً سواء كان السيرفر متصلاً أم لا (إلا في الوضع التعليمي)
+        const isExemptFromStalling = gameState.isTutorialMode;
 
         let myColor = gameState.playerColor;
         let oppColor = myColor === 'white' ? 'black' : 'white';
