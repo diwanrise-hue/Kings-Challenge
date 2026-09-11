@@ -3167,36 +3167,46 @@ ui.onClick('board', e => {
     if (gameState.currentTurn !== myActualColor) return;
     
     const target = e.target;
-    const cell = target.classList.contains('cell') ? target : target.parentElement;
+    // 🌟 التأكد من التقاط الخلية (Cell) بغض النظر عن العنصر الداخلي المضغط
+    const cell = target.classList.contains('cell') ? target : target.closest('.cell');
+    if (!cell) return;
 
+    const r = parseInt(cell.dataset.row);
+    const c = parseInt(cell.dataset.col);
+
+    // 1. إذا ضغط اللاعب على قطعة (لتحديدها)
     if (target.classList.contains('piece') && !gameState.isMultiJumping) {
-        
         const clickedColor = target.classList.contains('white') ? 'white' : 'black';
         if (clickedColor !== myActualColor) return;
 
-        const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
-        
         if (gameState.requiredJumps > 0 && getPieceMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
         
         gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = []; 
         
         if (gameState.selectedPiece) gameState.selectedPiece.classList.remove('selected');
-        gameState.selectedPiece = target; gameState.selectedPiece.classList.add('selected');
+        gameState.selectedPiece = target; 
+        gameState.selectedPiece.classList.add('selected');
         
-        if (gameState.currentTurn !== gameState.playerColor && !gameState.isOnlineMode) { gameState.opponentStartRow = r; gameState.opponentStartCol = c; }
-        window.ui.showValidMovesHighlights(r, c); return;
+        window.ui.showValidMovesHighlights(r, c); 
+        return;
     }
 
-    if (gameState.selectedPiece && cell.classList.contains('cell') && cell.children.length === 0) {
+    // 2. إذا كان هناك قطعة محددة وتم الضغط على مربع فارغ (لتحريكها)
+    if (gameState.selectedPiece && cell.children.length === 0) {
         const fromRow = parseInt(gameState.selectedPiece.parentElement.dataset.row);
         const fromCol = parseInt(gameState.selectedPiece.parentElement.dataset.col);
-        const toRow = parseInt(cell.dataset.row); const toCol = parseInt(cell.dataset.col);
-        const rDiff = toRow - fromRow; const cDiff = toCol - fromCol;
+        const toRow = r; 
+        const toCol = c;
+        
+        const rDiff = toRow - fromRow; 
+        const cDiff = toCol - fromCol;
         const isDama = gameState.selectedPiece.classList.contains('dama');
         const pieceColor = gameState.selectedPiece.classList.contains('white') ? 'white' : 'black';
 
         if (gameState.moveSequenceStartR === undefined || gameState.moveSequenceStartR === null) {
-            gameState.moveSequenceStartR = fromRow; gameState.moveSequenceStartC = fromCol; gameState.movePath = [{r: fromRow, c: fromCol}];
+            gameState.moveSequenceStartR = fromRow; 
+            gameState.moveSequenceStartC = fromCol; 
+            gameState.movePath = [{r: fromRow, c: fromCol}];
         }
 
         if (gameState.requiredJumps > 0) {
@@ -3218,14 +3228,19 @@ ui.onClick('board', e => {
                 let tempBoard = gameState.virtualBoard.map(row => [...row]); 
                 let movingPieceStr = tempBoard[fromRow][fromCol];
 
-                tempBoard[midRow][midCol] = null; tempBoard[toRow][toCol] = movingPieceStr; tempBoard[fromRow][fromCol] = null;
+                tempBoard[midRow][midCol] = null; 
+                tempBoard[toRow][toCol] = movingPieceStr; 
+                tempBoard[fromRow][fromCol] = null;
                 gameState.movePath.push({r: toRow, c: toCol}); 
 
                 if (1 + getPieceMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
-                    if (typeof window.ui.playSound === 'function') { window.ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? window.ui.sfx.kingDied : window.ui.sfx.piecesDied); }
+                    if (typeof window.ui.playSound === 'function') { 
+                        window.ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('dama') ? window.ui.sfx.kingDied : window.ui.sfx.piecesDied); 
+                    }
                     
-                    gameState.virtualBoard = tempBoard; gameState.jumpsCount++; gameState.lastJumpDir = { dr: currDr, dc: currDc };
-                    if (window.questsManager) { window.questsManager.updateProgress('capture', 1, gameState.isOnlineMode ? 'online' : 'bot'); }
+                    gameState.virtualBoard = tempBoard; 
+                    gameState.jumpsCount++; 
+                    gameState.lastJumpDir = { dr: currDr, dc: currDc };
 
                     let isFinalJump = (gameState.jumpsCount === gameState.requiredJumps);
 
@@ -3241,7 +3256,10 @@ ui.onClick('board', e => {
                         gameState.pieceHistories = {}; 
                         
                         window.ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
-                        gameState.selectedPiece = null; window.ui.clearHighlights();
+                        gameState.selectedPiece = null; 
+                        window.ui.clearHighlights();
+                        
+                        let currentMovingTurn = gameState.currentTurn;
                         gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                         
                         gameState.turnTimeLeft = 45;
@@ -3254,26 +3272,21 @@ ui.onClick('board', e => {
                         if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
                             socketManager.sendMoveToServer(
                                 gameState.moveSequenceStartR, gameState.moveSequenceStartC, 
-                                toRow, toCol, gameState.movePath, gameState.currentTurn
+                                toRow, toCol, gameState.movePath, currentMovingTurn
                             );
                         }
                         
-                        saveGameState(); window.ui.startTurn();
+                        saveGameState(); 
+                        window.ui.startTurn();
                         gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
                     } else { 
-                        gameState.isMultiJumping = true; window.ui.renderBoard();
+                        gameState.isMultiJumping = true; 
+                        window.ui.renderBoard();
                         const boardEl = document.getElementById('board');
                         const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
-                        if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
-
-                        if (!gameState.isOnlineMode) {
-                            if (!gameState.boardHistory) gameState.boardHistory = [];
-                            gameState.boardHistory.push({ 
-                                board: gameState.virtualBoard.map(row => [...row]), 
-                                turn: gameState.currentTurn,
-                                moves: gameState.movesWithoutProgress
-                            });
-                            if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
+                        if (newCell && newCell.children.length > 0) { 
+                            gameState.selectedPiece = newCell.children[0]; 
+                            gameState.selectedPiece.classList.add('selected'); 
                         }
                         window.ui.showValidMovesHighlights(toRow, toCol); 
                     }
@@ -3281,6 +3294,7 @@ ui.onClick('board', e => {
             }
         } 
         else {
+            // التحقق من صحة الحركة العادية التنفيذية
             if (isMoveValid(fromRow, fromCol, toRow, toCol, gameState.currentTurn, gameState.virtualBoard, isDama)) {
                 
                 let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
@@ -3315,6 +3329,7 @@ ui.onClick('board', e => {
             
                 let currentMovingTurn = gameState.currentTurn;
                 
+                // إرسال الحركة للسيرفر
                 if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
                     socketManager.sendMoveToServer(
                         fromRow, fromCol, 
@@ -3339,7 +3354,8 @@ ui.onClick('board', e => {
             }
         }
     }
-}); // 👈 إغلاق دالة لوحة اللعب بشكل صحيح هنا
+});
+
 
 document.addEventListener('DOMContentLoaded', () => {
     let globalProfile = localStorage.getItem('hub_user_profile'); 
