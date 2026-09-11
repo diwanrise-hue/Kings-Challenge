@@ -1570,7 +1570,16 @@
         <div class="settings-card" dir="auto">
             <button class="modal-close-btn" onclick="window.closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
             <h3 id="set-title">الإعدادات</h3>
-            <div class="audio-controls"><label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label><input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7"></div>
+           <div class="audio-controls" style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label>
+                    <input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7">
+                </div>
+                <div>
+                    <label id="alerts-sfx-lbl" for="alerts-volume">مستوى صوت الإشعارات والمؤثرات</label>
+                    <input type="range" id="alerts-volume" min="0" max="1" step="0.1" value="0.7" style="accent-color: #34c759;">
+                </div>
+            </div>
             
             <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; background: rgba(255,255,255,0.04); padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                 <label for="sync-theme-optout" style="color: #e0e0e0; font-size: 13px; font-weight: 500; text-align: right; line-height: 1.4;">استخدام شكل الساحة للاعب الأعلى مستوى (أونلاين)</label>
