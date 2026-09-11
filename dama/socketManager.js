@@ -1285,7 +1285,8 @@ export const socketManager = {
             }
         });
 
-        socket.on('opponentMove', data => {
+            socket.on('opponentMove', data => {
+            if (!gameState.isOnlineMode) return; // 🌟 حماية من التداخل
             if (!data || !data.from || !data.to) return;
             
             let fromR = Number(data.from.r);
@@ -1380,7 +1381,8 @@ export const socketManager = {
         });
 
 
-        socket.on('opponentResigned', () => {
+            socket.on('opponentResigned', () => {
+            if (!gameState.isOnlineMode) return; // 🌟 حماية من التداخل
             if(gameState.turnTimerInterval) clearInterval(gameState.turnTimerInterval);
             if (gameState.isGameOver) return;
 
@@ -1409,7 +1411,8 @@ export const socketManager = {
             }
         });
 
-        socket.on('turnTimeout', data => {
+            socket.on('turnTimeout', data => {
+            if (!gameState.isOnlineMode) return; // 🌟 حماية من التداخل
             if(gameState.turnTimerInterval) clearInterval(gameState.turnTimerInterval);
             if (gameState.isGameOver) return;
 
@@ -1475,7 +1478,8 @@ export const socketManager = {
             this.handleExitGame(false); 
         });
 
-        socket.on('gameOverByServer', data => {
+                socket.on('gameOverByServer', data => {
+            if (!gameState.isOnlineMode) return; // 🌟 حماية من التداخل
             if (gameState.isGameOver) return;
             gameState.isGameOver = true;
             gameState.isGameActive = false;
@@ -1508,7 +1512,8 @@ export const socketManager = {
             }
         });
 
-        socket.on('rematchOffer', () => {
+            socket.on('rematchOffer', () => {
+            if (!gameState.isOnlineMode) return; // 🌟 حماية من التداخل
             if (this.isAlertShown || gameState.isSpectator) return; 
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal');
@@ -1560,8 +1565,10 @@ export const socketManager = {
             }
         });
 
-        socket.on('rematchAccepted', () => {
+            socket.on('rematchAccepted', () => {
+            if (!gameState.isOnlineMode) return; // 🌟 حماية من التداخل
             this.isAlertShown = false;
+
             if (typeof window.closeAppModal === 'function') window.closeAppModal('custom-alert-modal'); 
             else ui.setDisplay('custom-alert-modal', 'none');
             
