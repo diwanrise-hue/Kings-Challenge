@@ -1051,21 +1051,40 @@ export const storeManager = {
                     });
                     
                     window['socket'].on('purchaseSuccess', (data) => { 
-                        let msg = typeof data === 'string' ? data : (data.message || 'تم الشراء بنجاح!');
+                        let msg = typeof data === 'string' ? data : (data.message || 'تم الشراء بنجاح! 🎉');
+                        let purchasedItemId = data.itemId;
+                        let itemType = data.itemType;
                         
-                        // 🛡️ (مُحدّث): تم إزالة الاستدعاء اليدوي لـ addPopularityToBag لمنع التكرار (Double Increment)
-                        // يتم الاعتماد الآن حصرياً على حدث profileUpdated الذي يصل في نفس اللحظة من السيرفر.
-
-                        if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg); 
-                        else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
+                        // 1. إظهار الإشعار الأخضر السفلي (Toast)
+                        if (window.socketManager && typeof window.socketManager._showToast === 'function') {
+                            window.socketManager._showToast(msg); 
+                        }
                         
+                        // 2. إظهار النافذة المنبثقة السوداء الفخمة مع زر "استلام" وتفجير العملات 🌟
+                        if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                            window.ui.playSound(window.ui.sfx.coinsCollect); 
+                            const title = window.t ? window.t('alert_store') : "إشعار المتجر 🛒";
+                            
+                            // نمرر الدالة التي تنفجر فيها العملات عند ضغط اللاعب على "حسناً"
+                            window.ui.showCustomAlert(msg, title, () => {
+                                if (typeof window.ui.spawnCoinShower === 'function') {
+                                    window.ui.spawnCoinShower();
+                                }
+                            });
+                        } else if (window['triggerCustomAlertNotification']) {
+                            window['triggerCustomAlertNotification'](msg); 
+                        }
+                        
+                        // احتفال بصري إضافي (إن وجد)
                         if (typeof window.triggerPurchaseCelebration === 'function') {
                             window.triggerPurchaseCelebration();
                         }
                         
+                        // 3. مزامنة فورية وتحديث الواجهة
                         if (prof && prof.id) window['socket'].emit('syncProfile', { id: prof.id });
                         this.renderUI();
                     });
+
                 }
                 
             } else if (socketAttempts >= maxAttempts) { 
