@@ -1209,7 +1209,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 #toast-notification.show {
     visibility: visible !important;
     /* إجمالي مدة الأنميشن: 2 + 5 + 2 = 9 ثواني. وضعنا 11 ثانية لضمان الإخفاء التام */
-    animation: cinematicToastAnim 11s cubic-bezier(0.25, 1, 0.5, 1) forwards !important; 
+    animation: cinematicToastAnim 7s cubic-bezier(0.25, 1, 0.5, 1) forwards !important; 
 }
 
 /* 🌟 الأنميشن السينمائي حسب توقيتاتك:
