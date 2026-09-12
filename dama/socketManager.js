@@ -505,32 +505,32 @@ export const socketManager = {
     lastPingValue: null, 
     hidePingTimer: null, 
 
-            // 🌟 دالة الإشعار الجانبي الفخم (المحدثة للتأثير السينمائي) 🌟
-    _showToast(msg) {
+   
+  _showToast(msg) {
         if (!msg) return;
-        
         let toast = document.getElementById('toast-notification');
         if (toast) {
-            toast.innerHTML = msg; 
+            // فلترة الرسالة لمنع تكرار النجمة إذا كانت موجودة مسبقاً
+            let cleanMsg = msg.replace('✨', '');
             
-            // إزالة الكلاس القديم لإجبار الأنميشن على الإعادة
-            toast.className = 'toast-side-cyan';
+            // إضافة أيقونة مضيئة بشكل جميل بجانب النص
+            toast.innerHTML = `<span style="font-size: 18px; filter: drop-shadow(0 0 5px rgba(0,210,255,0.6)); margin-left: 5px;">✨</span> <span style="flex: 1;">${cleanMsg}</span>`;
             
-            // خدعة برمجية (Reflow) لترسيت حركة الأنميشن 
+            // إزالة أي كلاسات قديمة تسبب تعارض
+            toast.className = '';
+            
+            // خدعة برمجية (Reflow) لترسيت حركة الأنميشن
             void toast.offsetWidth; 
             
-            // إضافة الكلاس لتشغيل حركة الانبثاق
+            // إظهار الإشعار
             toast.classList.add('show');
             
             if (this.toastTimeout) clearTimeout(this.toastTimeout);
-            
-            // وقت كافي لانتهاء الأنميشن (الأنميشن 2.8 ثانية، نغلق الكلاس بعد 3 ثواني)
             this.toastTimeout = setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000); 
         }
     },
-
 
     _initRealPingIndicator() {
         let pingEl = document.getElementById('real-ping-indicator');
