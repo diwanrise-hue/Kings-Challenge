@@ -502,19 +502,19 @@ html[dir="ltr"] .side-menu-overlay.open .side-menu-panel { left: 0; }
 /* إطار الدور والتفكير */
 #turn-box-container {
     position: relative; 
-    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 2px;
+    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
     background: linear-gradient(145deg, #2a2a35, #15141a) !important;
     border: 1.5px solid #a88734 !important; 
     box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.2) !important; 
     padding: 4px 10px; border-radius: 20px; 
-    width: 190px !important; min-height: 55px !important; 
+    width: 190px !important; height: 55px !important; 
     box-sizing: border-box; transition: opacity 0.4s ease, visibility 0.4s ease;
     margin: 0 !important; visibility: hidden; opacity: 0;
 }
 body.game-active #turn-box-container { visibility: visible; opacity: 1; }
 body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 
-#turn-indicator, #turn-countdown { text-align: center; white-space: nowrap; overflow: visible; text-overflow: ellipsis; width: 100%; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; }
+#turn-indicator, #turn-countdown { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; }
 #turn-indicator { color: white; font-size: 15px; font-weight: 600; margin: 0; }
 #turn-countdown { color: #fce8a1; font-weight: 600; font-size: 12px; height: 15px; }
 .thinking-dots { display: flex; align-items: center; justify-content: center; gap: 5px; height: 20px; }
@@ -1160,8 +1160,43 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .purchase-preview-box { width: 100px; height: 100px; margin: 20px auto; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); }
 .legendary-icon { box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); }
 
-#toast-notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #2ecc71, #1e8449); border: 1.5px solid #8be8ab; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 14px; z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(4px); pointer-events: none; white-space: nowrap; }
-#toast-notification.show { opacity: 1; visibility: visible; bottom: 20px; }
+/* ========================================== */
+/* 🌟 الإشعار الجانبي الفيروزي (بديل المربع الأخضر) 🌟 */
+/* ========================================== */
+#toast-notification {
+    position: fixed !important;
+    top: 100px !important;       /* نفس مستوى إشعار التحدي */
+    right: -350px !important;    /* مخفي خارج الشاشة يميناً في البداية */
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;  /* إلغاء التوسيط القديم */
+    
+    width: 260px !important;     /* نفس عرض إشعار التحدي */
+    background: rgba(24, 23, 29, 0.95) !important; /* لون داكن فخم */
+    border: none !important;
+    border-right: 4px solid #00d2ff !important; /* 👈 الخط الفيروزي المميز */
+    border-radius: 12px 0 0 12px !important;
+    padding: 15px !important;
+    
+    color: #e0e0e0 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    
+    z-index: 9999999 !important;
+    box-shadow: -5px 5px 15px rgba(0,0,0,0.6) !important;
+    backdrop-filter: blur(8px) !important;
+    pointer-events: none !important;
+    
+    /* جعل الأيقونة والنص بخط واحد مرتب */
+    display: flex !important;align-items: center !important;justify-content: flex-start !important;gap: 10px !important;white-space: normal !important;line-height: 1.5 !important;direction: rtl !important;
+    
+    /* حركة انزلاق ناعمة من اليمين */
+    transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease !important;opacity: 0;visibility: hidden;
+}
+
+/* الكلاس الذي يُظهر الإشعار */
+#toast-notification.show {right: 15px !important; /* يظهر بمسافة 15 بكسل من الحافة اليمنى */opacity: 1 !important;visibility: visible !important;
+}
 
 #game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; backdrop-filter: blur(4px) saturate(150%) !important; border-radius: 36px !important; padding: 35px 25px !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;}
 #game-over-modal h3 { color: #fce8a1 !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
