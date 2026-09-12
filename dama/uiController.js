@@ -2873,7 +2873,15 @@ window.showEquipNotification = function(itemType) {
     else if (itemType === 'fr') msg = window.t ? window.t('toast_fr') : "تم تغيير الإطار بنجاح";
     else if (itemType === 'pc') msg = window.t ? window.t('toast_pc') : "تم تغيير الحجر بنجاح";
     else if (itemType === 'score') msg = window.t ? window.t('toast_score') : "تم تغيير شكل الشريط بنجاح";
-    toast.innerHTML = '✨ ' + msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2500);
+    
+    // تصميم أيقونة الفرشاة لتناسب اللون الفيروزي
+    toast.innerHTML = `<span style="font-size: 18px; filter: drop-shadow(0 0 5px rgba(0,210,255,0.6)); margin-left: 5px;">🎨</span> <span style="flex: 1;">${msg}</span>`;
+    
+    toast.className = '';
+    void toast.offsetWidth;
+    toast.classList.add('show'); 
+    
+    setTimeout(() => { toast.classList.remove('show'); }, 2500);
 
     setTimeout(() => {
         try {
@@ -2888,6 +2896,7 @@ window.showEquipNotification = function(itemType) {
         } catch(e) {}
     }, 50);
 };
+
 
 window.triggerCustomAlertNotification = function(msg) {
     if (typeof ui.showCustomAlert === 'function') { ui.showCustomAlert(msg); } else {
