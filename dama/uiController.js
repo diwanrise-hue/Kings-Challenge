@@ -2881,7 +2881,7 @@ window.showEquipNotification = function(itemType) {
     toast.classList.add('show'); 
     
     // إزالة الكلاس بعد 11.5 ثانية 
-    setTimeout(() => { toast.classList.remove('show'); }, 7000);
+    setTimeout(() => { toast.classList.remove('show'); }, 5000);
 
     setTimeout(() => {
         try {
