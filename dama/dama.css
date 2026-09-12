@@ -1209,7 +1209,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 #toast-notification.show {
     visibility: visible !important;
     /* عدلنا الوقت الكلي ليكون 6.5 ثانية */
-    animation: cinematicToastAnim 6.5s cubic-bezier(0.25, 1, 0.5, 1) forwards !important; 
+    animation: cinematicToastAnim 4.5s cubic-bezier(0.25, 1, 0.5, 1) forwards !important; 
 }
 
 @keyframes cinematicToastAnim {
