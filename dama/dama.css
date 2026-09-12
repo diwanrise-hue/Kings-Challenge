@@ -1872,4 +1872,39 @@ body.online-mode-active #board {
         max-width: 48vh !important; /* يعتمد على الطول بدلاً من العرض لكي لا تُقص اللوحة */
     }
 }
+/* ========================================== */
+/* 🌟 انعكاس إطار البروفايل للغة الإنجليزية (LTR) 🌟 */
+/* ========================================== */
+html[dir="ltr"] #profile-badge.profile-badge-container {
+    /* ضبط نقطة الارتكاز للمنتصف لضمان عدم خروج الإطار من الشاشة عند قلبه */
+    right: 0px !important; 
+    left: auto !important;
+    transform-origin: top center !important;
+    
+    /* قلب الحاوية بالكامل (هذا يعكس الخلفية ويضع الشارة في المنتصف) */
+    transform: scale(0.85) scaleX(-1) !important;
+}
+
+/* الحفاظ على تأثير اللمس مع الانعكاس */
+html[dir="ltr"] #profile-badge.profile-badge-container:hover {
+    transform: scale(0.82) scaleX(-1) !important;
+}
+
+/* 🌟 إعادة قلب العناصر الداخلية لتظهر النصوص طبيعية غير معكوسة 🌟 */
+html[dir="ltr"] #profile-badge.profile-badge-container > .text-boundary,
+html[dir="ltr"] #profile-badge.profile-badge-container > .xp-wrapper,
+html[dir="ltr"] #profile-badge.profile-badge-container > .vertical-divider-free {
+    transform: scaleX(-1) !important;
+}
+
+/* الحفاظ على أداء الـ 3D للصورة الشخصية وتعديل اتجاهها */
+html[dir="ltr"] #profile-badge.profile-badge-container > #badge-avatar {
+    transform: scaleX(-1) translateZ(0) !important;
+}
+
+/* الحفاظ على التوسيط الأصلي لشريط النقود السُفلي مع تعديل اتجاه النص */
+html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
+    transform: translateX(-50%) scaleX(-1) !important;
+}
+
 
