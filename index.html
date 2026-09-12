@@ -628,18 +628,29 @@
         <!-- 🌟 قسم المتجر -->
         <div id="nav-section-store" class="nav-section-container"></div>
 
-        <!-- قسم الألعاب -->
-        <div id="nav-section-games" class="nav-section-container active-section">
-            <div class="cards-container">
-                <div class="dama-card" onclick="startGame()">
-                    <img src="Photo/1000138342.webp" alt="Dama Game" class="card-bg">
-                    <div class="dama-card-content">
-                        <span id="dama-title-text" data-i18n="dama">دامة</span>
-                    </div>
-                </div>
-                <div class="game-card-soon" onclick="triggerAlertSoon()" data-i18n="soon">قريباً</div>
+       <!-- قسم الألعاب -->
+<div id="nav-section-games" class="nav-section-container active-section">
+    <div class="cards-container">
+        
+        <!-- بطاقة لعبة الدامة -->
+        <div class="dama-card" onclick="startGame('dama')">
+            <img src="Photo/1000138342.webp" alt="Dama Game" class="card-bg">
+            <div class="dama-card-content">
+                <span id="dama-title-text" data-i18n="store_dama">دامة</span>
             </div>
         </div>
+
+        <!-- بطاقة لعبة الطاولة الجديدة -->
+        <div class="dama-card" onclick="startGame('tawla')">
+            <!-- ضع مسار صورة خلفية الطاولة هنا (مثلاً: tawla_bg.webp) -->
+            <img src="Photo/tawla_bg.webp" alt="Tawla Game" class="card-bg" onerror="this.src='Photo/1000138342.webp'">
+            <div class="dama-card-content">
+                <span id="tawla-title-text" data-i18n="store_tawla">طاولة</span>
+            </div>
+        </div>
+        
+    </div>
+</div>
 
         <!-- قسم الأحدث -->
         <div id="nav-section-latest" class="nav-section-container">
@@ -1011,4 +1022,5 @@
     </script>
 
 </body>
-                        </html>
+</html>
+
