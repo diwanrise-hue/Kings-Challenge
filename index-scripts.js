@@ -1,9 +1,8 @@
 // ملف: index-scripts.js
-// 🌟 النسخة المحدثة والمتوافقة بالكامل مع السيرفر المركزي 🌟
-// 🛡️ (مُحدّث): إزالة دوال الشراء المكررة لمنع الخصم المزدوج (تم نقلها لـ store.js).
+// 🌟 النسخة المحدثة المركزية لربط جميع الألعاب (الدامة، الطاولة، وغيرها) 🌟
+// 🛡️ (مُحدّث): تم إضافة التوجيه الديناميكي لفتح ألعاب مختلفة.
 // 🚀 (مُحدّث): إصلاح تسرب الذاكرة (Memory Leak) عند تسجيل الدخول بفيسبوك.
 // 🛡️ (مُحدّث): حماية أزرار التسجيل من الـ Spam.
-// 🛠️ (مُحدّث): التوافق التام مع أزرار النافذة المنبثقة (حسناً/إلغاء).
 
 function formatCompactNumber(num) {
     if (num >= 1000000) {
@@ -52,11 +51,6 @@ window.PROFILE_FRAMES_ITEMS = [
     { id: 'pf_dragon', nameAr: 'إطار التنين الذهبي', price: 35000, imagePath: GITHUB_PROFILE_BASE + 'Profile4.webp' },
     { id: 'pf_noble', nameAr: 'إطار النبلاء الأسود', price: 10000, imagePath: GITHUB_PROFILE_BASE + 'Profile7.webp' }
 ];
-
-// ==========================================
-// تم حذف openPurchaseModal و confirm-buy-btn لمنع التضارب والخصم المزدوج
-// الاعتماد بالكامل أصبح على ملف store.js
-// ==========================================
 
 window.fbAsyncInit = function() {
     FB.init({
@@ -392,7 +386,6 @@ window.showLoadingPopup = function(msg) {
     customPopupCallback = null;
 };
 
-// 🚀 (مُحدّث): إصلاح تسرب الذاكرة (Memory Leak) باستخدام socket.once
 window.loginWithFacebook = function() {
     if (typeof FB === 'undefined') { showCustomPopup(translations[currentLang].msg_fb_connect); return; }
 
@@ -441,7 +434,6 @@ window.loginWithFacebook = function() {
     }); 
 };
 
-// 🚀 (مُحدّث): إصلاح تسرب الذاكرة (Memory Leak) باستخدام socket.once
 window.linkGuestWithFacebook = function() {
     if (typeof FB === 'undefined') { showCustomPopup(translations[currentLang].msg_fb_connect); return; }
     
@@ -524,7 +516,6 @@ window.showCustomPopup = function(msg, isPrompt = false, defaultValue = "", show
     popupModal.style.display = 'flex';
     popupModal.style.setProperty('z-index', '9999999', 'important');
     
-    // 🌟 استخدام innerHTML بدلاً من innerText لكي يقبل صور العملات ولا يحولها لنص
     document.getElementById('custom-popup-msg').innerHTML = msg;
     
     const inputContainer = document.getElementById('custom-popup-input-group');
@@ -532,7 +523,6 @@ window.showCustomPopup = function(msg, isPrompt = false, defaultValue = "", show
     const cancelBtn = document.getElementById('custom-popup-cancel');
     const okBtn = document.getElementById('custom-popup-ok');
     
-    // 🌟 ربط الأزرار برمجياً لضمان عملها 100% في جميع الحالات
     if (okBtn) {
         okBtn.style.display = 'block'; 
         okBtn.onclick = () => window.closeCustomPopup(true);
@@ -570,7 +560,6 @@ window.showCustomPopup = function(msg, isPrompt = false, defaultValue = "", show
 window.closeCustomPopup = function(isOk) {
     const popupModal = document.getElementById('custom-popup-modal');
     
-    // حفظ محتوى الرسالة
     let popupMsgContent = "";
     const popupMsgEl = document.getElementById('custom-popup-msg');
     if (popupMsgEl) {
@@ -586,7 +575,6 @@ window.closeCustomPopup = function(isOk) {
         spinModal.style.setProperty('z-index', '850', 'important');
     }
 
-    // 🌟 السحر المعماري هنا: إرسال رسالة محايدة للعبة النشطة داخل الـ iframe
     const gameFrame = document.getElementById('game-frame');
     if (gameFrame && gameFrame.contentWindow) {
         gameFrame.contentWindow.postMessage({
@@ -865,9 +853,7 @@ window.updateHubPopularity = function() {
                 popElement.innerText = formatCompactNumber(popularityVal);
             }
         }
-    } catch (e) {
-        console.error("لم يتم العثور على بيانات الشعبية", e);
-    }
+    } catch (e) {}
 };
 
 window.addEventListener('storage', (event) => {
@@ -994,7 +980,8 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-window.startGame = function() {
+// 🌟 التوجيه الديناميكي المحدث (Dynamic Game Routing) 🌟
+window.startGame = function(gameType = 'dama') {
     if (socket && socket.connected) {
         socket.disconnect(); 
     }
@@ -1002,14 +989,26 @@ window.startGame = function() {
     document.getElementById('game-selector').style.display = 'none';
     document.getElementById('bottom-nav-bar').style.display = 'none'; 
     document.getElementById('game-interface').style.display = 'block';
+    
     const gameFrame = document.getElementById('game-frame');
-    gameFrame.src = 'dama/dama.html';
+    
+    // توجيه اللعبة بناءً على نوعها (دامة أو طاولة)
+    if (gameType === 'tawla') {
+        gameFrame.src = 'tawla/tawla.html';
+    } else {
+        gameFrame.src = 'dama/dama.html';
+    }
+
     history.pushState({ view: 'game' }, '');
     
     gameFrame.onload = function() {
         syncHubProfile();
         gameFrame.contentWindow.postMessage({ type: 'LANGUAGE_CHANGED', lang: currentLang }, '*');
     };
+};
+
+window.startTawlaGame = function() {
+    startGame('tawla');
 };
 
 window.exitGame = function() {
@@ -1118,10 +1117,6 @@ window.addEventListener('message', (event) => {
         }
     }
 });
-
-// ===================================================================
-// 🌟 دوال التنقل وإدارة الحقيبة المعزولة للواجهة الرئيسية 🌟
-// ===================================================================
 
 window.hubSwitchThemeGridTabCategory = function(category) {
     const tabs = ['bg', 'frames', 'pieces', 'profile-frames', 'gifts'];
@@ -1259,10 +1254,6 @@ window.switchBagGameTab = function(gameId, btnElement) {
     if (btnElement) btnElement.classList.add('active');
 };
 
-// ===================================================================
-// 🌟 دوال الشراء بالأموال الحقيقية والـ VIP (Google Play Billing) 🌟
-// ===================================================================
-
 window.purchaseRealMoney = function(packageId, price) {
     const profile = getSafeProfile();
     
@@ -1356,12 +1347,13 @@ window.addEventListener('load', () => {
     setTimeout(updateVipProgressBarUI, 1000);
 });
 
-// 🌟 استرجاع اللاعب للمباراة تلقائياً عند تحديث الصفحة
 socket.on('gameStart', (data) => {
     if (document.getElementById('game-interface').style.display !== 'block') {
         showLoadingPopup(currentLang === 'ar' ? "تم العثور على مباراة نشطة! جاري إعادتك للساحة..." : "Active match found! Reconnecting...");
         setTimeout(() => {
             document.getElementById('custom-popup-modal').style.display = 'none';
+            // نقوم بإعادة فتحه في اللعبة الصحيحة حسب نوع السيرفر أو نتركها دامة افتراضياً
+            // يمكنك تخصيصها لاحقاً لتقرأ من السيرفر إذا كان اللاعب في Dama أو Tawla
             startGame();
         }, 1500);
     }
@@ -1377,9 +1369,6 @@ socket.on('matchCountdown', (data) => {
     }
 });
 
-// ==========================================
-// 🔊 نظام الصوت الشامل لجميع الأزرار (Global Click Sound)
-// ==========================================
 (function() {
     const clickSoundUrl = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/click.wav";
     const clickAudio = new Audio(clickSoundUrl);
