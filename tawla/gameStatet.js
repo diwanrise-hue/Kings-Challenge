@@ -1,59 +1,69 @@
 /**
  * gameStatet.js
- * المركز الموحد لبيانات لعبة الطاولة (Tawla State Management)
+ * المركز الموحد لبيانات اللعبة (State Management) للطاولة
+ * تم إنشاؤه لحل مشكلة التبعيات الدائرية (Circular Dependencies).
  */
+
 const isBrowser = typeof window !== 'undefined';
 const safeStorage = isBrowser ? localStorage : { getItem: () => null, setItem: () => {} };
 
 export const gameState = {
     deviceFingerprint: safeStorage.getItem('tawla_device_fingerprint') || (() => {
         const fp = 'dev_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-        try { safeStorage.setItem('tawla_device_fingerprint', fp); } catch(e) {}
+        try { safeStorage.setItem('tawla_device_fingerprint', fp); } catch(e) { if(isBrowser) console.warn("Storage full", e); }
         return fp;
     })(),
-    
+    botMoveCount: 0,
     isBotOpponent: false,
     isOnlineMode: false,
     onlineRoomID: "",
     myOnlineColor: "",
     currentOpponentName: "",
     currentOpponentAvatar: "❓",
-    
-    // 🎲 متغيرات الطاولة الأساسية
-    currentTurn: 'white',
-    dice: [], // مصفوفة النرد الحالية مثلاً [5, 3]
-    diceRolled: false,
-    
-    // 📐 هندسة اللوحة (24 مثلث)
-    // كل مثلث يحتوي على كائن: { color: 'white'|'black', count: 0 }
-    virtualBoard: Array(24).fill(null).map(() => ({ color: null, count: 0 })),
-    
-    // ⛓️ السجن (Bar) للقطع المأكولة
-    bar: { white: 0, black: 0 },
-    
-    // 🚪 الإخراج (Bear-off) للقطع التي أنهت دورتها
-    bearOff: { white: 0, black: 0 },
-    
-    selectedPoint: null, // المثلث الذي اختاره اللاعب لتحريك القطعة
-    validMoves: [], // الحركات المتاحة بناءً على النرد
-    
     turnTimerInterval: null,
     turnTimeLeft: 45,
-    lang: safeStorage.getItem('app_lang') || 'ar',
+    selectedPiece: null,
+    currentTurn: 'white',
+    isMultiJumping: false,
+    requiredJumps: 0,
+    jumpsCount: 0,
+    playerColor: 'white',
+    lang: safeStorage.getItem('app_lang') || safeStorage.getItem('appLang') || 'ar',
+    lastJumpDir: { dr: null, dc: null },
+    opponentStartRow: null,
+    opponentStartCol: null,
+    aiTimeout: null,
+    mmInterval: null,
+    mmTimeLeft: 0,
+    onlineFlip: false,
+    pieceDirection: { white: -1, black: 1 },
+    blockGameOverModal: true,
+    originalHints: null, 
+    roomBet: 0, 
+    movesWithoutProgress: 0, 
+    boardHistoryStr: [], 
+    pieceHistories: {}, 
+    virtualBoard: Array(8).fill(null).map(() => Array(8).fill(null)),
     
-    modalStack: [],
-    myCurrentRoomId: null,
+    // ==========================================
+    // 🌟 المتغيرات المركزية المضافة للواجهة
+    // ==========================================
+    modalStack: [],           
+    isEditingBet: false,      
+    pendingChallengeId: null, 
+    myCurrentRoomId: null,    
     currentViewedPlayer: null,
 
     userProfile: (() => {
         const stored = safeStorage.getItem('hub_user_profile');
         if (stored) {
-            try { return JSON.parse(stored); } catch(e) {}
+            try { return JSON.parse(stored); } catch(e) { if(isBrowser) console.error("Error parsing profile:", e); }
         }
-        return { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, tokens: 0, xp: 0 };
+        return { id: "", name: "", avatar: "1000132081.png", isCustomAvatar: false, gamesPlayed: 0, wins: 0, losses: 0, friends: [], hints: 5, nextFreeSpin: 0, discountTicket: 0, inventory: {} };
     })()
 };
 
 if (isBrowser) {
     window.gameState = gameState; 
+    setTimeout(() => { gameState.blockGameOverModal = false; }, 1000);
 }
