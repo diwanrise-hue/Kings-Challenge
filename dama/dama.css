@@ -1233,7 +1233,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
         -webkit-clip-path: inset(0 0 0 calc(100% - 4px));
         clip-path: inset(0 0 0 calc(100% - 4px)); 
     }
-    20% { 
+    10% { 
         opacity: 1; /* بقاء الخط الفيروزي لثانيتين وبداية الانبثاق */
         -webkit-clip-path: inset(0 0 0 calc(100% - 4px));
         clip-path: inset(0 0 0 calc(100% - 4px)); 
