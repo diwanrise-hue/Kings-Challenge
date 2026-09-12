@@ -524,7 +524,7 @@ export const socketManager = {
             // تم تعديل التوقيت إلى 11.5 ثانية ليتزامن مع طول الأنميشن الجديد
             this.toastTimeout = setTimeout(() => {
                 toast.classList.remove('show');
-            }, 11500); 
+            }, 7000); 
         }
     },
 
