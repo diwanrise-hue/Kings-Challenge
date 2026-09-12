@@ -1,0 +1,1884 @@
+<!-- tawla.html --->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tawla Challenge</title>
+    <link rel="icon" type="image/png" href="1000127272.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="tawla.css?v=2.0">
+    
+    <script src="tawla-scripts.js?v=2.0"></script>
+    <script src="tawlapro.js?v=2.0"></script> 
+
+    <style>
+        /* ========================================== */
+        /* ساحة التحديات (Matchmaking Stakes) - تأثيرات البطاقات */
+        /* ========================================== */
+        #matchmaking-stakes-modal {
+        align-items: center !important;
+        justify-content: flex-start !important; 
+        padding-top: 5px !important;           
+        background: rgba(15, 10, 15, 0.85);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+ }
+
+        /* 🌟 زر الإغلاق X منقول للزاوية العليا الثابتة 🌟 */
+        #matchmaking-stakes-modal .modal-close-btn {
+            position: fixed !important; 
+            top: 25px !important; 
+            left: 20px !important; 
+            background: rgba(0, 0, 0, 0.7) !important;
+            border: 1px solid #FFD700 !important;
+            color: #FFD700;
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
+            z-index: 9999 !important;
+        }
+
+        .mm-header-wrapper {
+            text-align: center;
+            margin-bottom: 15px !important; 
+            margin-top: -25px;
+            width: 100%;
+            position: relative;
+        }
+        
+        .mm-swords-icon { display: none; }
+        
+        .mm-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 8px;
+        }
+        
+        .mm-decor-line {
+            height: 2px;
+            width: 35px;
+            background: linear-gradient(90deg, transparent, #FFD700);
+        }
+        .mm-decor-line.right {
+            background: linear-gradient(90deg, #FFD700, transparent);
+        }
+        
+        .mm-title-row h3 {
+            color: #FFD700;
+            font-size: 32px;
+            margin: 0;
+            font-weight: 900;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .mm-header-wrapper p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .mm-carousel-container {
+            position: relative;
+            width: 100%;
+            max-width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -10px !important; 
+        }
+
+        .mm-nav-arrow { display: none; }
+
+        .mm-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 10px calc(50vw - 145px) 40px calc(50vw - 145px) !important; 
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            direction: rtl;
+            align-items: center;
+            width: 100%;
+        }
+        .mm-carousel::-webkit-scrollbar { display: none; }
+
+        .mm-card {
+            scroll-snap-align: center;
+            scroll-snap-stop: always;
+            flex: 0 0 290px;
+            height: 410px;
+            border-radius: 20px;
+            padding: 25px 15px;
+            position: relative;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            margin: 0 -40px; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out, box-shadow 0.3s ease;
+            transform: scale(0.8); 
+            opacity: 0.6; 
+            z-index: 1;
+            box-sizing: border-box;
+            will-change: transform, opacity; 
+            transform-origin: center center;
+        }
+        
+        .mm-card.active {
+            transform: scale(1) translateY(-4px); 
+            opacity: 1;
+            z-index: 10;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+      
+        .mm-card-medal {
+            height: 130px;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        .mm-card-medal img {
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8));
+            transform: translateZ(0); 
+            will-change: transform;
+            transition: all 0.3s ease;
+        }
+
+        .mm-card.active .mm-card-medal img {
+            animation: alive3DFloat 3.5s ease-in-out infinite;
+        }
+
+        @keyframes alive3DFloat {
+            0%, 100% { 
+                transform: translateY(0) scale(1.05); 
+            }
+            50% { 
+                transform: translateY(-12px) scale(1.12); 
+            }
+        }
+
+        .mm-card-title {
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 900;
+            margin: 0 0 10px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .mm-card-bet-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 85%;
+            margin-bottom: 20px;
+        }
+        .mm-bet-line {
+            height: 1px;
+            flex: 1;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4));
+        }
+        .mm-card-bet-row .mm-bet-line:last-child {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.4), transparent);
+        }
+        .mm-bet-text {
+            color: #b0c4de;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 0 10px;
+            white-space: nowrap;
+        }
+
+        .mm-card-prize-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-top: auto; 
+            margin-bottom: 15px; 
+            width: 85%;
+            background: rgba(0, 0, 0, 0.35); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+        
+        .mm-prize-label {
+            color: #b0c4de;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .mm-prize-value {
+            color: #ffffff;
+            font-size: 38px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+            line-height: 1;
+        }
+        
+        .mm-coin-icon {
+            font-size: 30px;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+            display: flex;
+            align-items: center;
+        }
+
+        .mm-card-btn {
+            width: 85%;
+            height: 48px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            text-shadow: none !important; 
+            font-family: 'Tajawal', sans-serif;
+            margin-top: 10px;
+            border: none !important; 
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.5), 0 10px 15px rgba(0,0,0,0.4) !important;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.2s ease !important;
+            position: relative;
+        }
+
+        .mm-card-btn:active { 
+            transform: translateY(5px) !important; 
+            box-shadow: 0 0px 0 rgba(0,0,0,0.5), 0 5px 5px rgba(0,0,0,0.4) !important;
+        }
+
+        .mm-card-btn:hover { 
+            filter: brightness(1.15); 
+        }
+
+        .theme-gray { background: linear-gradient(180deg, #333 0%, #111 100%); border: 2px solid #555; }
+        .theme-gray.active { border-color: #aaa; box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 20px 40px rgba(0,0,0,0.9); }
+        .theme-gray .mm-card-btn { background: linear-gradient(180deg, #666, #333); color: #fff; }
+
+        .theme-teal { background: linear-gradient(180deg, #004d40 0%, #001a14 100%); border: 2px solid #00897b; }
+        .theme-teal.active { border-color: #26a69a; box-shadow: 0 0 25px rgba(38, 166, 154, 0.4), 0 20px 40px rgba(0,0,0,0.9); }
+        .theme-teal .mm-card-btn { background: linear-gradient(180deg, #00695c, #00332a); color: #80cbc4; }
+
+        .theme-blue { background: linear-gradient(180deg, #0b2e59 0%, #041021 100%); border: 2px solid #1e5b99; }
+        .theme-blue.active { border-color: #4da6ff; box-shadow: 0 0 25px rgba(77, 166, 255, 0.4), 0 20px 40px rgba(0,0,0,0.9); }
+        .theme-blue .mm-card-btn { background: linear-gradient(180deg, #16467a, #0b2542); color: #85c1e9; }
+
+        .theme-red { background: linear-gradient(180deg, #590b0b 0%, #210404 100%); border: 2px solid #991e1e; }
+        .theme-red.active { border-color: #ff4d4d; box-shadow: 0 0 25px rgba(255, 77, 77, 0.4), 0 20px 40px rgba(0,0,0,0.9); }
+        .theme-red .mm-card-btn { background: linear-gradient(180deg, #fceabb, #d49500); color: #4a3500; }
+
+        .theme-purple { background: linear-gradient(180deg, #360b59 0%, #130421 100%); border: 2px solid #6c1e99; }
+        .theme-purple.active { border-color: #d14dff; box-shadow: 0 0 25px rgba(209, 77, 255, 0.4), 0 20px 40px rgba(0,0,0,0.9); }
+        .theme-purple .mm-card-btn { background: linear-gradient(180deg, #4d167a, #240b42); color: #cda8ff; }
+
+        .theme-gold { background: linear-gradient(180deg, #5c4300 0%, #1a1200 100%); border: 2px solid #b8860b; }
+        .theme-gold.active { border-color: #ffd700; box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), 0 20px 40px rgba(0,0,0,0.9); }
+        .theme-gold .mm-card-btn { background: linear-gradient(180deg, #fceabb, #f8b500); color: #4a3500; }
+
+        .theme-cyan { background: linear-gradient(180deg, #004d66 0%, #001a24 100%); border: 2px solid #0082b3; }
+        .theme-cyan.active { border-color: #00bcd4; box-shadow: 0 0 25px rgba(0, 188, 212, 0.4), 0 20px 40px rgba(0,0,0,0.9); }
+        .theme-cyan .mm-card-btn { background: linear-gradient(180deg, #0082b3, #003a4d); color: #fff; }
+
+        .theme-magenta { background: linear-gradient(180deg, #66004d 0%, #24001a 100%); border: 2px solid #b30082; }
+        .theme-magenta.active { border-color: #ff4081; box-shadow: 0 0 25px rgba(255, 64, 129, 0.4), 0 20px 40px rgba(0,0,0,0.9); }
+        .theme-magenta .mm-card-btn { background: linear-gradient(180deg, #b30082, #4d003a); color: #fff; }
+
+        .mm-lock-overlay { 
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); 
+            border-radius: 18px; flex-direction: column; justify-content: center; align-items: center; 
+            z-index: 20; border: 1px solid rgba(255,69,58,0.4); 
+        }
+ 
+
+        /* ========================================== */
+        /* 📊 شريط الرتب التفاعلي (النسخة النهائية المثبتة) */
+        /* ========================================== */
+        .mm-rank-bar-wrapper {
+            position: fixed !important; 
+            bottom: 10px !important; 
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 95% !important;
+            max-width: 420px !important;
+            background: rgba(15, 18, 25, 0.95) !important;
+            border: 1px solid rgba(255, 215, 0, 0.3) !important;
+            border-radius: 20px !important;
+            padding: 15px 10px 20px 10px !important; 
+            display: flex !important;
+            align-items: flex-start !important; 
+            justify-content: space-between !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 2px 10px rgba(255,255,255,0.05) !important;
+            z-index: 9999 !important; 
+            box-sizing: border-box !important;
+            direction: ltr !important; 
+            min-height: 135px !important; 
+        }
+
+        .rank-nav-btn {
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            color: #ffd700 !important;
+            width: 34px !important; 
+            height: 34px !important; 
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            flex-shrink: 0 !important;
+            font-size: 16px !important;
+            transition: 0.2s ease !important;
+            margin-top: 28px !important; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important;
+            -webkit-tap-highlight-color: transparent !important; 
+        }
+
+        .rank-nav-btn:active:not(:disabled) {
+            background: rgba(255,215,0,0.2) !important;
+            border-color: #ffd700 !important;
+            transform: scale(1.1) !important;
+        }
+        
+        @media (hover: hover) {
+            .rank-nav-btn:hover:not(:disabled) {
+                background: rgba(255,215,0,0.2) !important;
+                border-color: #ffd700 !important;
+                transform: scale(1.1) !important;
+            }
+        }
+
+        .rank-nav-btn:disabled {
+            opacity: 0.2 !important;
+            cursor: not-allowed !important;
+            transform: scale(1) !important;
+        }
+
+        .mm-rank-slider {
+            flex: 1 !important;
+            position: relative !important;
+            margin: 0 25px !important; 
+            height: 100px !important; 
+        }
+
+        .mm-track-bg {
+            position: absolute !important;
+            top: 49px !important; 
+            left: -15px !important; 
+            right: -15px !important; 
+            height: 4px !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-radius: 2px !important;
+            z-index: 1 !important;
+        }
+
+        .mm-track-fill {
+            height: 100% !important;
+            background: linear-gradient(90deg, #f5a623, #ffd700) !important;
+            border-radius: 2px !important;
+            transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1) !important;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.8) !important;
+        }
+
+        .mm-tier-node {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            width: 55px !important; 
+            gap: 4px !important; 
+            position: absolute !important;
+            top: 0 !important;
+            transform: translateX(-50%) !important;
+            z-index: 2 !important;
+        }
+
+        .mm-tier-img {
+            width: 38px !important;
+            height: 38px !important;
+            object-fit: contain !important;
+            z-index: 5 !important;
+            transition: all 0.3s ease !important;
+            margin-bottom: 2px !important; 
+        }
+
+        .mm-tier-dot {
+            width: 14px !important;
+            height: 14px !important;
+            background: #1a1a24 !important;
+            border: 2px solid #777 !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+            z-index: 5 !important;
+            margin: 0 0 2px 0 !important; 
+            transition: all 0.3s ease !important;
+        }
+
+        .mm-tier-node.reached .mm-tier-dot {
+            border-color: #ffd700 !important;
+            background: #d4af37 !important;
+            box-shadow: 0 0 10px #ffd700 !important;
+        }
+        
+        .mm-tier-node.reached .mm-tier-dot::after {
+            content: '✓';
+            color: #000; 
+            font-size: 10px;
+            font-weight: 900;
+        }
+        
+        .mm-tier-node.reached .mm-tier-img {
+            transform: scale(1.1) !important;
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5)) !important;
+        }
+
+        .mm-tier-node:not(.reached) .mm-tier-img {
+            filter: saturate(30%) brightness(0.6) !important; 
+            transform: scale(0.9) !important;
+        }
+
+        .mm-tier-label { 
+            font-size: 11px !important; 
+            font-weight: bold !important; 
+            margin-top: 4px !important; 
+            color: #a1a1aa !important; 
+        }
+        .mm-tier-node.current .mm-tier-label { 
+            color: #ffd700 !important; 
+        }
+        .mm-tier-score { 
+            color: #f5a623 !important; 
+            font-size: 11px !important; 
+            font-weight: bold !important; 
+            display: flex !important; 
+            align-items: center !important; 
+            gap: 4px !important; 
+            margin-top: 2px !important; 
+        }
+    </style>
+</head>
+<body data-piece-style="pc_original">
+    
+    <input type="hidden" id="game-mode" value="ai">
+
+    <div class="profile-badge-container" id="profile-badge" onclick="if(!window.isMatchRunning) window.openMyProfile()">
+        <div id="badge-avatar" class="profile-avatar-capsule"></div>
+        <div class="text-boundary boundary-level">
+            <span id="badge-level" class="shrink-text">Lv.1</span>
+        </div>
+        <div class="text-boundary boundary-name">
+            <span id="badge-username-display-game" class="player-name shrink-text">أنت</span>
+        </div>
+        <div class="text-boundary boundary-title">
+            <span id="profile-stat-title-badge" class="title-text-free shrink-text">مبارز</span>
+        </div>
+        <div class="vertical-divider-free"></div>
+        <div class="text-boundary boundary-rank-icon">
+            <span id="profile-stat-rank-icon-badge" class="rank-icon-free">     <img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));"> </span>
+        </div>
+        <div class="text-boundary boundary-xp">
+            <span id="xp-text-element" class="xp-text-free shrink-text">0 / 100 XP</span>
+        </div>
+        <div class="xp-wrapper">
+            <div class="straight-xp-fill" id="xp-bar-fill"></div>
+        </div>
+        <div class="bottom-stats-frame" id="profile-stat-tokens-badge-container">
+            <div class="stat-item coins-text-format">
+                <span class="stat-icon"><img src="../Photo/coin.webp" class="app-coin-icon" style="width: 14px; height: 14px; margin-top: 1px;"></span>
+                <span class="tokens-number-ctrl" id="profile-stat-tokens-badge">0</span>
+            </div>
+            <div class="frame-divider"></div>
+            <div class="stat-item streak-text-format">
+                <span class="streak-number-ctrl" id="profile-stat-streak-badge">0</span>
+                <span class="streak-text-ctrl">انتصار</span>
+                <span class="stat-icon streak-fire-ctrl">🔥</span>
+            </div>
+        </div>
+    </div>
+    
+    <button id="floating-quests-btn" onclick="openAppModal('daily-quests-modal')" title="المهام اليومية">
+        <span data-icon="dailyQuests" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; transform: scale(1.1);"></span>
+        <span id="quests-notify-badge" style="display: none; position: absolute; top: -6px; right: -6px; background: #34c759; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 900; border: 2px solid #282a32; box-shadow: 0 2px 4px rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 10;">✓</span>
+    </button>
+
+    <button id="hamburger-menu-btn" onclick="toggleSideMenu()" title="القائمة الرئيسية" data-icon="hamburger"></button>
+    <button id="bag-quick-btn" onclick="openAppModal('themes-grid-overlay')" title="الحقيبة والأزياء" data-icon="bagQuick"></button>
+
+    <div id="challenge-toast" style="position: fixed; top: 100px; right: -320px; width: 260px; background: rgba(24,23,29,0.95); border-right: 4px solid #34c759; border-radius: 12px 0 0 12px; padding: 15px; color: white; display: flex; flex-direction: column; gap: 10px; transition: right 0.4s ease; z-index: 1040; box-shadow: -5px 5px 15px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: bold; font-size: 14px; color: #34c759;">تحدي جديد ⚔️</span>
+        </div>
+        <div id="challenge-toast-msg" style="font-size: 13px; color: #e0e0e0; line-height: 1.5;">صديقك يتحداك في جولة جديدة!</div>
+        <button id="challenge-toast-open-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px; color: white; cursor: pointer; font-size: 12px; font-weight: bold;">عرض التحدي</button>
+    </div>
+
+    <div id="challenge-action-modal" class="modal-overlay" style="z-index: 1050;">
+        <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <h3 style="color: #34c759; margin-bottom: 15px;">تحدي من صديق!</h3>
+            <p id="challenge-action-msg" style="font-size: 15px; color: white; margin-bottom: 25px; line-height: 1.6;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button id="challenge-accept-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: linear-gradient(135deg, #34c759, #28a745) !important;">موافق</button>
+                <button id="challenge-reject-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255,69,58,0.1) !important; color: rgba(255,69,58,0.7) !important; border: 1px solid rgba(255,69,58,0.2) !important;">رفض</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="status-area">
+        <div id="match-players-card" style="display: none; width: 100%; justify-content: center; align-items: center; position: relative; z-index: 10;">
+            <div class="match-players-flex">
+                <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 12px;">
+                    <div id="card-my-avatar" class="profile-avatar-capsule" style="width: 75%; height: 75%; border-radius: 50%; overflow: visible; border: 2px solid #ffd700; background: #1a1a24; display: flex; align-items: center; justify-content: center;"></div>
+                </div>
+                <div class="level-badge-small" id="card-my-level" style="background: rgba(135,206,235,0.2); border: 1px solid #87ceeb; color: #87ceeb; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; margin-top: -6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Lv.1</div>
+                <span id="card-my-name" class="match-players-name" style="color: white; font-size: 13px; font-weight: 700; margin-top: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">أنت</span>
+                
+                <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 2px;">
+                    <span id="card-my-rank-icon" style="display: flex; align-items: center;"></span>
+                    <span id="card-my-title" style="color: #ff9800; font-size: 10px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">مبتدئ</span>
+                </div>
+            </div>
+            
+            <div class="match-vs-container" style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0; margin: 0 10px;">
+                <span class="match-vs-text" style="font-size: 28px; font-weight: 900; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.6); font-family: 'Outfit', sans-serif; letter-spacing: 1px;">VS</span>
+                <span id="vs-bet-display" style="font-size:13px; color:#30d158; font-weight:bold; text-shadow:0 0 8px rgba(48,209,88,0.5); display: none; margin-top:2px;"><img src="../Photo/coin.webp" class="app-coin-icon"> 0</span>
+                <div id="spectator-stats-container" onclick="if(window.requestSpectatorList) window.requestSpectatorList()" style="display: none; gap: 8px; margin-top: 6px; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <span title="المشاهدين" style="font-size:11px; color:#a1a1aa; background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">👁️ <span id="spectator-count-display">1</span></span>
+                    <span title="المراهنين" style="font-size:11px; color:#f1c40f; background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 8px; border: 1px solid rgba(241,196,15,0.2); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">🎯 <span id="bettors-count-display">0</span></span>
+                </div>
+            </div>
+
+            <div class="match-players-flex">
+                <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; margin-bottom: 12px;" onclick="window.showOpponentProfile()">
+                    <div id="card-opp-avatar" class="profile-avatar-capsule" style="width: 75%; height: 75%; border-radius: 50%; overflow: visible; border: 2px solid #ff453a; background: #1a1a24; display: flex; align-items: center; justify-content: center;">❓</div>
+                </div>
+                <div class="level-badge-small" id="card-opp-level" style="background: rgba(255,69,58,0.2); border: 1px solid #ff453a; color: #ff453a; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; margin-top: -6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Lv.?</div>
+                <span id="card-opp-name" class="match-players-name" style="color: white; font-size: 13px; font-weight: 700; margin-top: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">الخصم</span>
+                
+                <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 2px;">
+                    <span id="card-opp-rank-icon" style="display: flex; align-items: center;"></span>
+                    <span id="card-opp-title" style="color: #ff9800; font-size: 10px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">مبتدئ</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+            <div id="mini-disconnect-radar" data-icon="disconnectIcon" style="display: none; position: absolute; bottom: 22px; left: calc(50% + 138px); transform: translateX(-50%); width: 22px; height: 22px; z-index: 800; align-items: center; justify-content: center; pointer-events: none;"></div>
+            
+            <div id="turn-box-container">
+                <div id="idle-counter" style="position: absolute; top: 5px; left: 12px; font-size: 11px; font-weight: 800; color: #a1a1aa; background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 8px; display: none; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
+                <div id="repetition-counter" style="position: absolute; top: 28px; left: 12px; font-size: 10px; font-weight: 800; color: #f5a623; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 8px; display: none; border: 1px solid rgba(245, 166, 35, 0.3); box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
+                
+                <h3 id="turn-indicator">Your Turn</h3>
+                <div id="turn-countdown"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scoreboard">
+        <div id="opponent-score-row" class="score-row"></div>
+        <div id="my-score-row" class="score-row"></div>
+    </div>
+    
+    <!-- 🎲 حاوية الطاولة الجديدة بدلاً من شبكة الدامة 🎲 -->
+    <div class="game-container" style="flex-direction: column;">
+        <div id="tawla-board-wrapper" style="position: relative; width: 95vw; max-width: 420px; aspect-ratio: 0.8 / 1;">
+            <div id="tawla-board"></div> 
+        </div>
+        <!-- النرد الخاص بالطاولة -->
+        <div id="dice-container" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; height: 50px;">
+            <div id="die1" class="tawla-die" style="display: none; font-size: 38px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">🎲</div>
+            <div id="die2" class="tawla-die" style="display: none; font-size: 38px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">🎲</div>
+        </div>
+    </div>
+
+    <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
+        <div class="side-menu-panel">
+            <div class="side-menu-header">
+                <h3 class="side-menu-title" id="menu-title-text">القائمة</h3>
+                <button class="side-menu-close" onclick="toggleSideMenu()">✕</button>
+            </div>
+            
+            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('lucky-spin-modal')">
+                <span style="position: relative; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
+                    <span data-icon="luckySpin" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
+                    <span class="notification-badge" id="menu-spin-notify-badge" style="display: none; background-color: #30d158; box-shadow: 0 0 8px #30d158; width: 12px; height: 12px; right: -4px; left: auto; top: -4px;"></span>
+                </span>
+                <span id="menu-spin-text">عجلة الحظ</span>
+            </div>
+            
+            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('daily-quests-modal')">
+                <span data-icon="dailyQuests" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;"></span>
+                <span id="menu-quests-text">المهام اليومية</span>
+            </div>
+
+            <div class="side-menu-item" id="store-portal-corner-btn" onclick="toggleSideMenu(); openAppModal('store-modal')">
+                <span data-icon="storePortal" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;"></span>
+                <span id="menu-store-text">المتجر الملكي</span>
+            </div>
+
+            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('themes-grid-overlay')">
+                <span data-icon="bagSide"></span>
+                <span id="menu-bag-text">الحقيبة الممتلكات</span>
+            </div>
+
+            <div class="side-menu-item" onclick="toggleSideMenu(); window.openRadioModal();">
+                <span style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;" data-icon="radioSide"></span> 
+                <span id="menu-radio-text">الراديو</span>
+            </div>
+            
+            <div class="side-menu-item" onclick="toggleSideMenu(); window.showLeaderboard()">
+                <span data-icon="medal"></span>
+                <span id="menu-leaderboard-text">متصدري الموسم</span>
+            </div>
+                        
+            <div class="side-menu-item" onclick="toggleSideMenu(); window.showHallOfFame()">
+                <span style="font-size: 22px; filter: drop-shadow(0 0 5px rgba(212,175,55,0.8)); display: flex; align-items: center; justify-content: center; width: 34px;">🏛️</span>
+                <span id="menu-hof-text" style="color: #ffffff; font-weight: 800;">سجل الشرف </span>
+            </div>
+
+            <div class="side-menu-item" onclick="toggleSideMenu(); openAppModal('settings-overlay')">
+                <span data-icon="gear"></span> 
+                <span id="menu-settings-text">الضبط</span>
+            </div>
+            
+            <div style="flex-grow: 1;"></div>
+            
+            <div class="side-menu-item" onclick="toggleSideMenu(); window.exitTawlaGame();" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.2) !important; color: #ff453a; margin-bottom: 0;">
+                <span style="font-size: 36px; display: flex; align-items: center; justify-content: center; width: 38px; transform: translateY(1px);">🚪</span> 
+                <span id="menu-exit-text">خروج</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="daily-quests-modal" class="modal-overlay" style="z-index: 900;">
+        <div class="settings-card" dir="auto" style="max-width: 360px; padding: 25px 20px;">
+            <button class="modal-close-btn" onclick="closeAppModal('daily-quests-modal')">✕</button>
+            <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">سجل المهام 📜</h3>
+            <p class="settings-label" style="text-align:center; margin-bottom: 15px; color: #fdf5c9;">أكمل المهام للحصول على جوائز إضافية!</p>
+            
+            <div class="custom-nav-tabs" style="margin-bottom: 15px;">
+                <button id="quest-tab-daily" class="custom-tab-button active" onclick="switchQuestTab('daily')">يومية</button>
+                <button id="quest-tab-weekly" class="custom-tab-button" onclick="switchQuestTab('weekly')">أسبوعية</button>
+            </div>
+
+            <div id="quests-list-container-daily" style="display: flex; flex-direction: column; gap: 12px; max-height: 48vh; overflow-y: auto; padding-right: 5px;"></div>
+            <div id="quests-list-container-weekly" style="display: none; flex-direction: column; gap: 12px; max-height: 48vh; overflow-y: auto; padding-right: 5px;"></div>
+            
+            <button id="collect-all-btn" class="save-settings-btn" style="display: none; background: linear-gradient(135deg, #34c759, #28a745) !important; margin: 15px auto 0 auto; width: 80%; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important; border-color: #8be8ab !important; border-bottom: 3.5px solid #145a32 !important;" onclick="if(window.questsManager) window.questsManager.claimAllRewards(window.questsManager.currentTab)">جمع الكل 🎁</button>
+
+            <p id="quests-reset-timer" style="color: #a1a1aa; font-size: 12px; margin-top: 15px; font-weight: 600;">تتجدد المهام بعد: --:--:--</p>
+        </div>
+    </div>
+
+    <div id="toast-notification" class="toast-side-cyan">✨ إشعار جديد</div>
+
+    <button id="online-toggle-btn" class="premium-game-btn" title="البحث العشوائي" onclick="event.stopImmediatePropagation(); if(window.openAppModal) window.openAppModal('matchmaking-stakes-modal');">
+        <span class="btn-icon" data-icon="globeBtn"></span>
+        <div class="btn-text-col">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="online-glow-dot"></div>
+                <span class="btn-main-text">أونلاين</span>
+            </div>
+            <span class="btn-sub-text">البحث عن لاعب</span>
+        </div>
+        <span class="notification-badge" id="online-notify-badge" style="display: none;"></span>
+    </button>
+
+    <div id="level-select-modal" class="modal-overlay" style="z-index: 950;">
+        <div class="settings-card" dir="auto" style="max-width: 340px; padding: 30px 20px;">
+            <button class="modal-close-btn" onclick="closeAppModal('level-select-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color:#f5a623; margin-bottom: 5px; font-size: 22px;">مستوى الحاسوب 🤖</h3>
+            <p class="settings-label" style="text-align: center; margin-bottom: 25px;">اختر درجة ذكاء البوت</p>
+            
+            <div class="level-grid-container" style="grid-template-columns: repeat(3, 1fr);">
+                <button id="lvl-btn-1" class="level-btn easy" onclick="setAiLevel(1)">L1<span>عمق 1</span></button>
+                <button id="lvl-btn-2" class="level-btn easy" onclick="setAiLevel(2)">L2<span>عمق 2</span></button>
+                <button id="lvl-btn-3" class="level-btn easy active" onclick="setAiLevel(3)">L3<span>عمق 3</span></button>
+                
+                <button id="lvl-btn-4" class="level-btn medium" onclick="setAiLevel(4)">L4<span>عمق 4</span></button>
+                <button id="lvl-btn-5" class="level-btn medium" onclick="setAiLevel(5)">L5<span>عمق 5</span></button>
+                <button id="lvl-btn-6" class="level-btn medium" onclick="setAiLevel(6)">L6<span>عمق 6</span></button>
+                
+                <button id="lvl-btn-7" class="level-btn hard boss" onclick="setAiLevel(7)" style="grid-column: 1 / -1;">L7<span>الزعيم (عمق 7) 👑</span></button>
+            </div>
+            
+            <button onclick="closeAppModal('level-select-modal')" class="save-settings-btn" style="margin-top: 20px; background: transparent !important; box-shadow: none !important; border: 1.5px solid #a88734 !important;">إلغاء</button>
+        </div>
+    </div>
+
+
+    <div id="lucky-spin-modal" class="modal-overlay" style="z-index: 850;">
+        <div class="settings-card" dir="auto" style="max-width: 360px;">
+            <button class="modal-close-btn" onclick="closeAppModal('lucky-spin-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color:#f1c40f; margin-bottom: 5px; font-size: 24px; text-shadow: 0 0 10px rgba(241,196,15,0.4);">عجلة الحظ 🎡</h3>
+            <p class="settings-label" style="text-align:center; margin-bottom: 25px; color: #fdf5c9;">جرب حظك واربح جوائز وخصومات نادرة!</p>
+
+            <div class="wheel-container">
+                <div class="wheel-pointer-wrapper" id="lucky-wheel-pointer"><div class="wheel-pointer-shape"></div></div>
+                <div class="wheel-inner" id="lucky-wheel-inner">
+                    <div class="wheel-text w-1">50 <img src="../Photo/coin.webp" class="app-coin-icon"></div>
+                    <div class="wheel-text w-2">100 <img src="../Photo/coin.webp" class="app-coin-icon"></div>
+                    <div class="wheel-text w-3">1 💡</div>
+                    <div class="wheel-text w-4">400 <img src="../Photo/coin.webp" class="app-coin-icon"></div>
+                    <div class="wheel-text w-5">25% <img src="../Photo/discount25.webp" class="app-ticket-icon"></div>
+                    <div class="wheel-text w-6">50% <img src="../Photo/discount50.webp" class="app-ticket-icon"></div>
+                    <div class="wheel-text w-7">250 <img src="../Photo/coin.webp" class="app-coin-icon"></div>
+                    <div class="wheel-text w-8">1000 🎁</div>
+                    <div class="wheel-pin" style="transform: rotate(0deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(45deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(90deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(135deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(180deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(225deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(270deg) translateY(-133px);"></div><div class="wheel-pin" style="transform: rotate(315deg) translateY(-133px);"></div>
+                </div>
+                <div class="wheel-center-pin"></div>
+            </div>
+
+            <div id="spin-timer-wrapper" class="spin-timer-wrapper" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 65px; min-height: 65px; max-height: 65px; overflow: hidden; position: relative; margin-bottom: 15px;">
+                
+                <div id="spin-timer-digits" class="spin-timer-digits" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+                    <div class="timer-label" style="font-size: 12px; margin-bottom: -4px; color: #a1a1aa;">:اللفة المجانية القادمة بعد</div>
+                    <div style="display: flex; gap: 5px; align-items: center; justify-content: center;">
+                        <div id="spin-timer-h" class="t-box">00</div>
+                        <div class="time-sep">:</div>
+                        <div id="spin-timer-m" class="t-box">00</div>
+                        <div class="time-sep">:</div>
+                        <div id="spin-timer-s" class="t-box">00</div>
+                    </div>
+                </div>
+
+                <div id="spin-ready-text" style="color: #34c759; font-size: 16px; font-weight: 800; display: none; text-shadow: 0 0 10px rgba(52,199,89,0.5); text-align: center; width: 100%;">اللفة المجانية جاهزة! 🎁</div>
+            </div>
+
+            <button id="spin-free-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 15px rgba(40,167,69,0.4) !important; border-color: #8be8ab !important; border-bottom: 3.5px solid #145a32 !important; display: none;">لفة مجانية 🆓</button>
+            <button id="spin-paid-btn" class="save-settings-btn" style="background: linear-gradient(135deg, rgb(127, 119, 30), rgba(0, 113, 255, 0.8901960784313725)) !important; color: #00d2ff !important; display: none; border: 1px solid rgb(0, 193, 234) !important; box-shadow: 0 0 10px rgb(162, 165, 54), inset 0 0 5px rgba(0, 210, 255, 0.15) !important; font-weight: 900; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">لفة إضافية (200 <img src="../Photo/coin.webp" class="app-coin-icon">)</button>
+        </div>
+    </div> <div id="level-up-modal" class="modal-overlay" style="z-index: 980;">
+        <div class="settings-card" dir="auto" style="max-width: 320px; overflow: hidden; position: relative;">
+            <div class="level-up-rays"></div> 
+            <button class="modal-close-btn" onclick="closeAppModal('level-up-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color:#ffd700; font-size: 26px; text-shadow: 0 0 10px rgba(255,215,0,0.6); margin-bottom: 10px;">ترقية جديدة! ⬆️</h3>
+            <div style="font-size: 60px; margin: 15px 0; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));">🏅</div>
+            <p style="color: white; font-size: 18px; margin: 0 0 5px 0; font-weight: 700;">وصلت إلى المستوى <span id="level-up-num" style="color: #34c759; font-size: 22px;">2</span></p>
+            <p id="level-up-title" style="color: #f5a623; font-size: 14px; margin: 0 0 20px 0; font-weight: 600;">لقب: مبارز</p>
+            <div style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1.5px solid #a88734;">
+                <h4 style="color: #a1a1aa; margin: 0 0 10px 0; font-size: 13px;">المكافآت:</h4>
+                <div id="level-up-rewards" style="color: white; font-weight: bold; font-size: 16px; line-height: 1.8;">+100 <img src="../Photo/coin.webp" class="app-coin-icon"></div>
+            </div>
+            <button onclick="closeAppModal('level-up-modal')" class="save-settings-btn" style="background: linear-gradient(135deg, #f5a623, #d35400) !important; color: white !important; border-color: #ffd700 !important; border-bottom: 3.5px solid #a85400 !important;">استلام الجوائز</button>
+        </div>
+    </div>
+
+
+    
+
+    <div id="mic-request-modal" class="modal-overlay" style="z-index: 1000;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <h3 style="color: #87ceeb; margin-bottom: 10px;">طلب محادثة صوتية 🎤</h3>
+            <p style="color: #e0e0e0; font-size: 14px; margin-bottom: 20px; line-height: 1.6;">الخصم يطلب تفعيل المايكروفون، هل توافق على بدء المحادثة؟</p>
+            <div style="display: flex; gap: 10px;">
+                <button id="mic-accept-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(48,209,88,0.2) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.4) !important; box-shadow: none !important;">قبول</button>
+                <button id="mic-reject-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255,69,58,0.15) !important; color: #ff453a !important; box-shadow: none !important;">رفض</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="in-game-profile-modal" class="modal-overlay" style="z-index: 920;">
+        <div class="settings-card" dir="auto" style="max-width: 340px; padding: 40px 15px; display: flex; flex-direction: column; align-items: center; position: relative;">
+            <button class="modal-close-btn" onclick="closeAppModal('in-game-profile-modal')">✕</button>
+            
+            <button id="igp-achievements-btn" onclick="window.openTitlesModal()" style="position: absolute; top: 160px; right: 20px; background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.5); border-radius: 12px; padding: 6px 14px; color: #ffd700; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 50; transition: all 0.2s ease; margin: 0;" onmouseover="this.style.background='rgba(255, 215, 0, 0.25)'; this.style.transform='scale(1.05)';" onmouseout="this.style.background='rgba(255, 215, 0, 0.15)'; this.style.transform='scale(1)';">
+              <span style="font-size: 16px; filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));">🏆</span> الإنجازات
+              </button>
+
+            <h3 id="igp-title" style="margin-bottom: 15px;">الملف الشخصي</h3>
+            
+            <div class="avatar-wrapper" style="width: 80px; height: 80px; margin-bottom: 20px;">
+                <div class="profile-avatar-capsule" id="igp-avatar" style="border-width: 3px; border-color: #d4af37 !important;"></div>
+                <div class="level-badge-small" id="igp-level" style="font-size: 12px; padding: 3px 10px; bottom: -12px; border-color: #d4af37 !important;">Lv.1</div>
+            </div>
+            
+            <h4 id="igp-name" style="margin: 0 0 5px 0; font-size: 22px; font-weight: 700; color: white; text-align: center; width: 100%; display: flex; justify-content: center; align-items: center;">الاسم</h4>
+            
+            <div style="display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 20px; width: 100%; gap: 12px;">
+                <div style="flex: 1; background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(0,0,0,0.6)); padding: 12px; border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                    <div id="igp-rank-display" style="color: #ffd700; font-size: 20px; font-weight: 900; text-shadow: 0 2px 5px rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                     <img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));"> <span>برونزي</span>
+                     </div>
+                    <div style="width: 80%; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);"></div>
+                    <div id="igp-title-display" style="color: #e0e0e0; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
+                        اللقب: مبتدئ
+                    </div>
+                </div>
+
+                <div style="flex: 1; background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(0,0,0,0.6)); border: 1px solid rgba(0, 210, 255, 0.3); padding: 12px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); gap: 8px;">
+                    <span style="color: #00d2ff; font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 6px;">الشعبية <span style="font-size: 16px; filter: hue-rotate(210deg) drop-shadow(0 0 5px rgba(0,210,255,0.8));">🔥</span></span>
+                    <div style="width: 80%; height: 1.5px; background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.6), transparent);"></div>
+                    <div style="color: #ffffff; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+                        <span id="igp-popularity-val">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="igp-xp-container" style="width: 100%; margin-bottom: 20px;">
+                <div class="xp-bar-bg"><div class="xp-bar-fill" id="igp-xp-fill"></div><div class="xp-bar-text" id="igp-xp-text">0 / 100 XP</div></div>
+            </div>
+            
+            <div onclick="window.copyMyId()" id="copy-id-btn" style="cursor: pointer; color: #a1a1aa; font-size: 13px; margin-bottom: 15px; font-family: monospace; padding: 4px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;" title="نسخ المعرف">
+                <span>ID: <span id="igp-id-display" style="color: white; font-weight: bold;">...</span></span><span data-icon="copyId"></span>
+            </div>
+            
+            <div id="igp-stats-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; padding: 15px 5px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2); width: 100%; box-sizing: border-box;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <span id="igp-games" style="color: white; font-size: 20px; font-weight: 700;">0</span>
+                    <span id="igp-lbl-games" style="color: #a1a1aa; font-size: 10px; font-weight: 500; margin-top: 4px;">لعب</span>
+                </div>
+                <div style="display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); border-left: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                    <span id="igp-wins" style="color: #34c759; font-size: 20px; font-weight: 700;">0</span>
+                    <span id="igp-lbl-wins" style="color: #a1a1aa; font-size: 10px; font-weight: 500; margin-top: 4px;">فوز</span>
+                </div>
+                <div style="display: flex; flex-direction: column; border-left: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                    <span id="igp-losses" style="color: #ff453a; font-size: 20px; font-weight: 700;">0</span>
+                    <span id="igp-lbl-losses" style="color: #a1a1aa; font-size: 10px; font-weight: 500; margin-top: 4px;">خسارة</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <span id="igp-highest-streak" style="color: #ff9800; font-size: 20px; font-weight: 700;">0</span>
+                    <span style="color: #a1a1aa; font-size: 10px; font-weight: 500; margin-top: 4px;">أعلى سلسلة</span>
+                </div>
+            </div>
+            
+            <div id="own-profile-actions" style="width: 100%; box-sizing: border-box;">
+                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                    <input type="text" id="add-friend-id-input" class="online-input" placeholder="إضافة صديق بواسطة ID..." style="margin: 0; height: 44px; flex: 1; font-size: 13px; text-align: right; padding-right: 15px;">
+                    <button onclick="window.sendFriendReqById()" class="save-settings-btn" style="margin: 0; height: 44px; width: auto; padding: 0 15px; background: rgba(48,209,88,0.2) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.4) !important; box-shadow: none !important;">إضافة</button>
+                </div>
+                
+                <button onclick="window.openAppModal('friend-requests-modal')" class="save-settings-btn" style="background: rgba(245, 166, 35, 0.15) !important; color: #f5a623 !important; border-color: rgba(245, 166, 35, 0.3) !important; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: none !important;">
+                    <span>🔔 طلبات الصداقة</span>
+                    <span id="friend-requests-badge" style="background: #ff453a !important; color: white !important; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none;">0</span>
+                </button>
+                <div style="background: rgba(255,255,255,0.04); border: 1.5px solid rgba(212, 175, 55, 0.2); border-radius: 20px; padding: 15px; margin-top: 15px; text-align: start; width: 100%; box-sizing: border-box;">
+                    <h5 style="margin: 0 0 10px 0; color: #a1a1aa; font-size: 13px; font-weight: 600;">الأصدقاء</h5>
+                    <div id="igp-friends-list" style="color: white; font-size: 13px; text-align: center; padding: 15px 0; font-weight: 500;">لا يوجد أصدقاء حالياً</div>
+                </div>
+            </div>
+
+            <div id="other-profile-actions" style="display: none; width: 100%; box-sizing: border-box; gap: 10px; flex-direction: column;">
+                <button id="send-friend-req-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.15) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.3) !important; margin: 0; box-shadow: none !important;" onclick="window.sendFriendRequest()">➕ إرسال طلب صداقة</button>
+                <button id="give-pop-btn" class="save-settings-btn" style="background: rgba(0, 210, 255, 0.15) !important; color: #00d2ff !important; border-color: rgba(0, 210, 255, 0.3) !important; margin: 0; box-shadow: none !important;" onclick="window.givePopularity()">
+                    <span style="filter: hue-rotate(210deg);">🔥</span> منح شعبية
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="send-gift-modal" class="modal-overlay" style="z-index: 960;">
+        <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('send-gift-modal')">✕</button>
+            <h3 style="color: #00d2ff; margin-bottom: 10px;">إرسال شعبية 🎁</h3>
+            
+            <div id="spectator-gift-target-selector" style="display: none; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 14px; border: 1px solid rgba(0,210,255,0.2);">
+                <p style="color: #a1a1aa; font-size: 11px; margin: 0 0 8px 0; text-align: center;">لمن تريد إرسال الهدية؟</p>
+                <div style="display: flex; gap: 8px;">
+                    <button id="gift-target-p1" class="custom-tab-button active" onclick="window.setGiftTarget(window.matchPlayer1Id, this)" style="flex: 1; height: 38px; border-radius: 10px; font-size: 12px;">اللاعب 1</button>
+                    <button id="gift-target-p2" class="custom-tab-button" onclick="window.setGiftTarget(window.matchPlayer2Id, this)" style="flex: 1; height: 38px; border-radius: 10px; font-size: 12px;">اللاعب 2</button>
+                </div>
+            </div>
+            
+            <p id="gift-modal-desc" style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">اختر هدية من حقيبتك لإرسالها إلى المنافس:</p>
+            <div id="my-gifts-selection-grid" class="store-items-grid" style="max-height: 50vh; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <div id="friend-requests-modal" class="modal-overlay" style="z-index: 930;">
+        <div class="settings-card" dir="auto" style="max-width: 340px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('friend-requests-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #f5a623; margin-bottom: 10px;">طلبات الصداقة 🔔</h3>
+            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px;">الطلبات تنتهي صلاحيتها وتُحذف تلقائياً بعد 3 أيام.</p>
+            <div id="friend-requests-container" class="scrollable-content" style="max-height: 40vh; display: flex; flex-direction: column; gap: 10px; padding: 5px;"></div>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal-overlay" style="z-index: 1020;">
+        <div class="settings-card" dir="auto">
+            <button class="modal-close-btn" onclick="window.closeAppModal('login-modal')" style="left:15px; right:auto;">✕</button>
+            <h3>تسجيل الدخول</h3>
+            <label class="settings-label" for="login-name-input">الاسم</label><input type="text" id="login-name-input" class="online-input" placeholder="أدخل اسمك">
+            <label class="settings-label" for="login-password-input">كلمة المرور / Password</label><input type="password" id="login-password-input" class="online-input" placeholder="كلمة المرور (غير مطلوبة للزائر)">
+            <label class="settings-label" for="login-avatar-select">الشخصية</label><select id="login-avatar-select" class="online-input"><option value="Photo/1000132081.webp">شخصية 1</option></select>
+            <button id="login-submit-btn" class="save-settings-btn" style="box-shadow: none !important;">حفظ ودخول</button>
+        </div>
+    </div>
+
+    <div id="store-modal" class="modal-overlay" style="z-index: 900;">
+        <div class="settings-card" dir="auto" style="max-width: 420px; padding: 25px 15px; position: relative;">
+            <button onclick="window.closeAppModal('store-modal')" class="modal-close-btn" style="left:15px; right:auto; z-index: 10;">✕</button>
+            <h3 style="color: #ffd700; margin-bottom: 5px; font-size: 22px; text-shadow: 0 0 10px rgba(255,215,0,0.4);">متجر الطاولة 👑</h3>
+            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 12px;">رصيدك الحالي: <span style="color: #f5a623; font-weight: bold;"><img src="../Photo/coin.webp" class="app-coin-icon"> <span id="profile-stat-tokens-store">0</span></span></p>
+
+            <div class="custom-nav-tabs" style="margin-bottom: 15px;">
+                <button id="tawla-tab-bg" class="custom-tab-button active" onclick="window.switchTawlaGameStoreTab('bg')">خلفيات 🎨</button>
+                <button id="tawla-tab-fr" class="custom-tab-button" onclick="window.switchTawlaGameStoreTab('fr')">إطارات 🖼️</button>
+                <button id="tawla-tab-pc" class="custom-tab-button" onclick="window.switchTawlaGameStoreTab('pc')">أحجار 💎</button>
+                <button id="tawla-tab-offers" class="custom-tab-button" onclick="window.switchTawlaGameStoreTab('offers')">عروض 💡</button>
+                <button id="tawla-tab-pop" class="custom-tab-button" onclick="window.switchTawlaGameStoreTab('pop')">شعبية <span style="filter: hue-rotate(210deg);">🔥</span></button>
+            </div>
+
+            <div class="scrollable-content" style="max-height: 52vh; min-height: 250px;">
+                <div id="store-section-bg" class="store-items-grid"></div>
+                <div id="store-section-frames" class="store-items-grid" style="display: none;"></div>
+                <div id="store-section-pieces" class="store-items-grid" style="display: none;"></div>
+                <div id="store-section-offers" class="store-items-grid" style="display: none;"></div>
+                <div id="store-section-popularity" class="store-items-grid" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="leaderboard-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 900;">
+        <div class="leaderboard-full-screen" dir="rtl">
+            <button class="lb-rewards-btn" onclick="window.openAppModal('top3-rewards-modal')">الجوائز 🎁</button>
+            <button class="lb-close-btn" onclick="window.closeAppModal('leaderboard-modal')">✕</button>
+            
+            <div class="lb-header-container">
+                <div class="lb-title-row">
+                    <span class="lb-decor-line left"></span>
+                    <h3 class="lb-header-title">متصدري الموسم</h3>
+                    <span class="lb-decor-line right"></span>
+                </div>
+                <div class="lb-header-subtitle">أفضل اللاعبين هذا الأسبوع</div>
+            </div>
+
+            <div class="lb-nav-tabs">
+                <button id="lb-tab-wins" class="lb-tab-button active" onclick="window.switchLbTab('wins')">فوز</button>
+                <button id="lb-tab-xp" class="lb-tab-button" onclick="window.switchLbTab('xp')">مستوى</button>
+            </div>
+
+            <div class="lb-podium-container" id="leaderboard-podium-container"></div>
+
+            <div class="lb-list-container" id="leaderboard-list-wins"></div>
+            <div class="lb-list-container" id="leaderboard-list-xp" style="display: none;"></div>
+
+            <div class="lb-footer-subtitle" id="season-countdown-timer">جاري حساب الوقت...</div>
+        </div>
+    </div>
+
+    <div id="top3-rewards-modal" class="modal-overlay" style="z-index: 950;">
+        <div class="settings-card" dir="auto" style="max-width: 380px; padding: 30px 20px; background: linear-gradient(145deg, #1a1a24, #2b2b35) !important; border: 1.5px solid #a88734 !important; box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212,175,55,0.05) !important; max-height: 85vh; overflow-y: auto; overflow-x: hidden;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('top3-rewards-modal')" style="left:15px; right:auto; background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important;">✕</button>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 40px; filter: drop-shadow(0 0 15px rgba(255,215,0,0.6));">🎁</span>
+                <h3 style="color:#ffd700; margin: 10px 0 5px 0; font-size: 22px; font-weight: 900; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">الجوائز الموسمية الكبرى</h3>
+                <p style="color:#a1a1aa; font-size: 12px; margin: 0;">تُوزع لأفضل 10 لاعبين في (عمداء اللعبة) و (أبطال الفوز)</p>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, rgba(155,89,182,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(155,89,182,0.3); border-radius: 14px; padding: 12px; margin-bottom: 20px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #9b59b6, transparent); border-radius: 14px 14px 0 0;"></div>
+                <h4 style="color: #b589d6; margin: 0 0 10px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">🌟 عمداء اللعبة <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأعلى مستوى)</span></h4>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.5); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #ffd700; box-shadow: inset 0 0 10px rgba(255,215,0,0.1);">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; box-shadow: 0 0 8px rgba(255,215,0,0.6); border: 1px solid #fff; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">1</div>
+                        <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">300K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ (بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.4));"> × 2)</span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #c0c0c0;">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #f5f5f5, #9e9e9e); color: #000; box-shadow: 0 0 8px rgba(192,192,192,0.4); border: 1px solid #fff; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">2</div>
+                        <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">150K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle;"></span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #cd7f32;">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffb07c, #b87333); color: #fff; box-shadow: 0 0 8px rgba(205,127,50,0.4); border: 1px solid #ffd700; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">3</div>
+                        <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">100K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle;"></span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #3498db;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">4</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">25,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 25% <img src="../Photo/discount25.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #3498db;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">5</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">20,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 25% <img src="../Photo/discount25.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #a1a1aa;">
+                        <div style="padding: 2px 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; margin-left: 10px; background: rgba(161, 161, 170, 0.2); color: #5454e0; border: 1px solid #4bd3f3; flex-shrink: 0; direction: ltr; line-height: 1; padding-top: 2px; box-sizing: border-box;">10-6</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">10,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 10% <img src="../Photo/discount10.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, rgba(52,199,89,0.1), rgba(0,0,0,0.5)); border: 1px solid rgba(52,199,89,0.3); border-radius: 14px; padding: 12px; margin-bottom: 12px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #34c759, transparent); border-radius: 14px 14px 0 0;"></div>
+                <h4 style="color: #30d158; margin: 0 0 10px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;">⚔️ أبطال الفوز <span style="font-size:10px; color:#a1a1aa; font-weight:normal;">(الأكثر فوزاً)</span></h4>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.5); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #ffd700; box-shadow: inset 0 0 10px rgba(255,215,0,0.1);">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; box-shadow: 0 0 8px rgba(255,215,0,0.6); border: 1px solid #fff; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">1</div>
+                        <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">300K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ (بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle; filter: drop-shadow(0 0 2px rgba(255,215,0,0.4));"> × 2)</span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #c0c0c0;">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #f5f5f5, #9e9e9e); color: #000; box-shadow: 0 0 8px rgba(192,192,192,0.4); border: 1px solid #fff; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">2</div>
+                        <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">150K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle;"></span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 10px; border-right: 4px solid #cd7f32;">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; margin-left: 10px; background: linear-gradient(135deg, #ffb07c, #b87333); color: #fff; box-shadow: 0 0 8px rgba(205,127,50,0.4); border: 1px solid #ffd700; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">3</div>
+                        <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1.6;">100K <img src="../Photo/coin.webp" class="app-coin-icon" style="width:14px; height:14px; vertical-align:middle;"> <br> <span style="color:#30d158;">+ بطاقة خصم 50% <img src="../Photo/discount50.webp" style="width:18px; height:18px; vertical-align:middle;"></span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #3498db;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">4</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">25,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 25% <img src="../Photo/discount25.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #3498db;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-left: 10px; background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; flex-shrink: 0; line-height: 1; padding-top: 2px; box-sizing: border-box;">5</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">20,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 25% <img src="../Photo/discount25.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 10px; border-right: 3px solid #a1a1aa;">
+                        <div style="padding: 2px 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; margin-left: 10px; background: rgba(161, 161, 170, 0.2); color: #5454e0; border: 1px solid #4bd3f3; flex-shrink: 0; direction: ltr; line-height: 1; padding-top: 2px; box-sizing: border-box;">10-6</div>
+                        <div style="color: white; font-size: 11px; font-weight: bold; line-height: 1.4;">10,000 <img src="../Photo/coin.webp" class="app-coin-icon" style="width:12px; height:12px; vertical-align:middle;"> + خصم 10% <img src="../Photo/discount10.webp" style="width:16px; height:16px; vertical-align:middle;"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="themes-grid-overlay" class="modal-overlay" style="z-index: 900;">
+        <div class="settings-card" dir="auto">
+            <h3 id="themes-grid-title" style="margin-bottom: 15px; font-size: 20px;">المظهر والأزياء</h3>
+            <div class="custom-nav-tabs">
+                <button id="theme-btn-tab-bg" class="custom-tab-button active" onclick="window.switchThemeGridTabCategory('bg')">خلفيات</button>
+                <button id="theme-btn-tab-frames" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('frames')">إطارات</button>
+                <button id="theme-btn-tab-pieces" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('pieces')">احجار</button>
+                <button id="theme-btn-tab-gifts" class="custom-tab-button" onclick="window.switchThemeGridTabCategory('gifts')">الهدايا <span style="filter: hue-rotate(210deg);">🔥</span></button>
+            </div>
+            <div class="scrollable-content">
+                <div class="themes-grid-container" id="theme-grid-section-bg"></div>
+                <div id="theme-grid-section-frames" class="themes-grid-container" style="display: none;"></div>
+                <div id="theme-grid-section-pieces" class="themes-grid-container" style="display: none;"></div>
+                <div id="theme-grid-section-gifts" class="themes-grid-container" style="display: none;"></div>
+            </div>
+            <button id="theme-close-btn" onclick="window.closeAppModal('themes-grid-overlay')" class="save-settings-btn" style="margin: auto auto 5px auto; height: 38px; font-size: 13px; width: 60%; align-self: center; box-shadow: none !important;">خروج</button>
+        </div>
+    </div>
+
+    <div id="custom-alert-modal" class="modal-overlay" style="z-index: 1090 !important; transform: translateZ(100px);">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <h3 id="custom-alert-title">تنبيه</h3>
+            <p id="custom-alert-message" style="color: #e0e0e0; margin: 20px 0; font-size: 15px; line-height: 1.6;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button id="custom-alert-ok" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255,255,255,0.15) !important; box-shadow: none !important;">حسناً</button>
+                <button id="custom-alert-cancel" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; display: none; box-shadow: none !important;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="new-game-modal" class="modal-overlay" style="z-index: 860;">
+        <div class="settings-card" dir="auto" style="max-width: 300px; position: relative;">
+            
+            <input type="hidden" id="diff-quick-select" value="3">
+            <button id="custom-diff-btn" title="تغيير مستوى الصعوبة" onclick="window.openAppModal('level-select-modal')" style="position: absolute !important; top: 18px !important; right: 18px !important; width: 40px !important; height: 40px !important; margin: 0 !important; font-size: 15px; font-weight: 900; background: linear-gradient(135deg, #34c759, #1e8449) !important; border: 1.5px solid #8be8ab !important; border-bottom: 3.5px solid #145a32 !important; color: #ffffff !important; border-radius: 12px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.4) !important; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; z-index: 10; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">L3</button>
+
+          
+          <h3 id="new-game-title" style="margin-top: 5px;">لعبة جديدة</h3>
+            <p id="choose-color-label" class="settings-label" style="text-align: center; margin-bottom: 20px;">اختر اللون للبدء</p>
+            
+            <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;">
+                <button id="start-white-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #ffffff, #e0e0e0) !important; color: #000 !important; font-size: 24px; width: 64px; height: 64px; padding: 0; margin: 0; border: 1.5px solid #a88734 !important; border-bottom: 3.5px solid #6b5319 !important; display: flex; align-items: center; justify-content: center;">⚪</button>
+                <button id="start-black-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #626270, #2c2c35) !important; color: #fff !important; font-size: 24px; width: 64px; height: 64px; padding: 0; margin: 0; border: 1.5px solid #a88734 !important; border-bottom: 3.5px solid #6b5319 !important; display: flex; align-items: center; justify-content: center;">⚫</button>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; border: 1px solid rgba(212,175,55,0.2);">
+                <input type="checkbox" id="tutorial-mode-checkbox" style="width: 18px; height: 18px; accent-color: #d4af37; cursor: pointer;">
+                <label for="tutorial-mode-checkbox" id="tutorial-mode-label" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0;">لعبة تعليمية (مصباح مجاني / بدون جوائز)</label>
+            </div>
+            <button id="cancel-new-game-btn" onclick="window.closeAppModal('new-game-modal')" class="save-settings-btn" style="background: transparent !important; box-shadow: none !important; border: 1px solid rgba(255,255,255,0.1) !important;">إلغاء</button>
+        </div>
+    </div>
+
+    <div id="game-over-modal" class="modal-overlay" style="z-index: 880;">
+        <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <h3 id="game-over-title">Match Results</h3>
+            
+            <div id="game-over-icon-container" style="position: relative; width: 100px; height: 100px; margin: 15px auto; display: flex; align-items: center; justify-content: center;">
+                <div id="game-over-default-icon" style="font-size: 60px; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);">🏆</div>
+                <div id="game-over-bot-icon" style="display: none; width: 120px; height: 120px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));"></div>
+            </div>
+
+            <p id="game-over-message" style="color: white; font-size: 19px; margin: 15px 0 25px 0; font-weight: 700; text-align: center; line-height: 1.4;"></p>
+            <div style="display: flex; gap: 10px; width: 100%;">
+                <button id="rematch-btn" class="save-settings-btn" style="margin: 0; flex: 1; box-shadow: none !important;">إعادة اللعب</button>
+                <button id="exit-game-btn" class="save-settings-btn" style="margin: 0; flex: 1; box-shadow: none !important;">خروج</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="online-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 860;">
+        <div class="settings-card room-full-screen" dir="auto">
+            <button class="modal-close-btn" onclick="window.closeAppModal('online-modal')" style="left: 20px; right: auto; top: 20px; background: rgba(0,0,0,0.5) !important;">✕</button>
+            
+            <h3 style="font-size: 26px; text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,0.8); margin-top: 5px; margin-bottom: 8px;">الغرف الخاصة 🚪</h3>
+
+            <div class="custom-nav-tabs" style="margin-bottom: 8px; border: 1px solid rgba(212, 175, 55, 0.5) !important;">
+                <button id="room-tab-play" class="custom-tab-button active" onclick="window.switchRoomTab('play')">الغرف المتاحة</button>
+                <button id="room-tab-bet" class="custom-tab-button" onclick="window.switchRoomTab('bet')">رهان (مشاهدة)</button>
+            </div>
+
+            <div id="my-waiting-room-card" class="my-waiting-room-card" style="display: none; flex-shrink: 0; margin-bottom: 10px;">
+                <div style="position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <img id="my-waiting-avatar" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1; border: 2px solid rgba(212,175,55,0.5);">
+                    <div id="my-waiting-frame" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140%; height: 140%; z-index: 3; pointer-events: none;"></div>
+                    <div id="my-waiting-vip" style="position: absolute; top: -8px; right: -8px; width: 24px; height: 32px; z-index: 50; pointer-events: none;"></div>
+                </div>
+
+                <div class="my-waiting-info">
+                    <div style="color: #ffd700; font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+                        <span style="animation: pulseHourglass 1.5s infinite;">⏳</span> 
+                        <span id="my-waiting-title">بانتظار الخصم...</span>
+                    </div>
+                    <div id="my-waiting-details" style="color: #a1a1aa; font-size: 11px; margin-top: 4px; font-weight: 600;">
+                        عامة | مجاني
+                    </div>
+                </div>
+
+                <div class="my-waiting-actions">
+                    <button id="my-waiting-settings-btn" class="my-waiting-action-btn settings" title="إعدادات الغرفة">⚙️</button>
+                    <button id="my-waiting-delete-btn" class="my-waiting-action-btn delete" title="حذف الغرفة">✕</button>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 10px; width: 100%; flex-shrink: 0;">
+                <div style="flex: 1; display: flex; background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; padding: 0 10px; align-items: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
+                    <span style="font-size: 16px; color: #a1a1aa;">🔍</span>
+                    <input type="text" id="room-search-input" placeholder="ابحث باسم الغرفة..." oninput="if(window.renderRoomsList) window.renderRoomsList()" style="background: transparent; border: none; color: white; width: 100%; height: 38px; outline: none; text-align: right; font-family: inherit; font-size: 13px; padding: 0 8px;">
+                </div>
+                <button onclick="window.openAppModal('room-sort-modal')" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; width: 45px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 26px; font-weight: bold; line-height: 1; padding-bottom: 4px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">⇅</button>
+            </div>
+
+            <div id="play-tab-content" style="display: flex; flex-direction: column; flex: 1; min-height: 0; margin-bottom: 10px;">
+                <div style="flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; overflow-y: auto; padding: 10px;" id="active-rooms-list">
+                    <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد غرف متاحة حالياً. أنشئ غرفة جديدة لتبدأ!</p>
+                </div>
+            </div>
+
+            <div id="spectate-rooms-list" style="display: none; flex-direction: column; flex: 1; background: rgba(15,18,25,0.6); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; margin-bottom: 10px; overflow-y: auto; padding: 10px;">
+                <p class="empty-rooms-msg" style="color: #a1a1aa; font-size: 13px; text-align: center; margin-top: 20px;">لا توجد مباريات جارية للمراهنة عليها حالياً.</p>
+            </div>
+
+            <button onclick="window.openCreateRoomModal()" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; border: 1.5px solid #85c1e9 !important; border-bottom: 3.5px solid #1f618d !important; height: 55px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important; margin: 0; flex-shrink: 0;">+ إنشاء غرفة جديدة</button>
+        </div>
+    </div>
+
+    <div id="room-sort-modal" class="modal-overlay" style="z-index: 1000; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('room-sort-modal')">
+        <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
+            <h3 style="color: #ffd700; text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: 800;">فرز الغرف ⇅</h3>
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="bet-option-item selected" onclick="window.applyRoomSort('vip', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">الافتراضي</div></div>
+                <div class="bet-option-item" onclick="window.applyRoomSort('bet', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">أعلى رهاناً</div></div>
+                <div class="bet-option-item" id="sort-opt-new" onclick="window.applyRoomSort('new', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">الأحدث</div></div>
+                <div class="bet-option-item" id="sort-opt-views" style="display: none;" onclick="window.applyRoomSort('views', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">أعلى مشاهدة</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="create-room-modal" class="modal-overlay" style="z-index: 880;">
+         <div class="settings-card" dir="auto" style="max-width: 320px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('create-room-modal')" style="left:15px; right:auto;">✕</button>
+            <h3>إنشاء غرفة</h3>
+
+            <div id="vip-title-container" style="display: none; margin-bottom: 20px; background: rgba(212, 175, 55, 0.05); padding: 12px; border-radius: 14px; border: 1px dashed rgba(212, 175, 55, 0.3);">
+                <label style="color: #FFD700; font-size: 13px; font-weight: bold; display: block; margin-bottom: 8px;">👑 عنوان الغرفة (ميزة VIP):</label>
+                <input type="text" id="room-title-input" class="online-input" placeholder="مثال: تحدي الكبار ⚔️" maxlength="25" style="margin-bottom: 0; border-color: rgba(212, 175, 55, 0.5); color: #FFD700; text-align: right;">
+            </div>
+
+            <label class="settings-label">مبلغ الرهان لكل لاعب:</label>
+            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="window.openAppModal('bet-selector-modal')">
+                <span id="custom-bet-display">بدون رهان (مجاني)</span><span style="font-size: 14px; color: rgba(255,255,255,0.4);">▼</span>
+            </div>
+            <input type="hidden" id="room-bet-input" value="0">
+            
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 14px; border: 1px solid rgba(212,175,55,0.2);">
+                <input type="checkbox" id="allow-betting-checkbox" checked style="width: 18px; height: 18px; accent-color: #d4af37; cursor: pointer;">
+                <label for="allow-betting-checkbox" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; margin: 0; line-height: 1.4;">السماح للمشاهدين بدخول الغرفة والمراهنة</label>
+            </div>
+
+            <label class="settings-label" style="margin-top: 15px;">كلمة السر للغرفة (اختياري):</label>
+            <input type="password" id="create-room-password-input" class="online-input" placeholder="اتركها فارغة لتكون عامة">
+            
+            <button id="online-create-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.2) !important; color: #30d158 !important; margin-top: 20px; box-shadow: none !important;">تأكيد وإنشاء</button>
+         </div>
+    </div>
+  
+    <div id="bet-selector-modal" class="modal-overlay" style="z-index: 1000; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('bet-selector-modal')">
+        <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="bet-option-item selected" onclick="window.selectBetAmount('0', 'بدون رهان (مجاني)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">بدون رهان (مجاني)</div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('50', '50 🪙 (الجائزة الكبرى: 100)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 100)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('100', '100 🪙 (الجائزة الكبرى: 200)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 200)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('200', '200 🪙 (الجائزة الكبرى: 400)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 400)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('500', '500 🪙 (الجائزة الكبرى: 1000)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 1000)</span></div></div>
+                <div class="bet-option-item" onclick="window.selectBetAmount('1000', '1000 🪙 (الجائزة الكبرى: 2000)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">1000 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:15px; margin-right: 4px;">(الجائزة الكبرى: 2000)</span></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="challenge-bet-modal" class="modal-overlay" style="z-index: 1060; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('challenge-bet-modal')">
+        <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: slideUpBottomSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
+            <h3 style="color: #34c759; text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: 800;">تحديد رهان التحدي ⚔️</h3>
+            <p style="color: #a1a1aa; font-size: 13px; text-align: center; margin-bottom: 20px;">اختر مبلغ الرهان للعب ضد صديقك</p>
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="bet-option-item selected" onclick="window.confirmChallenge('0', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">بدون رهان (مباراة ودية)</div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('50', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('100', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('200', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.confirmChallenge('500', this)"><div class="bet-option-text">500 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="matchmaking-modal" class="modal-overlay" style="z-index: 900;">
+        <div class="settings-card" dir="auto" style="max-width: 350px;">
+            <h3 id="matchmaking-title">البحث</h3>
+            <div style="display: flex; justify-content: space-around; align-items: center; margin: 30px 0;">
+                <div style="text-align: center;"><div id="mm-my-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: visible; background-color: rgba(255,255,255,0.05);"></div><div id="mm-my-name" style="color: white; margin-top: 10px; font-weight: 500; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">أنت</div></div>
+                <div style="text-align: center;"><div id="mm-opp-avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: rgba(255,255,255,0.02);">❓</div><div id="mm-opp-name" style="color: #a1a1aa; margin-top: 10px; font-size: 13px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">الخصم</div></div>
+            </div>
+            <div style="margin: 20px 0;">
+                <div id="mm-status-label" class="settings-label" style="text-align: center;">جاري البحث عن خصم...</div>
+                <div class="loading-dots-container"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
+                <div id="mm-timer" style="color: white; font-weight: 600; font-size: 18px; margin-top: 15px;">00:00</div>
+            </div>
+            <button id="mm-cancel-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; box-shadow: none !important;">إلغاء البحث</button>
+        </div>
+    </div>
+
+    <div id="matchmaking-stakes-modal" class="modal-overlay" style="z-index: 900;">
+        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; position: relative;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('matchmaking-stakes-modal')">✕</button>
+
+            <div class="mm-header-wrapper">
+                <div class="mm-title-row">
+                    <span class="mm-decor-line"></span>
+                    <h3>ساحة التحديات</h3>
+                    <span class="mm-decor-line right"></span>
+                </div>
+                <p>اختر مستوى الرهان وابدأ التحدي</p>
+            </div>
+
+            <div class="mm-carousel-container">
+                <div class="mm-carousel" id="mm-carousel-scroller">
+                    
+                    <div class="mm-card theme-gray active">
+                        <div class="mm-card-medal">
+                          <img src="Media/front/تدريب.webp" style="height: 100%; object-fit: contain;">
+                        </div>
+                        <h4 class="mm-card-title">تدريب / مجاني</h4>
+                        
+                        <div class="mm-card-bet-row">
+                            <span class="mm-bet-line"></span>
+                            <span class="mm-bet-text">اكتساب خبرة بدون رهان</span>
+                            <span class="mm-bet-line"></span>
+                        </div>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <span>10</span>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
+                            </div>
+                        </div>
+                        <button class="mm-card-btn" onclick="window.startMatchmakingWithBet(0)">بحث عن خصم</button>
+                    </div>
+
+                    <div class="mm-card theme-teal">
+                        <div id="mm-lock-50" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
+                        <div class="mm-card-medal">
+                          <img src="Media/front/الهواة.webp" style="height: 100%; object-fit: contain;">
+                        </div>
+                        <h4 class="mm-card-title">الهواة</h4>
+                        
+                        <div class="mm-card-bet-row">
+                            <span class="mm-bet-line"></span>
+                            <span class="mm-bet-text">رهان 50 عملة</span>
+                            <span class="mm-bet-line"></span>
+                        </div>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <span>100</span>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
+                            </div>
+                        </div>
+                        <button id="mm-btn-50" class="mm-card-btn" onclick="window.startMatchmakingWithBet(50)">بحث عن خصم</button>
+                    </div>
+
+                    <div class="mm-card theme-blue">
+                        <div id="mm-lock-250" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
+                        <div class="mm-card-medal">
+                          <img src="Media/front/محاربين.webp" style="height: 100%; object-fit: contain;">
+                        </div>
+                        <h4 class="mm-card-title">ساحة المحاربين</h4>
+                        
+                        <div class="mm-card-bet-row">
+                            <span class="mm-bet-line"></span>
+                            <span class="mm-bet-text">رهان 250 عملة</span>
+                            <span class="mm-bet-line"></span>
+                        </div>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <span>500</span>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
+                            </div>
+                        </div>
+                        <button id="mm-btn-250" class="mm-card-btn" onclick="window.startMatchmakingWithBet(250)">بحث عن خصم</button>
+                    </div>
+
+                    <div class="mm-card theme-red">
+                        <div id="mm-lock-500" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
+                        <div class="mm-card-medal">
+                          <img src="Media/front/ابطال.webp" style="height: 100%; object-fit: contain;">
+                        </div>
+                        <h4 class="mm-card-title">ساحة الأبطال</h4>
+                        
+                        <div class="mm-card-bet-row">
+                            <span class="mm-bet-line"></span>
+                            <span class="mm-bet-text">رهان 500 عملة</span>
+                            <span class="mm-bet-line"></span>
+                        </div>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <span>1,000</span>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
+                            </div>
+                        </div>
+                        <button id="mm-btn-500" class="mm-card-btn" onclick="window.startMatchmakingWithBet(500)">بحث عن خصم</button>
+                    </div>
+
+                    <div class="mm-card theme-purple">
+                        <div id="mm-lock-1000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
+                        <div class="mm-card-medal">
+                          <img src="Media/front/الاساطير.webp" style="height: 100%; object-fit: contain;">
+                        </div>
+                        <h4 class="mm-card-title">ساحة الأساطير</h4>
+                        
+                        <div class="mm-card-bet-row">
+                            <span class="mm-bet-line"></span>
+                            <span class="mm-bet-text">رهان 1,000 عملة</span>
+                            <span class="mm-bet-line"></span>
+                        </div>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <span>2,000</span>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
+                            </div>
+                        </div>
+                        <button id="mm-btn-1000" class="mm-card-btn" onclick="window.startMatchmakingWithBet(1000)">بحث عن خصم</button>
+                    </div>
+
+                    <div class="mm-card theme-gold">
+                        <div id="mm-lock-2500" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
+                        <div class="mm-card-medal">
+                          <img src="Media/front/الكبار.webp" style="height: 100%; object-fit: contain;">
+                        </div>
+                        <h4 class="mm-card-title">ساحة الكبار</h4>
+                        
+                        <div class="mm-card-bet-row">
+                            <span class="mm-bet-line"></span>
+                            <span class="mm-bet-text">رهان 2,500 عملة</span>
+                            <span class="mm-bet-line"></span>
+                        </div>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <span>5,000</span>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
+                            </div>
+                        </div>
+                        <button id="mm-btn-2500" class="mm-card-btn" onclick="window.startMatchmakingWithBet(2500)">بحث عن خصم</button>
+                    </div>
+
+                    <div class="mm-card theme-cyan">
+                        <div id="mm-lock-5000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
+                        <div class="mm-card-medal">
+                          <img src="Media/front/التنين.webp" style="height: 100%; object-fit: contain;">
+                        </div>
+                        <h4 class="mm-card-title">ساحة التنين</h4>
+                        
+                        <div class="mm-card-bet-row">
+                            <span class="mm-bet-line"></span>
+                            <span class="mm-bet-text">رهان 5,000 عملة</span>
+                            <span class="mm-bet-line"></span>
+                        </div>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <span>10K</span>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
+                            </div>
+                        </div>
+                        <button id="mm-btn-5000" class="mm-card-btn" onclick="window.startMatchmakingWithBet(5000)">بحث عن خصم</button>
+                    </div>
+
+                    <div class="mm-card theme-magenta">
+                        <div id="mm-lock-10000" class="mm-lock-overlay"><span style="font-size: 50px;">🔒</span><span style="color: #ff453a; font-weight: bold; margin-top: 10px;">رصيدك غير كافٍ</span></div>
+                        <div class="mm-card-medal">
+                          <img src="Media/front/التاج.webp" style="height: 100%; object-fit: contain;">
+                        </div>
+                        <h4 class="mm-card-title">ساحة الملوك</h4>
+                        
+                        <div class="mm-card-bet-row">
+                            <span class="mm-bet-line"></span>
+                            <span class="mm-bet-text">رهان 10,000 عملة</span>
+                            <span class="mm-bet-line"></span>
+                        </div>
+                        
+                        <div class="mm-card-prize-box">
+                            <span class="mm-prize-label">جائزة الفوز</span>
+                            <div class="mm-prize-value">
+                                <span>20K</span>
+                                <img src="../Photo/coin.webp" class="app-coin-icon" style="width: 32px; height: 32px;">
+                            </div>
+                        </div>
+                        <button id="mm-btn-10000" class="mm-card-btn" onclick="window.startMatchmakingWithBet(10000)">بحث عن خصم</button>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="mm-rank-bar-wrapper" id="mm-rank-progress-wrapper">
+                <button class="rank-nav-btn" id="rank-prev-btn" onclick="window.changeRankView(-1)">&#10094;</button>
+                
+                <div class="mm-rank-slider">
+                    <div class="mm-track-bg">
+                        <div class="mm-track-fill" id="mm-rank-fill-bar"></div>
+                    </div>
+                    <div class="mm-tiers-row" id="mm-tiers-container">
+                        </div>
+                </div>
+                
+                <button class="rank-nav-btn" id="rank-next-btn" onclick="window.changeRankView(1)">&#10095;</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="spectator-bet-modal" class="modal-overlay" style="z-index: 950;">
+        <div class="settings-card" dir="auto" style="max-width: 340px; padding: 25px 20px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('spectator-bet-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #ffd700; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(255,215,0,0.3);">صندوق المراهنات 🎯</h3>
+            <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 25px; text-align: center; line-height: 1.5;">راهن على اللاعب الذي تتوقع فوزه!<br>(متاح حتى أول حركتين)</p>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 15px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
+                <div onclick="window.selectSpectatorBetColor('white')" id="bet-p1-card" style="flex: 1; text-align: center; cursor: pointer; border: 2px solid transparent; padding: 10px 5px; border-radius: 16px; transition: all 0.3s ease; background: transparent;">
+                    <div id="bet-p1-avatar" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto; overflow: visible;"></div>
+                    <div id="bet-p1-name" style="color: white; margin-top: 12px; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; margin-left: auto; margin-right: auto;">اللاعب 1</div>
+                    <div style="color: #a1a1aa; font-size: 11px; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px;"><span style="display:inline-block; width:10px; height:10px; background:#fff; border-radius:50%; box-shadow:0 0 5px #fff;"></span> أبيض</div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;">
+                    <div style="width: 2px; height: 25px; background: linear-gradient(to bottom, transparent, rgba(255,215,0,0.5)); border-radius: 2px;"></div>
+                    <div style="color: #ff453a; font-weight: 900; font-size: 18px; text-shadow: 0 2px 10px rgba(255,69,58,0.6); font-family: 'Outfit', sans-serif; letter-spacing: 1px;">VS</div>
+                    <div style="width: 2px; height: 25px; background: linear-gradient(to top, transparent, rgba(255,215,0,0.5)); border-radius: 2px;"></div>
+                </div>
+                
+                <div onclick="window.selectSpectatorBetColor('black')" id="bet-p2-card" style="flex: 1; text-align: center; cursor: pointer; border: 2px solid transparent; padding: 10px 5px; border-radius: 16px; transition: all 0.3s ease; background: transparent;">
+                    <div id="bet-p2-avatar" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto; overflow: visible;"></div>
+                    <div id="bet-p2-name" style="color: white; margin-top: 12px; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; margin-left: auto; margin-right: auto;">اللاعب 2</div>
+                    <div style="color: #a1a1aa; font-size: 11px; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px;"><span style="display:inline-block; width:10px; height:10px; background:#1a1a24; border:1px solid #555; border-radius:50%; box-shadow:0 0 5px #000;"></span> أسود</div>
+                </div>
+            </div>
+
+            <input type="hidden" id="spectator-bet-color" value="">
+            <input type="hidden" id="spectator-bet-room-id" value="">
+
+            <label class="settings-label" style="text-align: center; color: #fdf5c9;">مبلغ الرهان:</label>
+            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 25px; background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(212, 175, 55, 0.4) !important;" onclick="window.openAppModal('spectator-bet-selector-modal')">
+                <span id="spectator-bet-display-text" style="color: #ffd700; font-weight: bold;">اختر المبلغ...</span>
+                <span style="font-size: 14px; color: rgba(255,215,0,0.5);">▼</span>
+            </div>
+            <input type="hidden" id="spectator-bet-amount" value="0">
+
+            <button id="spectator-submit-bet-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #f5a623, #d35400) !important; color: white !important; border: 1.5px solid #ffca28 !important; border-bottom: 3.5px solid #a85400 !important; box-shadow: 0 4px 15px rgba(245,166,35,0.3) !important; height: 50px; font-size: 16px;" onclick="if(window.confirmSpectatorBet) window.confirmSpectatorBet();">تأكيد الرهان 💰</button>
+        </div>
+    </div>
+
+    <div id="spectator-bet-selector-modal" class="modal-overlay" style="z-index: 1000; align-items: flex-end; padding: 0;" onclick="if(event.target === this) window.closeAppModal('spectator-bet-selector-modal')">
+        <div class="settings-card" dir="auto" style="width: 100%; max-width: 100%; border-radius: 28px 28px 0 0 !important; margin: 0; padding: 25px 0 35px 0; background: #1c1c1e !important; box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.05); animation: modalFadeIn 0.3s ease;">
+            <div style="width: 45px; height: 5px; background: rgba(255,255,255,0.15); border-radius: 10px; margin: -10px auto 20px auto;"></div>
+            <h3 style="color: #ffd700; text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: 800;">تحديد مبلغ الرهان 🪙</h3>
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('50', '50 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">50 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('100', '100 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">100 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('200', '200 🪙', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">200 <img src="../Photo/coin.webp" class="app-coin-icon"></div></div>
+                <div class="bet-option-item" onclick="window.selectSpectatorBetAmount('500', '500 🪙 (الحد الأقصى)', this)"><div class="bet-radio-circle"></div><div class="bet-option-text">500 <img src="../Photo/coin.webp" class="app-coin-icon"> <span style="color:#e0e0e0; font-size:13px; margin-right: 4px;">(الحد الأقصى)</span></div></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="spectators-list-modal" class="modal-overlay" style="z-index: 950;">
+        <div class="settings-card" dir="auto" style="max-width: 340px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('spectators-list-modal')">✕</button>
+            <h3 style="color: #f1c40f; margin-bottom: 15px;">قائمة المشاهدين 👁️</h3>
+            <p id="spectators-list-desc" style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px; text-align: center;">اللاعبون الذين يشاهدون المباراة حالياً</p>
+            
+            <div id="spectators-items-container" class="scrollable-content" style="max-height: 50vh; display: flex; flex-direction: column; gap: 10px;">
+                <p style="text-align: center; color: #666; font-size: 13px;">جاري تحميل قائمة المشاهدين...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-overlay" class="modal-overlay" style="z-index: 860;">
+        <div class="settings-card" dir="auto">
+            <button class="modal-close-btn" onclick="window.closeAppModal('settings-overlay')" style="left:15px; right:auto;">✕</button>
+            <h3 id="set-title">الإعدادات</h3>
+           <div class="audio-controls" style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label id="sfx-lbl" for="sfx-volume">مستوى صوت التحريك</label>
+                    <input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7">
+                </div>
+                <div>
+                    <label id="alerts-sfx-lbl" for="alerts-volume">مستوى صوت الإشعارات والمؤثرات</label>
+                    <input type="range" id="alerts-volume" min="0" max="1" step="0.1" value="0.7" style="accent-color: #34c759;">
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; background: rgba(255,255,255,0.04); padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <label for="sync-theme-optout" style="color: #e0e0e0; font-size: 13px; font-weight: 500; text-align: right; line-height: 1.4;">استخدام شكل الساحة للاعب الأعلى مستوى (أونلاين)</label>
+                <input type="checkbox" id="sync-theme-optout" style="width: 18px; height: 18px; accent-color: #f5a623; margin-right: 10px;">
+            </div>
+
+            <button id="save-settings-btn" class="save-settings-btn" style="margin-top: 25px; box-shadow: none !important;">حفظ</button>
+        </div>
+    </div>
+
+    <div id="custom-password-modal" class="modal-overlay" style="z-index: 950;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('custom-password-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #f1c40f; margin-bottom: 10px;">غرفة محمية 🔒</h3>
+            <p style="color: #e0e0e0; font-size: 14px; margin-bottom: 20px; text-align: center;">الرجاء إدخال كلمة السر الخاصة بهذه الغرفة:</p>
+            
+            <input type="password" id="custom-room-pwd-input" class="online-input" placeholder="كلمة السر..." style="text-align: center; font-size: 18px; letter-spacing: 2px;">
+            <input type="hidden" id="custom-target-room-id">
+            
+            <button id="custom-join-confirm-btn" class="save-settings-btn" style="background: linear-gradient(135deg, #3498db, #2980b9) !important; margin-top: 15px; border: 1.5px solid #85c1e9 !important; border-bottom: 3.5px solid #1f618d !important; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important;">دخول الغرفة</button>
+        </div>
+    </div>
+
+    <div id="creator-room-settings-modal" class="modal-overlay" style="z-index: 950;">
+        <div class="settings-card" dir="auto" style="max-width: 300px;">
+            <button class="modal-close-btn" onclick="window.closeAppModal('creator-room-settings-modal')" style="left:15px; right:auto;">✕</button>
+            <h3 style="color: #87ceeb; margin-bottom: 10px;">إدارة غرفتي ⚙️</h3>
+            
+            <input type="hidden" id="creator-target-room-id">
+            
+            <label class="settings-label" style="margin-top: 15px;">تعديل مبلغ الرهان:</label>
+            <div class="custom-bet-trigger" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px;" onclick="window.openBetSelectorForEdit()">
+                <span id="edit-room-bet-display">اختر الرهان الجديد</span><span style="font-size: 14px; color: rgba(255,255,255,0.4);">▼</span>
+            </div>
+            <input type="hidden" id="edit-room-bet-input" value="0">
+            
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button id="creator-update-bet-btn" class="save-settings-btn" style="background: rgba(48,209,88,0.2) !important; color: #30d158 !important; border-color: rgba(48,209,88,0.4) !important; margin: 0; box-shadow: none !important;">تحديث الرهان 🔄</button>
+                <button id="creator-cancel-room-btn" class="save-settings-btn" style="background: rgba(255, 69, 58, 0.15) !important; color: #ff453a !important; border-color: rgba(255, 69, 58, 0.4) !important; margin: 0; box-shadow: none !important;">إغلاق وحذف الغرفة 🗑️</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="control-panel" id="bottom-control-panel">
+        <button id="reset-btn" class="premium-game-btn" title="لعب ضد البوت">
+            <span class="btn-icon" data-icon="robotBtn" style="width: 45px; height: 45px;"></span>
+            <div class="btn-text-col">
+                <span id="reset-btn-txt" class="btn-main-text">ضد البوت</span>
+                <span class="btn-sub-text">لعب أوفلاين</span>
+            </div>
+        </button>
+
+        <button id="hint-btn" title="أفضل حركة">
+            <span data-icon="bulb" style="display: flex; align-items: center; justify-content: center;"></span>
+            <span id="hint-counter" style="position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 50%; border: 1.5px solid #a88734; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10;">0</span>
+        </button>
+        <button id="undo-btn" title="تراجع (أوفلاين)" style="display: none;">↩️</button>
+        
+        <button id="room-portal-btn" title="الغرف الخاصة" onclick="window.openAppModal('online-modal')">
+            <span data-icon="door" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 6px;"></span>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: right; line-height: 1.2;">
+                <span style="color: #ffffff; font-size: 18px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">الغرف</span>
+                <span style="color: #f5a623; font-size: 9px; font-weight: 700;">المشاهدة والمراهنات</span>
+            </div>
+        </button>
+        
+        <button id="tawla-radio-toggle" title="تشغيل/إيقاف الراديو" onclick="window.toggleRadioMusic()">
+            <span id="tawla-radio-status" class="radio-status-dot"></span><span data-icon="radioBtn" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></span>
+        </button>
+        
+        <button id="mic-toggle-btn" title="المحادثة الصوتية" style="display: none;"></button>
+        
+        <button id="match-gift-btn-p2" title="إرسال شعبية" style="display: none; background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #00d2ff !important; border-bottom: 3.5px solid #0088aa !important; color: #00d2ff !important; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5) !important; border-radius: 14px !important; width: 44px !important; height: 44px !important; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-direction: column; gap: 2px;">
+            <span style="font-size: 16px; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8));">🎁</span>
+            <span style="font-size: 9px; font-weight: bold; letter-spacing: 0.5px;">إهداء</span>
+        </button>
+
+        <button id="resign-btn" title="الانسحاب" style="display: none;">الانسحاب</button>
+    </div>
+
+    <div id="match-countdown-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(0,0,0,0.85); z-index: 1040; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px);">
+        <div style="font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(241,196,15,0.6));">⚔️</div>
+        <h2 style="color: #fce8a1; font-size: 26px; text-shadow: 0 0 15px #f1c40f; margin-bottom: 5px;">تجهّز للمواجهة!</h2>
+        <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 20px;">المشاهدون يستطيعون المراهنة الآن...</p>
+        <div id="match-countdown-number" style="font-size: 120px; color: white; font-weight: 900; text-shadow: 0 10px 25px rgba(0,0,0,1); background: linear-gradient(180deg, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">10</div>
+    </div>
+
+    <div id="purchase-modal" class="modal-overlay" style="display: none; z-index: 20000001 !important;">
+        <div class="settings-card" dir="auto" style="max-width: 320px; padding: 25px 20px; position: relative;">
+            <button class="modal-close-btn" onclick="document.getElementById('purchase-modal').style.display='none'" style="left:15px; right:auto; z-index: 10;">✕</button>
+            <h3 style="color: #FFD700; margin-bottom: 15px;">تأكيد الشراء</h3>
+            
+            <div id="modal-item-preview" style="width: 80px; height: 80px; margin: 15px auto; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.05); border-radius: 12px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);"></div>
+            
+            <div id="modal-item-name" style="color: white; font-weight: bold; font-size: 16px; margin-bottom: 10px;"></div>
+            
+            <div id="modal-item-cost" style="color: #34c759; font-size: 18px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.8);"></div>
+            
+            <div id="discount-container" style="display: none; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);">
+                <label style="font-size: 12px; color: #a1a1aa; display: block; margin-bottom: 8px; font-weight: 600; text-align: start;">استخدام قسيمة خصم؟ <img src="../Photo/discount10.webp" class="app-ticket-icon"></label>
+                <select id="modal-discount-select" class="online-input" style="width: 100%; margin: 0; padding: 0 15px; height: 40px; border-radius: 8px !important; background: #1a1a24 !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white; appearance: auto;">
+                    <option value="0">بدون خصم (حفظ القسائم)</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button id="confirm-buy-btn" class="save-settings-btn" style="flex: 1; margin: 0; background: linear-gradient(135deg, #34c759, #28a745) !important; box-shadow: 0 4px 10px rgba(40,167,69,0.3) !important;">شراء</button>
+                <button onclick="document.getElementById('purchase-modal').style.display='none'" class="save-settings-btn" style="flex: 1; margin: 0; background: rgba(255,69,58,0.15) !important; color: #ff453a !important; border-color: rgba(255,69,58,0.3) !important; box-shadow: none !important;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+    <div id="hall-of-fame-modal" class="modal-overlay fullscreen-modal-container" style="z-index: 900;">
+        <div class="leaderboard-full-screen" dir="rtl" style="filter: hue-rotate(345deg);">
+            <button class="lb-close-btn" onclick="window.closeAppModal('hall-of-fame-modal')">✕</button>
+            
+            <div class="lb-header-container">
+                <div class="lb-title-row">
+                    <span class="lb-decor-line left"></span>
+                    <h3 class="lb-header-title" style="background: linear-gradient(180deg, #FFFFFF 0%, #00d2ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">سجل الشرف </h3>
+                    <span class="lb-decor-line right"></span>
+                </div>
+                <div class="lb-header-subtitle" style="color: #e0e0e0;">الأساطير المخلدون في اللعبة (دائم)</div>
+            </div>
+
+            <div class="lb-nav-tabs">
+                <button id="hof-tab-wins" class="lb-tab-button active" onclick="window.switchHofTab('wins')">الأكثر فوزاً</button>
+                <button id="hof-tab-xp" class="lb-tab-button" onclick="window.switchHofTab('xp')">الأعلى مستوى</button>
+            </div>
+
+            <div class="lb-podium-container" id="hof-podium-container"></div>
+
+            <div class="lb-list-container" id="hof-list-wins"></div>
+            <div class="lb-list-container" id="hof-list-xp" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="icons.js?v=2.0"></script>
+    <script src="https://diwanrise-dama-game-diwan.hf.space/socket.io/socket.io.js"></script>
+    
+    <script type="module" src="maint.js?v=2.0"></script>
+    <script type="module" src="dailyQuestst.js?v=2.0"></script>
+    <script src="../populars.js?v=2.0"></script>
+    <script src="chatt.js?v=2.0"></script>
+    <script type="module" src="voicet.js?v=2.0"></script>
+
+    <script type="module">
+        import { storeManager } from './storet.js?v=2.0';
+        document.addEventListener('DOMContentLoaded', () => { 
+            setTimeout(() => {
+                if (storeManager && typeof storeManager.init === 'function') {
+                    storeManager.init();
+                }
+            }, 300);
+        });
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scroller = document.getElementById('mm-carousel-scroller');
+            const cards = scroller ? scroller.querySelectorAll('.mm-card') : [];
+            if (!scroller || cards.length === 0) return;
+
+            let isScrolling;
+            
+            const updateActiveCard = () => {
+                const scrollerRect = scroller.getBoundingClientRect();
+                const scrollerCenter = scrollerRect.left + (scrollerRect.width / 2);
+                
+                let closestCard = null;
+                let closestDistance = Infinity;
+
+                const distances = Array.from(cards).map(card => {
+                    const rect = card.getBoundingClientRect();
+                    const cardCenter = rect.left + (rect.width / 2);
+                    return { card, distance: Math.abs(scrollerCenter - cardCenter) };
+                });
+
+                distances.forEach(item => {
+                    if (item.distance < closestDistance) {
+                        closestDistance = item.distance;
+                        closestCard = item.card;
+                    }
+                });
+
+                cards.forEach(c => {
+                    if (c === closestCard) {
+                        if (!c.classList.contains('active')) c.classList.add('active');
+                    } else {
+                        if (c.classList.contains('active')) c.classList.remove('active');
+                    }
+                });
+            };
+
+            scroller.addEventListener('scroll', () => {
+                if (isScrolling) window.cancelAnimationFrame(isScrolling);
+                isScrolling = window.requestAnimationFrame(updateActiveCard);
+            }, { passive: true });
+
+            const updateMatchmakingLocks = () => {
+                let profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+                let userTokens = parseInt(profile.tokens) || 0;
+                
+                const bets = [50, 250, 500, 1000, 2500, 5000, 10000];
+                
+                bets.forEach(bet => {
+                    const lockEl = document.getElementById('mm-lock-' + bet);
+                    const btnEl = document.getElementById('mm-btn-' + bet);
+                    
+                    if (lockEl) {
+                        if (userTokens < bet) {
+                            lockEl.style.display = 'flex';
+                            if (btnEl) btnEl.style.pointerEvents = 'none'; 
+                        } else {
+                            lockEl.style.display = 'none';
+                            if (btnEl) btnEl.style.pointerEvents = 'auto';
+                        }
+                    }
+                });
+            };
+
+            const modal = document.getElementById('matchmaking-stakes-modal');
+            let initialScrollDone = false;
+          
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.target.style.display === 'flex' || mutation.target.style.display === 'block') {
+                        updateMatchmakingLocks();
+
+                        if (!initialScrollDone) {
+                            setTimeout(() => {
+                                const lastBet = localStorage.getItem('last_selected_mm_bet');
+                                let targetCard = null;
+
+                                if (lastBet !== null) {
+                                    targetCard = Array.from(cards).find(card => {
+                                        const btn = card.querySelector('.mm-card-btn');
+                                        return btn && btn.getAttribute('onclick') === `window.startMatchmakingWithBet(${lastBet})`;
+                                    });
+                                }
+
+                                if (!targetCard) {
+                                    targetCard = cards[0]; 
+                                }
+
+                                const scrollPos = targetCard.offsetLeft - (scroller.clientWidth / 2) + (targetCard.clientWidth / 2);
+                                
+                                scroller.style.scrollBehavior = 'smooth';
+                                scroller.scrollTo({ left: scrollPos });
+                                
+                                setTimeout(() => {
+                                    scroller.style.scrollBehavior = 'auto'; 
+                                    updateActiveCard();
+                                }, 300);
+                                
+                                initialScrollDone = true; 
+                            }, 50);
+                        }
+                    } else {
+                        initialScrollDone = false; 
+                    }
+                });
+            });
+            
+            if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+        });
+
+        window.scrollMmCarousel = function(direction) {
+            const scroller = document.getElementById('mm-carousel-scroller');
+            if(scroller) {
+                const cardWidth = 290; 
+                const margin = -40;
+                scroller.style.scrollBehavior = 'smooth';
+                scroller.scrollBy({ left: direction * (cardWidth + (margin * 2)) });
+                setTimeout(() => { scroller.style.scrollBehavior = 'auto'; }, 300);
+            }
+        };
+
+        window.startMatchmakingWithBet = function(betAmount) {
+            let profile = (window.gameState && window.gameState.userProfile) ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
+            let userTokens = parseInt(profile.tokens) || 0;
+            
+            if (betAmount > 0 && userTokens < betAmount) {
+                if (window.ui && typeof window.ui.showCustomAlert === 'function') {
+                    window.ui.showCustomAlert("رصيدك غير كافٍ لدخول هذه الساحة!");
+                } else {
+                    alert("رصيدك غير كافٍ!");
+                }
+                return; 
+            }
+
+            localStorage.setItem('last_selected_mm_bet', betAmount);
+            
+            if (typeof window.closeAppModal === 'function') window.closeAppModal('matchmaking-stakes-modal');
+            else document.getElementById('matchmaking-stakes-modal').style.display = 'none';
+            
+            const timerEl = document.getElementById('mm-timer');
+            if (timerEl) timerEl.textContent = '00:00';
+            
+            if (window.gameState) {
+                window.gameState.mmStartTime = Date.now();
+                if (window.gameState.mmInterval) clearInterval(window.gameState.mmInterval);
+                window.gameState.mmInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - window.gameState.mmStartTime) / 1000);
+                    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                    const s = String(elapsed % 60).padStart(2, '0');
+                    if (timerEl) timerEl.textContent = `${m}:${s}`;
+                }, 1000);
+            }
+
+            if (typeof window.openAppModal === 'function') window.openAppModal('matchmaking-modal');
+            else document.getElementById('matchmaking-modal').style.display = 'flex';
+            
+            if (window.socketManager && typeof window.socketManager.handleRoomAction === 'function') {
+                window.socketManager.handleRoomAction('joinMatchmakingPool', null, null, betAmount);
+            }
+        };
+    </script>
+  
+</body>
+</html>
