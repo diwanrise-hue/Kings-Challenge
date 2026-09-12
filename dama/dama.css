@@ -1207,7 +1207,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 
 /* الكلاس الذي يشغل حركة الأنميشن السحرية */
 #toast-notification.show {
-    visibility: visible !important;
+    visibility: visible !important;opacity: 1 !important;
     /* عدلنا الوقت الكلي ليكون 6.5 ثانية */
     animation: cinematicToastAnim 4.5s cubic-bezier(0.25, 1, 0.5, 1) forwards !important; 
 }
