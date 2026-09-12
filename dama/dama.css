@@ -1161,22 +1161,21 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .legendary-icon { box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); }
 
 /* ========================================== */
-/* 🌟 الإشعار الجانبي الفيروزي (بديل المربع الأخضر) 🌟 */
+/* 🌟 الإشعار الجانبي السينمائي الفخم (Cinematic Toast) 🌟 */
 /* ========================================== */
+
 #toast-notification {
     position: fixed !important;
     top: 100px !important;       /* نفس مستوى إشعار التحدي */
-    right: -350px !important;    /* مخفي خارج الشاشة يميناً في البداية */
-    bottom: auto !important;
-    left: auto !important;
-    transform: none !important;  /* إلغاء التوسيط القديم */
+    right: 0 !important;         /* ملتصق تماماً بحافة الشاشة اليمنى */
+    width: 260px !important;     /* العرض الكلي للإشعار */
+    height: 50px !important;     /* ارتفاع ثابت لضمان سلاسة الأنميشن */
     
-    width: 260px !important;     /* نفس عرض إشعار التحدي */
     background: rgba(24, 23, 29, 0.95) !important; /* لون داكن فخم */
     border: none !important;
     border-right: 4px solid #00d2ff !important; /* 👈 الخط الفيروزي المميز */
     border-radius: 12px 0 0 12px !important;
-    padding: 15px !important;
+    padding: 0 15px !important;  /* التباعد الداخلي أفقياً فقط */
     
     color: #e0e0e0 !important;
     font-weight: 700 !important;
@@ -1187,15 +1186,83 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     backdrop-filter: blur(8px) !important;
     pointer-events: none !important;
     
-    /* جعل الأيقونة والنص بخط واحد مرتب */
-    display: flex !important;align-items: center !important;justify-content: flex-start !important;gap: 10px !important;white-space: normal !important;line-height: 1.5 !important;direction: rtl !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    white-space: normal !important;
+    direction: rtl !important;
     
-    /* حركة انزلاق ناعمة من اليمين */
-    transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease !important;opacity: 0;visibility: hidden;
+    /* حالة البداية: 
+     1. الإشعار موجود عند حافة الشاشة (right: 0).
+     2. نحن نقوم بقص (Clip) كل محتوى الإشعار باستثناء 4 بكسل (وهي سماكة الخط الفيروزي)
+     مما يجعله يبدو وكأنه خط فقط. 
+    */
+    -webkit-clip-path: inset(0 0 0 calc(100% - 4px));
+    clip-path: inset(0 0 0 calc(100% - 4px));
+    
+    opacity: 0;
+    visibility: hidden;
 }
 
-/* الكلاس الذي يُظهر الإشعار */
-#toast-notification.show {right: 15px !important; /* يظهر بمسافة 15 بكسل من الحافة اليمنى */opacity: 1 !important;visibility: visible !important;
+/* الكلاس الذي يشغل حركة الأنميشن السحرية */
+#toast-notification.show {
+    visibility: visible !important;
+    /* إجمالي مدة الأنميشن: 2 + 5 + 2 = 9 ثواني. وضعنا 11 ثانية لضمان الإخفاء التام */
+    animation: cinematicToastAnim 11s cubic-bezier(0.25, 1, 0.5, 1) forwards !important; 
+}
+
+/* 🌟 الأنميشن السينمائي حسب توقيتاتك:
+ 0%    : البداية.
+ 2%    : ظهور الخط الفيروزي (Opacity 1). يبقى لمدة ثانيتين (حتى 20%).
+ 20%   : بدء انسحاب القص لإظهار الشريط الأسود والنص (سلايت).
+ 25%   : الشريط مكتمل الظهور (باقٍ لمدة 5 ثواني حتى 70%).
+ 70%   : الشريط ما زال مكتملاً.
+ 75%   : الشريط الأسود والنص يعودان للداخل ويختفيان (يبقى الخط الفيروزي فقط).
+ 95%   : الخط الفيروزي باقٍ لمدة ثانيتين إضافيتين (من 75% إلى 95%).
+ 100%  : الخط الفيروزي يختفي.
+*/
+@keyframes cinematicToastAnim {
+    0% { 
+        opacity: 0; 
+        -webkit-clip-path: inset(0 0 0 calc(100% - 4px));
+        clip-path: inset(0 0 0 calc(100% - 4px)); 
+    }
+    2% { 
+        opacity: 1; /* ظهور الخط الفيروزي */
+        -webkit-clip-path: inset(0 0 0 calc(100% - 4px));
+        clip-path: inset(0 0 0 calc(100% - 4px)); 
+    }
+    20% { 
+        opacity: 1; /* بقاء الخط الفيروزي لثانيتين وبداية الانبثاق */
+        -webkit-clip-path: inset(0 0 0 calc(100% - 4px));
+        clip-path: inset(0 0 0 calc(100% - 4px)); 
+    }
+    25% { 
+        opacity: 1; /* اكتمال السلايت وظهور الشريط الأسود والنص */
+        -webkit-clip-path: inset(0 0 0 0);
+        clip-path: inset(0 0 0 0); 
+    }
+    70% { 
+        opacity: 1; /* الشريط يبقى مفتوحاً لمدة 5 ثواني */
+        -webkit-clip-path: inset(0 0 0 0);
+        clip-path: inset(0 0 0 0); 
+    }
+    75% { 
+        opacity: 1; /* عودة الشريط الأسود للداخل (اختفاء النص وبقاء الخط) */
+        -webkit-clip-path: inset(0 0 0 calc(100% - 4px));
+        clip-path: inset(0 0 0 calc(100% - 4px)); 
+    }
+    95% { 
+        opacity: 1; /* بقاء الخط الفيروزي لثانيتين */
+        -webkit-clip-path: inset(0 0 0 calc(100% - 4px));
+        clip-path: inset(0 0 0 calc(100% - 4px)); 
+    }
+    100% { 
+        opacity: 0; /* اختفاء الخط الفيروزي بالكامل */
+        -webkit-clip-path: inset(0 0 0 calc(100% - 4px));
+        clip-path: inset(0 0 0 calc(100% - 4px)); 
+    }
 }
 
 #game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; backdrop-filter: blur(4px) saturate(150%) !important; border-radius: 36px !important; padding: 35px 25px !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;}
