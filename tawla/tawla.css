@@ -97,25 +97,6 @@ body {
 
 .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
 
-/* 🌟 إعدادات الساحة 🌟 */
-#tawla-board { 
-    display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
-    width: 100%; height: 100%; 
-    background-color: #3e2723;
-    background-clip: padding-box !important;
-    border: 12px solid transparent !important; 
-    border-radius: 0px !important;
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.9) !important;
-    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
-    border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
-    transition: all 0.5s ease; 
-}
-
-.cell { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; border: 0.8px solid rgba(0,0,0,0.5); box-sizing: border-box; }
-.cell.light { background-color: var(--light-cell); transition: background-color 0.5s; }
-.cell.dark { background-color: var(--dark-cell); transition: background-color 0.5s; }
-.cell.highlight::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(52, 152, 219, 0.4); border: 3px solid #2980b9; box-sizing: border-box; z-index: 5; pointer-events: none; }
-.cell.last-move::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1.5px solid #ffffff; background-color: transparent; box-sizing: border-box; z-index: 6; pointer-events: none; }
 
 .piece { width: 80%; height: 80%; border-radius: 50%; cursor: pointer; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.4s, border 0.4s; display: flex; align-items: center; justify-content: center; position: relative; }
 .piece::before { content: ''; position: absolute; width: 45%; height: 45%; border-radius: 50%; pointer-events: none; border: 1px solid rgba(0,0,0,0.1); }
@@ -1901,12 +1882,6 @@ body.online-mode-active .game-container {
 .bottom-left::before, .bottom-right::before {
     transform: rotate(180deg);
 }
-
-
-.bottom-left::before, .bottom-right::before {
-    transform: rotate(180deg);
-}
-
 
 .tawla-bar {
     position: absolute;
