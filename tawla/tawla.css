@@ -1,16 +1,15 @@
 /* tawla.css */
 /* ========================================== */
-/* tawla.css - النسخة المحسنة والمخصصة للعبة الطاولة */
-/* ========================================== */
-
 :root { 
+    --light-cell: #DEB887; 
+    --dark-cell: #8B4513;
     --my-score-bg: rgba(30, 32, 40, 0.6);
     --opp-score-bg: rgba(30, 32, 40, 0.6);
     --my-score-border: 1px solid rgba(255,255,255,0.08);
     --opp-score-border: 1px solid rgba(255,255,255,0.08);
 }
 
-/* 🌟 عملة اللعبة وبطاقات الخصم 🌟 */
+/* 🌟 كلاس عملة اللعبة الجديد 🌟 */
 .app-coin-icon {
     width: 1.2em;
     height: 1.2em;
@@ -21,6 +20,7 @@
     transform: translateY(-1px);
 }
 
+/* 🌟 كلاس بطاقات الخصم الجديد 🌟 */
 .app-ticket-icon {
     width: 1.4em;
     height: 1.4em;
@@ -50,7 +50,7 @@ body {
 }
 
 /* ========================================== */
-/* لوحات النقاط العلوية للمنافسين */
+/* رقعة اللعب ولوحات النقاط ذات الأشرطة الذكية */
 /* ========================================== */
 .scoreboard { 
     display: flex; flex-direction: column; gap: 3px; margin-bottom: 4px; 
@@ -97,119 +97,27 @@ body {
 
 .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
 
-/* ========================================== */
-/* 🎲 هيكل ساحة الطاولة (Tawla Board Layout) 🎲 */
-/* ========================================== */
-.tawla-container {
-    display: flex;
-    align-items: stretch;
-    justify-content: center;
-    width: 95vw;
-    max-width: 460px;
-    aspect-ratio: 0.8 / 1;
-    gap: 5px;
-    margin: 0 auto;
-}
-
-#tawla-board {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* قسمين يفصل بينهما البار */
-    grid-template-rows: 1fr 1fr;
-    width: 100%;
-    height: 100%;
+/* 🌟 إعدادات الساحة 🌟 */
+#tawla-board { 
+    display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); 
+    width: 100%; height: 100%; 
     background-color: #3e2723;
-    border: 12px solid transparent !important;
-    border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
+    background-clip: padding-box !important;
+    border: 12px solid transparent !important; 
+    border-radius: 0px !important;
     box-shadow: inset 0 0 15px rgba(0,0,0,0.9) !important;
     filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
-    gap: 10px; /* مساحة البار في المنتصف */
-    position: relative;
-    transition: all 0.5s ease;
+    border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
+    transition: all 0.5s ease; 
 }
 
-.board-quadrant {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.2);
-    position: relative;
-}
+.cell { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; border: 0.8px solid rgba(0,0,0,0.5); box-sizing: border-box; }
+.cell.light { background-color: var(--light-cell); transition: background-color 0.5s; }
+.cell.dark { background-color: var(--dark-cell); transition: background-color 0.5s; }
+.cell.highlight::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(52, 152, 219, 0.4); border: 3px solid #2980b9; box-sizing: border-box; z-index: 5; pointer-events: none; }
+.cell.last-move::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1.5px solid #ffffff; background-color: transparent; box-sizing: border-box; z-index: 6; pointer-events: none; }
 
-/* رسم المثلثات الخاصة بالطاولة برمجياً */
-.board-quadrant::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: repeating-linear-gradient(to right, transparent, transparent 16.66%, rgba(255,255,255,0.05) 16.66%, rgba(255,255,255,0.05) 33.33%);
-    pointer-events: none;
-}
-
-.tawla-bar {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    background: #5C3A21;
-    border-left: 2px solid #3e2723;
-    border-right: 2px solid #3e2723;
-    z-index: 5;
-}
-
-/* منطقة خروج الأحجار */
-.bear-off-zone {
-    width: 40px;
-    background: #4A2E1B;
-    border: 4px solid #5C3A21;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 5px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-}
-
-/* نرد الطاولة */
-.tawla-die {
-    width: 40px;
-    height: 40px;
-    background: #fff;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #000;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);
-    animation: rollDice 0.5s ease-out;
-}
-
-@keyframes rollDice {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(1.2); }
-    100% { transform: rotate(360deg) scale(1); }
-}
-
-@media (max-height: 700px) {
-    body.online-mode-active #tawla-board-wrapper, 
-    body.online-mode-active .tawla-container {
-        max-width: 48vh !important; 
-    }
-}
-
-/* ========================================== */
-/* تصميم الأحجار (Pieces) */
-/* ========================================== */
-.piece { 
-    width: 80%; height: 80%; border-radius: 50%; cursor: pointer; 
-    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2); 
-    transition: transform 0.2s, background 0.4s, border 0.4s; 
-    display: flex; align-items: center; justify-content: center; position: relative; 
-}
+.piece { width: 80%; height: 80%; border-radius: 50%; cursor: pointer; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.4s, border 0.4s; display: flex; align-items: center; justify-content: center; position: relative; }
 .piece::before { content: ''; position: absolute; width: 45%; height: 45%; border-radius: 50%; pointer-events: none; border: 1px solid rgba(0,0,0,0.1); }
 .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6); border: 1px solid #bdc3c7; }
 .piece.white::before { background-color: rgba(0, 0, 0, 0.15); }
@@ -217,7 +125,14 @@ body {
 .piece.black::before { background-color: rgba(255, 255, 255, 0.15); }
 .piece.selected { outline: 3px solid #2ecc71; transform: scale(1.1); }
 
-/* تأثير الأحجار القابلة للعب (توهج) */
+.piece.white.tawla { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #bdc3c7) !important; border: 3px solid #fff !important; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1), 0 0 10px rgba(255, 255, 255, 0.6) !important; z-index: 10; }
+.piece.white.tawla::after { content: '👑'; color: #d4af37; text-shadow: 0 0 2px rgba(0,0,0,0.5); }
+.piece.black.tawla { background: radial-gradient(circle at 30% 30%, #555, #2b2b35, #1e1e24) !important; border: 2px solid #2b2b35 !important; box-shadow: inset -2px -2px 5px rgba(255,255,255,0.1), 0 0 10px rgba(0,0,0,0.5) !important; z-index: 10; }
+.piece.black.tawla::after { content: '👑'; color: #b0b0b8; text-shadow: 0 0 3px rgba(255,255,255,0.2); }
+.piece.tawla::before { fill: none; }
+.piece.tawla::after { font-size: 80%; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; transition: text-shadow 0.3s, color 0.3s; }
+
+/* 🌟 التحسينات الجديدة لأداء GPU للقطع الإجبارية 🌟 */
 .piece.forced { 
     border: 2px solid #e74c3c !important; 
     box-shadow: 0 0 15px #e74c3c !important; 
@@ -225,13 +140,20 @@ body {
     will-change: transform;
     transform: translateZ(0); 
 }
+.piece.tawla.forced { 
+    border: 3px double #e74c3c !important; 
+    box-shadow: 0 0 20px #e74c3c !important; 
+    animation: forcedPulseGpu 1.2s infinite ease-in-out; 
+    will-change: transform;
+    transform: translateZ(0);
+}
 @keyframes forcedPulseGpu { 
     0%, 100% { transform: scale(1) translateZ(0); } 
     50% { transform: scale(1.08) translateZ(0); } 
 }
 
 /* ========================================== */
-/* الشريط السفلي و الأزرار المربعة */
+/* الشريط السفلي و الأزرار المربعة            */
 /* ========================================== */
 .control-panel { 
     position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
@@ -245,7 +167,7 @@ body {
     z-index: 800; box-shadow: 0 -10px 30px rgba(0,0,0,0.4) !important; 
 }
 
-/* زر الانسحاب */
+/* زر الانسحاب (بدون الطبقة الحمراء) */
 #resign-btn { 
     background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
     color: #ff6b6b !important;
@@ -276,7 +198,7 @@ body {
     flex-shrink: 0 !important;
 }
 
-/* تأثير التلميح السحري (Hint) */
+/* 🌟 التحسينات الجديدة لأداء GPU لزر التلميح السحري 🌟 */
 @keyframes magicGlowGpu {
     0% { transform: scale(1); opacity: 1; }
     30% { transform: scale(1.15) rotate(-5deg); opacity: 0.8; }
@@ -289,7 +211,7 @@ body {
     will-change: transform, opacity;
 }
 
-/* إضاءة الراديو */
+/* 🌟 التحسينات الجديدة لأداء GPU لزر الراديو 🌟 */
 .radio-status-dot {
     position: absolute; top: -2px; right: -2px; width: 12px; height: 12px;
     border-radius: 50%; border: 2px solid #282a32; background-color: transparent;
@@ -308,8 +230,9 @@ body {
 }
 
 /* ========================================== */
-/* الأزرار الفخمة والمكونات ثلاثية الأبعاد */
+/* 🌟 الأزرار الفخمة والمكونات ثلاثية الأبعاد 🌟 */
 /* ========================================== */
+
 #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn {
     background: linear-gradient(145deg, #2a2a35, #15141a) !important;
     border: 1.5px solid #a88734 !important;
@@ -385,7 +308,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 }
 
 /* ========================================== */
-/* تصميم الأزرار الزجاجية الفخمة (أونلاين وبوت) */
+/* 🌟 تصميم الأزرار الزجاجية الفخمة (أونلاين وبوت) 🌟 */
 /* ========================================== */
 .premium-game-btn {
     display: flex !important;
@@ -473,7 +396,7 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 @keyframes pulseGlowGpu { 0% { transform: scale(0.85); opacity: 0.8; } 100% { transform: scale(1.15); opacity: 1; } }
 
 /* ========================================== */
-/* نظام البروفايل المتمركز */
+/* 🌟 نظام البروفايل الجديد المتمركز (أسود/ذهبي) */
 /* ========================================== */
 
 .shrink-text {
@@ -695,7 +618,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 }
 
 /* ========================================== */
-/* متصدري الموسم */
+/* 🏆 التصميم الداخلي الكامل لنافذة متصدري الموسم 🏆 */
 /* ========================================== */
 .leaderboard-full-screen { 
     width: 100vw; 
@@ -1104,9 +1027,6 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     margin-top: 8px;
 }
 
-/* ========================================== */
-/* المتجر والشبكات */
-/* ========================================== */
 .themes-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 5px 0; }
 .theme-grid-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 10px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 
@@ -1196,7 +1116,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 @keyframes badgePulse { 0% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.8; } }
 
 /* ========================================== */
-/* بطاقات اللاعبين */
+/* 🌟 التصميم الجديد: بطاقات اللاعبين المنفصلة 🌟 */
 /* ========================================== */
 #match-players-card { 
     background: transparent !important; 
@@ -1205,6 +1125,10 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     backdrop-filter: none !important; 
 }
 
+
+/* ========================================== */
+/* 🌟 التصميم الجديد: بطاقات اللاعبين المنفصلة (مضغوطة وأنيقة) 🌟 */
+/* ========================================== */
 .match-players-flex { 
     display: flex; 
     flex-direction: column; 
@@ -1222,6 +1146,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     backdrop-filter: blur(4px);
 }
 
+
 .match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid #d4af37; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: visible; background-color: rgba(255,255,255,0.05); }
 .match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fdf5c9 !important; display: flex; align-items: center; justify-content: center; }
 .match-vs-text { color: #d4af37; font-weight: 800; font-size: 16px; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
@@ -1230,8 +1155,9 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .legendary-icon { box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2); }
 
 /* ========================================== */
-/* الإشعار الجانبي (Toast) */
+/* 🌟 الإشعار الجانبي السينمائي الفخم (Cinematic Toast) 🌟 */
 /* ========================================== */
+
 #toast-notification {
     position: fixed !important;
     top: 100px !important;       
@@ -1288,8 +1214,52 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 #game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; backdrop-filter: blur(4px) saturate(150%) !important; border-radius: 36px !important; padding: 35px 25px !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;}
 #game-over-modal h3 { color: #fce8a1 !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 
+/* 🌟 التحكم الجذري بتبديل أزرار القائمة والحقيبة 🌟 */
+#bag-quick-btn {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    z-index: -999 !important;
+}
+
+body.game-active:not(.online-mode-active) #hamburger-menu-btn,
+body.game-active:not(.online-mode-active) #room-portal-btn {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    z-index: -999 !important;
+}
+body.game-active:not(.online-mode-active) #bag-quick-btn {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: 850 !important; 
+}
+
+body.online-mode-active { padding-top: 15px !important; }
+body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #bag-quick-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn, body.online-mode-active #room-portal-btn { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
+body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
+
+body.online-mode-active #match-players-card { 
+    width: 95vw !important; 
+    max-width: 480px !important; 
+    flex-direction: row !important; 
+    justify-content: space-between !important; 
+    align-items: center !important;
+    padding: 5px 10px !important; 
+    margin-bottom: 15px !important; 
+    gap: 5px !important;
+}
+
+body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #d4af37 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+body.online-mode-active .scoreboard { order: 2 !important; }
+body.online-mode-active .game-container { order: 3 !important; }
+
 /* ========================================== */
-/* عجلة الحظ (Lucky Spin) */
+/* 🎡 عجلة الحظ (Lucky Spin) - CSS            */
 /* ========================================== */
 .wheel-container { 
     position: relative; 
@@ -1305,6 +1275,10 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     animation: pulseAura 2.5s infinite alternate ease-in-out;
     pointer-events: none;
 }
+
+/* ========================================== */
+/* 🌟 التعديلات الجديدة: خلفية العجلة والدبوس الفخم 🌟 */
+/* ========================================== */
 
 #lucky-spin-modal .settings-card {
     background-image: url('Media/front/عجلة.webp') !important;
@@ -1419,6 +1393,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     font-weight: 800 !important;
 }
 
+/* ⏱️ صناديق الوقت (المطابقة للصورة 2) */
 .spin-timer-wrapper {
     background: linear-gradient(180deg, #0f192b 0%, #050a14 100%);
     border: 1px solid #1e3a5f;
@@ -1433,38 +1408,97 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     width: 90%;
     box-shadow: 0 4px 15px rgba(0,0,0,0.6);
 }
-.timer-label { color: #ffffff; font-size: 14px; font-weight: 700; }
-.spin-timer-digits { display: flex; align-items: center; justify-content: center; gap: 8px; direction: ltr; }
+.timer-label {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+}
+.spin-timer-digits {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    direction: ltr;
+}
 .t-box {
     background: linear-gradient(180deg, #2a1f00 0%, #1a1300 100%);
-    border: 1.5px solid #d4af37; border-radius: 6px; color: #ffd700;
-    font-size: 18px; font-weight: 800; padding: 4px 6px; min-width: 32px;
-    text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8); font-family: monospace;
+    border: 1.5px solid #d4af37;
+    border-radius: 6px;
+    color: #ffd700;
+    font-size: 18px;
+    font-weight: 800;
+    padding: 4px 6px;
+    min-width: 32px;
+    text-align: center;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+    font-family: monospace;
 }
-.time-sep { color: #ffd700; font-size: 18px; font-weight: 800; }
+.time-sep {
+    color: #ffd700;
+    font-size: 18px;
+    font-weight: 800;
+}
 
+/* 🔘 أزرار اللف اللامعة الفخمة (المطابقة للصورة 3) */
 .spin-action-btn {
     background: linear-gradient(180deg, #005cbf 0%, #001f4d 100%) !important;
-    border: 2px solid #ffd700 !important; border-radius: 50px !important;
-    width: 90%; height: 60px !important; margin: 0 auto !important;
-    display: flex !important; align-items: center; justify-content: center;
-    cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.3) !important;
-    transition: all 0.2s ease !important; position: relative; padding: 0 15px !important;
+    border: 2px solid #ffd700 !important;
+    border-radius: 50px !important;
+    width: 90%;
+    height: 60px !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.3) !important;
+    transition: all 0.2s ease !important;
+    position: relative;
+    padding: 0 15px !important;
 }
-.spin-action-btn:active { transform: translateY(3px) !important; box-shadow: 0 2px 5px rgba(0,0,0,0.8) !important; }
-.spin-action-btn:hover { filter: brightness(1.15); }
+.spin-action-btn:active {
+    transform: translateY(3px) !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.8) !important;
+}
+.spin-action-btn:hover {
+    filter: brightness(1.15);
+}
 .spin-play-icon {
-    width: 36px; height: 36px; background: linear-gradient(135deg, #ffe066, #b8860b);
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    color: #4a3500; font-size: 16px; box-shadow: 0 4px 8px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.8);
-    border: 2px solid #fff3a8; padding-left: 3px; flex-shrink: 0;
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #ffe066, #b8860b);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #4a3500; font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.8);
+    border: 2px solid #fff3a8;
+    padding-left: 3px; 
+    flex-shrink: 0;
 }
-.spin-btn-content { display: flex; align-items: center; justify-content: center; }
-.spin-btn-text { color: #ffd700; font-size: 20px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); font-family: 'Tajawal', sans-serif; }
-.spin-btn-val { color: #ffffff; font-size: 24px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 5px; font-family: 'Outfit', sans-serif; }
+.spin-btn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.spin-btn-text {
+    color: #ffd700;
+    font-size: 20px;
+    font-weight: 900;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    font-family: 'Tajawal', sans-serif;
+}
+.spin-btn-val {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 900;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
+}
 
 /* ========================================== */
-/* شاشة الترقية و السلوك أثناء اللعب */
+/* 🌟 أنيميشن شاشة الترقية (Level Up Modal)  */
 /* ========================================== */
 @keyframes shineRays {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -1479,7 +1513,17 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .confetti { position: absolute; width: 10px; height: 10px; background: #ffd700; top: -10px; z-index: 999999; animation: fall 3s linear forwards; }
 @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 
-/* أزرار اختيار المستويات والصعوبة */
+/* ========================================== */
+/* الحفاظ على عمل التنسيقات للشاشات الداخلية  */
+/* ========================================== */
+#in-game-profile-modal .profile-avatar-capsule { position: relative !important; top: auto !important; left: auto !important; z-index: 1 !important; border: 2px solid #282a32 !important; width: 100% !important; height: 100% !important; }
+#in-game-profile-modal .level-badge-small { display: block; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: #ff453a !important; color: white !important; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; z-index: 10; white-space: nowrap; box-shadow: 0 2px 6px rgba(255, 69, 58, 0.5); }
+.avatar-wrapper { position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+.rank-icon-small { font-size: 14px; margin-left: 4px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); }
+
+/* ========================================== */
+/* 🌟 تصميم نافذة اختيار المستويات (Levels)  */
+/* ========================================== */
 .level-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
 .level-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 15px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: white; font-size: 20px; font-weight: 800; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
 .level-btn span { font-size: 11px; font-weight: 600; color: #a1a1aa; }
@@ -1487,18 +1531,38 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .level-btn.medium:hover, .level-btn.medium.active { background: rgba(245, 166, 35, 0.15); border-color: #f5a623; color: #f5a623; box-shadow: 0 0 15px rgba(245, 166, 35, 0.3); }
 .level-btn.hard:hover, .level-btn.hard.active { background: rgba(255, 69, 58, 0.15); border-color: #ff453a; color: #ff453a; box-shadow: 0 0 15px rgba(255, 69, 58, 0.3); }
 
-.level-btn.boss { position: relative; border: 1px solid rgba(212, 175, 55, 0.4); z-index: 1; }
-.level-btn.boss::after {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: inherit; box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); opacity: 0.2;
-    animation: bossPulseGpu 2s infinite alternate ease-in-out; pointer-events: none; z-index: -1;
+.level-btn.boss { 
+    position: relative; 
+    border: 1px solid rgba(212, 175, 55, 0.4); 
+    z-index: 1;
 }
-.level-btn.boss:hover, .level-btn.boss.active { background: rgba(212, 175, 55, 0.2); border-color: #ffd700; color: #ffd700; }
-.level-btn.boss:hover::after, .level-btn.boss.active::after { opacity: 1; transform: scale(1.05); }
-@keyframes bossPulseGpu { 0% { opacity: 0.2; transform: scale(1); } 100% { opacity: 1; transform: scale(1.02); } }
+.level-btn.boss::after {
+    content: ''; 
+    position: absolute; 
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+    opacity: 0.2;
+    animation: bossPulseGpu 2s infinite alternate ease-in-out;
+    pointer-events: none;
+    z-index: -1;
+}
+.level-btn.boss:hover, .level-btn.boss.active { 
+    background: rgba(212, 175, 55, 0.2); 
+    border-color: #ffd700; color: #ffd700; 
+}
+.level-btn.boss:hover::after, .level-btn.boss.active::after { 
+    opacity: 1; transform: scale(1.05); 
+}
+@keyframes bossPulseGpu { 
+    0% { opacity: 0.2; transform: scale(1); } 
+    100% { opacity: 1; transform: scale(1.02); } 
+}
 .level-btn:active { transform: scale(0.95); }
 
-/* قوائم الرهان */
+/* ========================================== */
+/* 🌟 تصميم القائمة السفلية لاختيار الرهان    */
+/* ========================================== */
 .bet-option-item { display: flex; align-items: center; justify-content: flex-start; padding: 16px 25px; border-bottom: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: background 0.2s; text-align: right; }
 .bet-option-item:hover { background: rgba(255,255,255,0.05); }
 .bet-option-item:last-child { border-bottom: none; }
@@ -1512,78 +1576,198 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     to { transform: translateY(0); opacity: 1; }
 }
 
-#friend-requests-modal { align-items: flex-end !important; padding: 0 !important; z-index: 10000015 !important; }
-#friend-requests-modal .settings-card { margin: 0 !important; border-radius: 32px 32px 0 0 !important; width: 100% !important; max-width: 100% !important; animation: slideUpBottomSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important; padding-bottom: 40px !important; }
+#friend-requests-modal {
+    align-items: flex-end !important;
+    padding: 0 !important;
+    z-index: 10000015 !important;
+}
+#friend-requests-modal .settings-card {
+    margin: 0 !important;
+    border-radius: 32px 32px 0 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    animation: slideUpBottomSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    padding-bottom: 40px !important;
+}
 
+/* ========================================== */
+/* 🌟 التنسيقات المفقودة لشريط الخبرة والنقود 🌟 */
+/* ========================================== */
 .xp-bar-bg {
-    width: 100%; height: 16px; background: rgba(0, 0, 0, 0.4); border-radius: 8px; 
-    border: 1px solid rgba(212, 175, 55, 0.3); position: relative; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    width: 100%; 
+    height: 16px; 
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px; 
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    position: relative; 
+    overflow: hidden; 
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
 }
+
 .xp-bar-fill {
-    height: 100%; width: 0%; border-radius: 8px; background: linear-gradient(90deg, #34c759, #28a745);
-    transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 8px rgba(52, 199, 89, 0.5);
+    height: 100%; 
+    width: 0%; 
+    border-radius: 8px;
+    background: linear-gradient(90deg, #34c759, #28a745);
+    transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 0 8px rgba(52, 199, 89, 0.5);
 }
+
 .xp-bar-text {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center; color: white; 
-    font-size: 10px; font-weight: 900; text-shadow: 0 1px 3px black; letter-spacing: 0.5px;
-}
-.coins-text-format { display: flex; align-items: center; gap: 3px; }
-
-/* إصلاح إطارات البروفايل والصور الدائرية */
-#igp-avatar, #mm-my-avatar, #mm-opp-avatar, #badge-avatar, #card-my-avatar, #card-opp-avatar, #bet-p1-avatar, #bet-p2-avatar {
-    background-color: transparent !important; border: none !important; overflow: visible !important; border-radius: 50%;
-}
-#igp-avatar img:first-child, #mm-my-avatar img:first-child, #mm-opp-avatar img:first-child, #card-my-avatar img:first-child, #card-opp-avatar img:first-child, #bet-p1-avatar img:first-child, #bet-p2-avatar img:first-child {
-    border-radius: 50% !important; object-fit: cover !important;
-}
-
-/* السلوك أثناء اللعب */
-#bag-quick-btn { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; z-index: -999 !important; }
-
-body.game-active:not(.online-mode-active) #hamburger-menu-btn,
-body.game-active:not(.online-mode-active) #room-portal-btn {
-    display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; z-index: -999 !important;
-}
-body.game-active:not(.online-mode-active) #bag-quick-btn {
-    display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 850 !important; 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    color: white; 
+    font-size: 10px; 
+    font-weight: 900; 
+    text-shadow: 0 1px 3px black;
+    letter-spacing: 0.5px;
 }
 
-body.online-mode-active { padding-top: 15px !important; }
-body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #bag-quick-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn, body.online-mode-active #room-portal-btn { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
-body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
-
-body.online-mode-active #match-players-card { 
-    width: 95vw !important; max-width: 480px !important; flex-direction: row !important; 
-    justify-content: space-between !important; align-items: center !important;
-    padding: 5px 10px !important; margin-bottom: 15px !important; gap: 5px !important;
+.coins-text-format {
+    display: flex;
+    align-items: center;
+    gap: 3px;
 }
 
-body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #d4af37 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-body.online-mode-active .scoreboard { order: 2 !important; }
-body.online-mode-active .game-container { order: 3 !important; }
+/* =========================================
+   ✨ إصلاح إطارات البروفايل والصور الدائرية
+   ========================================= */
+
+#igp-avatar, 
+#mm-my-avatar, 
+#mm-opp-avatar,
+#badge-avatar,
+#card-my-avatar,
+#card-opp-avatar,
+#bet-p1-avatar,
+#bet-p2-avatar {
+    background-color: transparent !important;
+    border: none !important;
+    overflow: visible !important;
+    border-radius: 50%;
+}
+
+#igp-avatar img:first-child, 
+#mm-my-avatar img:first-child, 
+#mm-opp-avatar img:first-child,
+#card-my-avatar img:first-child,
+#card-opp-avatar img:first-child,
+#bet-p1-avatar img:first-child,
+#bet-p2-avatar img:first-child {
+    border-radius: 50% !important;
+    object-fit: cover !important;
+}
+
+/* ========================================== */
+/* 🌟 السحر النهائي: سلوك الأزرار أثناء اللعب (game-active) 🌟 */
+/* ========================================== */
 
 body:not(.game-active) button#online-toggle-btn.premium-game-btn,
 body:not(.game-active) button#reset-btn.premium-game-btn {
-    position: fixed !important; bottom: 74px !important; z-index: 800 !important; width: calc(50vw - 15px) !important; max-width: 180px !important; height: 66px !important; padding: 8px 10px !important; box-sizing: border-box !important;
+    position: fixed !important;
+    bottom: 74px !important; 
+    z-index: 800 !important; 
+    width: calc(50vw - 15px) !important; 
+    max-width: 180px !important;   
+    height: 66px !important;       
+    padding: 8px 10px !important;  
+    box-sizing: border-box !important;
 }
 
-body:not(.game-active) button#online-toggle-btn.premium-game-btn { right: auto !important; left: 10px !important; transform: none !important; }
-body:not(.game-active) button#reset-btn.premium-game-btn { left: auto !important; right: 10px !important; transform: none !important; display: flex !important; }
+body:not(.game-active) button#online-toggle-btn.premium-game-btn {
+    right: auto !important;
+    left: 10px !important;
+    transform: none !important;
+}
 
-body.game-active button#online-toggle-btn.premium-game-btn { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
-body.game-active button#reset-btn.premium-game-btn { position: relative !important; right: auto !important; left: auto !important; bottom: auto !important; width: auto !important; min-width: 85px !important; max-width: unset !important; border-radius: 14px !important; height: 44px !important; padding: 0 12px !important; display: inline-flex !important; }
-body.game-active button#reset-btn.premium-game-btn .btn-main-text { color: #ffffff !important; font-size: 14px !important; font-weight: bold !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; }
-body.game-active button#reset-btn.premium-game-btn .btn-sub-text, body.game-active button#reset-btn.premium-game-btn .btn-icon { display: none !important; }
-body.online-mode-active button#reset-btn.premium-game-btn { display: none !important; }
+body:not(.game-active) button#reset-btn.premium-game-btn {
+    left: auto !important;
+    right: 10px !important;
+    transform: none !important;
+    display: flex !important; 
+}
 
-/* إطارات الرتب */
-.rank-icon-small { display: inline-flex; align-items: center; justify-content: center; height: 18px !important; }
-.rank-icon-small img { height: 18px !important; max-height: 18px !important; width: auto !important; object-fit: contain !important; transform: scale(1) !important; flex-shrink: 0 !important; }
-#igp-rank-display { min-height: 35px !important; display: flex !important; align-items: center !important; justify-content: center !important; }
-#igp-rank-display img { height: 40px !important; max-height: 32px !important; width: auto !important; object-fit: contain !important; transform: translateY(-3px) scale(1.0) !important; flex-shrink: 0 !important; }
+body.game-active button#online-toggle-btn.premium-game-btn {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
 
-/* غرف الانتظار */
+body.game-active button#reset-btn.premium-game-btn {
+    position: relative !important;
+    right: auto !important;
+    left: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    min-width: 85px !important;
+    max-width: unset !important;
+    border-radius: 14px !important; 
+    height: 44px !important;
+    padding: 0 12px !important;
+    display: inline-flex !important;
+}
+
+body.game-active button#reset-btn.premium-game-btn .btn-main-text { 
+    color: #ffffff !important; 
+    font-size: 14px !important; 
+    font-weight: bold !important; 
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
+}
+
+body.game-active button#reset-btn.premium-game-btn .btn-sub-text,
+body.game-active button#reset-btn.premium-game-btn .btn-icon {
+    display: none !important; 
+}
+
+body.online-mode-active button#reset-btn.premium-game-btn {
+    display: none !important;
+}
+
+/* =========================================
+   🛡️ الضبط المستقل والمثالي لجميع شارات الرتب
+   ========================================= */
+
+.rank-icon-small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 18px !important; 
+}
+
+.rank-icon-small img { 
+    height: 18px !important;      
+    max-height: 18px !important;  
+    width: auto !important;       
+    object-fit: contain !important; 
+    transform: scale(1) !important; 
+    flex-shrink: 0 !important;    
+}
+
+#igp-rank-display {
+    min-height: 35px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+#igp-rank-display img {
+    height: 40px !important;      
+    max-height: 32px !important; 
+    width: auto !important;
+    object-fit: contain !important;
+    transform: translateY(-3px) scale(1.0) !important; 
+    flex-shrink: 0 !important;
+}
+
+/* ========================================== */
+/* 🌟 حاوية غرفة اللاعب الخاصة (مستطيل ثابت) 🌟 */
+/* ========================================== */
 .my-waiting-room-card { display: none; flex-direction: row; align-items: center; justify-content: space-between; width: 100%; height: 85px; background: linear-gradient(145deg, rgba(20, 22, 28, 0.95), rgba(10, 12, 16, 0.95)); border: 1px solid rgba(212, 175, 55, 0.5); border-radius: 12px; padding: 10px 15px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.6), inset 0 0 10px rgba(212, 175, 55, 0.1); margin-bottom: 12px; }
 .my-waiting-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; flex: 1; margin-right: 15px; }
 .my-waiting-actions { display: flex; gap: 10px; }
@@ -1593,21 +1777,214 @@ body.online-mode-active button#reset-btn.premium-game-btn { display: none !impor
 .my-waiting-action-btn.delete { background: rgba(255, 69, 58, 0.15); border: 1px solid rgba(255, 69, 58, 0.3); color: #ff453a; }
 .my-waiting-action-btn.delete:hover { background: rgba(255, 69, 58, 0.25); transform: scale(1.05); }
 
-/* أيقونة البوت */
-.modern-bot-avatar { display: flex !important; align-items: center !important; justify-content: center !important; }
-.modern-bot-avatar svg { width: 90% !important; height: auto !important; max-height: 85% !important; object-fit: contain !important; display: block !important; }
+/* 🌟 إصلاح شكل أيقونة البوت (SVG) في جميع النوافذ لمنع التشوه 🌟 */
+.modern-bot-avatar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
 
-/* إصلاح المسافات ومنع السحب */
-html, body { overscroll-behavior-y: none !important; }
-body.online-mode-active { height: 100dvh !important; min-height: 100dvh !important; overflow: hidden !important; padding-top: 15px !important; padding-bottom: 75px !important; display: flex !important; flex-direction: column !important; justify-content: space-evenly !important; }
-body.online-mode-active #status-area { flex-shrink: 0 !important; margin-bottom: 0 !important; }
-body.online-mode-active #match-players-card { margin-bottom: 5px !important; }
-body.online-mode-active .scoreboard { flex-shrink: 0 !important; margin-bottom: 5px !important; }
-body.online-mode-active .game-container { flex: 1 !important; display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; max-height: 52vh !important; overflow: hidden !important; }
+.modern-bot-avatar svg {
+    width: 90% !important; 
+    height: auto !important; 
+    max-height: 85% !important; 
+    object-fit: contain !important;
+    display: block !important;
+    }
 
-/* انعكاس إطار البروفايل للغة الإنجليزية */
-html[dir="ltr"] #profile-badge.profile-badge-container { right: 0px !important; left: auto !important; transform-origin: top center !important; transform: scale(0.85) scaleX(-1) !important; }
-html[dir="ltr"] #profile-badge.profile-badge-container:hover { transform: scale(0.82) scaleX(-1) !important; }
-html[dir="ltr"] #profile-badge.profile-badge-container > .text-boundary, html[dir="ltr"] #profile-badge.profile-badge-container > .xp-wrapper, html[dir="ltr"] #profile-badge.profile-badge-container > .vertical-divider-free { transform: scaleX(-1) !important; }
-html[dir="ltr"] #profile-badge.profile-badge-container > #badge-avatar { transform: scaleX(-1) translateZ(0) !important; }
-html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame { transform: translateX(-50%) scaleX(-1) !important; }
+/* ========================================== */
+/* 🌟 إصلاح المسافات ومنع السحب (Scroll) في وضع الأونلاين 🌟 */
+/* ========================================== */
+
+html, body {
+    overscroll-behavior-y: none !important; 
+}
+
+body.online-mode-active {
+    height: 100dvh !important; 
+    min-height: 100dvh !important;
+    overflow: hidden !important; 
+    padding-top: 15px !important;
+    padding-bottom: 75px !important; 
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-evenly !important; 
+}
+
+body.online-mode-active #status-area {
+    flex-shrink: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+body.online-mode-active #match-players-card {
+    margin-bottom: 5px !important; 
+}
+
+body.online-mode-active .scoreboard {
+    flex-shrink: 0 !important;
+    margin-bottom: 5px !important;
+}
+
+body.online-mode-active .game-container {
+    flex: 1 !important; 
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-height: 52vh !important; 
+    overflow: hidden !important;
+}
+
+/* ========================================== */
+/* 🎲 إضافات لوحة الطاولة (Tawla Board Layout) 🎲 */
+/* ========================================== */
+.tawla-container {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    width: 95vw;
+    max-width: 460px;
+    aspect-ratio: 0.8 / 1;
+    gap: 5px;
+    margin: 0 auto;
+}
+
+#tawla-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* قسمين يفصل بينهما البار */
+    grid-template-rows: 1fr 1fr;
+    width: 100%;
+    height: 100%;
+    background-color: #3e2723;
+    border: 12px solid transparent !important;
+    border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.9) !important;
+    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
+    gap: 10px; /* مساحة البار في المنتصف */
+    position: relative;
+    transition: all 0.5s ease;
+}
+
+.board-quadrant {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.2); /* خلفية خفيفة للارباع */
+    position: relative;
+}
+
+.board-quadrant::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* رسم مثلثات متناوبة تغطي أي صورة في الخلفية */
+    background: repeating-linear-gradient(
+        to right, 
+        rgba(15, 10, 5, 0.85) 0%, rgba(15, 10, 5, 0.85) 16.66%, 
+        rgba(220, 200, 170, 0.75) 16.66%, rgba(220, 200, 170, 0.75) 33.33%
+    );
+    clip-path: polygon(
+        0% 0%, 16.66% 0%, 8.33% 100%, 
+        16.66% 0%, 33.33% 0%, 25% 100%, 
+        33.33% 0%, 50% 0%, 41.66% 100%, 
+        50% 0%, 66.66% 0%, 58.33% 100%, 
+        66.66% 0%, 83.33% 0%, 75% 100%, 
+        83.33% 0%, 100% 0%, 91.66% 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* عكس اتجاه المثلثات للأسفل في النصف السفلي من الطاولة */
+.bottom-left::before, .bottom-right::before {
+    transform: rotate(180deg);
+}
+
+
+.bottom-left::before, .bottom-right::before {
+    transform: rotate(180deg);
+}
+
+
+.tawla-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    background: #5C3A21;
+    border-left: 2px solid #3e2723;
+    border-right: 2px solid #3e2723;
+    z-index: 5;
+}
+
+.bear-off-zone {
+    width: 40px;
+    background: #4A2E1B;
+    border: 4px solid #5C3A21;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 5px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
+
+.tawla-die {
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);
+    animation: rollDice 0.5s ease-out;
+}
+
+@keyframes rollDice {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+@media (max-height: 700px) {
+    body.online-mode-active #tawla-board-wrapper, 
+    body.online-mode-active .tawla-container {
+        max-width: 48vh !important; 
+    }
+}
+
+/* ========================================== */
+/* 🌟 انعكاس إطار البروفايل للغة الإنجليزية (LTR) 🌟 */
+/* ========================================== */
+html[dir="ltr"] #profile-badge.profile-badge-container {
+    right: 0px !important; 
+    left: auto !important;
+    transform-origin: top center !important;
+    transform: scale(0.85) scaleX(-1) !important;
+}
+
+html[dir="ltr"] #profile-badge.profile-badge-container:hover {
+    transform: scale(0.82) scaleX(-1) !important;
+}
+
+html[dir="ltr"] #profile-badge.profile-badge-container > .text-boundary,
+html[dir="ltr"] #profile-badge.profile-badge-container > .xp-wrapper,
+html[dir="ltr"] #profile-badge.profile-badge-container > .vertical-divider-free {
+    transform: scaleX(-1) !important;
+}
+
+html[dir="ltr"] #profile-badge.profile-badge-container > #badge-avatar {
+    transform: scaleX(-1) translateZ(0) !important;
+}
+
+html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
+    transform: translateX(-50%) scaleX(-1) !important;
+}
