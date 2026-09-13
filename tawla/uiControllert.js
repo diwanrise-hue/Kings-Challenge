@@ -1,41 +1,55 @@
 /**
- * uiControllert.js
- * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات للعبة الطاولة.
+ * uiController.js
+ * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
+ * نظام البروفايل والأصدقاء،  متصدري الموسم.
+ * 🌟 (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
+ * 🎡 (مُحدّث جديد): برمجة نظام "ساحة التحديات" والمراهنات.
+ * ✅ (مُحدّث للتصحيح): العودة للواجهة الأساسية للعبة عند انتهاء المباراة.
+ * 🛡️ (مُحدّث جديد): منع فتح واجهة الخصم عند الضغط على ملفك الشخصي في متصدري الموسم .
+ * 🔊 (مُحدّث للصوت): استنساخ مسار الصوت لعجلة الحظ لضمان تداخل التكات بشكل واقعي ومتناسق.
+ * 📑 (مُحدّث للطبقات): رفع Z-Index نافذة التنبيهات لتظهر دائماً فوق عجلة الحظ وغيرها وإخفاء العجلة برمجياً.
+ * 💎 (مُحدّث): محاذاة أيقونات رتب (الماسي والأسطوري) لتتطابق تماماً مع السطر.
+ * 🎯 (مُحدّث للإصلاح): إصلاح زر المراهنة الخارجي بتمرير كود الغرفة المخفي (Room ID) بنجاح للسيرفر.
+ * 🛡️ (إصلاح أمني صارم): قفل اختيار الأحجار لمنع اللعب بقطع الخصم نهائياً.
+ * 🤖 (تحديث جديد): إزالة الإطار الأصفر عن صورة البوت في جميع النوافذ وضبط حجمه المثالي.
+ * 👑 (تحديث جديد): فصل الرتبة عن اللقب، وبرمجة "خزانة الألقاب" المبنية على إنجازات اللاعب!
+ * 🪙 (مُحدّث جديد): استبدال الإيموجي في الجوائز بصورة العملة باستخدام innerHTML.
+ * 
+ * 🚀 الإضافات الجديدة:
+ * 1. نظام "تأجيل جوائز الترقية" (Pending Rank Ups).
+ * 2. إضافة "زر طلب الصداقة" في نافذة النتائج (Add Friend in Results).
+ * 3. إظهار "الألقاب" (Titles) تحت أسماء اللاعبين في المباراة.
+ * 4. الضبط الفيزيائي الدقيق لـ "عجلة الحظ" (Lucky Spin Precision).
  */
 
 import { gameState } from './gameStatet.js'; 
-import { saveGameState, restoreOfflineHintSystem } from './maint.js';
+import { saveGameState, restoreOfflineHintSystem } from './mainr.js';
 import { gameEngine } from './gameEnginet.js';
 import { gameAI } from './gameAIt.js';
 import { socket, socketManager } from './socketManagert.js';
 import { t } from './i18nt.js';
-// نفترض وجود ملف hintSystemt.js كما طلبت بالحفاظ على الملفات المفقودة
 import { hintSystem } from './hintSystemt.js';
 
 window.t = t; 
 
-function getPieceMaxJumps(r, c, color, board, dr = null, dc = null) {
-    if (!gameEngine || typeof gameEngine.getPieceCapturePaths !== 'function') return 0;
-    let baseColor = color.split('-')[0];
-    let dirY = gameEngine.getPieceDirection(baseColor, board);
-    let paths = gameEngine.getPieceCapturePaths(r, c, baseColor, board, dirY, dr, dc);
-    if (!paths || paths.length === 0) return 0;
-    let max = 0;
-    for (let p of paths) { if (p.length > max) max = p.length; }
-    return max;
-}
 
+// ==========================================
+// 🖼️ قاعدة بيانات الإطارات الشخصية داخل اللعبة
+// ==========================================
 const PROFILE_FRAMES_DB = {
     'pf_ruby': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profil2.webp',
     'pf_dragon': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile4.webp',
     'pf_noble': 'https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Photo/storeAll/profile/Profile7.webp'
 };
 
+// ==========================================
+// 🏷️ قاعدة بيانات الألقاب الشاملة
+// ==========================================
 const TITLES_DB = {
     'novice': { name: 'مبتدئ', desc: 'متاح لجميع اللاعبين منذ البداية.' },
-    'amateur': { name: 'هاوي الطاولة', desc: 'العب 50 مباراة كاملة.' },
+    'amateur': { name: 'هاوي الدامة', desc: 'العب 50 مباراة كاملة.' },
     'veteran': { name: 'المخضرم', desc: 'العب 500 مباراة كاملة.' },
-    'addict': { name: 'مدمن الطاولة', desc: 'العب 1000 مباراة كاملة.' },
+    'addict': { name: 'مدمن الدامة', desc: 'العب 1000 مباراة كاملة.' },
     'winner': { name: 'المنتصر', desc: 'حقق 20 فوزاً إجمالياً.' },
     'conqueror': { name: 'الفاتح', desc: 'حقق 100 فوز إجمالي.' },
     'invincible': { name: 'الذي لا يقهر', desc: 'حقق 500 فوز إجمالي.' },
@@ -47,25 +61,28 @@ const TITLES_DB = {
     'wealthy': { name: 'التاجر', desc: 'اجمع 50,000 عملة ذهبية في رصيدك.' },
     'rich': { name: 'المليونير', desc: 'اجمع 500,000 عملة ذهبية في رصيدك.' },
     'genius': { name: 'العبقري', desc: 'نسبة فوز 70% (يجب لعب 50 مباراة على الأقل).' },
-    'reaper': { name: 'حاصد الأرواح', desc: 'التقط 7 قطع للخصم في حركة واحدة.' },
-    'kingmaker': { name: 'صانع الملوك', desc: 'اصنع 5 ملوك في مباراة واحدة.' },
+    'reaper': { name: 'حاصد الأرواح', desc: 'التقط 7 قطع للخصم في حركة واحدة (قفزة متعددة).' },
+    'kingmaker': { name: 'صانع الملوك', desc: 'اصنع 5 ملوك (دامة) في مباراة واحدة.' },
     'shark': { name: 'القرش', desc: 'العب واربح 3 مرات متتالية في مباراة برهان 10,000 عملة فأكثر.' },
     'generous': { name: 'حاتم الطائي', desc: 'أرسل 50 هدية شعبية للاعبين الآخرين.' },
     'unlucky': { name: 'المنحوس', desc: 'اخسر 10 مباريات متتالية.' },
     'mythical_streak': { name: 'قاهر السيرفر', desc: 'مستحيل تقريباً: حقق 50 انتصاراً متتالياً بدون خسارة.' },
-    'tawla_god': { name: 'الأسطورة الخالدة', desc: 'للمحترفين فقط: حقق 5,000 فوز إجمالي في مسيرتك.' },
+    'dama_god': { name: 'الأسطورة الخالدة', desc: 'للمحترفين فقط: حقق 5,000 فوز إجمالي في مسيرتك.' },
     'perfect_mind': { name: 'المعصوم', desc: 'حافظ على نسبة فوز تتجاوز 90% (بعد لعب 500 مباراة على الأقل).' },
     'whale': { name: 'حوت المراهنات', desc: 'اربح مباراة واحدة برهان يصل إلى 100,000 عملة.' },
     'emperor_wealth': { name: 'إمبراطور الثروة', desc: 'اجمع ثروة ضخمة تصل إلى 10,000,000 عملة ذهبية.' },
     'million_pop': { name: 'معشوق الملايين', desc: 'اجمع 1,000,000 نقطة شعبية لتتربع على عرش القلوب.' },
     'sage': { name: 'حكيم الزمان', desc: 'الولاء المطلق: العب 10,000 مباراة كاملة.' },
-    'king_army': { name: 'قائد الملوك', desc: 'الإذلال الكامل: اصنع 7 ملوك في مباراة واحدة.' },
+    'king_army': { name: 'قائد الملوك', desc: 'الإذلال الكامل: اصنع 7 ملوك (دامة) في مباراة واحدة.' },
     'executioner': { name: 'الجلاد', desc: 'ضربة قاضية: قم بالتقاط 10 قطع للخصم في قفزة واحدة.' },
-    'vip_exclusive': { name: 'صاحب الفخامة', desc: 'لقب سري ونادر يُمنح لنخبة النخبة في عالم الطاولة.' }
+    'vip_exclusive': { name: 'صاحب الفخامة', desc: 'لقب سري ونادر يُمنح لنخبة النخبة في عالم الدامة.' }
 };
 
 window.TITLES_DB = TITLES_DB; 
 
+// ==========================================
+// 🎵 المؤثرات الصوتية
+// ==========================================
 export const sfx = {
     move: new Audio('move.mp3'),
     piecesDied: new Audio('pieces_died.mp3'),
@@ -74,8 +91,10 @@ export const sfx = {
     win: new Audio('win.mp3'),
     clock: new Audio('clock.mp3'),
     spinTick: new Audio('spin_tick.mp3'),
+    // 🌟 إضافة صوت جمع العملات الجديد بالمسار المباشر 🌟
     coinsCollect: new Audio('https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/coinscollect.mp3')
 };
+// 🌟 تحديد مستوى صوت العملات ليكون واضحاً
 sfx.coinsCollect.volume = 0.8;
 
 window.isMatchRunning = false;
@@ -97,9 +116,14 @@ function getUserIdLocally() {
     catch(e) { return guestId; } 
 }
 
+// ==========================================
+// 🌟 الكائن الأساسي للتحكم بالواجهة (UI Controller)
+// ==========================================
 export const ui = {
     sfx: sfx,
     clickHandlers: new Map(), 
+    
+    // 🌟 (تحديث جديد: الضبط الفيزيائي الدقيق لعجلة الحظ لتبدأ متمركزة)
     currentWheelDeg: 337.5, 
 
     getEl: id => document.getElementById(id),
@@ -123,7 +147,7 @@ export const ui = {
     
     onClick(id, fn) { this.clickHandlers.set(id, fn); },
     
-    playSound(audio) {
+   playSound(audio) {
         if (!audio) return;
         try {
             audio.pause(); 
@@ -146,18 +170,34 @@ export const ui = {
         return el;
     },
 
+    // 🌟 نظام نافورة العملات البصري (VFX) - النسخة السينمائية الناعمة 🌟
     injectCoinVFXStyles() {
         if (document.getElementById('custom-coin-vfx-styles')) return;
         const style = document.createElement('style');
         style.id = 'custom-coin-vfx-styles';
+        // قمنا بإضافة إطارات (40% و 50% و 60%) لعمل "استدارة ناعمة" وتعليق في الهواء عند القمة
         style.innerHTML = `
             @keyframes coinFountainSmooth {
-                0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 0; }
-                10% { opacity: 1; }
-                40% { transform: translate(calc(-50% + (var(--tx) * 0.6)), calc(-50% - (var(--ty) * 0.95))) scale(1.3) rotate(calc(var(--rot) * 0.6)); }
-                50% { transform: translate(calc(-50% + (var(--tx) * 0.8)), calc(-50% - var(--ty))) scale(1.4) rotate(var(--rot)); }
-                60% { transform: translate(calc(-50% + var(--tx)), calc(-50% - (var(--ty) * 0.95))) scale(1.3) rotate(calc(var(--rot) * 1.4)); }
-                100% { transform: translate(calc(-50% + (var(--tx) * 1.5)), 120vh) scale(0.9) rotate(calc(var(--rot) * 3)); opacity: 1; }
+                0% { 
+                    transform: translate(-50%, -50%) scale(0.2) rotate(0deg); 
+                    opacity: 0; 
+                }
+                10% { 
+                    opacity: 1; 
+                }
+                40% { /* الاقتراب من القمة (بداية الاستدارة) */
+                    transform: translate(calc(-50% + (var(--tx) * 0.6)), calc(-50% - (var(--ty) * 0.95))) scale(1.3) rotate(calc(var(--rot) * 0.6)); 
+                }
+                50% { /* القمة (لحظة التعليق في الهواء) */
+                    transform: translate(calc(-50% + (var(--tx) * 0.8)), calc(-50% - var(--ty))) scale(1.4) rotate(var(--rot)); 
+                }
+                60% { /* بداية النزول (إكمال القوس بشكل ناعم) */
+                    transform: translate(calc(-50% + var(--tx)), calc(-50% - (var(--ty) * 0.95))) scale(1.3) rotate(calc(var(--rot) * 1.4)); 
+                }
+                100% { /* السقوط المتسارع للأسفل */
+                    transform: translate(calc(-50% + (var(--tx) * 1.5)), 120vh) scale(0.9) rotate(calc(var(--rot) * 3)); 
+                    opacity: 1; 
+                }
             }
             .vfx-coin-smooth {
                 position: fixed;
@@ -166,37 +206,46 @@ export const ui = {
                 pointer-events: none;
                 z-index: 99999999;
                 animation: coinFountainSmooth 2.4s ease-in-out forwards;
+                /* 🌟 أزلنا filter: drop-shadow لأنه يدمر المعالج في الهواتف */
+                /* 🌟 استخدمنا will-change لإجبار كرت الشاشة (GPU) على معالجة الحركة بسلاسة */
                 will-change: transform, opacity;
             }
+
         `;
         document.head.appendChild(style);
     },
 
     spawnCoinShower() {
         this.injectCoinVFXStyles();
-        const coinPath = window.location.pathname.includes('/tawla/') ? '../Photo/coin.webp' : 'Photo/coin.webp';
+        const coinPath = window.location.pathname.includes('/dama/') ? '../Photo/coin.webp' : 'Photo/coin.webp';
         
+        // إنشاء 35 عملة تتطاير في اتجاهات عشوائية وبمسار ناعم
         for (let i = 0; i < 35; i++) {
             let coin = document.createElement('img');
             coin.src = coinPath;
             coin.className = 'vfx-coin-smooth';
             
-            let tx = (Math.random() - 0.5) * 600; 
-            let ty = (Math.random() * 350) + 150; 
-            let rot = (Math.random() - 0.5) * 1080; 
+            // حساب مسار فيزيائي واسع ومريح للعين
+            let tx = (Math.random() - 0.5) * 600; // انتشار أعرض لليمين واليسار
+            let ty = (Math.random() * 350) + 150; // قفزة أعلى وأكثر وضوحاً
+            let rot = (Math.random() - 0.5) * 1080; // دوران بطيء وجميل أثناء الطيران
             
             coin.style.setProperty('--tx', `${tx}px`);
             coin.style.setProperty('--ty', `${ty}px`);
             coin.style.setProperty('--rot', `${rot}deg`);
             
+            // تأخير متدرج (من 0 إلى 0.4 ثانية) لتبدو كتدفق مستمر وليس دفعة واحدة
             coin.style.animationDelay = `${Math.random() * 0.4}s`;
             
             document.body.appendChild(coin);
             
+            // تنظيف الرام بعد انتهاء الحركة (2.4 ثانية الأنميشن + 0.4 ثانية التأخير)
             setTimeout(() => coin.remove(), 2900);
         }
     },
 
+
+    // 🌟 (تحديث جديد: نظام تأجيل جوائز الترقية Pending Rank Ups)
     checkAndShowPendingRankUps() {
         if (gameState.pendingRankUpData) {
             setTimeout(() => {
@@ -204,12 +253,16 @@ export const ui = {
                 const rankNames = Array.isArray(data.ranks) ? data.ranks.join(' و ') : data.ranks;
                 let msg = `لقد وصلت إلى رتبة:<br><span style="color:#ffd700; font-size:18px; display:block; margin:5px 0;">${rankNames}</span>الجوائز المحصلة:<br><span style="color:#34c759; font-weight:bold; font-size:16px;">+${data.tokens} <img src="../Photo/coin.webp" class="app-coin-icon"></span>`;
                 
+                // 🌟 تشغيل صوت جمع العملات عند ظهور نافذة الترقية
                 this.playSound(sfx.coinsCollect);
+
                 this.showCustomAlert(msg, `ترقية الرتبة 🎖️`, null, false, null, "استلام!");
                 gameState.pendingRankUpData = null; 
             }, 800); 
         }
     },
+
+
 
     applyAvatar(elId, avatarStr, isCustom = false, profileFrameId = null) {
         const el = typeof elId === 'string' ? this.getEl(elId) : elId;
@@ -232,8 +285,11 @@ export const ui = {
 
         if (el.id === 'badge-avatar') {
             frameZ = '999999'; 
-            if (overlayFrameSrc) { frameScale = '176%'; avatarScale = 'scale(1.16)'; moveUp = 2; moveRight = 0; } 
-            else { frameScale = '176%'; avatarScale = 'scale(1.08)'; }
+            if (overlayFrameSrc) {
+                frameScale = '176%'; avatarScale = 'scale(1.16)'; moveUp = 2; moveRight = 0; 
+            } else {
+                frameScale = '176%'; avatarScale = 'scale(1.08)';
+            }
             botScale = 'scale(1.5)';
         } 
         else if (el.id === 'card-my-avatar' || el.id === 'card-opp-avatar') {
@@ -249,7 +305,9 @@ export const ui = {
             botScale = 'scale(1.4)';
         }
         else if (el.classList.contains('result-avatar')) {
-            frameZ = '10'; frameScale = '140%'; avatarScale = 'scale(1)'; botScale = 'scale(1.05)'; 
+            frameZ = '10';
+            frameScale = '140%'; avatarScale = 'scale(1)';
+            botScale = 'scale(1.05)'; 
         }
         else {
             frameZ = '5';
@@ -265,8 +323,11 @@ export const ui = {
             
            if (botSvg) {
                 let uniqueSuffix = '_bot_' + Math.floor(Math.random() * 100000);
-                botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) { return 'id="' + p1 + uniqueSuffix + '"'; })
-                                   .replace(/url\(#([^)]+)\)/g, function(match, p1) { return 'url(#' + p1 + uniqueSuffix + ')'; });
+                botContent = botSvg.replace(/id="([^"]+)"/g, function(match, p1) {
+                    return 'id="' + p1 + uniqueSuffix + '"';
+                }).replace(/url\(#([^)]+)\)/g, function(match, p1) {
+                    return 'url(#' + p1 + uniqueSuffix + ')';
+                });
                 botContent = botContent.replace('<svg', '<svg style="width: 100%; height: 100%; display: block; object-fit: contain;" preserveAspectRatio="xMidYMid meet"');
             }
 
@@ -301,7 +362,8 @@ export const ui = {
         `;
         
         if (overlayFrameSrc) {
-            let finalX = moveRight - moveLeft; let finalY = moveDown - moveUp;
+            let finalX = moveRight - moveLeft;
+            let finalY = moveDown - moveUp;
             innerHTML += `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(calc(-50% + ${finalX}px), calc(-50% + ${finalY}px)); width: ${frameScale}; height: ${frameScale}; z-index: ${frameZ}; pointer-events: none; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">`;
         }
         
@@ -341,10 +403,15 @@ export const ui = {
         this.setDisplay('custom-alert-cancel', showCancel ? 'block' : 'none');
         
         this.clickHandlers.set('custom-alert-ok', () => {
+            // 🌟 الإصلاح السحري: فحص محتوى النافذة قبل إغلاقها لتشمل عجلة الحظ والمهام 🌟
             const msgContainer = this.getEl('custom-alert-message');
             if (msgContainer) {
                 const msgText = msgContainer.innerHTML || '';
+                
+                // 💡 الكلمات التي تدل على الفوز بأي جائزة
                 const isPositiveReward = msgText.includes('تم جمع') || msgText.includes('نجاح') || msgText.includes('ربحت') || msgText.includes('حصلت') || msgText.includes('مبروك');
+                
+                // 💡 الكلمات أو الصور التي تدل على أن الجائزة هي "عملات"
                 const hasCoins = msgText.includes('coin.webp') || msgText.includes('🪙') || msgText.includes('عملة');
 
                 if (isPositiveReward && hasCoins) {
@@ -358,6 +425,8 @@ export const ui = {
             if (onConfirm) { try { onConfirm(); } catch(err) { console.error(err); } }
         });
 
+
+
         this.clickHandlers.set('custom-alert-cancel', () => {
             if (modalEl) modalEl.style.display = 'none';
             if (spinModal) spinModal.style.setProperty('z-index', '850', 'important'); 
@@ -365,7 +434,7 @@ export const ui = {
         });
     },
 
-    calculateLevelInfo(xpStr, scoreNum) {
+  calculateLevelInfo(xpStr, scoreNum) {
         let currentXp = parseInt(xpStr) || 0;
         let currentScore = parseInt(scoreNum) || 0; 
         
@@ -383,26 +452,67 @@ export const ui = {
         let rank = "برونزي"; 
         let rankIcon = `<img src="Media/front/Bronze.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 2px rgba(205,127,50,0.8));">`;
         
-        if (currentScore >= 5000) { rank = "أسطوري"; rankIcon = `<img src="Media/front/os6ory.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.4));">`; }
-        else if (currentScore >= 2500) { rank = "ملكي"; rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: none;">`; }
-        else if (currentScore >= 1200) { rank = "ماسي"; rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(0,210,255,0.8));">`; }
-        else if (currentScore >= 500) { rank = "ذهبي"; rankIcon = `<img src="Media/front/golden.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(255,215,0,0.8));">`; }
-        else if (currentScore >= 150) { rank = "فضي"; rankIcon = `<img src="Media/front/silver.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(192,192,192,0.8));">`; }
+        if (currentScore >= 5000) { 
+            rank = "أسطوري"; 
+            rankIcon = `<img src="Media/front/os6ory.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.4));">`; 
+        }
+        else if (currentScore >= 2500) { 
+            rank = "ملكي"; 
+            rankIcon = `<img src="Media/front/legendary.webp" style="height: 14px; vertical-align: middle; filter: none;">`; 
+        }
+        else if (currentScore >= 1200) { 
+            rank = "ماسي"; 
+            rankIcon = `<img src="Media/front/diamond.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(0,210,255,0.8));">`; 
+        }
+        else if (currentScore >= 500) { 
+            rank = "ذهبي"; 
+            rankIcon = `<img src="Media/front/golden.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(255,215,0,0.8));">`; 
+        }
+        else if (currentScore >= 150) { 
+            rank = "فضي"; 
+            rankIcon = `<img src="Media/front/silver.webp" style="height: 14px; vertical-align: middle; filter: drop-shadow(0 0 3px rgba(192,192,192,0.8));">`; 
+        }
 
         return { level, rank, rankIcon, progressXp, requiredXp, percentage, score: currentScore };
     },
 
+   // 🌟 تحديث نافذة الرتب (Rank Up)
+    checkAndShowPendingRankUps() {
+        if (gameState.pendingRankUpData) {
+            setTimeout(() => {
+                const data = gameState.pendingRankUpData;
+                const rankNames = Array.isArray(data.ranks) ? data.ranks.join(' و ') : data.ranks;
+                let msg = `لقد وصلت إلى رتبة:<br><span style="color:#ffd700; font-size:18px; display:block; margin:5px 0;">${rankNames}</span>الجوائز المحصلة:<br><span style="color:#34c759; font-weight:bold; font-size:16px;">+${data.tokens} <img src="../Photo/coin.webp" class="app-coin-icon"></span>`;
+                
+                // 1. تشغيل صوت النجاح والفوز عند ظهور النافذة
+                this.playSound(this.sfx.win);
+
+                // 2. ربط زر الاستلام بصوت العملات والمؤثر البصري
+                this.showCustomAlert(msg, `ترقية الرتبة 🎖️`, () => {
+                    this.playSound(this.sfx.coinsCollect);
+                    this.spawnCoinShower();
+                }, false, null, "استلام!");
+                
+                gameState.pendingRankUpData = null; 
+            }, 800); 
+        }
+    },
+
+    // 🌟 تحديث نافذة المستوى (Level Up)
     showLevelUpModal(newLevel, title, rewardsHtml) {
         this.setTxt('level-up-num', newLevel);
         this.setTxt('level-up-title', `لقب: ${title}`);
         const rewardsContainer = this.getEl('level-up-rewards');
         if (rewardsContainer) rewardsContainer.innerHTML = rewardsHtml;
         
+        // 1. تشغيل صوت النجاح والفوز عند ظهور النافذة
         this.playSound(this.sfx.win);
 
         const modalEl = this.getEl('level-up-modal');
         if (modalEl) {
             modalEl.style.display = 'flex';
+            
+            // 2. البحث عن زر "استلام الجوائز" وربطه بصوت العملات والمؤثر البصري
             const claimBtns = modalEl.querySelectorAll('button');
             claimBtns.forEach(btn => {
                 btn.onclick = () => {
@@ -414,6 +524,7 @@ export const ui = {
         }
     },
 
+    // 🌟 (تحديث جديد: الضبط الفيزيائي الدقيق لعجلة الحظ وتسريع الرسوميات بـ translateZ)
     animateLuckySpin(prizeIndex, onComplete) {
         window.isSpinning = true; 
         const wheel = this.getEl('lucky-wheel-inner');
@@ -451,11 +562,14 @@ export const ui = {
             let easeOut = 1 - Math.pow(1 - t, 3);
             let currentSimulatedAngle = startDeg + (totalChange * easeOut);
 
+            // إضافة translateZ(0) لدفع معالجة كرت الشاشة وتقليل الارتعاش
             wheel.style.transform = `rotate(${currentSimulatedAngle}deg) translateZ(0)`;
 
+            // حساب المسمار بشكل رياضي دقيق (كل 45 درجة بالضبط)
             let currentPin = Math.floor(currentSimulatedAngle / 45);
             if (currentPin > lastPinPassed) {
                 lastPinPassed = currentPin;
+                
                 try {
                     if (tickAudio) {
                         let clone = tickAudio.cloneNode();
@@ -471,8 +585,9 @@ export const ui = {
                 }
             }
 
-            if (elapsed < spinDuration) { requestAnimationFrame(animateTick); } 
-            else {
+            if (elapsed < spinDuration) {
+                requestAnimationFrame(animateTick);
+            } else {
                 window.isSpinning = false; 
                 this.playSound(sfx.win); 
                 if (btnFree) btnFree.style.pointerEvents = 'auto';
@@ -580,6 +695,7 @@ export const ui = {
         else this.setDisplay('undo-btn', 'none');
     },
 
+    // 🌟 (تحديث جديد: إظهار الألقاب تحت أسماء اللاعبين للمشاهدين)
     setupSpectatorUI(p1, p2, isBettingOpen, roomID, hasAlreadyBet = false) {
         window.isMatchRunning = true;
         document.body.classList.add('game-active');
@@ -590,6 +706,7 @@ export const ui = {
         
         this.setDisplay('bottom-control-panel', 'flex');
         this.setDisplay('reset-btn', 'inline-flex');
+        
         this.setTxt('reset-btn-txt', 'خروج المشاهد 🚪');
         
         this.setDisplay('match-players-card', 'flex');
@@ -598,12 +715,13 @@ export const ui = {
         this.applyAvatar('card-my-avatar', p1?.avatar, p1?.avatar?.startsWith('data:image'), p1?.equippedProfileFrame);
         this.setTxt('card-my-name', p1?.name || 'اللاعب 1');
         
+        // استخراج وعرض اللقب للاعب الأول
         let p1TitleKey = p1?.equippedTitle || 'novice';
         let p1TitleName = TITLES_DB[p1TitleKey] ? TITLES_DB[p1TitleKey].name : 'مبتدئ';
-        this.setTxt('card-my-title', p1TitleName); 
+        this.setTxt('card-my-title', p1TitleName); // افترض وجود عنصر بهذا المعرف في HTML
 
         let p1LvlInfo = this.calculateLevelInfo(p1?.xp || 0, p1?.score || 0);
-        const p1RankIconEl = this.getEl('card-my-rank-icon'); 
+        const p1RankIconEl = this.getEl('card-my-rank-icon'); // 🌟 شارة اللاعب الأول للمشاهدين
         if (p1RankIconEl) p1RankIconEl.innerHTML = p1LvlInfo.rankIcon;
         const p1LvlEl = this.getEl('card-my-level');
         if(p1LvlEl) {
@@ -616,12 +734,13 @@ export const ui = {
         this.applyAvatar('card-opp-avatar', p2?.avatar, p2?.avatar?.startsWith('data:image'), p2?.equippedProfileFrame);
         this.setTxt('card-opp-name', p2?.name || 'اللاعب 2');
         
+        // استخراج وعرض اللقب للاعب الثاني
         let p2TitleKey = p2?.equippedTitle || 'novice';
         let p2TitleName = TITLES_DB[p2TitleKey] ? TITLES_DB[p2TitleKey].name : 'مبتدئ';
-        this.setTxt('card-opp-title', p2TitleName); 
+        this.setTxt('card-opp-title', p2TitleName); // افترض وجود عنصر بهذا المعرف في HTML
 
         let p2LvlInfo = this.calculateLevelInfo(p2?.xp || 0, p2?.score || 0);
-        const p2RankIconEl = this.getEl('card-opp-rank-icon'); 
+        const p2RankIconEl = this.getEl('card-opp-rank-icon'); // 🌟 شارة اللاعب الثاني للمشاهدين
         if (p2RankIconEl) p2RankIconEl.innerHTML = p2LvlInfo.rankIcon;
         const p2LvlEl = this.getEl('card-opp-level');
         if(p2LvlEl) {
@@ -675,6 +794,7 @@ export const ui = {
         if (giftBtn2) giftBtn2.style.display = 'flex';
     },
 
+    // 🌟 (تحديث جديد: إظهار الألقاب تحت أسماء اللاعبين أثناء اللعب)
     toggleOnlineUILayout(active, oppName = "", oppAvatar = "❓") {
         const normalState = active ? 'none' : 'inline-block';
         const flexState = active ? 'none' : 'flex';
@@ -719,12 +839,14 @@ export const ui = {
             this.applyAvatar('card-my-avatar', gameState.userProfile.avatar, gameState.userProfile.isCustomAvatar, gameState.userProfile.equippedProfileFrame);
             this.setTxt('card-my-name', gameState.userProfile.name || t('badge_you'));
             
+            // استخراج وعرض اللقب الخاص بك
             let myTitleKey = gameState.userProfile.equippedTitle || 'novice';
             let myTitleName = TITLES_DB[myTitleKey] ? TITLES_DB[myTitleKey].name : 'مبتدئ';
             this.setTxt('card-my-title', myTitleName);
 
             this.setTxt('card-opp-name', oppName);
             
+            // استخراج وعرض اللقب الخاص بالخصم
             let oppTitleKey = (window.currentOpponentData && window.currentOpponentData.equippedTitle) ? window.currentOpponentData.equippedTitle : 'novice';
             let oppTitleName = TITLES_DB[oppTitleKey] ? TITLES_DB[oppTitleKey].name : 'مبتدئ';
             this.setTxt('card-opp-title', oppTitleName);
@@ -733,7 +855,7 @@ export const ui = {
           
             let myLvlInfo = this.calculateLevelInfo(gameState.userProfile.xp || 0, gameState.userProfile.score || 0);
             let myCardLevel = this.getEl('card-my-level');
-            let myRankIconEl = this.getEl('card-my-rank-icon'); 
+            let myRankIconEl = this.getEl('card-my-rank-icon'); // 🌟 إظهار شارتك
             if (myRankIconEl) myRankIconEl.innerHTML = myLvlInfo.rankIcon;
             if (myCardLevel) {
                 myCardLevel.textContent = `Lv.${myLvlInfo.level}`;
@@ -743,7 +865,7 @@ export const ui = {
             }
             
             let oppLvlInfo = this.calculateLevelInfo(gameState.currentOpponentXp || 0, window.currentOpponentData?.score || 0);
-            let oppRankIconEl = this.getEl('card-opp-rank-icon'); 
+            let oppRankIconEl = this.getEl('card-opp-rank-icon'); // 🌟 إظهار شارة الخصم
             if (oppRankIconEl) oppRankIconEl.innerHTML = oppLvlInfo.rankIcon;
             
             let oppCardLevel = this.getEl('card-opp-level');
@@ -783,212 +905,172 @@ export const ui = {
         }
     },
 
-    updateVirtualBoardState() {
-        const board = this.getEl('tawla-board');
-        if (!board) return;
-        
-        for (let i = 0; i < board.children.length; i++) {
-            const cell = board.children[i];
-            const r = parseInt(cell.dataset.row);
-            const c = parseInt(cell.dataset.col);
-            
-            if (cell.children.length > 0) {
-                const child = cell.children[0];
-                const side = child.classList.contains('white') ? 'white' : 'black';
-                const type = child.classList.contains('tawla') ? '-tawla' : '';
-                gameState.virtualBoard[r][c] = `${side}${type}`;
-            } else { 
-                gameState.virtualBoard[r][c] = null; 
-            }
-        }
-        this.updateScoreboard();
-    },
+    
 
-    updateScoreboard() {
-        let whiteCount = 0, blackCount = 0;
-        gameState.virtualBoard.forEach(row => { row.forEach(p => { if (p) { if (p.includes('white')) whiteCount++; else blackCount++; } }); });
+        updateScoreboard() {
+        if (!gameState.virtualBoard || !gameState.virtualBoard.out) return;
+        let whiteOut = gameState.virtualBoard.out.white; 
+        let blackOut = gameState.virtualBoard.out.black;
         
         const isWhite = gameState.playerColor === 'white';
         const oppRow = this.getEl('opponent-score-row'); 
         const myRow = this.getEl('my-score-row');
         
         if (oppRow && myRow) {
-            const oppStonesColor = isWhite ? 'black' : 'white'; const myStonesColor = gameState.playerColor;
+            const oppStonesColor = isWhite ? 'black' : 'white'; 
+            const myStonesColor = gameState.playerColor;
             oppRow.style.background = `var(--opp-score-bg, ${(oppStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)'})`;
             myRow.style.background = `var(--my-score-bg, ${(myStonesColor === 'black') ? 'var(--light-cell)' : 'var(--dark-cell)'})`;
-            oppRow.style.border = 'var(--opp-score-border, 1px solid rgba(255,255,255,0.1))'; myRow.style.border = 'var(--my-score-border, 1px solid rgba(255,255,255,0.1))';
-            oppRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)'; myRow.style.boxShadow = 'inset 0 4px 8px rgba(0,0,0,0.5)';
+            oppRow.style.border = 'var(--opp-score-border, 1px solid rgba(255,255,255,0.1))'; 
+            myRow.style.border = 'var(--my-score-border, 1px solid rgba(255,255,255,0.1))';
         }
 
         const renderScoreDots = (container, count, color) => {
             if (!container) return;
             const activeClass = color === 'white' ? 'white' : 'black';
-            
             if (container.children.length === 0) {
-                for (let i = 0; i < 15; i++) {
-                    const dot = document.createElement('div');
-                    container.appendChild(dot);
-                }
+                for (let i = 0; i < 15; i++) container.appendChild(document.createElement('div'));
             }
-
             for (let i = 0; i < 15; i++) {
-                const dot = container.children[i];
-                if (i < count) {
-                    dot.className = `piece mini ${activeClass}`;
-                } else {
-                    dot.className = `mini-piece-empty`;
-                }
+                container.children[i].className = i < count ? `piece mini ${activeClass}` : `mini-piece-empty`;
             }
         };
         
-        renderScoreDots(oppRow, isWhite ? blackCount : whiteCount, isWhite ? 'black' : 'white');
-        renderScoreDots(myRow, isWhite ? whiteCount : blackCount, gameState.playerColor);
+        renderScoreDots(oppRow, isWhite ? blackOut : whiteOut, isWhite ? 'black' : 'white');
+        renderScoreDots(myRow, isWhite ? whiteOut : blackOut, gameState.playerColor);
     },
 
-    renderBoard(forceRebuild = false) {
+
+        renderBoard(forceRebuild = false) {
         const board = this.getEl('tawla-board');
         if (!board) return;
         
-        const flip = gameState.isOnlineMode && gameState.onlineFlip;
-        const needsRebuild = forceRebuild || board.children.length === 0 || board.dataset.flip !== String(flip);
-        
-        if (needsRebuild) {
-            board.innerHTML = ''; board.dataset.flip = String(flip);
-            const rowLabels = this.getEl('row-labels'); 
-            if (rowLabels) {
-                const rev = gameState.isOnlineMode ? gameState.onlineFlip : (gameState.playerColor !== 'white');
-                rowLabels.innerHTML = rev 
-                    ? '<div>8</div><div>7</div><div>6</div><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div>' 
-                    : '<div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div>';
+        if (board.children.length === 0 || forceRebuild) {
+            board.innerHTML = `
+                <div class="board-quadrant top-left" id="quad-tl" style="flex-direction: row-reverse;"></div>
+                <div class="board-quadrant top-right" id="quad-tr" style="flex-direction: row-reverse;"></div>
+                <div class="board-quadrant bottom-left" id="quad-bl"></div>
+                <div class="board-quadrant bottom-right" id="quad-br"></div>
+                <div class="tawla-bar" id="tawla-bar" style="display:flex; flex-direction:column; justify-content:space-between; padding: 10px 0;">
+                    <div id="bar-white" data-index="bar-white" style="flex:1; display:flex; flex-direction:column; align-items:center; cursor:pointer;"></div>
+                    <div id="bar-black" data-index="bar-black" style="flex:1; display:flex; flex-direction:column-reverse; align-items:center; cursor:pointer;"></div>
+                </div>
+            `;
+            
+            for(let i=0; i<24; i++) {
+                let q = (i>=0 && i<=5) ? 'quad-tr' : (i>=6 && i<=11) ? 'quad-tl' : (i>=12 && i<=17) ? 'quad-bl' : 'quad-br';
+                let pointDiv = document.createElement('div');
+                pointDiv.className = 'point'; pointDiv.dataset.index = i;
+                pointDiv.style.cssText = `width: 16.6%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
+                document.getElementById(q).appendChild(pointDiv);
             }
             
-            for (let dr = 0; dr < 8; dr++) {
-                for (let dc = 0; dc < 8; dc++) {
-                    const r = flip ? 7 - dr : dr; const c = flip ? 7 - dc : dc;
-                    const cell = document.createElement('div');
-                    cell.className = `cell ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
-                    cell.dataset.row = r; cell.dataset.col = c;
-                    board.appendChild(cell);
+            if(!document.getElementById('bear-off-zone')) {
+                let bo = document.createElement('div'); bo.id = 'bear-off-zone'; bo.className = 'bear-off-zone';
+                bo.style.cssText = "position:absolute; right:-50px; top:0; bottom:0; width:40px; background:#4A2E1B; border:4px solid #5C3A21; border-radius:8px; display:flex; flex-direction:column; justify-content:space-between; padding:5px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20;";
+                bo.innerHTML = `<div id="out-white" style="display:flex; flex-direction:column; align-items:center;"></div><div id="out-black" style="display:flex; flex-direction:column-reverse; align-items:center;"></div>`;
+                board.appendChild(bo);
+            }
+        }
+
+        if(!gameState.virtualBoard || !gameState.virtualBoard.points) return;
+        
+        for(let i=0; i<24; i++) { let pt = board.querySelector(`.point[data-index="${i}"]`); if(pt) pt.innerHTML = ''; }
+        document.getElementById('bar-white').innerHTML = ''; document.getElementById('bar-black').innerHTML = '';
+        document.getElementById('out-white').innerHTML = ''; document.getElementById('out-black').innerHTML = '';
+
+        gameState.virtualBoard.points.forEach((pt, i) => {
+            if(pt.count > 0) {
+                let pointDiv = board.querySelector(`.point[data-index="${i}"]`);
+                for(let c=0; c<pt.count; c++) {
+                    let piece = document.createElement('div'); piece.className = `piece ${pt.color}`;
+                    if(c > 4) piece.style.marginTop = '-25px'; 
+                    if(i >= 12 && c > 4) { piece.style.marginTop = '0'; piece.style.marginBottom = '-25px'; }
+                    pointDiv.appendChild(piece);
                 }
             }
-        }
+        });
+
+        for(let c=0; c<gameState.virtualBoard.bar.white; c++) document.getElementById('bar-white').appendChild(this.makeEl('div', 'piece white'));
+        for(let c=0; c<gameState.virtualBoard.bar.black; c++) document.getElementById('bar-black').appendChild(this.makeEl('div', 'piece black'));
         
-        let cellIndex = 0;
-        for (let dr = 0; dr < 8; dr++) {
-            for (let dc = 0; dc < 8; dc++) {
-                const r = flip ? 7 - dr : dr; const c = flip ? 7 - dc : dc;
-                const cell = board.children[cellIndex++];
-                if (!cell) continue;
-                
-                const boardVal = gameState.virtualBoard[r][c];
-                let currentPiece = cell.firstElementChild; 
-                
-                if (boardVal) {
-                    const isWhite = boardVal.includes('white');
-                    const isTawla = boardVal.includes('tawla');
-                    
-                    if (!currentPiece) {
-                        currentPiece = document.createElement('div');
-                        currentPiece.className = `piece ${isWhite ? 'white' : 'black'} ${isTawla ? 'tawla' : ''}`.trim();
-                        cell.appendChild(currentPiece);
-                    } else {
-                        if (isWhite) { currentPiece.classList.add('white'); currentPiece.classList.remove('black'); } 
-                        else { currentPiece.classList.add('black'); currentPiece.classList.remove('white'); }
-                        
-                        if (isTawla) currentPiece.classList.add('tawla');
-                        else currentPiece.classList.remove('tawla');
-                    }
-                } else if (currentPiece) { cell.removeChild(currentPiece); }
-            }
-        }
         this.updateScoreboard();
     },
 
-    drawEmptyBoard() {
+
+      updateDiceUI() {
+        const d1El = this.getEl('die1'); const d2El = this.getEl('die2');
+        if(!d1El || !d2El) return;
+        
+        if(!gameState.currentDice || gameState.currentDice.length === 0) {
+            d1El.style.display = 'none'; d2El.style.display = 'none';
+            return;
+        }
+
+        const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+        let showD1 = gameState.currentDice.length > 0;
+        let showD2 = gameState.currentDice.length > 1;
+
+        if (showD1) { d1El.style.display = 'flex'; d1El.textContent = faces[gameState.currentDice[0] - 1]; } 
+        else { d1El.style.display = 'none'; }
+        
+        if (showD2) { d2El.style.display = 'flex'; d2El.textContent = faces[gameState.currentDice[1] - 1]; } 
+        else { d2El.style.display = 'none'; }
+    },
+
+        drawEmptyBoard() {
         gameState.gameId = Date.now();
         if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-
         if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
 
-        gameState.virtualBoard = Array(8).fill(null).map(() => Array(8).fill(null));
+        gameState.virtualBoard = gameEngine.getInitialBoard();
         gameState.isGameActive = false; window.isMatchRunning = false;
         
-        gameState.isMultiJumping = false; gameState.jumpsCount = 0; gameState.requiredJumps = 0;
-        gameState.selectedPiece = null; gameState.lastJumpDir = { dr: null, dc: null };
+        gameState.selectedPoint = null; 
         gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
-        gameState.pieceHistories = {};
+        gameState.currentDice = [];
         
-        gameState.currentOpponentProfileFrame = null;
-        gameState.isTutorialMode = false; 
+        gameState.currentOpponentProfileFrame = null; gameState.isTutorialMode = false; 
 
         this.toggleOfflineInMatchUI(false); this.toggleOnlineUILayout(false); 
         document.body.classList.remove('game-active');
-      
-        this.setDisplay('spectator-stats-container', 'none');
-        this.setDisplay('match-gift-btn-p2', 'none');
+        this.setDisplay('spectator-stats-container', 'none'); this.setDisplay('match-gift-btn-p2', 'none');
         this.setTxt('reset-btn-txt', 'لعبة جديدة');
         
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
-        
         this.clearHighlights();
-        const boardEl = this.getEl('tawla-board');
-        if (boardEl) {
-            const lastMoves = boardEl.getElementsByClassName('last-move');
-            while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
-            const forcedPieces = boardEl.getElementsByClassName('forced');
-            while (forcedPieces.length > 0) forcedPieces[0].classList.remove('forced');
-            const multiPieces = boardEl.getElementsByClassName('multi-choice');
-            while (multiPieces.length > 0) multiPieces[0].classList.remove('multi-choice');
-            const multiCells = boardEl.getElementsByClassName('multi-choice-cell');
-            while (multiCells.length > 0) multiCells[0].classList.remove('multi-choice-cell');
-        }
         
         const tInd = this.getEl('turn-indicator');
         if (tInd) { tInd.textContent = t('press_start'); tInd.style.color = "#a1a1aa"; }
         this.setTxt('turn-countdown', '');
         
-        this.renderBoard(true);
+        this.renderBoard(true); this.updateDiceUI();
     },
 
     initBoard() {
         this.drawEmptyBoard(); 
-        
         this.setTxt('reset-btn-txt', 'لعبة جديدة');
         
         gameState.botMoveCount = 0; gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
-        gameState.pieceHistories = {};
-
         const tutorialCheck = document.getElementById('tutorial-mode-checkbox');
-        if (!gameState.isOnlineMode && tutorialCheck) { gameState.isTutorialMode = tutorialCheck.checked; } 
-        else { gameState.isTutorialMode = false; }
+        gameState.isTutorialMode = (!gameState.isOnlineMode && tutorialCheck) ? tutorialCheck.checked : false;
 
         gameState.isGameActive = true; window.isMatchRunning = true; document.body.classList.add('game-active');
+        if (!gameState.isOnlineMode) this.toggleOfflineInMatchUI(true); 
         
-        if (!gameState.isOnlineMode) { this.toggleOfflineInMatchUI(true); }
-        
-        let topC = gameState.playerColor === 'white' ? 'black' : 'white';
-        gameState.pieceDirection = {};
-        gameState.pieceDirection[topC] = 1;
-        gameState.pieceDirection[gameState.playerColor] = -1;
-        
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                if (r === 1 || r === 2) gameState.virtualBoard[r][c] = topC;
-                else if (r === 5 || r === 6) gameState.virtualBoard[r][c] = gameState.playerColor;
-            }
-        }
-        
+        gameState.virtualBoard = gameEngine.getInitialBoard();
         gameState.currentTurn = 'white'; gameState.blockGameOverModal = true;
         setTimeout(() => { gameState.blockGameOverModal = false; }, 1000);
         
         this.renderBoard(true);
-        gameState.boardHistory.push({ board: gameState.virtualBoard.map(row => [...row]), turn: gameState.currentTurn });
+        gameState.boardHistory.push({ board: JSON.parse(JSON.stringify(gameState.virtualBoard)), turn: gameState.currentTurn });
         
         saveGameState(); this.updateProfileUI(); this.startTurn();
     },
 
+
     clearHighlights() {
-        const board = this.getEl('tawla-board');
+        const board = this.getEl('board');
         if (!board) return;
         const highlighted = board.getElementsByClassName('highlight');
         while (highlighted.length > 0) highlighted[0].classList.remove('highlight');
@@ -997,7 +1079,7 @@ export const ui = {
     },
 
     highlightMove(from, to) {
-        const board = this.getEl('tawla-board'); if (!board) return;
+        const board = this.getEl('board'); if (!board) return;
         
         const lastMoves = board.getElementsByClassName('last-move');
         while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
@@ -1011,7 +1093,7 @@ export const ui = {
 
     showValidMovesHighlights(r, c) {
         this.clearHighlights();
-        const board = this.getEl('tawla-board'); if (!board) return;
+        const board = this.getEl('board'); if (!board) return;
         
         let moves = (gameState.isMultiJumping && gameState.selectedPiece) 
             ? gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, r, c, gameState.lastJumpDir.dr, gameState.lastJumpDir.dc) 
@@ -1025,7 +1107,7 @@ export const ui = {
         });
     },
 
-    startTurnTimer() {
+          startTurnTimer() {
         if (!gameState.isOnlineMode) return;
         
         sfx.clock.pause(); sfx.clock.currentTime = 0;
@@ -1035,9 +1117,11 @@ export const ui = {
 
         let hasPlayedTick = false; 
         
+        // 🌟 الإصلاح: نعتمد على الثواني المتبقية مباشرة
         if (typeof gameState.turnTimeLeft === 'undefined' || gameState.turnTimeLeft === null) {
             gameState.turnTimeLeft = 45;
         }
+        // (تم إزالة القوس الزائد الذي كان يسبب انهيار الملف هنا)
 
         const updateTimerDisplay = () => {
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
@@ -1065,6 +1149,7 @@ export const ui = {
                 }
             }
             
+            // إنقاص العداد ثانية بثانية محلياً
             if (gameState.turnTimeLeft > 0) {
                 gameState.turnTimeLeft--;
             }
@@ -1074,307 +1159,79 @@ export const ui = {
         gameState.turnTimerInterval = setInterval(updateTimerDisplay, 1000);
     },
 
+
+
     startTurn() {
         const tInd = this.getEl('turn-indicator'); if (!tInd) return;
-
-        if (gameState.virtualBoard.every(row => row.every(cell => cell === null))) return; 
-
-        this.updateVirtualBoardState();
-
-        const isExemptFromStalling = gameState.isTutorialMode;
-
-        let myColor = gameState.playerColor;
-        let oppColor = myColor === 'white' ? 'black' : 'white';
-
-        let myRep = 0, oppRep = 0;
-        if (typeof gameEngine.checkRepetitionAndStalling === 'function') {
-            myRep = gameEngine.checkRepetitionAndStalling(myColor);
-            oppRep = gameEngine.checkRepetitionAndStalling(oppColor);
+        if (!gameState.isOnlineMode && (!gameState.currentDice || gameState.currentDice.length === 0)) {
+            let d1 = Math.floor(Math.random() * 6) + 1;
+            let d2 = Math.floor(Math.random() * 6) + 1;
+            gameState.currentDice = d1 === d2 ? [d1, d1, d1, d1] : [d1, d2];
         }
 
-        const idleCounter = document.getElementById('idle-counter');
-        const repCounter = document.getElementById('repetition-counter');
+        this.updateDiceUI();
 
-        if (idleCounter) {
-            if (gameState.movesWithoutProgress >= 15 && !isExemptFromStalling) {
-                idleCounter.style.display = 'block';
-                idleCounter.textContent = `${gameState.movesWithoutProgress}/50`; 
-                idleCounter.style.color = gameState.movesWithoutProgress >= 40 ? '#e74c3c' : '#a1a1aa';
-                idleCounter.style.borderColor = gameState.movesWithoutProgress >= 40 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(255, 255, 255, 0.1)';
-            } else {
-                idleCounter.style.display = 'none';
-            }
-        }
-
-        if (repCounter) {
-            if (myRep > 1 && !isExemptFromStalling) { 
-                repCounter.style.display = 'block';
-                repCounter.textContent = `تكرار: ${myRep}/3`;
-                repCounter.style.color = myRep === 3 ? '#e74c3c' : '#f5a623';
-                repCounter.style.borderColor = myRep === 3 ? 'rgba(231, 76, 60, 0.4)' : 'rgba(245, 166, 35, 0.3)';
-            } else {
-                repCounter.style.display = 'none';
-            }
-        }
-
-        if (!isExemptFromStalling) {
-            if (oppRep >= 4) {
-                if (gameState.isOnlineMode) {
-                    if (tInd) { tInd.textContent = "بانتظار قرار السيرفر... ⏳"; tInd.style.color = "#f5a623"; }
-                    return;
-                }
-                
-                if (gameState.blockGameOverModal) return;
-                if (tInd) { tInd.textContent = "فوز! الخصم كرر حركاته 🚫"; tInd.style.color = "#2ecc71"; }
-                gameState.isGameOver = true;
-                gameState.isGameActive = false;
-                if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-                if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
-                this.showResultsModal(myColor); 
-                return;
-            }
-            
-            if (myRep >= 4) {
-                if (gameState.isOnlineMode) return; 
-
-                if (gameState.blockGameOverModal) return;
-                if (tInd) { tInd.textContent = "خسارة بسبب التكرار 🚫"; tInd.style.color = "#e74c3c"; }
-                gameState.isGameOver = true;
-                gameState.isGameActive = false;
-                if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-                if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
-                this.showResultsModal(oppColor); 
-                return;
-            }
-        }
-
-        if (gameState.movesWithoutProgress >= 50 || (typeof gameEngine.checkIdleDraw === 'function' && gameEngine.checkIdleDraw(gameState.virtualBoard, gameState.currentTurn))) {
-            if (gameState.isOnlineMode) return; 
-
-            if (gameState.blockGameOverModal) return;
-            if (tInd) { tInd.textContent = "تم إعلان التعادل 🤝"; tInd.style.color = "#f1c40f"; }
-            
-            gameState.isGameOver = true;
-            gameState.isGameActive = false;
-            if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-            if (gameState.turnTimerInterval) { clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null; }
-            
-            this.showResultsModal('draw'); 
-            return;
-        }
-
-        if (!gameState.boardHistory) gameState.boardHistory = [];
-        let currentBoardStr = JSON.stringify(gameState.virtualBoard);
-        let lastSavedStr = gameState.boardHistory.length > 0 ? JSON.stringify(gameState.boardHistory[gameState.boardHistory.length - 1].board) : "";
-        if (currentBoardStr !== lastSavedStr) {
-            gameState.boardHistory.push({ board: gameState.virtualBoard.map(row => [...row]), turn: gameState.currentTurn });
-            if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
-        }
-        
-        gameState.lastJumpDir = { dr: null, dc: null };
-        
-        const boardEl = this.getEl('tawla-board');
-        if (boardEl) {
-            const forcedPieces = boardEl.getElementsByClassName('forced');
-            while (forcedPieces.length > 0) forcedPieces[0].classList.remove('forced');
-            const multiPieces = boardEl.getElementsByClassName('multi-choice');
-            while (multiPieces.length > 0) multiPieces[0].classList.remove('multi-choice');
-            const multiCells = boardEl.getElementsByClassName('multi-choice-cell');
-            while (multiCells.length > 0) multiCells[0].classList.remove('multi-choice-cell');
-        }
-        
-        const isBoardEmpty = gameState.virtualBoard.every(row => row.every(cell => cell === null));
-        
-        let currentAvailableMoves = 1; 
-        if (!isBoardEmpty) { currentAvailableMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard).length; }
-        
-        if (!isBoardEmpty && currentAvailableMoves === 0) {
-            if (gameState.isOnlineMode) return; 
-
-            if (gameState.blockGameOverModal) return; 
-            let winnerColor = gameState.currentTurn === 'white' ? 'black' : 'white';
-            tInd.textContent = winnerColor === 'white' ? t('white_wins') : t('black_wins');
-            tInd.style.color = "#2ecc71";
-            this.showResultsModal(winnerColor); return;
-        }
-        
-        let allMoves = [];
-        if (gameState.isMultiJumping && gameState.selectedPiece) {
-            let cell = gameState.selectedPiece.parentElement;
-            let r = parseInt(cell.dataset.row); let c = parseInt(cell.dataset.col);
-            allMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, r, c, gameState.lastJumpDir.dr, gameState.lastJumpDir.dc);
-        } else {
-            allMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
-        }
-
-        gameState.requiredJumps = 0;
-        let fList = []; 
-
-        if (allMoves.length > 0) {
-            let firstMove = allMoves[0];
-            let isCapture = firstMove.some(step => step.midR !== null && step.midR !== undefined);
-
-            if (isCapture) {
-                gameState.requiredJumps = firstMove.length; 
-                allMoves.forEach(path => {
-                    let startStep = path[0];
-                    if (!fList.some(item => item.r === startStep.fromR && item.c === startStep.fromC)) {
-                        let cell = this.getEl('tawla-board').querySelector(`[data-row="${startStep.fromR}"][data-col="${startStep.fromC}"]`);
-                        if (cell?.children.length > 0) {
-                            fList.push({ el: cell.children[0], r: startStep.fromR, c: startStep.fromC });
-                        }
-                    }
-                });
-            }
-        }
-        
-        gameState.jumpsCount = 0;
-        gameState.isMultiJumping = false;
-        
-        if (gameState.requiredJumps > 0) {
-            tInd.textContent = `${t('forced')} ${gameState.requiredJumps}`; tInd.style.color = "#e74c3c";
-            
-            fList.forEach(item => {
-                item.el.classList.add('forced');
-                if (fList.length > 1) {
-                    item.el.classList.add('multi-choice');
-                    if (item.el.parentElement) {
-                        item.el.parentElement.classList.add('multi-choice-cell');
-                    }
-                }
-            });
-            
-            if ((gameState.currentTurn === gameState.playerColor || gameState.isOnlineMode) && fList.length === 1 && !gameState.isSpectator) {
-                gameState.selectedPiece = fList[0].el; gameState.selectedPiece.classList.add('selected');
-                if (gameState.currentTurn === gameState.playerColor && boardEl) { 
-                    const lastMoves = boardEl.getElementsByClassName('last-move');
-                    while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
-                }
-                this.showValidMovesHighlights(fList[0].r, fList[0].c);
-            }
-        } else {
-            if (gameState.isSpectator) {
-                tInd.textContent = gameState.currentTurn === 'white' ? "دور الأبيض ⚪" : "دور الأسود ⚫";
-                tInd.style.color = "#a1a1aa";
-            } else if (gameState.isOnlineMode) { 
-                tInd.style.color = "#f1c40f";
-                tInd.textContent = gameState.currentTurn === gameState.myOnlineColor ? t('turn_yours') : t('turn_opps'); 
-            } else if (gameState.currentTurn === gameState.playerColor) { 
-                tInd.style.color = "#f1c40f";
-                tInd.textContent = t('turn'); 
-            } else { 
-                tInd.style.color = "#f1c40f";
-                tInd.textContent = t('aiTurn'); 
-            }
+        if (gameState.isSpectator) {
+            tInd.textContent = gameState.currentTurn === 'white' ? "دور الأبيض ⚪" : "دور الأسود ⚫";
+            tInd.style.color = "#a1a1aa";
+        } else if (gameState.isOnlineMode) { 
+            tInd.style.color = "#f1c40f";
+            tInd.textContent = gameState.currentTurn === gameState.myOnlineColor ? t('turn_yours') : t('turn_opps'); 
+        } else if (gameState.currentTurn === gameState.playerColor) { 
+            tInd.style.color = "#f1c40f"; tInd.textContent = t('turn'); 
+        } else { 
+            tInd.style.color = "#f1c40f"; tInd.textContent = t('aiTurn'); 
         }
         
         this.startTurnTimer();
-        
-        let isBotTurn = (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID);
-        let alertShown = false;
 
-        if (!isExemptFromStalling) {
-            if (gameState.currentTurn === gameState.playerColor && myRep === 3) {
-                alertShown = true;
-                if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
-                ui.showCustomAlert("تنبيه: اللعب السلبي وتكرار نفس الحركات للمرة القادمة سيؤدي إلى خسارتك فوراً!", "تحذير المماطلة ⚠️");
-            } else if (gameState.isOnlineMode && gameState.currentTurn !== gameState.playerColor && oppRep === 3) {
-                ui.showCustomAlert("الخصم يكرر الحركات.. تكراره للحركة القادمة سيمنحك الفوز!", "الخصم يماطل ⏳");
-            }
+        if (!gameEngine.hasAnyMove(gameState.currentTurn, gameState.virtualBoard, gameState.currentDice)) {
+            if (gameState.isOnlineMode) return; 
+            setTimeout(() => {
+                ui.showCustomAlert("لا توجد حركات متاحة، انتقال الدور.");
+                gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+                gameState.currentDice = [];
+                this.startTurn();
+            }, 1500);
+            return;
         }
 
-        if (isBotTurn && !alertShown) {
+        let isBotTurn = (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID);
+        if (isBotTurn) {
             tInd.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
             clearTimeout(gameState.aiTimeout);
-            gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 150);
+            gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 500);
         }
     },
 
     async triggerComputerMove() {
-        let levelStr = this.getVal('diff-quick-select', '3'); let level = parseInt(levelStr) || 3; 
-        let aiColor = gameState.playerColor === 'white' ? 'black' : 'white';
-        let moves = gameEngine.generateAllTurnMoves(aiColor, gameState.virtualBoard);
-        if (moves.length === 0) return;
-
-        const tInd = this.getEl('turn-indicator');
-        if (tInd) tInd.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
-
-        const gameId = gameState.gameId || Date.now();
-        gameState.gameId = gameId; 
-
-        if (window.optimizeMemoryForAI) window.optimizeMemoryForAI(true);
-        let startThinkingTime = Date.now();
-        let chosenMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, level, aiColor, gameState.pieceDirection);
-        let timeSpent = Date.now() - startThinkingTime;
-        let humanDelay = Math.floor(Math.random() * 1500) + 1000; 
-        
-        if (timeSpent < humanDelay) { await new Promise(resolve => setTimeout(resolve, humanDelay - timeSpent)); }
-        if (window.optimizeMemoryForAI) window.optimizeMemoryForAI(false);
-
-        if (!chosenMove) chosenMove = moves[0]; 
-        if (!Array.isArray(chosenMove)) chosenMove = [chosenMove];
-
-        const self = this;
-        let stepIdx = 0; let startRow = chosenMove[0].fromR; let startCol = chosenMove[0].fromC;
-
-        function executeStep() {
-            if (!gameState.isGameActive || gameState.gameId !== gameId) return; 
-            if (gameState.currentTurn !== aiColor || gameState.isOnlineMode) return;
-
-            let step = chosenMove[stepIdx]; if (!step) return;
-            let board = self.getEl('tawla-board'); if (!board) return;
-            
-            let fCell = board.querySelector(`[data-row="${step.fromR}"][data-col="${step.fromC}"]`);
-            let tCell = board.querySelector(`[data-row="${step.toR}"][data-col="${step.toC}"]`);
-            
-            if (step.midR !== null && step.midC !== null && step.midR !== undefined) {
-                self.playSound(gameState.virtualBoard[step.midR][step.midC]?.includes('tawla') ? sfx.kingDied : sfx.piecesDied);
-                let midCell = board.querySelector(`[data-row="${step.midR}"][data-col="${step.midC}"]`);
-                if (midCell) midCell.innerHTML = '';
-                gameState.movesWithoutProgress = 0; 
-                gameState.boardHistoryStr = [];
-                gameState.pieceHistories = {}; 
-            }
-            
-            if (tCell && fCell?.children.length > 0) tCell.appendChild(fCell.children[0]);
-            
-            self.playSound(sfx.move); stepIdx++; gameState.botMoveCount++;
-            
-            if (stepIdx >= chosenMove.length) {
-                let last = chosenMove[chosenMove.length - 1];
-                let finalCell = board.querySelector(`[data-row="${last.toR}"][data-col="${last.toC}"]`);
-                let isPromotion = false;
-                
-                if (finalCell?.children.length > 0) {
-                    const isWhitePiece = finalCell.children[0].classList.contains('white');
-                    let realPromoRow = gameState.pieceDirection[isWhitePiece ? 'white' : 'black'] === 1 ? 7 : 0;
-                    if (last.toR === realPromoRow && !finalCell.children[0].classList.contains('tawla')) {
-                        finalCell.children[0].classList.add('tawla');
-                        self.playSound(sfx.kingCreated); isPromotion = true;
-                    }
-                }
-                
-                if (isPromotion) { 
-                    gameState.movesWithoutProgress = 0; 
-                    gameState.boardHistoryStr = []; 
-                    gameState.pieceHistories = {}; 
-                } else if (chosenMove.some(s => s.midR === null)) { 
-                    gameState.movesWithoutProgress++; 
-                    gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard)); 
-                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(startRow, startCol, last.toR, last.toC, aiColor);
-                }
-
-                self.highlightMove({ r: startRow, c: startCol }, { r: last.toR, c: last.toC });
-                gameState.currentTurn = gameState.playerColor; saveGameState(); self.startTurn();
-                return;
-            }
-            let delay = (gameState.isOnlineMode || step.midR !== null) ? 400 : (gameState.botMoveCount < 7 ? 600 : Math.floor(Math.random() * 500) + 400);
-            setTimeout(executeStep, delay);
+        let aiColor = gameState.currentTurn;
+        let moves = gameEngine.generateAllTurnMoves(aiColor, gameState.virtualBoard, gameState.currentDice);
+        if (moves.length === 0) {
+            gameState.currentTurn = gameState.playerColor; gameState.currentDice = []; this.startTurn(); return;
         }
-        executeStep();
+        let chosenMove = moves[Math.floor(Math.random() * moves.length)];
+        gameState.virtualBoard = gameEngine.applyMoveToBoard(chosenMove, gameState.virtualBoard);
+        
+        let dieIdx = gameState.currentDice.indexOf(chosenMove.dieUsed);
+        if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
+        
+        this.playSound(chosenMove.isHit ? sfx.piecesDied : sfx.move);
+        this.renderBoard(); this.updateDiceUI();
+
+        let winner = gameEngine.checkGameOver(gameState.virtualBoard);
+        if (winner) return;
+
+        if (gameState.currentDice.length === 0 || !gameEngine.hasAnyMove(aiColor, gameState.virtualBoard, gameState.currentDice)) {
+            gameState.currentTurn = gameState.playerColor; gameState.currentDice = [];
+            setTimeout(() => this.startTurn(), 800);
+        } else { setTimeout(() => this.triggerComputerMove(), 800); }
     },
 
+
     showOnlineResultsModal(winnerColor) { this.showResultsModal(winnerColor); },
+
+
 
     showResultsModal(winnerColor) {
         clearInterval(gameState.turnTimerInterval); gameState.turnTimerInterval = null;
@@ -1387,10 +1244,13 @@ export const ui = {
         const oldModal = this.getEl('custom-results-modal-container');
         if (oldModal) oldModal.remove();
 
+        // 1. تشغيل صوت الفوز (الأساسي) فوراً
         this.playSound(sfx.win);
         
+        // 2. التحقق مما إذا كان اللاعب قد فاز أو تعادل (ليحصل على عملات)
         const isWinnerForSound = winnerColor === (gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor);
         if (isWinnerForSound || winnerColor === 'draw') {
+            // 🌟 تشغيل صوت العملات بعد (0.6 ثانية) ليتداخل بشكل موسيقي ومريح مع نهاية نغمة الفوز!
             setTimeout(() => { this.playSound(sfx.coinsCollect); }, 1200);
         }
         
@@ -1507,6 +1367,7 @@ export const ui = {
                 addFriendBtn.style.opacity = '0.6';
                 addFriendBtn.style.cursor = 'not-allowed';
                 
+                // 🌟 الحل البسيط: التقاط ID الخصم بدقة من أكثر من مصدر لضمان عدم ضياعه عند انتهاء المباراة
                 const exactTargetId = window.currentOpponentId || (window.currentOpponentData ? (window.currentOpponentData.guestId || window.currentOpponentData.id) : null);
                 
                 if (window.socket && window.socket.connected && exactTargetId) {
@@ -1675,6 +1536,7 @@ export const ui = {
 
            const hintCounter = document.getElementById('hint-counter');
             if (hintCounter) {
+                // 🌟 الإصلاح هنا: أضفنا `gameState.isGameActive` لضمان ظهور "مجاني" أثناء اللعب فقط!
                 if (gameState.isGameActive && gameState.isTutorialMode && !gameState.isOnlineMode) {
                     hintCounter.textContent = "مجاني"; 
                     hintCounter.style.fontSize = "8px"; 
@@ -1694,6 +1556,7 @@ export const ui = {
                     hintCounter.style.padding = "2px 6px";
                 }
             }
+
 
             const fList = this.getEl('igp-friends-list');
             if (fList) {
@@ -1743,6 +1606,10 @@ export const ui = {
         this.updateProfileUI(); 
     }
 };
+
+// ==========================================
+// 🌟 دوال الواجهة العامة (النوافذ والتبويبات والأصدقاء)
+// ==========================================
 
 function forceLockedGlobalAvatar() {
     let globalProfile = localStorage.getItem('hub_user_profile');
@@ -1828,13 +1695,13 @@ window.openCreatorSettings = function(roomId, currentBet) {
 };
 
 window.deleteMyRoom = function(roomId) {
-    if (typeof window.ui !== 'undefined' && typeof window.ui.showCustomAlert === 'function') {
-        window.ui.showCustomAlert(
+    if (typeof ui !== 'undefined' && typeof ui.showCustomAlert === 'function') {
+        ui.showCustomAlert(
             "هل أنت متأكد من رغبتك في إغلاق وحذف هذه الغرفة نهائياً؟",
             "حذف الغرفة 🗑️",
             () => {
-                if (typeof window.socket !== 'undefined' && window.socket && window.socket.connected) {
-                    window.socket.emit('leaveRoom', { roomID: roomId });
+                if (typeof socket !== 'undefined' && socket && socket.connected) {
+                    socket.emit('leaveRoom', { roomID: roomId });
                 }
             },
             true, "إلغاء", "نعم، احذفها"
@@ -2090,6 +1957,7 @@ window.openMyProfile = function() {
     document.getElementById('own-profile-actions').style.display = 'block'; 
     document.getElementById('other-profile-actions').style.display = 'none';
     
+    // 🌟 إظهار الإنجازات والـ ID لأن هذا ملفك الشخصي
     const achBtn = document.getElementById('igp-achievements-btn'); 
     if(achBtn) achBtn.style.setProperty('display', 'flex', 'important');
     const idBtn = document.getElementById('copy-id-btn'); 
@@ -2132,6 +2000,7 @@ window.showOpponentProfile = function() {
     const opp = window.currentOpponentData;
     document.getElementById('igp-name').innerText = opp.name || "الخصم";
     
+    // 🌟 إخفاء الإنجازات والـ ID في ملف الخصم إجبارياً
     const achBtn = document.getElementById('igp-achievements-btn'); 
     if(achBtn) achBtn.style.setProperty('display', 'none', 'important');
     const idBtn = document.getElementById('copy-id-btn'); 
@@ -2156,16 +2025,19 @@ window.showOpponentProfile = function() {
     window.openAppModal('in-game-profile-modal');
 };
 
-window.showPlayerProfileFromLB = function(player) {
+    window.showPlayerProfileFromLB = function(player) {
     let myProfile = window.gameState && window.gameState.userProfile ? window.gameState.userProfile : JSON.parse(localStorage.getItem('hub_user_profile') || '{}');
     
+    // 1. التحقق: إذا كان اللاعب هو أنت، افتح ملفك الشخصي
     if (player.id === myProfile.id) { 
         window.openMyProfile(); 
         return; 
     }
 
+    // 2. تعيين اللاعب المعروض في حالة اللعبة
     if(window.gameState) window.gameState.currentViewedPlayer = player; 
     
+    // 3. إخفاء عناصر (مستوى اللاعب وخبرته) التي لا تخص العرض في هذه النافذة
     const xpContainer = document.getElementById('igp-xp-container'); 
     const statsGrid = document.getElementById('igp-stats-grid'); 
     const levelBadge = document.getElementById('igp-level');
@@ -2173,14 +2045,17 @@ window.showPlayerProfileFromLB = function(player) {
     if(statsGrid) statsGrid.style.display = 'none'; 
     if(levelBadge) levelBadge.style.display = 'none';
     
+    // 4. إظهار أزرار التفاعل مع الآخرين وإخفاء أزرار ملفك الشخصي
     document.getElementById('own-profile-actions').style.display = 'none'; 
     document.getElementById('other-profile-actions').style.display = 'flex';
     
+    // 5. [من النسخة الأولى] إخفاء زر الإنجازات وزر نسخ الـ ID إجبارياً للآخرين
     const achBtn = document.getElementById('igp-achievements-btn'); 
     if(achBtn) achBtn.style.setProperty('display', 'none', 'important');
     const idBtn = document.getElementById('copy-id-btn'); 
     if(idBtn) idBtn.style.setProperty('display', 'none', 'important');
 
+    // 6. [من النسخة الثانية] تهيئة وإعادة تفعيل أزرار طلب الصداقة ومنح الشعبية
     const reqBtn = document.getElementById('send-friend-req-btn'); 
     if(reqBtn) { 
         reqBtn.innerHTML = '➕ إرسال طلب صداقة'; 
@@ -2194,10 +2069,12 @@ window.showPlayerProfileFromLB = function(player) {
         popBtn.disabled = false; 
     }
 
+    // 7. تعيين اسم اللاعب والـ ID الخاص به
     document.getElementById('igp-name').textContent = player.name || 'لاعب مجهول'; 
     const idDisplay = document.getElementById('igp-id-display');
     if(idDisplay) idDisplay.textContent = player.id || 'غير متوفر';
     
+    // 8. تنسيق وعرض الشعبية بطريقة مختصرة (K و M)
     const formatPop = (num) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
@@ -2205,14 +2082,17 @@ window.showPlayerProfileFromLB = function(player) {
     };
     document.getElementById('igp-popularity-val').textContent = formatPop(player.popularity !== undefined ? player.popularity : 0);
 
+    // 9. عرض أعلى سلسلة انتصارات
     const highestStreakEl = document.getElementById('igp-highest-streak');
     if (highestStreakEl) highestStreakEl.textContent = player.highestStreak || 0;
 
+    // 10. دمج إطار البروفايل والصورة الشخصية وتطبيقها
     let frameToLoad = player.equippedProfileFrame || player.equippedFr || null;
     if (typeof window.ui !== 'undefined' && typeof window.ui.applyAvatar === 'function') {
         window.ui.applyAvatar('igp-avatar', player.avatar, player.avatar?.startsWith('data:image'), frameToLoad);
     }
     
+    // 11. حساب وعرض الرتبة واللقب
     const oppRankDisplay = document.getElementById('igp-rank-display');
     const oppTitleDisplay = document.getElementById('igp-title-display');
     
@@ -2222,7 +2102,7 @@ window.showPlayerProfileFromLB = function(player) {
         let oppLevel = Math.floor(Math.sqrt(Math.max(0, player.score || 0) / 50)) + 1;
         let oppTitleText = "مبتدئ";
         if (oppLevel >= 100) oppTitleText = "جراند ماستر";
-        else if (oppLevel >= 50) oppTitleText = "معلم الطاولة";
+        else if (oppLevel >= 50) oppTitleText = "معلم الدامة";
         else if (oppLevel >= 30) oppTitleText = "خبير";
         else if (oppLevel >= 10) oppTitleText = "مبارز";
         
@@ -2232,6 +2112,7 @@ window.showPlayerProfileFromLB = function(player) {
         if (oppTitleDisplay) oppTitleDisplay.textContent = `اللقب: مبتدئ`;
     }
     
+    // 12. إظهار النافذة المنبثقة
     window.openAppModal('in-game-profile-modal');
 };
 
@@ -2606,98 +2487,98 @@ window.switchLbTab = function(tabId) {
     }
 };
 
-window.renderDynamicHofUI = function(playersList, tabType) {
-    const podiumContainer = document.getElementById('hof-podium-container');
-    const listContainer = document.getElementById('hof-list-' + tabType); 
-    
-    if (!podiumContainer || !listContainer) return;
-
-    podiumContainer.innerHTML = ''; listContainer.innerHTML = '';
-
-    if (!playersList || playersList.length === 0) {
-        listContainer.innerHTML = '<p style="text-align: center; color: #a1a1aa; padding: 20px; width: 100%;">لا توجد بيانات حالياً في هذا التصنيف.</p>';
-        return;
-    }
-
-    const podiumOrder = [ { rank: 2, data: playersList[1] }, { rank: 1, data: playersList[0] }, { rank: 3, data: playersList[2] } ];
-
-    podiumOrder.forEach(item => {
-        if (!item.data) return; 
-        const player = item.data;
-        const card = document.createElement('div');
-        card.className = `lb-podium-card rank-${item.rank}`;
+    window.renderDynamicHofUI = function(playersList, tabType) {
+        const podiumContainer = document.getElementById('hof-podium-container');
+        const listContainer = document.getElementById('hof-list-' + tabType); 
         
-        let frameOverlay = '';
-        if (tabType === 'xp') {
-            const proFrames = { 1: window.frameRank1, 2: window.frameRank2, 3: window.frameRank3 };
-            let frameUrl = proFrames[item.rank];
-            if (frameUrl) {
-                frameOverlay = `<div style="position: absolute; top: -22%; left: -22%; width: 144%; height: 144%; background-image: url('${frameUrl}'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; z-index: 5; pointer-events: none;"></div>`;
-            }
+        if (!podiumContainer || !listContainer) return;
+
+        podiumContainer.innerHTML = ''; listContainer.innerHTML = '';
+
+        if (!playersList || playersList.length === 0) {
+            listContainer.innerHTML = '<p style="text-align: center; color: #a1a1aa; padding: 20px; width: 100%;">لا توجد بيانات حالياً في هذا التصنيف.</p>';
+            return;
         }
-        
-        let overlayFrameSrc = player.equippedProfileFrame && PROFILE_FRAMES_DB[player.equippedProfileFrame] ? PROFILE_FRAMES_DB[player.equippedProfileFrame] : null;
 
-        card.innerHTML = `
-            <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
-            <div style="position: relative; width: ${item.rank === 1 ? '72px' : '62px'}; height: ${item.rank === 1 ? '72px' : '62px'}; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;">
-                <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1; background: transparent; overflow: visible; border: none; box-shadow: none;">
-                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                        <img src="${getSecureAvatarUrl(player.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 1;">
-                        ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 3; pointer-events: none; object-fit: contain; border-radius: 0; max-width: none; max-height: none;">` : ''}
+        const podiumOrder = [ { rank: 2, data: playersList[1] }, { rank: 1, data: playersList[0] }, { rank: 3, data: playersList[2] } ];
+
+        podiumOrder.forEach(item => {
+            if (!item.data) return; 
+            const player = item.data;
+            const card = document.createElement('div');
+            card.className = `lb-podium-card rank-${item.rank}`;
+            
+            let frameOverlay = '';
+            if (tabType === 'xp') {
+                const proFrames = { 1: window.frameRank1, 2: window.frameRank2, 3: window.frameRank3 };
+                let frameUrl = proFrames[item.rank];
+                if (frameUrl) {
+                    frameOverlay = `<div style="position: absolute; top: -22%; left: -22%; width: 144%; height: 144%; background-image: url('${frameUrl}'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; z-index: 5; pointer-events: none;"></div>`;
+                }
+            }
+            
+            let overlayFrameSrc = player.equippedProfileFrame && PROFILE_FRAMES_DB[player.equippedProfileFrame] ? PROFILE_FRAMES_DB[player.equippedProfileFrame] : null;
+
+            card.innerHTML = `
+                <div class="lb-podium-badge badge-${item.rank}">${item.rank}</div>
+                <div style="position: relative; width: ${item.rank === 1 ? '72px' : '62px'}; height: ${item.rank === 1 ? '72px' : '62px'}; margin-bottom: 12px; display: flex; align-items: center; justify-content: center;">
+                    <div class="lb-podium-avatar avatar-${item.rank}" style="width: 100%; height: 100%; margin: 0; position: relative; z-index: 1; background: transparent; overflow: visible; border: none; box-shadow: none;">
+                        <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <img src="${getSecureAvatarUrl(player.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; position: relative; z-index: 1;">
+                            ${overlayFrameSrc ? `<img src="${overlayFrameSrc}" onerror="this.style.display='none'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; z-index: 3; pointer-events: none; object-fit: contain; border-radius: 0; max-width: none; max-height: none;">` : ''}
+                        </div>
                     </div>
+                    ${frameOverlay}
                 </div>
-                ${frameOverlay}
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
-                <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
-                <div class="lb-podium-name" style="width: 100%; text-align: center; margin-bottom: 0;">${player.name || 'Guest'}</div>
-            </div>
-        `;
+                <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; width: 100%;">
+                    <div class="lb-podium-score-pill score-${item.rank}" style="margin-bottom: 5px; font-weight: 800; font-size: 13px;">${getFormattedLeaderboardScore(player, tabType)}</div>
+                    <div class="lb-podium-name" style="width: 100%; text-align: center; margin-bottom: 0;">${player.name || 'Guest'}</div>
+                </div>
+            `;
+            
+            card.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(player); };
+            card.style.cursor = 'pointer';
+            podiumContainer.appendChild(card);
+        });
+
+        for (let i = 3; i < playersList.length; i++) {
+            listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
+        }
+    };
+
+    window.populateHallOfFame = function(winsData, xpData) {
+        document.getElementById('hof-list-wins').innerHTML = ''; document.getElementById('hof-list-xp').innerHTML = '';
+        const activeTabBtn = document.querySelector('#hall-of-fame-modal .lb-tab-button.active');
+        let activeTabId = 'wins';
+        if(activeTabBtn && activeTabBtn.id === 'hof-tab-xp') activeTabId = 'xp';
+
+        window.lastFetchedHofWinsData = winsData; window.lastFetchedHofXpData = xpData;
+
+        if(activeTabId === 'wins') window.renderDynamicHofUI(winsData, 'wins');
+        else window.renderDynamicHofUI(xpData, 'xp');
+    };
+
+    window.showHallOfFame = function() {
+        window.openAppModal('hall-of-fame-modal'); 
+        const loadingText = window.t ? window.t('lb_loading') : 'جاري البحث في السجلات القديمة...';
+        document.getElementById('hof-list-wins').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
+        document.getElementById('hof-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
+        if(window.socket && window.socket.connected) window.socket.emit('getHallOfFame');
+    };
+
+    window.switchHofTab = function(tabId) {
+        document.getElementById('hof-tab-wins').classList.remove('active'); 
+        document.getElementById('hof-tab-xp').classList.remove('active');
+        document.getElementById('hof-list-wins').style.display = 'none'; 
+        document.getElementById('hof-list-xp').style.display = 'none'; 
         
-        card.onclick = function() { if(window.showPlayerProfileFromLB) window.showPlayerProfileFromLB(player); };
-        card.style.cursor = 'pointer';
-        podiumContainer.appendChild(card);
-    });
+        document.getElementById('hof-tab-' + tabId).classList.add('active'); 
+        document.getElementById('hof-list-' + tabId).style.display = 'flex';
+        document.getElementById('hof-podium-container').innerHTML = '';
 
-    for (let i = 3; i < playersList.length; i++) {
-        listContainer.appendChild(window.createLbItemHTML(i + 1, playersList[i], tabType));
-    }
-};
-
-window.populateHallOfFame = function(winsData, xpData) {
-    document.getElementById('hof-list-wins').innerHTML = ''; document.getElementById('hof-list-xp').innerHTML = '';
-    const activeTabBtn = document.querySelector('#hall-of-fame-modal .lb-tab-button.active');
-    let activeTabId = 'wins';
-    if(activeTabBtn && activeTabBtn.id === 'hof-tab-xp') activeTabId = 'xp';
-
-    window.lastFetchedHofWinsData = winsData; window.lastFetchedHofXpData = xpData;
-
-    if(activeTabId === 'wins') window.renderDynamicHofUI(winsData, 'wins');
-    else window.renderDynamicHofUI(xpData, 'xp');
-};
-
-window.showHallOfFame = function() {
-    window.openAppModal('hall-of-fame-modal'); 
-    const loadingText = window.t ? window.t('lb_loading') : 'جاري البحث في السجلات القديمة...';
-    document.getElementById('hof-list-wins').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
-    document.getElementById('hof-list-xp').innerHTML = `<div style="text-align: center; color: #a1a1aa; padding: 20px;">${loadingText}</div>`;
-    if(window.socket && window.socket.connected) window.socket.emit('getHallOfFame');
-};
-
-window.switchHofTab = function(tabId) {
-    document.getElementById('hof-tab-wins').classList.remove('active'); 
-    document.getElementById('hof-tab-xp').classList.remove('active');
-    document.getElementById('hof-list-wins').style.display = 'none'; 
-    document.getElementById('hof-list-xp').style.display = 'none'; 
-    
-    document.getElementById('hof-tab-' + tabId).classList.add('active'); 
-    document.getElementById('hof-list-' + tabId).style.display = 'flex';
-    document.getElementById('hof-podium-container').innerHTML = '';
-
-    if (tabId === 'wins' && window.lastFetchedHofWinsData) window.renderDynamicHofUI(window.lastFetchedHofWinsData, 'wins');
-    else if (tabId === 'xp' && window.lastFetchedHofXpData) window.renderDynamicHofUI(window.lastFetchedHofXpData, 'xp');
-};
+        if (tabId === 'wins' && window.lastFetchedHofWinsData) window.renderDynamicHofUI(window.lastFetchedHofWinsData, 'wins');
+        else if (tabId === 'xp' && window.lastFetchedHofXpData) window.renderDynamicHofUI(window.lastFetchedHofXpData, 'xp');
+    };
 
 
 window.showEquipNotification = function(itemType) {
@@ -2714,6 +2595,7 @@ window.showEquipNotification = function(itemType) {
     void toast.offsetWidth;
     toast.classList.add('show'); 
     
+    // إزالة الكلاس بعد 11.5 ثانية 
     setTimeout(() => { toast.classList.remove('show'); }, 5000);
 
     setTimeout(() => {
@@ -2763,13 +2645,13 @@ window.updateHtmlTexts = function() {
 };
 
 window.toggleRadioMusic = function() {
-    const dot = document.getElementById('tawla-radio-status'); let isActive = false;
+    const dot = document.getElementById('dama-radio-status'); let isActive = false;
     if (dot) { isActive = dot.classList.toggle('active'); }
     if (isActive) { window.parent.postMessage({ type: 'PLAY_RADIO' }, '*'); } else { window.parent.postMessage({ type: 'STOP_RADIO' }, '*'); }
 };
 
 window.syncRadioStatusDot = function() { 
-    const statusDot = document.getElementById('tawla-radio-status'); 
+    const statusDot = document.getElementById('dama-radio-status'); 
     if (statusDot) { 
         const isPlaying = localStorage.getItem('hub_music_enabled') === 'true'; 
         if (isPlaying) statusDot.classList.add('active'); else statusDot.classList.remove('active'); 
@@ -2781,6 +2663,9 @@ window.addEventListener('storage', (e) => {
     if (e.key === 'hub_user_profile') { forceLockedGlobalAvatar(); }
 });
 
+// ==========================================
+// 🌟 دوال التفاعلات للأزرار والاستماع (Event Listeners)
+// ==========================================
 function hasPlayerMoved() {
     if (!gameState.boardHistory) return false;
     if (gameState.playerColor === 'white') { return gameState.boardHistory.length > 1; } 
@@ -2838,38 +2723,46 @@ ui.onClick('resign-btn', () => {
     }
 });
 
+// 🌟 دالة حفظ الإعدادات (مفصولة الأصوات) 🌟
 ui.onClick('save-settings-btn', () => {
+    // 1. حفظ مستوى صوت التحريك (حركة الأحجار فقط)
     const volInput = document.getElementById('sfx-volume');
     if (volInput) {
         const vol = parseFloat(volInput.value);
         localStorage.setItem('hub_sfx_volume', vol);
-        if (ui.sfx.move) ui.sfx.move.volume = vol; 
+        if (ui.sfx.move) ui.sfx.move.volume = vol; // تطبيق على التحريك فقط
     }
 
+    // 2. حفظ مستوى صوت الإشعارات (الفوز، العملات، الموت، الوقت، إلخ)
     const alertsVolInput = document.getElementById('alerts-volume');
     if (alertsVolInput) {
         const alertsVol = parseFloat(alertsVolInput.value);
         localStorage.setItem('hub_alerts_volume', alertsVol);
         
+        // تطبيق على جميع الأصوات باستثناء حركة الأحجار
         Object.keys(ui.sfx).forEach(key => {
             if (key !== 'move' && ui.sfx[key]) {
                 ui.sfx[key].volume = alertsVol;
             }
         });
+        // رفع صوت العملات قليلاً ليبقى ممتعاً
         if (ui.sfx.coinsCollect) ui.sfx.coinsCollect.volume = Math.min(1, alertsVol + 0.15); 
     }
 
+    // 3. حفظ تفضيل (استخدام ساحة اللاعب الأعلى مستوى)
     const syncCheckbox = document.getElementById('sync-theme-optout');
     if (syncCheckbox && gameState.userProfile) {
         gameState.userProfile.syncThemeOptOut = !syncCheckbox.checked;
         ui.saveAndSyncProfile(gameState.userProfile);
     }
 
+    // 4. إغلاق النافذة وإظهار إشعار الحفظ
     if (typeof window.closeAppModal === 'function') window.closeAppModal('settings-overlay');
     if (window.socketManager && typeof window.socketManager._showToast === 'function') {
         window.socketManager._showToast("تم حفظ الإعدادات بنجاح ✅");
     }
 });
+
 
 ui.onClick('undo-btn', () => {
     if (gameState.isOnlineMode || gameState.currentTurn !== gameState.playerColor) return; 
@@ -2892,7 +2785,7 @@ ui.onClick('undo-btn', () => {
         gameState.currentTurn = prevState.turn;
         
         ui.clearHighlights(); 
-        const boardElUndo = document.getElementById('tawla-board');
+        const boardElUndo = document.getElementById('board');
         if (boardElUndo) {
             const lastMoves = boardElUndo.getElementsByClassName('last-move');
             while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
@@ -2903,6 +2796,7 @@ ui.onClick('undo-btn', () => {
         
         ui.renderBoard(); ui.playSound(ui.sfx.move); 
 
+        // إعادة تقييم الحركات الإجبارية للحالة السابقة (Undo Fix)
         let allMoves = gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
         let isCapture = false;
         if (allMoves.length > 0 && allMoves[0].some(step => step.midR !== null && step.midR !== undefined)) {
@@ -2927,6 +2821,7 @@ ui.onClick('undo-btn', () => {
         ui.startTurn();
     }
 });
+
 
 ui.onClick('hint-btn', () => { hintSystem.requestHint(); });
 
@@ -2954,6 +2849,7 @@ ui.onClick('match-gift-btn-p1', () => {
         window.openGiftPanel(targetId);
     }
 });
+
 
 ui.onClick('creator-update-bet-btn', () => {
     const roomIdEl = document.getElementById('creator-target-room-id');
@@ -2983,29 +2879,7 @@ ui.onClick('creator-cancel-room-btn', () => {
 window.ui = ui;
 window.updateUITranslations = () => { if (typeof window.updateHtmlTexts === 'function') window.updateHtmlTexts(); };
 
-const isMoveValid = (fromR, fromC, toR, toC, color, board, isTawla) => {
-    let moves = gameEngine.generateAllTurnMoves(color, board);
-    return moves.some(path =>
-        path.length === 1 &&
-        path[0].fromR === fromR &&
-        path[0].fromC === fromC &&
-        path[0].toR === toR &&
-        path[0].toC === toC &&
-        path[0].midR === null 
-    );
-};
-
-if (!document.getElementById('forced-overlay-style')) {
-    const forcedStyle = document.createElement('style'); forcedStyle.id = 'forced-overlay-style';
-    forcedStyle.innerHTML = `
-        .cell:has(.piece.multi-choice), .cell.multi-choice-cell { position: relative !important; border: 2px solid #ff453a !important; border-radius: inherit; }
-        .cell:has(.piece.multi-choice)::after, .cell.multi-choice-cell::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 20px rgba(255, 69, 58, 0.8); border-radius: inherit; pointer-events: none; animation: gpuPulse 1s infinite alternate ease-in-out; will-change: opacity; }
-        @keyframes gpuPulse { 0% { opacity: 0.3; } 100% { opacity: 1; } }
-        .cell:has(.piece.multi-choice) .piece, .cell.multi-choice-cell .piece { z-index: 2 !important; position: relative !important; transform: scale(1.08) translateZ(0) !important; will-change: transform; transition: transform 0.2s ease; }
-    `;
-    document.head.appendChild(forcedStyle);
-}
-
+// 🌟🌟🌟 3. استعادة أحداث التحديث الخارجي للمتجر والملف الشخصي 🌟🌟🌟
 window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'GLOBAL_POPUP_CLOSED') {
         const msg = event.data.content || '';
@@ -3033,156 +2907,83 @@ window.addEventListener('message', (event) => {
 });
 
 ui.onClick('tawla-board', e => {
-    if (gameState.isSpectator || !gameState.isGameActive) return;
+    if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
+    let target = e.target.closest('.point, #bar-white, #bar-black');
+    if (!target) return;
 
-    const myActualColor = gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor;
+    let index = (target.id === 'bar-white' || target.id === 'bar-black') ? 'bar' : parseInt(target.dataset.index);
 
-    if (gameState.currentTurn !== myActualColor) return;
-    
-    const target = e.target;
-    const cell = target.classList.contains('cell') ? target : target.closest('.cell');
-    if (!cell) return;
-
-    const r = parseInt(cell.dataset.row);
-    const c = parseInt(cell.dataset.col);
-
-    if (target.classList.contains('piece') && !gameState.isMultiJumping) {
-        const clickedColor = target.classList.contains('white') ? 'white' : 'black';
-        if (clickedColor !== myActualColor) return;
-
-        if (gameState.requiredJumps > 0 && getPieceMaxJumps(r, c, gameState.currentTurn, gameState.virtualBoard) < gameState.requiredJumps) return;
+    if (gameState.selectedPoint === null || gameState.selectedPoint === undefined) {
+        let colorAtPoint = index === 'bar' ? gameState.playerColor : gameState.virtualBoard.points[index].color;
+        let countAtPoint = index === 'bar' ? gameState.virtualBoard.bar[gameState.playerColor] : gameState.virtualBoard.points[index].count;
         
-        gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = []; 
-        
-        if (gameState.selectedPiece) gameState.selectedPiece.classList.remove('selected');
-        gameState.selectedPiece = target; 
-        gameState.selectedPiece.classList.add('selected');
-        
-        if (gameState.currentTurn !== gameState.playerColor && !gameState.isOnlineMode) { gameState.opponentStartRow = r; gameState.opponentStartCol = c; }
-        window.ui.showValidMovesHighlights(r, c); return;
-    }
-
-    if (gameState.selectedPiece && cell.children.length === 0) {
-        const fromRow = parseInt(gameState.selectedPiece.parentElement.dataset.row);
-        const fromCol = parseInt(gameState.selectedPiece.parentElement.dataset.col);
-        const toRow = r; const toCol = c;
-        const rDiff = toRow - fromRow; const cDiff = toCol - fromCol;
-        const isTawla = gameState.selectedPiece.classList.contains('tawla');
-        const pieceColor = gameState.selectedPiece.classList.contains('white') ? 'white' : 'black';
-
-        if (gameState.moveSequenceStartR === undefined || gameState.moveSequenceStartR === null) {
-            gameState.moveSequenceStartR = fromRow; gameState.moveSequenceStartC = fromCol; gameState.movePath = [{r: fromRow, c: fromCol}];
+        if (colorAtPoint === gameState.playerColor && countAtPoint > 0) {
+            if (gameState.virtualBoard.bar[gameState.playerColor] > 0 && index !== 'bar') {
+                ui.showCustomAlert(t('must_play_from_bar') || "يجب اللعب من البار أولاً!"); return;
+            }
+            
+            gameState.selectedPoint = index;
+            let validDests = gameEngine.getValidDestinations(gameState.virtualBoard, gameState.playerColor, index, gameState.currentDice);
+            validDests.forEach(d => {
+                if (d.to === 'out') { const bearOff = document.getElementById('bear-off-zone'); if (bearOff) bearOff.classList.add('highlight'); } 
+                else { let pt = document.querySelector(`.point[data-index="${d.to}"]`); if(pt) pt.classList.add('highlight'); }
+            });
+            target.classList.add('selected-point');
         }
-
-        if (gameState.requiredJumps > 0) {
-            let isValidJump = false, midRow = -1, midCol = -1, currDr = Math.sign(rDiff), currDc = Math.sign(cDiff);
+    } 
+    else {
+        let validDests = gameEngine.getValidDestinations(gameState.virtualBoard, gameState.playerColor, gameState.selectedPoint, gameState.currentDice);
+        let dest = validDests.find(d => d.to === index);
+        
+        if (dest) {
+            gameState.virtualBoard = gameEngine.applyMoveToBoard({from: gameState.selectedPoint, to: index, isHit: dest.isHit}, gameState.virtualBoard);
+            let dieIdx = gameState.currentDice.indexOf(dest.dieUsed);
+            if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
             
-            let moves = (gameState.isMultiJumping)
-                ? gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, fromRow, fromCol, gameState.lastJumpDir.dr, gameState.lastJumpDir.dc)
-                : gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard);
-
-            let validStep = moves.map(p => p[0]).find(s => s && s.fromR === fromRow && s.fromC === fromCol && s.toR === toRow && s.toC === toCol && s.midR !== null);
-
-            if (validStep) { isValidJump = true; midRow = validStep.midR; midCol = validStep.midC; }
-
-            if (isValidJump) {
-                let tempBoard = gameState.virtualBoard.map(row => [...row]); 
-                let movingPieceStr = tempBoard[fromRow][fromCol];
-
-                tempBoard[midRow][midCol] = null; tempBoard[toRow][toCol] = movingPieceStr; tempBoard[fromRow][fromCol] = null;
-                gameState.movePath.push({r: toRow, c: toCol}); 
-
-                if (1 + getPieceMaxJumps(toRow, toCol, gameState.currentTurn, tempBoard, currDr, currDc) === gameState.requiredJumps - gameState.jumpsCount) {
-                    if (typeof window.ui.playSound === 'function') { window.ui.playSound(gameState.virtualBoard[midRow][midCol]?.includes('tawla') ? window.ui.sfx.kingDied : window.ui.sfx.piecesDied); }
-                    
-                    gameState.virtualBoard = tempBoard; gameState.jumpsCount++; gameState.lastJumpDir = { dr: currDr, dc: currDc };
-                    if (window.questsManager) { window.questsManager.updateProgress('capture', 1, gameState.isOnlineMode ? 'online' : 'bot'); }
-
-                    let isFinalJump = (gameState.jumpsCount === gameState.requiredJumps);
-
-                    if (isFinalJump) {
-                        let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
-                        if (toRow === promoRow && !movingPieceStr.includes('tawla')) { 
-                            gameState.virtualBoard[toRow][toCol] += '-tawla'; 
-                            if (typeof window.ui.playSound === 'function') window.ui.playSound(window.ui.sfx.kingCreated); 
-                        }
-                        
-                        gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = []; gameState.pieceHistories = {}; 
-                        window.ui.highlightMove({r: gameState.moveSequenceStartR, c: gameState.moveSequenceStartC}, {r: toRow, c: toCol});
-                        gameState.selectedPiece = null; window.ui.clearHighlights();
-                        
-                        let currentMovingTurn = gameState.currentTurn;
-                        gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
-                        
-                        gameState.turnTimeLeft = 45;
-                        if (gameState.isOnlineMode && window.ui && typeof window.ui.startTurnTimer === 'function') window.ui.startTurnTimer(); 
-
-                        window.ui.renderBoard();
-
-                        if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                            socketManager.sendMoveToServer(gameState.moveSequenceStartR, gameState.moveSequenceStartC, toRow, toCol, gameState.movePath, currentMovingTurn);
-                        }
-                        
-                        saveGameState(); window.ui.startTurn();
-                        gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
-                    } else { 
-                        gameState.isMultiJumping = true; window.ui.renderBoard();
-                        const boardEl = document.getElementById('tawla-board');
-                        const newCell = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
-                        if (newCell && newCell.children.length > 0) { gameState.selectedPiece = newCell.children[0]; gameState.selectedPiece.classList.add('selected'); }
-
-                        if (!gameState.boardHistory) gameState.boardHistory = [];
-                        gameState.boardHistory.push({ board: gameState.virtualBoard.map(row => [...row]), turn: gameState.currentTurn, moves: gameState.movesWithoutProgress });
-                        if (gameState.boardHistory.length > 6) gameState.boardHistory.shift();
-                        
-                        window.ui.showValidMovesHighlights(toRow, toCol); 
-                    }
-                } else { window.ui.showCustomAlert(t('must_capture')); }
+            ui.playSound(dest.isHit ? sfx.piecesDied : sfx.move);
+            if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                socketManager.sendMoveToServer(gameState.selectedPoint, index, dest.dieUsed, gameState.currentTurn);
             }
-        } 
-        else {
-            if (typeof isMoveValid === 'function' && isMoveValid(fromRow, fromCol, toRow, toCol, gameState.currentTurn, gameState.virtualBoard, isTawla)) {
-                let movingPieceStr = gameState.virtualBoard[fromRow][fromCol];
-                gameState.virtualBoard[fromRow][fromCol] = null; gameState.virtualBoard[toRow][toCol] = movingPieceStr;
-                gameState.movePath = [{r: fromRow, c: fromCol}, {r: toRow, c: toCol}]; 
-                
-                let promoRow = gameState.pieceDirection[pieceColor] === 1 ? 7 : 0;
-                let isPromotion = false;
-                
-                if (toRow === promoRow && !movingPieceStr.includes('tawla')) { 
-                    gameState.virtualBoard[toRow][toCol] += '-tawla'; isPromotion = true;
-                    if (typeof window.ui.playSound === 'function') window.ui.playSound(window.ui.sfx.kingCreated); 
-                }
-                
-                if (isPromotion) {
-                    gameState.movesWithoutProgress = 0; gameState.boardHistoryStr = []; gameState.pieceHistories = {}; 
-                } else {
-                    gameState.movesWithoutProgress++; gameState.boardHistoryStr.push(JSON.stringify(gameState.virtualBoard));
-                    if (gameEngine.trackPieceHistory) gameEngine.trackPieceHistory(fromRow, fromCol, toRow, toCol, gameState.currentTurn); 
-                }
-                
-                if (typeof window.ui.playSound === 'function') window.ui.playSound(window.ui.sfx.move); 
-                window.ui.highlightMove({r: fromRow, c: fromCol}, {r: toRow, c: toCol});
-                gameState.selectedPiece = null; window.ui.clearHighlights();
-            
-                let currentMovingTurn = gameState.currentTurn;
-                if (socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                    socketManager.sendMoveToServer(fromRow, fromCol, toRow, toCol, gameState.movePath, currentMovingTurn); 
-                }
-            
-                gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
-                gameState.turnTimeLeft = 45;
-                if (gameState.isOnlineMode && window.ui && typeof window.ui.startTurnTimer === 'function') window.ui.startTurnTimer(); 
-                
-                window.ui.renderBoard();
-                saveGameState(); window.ui.startTurn();
+            checkTurnEnd();
+        } else { ui.clearHighlights(); gameState.selectedPoint = null; }
+    }
+});
 
-                gameState.moveSequenceStartR = null; gameState.moveSequenceStartC = null; gameState.movePath = [];
+ui.onClick('bear-off-zone', e => {
+    if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
+    if (gameState.selectedPoint !== null && gameState.selectedPoint !== undefined) {
+        let validDests = gameEngine.getValidDestinations(gameState.virtualBoard, gameState.playerColor, gameState.selectedPoint, gameState.currentDice);
+        let dest = validDests.find(d => d.to === 'out');
+        if (dest) {
+            gameState.virtualBoard = gameEngine.applyMoveToBoard({from: gameState.selectedPoint, to: 'out', isHit: false}, gameState.virtualBoard);
+            let dieIdx = gameState.currentDice.indexOf(dest.dieUsed);
+            if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
+            ui.playSound(sfx.move);
+            
+            if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                socketManager.sendMoveToServer(gameState.selectedPoint, 'out', dest.dieUsed, gameState.currentTurn);
             }
+            checkTurnEnd();
         }
     }
 });
 
+function checkTurnEnd() {
+    ui.clearHighlights(); gameState.selectedPoint = null; ui.renderBoard();
+    
+    let winner = gameEngine.checkGameOver(gameState.virtualBoard);
+    if (winner) return;
+
+    if (gameState.currentDice.length === 0 || !gameEngine.hasAnyMove(gameState.currentTurn, gameState.virtualBoard, gameState.currentDice)) {
+        gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+        gameState.currentDice = [];
+        setTimeout(() => ui.startTurn(), 600);
+    } else { ui.updateDiceUI(); }
+}
+
+
+
+// 🌟🌟🌟 5. تهيئة التطبيق عند البداية 🌟🌟🌟
 document.addEventListener('DOMContentLoaded', () => {
     let globalProfile = localStorage.getItem('hub_user_profile'); 
     let initialAvatar = '1000132081.webp';
@@ -3227,6 +3028,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500); 
 });
 
+// 🌟🌟🌟 6. أزرار الواجهة العامة 🌟🌟🌟
 document.addEventListener('click', (e) => {
     let target = e.target;
     
@@ -3274,3 +3076,5 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
+    
