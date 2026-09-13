@@ -1352,9 +1352,8 @@ socket.on('gameStart', (data) => {
         showLoadingPopup(currentLang === 'ar' ? "تم العثور على مباراة نشطة! جاري إعادتك للساحة..." : "Active match found! Reconnecting...");
         setTimeout(() => {
             document.getElementById('custom-popup-modal').style.display = 'none';
-            // نقوم بإعادة فتحه في اللعبة الصحيحة حسب نوع السيرفر أو نتركها دامة افتراضياً
-            // يمكنك تخصيصها لاحقاً لتقرأ من السيرفر إذا كان اللاعب في Dama أو Tawla
-            startGame();
+            // تمرير نوع اللعبة ديناميكياً بناءً على بيانات السيرفر
+            startGame(data.gameType || 'tawla'); 
         }, 1500);
     }
 });
@@ -1364,7 +1363,8 @@ socket.on('matchCountdown', (data) => {
         showLoadingPopup(currentLang === 'ar' ? "مباراتك ستبدأ بعد قليل! جاري إعادتك..." : "Match starting soon! Reconnecting...");
         setTimeout(() => {
             document.getElementById('custom-popup-modal').style.display = 'none';
-            startGame();
+            // تمرير نوع اللعبة ديناميكياً
+            startGame(data.gameType || 'tawla'); 
         }, 1500);
     }
 });
