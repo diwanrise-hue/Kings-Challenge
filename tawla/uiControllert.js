@@ -23,7 +23,7 @@
  */
 
 import { gameState } from './gameStatet.js'; 
-import { saveGameState, restoreOfflineHintSystem } from './mainr.js';
+import { saveGameState, restoreOfflineHintSystem } from './maint.js';
 import { gameEngine } from './gameEnginet.js';
 import { gameAI } from './gameAIt.js';
 import { socket, socketManager } from './socketManagert.js';
