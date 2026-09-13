@@ -2785,7 +2785,7 @@ ui.onClick('undo-btn', () => {
         gameState.currentTurn = prevState.turn;
         
         ui.clearHighlights(); 
-        const boardElUndo = document.getElementById('board');
+        const boardElUndo = document.getElementById('tawla-board');
         if (boardElUndo) {
             const lastMoves = boardElUndo.getElementsByClassName('last-move');
             while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
