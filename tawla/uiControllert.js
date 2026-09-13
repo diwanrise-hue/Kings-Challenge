@@ -1,5 +1,5 @@
 /**
- * uiControllert.js
+ * uiController.js
  * إدارة الواجهة الرسومية والمؤثرات، النوافذ المنبثقة، التبويبات، 
  * نظام البروفايل والأصدقاء،  متصدري الموسم.
  * 🌟 (مُحدّث جذرياً): حل مشكلة الإطارات العملاقة في نافذة النتائج، وتصحيح طبقات الـ Z-Index.
@@ -1070,7 +1070,7 @@ export const ui = {
 
 
     clearHighlights() {
-        const board = this.getEl('board');
+        const board = this.getEl('tawla-board');
         if (!board) return;
         const highlighted = board.getElementsByClassName('highlight');
         while (highlighted.length > 0) highlighted[0].classList.remove('highlight');
@@ -1079,7 +1079,7 @@ export const ui = {
     },
 
     highlightMove(from, to) {
-        const board = this.getEl('board'); if (!board) return;
+        const board = this.getEl('tawla-board'); if (!board) return;
         
         const lastMoves = board.getElementsByClassName('last-move');
         while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move');
@@ -1093,7 +1093,7 @@ export const ui = {
 
     showValidMovesHighlights(r, c) {
         this.clearHighlights();
-        const board = this.getEl('board'); if (!board) return;
+        const board = this.getEl('tawla-board'); if (!board) return;
         
         let moves = (gameState.isMultiJumping && gameState.selectedPiece) 
             ? gameEngine.generateAllTurnMoves(gameState.currentTurn, gameState.virtualBoard, r, c, gameState.lastJumpDir.dr, gameState.lastJumpDir.dc) 
