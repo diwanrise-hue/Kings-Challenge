@@ -1023,7 +1023,7 @@ export const ui = {
         if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
         if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
 
-        gameState.virtualBoard = gameEngine.getInitialBoard();
+        gameState.virtualBoard = gameEngine.initStandardTawlaBoard();
         gameState.isGameActive = false; window.isMatchRunning = false;
         
         gameState.selectedPoint = null; 
@@ -1058,7 +1058,7 @@ export const ui = {
         gameState.isGameActive = true; window.isMatchRunning = true; document.body.classList.add('game-active');
         if (!gameState.isOnlineMode) this.toggleOfflineInMatchUI(true); 
         
-        gameState.virtualBoard = gameEngine.getInitialBoard();
+        gameState.virtualBoard = gameEngine.initStandardTawlaBoard();
         gameState.currentTurn = 'white'; gameState.blockGameOverModal = true;
         setTimeout(() => { gameState.blockGameOverModal = false; }, 1000);
         
