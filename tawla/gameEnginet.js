@@ -1,366 +1,172 @@
 /**
  * gameEnginet.js (Client-Side)
- * محرك اللعبة للعميل (نسخة الطاولة)
+ * محرك اللعبة للعميل (النسخة المخصصة للعبة الطاولة - Tawla)
  */
 
 import { gameState } from './gameStatet.js'; 
 
 export const gameEngine = {
-    isValidPos(r, c) {
-        return r >= 0 && r < 8 && c >= 0 && c < 8;
-    },
-
-    getPieceDirection(color, bState, roomDirectionData = null) {
-        const baseColor = color.split('-')[0];
-        if (roomDirectionData && roomDirectionData[baseColor] !== undefined) {
-            return roomDirectionData[baseColor];
-        } else if (gameState.pieceDirection && gameState.pieceDirection[baseColor] !== undefined) {
-            return gameState.pieceDirection[baseColor];
-        }
-        return baseColor === 'white' ? -1 : 1;
-    },
-
-    computeOnlineFlip(color) { 
-        return color === 'black'; 
-    },
-
-    getPieceCapturePaths(r, c, color, bState, dirY, parentDr = null, parentDc = null, roomDirectionData = null) {
-        const baseColor = color.split('-')[0];
-        const isTawla = bState[r][c] && bState[r][c].endsWith('-tawla');
-
-        let currentDirections = isTawla ? [[0, 1], [0, -1], [1, 0], [-1, 0]] : [[dirY, 0], [0, 1], [0, -1]];
-        let paths = [];
-
-        for (const [dr, dc] of currentDirections) {
-            if (isTawla && parentDr !== null && parentDc !== null && dr === -parentDr && dc === -parentDc) continue;
-
-            if (isTawla) {
-                let step = 1, foundEnemy = null, enemyPos = { r: -1, c: -1 };
-
-                while (true) {
-                    const nextR = r + dr * step, nextC = c + dc * step;
-                    if (!this.isValidPos(nextR, nextC)) break;
-
-                    const piece = bState[nextR][nextC];
-                    if (!foundEnemy) {
-                        if (piece === null) { step++; continue; }
-                        else if (!piece.startsWith(baseColor)) {
-                            foundEnemy = piece;
-                            enemyPos = { r: nextR, c: nextC };
-                            step++; continue;
-                        } else break;
-                    } else {
-                        if (piece === null) {
-                            let capturedPiece = bState[enemyPos.r][enemyPos.c];
-                            let movingPiece = bState[r][c];
-
-                            bState[enemyPos.r][enemyPos.c] = null;
-                            bState[nextR][nextC] = movingPiece;
-                            bState[r][c] = null;
-
-                            const stepObj = { fromR: r, fromC: c, toR: nextR, toC: nextC, midR: enemyPos.r, midC: enemyPos.c };
-                            const subPaths = this.getPieceCapturePaths(nextR, nextC, color, bState, dirY, dr, dc, roomDirectionData);
-
-                            if (subPaths.length > 0) {
-                                for (const sp of subPaths) paths.push([stepObj, ...sp]);
-                            } else { paths.push([stepObj]); }
-
-                            bState[r][c] = movingPiece;
-                            bState[nextR][nextC] = null;
-                            bState[enemyPos.r][enemyPos.c] = capturedPiece;
-
-                            step++; continue;
-                        } else break;
-                    }
-                }
-            } else {
-                const midR = r + dr, midC = c + dc, toR = r + 2 * dr, toC = c + 2 * dc;
-                if (this.isValidPos(toR, toC)) {
-                    const midPiece = bState[midR][midC], toPiece = bState[toR][toC];
-                    if (midPiece && !midPiece.startsWith(baseColor) && toPiece === null) {
-                        let capturedPiece = bState[midR][midC];
-                        let movingPiece = bState[r][c];
-                        
-                        bState[midR][midC] = null;
-                        bState[toR][toC] = movingPiece;
-                        bState[r][c] = null;
-
-                        const stepObj = { fromR: r, fromC: c, toR: toR, toC: toC, midR: midR, midC: midC };
-                        const subPaths = this.getPieceCapturePaths(toR, toC, color, bState, dirY, dr, dc, roomDirectionData);
-
-                        if (subPaths.length > 0) {
-                            for (const sp of subPaths) paths.push([stepObj, ...sp]);
-                        } else { paths.push([stepObj]); }
-
-                        bState[r][c] = movingPiece;
-                        bState[toR][toC] = null;
-                        bState[midR][midC] = capturedPiece;
-                    }
-                }
-            }
-        }
-        return paths;
-    },
-
-    getPieceSimpleMoves(r, c, color, bState, dirY) {
-        const baseColor = color.split('-')[0];
-        const isTawla = bState[r][c] && bState[r][c].endsWith('-tawla');
+    
+    // 🎲 إعداد ساحة الطاولة القياسية (24 مثلث + البار + منطقة الخروج)
+    initStandardTawlaBoard() {
+        // الفهرس من 0 إلى 23 (الأبيض يتحرك من 0 إلى 23، والأسود من 23 إلى 0)
+        let points = Array(24).fill(null).map(() => ({ color: null, count: 0 }));
         
-        let currentDirections = isTawla ? [[0, 1], [0, -1], [1, 0], [-1, 0]] : [[dirY, 0], [0, 1], [0, -1]];
-        let moves = [];
+        // التوزيع القياسي (Standard Backgammon Setup)
+        points[0] = { color: 'white', count: 2 };
+        points[5] = { color: 'black', count: 5 };
+        points[7] = { color: 'black', count: 3 };
+        points[11] = { color: 'white', count: 5 };
+        points[12] = { color: 'black', count: 5 };
+        points[16] = { color: 'white', count: 3 };
+        points[18] = { color: 'white', count: 5 };
+        points[23] = { color: 'black', count: 2 };
 
-        for (const [dr, dc] of currentDirections) {
-            if (isTawla) {
-                let step = 1;
-                while (true) {
-                    const toR = r + dr * step, toC = c + dc * step;
-                    if (!this.isValidPos(toR, toC) || bState[toR][toC] !== null) break;
-                    moves.push([{ fromR: r, fromC: c, toR: toR, toC: toC, midR: null, midC: null }]);
-                    step++;
-                }
+        return {
+            points: points,
+            bar: { white: 0, black: 0 },
+            bearOff: { white: 0, black: 0 }
+        };
+    },
+
+    // 🎲 رمي النرد
+    rollDice() {
+        let d1 = Math.floor(Math.random() * 6) + 1;
+        let d2 = Math.floor(Math.random() * 6) + 1;
+        
+        // إذا كانا متشابهين (دبل)، يحصل اللاعب على 4 حركات
+        let moves = (d1 === d2) ? [d1, d1, d1, d1] : [d1, d2];
+        return { d1, d2, moves };
+    },
+
+    // 🎲 التحقق مما إذا كان اللاعب يستطيع إخراج أحجاره (Bearing Off)
+    canBearOff(color, board) {
+        if (board.bar[color] > 0) return false;
+        
+        let startIdx = color === 'white' ? 0 : 6;
+        let endIdx = color === 'white' ? 17 : 23;
+        
+        // إذا كان هناك أي حجر خارج منطقة المنزل (الربع الأخير)
+        for (let i = startIdx; i <= endIdx; i++) {
+            if (board.points[i].color === color && board.points[i].count > 0) {
+                return false;
+            }
+        }
+        return true;
+    },
+
+    // 🎲 جلب كل الحركات الممكنة لنقطة معينة بناءً على النرد المتبقي
+    getValidMovesForPoint(pointIndex, color, board, diceMoves) {
+        let validMoves = [];
+        let direction = color === 'white' ? 1 : -1;
+        
+        // إذا كان للاعب أحجار في "البار"، يجب عليه تحريكها أولاً
+        let hasBar = board.bar[color] > 0;
+        if (hasBar && pointIndex !== 'bar') return []; // لا يمكن تحريك شيء آخر
+
+        // منع تكرار الحركات إذا كان النرد يحتوي على أرقام متشابهة
+        let uniqueDice = [...new Set(diceMoves)];
+
+        uniqueDice.forEach(die => {
+            let toIndex;
+            
+            // حساب الوجهة
+            if (pointIndex === 'bar') {
+                toIndex = color === 'white' ? die - 1 : 24 - die;
             } else {
-                const toR = r + dr, toC = c + dc;
-                if (this.isValidPos(toR, toC) && bState[toR][toC] === null) {
-                    moves.push([{ fromR: r, fromC: c, toR: toR, toC: toC, midR: null, midC: null }]);
+                toIndex = pointIndex + (die * direction);
+            }
+
+            // حالة 1: الحركة داخل اللوحة
+            if (toIndex >= 0 && toIndex <= 23) {
+                let targetPoint = board.points[toIndex];
+                // يمكن النزول إذا كانت النقطة فارغة، أو بها أحجارنا، أو بها حجر واحد للخصم (Blot)
+                if (targetPoint.color === null || targetPoint.color === color || targetPoint.count <= 1) {
+                    validMoves.push({ to: toIndex, dieUsed: die });
+                }
+            } 
+            // حالة 2: الخروج من اللوحة (Bearing Off)
+            else if ((color === 'white' && toIndex >= 24) || (color === 'black' && toIndex < 0)) {
+                if (this.canBearOff(color, board)) {
+                    // التحقق مما إذا كان الرقم بالضبط يخرج الحجر، أو إذا كان الحجر هو الأبعد ويستخدم رقماً أكبر
+                    let exactExit = color === 'white' ? (toIndex === 24) : (toIndex === -1);
+                    if (exactExit) {
+                        validMoves.push({ to: 'bearOff', dieUsed: die });
+                    } else {
+                        // إذا كان الرقم أكبر من المطلوب، يجب التأكد أنه لا يوجد حجر أبعد منه
+                        let isFarthest = true;
+                        let startPoint = color === 'white' ? 18 : 5;
+                        let step = color === 'white' ? 1 : -1;
+                        for (let i = startPoint; i !== pointIndex; i += step) {
+                            if (board.points[i].color === color && board.points[i].count > 0) {
+                                isFarthest = false; break;
+                            }
+                        }
+                        if (isFarthest) {
+                            validMoves.push({ to: 'bearOff', dieUsed: die });
+                        }
+                    }
                 }
             }
-        }
-        return moves;
-    },
-
-    generateAllTurnMoves(color, bState, activeR = null, activeC = null, activeDr = null, activeDc = null, roomDirectionData = null) {
-        const baseColor = color.split('-')[0];
-        const dirY = this.getPieceDirection(baseColor, bState, roomDirectionData);
-
-        const pieces = [];
-        const hasActive = activeR !== null && activeC !== null;
-
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const piece = bState[r][c];
-
-                if (!piece || !piece.startsWith(baseColor)) {
-                    continue;
-                }
-
-                if (hasActive && (r !== activeR || c !== activeC)) {
-                    continue;
-                }
-
-                pieces.push({
-                    r,
-                    c,
-                    initDr: hasActive ? activeDr : null,
-                    initDc: hasActive ? activeDc : null
-                });
-            }
-        }
-
-        let allCapturePaths = [];
-        let maxJumps = 0;
-
-        for (const piece of pieces) {
-            const paths = this.getPieceCapturePaths(
-                piece.r,
-                piece.c,
-                baseColor,
-                bState,
-                dirY,
-                piece.initDr,
-                piece.initDc,
-                roomDirectionData
-            );
-
-            for (let i = 0; i < paths.length; i++) {
-                const path = paths[i];
-                const jumps = path.length;
-
-                if (jumps > maxJumps) {
-                    maxJumps = jumps;
-                    allCapturePaths = [path];
-                } else if (jumps === maxJumps) {
-                    allCapturePaths.push(path);
-                }
-            }
-        }
-
-        if (maxJumps > 0) {
-            return allCapturePaths;
-        }
-
-        const allSimpleMoves = [];
-
-        for (const piece of pieces) {
-            const moves = this.getPieceSimpleMoves(
-                piece.r,
-                piece.c,
-                baseColor,
-                bState,
-                dirY
-            );
-
-            for (let i = 0; i < moves.length; i++) {
-                allSimpleMoves.push(moves[i]);
-            }
-        }
-
-        return allSimpleMoves;
-    },
-
-    applyPathToBoard(path, bState, roomDirectionData = null) {
-        let newBoard = bState.map(row => [...row]);
-        if (!path || path.length === 0) return newBoard;
-
-        path.forEach(step => {
-            let piece = newBoard[step.fromR][step.fromC];
-            newBoard[step.fromR][step.fromC] = null;
-            if (step.midR !== null && step.midC !== null) newBoard[step.midR][step.midC] = null;
-            newBoard[step.toR][step.toC] = piece;
         });
 
-        const lastStep = path[path.length - 1];
-        let fPiece = newBoard[lastStep.toR][lastStep.toC];
+        return validMoves;
+    },
 
-        if (fPiece && !fPiece.includes('tawla')) {
-            const dirY = this.getPieceDirection(fPiece.split('-')[0], newBoard, roomDirectionData);
-            const promoRow = (dirY === 1) ? 7 : 0;
-            if (lastStep.toR === promoRow) newBoard[lastStep.toR][lastStep.toC] += '-tawla';
+    // 🎲 التحقق مما إذا كان اللاعب يمتلك أي حركة قانونية
+    hasAnyValidMove(color, board, diceMoves) {
+        if (diceMoves.length === 0) return false;
+        
+        if (board.bar[color] > 0) {
+            return this.getValidMovesForPoint('bar', color, board, diceMoves).length > 0;
         }
 
-        return newBoard;
-    },
-
-    hasAnyMove(color, bState, roomDirectionData = null) {
-        return this.generateAllTurnMoves(color, bState, null, null, null, null, roomDirectionData).length > 0;
-    },
-
-    trackPieceHistory(fromR, fromC, toR, toC, color) {
-        if (!gameState.pieceHistories) gameState.pieceHistories = {};
-        
-        let tracker = gameState.pieceHistories[color];
-        if (tracker && tracker.r === fromR && tracker.c === fromC) {
-            tracker.r = toR;
-            tracker.c = toC;
-            tracker.history.push(`${toR},${toC}`);
-        } else {
-            gameState.pieceHistories[color] = {
-                r: toR,
-                c: toC,
-                history: [`${fromR},${fromC}`, `${toR},${toC}`]
-            };
-        }
-    },
-
-    checkIdleDraw(bState, currentTurn, roomDirectionData = null) {
-        if (gameState.movesWithoutProgress >= 50) return true;
-        
-        let wCount = 0, bCount = 0;
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                if (bState[r][c]) {
-                    if (bState[r][c].startsWith('white')) wCount++;
-                    else if (bState[r][c].startsWith('black')) bCount++;
+        for (let i = 0; i < 24; i++) {
+            if (board.points[i].color === color && board.points[i].count > 0) {
+                if (this.getValidMovesForPoint(i, color, board, diceMoves).length > 0) {
+                    return true;
                 }
-            }
-        }
-        
-        if (wCount === 1 && bCount === 1) {
-            let moves = this.generateAllTurnMoves(currentTurn, bState, null, null, null, null, roomDirectionData);
-            let hasCapture = moves.some(path => path.some(step => step.midR !== null && step.midR !== undefined));
-            if (!hasCapture) {
-                return true; 
             }
         }
         return false;
     },
 
-    checkRepetitionAndStalling(color) {
-        if (gameState.movesWithoutProgress === 0) {
-            gameState.pieceHistories = {};
-            return 0;
+    // 🎲 تنفيذ الحركة وتحديث اللوحة
+    executeMove(from, to, color, board) {
+        let isHit = false;
+
+        // إزالة الحجر من المصدر
+        if (from === 'bar') {
+            board.bar[color]--;
+        } else {
+            board.points[from].count--;
+            if (board.points[from].count === 0) board.points[from].color = null;
         }
 
-        if (!gameState.pieceHistories || !gameState.pieceHistories[color]) return 0;
-        
-        let tracker = gameState.pieceHistories[color];
-        let counts = {};
-        let maxRep = 0;
-        
-        for (let pos of tracker.history) {
-            counts[pos] = (counts[pos] || 0) + 1;
-            if (counts[pos] > maxRep) {
-                maxRep = counts[pos];
+        // وضع الحجر في الوجهة
+        if (to === 'bearOff') {
+            board.bearOff[color]++;
+        } else {
+            let targetPoint = board.points[to];
+            // ضرب حجر الخصم (Hit a blot)
+            if (targetPoint.color !== null && targetPoint.color !== color && targetPoint.count === 1) {
+                board.bar[targetPoint.color]++;
+                targetPoint.count = 1;
+                targetPoint.color = color;
+                isHit = true;
+            } else {
+                targetPoint.count++;
+                targetPoint.color = color;
             }
         }
-
-        return maxRep; 
+        return isHit;
     },
 
-    checkGameOver(bState, isSimulation = false) {
-        if (!this.hasAnyMove('white', bState)) { if (!isSimulation) this.endGame('black'); return 'black'; }
-        if (!this.hasAnyMove('black', bState)) { if (!isSimulation) this.endGame('white'); return 'white'; }
+    // 🎲 إنهاء اللعبة عند خروج 15 حجر
+    checkGameOver(board) {
+        if (board.bearOff['white'] === 15) return 'white';
+        if (board.bearOff['black'] === 15) return 'black';
         return null;
-    },
-
-    handleSurrender(surrenderingColor) {
-        const winnerColor = (surrenderingColor === 'white') ? 'black' : 'white';
-        this.endGame(winnerColor);
-    },
-
-    endGame(winnerColor) {
-        if (gameState.isUpdatingStats || gameState.statsUpdated) return;
-        gameState.isUpdatingStats = true; gameState.isGameOver = true; gameState.isGameActive = false;
-        
-        if (winnerColor !== 'draw' && !gameState.isBotOpponent) { 
-            this.updateUserStats(winnerColor); 
-        }
-        
-        gameState.statsUpdated = true; gameState.isUpdatingStats = false; 
-
-        if (window.questsManager && !gameState.isTutorialMode && !gameState.isSpectator) {
-            const mode = gameState.isOnlineMode ? 'online' : 'bot';
-            window.questsManager.updateProgress('play', 1, mode); 
-            const myColor = gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor;
-            if (winnerColor === myColor) {
-                window.questsManager.updateProgress('win', 1, mode); 
-            }
-        }
-
-        const ui = typeof window !== 'undefined' ? window.ui : null;
-        if (ui && typeof ui.showOnlineResultsModal === 'function') { ui.showOnlineResultsModal(winnerColor); } 
-        else if (ui && typeof ui.showResultsModal === 'function') { ui.showResultsModal(winnerColor); }
-
-        if (gameState.isOnlineMode && gameState.onlineRoomID && typeof window !== 'undefined' && window.socket) {
-            window.socket.emit('matchEnded', { roomID: String(gameState.onlineRoomID).trim(), winner: winnerColor });
-        }
-    },
-
-    updateUserStats(winnerColor) {
-        if (gameState.isBotOpponent) return; 
-
-        const ui = typeof window !== 'undefined' ? window.ui : null;
-        if (ui && typeof ui.updateUserStats === 'function') {
-            const myColor = gameState.myOnlineColor || gameState.playerColor;
-            ui.updateUserStats(winnerColor === myColor);
-        }
-    },
-
-    closeResultsMenu() {
-        const ui = typeof window !== 'undefined' ? window.ui : null;
-        if (ui && typeof ui.hideOnlineResultsModal === 'function') { ui.hideOnlineResultsModal(); } 
-        else if (ui && typeof ui.closeModal === 'function') { ui.closeModal(); }
-    },
-
-    resetGame() {
-        const ui = typeof window !== 'undefined' ? window.ui : null;
-        if (ui && typeof ui.initBoard === 'function') { ui.initBoard(); }
-        gameState.currentTurn = 'white'; gameState.isGameOver = false; gameState.isGameActive = true; 
-        gameState.statsUpdated = false; gameState.isUpdatingStats = false; gameState.selectedPiece = null;
-
-        if (ui) {
-            if (typeof ui.clearHighlights === 'function') ui.clearHighlights();
-            if (typeof ui.hideOnlineResultsModal === 'function') ui.hideOnlineResultsModal();
-        }
     }
 };
 
