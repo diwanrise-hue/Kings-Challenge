@@ -926,7 +926,7 @@ export const ui = {
                 let q = (i>=0 && i<=5) ? 'quad-tr' : (i>=6 && i<=11) ? 'quad-tl' : (i>=12 && i<=17) ? 'quad-bl' : 'quad-br';
                 let pointDiv = document.createElement('div');
                 pointDiv.className = 'point'; pointDiv.dataset.index = i;
-                pointDiv.style.cssText = `width: 16.6%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
+                pointDiv.style.cssText = `width: 16.6%; height: 100%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
                 document.getElementById(q).appendChild(pointDiv);
             }
             
