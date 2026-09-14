@@ -84,16 +84,15 @@ window.TITLES_DB = TITLES_DB;
 // 🎵 المؤثرات الصوتية
 // ==========================================
 export const sfx = {
-    move: new Audio('move.mp3'),
-    piecesDied: new Audio('pieces_died.mp3'),
-    kingDied: new Audio('king_died.mp3'),
-    kingCreated: new Audio('king_created.mp3'),
-    win: new Audio('win.mp3'),
-    clock: new Audio('clock.mp3'),
-    spinTick: new Audio('spin_tick.mp3'),
-    // 🌟 إضافة صوت جمع العملات الجديد بالمسار المباشر 🌟
-    coinsCollect: new Audio('https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/Sounds/coinscollect.mp3')
+    move: new Audio('Media/Sounds/move.mp3'),
+    piecesDied: new Audio('Media/Sounds/pieces_died.mp3'), 
+    kingCreated: new Audio('Media/Sounds/king_created.mp3'), 
+    win: new Audio('Media/Sounds/win.mp3'),
+    clock: new Audio('Media/Sounds/clock.mp3'),
+    spinTick: new Audio('Media/Sounds/spin_tick.mp3'),
+    coinsCollect: new Audio('Media/Sounds/coinscollect.mp3') 
 };
+
 // 🌟 تحديد مستوى صوت العملات ليكون واضحاً
 sfx.coinsCollect.volume = 0.8;
 
