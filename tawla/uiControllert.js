@@ -984,8 +984,7 @@ export const ui = {
 
     },
 
-
-      updateDiceUI() {
+          updateDiceUI(isNewRoll = false) {
         const d1El = this.getEl('die1'); const d2El = this.getEl('die2');
         if(!d1El || !d2El) return;
         
@@ -998,12 +997,23 @@ export const ui = {
         let showD1 = gameState.currentDice.length > 0;
         let showD2 = gameState.currentDice.length > 1;
 
+        // إذا كانت رمية جديدة، قم بإعادة تشغيل حركة "الرمي والدوران"
+        if (isNewRoll) {
+            d1El.classList.remove('rolling-dice'); d2El.classList.remove('rolling-dice');
+            void d1El.offsetWidth; void d2El.offsetWidth; // سحر برمجي لإجبار المتصفح على إعادة الحركة
+            
+            // تأخير بسيط للنرد الثاني ليبدو وكأنهما رُميا معاً ولكن بشكل غير متطابق 100%
+            d1El.classList.add('rolling-dice');
+            setTimeout(() => d2El.classList.add('rolling-dice'), 50);
+        }
+
         if (showD1) { d1El.style.display = 'flex'; d1El.textContent = faces[gameState.currentDice[0] - 1]; } 
         else { d1El.style.display = 'none'; }
         
         if (showD2) { d2El.style.display = 'flex'; d2El.textContent = faces[gameState.currentDice[1] - 1]; } 
         else { d2El.style.display = 'none'; }
     },
+
 
         drawEmptyBoard() {
         gameState.gameId = Date.now();
