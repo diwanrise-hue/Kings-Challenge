@@ -1166,7 +1166,8 @@ export const ui = {
             gameState.currentDice = d1 === d2 ? [d1, d1, d1, d1] : [d1, d2];
         }
 
-        this.updateDiceUI();
+        // تمرير true يخبر الدالة أن هذه رمية جديدة فيجب تشغيل حركة الدوران  
+           this.updateDiceUI(true); 
 
         if (gameState.isSpectator) {
             tInd.textContent = gameState.currentTurn === 'white' ? "دور الأبيض ⚪" : "دور الأسود ⚫";
