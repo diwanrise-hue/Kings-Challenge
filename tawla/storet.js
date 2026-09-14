@@ -590,9 +590,10 @@ export const storeManager = {
             }
             
             board.style.setProperty('position', 'relative', 'important');
-            board.style.setProperty('left', '50%', 'important');
-            board.style.setProperty('transform', 'translateX(-50%)', 'important');
+            board.style.setProperty('left', 'auo', 'important');
+            board.style.setProperty('transform', 'none', 'important');
             board.style.setProperty('box-sizing', 'border-box', 'important');
+
 
             let el = board.parentElement;
             while (el && el.tagName !== 'BODY' && el.tagName !== 'HTML') {
