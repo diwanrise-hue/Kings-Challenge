@@ -590,8 +590,9 @@ export const storeManager = {
             }
             
             board.style.setProperty('position', 'relative', 'important');
-            board.style.setProperty('left', 'auo', 'important');
-            board.style.setProperty('transform', 'none', 'important');
+            board.style.setProperty('margin', '50px auto', 'important'); // مساحة للأشرطة
+            board.style.removeProperty('left');      // إزالة سبب التعارض
+            board.style.removeProperty('transform'); // إزالة سبب التعارض
             board.style.setProperty('box-sizing', 'border-box', 'important');
 
 
@@ -724,17 +725,17 @@ export const storeManager = {
         let styleEl = document.getElementById('dynamic-frame-css');
         if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-frame-css'; document.head.appendChild(styleEl); }
 
-        if (item.customCSS) {
-            // 🛡️ فلترة الكود لمنع الإطارات من إزاحة الطاولة وتخريب الأشرطة 🛡️
-            let safeCSS = item.customCSS
-                .replace(/left:\s*50%\s*!important;/g, 'left: auto !important;')
-                .replace(/transform:\s*translateX\(-50%\)\s*!important;/g, 'transform: none !important;')
-                .replace(/margin:\s*0\s*!important;/g, 'margin: 55px auto !important;');
-                
-            styleEl.innerHTML = safeCSS;
+         if (item.customCSS) {
+            // إزالة الأسطر المتعارضة من قاعدة بيانات الإطارات من المصدر
+            let cleanCSS = item.customCSS
+                .replace(/left:\s*50%\s*!important;/g, '')
+                .replace(/transform:\s*translateX\(-50%\)\s*!important;/g, '')
+                .replace(/margin:\s*0\s*!important;/g, 'margin: 50px auto !important;');
+            styleEl.innerHTML = cleanCSS;
         } else {
             styleEl.innerHTML = '';
         }
+
     },
 
 
