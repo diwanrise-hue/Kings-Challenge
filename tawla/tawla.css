@@ -1832,8 +1832,8 @@ body.online-mode-active .game-container {
     
     /* 👇 الإضافات الجديدة لمنع القص والانزياح 👇 */
     box-sizing: border-box !important;
-    left: 0 !important;
-    right: 0 !important;
+    left: auto !important;
+    right: auto !important;
     transform: none !important;
     margin-left: auto !important;
     margin-right: auto !important;
