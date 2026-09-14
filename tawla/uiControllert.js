@@ -931,12 +931,20 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-            if(!document.getElementById('bear-off-zone')) {
-                let bo = document.createElement('div'); bo.id = 'bear-off-zone'; bo.className = 'bear-off-zone';
-                bo.style.cssText = "position:absolute; right:-50px; top:0; bottom:0; width:40px; background:#4A2E1B; border:4px solid #5C3A21; border-radius:8px; display:flex; flex-direction:column; justify-content:space-between; padding:5px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20;";
-                bo.innerHTML = `<div id="out-white" style="display:flex; flex-direction:column; align-items:center;"></div><div id="out-black" style="display:flex; flex-direction:column-reverse; align-items:center;"></div>`;
-                board.appendChild(bo);
+            if(!document.getElementById('bear-off-top')) {
+                // شريط إخراج الأحجار العلوي
+                let boTop = document.createElement('div'); boTop.id = 'bear-off-top'; boTop.className = 'bear-off-zone';
+                boTop.style.cssText = "position:absolute; top:-50px; left:0; right:0; height:42px; background:#4A2E1B; border:3px solid #5C3A21; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20;";
+                boTop.innerHTML = `<div id="out-white" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
+                board.appendChild(boTop);
+
+                // شريط إخراج الأحجار السفلي
+                let boBottom = document.createElement('div'); boBottom.id = 'bear-off-bottom'; boBottom.className = 'bear-off-zone';
+                boBottom.style.cssText = "position:absolute; bottom:-50px; left:0; right:0; height:42px; background:#4A2E1B; border:3px solid #5C3A21; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20;";
+                boBottom.innerHTML = `<div id="out-black" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
+                board.appendChild(boBottom);
             }
+
         }
 
         if(!gameState.virtualBoard || !gameState.virtualBoard.points) return;
@@ -960,7 +968,23 @@ export const ui = {
         for(let c=0; c<gameState.virtualBoard.bar.white; c++) document.getElementById('bar-white').appendChild(this.makeEl('div', 'piece white'));
         for(let c=0; c<gameState.virtualBoard.bar.black; c++) document.getElementById('bar-black').appendChild(this.makeEl('div', 'piece black'));
         
+        // إضافة الأحجار التي تم إخراجها (Bearing Off) بشكل أفقي متداخل
+        let outW = gameState.virtualBoard.out?.white || gameState.virtualBoard.bearOff?.white || 0;
+        for(let c = 0; c < outW; c++) {
+            let p = document.createElement('div'); p.className = 'piece white';
+            p.style.cssText = `width:32px !important; height:32px !important; min-width:32px; min-height:32px; margin-left:${c===0?'0':'-18px'}; position:relative; z-index:${c}; box-shadow: -2px 0 5px rgba(0,0,0,0.5);`;
+            document.getElementById('out-white').appendChild(p);
+        }
+
+        let outB = gameState.virtualBoard.out?.black || gameState.virtualBoard.bearOff?.black || 0;
+        for(let c = 0; c < outB; c++) {
+            let p = document.createElement('div'); p.className = 'piece black';
+            p.style.cssText = `width:32px !important; height:32px !important; min-width:32px; min-height:32px; margin-left:${c===0?'0':'-18px'}; position:relative; z-index:${c}; box-shadow: -2px 0 5px rgba(0,0,0,0.5);`;
+            document.getElementById('out-black').appendChild(p);
+        }
+
         this.updateScoreboard();
+
     },
 
 
@@ -2915,24 +2939,27 @@ ui.onClick('tawla-board', e => {
     }
 });
 
-ui.onClick('bear-off-zone', e => {
+const handleBearOffClick = e => {
     if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
     if (gameState.selectedPoint !== null && gameState.selectedPoint !== undefined) {
         let validDests = gameEngine.getValidDestinations(gameState.virtualBoard, gameState.playerColor, gameState.selectedPoint, gameState.currentDice);
-        let dest = validDests.find(d => d.to === 'out');
+        let dest = validDests.find(d => d.to === 'out' || d.to === 'bearOff');
         if (dest) {
-            gameState.virtualBoard = gameEngine.applyMoveToBoard({from: gameState.selectedPoint, to: 'out', isHit: false}, gameState.virtualBoard);
+            gameState.virtualBoard = gameEngine.applyMoveToBoard({from: gameState.selectedPoint, to: dest.to, isHit: false}, gameState.virtualBoard);
             let dieIdx = gameState.currentDice.indexOf(dest.dieUsed);
             if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
             ui.playSound(sfx.move);
             
             if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                socketManager.sendMoveToServer(gameState.selectedPoint, 'out', dest.dieUsed, gameState.currentTurn);
+                socketManager.sendMoveToServer(gameState.selectedPoint, dest.to, dest.dieUsed, gameState.currentTurn);
             }
             checkTurnEnd();
         }
     }
-});
+};
+
+ui.onClick('bear-off-top', handleBearOffClick);
+ui.onClick('bear-off-bottom', handleBearOffClick);
 
 function checkTurnEnd() {
     ui.clearHighlights(); gameState.selectedPoint = null; ui.renderBoard();
