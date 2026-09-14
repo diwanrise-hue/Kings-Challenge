@@ -905,6 +905,65 @@ export const ui = {
         }
     },
 
+    
+
+        renderBoard(forceRebuild = false) {
+        const board = this.getEl('tawla-board');
+        if (!board) return;
+        
+        if (board.children.length === 0 || forceRebuild) {
+            board.innerHTML = `
+                <div class="board-quadrant top-left" id="quad-tl" style="flex-direction: row-reverse;"></div>
+                <div class="board-quadrant top-right" id="quad-tr" style="flex-direction: row-reverse;"></div>
+                <div class="board-quadrant bottom-left" id="quad-bl"></div>
+                <div class="board-quadrant bottom-right" id="quad-br"></div>
+                <div class="tawla-bar" id="tawla-bar" style="display:flex; flex-direction:column; justify-content:space-between; padding: 10px 0;">
+                    <div id="bar-white" data-index="bar-white" style="flex:1; display:flex; flex-direction:column; align-items:center; cursor:pointer;"></div>
+                    <div id="bar-black" data-index="bar-black" style="flex:1; display:flex; flex-direction:column-reverse; align-items:center; cursor:pointer;"></div>
+                </div>
+            `;
+            
+            for(let i=0; i<24; i++) {
+                let q = (i>=0 && i<=5) ? 'quad-tr' : (i>=6 && i<=11) ? 'quad-tl' : (i>=12 && i<=17) ? 'quad-bl' : 'quad-br';
+                let pointDiv = document.createElement('div');
+                pointDiv.className = 'point'; pointDiv.dataset.index = i;
+                pointDiv.style.cssText = `width: 16.6%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
+                document.getElementById(q).appendChild(pointDiv);
+            }
+            
+            if(!document.getElementById('bear-off-zone')) {
+                let bo = document.createElement('div'); bo.id = 'bear-off-zone'; bo.className = 'bear-off-zone';
+                bo.style.cssText = "position:absolute; right:-50px; top:0; bottom:0; width:40px; background:#4A2E1B; border:4px solid #5C3A21; border-radius:8px; display:flex; flex-direction:column; justify-content:space-between; padding:5px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20;";
+                bo.innerHTML = `<div id="out-white" style="display:flex; flex-direction:column; align-items:center;"></div><div id="out-black" style="display:flex; flex-direction:column-reverse; align-items:center;"></div>`;
+                board.appendChild(bo);
+            }
+        }
+
+        if(!gameState.virtualBoard || !gameState.virtualBoard.points) return;
+        
+        for(let i=0; i<24; i++) { let pt = board.querySelector(`.point[data-index="${i}"]`); if(pt) pt.innerHTML = ''; }
+        document.getElementById('bar-white').innerHTML = ''; document.getElementById('bar-black').innerHTML = '';
+        document.getElementById('out-white').innerHTML = ''; document.getElementById('out-black').innerHTML = '';
+
+        gameState.virtualBoard.points.forEach((pt, i) => {
+            if(pt.count > 0) {
+                let pointDiv = board.querySelector(`.point[data-index="${i}"]`);
+                for(let c=0; c<pt.count; c++) {
+                    let piece = document.createElement('div'); piece.className = `piece ${pt.color}`;
+                    if(c > 4) piece.style.marginTop = '-25px'; 
+                    if(i >= 12 && c > 4) { piece.style.marginTop = '0'; piece.style.marginBottom = '-25px'; }
+                    pointDiv.appendChild(piece);
+                }
+            }
+        });
+
+        for(let c=0; c<gameState.virtualBoard.bar.white; c++) document.getElementById('bar-white').appendChild(this.makeEl('div', 'piece white'));
+        for(let c=0; c<gameState.virtualBoard.bar.black; c++) document.getElementById('bar-black').appendChild(this.makeEl('div', 'piece black'));
+        
+        this.updateScoreboard();
+    },
+
+
       updateDiceUI() {
         const d1El = this.getEl('die1'); const d2El = this.getEl('die2');
         if(!d1El || !d2El) return;
