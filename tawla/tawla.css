@@ -96,7 +96,19 @@ body {
 .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
 
 /* تصميم القطع الأساسية للطاولة */
-.piece { width: 80%; height: 80%; border-radius: 50%; cursor: pointer; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.4s, border 0.4s; display: flex; align-items: center; justify-content: center; position: relative; }
+.piece { 
+    width: 85%; 
+    height: auto; 
+    aspect-ratio: 1 / 1; /* يجبر الحجر أن يكون دائرة مثالية دائماً */
+    border-radius: 50%; 
+    cursor: pointer; 
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2); 
+    transition: transform 0.2s, background 0.4s, border 0.4s; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    position: relative; 
+}
 .piece::before { content: ''; position: absolute; width: 45%; height: 45%; border-radius: 50%; pointer-events: none; border: 1px solid rgba(0,0,0,0.1); }
 .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6); border: 1px solid #bdc3c7; }
 .piece.white::before { background-color: rgba(0, 0, 0, 0.15); }
@@ -1796,13 +1808,15 @@ body.online-mode-active .game-container {
     align-items: stretch;
     justify-content: center;
     width: 95vw;
-    max-width: 460px;
-    aspect-ratio: 0.8 / 1;
+    max-width: 500px;
+    aspect-ratio: 1.3 / 1; /* تحويل الساحة للشكل الأفقي */
     gap: 5px;
     margin: 0 auto;
 }
 
 #tawla-board {
+    margin-top: 55px !important;
+    margin-bottom: 55px !important;
     display: grid;
     grid-template-columns: 1fr 1fr; /* قسمين يفصل بينهما البار */
     grid-template-rows: 1fr 1fr;
@@ -1959,4 +1973,3 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 .tawla-point .piece:first-child {
     margin-top: 0;
 }
-
