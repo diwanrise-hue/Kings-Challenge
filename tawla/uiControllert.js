@@ -931,16 +931,16 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-            if(!document.getElementById('bear-off-top')) {
-                // شريط إخراج الأحجار العلوي
-                let boTop = document.createElement('div'); boTop.id = 'bear-off-top'; boTop.className = 'bear-off-zone';
-                boTop.style.cssText = "position:absolute; top:-50px; left:0; right:0; height:42px; background:#4A2E1B; border:3px solid #5C3A21; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20;";
+               if(!document.getElementById('bear-off-top')) {
+                // شريط إخراج الأحجار العلوي (نظيف وبدون كلاسات قديمة متعارضة)
+                let boTop = document.createElement('div'); boTop.id = 'bear-off-top';
+                boTop.style.cssText = "position:absolute; top:-48px; left:0; width:100%; height:42px; background:#4A2E1B; border:3px solid #5C3A21; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20; box-sizing:border-box;";
                 boTop.innerHTML = `<div id="out-white" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
                 board.appendChild(boTop);
 
                 // شريط إخراج الأحجار السفلي
-                let boBottom = document.createElement('div'); boBottom.id = 'bear-off-bottom'; boBottom.className = 'bear-off-zone';
-                boBottom.style.cssText = "position:absolute; bottom:-50px; left:0; right:0; height:42px; background:#4A2E1B; border:3px solid #5C3A21; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20;";
+                let boBottom = document.createElement('div'); boBottom.id = 'bear-off-bottom';
+                boBottom.style.cssText = "position:absolute; bottom:-48px; left:0; width:100%; height:42px; background:#4A2E1B; border:3px solid #5C3A21; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20; box-sizing:border-box;";
                 boBottom.innerHTML = `<div id="out-black" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
                 board.appendChild(boBottom);
             }
