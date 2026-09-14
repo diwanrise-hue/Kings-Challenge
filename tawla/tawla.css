@@ -1803,42 +1803,34 @@ body.online-mode-active .game-container {
 /* ========================================== */
 /* 🎲 إضافات لوحة الطاولة (Tawla Board Layout) 🎲 */
 /* ========================================== */
-.tawla-container {
+..tawla-container {
     display: flex;
-    align-items: stretch;
+    align-items: center;
     justify-content: center;
     width: 95vw;
     max-width: 500px;
-    aspect-ratio: 1 / 1; /* تحويل الساحة للشكل الأفقي */
-    gap: 5px;
+    aspect-ratio: 1 / 1;
     margin: 0 auto;
 }
 
 #tawla-board {
-    margin-top: 55px !important;
-    margin-bottom: 55px !important;
     display: grid;
     grid-template-columns: 1fr 1fr; /* قسمين يفصل بينهما البار */
     grid-template-rows: 1fr 1fr;
-    width: 100% !important;
-    height: 100% !important;
+    width: 100%;
+    height: 100%;
     background-color: #3e2723;
-    border: 12px solid transparent !important;
+    border: 12px solid transparent;
     border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.9) !important;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
     filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
     gap: 10px;
-    position: relative !important;
-    
-    /* 👇 الإضافات الجديدة لمنع القص والانزياح 👇 */
-    box-sizing: border-box !important;
-    left: auto !important;
-    right: auto !important;
-    transform: none !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    position: relative;
+    margin: 50px auto; /* مساحة للأشرطة العلوية والسفلية مع التمركز التلقائي */
+    box-sizing: border-box;
     transition: all 0.5s ease;
 }
+
 
 .board-quadrant {
     display: flex;
