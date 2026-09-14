@@ -984,7 +984,7 @@ export const ui = {
 
     },
 
-          updateDiceUI(isNewRoll = false) {
+       updateDiceUI(isNewRoll = false) {
         const d1El = this.getEl('die1'); const d2El = this.getEl('die2');
         if(!d1El || !d2El) return;
         
@@ -993,28 +993,37 @@ export const ui = {
             return;
         }
 
-        const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
         let showD1 = gameState.currentDice.length > 0;
         let showD2 = gameState.currentDice.length > 1;
 
-        // إذا كانت رمية جديدة، قم بإعادة تشغيل حركة "الرمي والدوران"
+        // دالة مساعدة لإنشاء دوائر النقاط (Pips)
+        const createPips = (num) => {
+            let html = '';
+            for(let i=0; i<num; i++) html += '<span class="pip"></span>';
+            return html;
+        };
+
         if (isNewRoll) {
             d1El.classList.remove('rolling-dice'); d2El.classList.remove('rolling-dice');
-            void d1El.offsetWidth; void d2El.offsetWidth; // سحر برمجي لإجبار المتصفح على إعادة الحركة
-            
-            // تأخير بسيط للنرد الثاني ليبدو وكأنهما رُميا معاً ولكن بشكل غير متطابق 100%
+            void d1El.offsetWidth; void d2El.offsetWidth; 
             d1El.classList.add('rolling-dice');
             setTimeout(() => d2El.classList.add('rolling-dice'), 50);
         }
 
-        if (showD1) { d1El.style.display = 'flex'; d1El.textContent = faces[gameState.currentDice[0] - 1]; } 
-        else { d1El.style.display = 'none'; }
+        // رسم النرد الأول وتحديد الوجه
+        if (showD1) { 
+            d1El.style.display = 'grid'; 
+            d1El.className = `tawla-die face-${gameState.currentDice[0]} ${isNewRoll ? 'rolling-dice' : ''}`;
+            d1El.innerHTML = createPips(gameState.currentDice[0]);
+        } else { d1El.style.display = 'none'; }
         
-        if (showD2) { d2El.style.display = 'flex'; d2El.textContent = faces[gameState.currentDice[1] - 1]; } 
-        else { d2El.style.display = 'none'; }
+        // رسم النرد الثاني وتحديد الوجه
+        if (showD2) { 
+            d2El.style.display = 'grid'; 
+            d2El.className = `tawla-die face-${gameState.currentDice[1]} ${isNewRoll ? 'rolling-dice' : ''}`;
+            d2El.innerHTML = createPips(gameState.currentDice[1]);
+        } else { d2El.style.display = 'none'; }
     },
-
-
         drawEmptyBoard() {
         gameState.gameId = Date.now();
         if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
