@@ -1959,3 +1959,108 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 .tawla-point .piece:first-child {
     margin-top: 0;
 }
+
+/* ========================================== */
+/* 📱 نظام الوضع الأفقي (Landscape Mode)      */
+/* ========================================== */
+
+/* 1. إعدادات شاشة التدوير (تظهر فقط في الوضع العمودي) */
+#force-landscape-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100dvh;
+    background: #0f1015;
+    z-index: 999999999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ffd700;
+    text-align: center;
+}
+.phone-rotate-icon { font-size: 90px; animation: rotatePhoneAnim 1.5s infinite ease-in-out; }
+@keyframes rotatePhoneAnim {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(-90deg); }
+    100% { transform: rotate(-90deg); }
+}
+
+/* إذا كان الهاتف عمودي (Portrait) -> أخفِ اللعبة وأظهر التنبيه */
+@media screen and (orientation: portrait) {
+    #force-landscape-overlay { display: flex !important; }
+    body > div:not(#force-landscape-overlay):not(.modal-overlay) { display: none !important; }
+}
+
+/* 2. إعادة بناء اللعبة لتناسب الشاشة بالعرض (Landscape) */
+@media screen and (orientation: landscape) {
+    body, body.online-mode-active {
+        flex-direction: row !important; /* تحويل النظام لصف أفقي */
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* --- القسم الأيسر: معلومات اللاعبين --- */
+    #status-area {
+        width: 22vw !important; /* يأخذ 22% من عرض الشاشة */
+        height: 100dvh !important;
+        margin: 0 !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        background: rgba(15, 18, 25, 0.8) !important;
+        border-left: 1px solid rgba(212, 175, 55, 0.2);
+        order: 1 !important; /* الترتيب الأول على اليسار */
+    }
+
+    #match-players-card {
+        flex-direction: column !important; /* وضع اللاعبين فوق بعض */
+        gap: 15px !important;
+        width: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* --- القسم الأوسط: الطاولة --- */
+    .game-container {
+        flex: 1 !important; /* يأخذ باقي المساحة المتاحة */
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        order: 2 !important;
+    }
+
+    #tawla-board-wrapper, .tawla-container {
+        width: auto !important;
+        height: 90dvh !important; /* يملأ 90% من ارتفاع الشاشة */
+        max-width: none !important;
+        aspect-ratio: 1.3 / 1 !important; /* شكل مستطيل أفقي للطاولة */
+        margin: 0 !important;
+    }
+
+    /* --- القسم الأيمن: أزرار التحكم --- */
+    .control-panel {
+        position: relative !important;
+        width: 15vw !important;
+        height: 100dvh !important;
+        flex-direction: column !important; /* ترتيب الأزرار عمودياً */
+        justify-content: center !important;
+        border-radius: 0 !important;
+        border-top: none !important;
+        border-right: 1px solid rgba(212, 175, 55, 0.2) !important;
+        background: rgba(24, 23, 29, 0.95) !important;
+        order: 3 !important;
+    }
+
+    .control-panel button {
+        width: 90% !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* تصغير البروفايل قليلاً ليناسب الزاوية */
+    #profile-badge.profile-badge-container {
+        top: 10px !important;
+        transform: scale(0.65) !important;
+    }
+}
+
