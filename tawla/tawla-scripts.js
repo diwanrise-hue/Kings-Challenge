@@ -986,3 +986,19 @@ window.confirmSpectatorBet = function() {
         }
     });
 })();
+// تفعيل الوضع الأفقي وملء الشاشة التلقائي عند أول لمسة
+function autoLockLandscape() {
+    let de = document.documentElement;
+    if (de.requestFullscreen) {
+        de.requestFullscreen().then(() => {
+            if (screen.orientation && screen.orientation.lock) {
+                // قفل الشاشة بالعرض
+                screen.orientation.lock('landscape').catch(e => console.log("تم منع قفل الشاشة", e));
+            }
+        }).catch(e => console.log("تم منع ملء الشاشة", e));
+    }
+}
+
+// تنفيذ الدالة مرة واحدة فقط عند النقر أو اللمس في أي مكان بالصفحة
+document.addEventListener('click', autoLockLandscape, { once: true });
+document.addEventListener('touchstart', autoLockLandscape, { once: true });
