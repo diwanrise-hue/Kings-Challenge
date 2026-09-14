@@ -594,15 +594,16 @@
         </div>
     </div>
     
-    <!-- 🎲 حاوية الطاولة الجديدة بدلاً من شبكة الدامة 🎲 -->
+        <!-- 🎲 حاوية الطاولة الجديدة بدلاً من شبكة الدامة 🎲 -->
     <div class="game-container" style="flex-direction: column;">
         <div id="tawla-board-wrapper" style="position: relative; width: 95vw; max-width: 500px; aspect-ratio: 1 / 1;">
             <div id="tawla-board"></div> 
-        </div>
-        <!-- النرد الخاص بالطاولة -->
-        <div id="dice-container" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; height: 50px;">
-            <div id="die1" class="tawla-die" style="display: none; font-size: 38px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">🎲</div>
-            <div id="die2" class="tawla-die" style="display: none; font-size: 38px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">🎲</div>
+            
+            <!-- 🎲 النرد: تم نقله ليكون فوق الطاولة مباشرة 🎲 -->
+            <div id="dice-container" style="position: absolute; top: 50%; right: 25%; transform: translate(50%, -50%); display: flex; justify-content: center; align-items: center; gap: 8px; z-index: 50; pointer-events: none;">
+                <div id="die1" class="tawla-die" style="display: none;"></div>
+                <div id="die2" class="tawla-die" style="display: none;"></div>
+            </div>
         </div>
     </div>
 
@@ -1876,4 +1877,4 @@
     </script>
   
 </body>
-                                </html>
+ </html>
