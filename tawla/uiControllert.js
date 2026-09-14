@@ -1173,7 +1173,7 @@ export const ui = {
         
         this.startTurnTimer();
 
-        if (!gameEngine.hasAnyMove(gameState.currentTurn, gameState.virtualBoard, gameState.currentDice)) {
+        if (!gameEngine.hasAnyValidMove(gameState.currentTurn, gameState.virtualBoard, gameState.currentDice)) {
             if (gameState.isOnlineMode) return; 
             setTimeout(() => {
                 ui.showCustomAlert("لا توجد حركات متاحة، انتقال الدور.");
@@ -1210,7 +1210,7 @@ export const ui = {
         let winner = gameEngine.checkGameOver(gameState.virtualBoard);
         if (winner) return;
 
-        if (gameState.currentDice.length === 0 || !gameEngine.hasAnyMove(aiColor, gameState.virtualBoard, gameState.currentDice)) {
+        if (gameState.currentDice.length === 0 || !gameEngine.hasAnyValidMove(aiColor, gameState.virtualBoard, gameState.currentDice)) {
             gameState.currentTurn = gameState.playerColor; gameState.currentDice = [];
             setTimeout(() => this.startTurn(), 800);
         } else { setTimeout(() => this.triggerComputerMove(), 800); }
@@ -2911,26 +2911,31 @@ ui.onClick('tawla-board', e => {
             }
             
             gameState.selectedPoint = index;
-            let validDests = gameEngine.getValidDestinations(gameState.virtualBoard, gameState.playerColor, index, gameState.currentDice);
+            // استخدام الدالة الجديدة الخاصة بالطاولة
+            let validDests = gameEngine.getValidMovesForPoint(index, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
             validDests.forEach(d => {
-                if (d.to === 'out') { const bearOff = document.getElementById('bear-off-zone'); if (bearOff) bearOff.classList.add('highlight'); } 
+                if (d.to === 'bearOff') { 
+                    const bearOff = document.getElementById(gameState.playerColor === 'white' ? 'bear-off-top' : 'bear-off-bottom'); 
+                    if (bearOff) bearOff.classList.add('highlight'); 
+                } 
                 else { let pt = document.querySelector(`.point[data-index="${d.to}"]`); if(pt) pt.classList.add('highlight'); }
             });
             target.classList.add('selected-point');
         }
     } 
     else {
-        let validDests = gameEngine.getValidDestinations(gameState.virtualBoard, gameState.playerColor, gameState.selectedPoint, gameState.currentDice);
+        let validDests = gameEngine.getValidMovesForPoint(gameState.selectedPoint, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
         let dest = validDests.find(d => d.to === index);
         
         if (dest) {
-            gameState.virtualBoard = gameEngine.applyMoveToBoard({from: gameState.selectedPoint, to: index, isHit: dest.isHit}, gameState.virtualBoard);
+            // تنفيذ الحركة باستخدام المحرك الجديد
+            let isHit = gameEngine.executeMove(gameState.selectedPoint, index, gameState.playerColor, gameState.virtualBoard);
             let dieIdx = gameState.currentDice.indexOf(dest.dieUsed);
             if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
             
-            ui.playSound(dest.isHit ? sfx.piecesDied : sfx.move);
+            ui.playSound(isHit ? sfx.piecesDied : sfx.move);
             if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                socketManager.sendMoveToServer(gameState.selectedPoint, index, dest.dieUsed, gameState.currentTurn);
+                socketManager.sendMoveToServer(gameState.virtualBoard, gameState.currentTurn, gameState.currentDice);
             }
             checkTurnEnd();
         } else { ui.clearHighlights(); gameState.selectedPoint = null; }
@@ -2940,16 +2945,16 @@ ui.onClick('tawla-board', e => {
 const handleBearOffClick = e => {
     if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
     if (gameState.selectedPoint !== null && gameState.selectedPoint !== undefined) {
-        let validDests = gameEngine.getValidDestinations(gameState.virtualBoard, gameState.playerColor, gameState.selectedPoint, gameState.currentDice);
-        let dest = validDests.find(d => d.to === 'out' || d.to === 'bearOff');
+        let validDests = gameEngine.getValidMovesForPoint(gameState.selectedPoint, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
+        let dest = validDests.find(d => d.to === 'bearOff');
         if (dest) {
-            gameState.virtualBoard = gameEngine.applyMoveToBoard({from: gameState.selectedPoint, to: dest.to, isHit: false}, gameState.virtualBoard);
+            gameEngine.executeMove(gameState.selectedPoint, 'bearOff', gameState.playerColor, gameState.virtualBoard);
             let dieIdx = gameState.currentDice.indexOf(dest.dieUsed);
             if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
             ui.playSound(sfx.move);
             
             if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                socketManager.sendMoveToServer(gameState.selectedPoint, dest.to, dest.dieUsed, gameState.currentTurn);
+                socketManager.sendMoveToServer(gameState.virtualBoard, gameState.currentTurn, gameState.currentDice);
             }
             checkTurnEnd();
         }
@@ -2965,7 +2970,7 @@ function checkTurnEnd() {
     let winner = gameEngine.checkGameOver(gameState.virtualBoard);
     if (winner) return;
 
-    if (gameState.currentDice.length === 0 || !gameEngine.hasAnyMove(gameState.currentTurn, gameState.virtualBoard, gameState.currentDice)) {
+    if (gameState.currentDice.length === 0 || !gameEngine.hasAnyValidMove(gameState.currentTurn, gameState.virtualBoard, gameState.currentDice)) {
         gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
         gameState.currentDice = [];
         setTimeout(() => ui.startTurn(), 600);
