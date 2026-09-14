@@ -717,7 +717,7 @@ export const storeManager = {
         }
     },
 
-    applyFrameThemeCSS(frKey) {
+        applyFrameThemeCSS(frKey) {
         const item = STORE_ITEMS[frKey];
         if (!item || item.type !== 'fr') return;
 
@@ -725,11 +725,18 @@ export const storeManager = {
         if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-frame-css'; document.head.appendChild(styleEl); }
 
         if (item.customCSS) {
-            styleEl.innerHTML = item.customCSS;
+            // 🛡️ فلترة الكود لمنع الإطارات من إزاحة الطاولة وتخريب الأشرطة 🛡️
+            let safeCSS = item.customCSS
+                .replace(/left:\s*50%\s*!important;/g, 'left: auto !important;')
+                .replace(/transform:\s*translateX\(-50%\)\s*!important;/g, 'transform: none !important;')
+                .replace(/margin:\s*0\s*!important;/g, 'margin: 55px auto !important;');
+                
+            styleEl.innerHTML = safeCSS;
         } else {
             styleEl.innerHTML = '';
         }
     },
+
 
     applyScoreThemeCSS(scoreKey) {
         const item = STORE_ITEMS[scoreKey];
