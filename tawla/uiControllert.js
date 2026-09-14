@@ -983,8 +983,6 @@ export const ui = {
             document.getElementById('out-black').appendChild(p);
         }
 
-        this.updateScoreboard();
-
     },
 
 
