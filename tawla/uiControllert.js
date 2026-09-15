@@ -1049,7 +1049,9 @@ export const ui = {
         const tInd = this.getEl('turn-indicator');
         if (tInd) { tInd.textContent = t('press_start'); tInd.style.color = "#a1a1aa"; }
         this.setTxt('turn-countdown', '');
-        
+     
+        this.setDisplay('roll-dice-btn', 'none');
+
         this.renderBoard(true); this.updateDiceUI();
     },
 
@@ -1167,29 +1169,29 @@ export const ui = {
 
 
 
-    startTurn() {
-        const tInd = this.getEl('turn-indicator'); if (!tInd) return;
+       startTurn() {
+        // إخفاء الزر كحالة افتراضية
+        this.setDisplay('roll-dice-btn', 'none');
+
+        let isBotTurn = (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID);
+
+        // إذا كنا أوفلاين ولم يتم رمي النرد بعد
         if (!gameState.isOnlineMode && (!gameState.currentDice || gameState.currentDice.length === 0)) {
-            let d1 = Math.floor(Math.random() * 6) + 1;
-            let d2 = Math.floor(Math.random() * 6) + 1;
-            gameState.currentDice = d1 === d2 ? [d1, d1, d1, d1] : [d1, d2];
+            if (isBotTurn) {
+                // البوت يرمي تلقائياً
+                let d1 = Math.floor(Math.random() * 6) + 1;
+                let d2 = Math.floor(Math.random() * 6) + 1;
+                gameState.currentDice = d1 === d2 ? [d1, d1, d1, d1] : [d1, d2];
+                this.updateDiceUI(true);
+            } else {
+                // 🛑 دور اللاعب: إظهار الزر وإيقاف اللعبة حتى يضغط عليه
+                this.setDisplay('roll-dice-btn', 'block');
+                this.updateDiceUI(false); 
+                return; // نوقف التنفيذ هنا (لا وقت، لا حركات) حتى يضغط الزر
+            }
         }
 
-        // تمرير true يخبر الدالة أن هذه رمية جديدة فيجب تشغيل حركة الدوران  
-           this.updateDiceUI(true); 
-
-        if (gameState.isSpectator) {
-            tInd.textContent = gameState.currentTurn === 'white' ? "دور الأبيض ⚪" : "دور الأسود ⚫";
-            tInd.style.color = "#a1a1aa";
-        } else if (gameState.isOnlineMode) { 
-            tInd.style.color = "#f1c40f";
-            tInd.textContent = gameState.currentTurn === gameState.myOnlineColor ? t('turn_yours') : t('turn_opps'); 
-        } else if (gameState.currentTurn === gameState.playerColor) { 
-            tInd.style.color = "#f1c40f"; tInd.textContent = t('turn'); 
-        } else { 
-            tInd.style.color = "#f1c40f"; tInd.textContent = t('aiTurn'); 
-        }
-        
+        this.updateDiceUI();
         this.startTurnTimer();
 
         if (!gameEngine.hasAnyValidMove(gameState.currentTurn, gameState.virtualBoard, gameState.currentDice)) {
@@ -1203,13 +1205,12 @@ export const ui = {
             return;
         }
 
-        let isBotTurn = (gameState.currentTurn !== gameState.playerColor && !gameState.onlineRoomID);
         if (isBotTurn) {
-            tInd.innerHTML = `<div class="thinking-dots"><span></span><span></span><span></span></div>`;
             clearTimeout(gameState.aiTimeout);
             gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 500);
         }
     },
+
 
     async triggerComputerMove() {
         let aiColor = gameState.currentTurn;
@@ -2678,6 +2679,33 @@ function hasPlayerMoved() {
     if (gameState.playerColor === 'white') { return gameState.boardHistory.length > 1; } 
     else { return gameState.boardHistory.length > 2; }
 }
+    // 🎲 حدث النقر على زر رمي النرد (للاعب)
+    ui.onClick('roll-dice-btn', () => {
+        ui.setDisplay('roll-dice-btn', 'none'); // إخفاء الزر فوراً
+        
+        // توليد أرقام النرد
+        let d1 = Math.floor(Math.random() * 6) + 1;
+        let d2 = Math.floor(Math.random() * 6) + 1;
+        gameState.currentDice = d1 === d2 ? [d1, d1, d1, d1] : [d1, d2];
+
+        // تشغيل حركة النرد الفيزيائية وبدء الوقت
+        ui.updateDiceUI(true);
+        ui.startTurnTimer();
+
+        // التحقق مما إذا كان هناك حركة متاحة بعد الرمي
+        if (!gameEngine.hasAnyValidMove(gameState.currentTurn, gameState.virtualBoard, gameState.currentDice)) {
+            setTimeout(() => {
+                ui.showCustomAlert("لا توجد حركات متاحة، انتقال الدور.");
+                gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
+                gameState.currentDice = [];
+                ui.startTurn();
+            }, 1500);
+        }
+    });
+
+    ui.onClick('reset-btn', () => { 
+        // ... (rest of your reset button code)
+
 
 ui.onClick('reset-btn', () => {
     if (gameState.isSpectator) {
