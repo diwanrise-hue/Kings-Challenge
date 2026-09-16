@@ -1975,46 +1975,77 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 }
 
 /* ========================================== */
-/* 🎲 التصميم النهائي والفيزيائي للنرد (2.5D) 🎲 */
+/* 🎲 مكعب نرد 3D حقيقي (جميع الوجوه الستة) 🎲 */
 /* ========================================== */
 
+#dice-container {
+    perspective: 1000px; /* تفعيل البعد الثالث (العمق) */
+}
+
 .tawla-die {
-    /* تدرج لوني عاجي فخم */
-    background: linear-gradient(145deg, #ffffff, #e6e6e6);
     width: 44px;
     height: 44px;
-    border-radius: 12px;
-    /* تظليل احترافي يعطي عمق 3D قوي جداً بدون مشاكل الهواتف */
-    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8),
-                inset -3px -4px 8px rgba(0,0,0,0.15),
-                0 6px 12px rgba(0,0,0,0.4);
-    border: 1px solid #d1d5db;
-    padding: 6px;
-    box-sizing: border-box;
-    will-change: transform, box-shadow, opacity;
-    
-    display: grid;
-    grid-template-areas:
-        "a . c"
-        "e g f"
-        "d . b";
-    grid-template-rows: 1fr 1fr 1fr;
-    grid-template-columns: 1fr 1fr 1fr;
     position: relative;
     z-index: 50;
 }
 
-/* النقاط (Pips) بتصميم غائر وحواف مضيئة */
-.tawla-die .pip {
+/* 🌀 مسارات القفز (نرد 1 و نرد 2) */
+.roll-arc-1 { animation: arcJump1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+.roll-arc-2 { animation: arcJump2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
+@keyframes arcJump1 {
+    0%   { transform: translate(-150px, -200px) scale(1.5); opacity: 0; }
+    30%  { opacity: 1; }
+    60%  { transform: translate(10px, 10px) scale(0.9); }
+    80%  { transform: translate(-5px, -10px) scale(1.05); }
+    100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes arcJump2 {
+    0%   { transform: translate(-100px, -250px) scale(1.5); opacity: 0; }
+    30%  { opacity: 1; }
+    60%  { transform: translate(-10px, 15px) scale(0.9); }
+    80%  { transform: translate(5px, -15px) scale(1.05); }
+    100% { transform: translate(0, 0) scale(1); }
+}
+
+/* 🧊 حاوية المكعب التي ستدور */
+.dice-3d-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d; /* الحفاظ على الأبعاد الثلاثية */
+}
+
+/* 🧊 الوجوه الستة للمكعب */
+.dice-face {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(145deg, #ffffff, #e6e6e6);
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    display: grid;
+    grid-template-areas: "a . c" "e g f" "d . b";
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 6px;
+    box-sizing: border-box;
+    backface-visibility: hidden; /* 🛡️ السر الأول: منع تداخل الوجوه في الهواتف */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* النقاط (Pips) */
+.dice-face .pip {
     display: block;
-    width: 9px;
-    height: 9px;
+    width: 8.5px;
+    height: 8.5px;
     border-radius: 50%;
-    /* النقطة تبدو كحفرة عميقة بفضل التدرج القطري */
     background: radial-gradient(circle at 30% 30%, #4b5563, #111827);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.9);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
     align-self: center;
     justify-self: center;
+    transform: translateZ(1px); /* 🛡️ السر الثاني: إبراز النقاط لمنع اختفائها */
 }
 
 /* توزيع النقاط لكل وجه */
@@ -2025,29 +2056,10 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 .face-5 .pip:nth-child(1) { grid-area: a; } .face-5 .pip:nth-child(2) { grid-area: c; } .face-5 .pip:nth-child(3) { grid-area: g; } .face-5 .pip:nth-child(4) { grid-area: d; } .face-5 .pip:nth-child(5) { grid-area: b; }
 .face-6 .pip:nth-child(1) { grid-area: a; } .face-6 .pip:nth-child(2) { grid-area: c; } .face-6 .pip:nth-child(3) { grid-area: e; } .face-6 .pip:nth-child(4) { grid-area: f; } .face-6 .pip:nth-child(5) { grid-area: d; } .face-6 .pip:nth-child(6) { grid-area: b; }
 
-/* 🌀 مسار النرد الأول (رمية طويلة) 🌀 */
-.rolling-dice-1 {
-    animation: epicRoll1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-
-/* 🌀 مسار النرد الثاني (رمية قصيرة وعالية) 🌀 */
-.rolling-dice-2 {
-    animation: epicRoll2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-
-/* هندسة الحركة الفيزيائية (طيران -> ارتطام -> ارتداد -> استقرار) */
-@keyframes epicRoll1 {
-    0%   { transform: translate(-200px, -250px) scale(2) rotate(-1080deg); box-shadow: 20px 40px 30px rgba(0,0,0,0.1); opacity: 0; }
-    30%  { opacity: 1; }
-    60%  { transform: translate(15px, 15px) scale(0.95) rotate(-90deg); box-shadow: 2px 4px 6px rgba(0,0,0,0.6); } /* الارتطام الأول */
-    80%  { transform: translate(-5px, -15px) scale(1.05) rotate(-45deg); box-shadow: 8px 15px 12px rgba(0,0,0,0.3); } /* الارتداد */
-    100% { transform: translate(0, 0) scale(1) rotate(0deg); box-shadow: 0 6px 12px rgba(0,0,0,0.4); } /* الاستقرار */
-}
-
-@keyframes epicRoll2 {
-    0%   { transform: translate(-150px, -300px) scale(2.2) rotate(-1440deg); box-shadow: 25px 50px 30px rgba(0,0,0,0.1); opacity: 0; }
-    30%  { opacity: 1; }
-    65%  { transform: translate(-15px, 20px) scale(0.95) rotate(-180deg); box-shadow: 2px 4px 6px rgba(0,0,0,0.6); } /* الارتطام الأول */
-    85%  { transform: translate(10px, -20px) scale(1.05) rotate(-90deg); box-shadow: 10px 18px 15px rgba(0,0,0,0.3); } /* الارتداد */
-    100% { transform: translate(0, 0) scale(1) rotate(0deg); box-shadow: 0 6px 12px rgba(0,0,0,0.4); } /* الاستقرار */
-}
+/* 🧊 تشكيل المكعب في الفضاء 3D (دفع الوجوه من المركز بـ 22 بيكسل) */
+.face-front  { transform: rotateY(0deg) translateZ(22px); }
+.face-back   { transform: rotateX(180deg) translateZ(22px); }
+.face-right  { transform: rotateY(90deg) translateZ(22px); }
+.face-left   { transform: rotateY(-90deg) translateZ(22px); }
+.face-top    { transform: rotateX(90deg) translateZ(22px); }
+.face-bottom { transform: rotateX(-90deg) translateZ(22px); }
