@@ -373,8 +373,7 @@
             position: relative;
             margin: 10px auto 25px auto;
             cursor: pointer;
-            border-radius: 12px;
-            overflow: hidden;
+            /* 👇 أزلنا border-radius و overflow حتى لا يتم قص الزوايا الذهبية المدببة */
             transition: var(--transition);
             box-shadow: 0 15px 30px rgba(0,0,0,0.8), 0 0 15px rgba(197, 155, 66, 0.2);
         }
@@ -392,17 +391,20 @@
             height: 100%;
             z-index: 2; 
             pointer-events: none;
-            object-fit: cover;
+            /* 👇 استخدمنا fill بدلاً من cover لنجبر الإطار على الظهور بالكامل بدون Zoom */
+            object-fit: fill;
         }
 
         .last-played-image-container {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 2px;
+            left: 2px;
             width: 60%;
-            height: 100%;
+            height: calc(100% - 4px); /* خصم 4 بكسل حتى لا تغطي صورة اللعبة على إطار الذهب */
             z-index: 1;
             overflow: hidden;
+            /* 👇 أضفنا انحناء بسيط للزوايا اليسرى فقط لصورة اللعبة لكي لا تخرج خارج الإطار */
+            border-radius: 8px 0 0 8px; 
         }
 
         #last-played-img {
@@ -412,6 +414,7 @@
             filter: brightness(0.8);
             transition: transform 0.5s ease;
         }
+
 
         #last-played-banner:hover #last-played-img {
             transform: scale(1.1);
