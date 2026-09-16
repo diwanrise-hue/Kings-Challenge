@@ -1975,26 +1975,24 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 }
 
 /* ========================================== */
-/* 🎲 تصميم النرد الواقعي (3D Ivory Dice) 🎲 */
+/* 🎲 التصميم النهائي والفيزيائي للنرد (2.5D) 🎲 */
 /* ========================================== */
+
 .tawla-die {
-    background-color: #f8f9fa; /* لون عاجي/عظمي واقعي */
+    /* تدرج لوني عاجي فخم */
+    background: linear-gradient(145deg, #ffffff, #e6e6e6);
     width: 44px;
     height: 44px;
-    border-radius: 10px; /* زوايا ناعمة */
-    /* إضاءة وتظليل لإعطاء بروز ثلاثي الأبعاد للمكعب */
-    box-shadow: 
-        inset 0 4px white, 
-        inset 0 -4px #cbd5e1, 
-        inset 4px 0 rgba(255,255,255,0.5), 
-        inset -4px 0 rgba(203,213,225,0.5),
-        0 6px 12px rgba(0,0,0,0.6);
-    border: none;
+    border-radius: 12px;
+    /* تظليل احترافي يعطي عمق 3D قوي جداً بدون مشاكل الهواتف */
+    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8),
+                inset -3px -4px 8px rgba(0,0,0,0.15),
+                0 6px 12px rgba(0,0,0,0.4);
+    border: 1px solid #d1d5db;
     padding: 6px;
     box-sizing: border-box;
-    will-change: transform, opacity;
+    will-change: transform, box-shadow, opacity;
     
-    /* شبكة لترتيب النقاط بداخل النرد */
     display: grid;
     grid-template-areas:
         "a . c"
@@ -2002,22 +2000,24 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
         "d . b";
     grid-template-rows: 1fr 1fr 1fr;
     grid-template-columns: 1fr 1fr 1fr;
+    position: relative;
+    z-index: 50;
 }
 
-/* تصميم النقطة السوداء المحفورة (Pip) */
+/* النقاط (Pips) بتصميم غائر وحواف مضيئة */
 .tawla-die .pip {
     display: block;
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
-    background-color: #1f2937; /* أسود فحمي */
-    /* تظليل داخلي لتبدو النقطة محفورة داخل النرد */
-    box-shadow: inset 0 2px #000, 0 1px rgba(255,255,255,0.9);
+    /* النقطة تبدو كحفرة عميقة بفضل التدرج القطري */
+    background: radial-gradient(circle at 30% 30%, #4b5563, #111827);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.9);
     align-self: center;
     justify-self: center;
 }
 
-/* ترتيب النقاط حسب الرقم (من 1 إلى 6) */
+/* توزيع النقاط لكل وجه */
 .face-1 .pip:nth-child(1) { grid-area: g; }
 .face-2 .pip:nth-child(1) { grid-area: a; } .face-2 .pip:nth-child(2) { grid-area: b; }
 .face-3 .pip:nth-child(1) { grid-area: a; } .face-3 .pip:nth-child(2) { grid-area: g; } .face-3 .pip:nth-child(3) { grid-area: b; }
@@ -2025,40 +2025,29 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 .face-5 .pip:nth-child(1) { grid-area: a; } .face-5 .pip:nth-child(2) { grid-area: c; } .face-5 .pip:nth-child(3) { grid-area: g; } .face-5 .pip:nth-child(4) { grid-area: d; } .face-5 .pip:nth-child(5) { grid-area: b; }
 .face-6 .pip:nth-child(1) { grid-area: a; } .face-6 .pip:nth-child(2) { grid-area: c; } .face-6 .pip:nth-child(3) { grid-area: e; } .face-6 .pip:nth-child(4) { grid-area: f; } .face-6 .pip:nth-child(5) { grid-area: d; } .face-6 .pip:nth-child(6) { grid-area: b; }
 
-/* حركة الرمي (نحتفظ بها كما هي) */
-@keyframes rollDiceAnim {
-    0% { transform: translate(-150px, -150px) scale(1.5) rotate(-720deg); opacity: 0; box-shadow: 10px 20px 20px rgba(0,0,0,0.2); }
-    40% { transform: translate(20px, 20px) scale(0.9) rotate(-180deg); opacity: 1; box-shadow: 2px 4px 8px rgba(0,0,0,0.6); }
-    70% { transform: translate(-10px, -10px) scale(1.1) rotate(-90deg); }
-    100% { transform: translate(0, 0) scale(1) rotate(0deg); }
-}
-.rolling-dice { animation: rollDiceAnim 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-/* ========================================== */
-/* 🎲 زر رمي النرد التفاعلي 🎲 */
-/* ========================================== */
-#roll-dice-btn {
-    background: linear-gradient(135deg, #f5a623, #d35400);
-    color: white;
-    border: 2px solid #ffd700;
-    border-radius: 12px;
-    padding: 10px 18px;
-    font-size: 16px;
-    font-weight: 800;
-    font-family: 'Tajawal', sans-serif;
-    cursor: pointer;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.3);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-    transition: transform 0.1s ease, filter 0.2s ease;
-    animation: pulseDiceBtn 1.5s infinite;
+/* 🌀 مسار النرد الأول (رمية طويلة) 🌀 */
+.rolling-dice-1 {
+    animation: epicRoll1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-#roll-dice-btn:active {
-    transform: translate(50%, -45%) scale(0.95) !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.1);
+/* 🌀 مسار النرد الثاني (رمية قصيرة وعالية) 🌀 */
+.rolling-dice-2 {
+    animation: epicRoll2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-@keyframes pulseDiceBtn {
-    0% { filter: brightness(1); }
-    50% { filter: brightness(1.2); }
-    100% { filter: brightness(1); }
+/* هندسة الحركة الفيزيائية (طيران -> ارتطام -> ارتداد -> استقرار) */
+@keyframes epicRoll1 {
+    0%   { transform: translate(-200px, -250px) scale(2) rotate(-1080deg); box-shadow: 20px 40px 30px rgba(0,0,0,0.1); opacity: 0; }
+    30%  { opacity: 1; }
+    60%  { transform: translate(15px, 15px) scale(0.95) rotate(-90deg); box-shadow: 2px 4px 6px rgba(0,0,0,0.6); } /* الارتطام الأول */
+    80%  { transform: translate(-5px, -15px) scale(1.05) rotate(-45deg); box-shadow: 8px 15px 12px rgba(0,0,0,0.3); } /* الارتداد */
+    100% { transform: translate(0, 0) scale(1) rotate(0deg); box-shadow: 0 6px 12px rgba(0,0,0,0.4); } /* الاستقرار */
+}
+
+@keyframes epicRoll2 {
+    0%   { transform: translate(-150px, -300px) scale(2.2) rotate(-1440deg); box-shadow: 25px 50px 30px rgba(0,0,0,0.1); opacity: 0; }
+    30%  { opacity: 1; }
+    65%  { transform: translate(-15px, 20px) scale(0.95) rotate(-180deg); box-shadow: 2px 4px 6px rgba(0,0,0,0.6); } /* الارتطام الأول */
+    85%  { transform: translate(10px, -20px) scale(1.05) rotate(-90deg); box-shadow: 10px 18px 15px rgba(0,0,0,0.3); } /* الارتداد */
+    100% { transform: translate(0, 0) scale(1) rotate(0deg); box-shadow: 0 6px 12px rgba(0,0,0,0.4); } /* الاستقرار */
 }
