@@ -1069,7 +1069,7 @@ export const ui = {
                 die.el.style.display = 'none';
             }
         });
-    }
+    },
 
 
 
