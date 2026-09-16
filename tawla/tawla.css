@@ -1975,11 +1975,12 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 }
 
 /* ========================================== */
-/* 🎲 مكعب نرد 3D حقيقي (جميع الوجوه الستة) 🎲 */
+/* 🎲 مكعب نرد 3D صلب وحقيقي (إصلاح مشكلة الطبقات) 🎲 */
 /* ========================================== */
 
 #dice-container {
-    perspective: 1000px; /* تفعيل البعد الثالث (العمق) */
+    perspective: 1200px;
+    transform-style: preserve-3d; /* 🛡️ إجبار الهاتف على تشغيل البعد الثالث */
 }
 
 .tawla-die {
@@ -1987,34 +1988,43 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
     height: 44px;
     position: relative;
     z-index: 50;
+    transform-style: preserve-3d; /* 🛡️ يمنع تحول المكعب إلى طبقات مسطحة */
 }
 
-/* 🌀 مسارات القفز (نرد 1 و نرد 2) */
+/* 🌀 مسارات القفز (بدون Opacity لأنها تدمر الـ 3D في الهواتف) */
 .roll-arc-1 { animation: arcJump1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 .roll-arc-2 { animation: arcJump2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 
 @keyframes arcJump1 {
-    0%   { transform: translate(-150px, -200px) scale(1.5); opacity: 0; }
-    30%  { opacity: 1; }
-    60%  { transform: translate(10px, 10px) scale(0.9); }
-    80%  { transform: translate(-5px, -10px) scale(1.05); }
-    100% { transform: translate(0, 0) scale(1); }
+    0%   { transform: translate3d(-150px, -200px, 100px) scale(1.5); }
+    60%  { transform: translate3d(10px, 10px, 20px) scale(0.9); }
+    80%  { transform: translate3d(-5px, -10px, 30px) scale(1.05); }
+    100% { transform: translate3d(0, 0, 0) scale(1); }
 }
 
 @keyframes arcJump2 {
-    0%   { transform: translate(-100px, -250px) scale(1.5); opacity: 0; }
-    30%  { opacity: 1; }
-    60%  { transform: translate(-10px, 15px) scale(0.9); }
-    80%  { transform: translate(5px, -15px) scale(1.05); }
-    100% { transform: translate(0, 0) scale(1); }
+    0%   { transform: translate3d(-100px, -250px, 100px) scale(1.5); }
+    60%  { transform: translate3d(-10px, 15px, 20px) scale(0.9); }
+    80%  { transform: translate3d(5px, -15px, 30px) scale(1.05); }
+    100% { transform: translate3d(0, 0, 0) scale(1); }
 }
 
-/* 🧊 حاوية المكعب التي ستدور */
+/* 🧊 حاوية المكعب */
 .dice-3d-wrapper {
     width: 100%;
     height: 100%;
     position: relative;
-    transform-style: preserve-3d; /* الحفاظ على الأبعاد الثلاثية */
+    transform-style: preserve-3d;
+}
+
+/* 🧱 حشوة صلبة داخل المكعب لمنع ظهور أي فراغات في الزوايا */
+.dice-3d-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 1px; left: 1px; right: 1px; bottom: 1px;
+    background-color: #f4f4f5; /* لون صلب يملأ فراغ المكعب الداخلي */
+    transform: translateZ(0);
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
 }
 
 /* 🧊 الوجوه الستة للمكعب */
@@ -2023,7 +2033,7 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
     width: 44px;
     height: 44px;
     background: linear-gradient(145deg, #ffffff, #e6e6e6);
-    border: 1px solid #ccc;
+    border: 1px solid #d1d5db; /* إغلاق الحواف */
     border-radius: 6px;
     display: grid;
     grid-template-areas: "a . c" "e g f" "d . b";
@@ -2031,8 +2041,8 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
     grid-template-columns: 1fr 1fr 1fr;
     padding: 6px;
     box-sizing: border-box;
-    backface-visibility: hidden; /* 🛡️ السر الأول: منع تداخل الوجوه في الهواتف */
     box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    /* 🛡️ أزلنا backface-visibility لأنها تسبب شفافية الوجوه في الهواتف */
 }
 
 /* النقاط (Pips) */
@@ -2045,7 +2055,7 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
     align-self: center;
     justify-self: center;
-    transform: translateZ(1px); /* 🛡️ السر الثاني: إبراز النقاط لمنع اختفائها */
+    transform: translateZ(1px); /* إبراز النقاط لتكون واضحة دائماً */
 }
 
 /* توزيع النقاط لكل وجه */
