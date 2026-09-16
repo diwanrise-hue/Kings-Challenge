@@ -659,8 +659,44 @@ window.submitManualAuthForm = function() {
     }, 5000);
 };
 
+// 🌟 تحديث واجهة آخر لعبة لعبها اللاعب 🌟
+window.updateLastPlayedUI = function() {
+    let lastGame = localStorage.getItem('hub_last_played_game');
+    
+    if (!lastGame) {
+        lastGame = 'dama'; // التعيين الافتراضي
+        localStorage.setItem('hub_last_played_game', 'dama'); // حفظها في الذاكرة
+    }
+
+    const banner = document.getElementById('last-played-banner');
+    if (!banner) return;
+
+    banner.style.display = 'block'; // تأكيد إظهار الإطار
+    
+    const imgEl = document.getElementById('last-played-img');
+    const titleEl = document.getElementById('last-played-name');
+
+    if (lastGame === 'dama') {
+        imgEl.src = 'Photo/1000138342.webp'; 
+        titleEl.innerText = (typeof translations !== 'undefined' && translations[currentLang]) ? translations[currentLang].store_dama : 'دامة';
+    } else if (lastGame === 'tawla') {
+        imgEl.src = 'Photo/tawla_bg.webp'; 
+        titleEl.innerText = (typeof translations !== 'undefined' && translations[currentLang]) ? translations[currentLang].store_tawla : 'طاولة';
+    }
+};
+
+// 🌟 تشغيل آخر لعبة عند النقر على الإطار 🌟
+window.startLastPlayedGame = function() {
+    const lastGame = localStorage.getItem('hub_last_played_game');
+    if (lastGame) {
+        startGame(lastGame);
+    }
+};
+
 window.addEventListener('load', () => {
     history.replaceState({ view: 'hub' }, '');
+    
+    updateLastPlayedUI(); // تحديث الإطار عند فتح التطبيق
     
     if (!localStorage.getItem('appLang')) {
         localStorage.setItem('appLang', currentLang);
@@ -982,6 +1018,10 @@ document.addEventListener('keydown', (e) => {
 
 // 🌟 التوجيه الديناميكي المحدث (Dynamic Game Routing) 🌟
 window.startGame = function(gameType = 'dama') {
+    // حفظ آخر لعبة تم تشغيلها
+    localStorage.setItem('hub_last_played_game', gameType);
+    updateLastPlayedUI(); // تحديث الواجهة فوراً
+
     if (socket && socket.connected) {
         socket.disconnect(); 
     }
