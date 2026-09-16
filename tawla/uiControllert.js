@@ -993,39 +993,86 @@ export const ui = {
             return;
         }
 
-        const createPips = (num) => {
-            let html = '';
-            for(let i=0; i<num; i++) html += '<span class="pip"></span>';
-            return html;
+        // دالة إنشاء الوجه مع النقاط
+        const createFace = (num, faceClass) => {
+            let pips = ''; for(let i=0; i<num; i++) pips += '<span class="pip"></span>';
+            return `<div class="dice-face ${faceClass} face-${num}">${pips}</div>`;
         };
 
-        // إعادة تشغيل الحركة وإعطاء كل نرد مساراً فيزيائياً مختلفاً!
+        // دالة بناء المكعب بجميع الوجوه (العلوي، السفلي، والجانبية)
+        const build3DCube = () => `
+            <div class="dice-3d-wrapper">
+                ${createFace(1, 'face-front')}
+                ${createFace(6, 'face-back')}
+                ${createFace(3, 'face-right')}
+                ${createFace(4, 'face-left')}
+                ${createFace(2, 'face-top')}
+                ${createFace(5, 'face-bottom')}
+            </div>
+        `;
+
+        // حساب زوايا الاستقرار (مع إضافة 3 لفات كاملة = 1080 درجة للتدحرج)
+        const getTransform = (num) => {
+            let rotX = 1080, rotY = 1080;
+            switch(num) {
+                case 1: rotX += 0;   rotY += 0; break;
+                case 6: rotX += 180; rotY += 0; break;
+                case 3: rotX += 0;   rotY += -90; break;
+                case 4: rotX += 0;   rotY += 90; break;
+                case 2: rotX += -90; rotY += 0; break;
+                case 5: rotX += 90;  rotY += 0; break;
+            }
+            // إضافة ميلان خفيف جداً لتبدو الرمية طبيعية وليست روبوتية
+            let randomZ = Math.floor(Math.random() * 20) - 10;
+            return `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${randomZ}deg)`;
+        };
+
+        // مسار القفز في الهواء (Arc)
         if (isNewRoll) {
-            d1El.classList.remove('rolling-dice-1', 'rolling-dice-2'); 
-            d2El.classList.remove('rolling-dice-1', 'rolling-dice-2');
-            void d1El.offsetWidth; void d2El.offsetWidth; // إجبار التحديث
+            d1El.classList.remove('roll-arc-1', 'roll-arc-2'); 
+            d2El.classList.remove('roll-arc-1', 'roll-arc-2');
+            void d1El.offsetWidth; void d2El.offsetWidth; 
             
-            // النرد الأول يأخذ المسار الطويل
-            d1El.classList.add('rolling-dice-1');
-            // تأخير 60 ملي ثانية لتبدو الرمية من يد بشرية، والنرد الثاني يأخذ المسار القصير
-            setTimeout(() => d2El.classList.add('rolling-dice-2'), 60);
+            d1El.classList.add('roll-arc-1');
+            setTimeout(() => d2El.classList.add('roll-arc-2'), 60);
         }
 
-        let showD1 = gameState.currentDice.length > 0;
-        let showD2 = gameState.currentDice.length > 1;
+        // إظهار النرد وتدويره
+        [ { el: d1El, val: gameState.currentDice[0] }, 
+          { el: d2El, val: gameState.currentDice[1] } 
+        ].forEach((die, index) => {
+            if (die.val !== undefined) {
+                die.el.style.display = 'block';
+                
+                // بناء المكعب إذا لم يكن موجوداً
+                if (!die.el.querySelector('.dice-3d-wrapper')) {
+                    die.el.innerHTML = build3DCube();
+                }
+                
+                let wrapper = die.el.querySelector('.dice-3d-wrapper');
+                
+                if (isNewRoll) {
+                    // وضعية عشوائية قبل الرمية
+                    wrapper.style.transition = 'none';
+                    wrapper.style.transform = `rotateX(${Math.random()*360}deg) rotateY(${Math.random()*360}deg)`;
+                    
+                    // تشغيل الدوران الثلاثي الأبعاد العنيف
+                    setTimeout(() => {
+                        wrapper.style.transition = `transform ${0.8 + (index * 0.1)}s cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
+                        wrapper.style.transform = getTransform(die.val);
+                    }, 50);
+                } else {
+                    wrapper.style.transition = 'none';
+                    wrapper.style.transform = getTransform(die.val);
+                }
+            } else {
+                die.el.style.display = 'none';
+            }
+        });
+    }
 
-        if (showD1) { 
-            d1El.style.display = 'grid'; 
-            d1El.className = `tawla-die face-${gameState.currentDice[0]} ${isNewRoll ? 'rolling-dice-1' : ''}`;
-            d1El.innerHTML = createPips(gameState.currentDice[0]);
-        } else { d1El.style.display = 'none'; }
-        
-        if (showD2) { 
-            d2El.style.display = 'grid'; 
-            d2El.className = `tawla-die face-${gameState.currentDice[1]} ${isNewRoll ? 'rolling-dice-2' : ''}`;
-            d2El.innerHTML = createPips(gameState.currentDice[1]);
-        } else { d2El.style.display = 'none'; }
-    },
+
+
 
   
         drawEmptyBoard() {
