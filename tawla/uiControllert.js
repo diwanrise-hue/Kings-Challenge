@@ -2703,10 +2703,6 @@ function hasPlayerMoved() {
         }
     });
 
-    ui.onClick('reset-btn', () => { 
-        // ... (rest of your reset button code)
-
-
 ui.onClick('reset-btn', () => {
     if (gameState.isSpectator) {
         if (window.socketManager && typeof window.socketManager.handleExitGame === 'function') {
