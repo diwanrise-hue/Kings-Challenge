@@ -984,7 +984,7 @@ export const ui = {
 
     },
 
-       updateDiceUI(isNewRoll = false) {
+    updateDiceUI(isNewRoll = false) {
         const d1El = this.getEl('die1'); const d2El = this.getEl('die2');
         if(!d1El || !d2El) return;
         
@@ -993,37 +993,85 @@ export const ui = {
             return;
         }
 
+        // دالة مساعدة لإنشاء وجوه المكعب
+        const createFace = (num, faceName) => {
+            let pips = ''; for(let i=0; i<num; i++) pips += '<span class="pip"></span>';
+            return `<div class="dice-face ${faceName} face-${num}">${pips}</div>`;
+        };
+
+        // دالة لتركيب المكعب بوجوهه الستة
+        const build3DCube = () => `
+            <div class="dice-3d-wrapper">
+                ${createFace(1, 'face-front')}
+                ${createFace(6, 'face-back')}
+                ${createFace(3, 'face-right')}
+                ${createFace(4, 'face-left')}
+                ${createFace(2, 'face-top')}
+                ${createFace(5, 'face-bottom')}
+            </div>
+        `;
+
+        // حساب الزاوية المطلوبة للتوقف على الرقم الصحيح (مع إضافة 4 لفات للتدحرج)
+        const getTransform = (num) => {
+            let rotX = 1440, rotY = 1440; // 1440 = 4 لفات بهلوانية 🌀
+            switch(num) {
+                case 1: rotX += 0;   rotY += 0; break;
+                case 6: rotX += 0;   rotY += 180; break;
+                case 3: rotX += 0;   rotY += -90; break;
+                case 4: rotX += 0;   rotY += 90; break;
+                case 2: rotX += -90; rotY += 0; break;
+                case 5: rotX += 90;  rotY += 0; break;
+            }
+            return `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(360deg)`;
+        };
+
         let showD1 = gameState.currentDice.length > 0;
         let showD2 = gameState.currentDice.length > 1;
 
-        // دالة مساعدة لإنشاء دوائر النقاط (Pips)
-        const createPips = (num) => {
-            let html = '';
-            for(let i=0; i<num; i++) html += '<span class="pip"></span>';
-            return html;
-        };
-
+        // تشغيل قفزة النرد
         if (isNewRoll) {
-            d1El.classList.remove('rolling-dice'); d2El.classList.remove('rolling-dice');
-            void d1El.offsetWidth; void d2El.offsetWidth; 
-            d1El.classList.add('rolling-dice');
-            setTimeout(() => d2El.classList.add('rolling-dice'), 50);
+            d1El.classList.remove('tumble-anim'); d2El.classList.remove('tumble-anim');
+            void d1El.offsetWidth; void d2El.offsetWidth; // تحديث فوري للمتصفح
+            d1El.classList.add('tumble-anim');
+            setTimeout(() => d2El.classList.add('tumble-anim'), 100);
         }
 
-        // رسم النرد الأول وتحديد الوجه
-        if (showD1) { 
-            d1El.style.display = 'grid'; 
-            d1El.className = `tawla-die face-${gameState.currentDice[0]} ${isNewRoll ? 'rolling-dice' : ''}`;
-            d1El.innerHTML = createPips(gameState.currentDice[0]);
-        } else { d1El.style.display = 'none'; }
-        
-        // رسم النرد الثاني وتحديد الوجه
-        if (showD2) { 
-            d2El.style.display = 'grid'; 
-            d2El.className = `tawla-die face-${gameState.currentDice[1]} ${isNewRoll ? 'rolling-dice' : ''}`;
-            d2El.innerHTML = createPips(gameState.currentDice[1]);
-        } else { d2El.style.display = 'none'; }
-    },
+        // رسم النرد وتطبيق زوايا الدوران 3D
+        [ { el: d1El, show: showD1, val: gameState.currentDice[0] }, 
+          { el: d2El, show: showD2, val: gameState.currentDice[1] } 
+        ].forEach((die, index) => {
+            if (die.show) {
+                die.el.style.display = 'block';
+                
+                // إذا لم يكن المكعب موجوداً، قم ببنائه
+                if (!die.el.querySelector('.dice-3d-wrapper')) {
+                    die.el.innerHTML = build3DCube();
+                }
+                
+                let wrapper = die.el.querySelector('.dice-3d-wrapper');
+                if (isNewRoll) {
+                    // تصفير زوايا المكعب قبل بدء الرمية
+                    wrapper.style.transition = 'none';
+                    wrapper.style.transform = `rotateX(0deg) rotateY(0deg) rotateZ(0deg)`;
+                    
+                    // إطلاق التدحرج!
+                    setTimeout(() => {
+                        wrapper.style.transition = `transform ${0.8 + (index * 0.1)}s cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
+                        wrapper.style.transform = getTransform(die.val);
+                    }, 50);
+                } else {
+                    // إذا كان النرد مستقراً (مثل عند العودة للعبة)
+                    wrapper.style.transition = 'none';
+                    wrapper.style.transform = getTransform(die.val);
+                }
+            } else {
+                die.el.style.display = 'none';
+            }
+        });
+    }
+
+
+  
         drawEmptyBoard() {
         gameState.gameId = Date.now();
         if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
