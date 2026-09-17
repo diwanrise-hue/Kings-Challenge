@@ -1803,7 +1803,7 @@ body.online-mode-active .game-container {
 /* ========================================== */
 /* 🎲 إضافات لوحة الطاولة (Tawla Board Layout) 🎲 */
 /* ========================================== */
-..tawla-container {
+.tawla-container {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1973,25 +1973,86 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 .tawla-point .piece:first-child {
     margin-top: 0;
 }
+/* ========================================== */
+/* 🌟 تحويل الساحة والأحجار إلى 3D حقيقي 🌟 */
+/* ========================================== */
+
+/* 1. إعطاء عمق منظور لحاوية الطاولة بالكامل */
+#tawla-board-wrapper {
+    perspective: 1500px;
+    transform-style: preserve-3d;
+}
+
+/* 2. إمالة الطاولة وإضافة سمك خشبي (3D Board) */
+#tawla-board {
+    transform: rotateX(8deg) translateY(-5px); /* إمالة خفيفة لإعطاء عمق للمشهد */
+    box-shadow: 
+        0 10px 0 #3a2312, /* سمك الخشب السفلي (البعد الثالث للطاولة) */
+        0 15px 25px rgba(0,0,0,0.8), /* الظل الساقط على الأرض */
+        inset 0 0 20px rgba(0,0,0,0.6); /* تظليل داخلي لواقعية الخشب */
+    border-radius: 12px;
+    border-bottom: 2px solid #2a1608;
+    transition: transform 0.3s ease;
+}
+
+/* 3. تحويل الأحجار إلى أقراص 3D (ذات سمك وبروز) */
+.piece {
+    border-radius: 50% !important;
+    position: relative;
+    border: none !important; 
+    transform-style: preserve-3d;
+}
+
+/* ⚪ تصميم الحجر الأبيض 3D ⚪ */
+.piece.white {
+    /* تدرج لوني يعطي تكوراً من الأعلى */
+    background: radial-gradient(circle at 50% 50%, #f9fafb 30%, #e5e7eb 70%, #9ca3af 100%) !important;
+    box-shadow: 
+        inset 0 3px 4px rgba(255,255,255,1),  /* لمعان الضوء العلوي */
+        inset 0 -2px 4px rgba(0,0,0,0.2),     /* ظل داخلي سفلي */
+        0 5px 0 #9ca3af,                      /* 👈 سمك الحجر (البعد الثالث) */
+        0 8px 6px rgba(0,0,0,0.6) !important; /* ظل الحجر الساقط على اللوحة */
+}
+
+/* ⚫ تصميم الحجر الأسود 3D ⚫ */
+.piece.black {
+    /* تدرج لوني يعطي تكوراً من الأعلى */
+    background: radial-gradient(circle at 50% 50%, #4b5563 30%, #1f2937 70%, #030712 100%) !important;
+    box-shadow: 
+        inset 0 2px 4px rgba(255,255,255,0.2), /* لمعان الضوء العلوي */
+        inset 0 -2px 4px rgba(0,0,0,0.6),      /* ظل داخلي سفلي */
+        0 5px 0 #000000,                       /* 👈 سمك الحجر (البعد الثالث) */
+        0 8px 6px rgba(0,0,0,0.8) !important;  /* ظل الحجر الساقط على اللوحة */
+}
+
+/* 4. تعديل بسيط لزر النرد ليتناسب مع البيئة الـ 3D */
+#roll-dice-btn {
+    transform: translate(50%, -50%) translateZ(30px); /* رفع الزر للأعلى قليلاً في الفراغ */
+    box-shadow: 0 8px 15px rgba(0,0,0,0.6), 0 4px 0 #b45f06, inset 0 2px 4px rgba(255,255,255,0.3);
+}
+#roll-dice-btn:active {
+    transform: translate(50%, -45%) translateZ(10px) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6), 0 0 0 #b45f06, inset 0 2px 4px rgba(255,255,255,0.1);
+}
 
 /* ========================================== */
-/* 🎲 مكعب نرد 3D صلب وحقيقي (إصلاح مشكلة الطبقات) 🎲 */
+/* 🎲 مكعب نرد 3D صلب وأنيق (بحجم أصغر 34px) 🎲 */
 /* ========================================== */
 
 #dice-container {
     perspective: 1200px;
-    transform-style: preserve-3d; /* 🛡️ إجبار الهاتف على تشغيل البعد الثالث */
+    transform-style: preserve-3d;
 }
 
 .tawla-die {
-    width: 44px;
-    height: 44px;
+    width: 34px;  /* 🌟 تم التصغير هنا */
+    height: 34px; /* 🌟 تم التصغير هنا */
     position: relative;
     z-index: 50;
-    transform-style: preserve-3d; /* 🛡️ يمنع تحول المكعب إلى طبقات مسطحة */
+    transform-style: preserve-3d;
 }
 
-/* 🌀 مسارات القفز (بدون Opacity لأنها تدمر الـ 3D في الهواتف) */
+/* 🌀 مسارات القفز */
 .roll-arc-1 { animation: arcJump1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 .roll-arc-2 { animation: arcJump2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 
@@ -2017,12 +2078,12 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
     transform-style: preserve-3d;
 }
 
-/* 🧱 حشوة صلبة داخل المكعب لمنع ظهور أي فراغات في الزوايا */
+/* 🧱 حشوة صلبة داخل المكعب */
 .dice-3d-wrapper::before {
     content: '';
     position: absolute;
     top: 1px; left: 1px; right: 1px; bottom: 1px;
-    background-color: #f4f4f5; /* لون صلب يملأ فراغ المكعب الداخلي */
+    background-color: #f4f4f5;
     transform: translateZ(0);
     box-shadow: 0 0 15px rgba(0,0,0,0.5);
 }
@@ -2030,32 +2091,31 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 /* 🧊 الوجوه الستة للمكعب */
 .dice-face {
     position: absolute;
-    width: 44px;
-    height: 44px;
+    width: 34px;  /* 🌟 تم التصغير هنا */
+    height: 34px; /* 🌟 تم التصغير هنا */
     background: linear-gradient(145deg, #ffffff, #e6e6e6);
-    border: 1px solid #d1d5db; /* إغلاق الحواف */
+    border: 1px solid #d1d5db;
     border-radius: 6px;
     display: grid;
     grid-template-areas: "a . c" "e g f" "d . b";
     grid-template-rows: 1fr 1fr 1fr;
     grid-template-columns: 1fr 1fr 1fr;
-    padding: 6px;
+    padding: 4px; /* 🌟 تقليل الحشوة ليتناسب مع الحجم الجديد */
     box-sizing: border-box;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-    /* 🛡️ أزلنا backface-visibility لأنها تسبب شفافية الوجوه في الهواتف */
 }
 
 /* النقاط (Pips) */
 .dice-face .pip {
     display: block;
-    width: 8.5px;
-    height: 8.5px;
+    width: 7px;   /* 🌟 تصغير النقاط قليلاً */
+    height: 7px;  /* 🌟 تصغير النقاط قليلاً */
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, #4b5563, #111827);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
     align-self: center;
     justify-self: center;
-    transform: translateZ(1px); /* إبراز النقاط لتكون واضحة دائماً */
+    transform: translateZ(1px);
 }
 
 /* توزيع النقاط لكل وجه */
@@ -2066,10 +2126,53 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 .face-5 .pip:nth-child(1) { grid-area: a; } .face-5 .pip:nth-child(2) { grid-area: c; } .face-5 .pip:nth-child(3) { grid-area: g; } .face-5 .pip:nth-child(4) { grid-area: d; } .face-5 .pip:nth-child(5) { grid-area: b; }
 .face-6 .pip:nth-child(1) { grid-area: a; } .face-6 .pip:nth-child(2) { grid-area: c; } .face-6 .pip:nth-child(3) { grid-area: e; } .face-6 .pip:nth-child(4) { grid-area: f; } .face-6 .pip:nth-child(5) { grid-area: d; } .face-6 .pip:nth-child(6) { grid-area: b; }
 
-/* 🧊 تشكيل المكعب في الفضاء 3D (دفع الوجوه من المركز بـ 22 بيكسل) */
-.face-front  { transform: rotateY(0deg) translateZ(22px); }
-.face-back   { transform: rotateX(180deg) translateZ(22px); }
-.face-right  { transform: rotateY(90deg) translateZ(22px); }
-.face-left   { transform: rotateY(-90deg) translateZ(22px); }
-.face-top    { transform: rotateX(90deg) translateZ(22px); }
-.face-bottom { transform: rotateX(-90deg) translateZ(22px); }
+/* 🧊 تشكيل المكعب هندسياً: نصف الحجم الجديد (34 / 2 = 17 بيكسل) 🌟 */
+.face-front  { transform: rotateY(0deg) translateZ(17px); }
+.face-back   { transform: rotateX(180deg) translateZ(17px); }
+.face-right  { transform: rotateY(90deg) translateZ(17px); }
+.face-left   { transform: rotateY(-90deg) translateZ(17px); }
+.face-top    { transform: rotateX(90deg) translateZ(17px); }
+.face-bottom { transform: rotateX(-90deg) translateZ(17px); }
+/* ========================================== */
+/* 🌟 فرض البعد الثالث (3D) الإجباري على الساحة والأحجار 🌟 */
+/* ========================================== */
+
+/* 1. إعطاء عمق منظور لحاوية الطاولة (بدون قص الحواف) */
+#tawla-board-wrapper {
+    perspective: 1200px !important;
+    transform-style: preserve-3d !important;
+    overflow: visible !important; 
+}
+
+/* 2. إمالة الطاولة وإضافة سمك خشبي قوي لها */
+#tawla-board {
+    transform: rotateX(10deg) translateY(-10px) !important;
+    box-shadow: 
+        0 12px 0 #2a1608,
+        0 25px 35px rgba(0,0,0,0.85),
+        inset 0 0 25px rgba(0,0,0,0.6) !important;
+    transform-style: preserve-3d !important;
+    border-bottom: 2px solid #1a0d04 !important;
+}
+
+/* 3. رفع الأحجار عن الطاولة وإعطاؤها سمكاً (كأقراص الكازينو) */
+body[data-piece-style] .piece {
+    transform: translateZ(8px) !important; /* رفع الأحجار في الفراغ */
+    border: none !important;
+}
+
+/* ⚪ تصميم الحجر الأبيض 3D (متوافق مع كل الثيمات) ⚪ */
+body[data-piece-style] .piece.white {
+    box-shadow: 
+        inset 0 3px 5px rgba(255,255,255,0.7), /* لمعة الإضاءة العلوية */
+        0 5px 0 #9ca3af, /* سمك الحجر (البعد الثالث) */
+        0 10px 8px rgba(0,0,0,0.6) !important; /* الظل الساقط على الطاولة */
+}
+
+/* ⚫ تصميم الحجر الأسود 3D (متوافق مع كل الثيمات) ⚫ */
+body[data-piece-style] .piece.black {
+    box-shadow: 
+        inset 0 3px 5px rgba(255,255,255,0.2), /* لمعة الإضاءة العلوية */
+        0 5px 0 #000000, /* سمك الحجر (البعد الثالث) */
+        0 10px 8px rgba(0,0,0,0.8) !important; /* الظل الساقط على الطاولة */
+}
