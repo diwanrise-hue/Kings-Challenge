@@ -6,7 +6,6 @@
     --board-frame: #3d1e03; /* لون إطار خشب الطاولة */
 }
 
-
 /* 🌟 كلاس عملة اللعبة الجديد 🌟 */
 .app-coin-icon {
     width: 1.2em;
@@ -95,27 +94,126 @@ body {
 
 .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
 
-/* تصميم القطع الأساسية للطاولة */
-.piece { 
-    width: 85%; 
-    height: auto; 
-    aspect-ratio: 1 / 1; /* يجبر الحجر أن يكون دائرة مثالية دائماً */
-    border-radius: 50%; 
-    cursor: pointer; 
-    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2); 
-    transition: transform 0.2s, background 0.4s, border 0.4s; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    position: relative; 
+/* ========================================== */
+/* 🎲 طاولة الدامة (نسخة مطابقة للصورة) 🎲 */
+/* ========================================== */
+#tawla-board-wrapper {
+    width: 95vw;
+    max-width: 450px;
+    margin: 0 auto;
+    position: relative;
 }
-.piece::before { content: ''; position: absolute; width: 45%; height: 45%; border-radius: 50%; pointer-events: none; border: 1px solid rgba(0,0,0,0.1); }
-.piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6); border: 1px solid #bdc3c7; }
-.piece.white::before { background-color: rgba(0, 0, 0, 0.15); }
-.piece.black { background: radial-gradient(circle at 30% 30%, #68707a, #353b45, #1e1e24); border: 1px solid #1a1a24; }
-.piece.black::before { background-color: rgba(255, 255, 255, 0.15); }
-.piece.selected { outline: 3px solid #2ecc71; transform: scale(1.1); }
 
+#tawla-board {
+    display: flex;
+    width: 100%;
+    aspect-ratio: 3 / 4; /* أبعاد مستطيلة مطابقة للصورة */
+    background-color: #3b2314; /* لون خشب الأرضية الداكن */
+    border: 16px solid #5a381f; /* الإطار الخشبي الخارجي */
+    border-radius: 8px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.7);
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* النصف الأيمن والأيسر من الطاولة */
+.board-half {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* البار الخشبي في المنتصف */
+.tawla-bar {
+    width: 22px;
+    background: linear-gradient(to right, #3b2314, #5a381f, #3b2314);
+    border-left: 2px solid #231309;
+    border-right: 2px solid #231309;
+    box-shadow: 0 0 10px rgba(0,0,0,0.9);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+/* صفوف المثلثات (العلوي والسفلي) */
+.board-row {
+    display: flex;
+    width: 100%;
+    height: 44%; /* طول المثلثات */
+}
+.board-row.top { align-items: flex-start; }
+.board-row.bottom { align-items: flex-end; }
+
+/* ضبط اتجاه المثلثات (يمين/يسار) حسب قوانين الطاولة */
+.quad-top-right { flex-direction: row-reverse; }
+.quad-top-left { flex-direction: row-reverse; }
+.quad-bottom-left { flex-direction: row; }
+.quad-bottom-right { flex-direction: row; }
+
+/* المثلث (النقطة) */
+.point {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 2px;
+}
+.board-row.bottom .point {
+    flex-direction: column-reverse;
+    padding-top: 0;
+    padding-bottom: 2px;
+}
+
+/* رسم المثلث النظيف بتقنية Clip-Path */
+.point::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+}
+.board-row.top .point::before { clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.board-row.bottom .point::before { clip-path: polygon(50% 0, 0 100%, 100% 100%); }
+
+/* ألوان المثلثات مطابقة للصورة */
+.point.light::before { background-color: #d8c3a5; } /* البيج الفاتح */
+.point.dark::before { background-color: #1a1a1a; }  /* الأسود الداكن */
+
+/* ========================================== */
+/* ⚪⚫ الأحجار (تصميم 3D يركب فوق بعضه) ⚫⚪ */
+/* ========================================== */
+.point .piece {
+    width: 82%;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    position: relative;
+    z-index: 5;
+    margin-top: -22px; /* تداخل الأحجار مثل الصورة */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.6);
+    transition: transform 0.2s ease;
+}
+.point .piece:first-child { margin-top: 0; }
+.board-row.bottom .point .piece { margin-top: 0; margin-bottom: -22px; }
+.board-row.bottom .point .piece:first-child { margin-bottom: 0; }
+
+.piece.white {
+    background: radial-gradient(circle at 40% 40%, #ffffff, #dcdde1, #808b96);
+    border: 1px solid #95a5a6;
+}
+.piece.black {
+    background: radial-gradient(circle at 40% 40%, #566573, #212f3c, #17202a);
+    border: 1px solid #17202a;
+}
+.piece.selected {
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px #34c759, 0 4px 6px rgba(0,0,0,0.6);
+    border: 2px solid #34c759;
+}
 
 /* ========================================== */
 /* الشريط السفلي و الأزرار المربعة            */
@@ -1755,7 +1853,7 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     max-height: 85% !important; 
     object-fit: contain !important;
     display: block !important;
-    }
+}
 
 /* ========================================== */
 /* 🌟 إصلاح المسافات ومنع السحب (Scroll) في وضع الأونلاين 🌟 */
@@ -1801,128 +1899,6 @@ body.online-mode-active .game-container {
 }
 
 /* ========================================== */
-/* 🎲 إضافات لوحة الطاولة (Tawla Board Layout) 🎲 */
-/* ========================================== */
-.tawla-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 95vw;
-    max-width: 500px;
-    aspect-ratio: 1 / 1;
-    margin: 0 auto;
-}
-
-#tawla-board {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* قسمين يفصل بينهما البار */
-    grid-template-rows: 1fr 1fr;
-    width: 100%;
-    height: 100%;
-    background-color: #3e2723;
-    border: 12px solid transparent;
-    border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
-    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
-    gap: 10px;
-    position: relative;
-    margin: 50px auto; /* مساحة للأشرطة العلوية والسفلية مع التمركز التلقائي */
-    box-sizing: border-box;
-    transition: all 0.5s ease;
-}
-
-
-.board-quadrant {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.2); /* خلفية خفيفة للارباع */
-    position: relative;
-}
-
-.board-quadrant::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    /* رسم مثلثات متناوبة تغطي أي صورة في الخلفية */
-    background: repeating-linear-gradient(
-        to right, 
-        rgba(15, 10, 5, 0.85) 0%, rgba(15, 10, 5, 0.85) 16.66%, 
-        rgba(220, 200, 170, 0.75) 16.66%, rgba(220, 200, 170, 0.75) 33.33%
-    );
-    clip-path: polygon(
-        0% 0%, 16.66% 0%, 8.33% 100%, 
-        16.66% 0%, 33.33% 0%, 25% 100%, 
-        33.33% 0%, 50% 0%, 41.66% 100%, 
-        50% 0%, 66.66% 0%, 58.33% 100%, 
-        66.66% 0%, 83.33% 0%, 75% 100%, 
-        83.33% 0%, 100% 0%, 91.66% 100%
-    );
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* عكس اتجاه المثلثات للأسفل في النصف السفلي من الطاولة */
-.bottom-left::before, .bottom-right::before {
-    transform: rotate(180deg);
-}
-
-.tawla-bar {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    background: #5C3A21;
-    border-left: 2px solid #3e2723;
-    border-right: 2px solid #3e2723;
-    z-index: 5;
-}
-
-.bear-off-zone {
-    width: 40px;
-    background: #4A2E1B;
-    border: 4px solid #5C3A21;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 5px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-}
-
-.tawla-die {
-    width: 40px;
-    height: 40px;
-    background: #fff;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #000;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);
-    animation: rollDice 0.5s ease-out;
-}
-
-@keyframes rollDice {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(1.2); }
-    100% { transform: rotate(360deg) scale(1); }
-}
-
-@media (max-height: 700px) {
-    body.online-mode-active #tawla-board-wrapper, 
-    body.online-mode-active .tawla-container {
-        max-width: 48vh !important; 
-    }
-}
-
-/* ========================================== */
 /* 🌟 انعكاس إطار البروفايل للغة الإنجليزية (LTR) 🌟 */
 /* ========================================== */
 html[dir="ltr"] #profile-badge.profile-badge-container {
@@ -1949,90 +1925,26 @@ html[dir="ltr"] #profile-badge.profile-badge-container > #badge-avatar {
 html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
     transform: translateX(-50%) scaleX(-1) !important;
 }
-/* تنسيق تراكم قطع الطاولة على المثلثات */
-.tawla-point {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-}
 
-.tawla-point.top-row {
-    justify-content: flex-start;
-}
-
-.tawla-point.bottom-row {
-    justify-content: flex-end;
-}
-
-/* تداخل القطع عند زيادة العدد على نفس المثلث */
-.tawla-point .piece {
-    margin-top: -18px; 
-}
-
-.tawla-point .piece:first-child {
-    margin-top: 0;
-}
 /* ========================================== */
-/* 🌟 تحويل الساحة والأحجار إلى 3D حقيقي 🌟 */
+/* 🌟 زر رمي النرد (تصميم أنيق ثنائي الأبعاد) 🌟 */
 /* ========================================== */
-
-/* 1. إعطاء عمق منظور لحاوية الطاولة بالكامل */
-#tawla-board-wrapper {
-    perspective: 1500px;
-    transform-style: preserve-3d;
-}
-
-/* 2. إمالة الطاولة وإضافة سمك خشبي (3D Board) */
-#tawla-board {
-    transform: rotateX(8deg) translateY(-5px); /* إمالة خفيفة لإعطاء عمق للمشهد */
-    box-shadow: 
-        0 10px 0 #3a2312, /* سمك الخشب السفلي (البعد الثالث للطاولة) */
-        0 15px 25px rgba(0,0,0,0.8), /* الظل الساقط على الأرض */
-        inset 0 0 20px rgba(0,0,0,0.6); /* تظليل داخلي لواقعية الخشب */
-    border-radius: 12px;
-    border-bottom: 2px solid #2a1608;
-    transition: transform 0.3s ease;
-}
-
-/* 3. تحويل الأحجار إلى أقراص 3D (ذات سمك وبروز) */
-.piece {
-    border-radius: 50% !important;
-    position: relative;
-    border: none !important; 
-    transform-style: preserve-3d;
-}
-
-/* ⚪ تصميم الحجر الأبيض 3D ⚪ */
-.piece.white {
-    /* تدرج لوني يعطي تكوراً من الأعلى */
-    background: radial-gradient(circle at 50% 50%, #f9fafb 30%, #e5e7eb 70%, #9ca3af 100%) !important;
-    box-shadow: 
-        inset 0 3px 4px rgba(255,255,255,1),  /* لمعان الضوء العلوي */
-        inset 0 -2px 4px rgba(0,0,0,0.2),     /* ظل داخلي سفلي */
-        0 5px 0 #9ca3af,                      /* 👈 سمك الحجر (البعد الثالث) */
-        0 8px 6px rgba(0,0,0,0.6) !important; /* ظل الحجر الساقط على اللوحة */
-}
-
-/* ⚫ تصميم الحجر الأسود 3D ⚫ */
-.piece.black {
-    /* تدرج لوني يعطي تكوراً من الأعلى */
-    background: radial-gradient(circle at 50% 50%, #4b5563 30%, #1f2937 70%, #030712 100%) !important;
-    box-shadow: 
-        inset 0 2px 4px rgba(255,255,255,0.2), /* لمعان الضوء العلوي */
-        inset 0 -2px 4px rgba(0,0,0,0.6),      /* ظل داخلي سفلي */
-        0 5px 0 #000000,                       /* 👈 سمك الحجر (البعد الثالث) */
-        0 8px 6px rgba(0,0,0,0.8) !important;  /* ظل الحجر الساقط على اللوحة */
-}
-
-/* 4. تعديل بسيط لزر النرد ليتناسب مع البيئة الـ 3D */
 #roll-dice-btn {
-    transform: translate(50%, -50%) translateZ(30px); /* رفع الزر للأعلى قليلاً في الفراغ */
-    box-shadow: 0 8px 15px rgba(0,0,0,0.6), 0 4px 0 #b45f06, inset 0 2px 4px rgba(255,255,255,0.3);
+    transform: translate(50%, -50%);
+    background: linear-gradient(135deg, #f5a623, #d35400);
+    color: white;
+    border: 2px solid #ffd700;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.6), 0 4px 0 #b45f06;
+    transition: all 0.1s ease;
 }
 #roll-dice-btn:active {
-    transform: translate(50%, -45%) translateZ(10px) !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.6), 0 0 0 #b45f06, inset 0 2px 4px rgba(255,255,255,0.1);
+    transform: translate(50%, calc(-50% + 4px)) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6), 0 0 0 #b45f06;
 }
 
 /* ========================================== */
@@ -2133,46 +2045,3 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 .face-left   { transform: rotateY(-90deg) translateZ(17px); }
 .face-top    { transform: rotateX(90deg) translateZ(17px); }
 .face-bottom { transform: rotateX(-90deg) translateZ(17px); }
-/* ========================================== */
-/* 🌟 فرض البعد الثالث (3D) الإجباري على الساحة والأحجار 🌟 */
-/* ========================================== */
-
-/* 1. إعطاء عمق منظور لحاوية الطاولة (بدون قص الحواف) */
-#tawla-board-wrapper {
-    perspective: 1200px !important;
-    transform-style: preserve-3d !important;
-    overflow: visible !important; 
-}
-
-/* 2. إمالة الطاولة وإضافة سمك خشبي قوي لها */
-#tawla-board {
-    transform: rotateX(10deg) translateY(-10px) !important;
-    box-shadow: 
-        0 12px 0 #2a1608,
-        0 25px 35px rgba(0,0,0,0.85),
-        inset 0 0 25px rgba(0,0,0,0.6) !important;
-    transform-style: preserve-3d !important;
-    border-bottom: 2px solid #1a0d04 !important;
-}
-
-/* 3. رفع الأحجار عن الطاولة وإعطاؤها سمكاً (كأقراص الكازينو) */
-body[data-piece-style] .piece {
-    transform: translateZ(8px) !important; /* رفع الأحجار في الفراغ */
-    border: none !important;
-}
-
-/* ⚪ تصميم الحجر الأبيض 3D (متوافق مع كل الثيمات) ⚪ */
-body[data-piece-style] .piece.white {
-    box-shadow: 
-        inset 0 3px 5px rgba(255,255,255,0.7), /* لمعة الإضاءة العلوية */
-        0 5px 0 #9ca3af, /* سمك الحجر (البعد الثالث) */
-        0 10px 8px rgba(0,0,0,0.6) !important; /* الظل الساقط على الطاولة */
-}
-
-/* ⚫ تصميم الحجر الأسود 3D (متوافق مع كل الثيمات) ⚫ */
-body[data-piece-style] .piece.black {
-    box-shadow: 
-        inset 0 3px 5px rgba(255,255,255,0.2), /* لمعة الإضاءة العلوية */
-        0 5px 0 #000000, /* سمك الحجر (البعد الثالث) */
-        0 10px 8px rgba(0,0,0,0.8) !important; /* الظل الساقط على الطاولة */
-}
