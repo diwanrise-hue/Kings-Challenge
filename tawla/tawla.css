@@ -1,12 +1,12 @@
-/* tawla.css */
+/* tawla.css - Cleaned & Optimized Version */
 /* ========================================== */
 :root {
-    --point-light: #DEB887; /* لون المثلثات الفاتحة */
-    --point-dark: #8B4513;  /* لون المثلثات الداكنة */
-    --board-frame: #3d1e03; /* لون إطار خشب الطاولة */
+    --point-light: #DEB887; 
+    --point-dark: #8B4513;  
+    --board-frame: #3d1e03; 
 }
 
-/* 🌟 كلاس عملة اللعبة الجديد 🌟 */
+/* 🌟 الأيقونات 🌟 */
 .app-coin-icon {
     width: 1.2em;
     height: 1.2em;
@@ -17,7 +17,6 @@
     transform: translateY(-1px);
 }
 
-/* 🌟 كلاس بطاقات الخصم الجديد 🌟 */
 .app-ticket-icon {
     width: 1.4em;
     height: 1.4em;
@@ -33,28 +32,50 @@ body {
     min-height: 100dvh;
     box-sizing: border-box;
     justify-content: flex-start;
-    padding-bottom: 120px !important; padding-top: 100px !important; 
+    padding-bottom: 120px; 
+    padding-top: 100px; 
     background-color: #2c3e50; 
     background-image: none;
-    background-size: cover; background-position: center; background-attachment: fixed;
+    background-size: cover; 
+    background-position: center; 
+    background-attachment: fixed;
     font-family: 'Tajawal', 'Outfit', Arial, sans-serif; 
-    margin: 0; display: flex; flex-direction: column; align-items: center; 
-    -webkit-tap-highlight-color: transparent; transition: background 0.3s ease, padding 0.4s ease; 
+    margin: 0; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    -webkit-tap-highlight-color: transparent; 
+    transition: background 0.3s ease, padding 0.4s ease; 
 }
 
 #status-area {
-    width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 45px; margin-bottom: 5px;
+    width: 100%; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    min-height: 45px; 
+    margin-bottom: 5px;
 }
 
 /* ========================================== */
 /* رقعة اللعب ولوحات النقاط */
 /* ========================================== */
 .scoreboard { 
-    display: flex; flex-direction: column; gap: 3px; margin-bottom: 4px; 
-    background: transparent !important; padding: 0; border-radius: 0; 
-    align-items: center; width: 95%; max-width: 380px; transition: all 0.4s ease; 
-    box-sizing: border-box; border: none !important; box-shadow: none !important;
-    backdrop-filter: none; -webkit-backdrop-filter: none;
+    display: flex; 
+    flex-direction: column; 
+    gap: 3px; 
+    margin-bottom: 4px; 
+    background: transparent; 
+    padding: 0; 
+    border-radius: 0; 
+    align-items: center; 
+    width: 95%; 
+    max-width: 380px; 
+    transition: all 0.4s ease; 
+    box-sizing: border-box; 
+    border: none; 
+    box-shadow: none;
 }
 
 .score-row { 
@@ -80,43 +101,43 @@ body {
 }
 
 .piece.mini { 
-    width: 18px !important; height: 18px !important; 
-    flex: 0 0 18px !important; 
-    min-width: 18px !important; min-height: 18px !important; 
-    max-width: 18px !important; max-height: 18px !important;
-    margin: 0 !important; padding: 0 !important; 
-    cursor: default; transform: none !important; 
-    animation: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.6) !important; 
-    border-radius: 50% !important;
-    display: inline-block !important;
+    width: 18px; height: 18px; flex: 0 0 18px; 
+    min-width: 18px; min-height: 18px; max-width: 18px; max-height: 18px;
+    margin: 0; padding: 0; cursor: default; transform: none; 
+    animation: none; box-shadow: 0 2px 4px rgba(0,0,0,0.6); 
+    border-radius: 50%; display: inline-block;
 }
-.piece.mini::before, .piece.mini::after { display: none !important; }
+.piece.mini::before, .piece.mini::after { display: none; }
 
 .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
 
 /* ========================================== */
-/* 🎲 طاولة الدامة (نسخة مطابقة للصورة) 🎲 */
+/* 🎲 طاولة الدامة (نسخة احترافية نظيفة بدون فرض) 🎲 */
 /* ========================================== */
 #tawla-board-wrapper {
     width: 95vw;
     max-width: 450px;
     margin: 0 auto;
     position: relative;
+    perspective: 1500px;
+    transform-style: preserve-3d;
 }
 
 #tawla-board {
     display: flex;
     width: 100%;
-    aspect-ratio: 3 / 4; /* أبعاد مستطيلة مطابقة للصورة */
-    background-color: #3b2314; /* لون خشب الأرضية الداكن */
-    border: 16px solid #5a381f; /* الإطار الخشبي الخارجي */
+    aspect-ratio: 3 / 4; 
+    background-color: #3b2314; 
+    border: 16px solid #5a381f; 
     border-radius: 8px;
     box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.7);
     position: relative;
     box-sizing: border-box;
+    transform: rotateX(8deg) translateY(-5px); 
+    border-bottom: 2px solid #2a1608;
+    transition: transform 0.3s ease;
 }
 
-/* النصف الأيمن والأيسر من الطاولة */
 .board-half {
     flex: 1;
     display: flex;
@@ -124,7 +145,6 @@ body {
     justify-content: space-between;
 }
 
-/* البار الخشبي في المنتصف */
 .tawla-bar {
     width: 22px;
     background: linear-gradient(to right, #3b2314, #5a381f, #3b2314);
@@ -139,22 +159,19 @@ body {
     padding: 10px 0;
 }
 
-/* صفوف المثلثات (العلوي والسفلي) */
 .board-row {
     display: flex;
     width: 100%;
-    height: 44%; /* طول المثلثات */
+    height: 44%; 
 }
 .board-row.top { align-items: flex-start; }
 .board-row.bottom { align-items: flex-end; }
 
-/* ضبط اتجاه المثلثات (يمين/يسار) حسب قوانين الطاولة */
 .quad-top-right { flex-direction: row-reverse; }
 .quad-top-left { flex-direction: row-reverse; }
 .quad-bottom-left { flex-direction: row; }
 .quad-bottom-right { flex-direction: row; }
 
-/* المثلث (النقطة) */
 .point {
     flex: 1;
     height: 100%;
@@ -170,7 +187,6 @@ body {
     padding-bottom: 2px;
 }
 
-/* رسم المثلث النظيف بتقنية Clip-Path */
 .point::before {
     content: '';
     position: absolute;
@@ -180,9 +196,8 @@ body {
 .board-row.top .point::before { clip-path: polygon(0 0, 100% 0, 50% 100%); }
 .board-row.bottom .point::before { clip-path: polygon(50% 0, 0 100%, 100% 100%); }
 
-/* ألوان المثلثات مطابقة للصورة */
-.point.light::before { background-color: #d8c3a5; } /* البيج الفاتح */
-.point.dark::before { background-color: #1a1a1a; }  /* الأسود الداكن */
+.point.light::before { background-color: #d8c3a5; } 
+.point.dark::before { background-color: #1a1a1a; }  
 
 /* ========================================== */
 /* ⚪⚫ الأحجار (تصميم 3D يركب فوق بعضه) ⚫⚪ */
@@ -193,9 +208,10 @@ body {
     border-radius: 50%;
     position: relative;
     z-index: 5;
-    margin-top: -22px; /* تداخل الأحجار مثل الصورة */
+    margin-top: -22px; 
     box-shadow: 0 4px 6px rgba(0,0,0,0.6);
     transition: transform 0.2s ease;
+    transform-style: preserve-3d;
 }
 .point .piece:first-child { margin-top: 0; }
 .board-row.bottom .point .piece { margin-top: 0; margin-bottom: -22px; }
@@ -204,10 +220,12 @@ body {
 .piece.white {
     background: radial-gradient(circle at 40% 40%, #ffffff, #dcdde1, #808b96);
     border: 1px solid #95a5a6;
+    box-shadow: inset 0 3px 4px rgba(255,255,255,1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 5px 0 #9ca3af, 0 8px 6px rgba(0,0,0,0.6);
 }
 .piece.black {
     background: radial-gradient(circle at 40% 40%, #566573, #212f3c, #17202a);
     border: 1px solid #17202a;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.6), 0 5px 0 #000000, 0 8px 6px rgba(0,0,0,0.8);
 }
 .piece.selected {
     transform: translateY(-5px);
@@ -219,62 +237,57 @@ body {
 /* الشريط السفلي و الأزرار المربعة            */
 /* ========================================== */
 .control-panel { 
-    position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
+    position: fixed; bottom: 0; left: 0; right: 0;
     width: 100%; 
-    background: rgba(24, 23, 29, 0.95) !important; 
+    background: rgba(24, 23, 29, 0.95); 
     backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-    border-top: 1px solid rgba(212, 175, 55, 0.2) !important;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
     padding: 12px 15px;
     box-sizing: border-box; display: flex; justify-content: center; 
     align-items: center; gap: 12px; border-radius: 24px 24px 0 0; 
-    z-index: 800; box-shadow: 0 -10px 30px rgba(0,0,0,0.4) !important; 
+    z-index: 800; box-shadow: 0 -10px 30px rgba(0,0,0,0.4); 
 }
 
-/* زر الانسحاب (بدون الطبقة الحمراء) */
 #resign-btn { 
-    background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
-    color: #ff6b6b !important;
-    height: 44px; padding: 0 15px; border-radius: 14px !important; 
-    font-weight: bold; border: 1.5px solid #a88734 !important; 
-    border-bottom: 3.5px solid #6b5319 !important;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.2), inset 0 -1px 3px rgba(0,0,0,0.5) !important;
-    transition: all 0.15s ease !important;
+    background: linear-gradient(145deg, #2a2a35, #15141a); 
+    color: #ff6b6b;
+    height: 44px; padding: 0 15px; border-radius: 14px; 
+    font-weight: bold; border: 1.5px solid #a88734; 
+    border-bottom: 3.5px solid #6b5319;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.2), inset 0 -1px 3px rgba(0,0,0,0.5);
+    transition: all 0.15s ease;
 }
 #resign-btn:active { 
-    transform: translateY(3px) !important;
-    border-bottom-width: 1px !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 3px 6px rgba(0,0,0,0.8) !important;
+    transform: translateY(3px);
+    border-bottom-width: 1px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 3px 6px rgba(0,0,0,0.8);
 }
 
-/* 🌟 إخفاء النص وتوسيط الشارة بدلاً منه 🌟 */
 .boundary-rank { display: none !important; }
-.boundary-rank-icon { top: 50px !important; left: 95px !important; width: 18px !important; height: 18px !important; z-index: 25 !important; }
-.rank-icon-free { font-size: 20px !important; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.boundary-rank-icon { position: absolute; top: 50px; left: 95px; width: 18px; height: 18px; z-index: 25; }
+.rank-icon-free { font-size: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
 .rank-icon-free img { 
-    max-width: 120% !important;   
-    max-height: 130% !important;  
-    width: auto !important;       
-    height: auto !important;      
-    object-fit: contain !important; 
+    max-width: 120%;   
+    max-height: 130%;  
+    width: auto;       
+    height: auto;      
+    object-fit: contain; 
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); 
-    transform: translateY(-1.8px) !important;
-    flex-shrink: 0 !important;
+    transform: translateY(-1.8px);
+    flex-shrink: 0;
 }
 
-/* 🌟 التحسينات الجديدة لأداء GPU لزر التلميح السحري 🌟 */
 @keyframes magicGlowGpu {
-    0% { transform: scale(1); opacity: 1; }
-    30% { transform: scale(1.15) rotate(-5deg); opacity: 0.8; }
-    70% { transform: scale(1.1) rotate(5deg); opacity: 0.9; }
-    100% { transform: scale(1); opacity: 1; }
+    0% { transform: scale(1); opacity: 1; box-shadow: 0 0 15px #f1c40f; }
+    30% { transform: scale(1.15) rotate(-5deg); opacity: 0.8; box-shadow: 0 0 25px #f1c40f; }
+    70% { transform: scale(1.1) rotate(5deg); opacity: 0.9; box-shadow: 0 0 20px #f1c40f; }
+    100% { transform: scale(1); opacity: 1; box-shadow: 0 0 15px #f1c40f; }
 }
 .lamp-active { 
     animation: magicGlowGpu 0.8s ease-in-out; 
-    box-shadow: 0 0 15px #f1c40f !important; 
-    will-change: transform, opacity;
+    will-change: transform, opacity, box-shadow;
 }
 
-/* 🌟 التحسينات الجديدة لأداء GPU لزر الراديو 🌟 */
 .radio-status-dot {
     position: absolute; top: -2px; right: -2px; width: 12px; height: 12px;
     border-radius: 50%; border: 2px solid #282a32; background-color: transparent;
@@ -293,63 +306,54 @@ body {
 }
 
 /* ========================================== */
-/* 🌟 الأزرار الفخمة والمكونات ثلاثية الأبعاد 🌟 */
+/* 🌟 الأزرار الفخمة والمكونات الجانبية 🌟 */
 /* ========================================== */
+#hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn,
+#hint-btn, #undo-btn, #tawla-radio-toggle, #mic-toggle-btn {
+    background: linear-gradient(145deg, #2a2a35, #15141a);
+    border: 1.5px solid #a88734;
+    border-bottom: 3.5px solid #6b5319;
+    color: #fce8a1;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5);
+    border-radius: 14px; 
+    transition: all 0.15s ease;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+    box-sizing: border-box;
+    width: 44px; 
+    height: 44px;
+}
 
 #hamburger-menu-btn, #bag-quick-btn, #floating-quests-btn {
-    background: linear-gradient(145deg, #2a2a35, #15141a) !important;
-    border: 1.5px solid #a88734 !important;
-    border-bottom: 3.5px solid #6b5319 !important;
-    color: #fce8a1 !important;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15) !important;
-    border-radius: 14px !important; 
-    transition: all 0.15s ease !important;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
-    position: fixed !important; 
-    z-index: 850 !important; 
-    box-sizing: border-box !important;
-    width: 44px !important; 
-    height: 44px !important;
+    position: fixed; 
+    z-index: 850; 
 }
-
-#hamburger-menu-btn, #bag-quick-btn { top: 15px !important; }
-html[dir="rtl"] #hamburger-menu-btn, html[dir="rtl"] #bag-quick-btn { right: 15px !important; left: auto !important; }
-html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px !important; right: auto !important; }
-#floating-quests-btn { top: 100px !important; left: 25px !important; }
-
 #hint-btn, #undo-btn, #tawla-radio-toggle, #mic-toggle-btn {
-    background: linear-gradient(145deg, #2a2a35, #15141a) !important;
-    border: 1.5px solid #a88734 !important;
-    border-bottom: 3.5px solid #6b5319 !important;
-    color: #fce8a1 !important;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5) !important;
-    border-radius: 14px !important; 
-    transition: all 0.15s ease !important;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
-    position: relative !important; 
-    z-index: 10 !important;
-    box-sizing: border-box !important;
-    width: 44px !important; 
-    height: 44px !important;
+    position: relative; 
+    z-index: 10;
 }
+
+#hamburger-menu-btn, #bag-quick-btn { top: 15px; }
+html[dir="rtl"] #hamburger-menu-btn, html[dir="rtl"] #bag-quick-btn { right: 15px; left: auto; }
+html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px; right: auto; }
+#floating-quests-btn { top: 100px; left: 25px; }
 
 #room-portal-btn {
-    background: linear-gradient(145deg, #1d4ed8, #0f172a) !important;
-    border: 1.5px solid #60a5fa !important;
-    border-bottom: 3.5px solid #1e3a8a !important;
-    color: #fce8a1 !important;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.3), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(59, 130, 246, 0.3) !important;
-    border-radius: 16px !important; 
-    transition: all 0.15s ease !important;
-    display: flex; align-items: center; justify-content: flex-start !important; cursor: pointer; 
-    padding: 0 8px !important; 
-    box-sizing: border-box !important;
-    position: relative !important; 
-    width: auto !important;
-    min-width: 170px !important; 
-    height: 60px !important; 
-    margin-top: -8px !important;
-    margin-bottom: -8px !important;
+    background: linear-gradient(145deg, #1d4ed8, #0f172a);
+    border: 1.5px solid #60a5fa;
+    border-bottom: 3.5px solid #1e3a8a;
+    color: #fce8a1;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.3), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(59, 130, 246, 0.3);
+    border-radius: 16px; 
+    transition: all 0.15s ease;
+    display: flex; align-items: center; justify-content: flex-start; cursor: pointer; 
+    padding: 0 8px; 
+    box-sizing: border-box;
+    position: relative; 
+    width: auto;
+    min-width: 170px; 
+    height: 60px; 
+    margin-top: -8px;
+    margin-bottom: -8px;
 }
 
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
@@ -358,191 +362,187 @@ html[dir="ltr"] #hamburger-menu-btn, html[dir="ltr"] #bag-quick-btn { left: 15px
 }
 
 #hamburger-menu-btn svg, #bag-quick-btn svg, #floating-quests-btn svg, 
-#hint-btn svg, #undo-btn svg,  #mic-toggle-btn svg * {
-    width: 22px !important;
-    height: 22px !important;
+#hint-btn svg, #undo-btn svg, #mic-toggle-btn svg * {
+    width: 22px;
+    height: 22px;
 }
 
 #hamburger-menu-btn:active, #bag-quick-btn:active, #floating-quests-btn:active, 
 #room-portal-btn:active, #hint-btn:active, #undo-btn:active, #tawla-radio-toggle:active, #mic-toggle-btn:active {
-    transform: translateY(3px) !important;
-    border-bottom-width: 1px !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
+    transform: translateY(3px);
+    border-bottom-width: 1px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 3px 6px rgba(0, 0, 0, 0.8);
 }
 
 /* ========================================== */
 /* 🌟 تصميم الأزرار الزجاجية الفخمة (أونلاين وبوت) 🌟 */
 /* ========================================== */
 .premium-game-btn {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-direction: row-reverse !important; 
-    gap: 22px !important; 
-    
-    border-radius: 14px !important; 
-    background: linear-gradient(145deg, #2a2a35, #15141a) !important; 
-    border: 1.5px solid #a88734 !important; 
-    border-bottom: 3.5px solid #6b5319 !important; 
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15) !important;
-    color: #fce8a1 !important;
-    
-    cursor: pointer !important;
-    position: relative !important;
-    overflow: visible !important; 
-    transition: all 0.15s ease !important;
-    text-decoration: none !important;
-    outline: none !important;
-    font-family: 'Tajawal', sans-serif !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row-reverse; 
+    gap: 22px; 
+    border-radius: 14px; 
+    background: linear-gradient(145deg, #2a2a35, #15141a); 
+    border: 1.5px solid #a88734; 
+    border-bottom: 3.5px solid #6b5319; 
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(212, 175, 55, 0.15);
+    color: #fce8a1;
+    cursor: pointer;
+    position: relative;
+    overflow: visible; 
+    transition: all 0.15s ease;
+    text-decoration: none;
+    outline: none;
+    font-family: 'Tajawal', sans-serif;
 }
 
 .premium-game-btn:active {
-    transform: translateY(3px) !important;
-    border-bottom-width: 1px !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 3px 6px rgba(0, 0, 0, 0.8) !important;
+    transform: translateY(3px);
+    border-bottom-width: 1px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 3px 6px rgba(0, 0, 0, 0.8);
 }
 
 .premium-game-btn .btn-icon {
-    font-size: 28px !important;
-    color: #f5a623 !important;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) !important;
-    margin: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 38px !important;    
-    height: 38px !important;
-    flex-shrink: 0 !important; 
+    font-size: 28px;
+    color: #f5a623;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;    
+    height: 38px;
+    flex-shrink: 0; 
 }
 
 .premium-game-btn .btn-text-col {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important; 
-    text-align: right !important;
-    margin: 0 !important;
-    overflow: visible !important; 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    text-align: right;
+    margin: 0;
+    overflow: visible; 
 }
 
 .premium-game-btn .btn-main-text {
-    color: #ffffff !important;
-    font-size: 18px !important; 
-    font-weight: 900 !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
-    line-height: 1.1 !important;
-    white-space: nowrap !important; 
+    color: #ffffff;
+    font-size: 18px; 
+    font-weight: 900;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    line-height: 1.1;
+    white-space: nowrap; 
 }
 
 .premium-game-btn .btn-sub-text {
-    color: #f5a623 !important;
-    font-size: 10px !important;
-    font-weight: 700 !important;
-    white-space: nowrap !important;
+    color: #f5a623;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 .online-glow-dot {
-    position: absolute !important; 
-    top: -2px !important;          
-    left: -2px !important;         
-    right: auto !important;
-    width: 12px !important;        
-    height: 12px !important;
-    margin: 0 !important;          
-    background-color: #34c759 !important;
-    border-radius: 50% !important;
+    position: absolute; 
+    top: -2px;          
+    left: -2px;         
+    right: auto;
+    width: 12px;        
+    height: 12px;
+    margin: 0;          
+    background-color: #34c759;
+    border-radius: 50%;
     border: 2px solid #282a32;
-    box-shadow: 0 0 10px #34c759, inset 0 2px 4px rgba(255,255,255,0.6) !important;
-    animation: pulseGlowGpu 2s infinite alternate ease-in-out !important;
+    box-shadow: 0 0 10px #34c759, inset 0 2px 4px rgba(255,255,255,0.6);
+    animation: pulseGlowGpu 2s infinite alternate ease-in-out;
     will-change: transform, opacity;
-    z-index: 10 !important;
+    z-index: 10;
 }
-@keyframes pulseGlowGpu { 0% { transform: scale(0.85); opacity: 0.8; } 100% { transform: scale(1.15); opacity: 1; } }
 
 /* ========================================== */
-/* 🌟 نظام البروفايل الجديد المتمركز (أسود/ذهبي) */
+/* 🌟 نظام البروفايل الجديد المتمركز */
 /* ========================================== */
-
 .shrink-text {
-    display: inline-block !important; 
-    white-space: nowrap !important;
-    transform-origin: center center !important; 
-    transition: transform 0.2s ease !important;
+    display: inline-block; 
+    white-space: nowrap;
+    transform-origin: center center; 
+    transition: transform 0.2s ease;
 }
 
 .text-boundary {
-    position: absolute !important;
-    display: flex !important; justify-content: center !important; align-items: center !important;
-    overflow: visible !important; box-sizing: border-box !important;
+    position: absolute;
+    display: flex; justify-content: center; align-items: center;
+    overflow: visible; box-sizing: border-box;
 }
 
 #profile-badge.profile-badge-container { 
-    position: fixed !important; 
-    top: 1.5px !important; 
-    z-index: 850 !important; 
-    width: 185px !important;       
-    height: 100px !important;       
+    position: fixed; 
+    top: 1.5px; 
+    z-index: 850; 
+    width: 185px;       
+    height: 100px;       
     background-image: url('Media/front/profile.webp'); 
     background-size: 100% 100%; 
     background-repeat: no-repeat; 
-    background-color: transparent !important;
-    border: none !important; 
-    padding: 0 !important; 
-    border-radius: 0 !important;
-    box-shadow: none !important; 
-    filter: drop-shadow(0 8px 10px rgba(0,0,0,0.6)) drop-shadow(0 0 5px rgba(212, 175, 55, 0.4)) !important; 
+    background-color: transparent;
+    border: none; 
+    padding: 0; 
+    border-radius: 0;
+    box-shadow: none; 
+    filter: drop-shadow(0 8px 10px rgba(0,0,0,0.6)) drop-shadow(0 0 5px rgba(212, 175, 55, 0.4)); 
     cursor: pointer;
     transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), filter 0.2s; 
-    direction: ltr !important; 
-    backdrop-filter: none !important; 
-    -webkit-backdrop-filter: none !important;
-    transform: scale(0.85) !important; 
+    direction: ltr; 
+    backdrop-filter: none; 
+    -webkit-backdrop-filter: none;
+    transform: scale(0.85); 
 }
-html[dir="rtl"] #profile-badge.profile-badge-container { left: 15px !important; right: auto !important; transform-origin: top left !important; }
-html[dir="ltr"] #profile-badge.profile-badge-container { right: 15px !important; left: auto !important; transform-origin: top right !important; }
-#profile-badge.profile-badge-container:hover { transform: scale(0.82) !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)) drop-shadow(0 0 8px rgba(212, 175, 55, 0.6)) !important; }
+html[dir="rtl"] #profile-badge.profile-badge-container { left: 15px; right: auto; transform-origin: top left; }
+html[dir="ltr"] #profile-badge.profile-badge-container { right: 15px; left: auto; transform-origin: top right; }
+#profile-badge.profile-badge-container:hover { transform: scale(0.82); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)) drop-shadow(0 0 8px rgba(212, 175, 55, 0.6)); }
 
 #profile-badge #badge-avatar.profile-avatar-capsule { 
-    position: absolute !important; 
-    top: 20.4px !important;      
-    left: 12.9px !important;     
-    width: 55.3px !important;      
-    height: 55.3px !important;     
-    border-radius: 50% !important; 
-    border: none !important; 
-    z-index: 30 !important; 
+    position: absolute; 
+    top: 20.4px;      
+    left: 12.9px;     
+    width: 55.3px;      
+    height: 55.3px;     
+    border-radius: 50%; 
+    border: none; 
+    z-index: 30; 
     display: flex; align-items: center; justify-content: center; 
-    overflow: visible !important;
-    background-color: transparent !important;
+    overflow: visible;
+    background-color: transparent;
     transform: translateZ(0); 
 }
 
-#profile-badge #badge-avatar.profile-avatar-capsule > div > img:first-child { width: 100% !important; height: 100% !important; object-fit: cover !important; border-radius: 50% !important; }
+#profile-badge #badge-avatar.profile-avatar-capsule > div > img:first-child { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
-.boundary-level { bottom: 11.4px !important; right: 2.5px !important; width: 22px !important; height: 12px !important; z-index: 25 !important; }
-.boundary-name { top: 27.6px !important; left: 99px !important; right: 16px !important; height: 18px !important; direction: rtl !important; }
-.boundary-title { top: 60px !important; left: 138px !important; width: 30px !important; height: 10px !important; }
-.boundary-xp { top: 77.8px !important; left: 110px !important; width: 25px !important; height: 10px !important; z-index: 15 !important; }
+.boundary-level { bottom: 11.4px; right: 2.5px; width: 22px; height: 12px; z-index: 25; }
+.boundary-name { top: 27.6px; left: 99px; right: 16px; height: 18px; direction: rtl; }
+.boundary-title { top: 60px; left: 138px; width: 30px; height: 10px; }
+.boundary-xp { top: 77.8px; left: 110px; width: 25px; height: 10px; z-index: 15; }
 
-#badge-level { color: #d4af37 !important; font-size: 11px !important; font-weight: 900 !important; text-shadow: 0 1px 3px black !important; line-height: 1 !important; text-rendering: geometricPrecision; -webkit-font-smoothing: antialiased; }
-.player-name { color: #ffffff !important; font-size: 13.5px !important; font-weight: 800 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; }
-.title-text-free { color: #ff9800 !important; font-weight: 700 !important; font-size: 11px !important; transform: scale(0.75) !important; letter-spacing: 0.5px !important; direction: rtl !important; }
-.xp-text-free { color: #ffffff !important; font-weight: 800 !important; font-size: 10px !important; transform: scale(0.43) !important; text-shadow: 0 1px 2px #000000, 0 0 3px #000000 !important; letter-spacing: 0.5px !important; direction: ltr !important; }
+#badge-level { color: #d4af37; font-size: 11px; font-weight: 900; text-shadow: 0 1px 3px black; line-height: 1; text-rendering: geometricPrecision; -webkit-font-smoothing: antialiased; }
+.player-name { color: #ffffff; font-size: 13.5px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+.title-text-free { color: #ff9800; font-weight: 700; font-size: 11px; transform: scale(0.75); letter-spacing: 0.5px; direction: rtl; }
+.xp-text-free { color: #ffffff; font-weight: 800; font-size: 10px; transform: scale(0.43); text-shadow: 0 1px 2px #000000, 0 0 3px #000000; letter-spacing: 0.5px; direction: ltr; }
 
-.vertical-divider-free { position: absolute !important; top: 53.00px !important; left: 129.00px !important; width: 0.80px !important; height: 11.50px !important; background: rgba(255, 255, 63, 0.57) !important; z-index: 20 !important; box-shadow: 0 0 2px rgba(255, 255, 0, 0.8) !important; }
+.vertical-divider-free { position: absolute; top: 53.00px; left: 129.00px; width: 0.80px; height: 11.50px; background: rgba(255, 255, 63, 0.57); z-index: 20; box-shadow: 0 0 2px rgba(255, 255, 0, 0.8); }
 
-.xp-wrapper { position: absolute !important; bottom: 16.11px !important; left: 68.6px !important; width: 88px !important; height: 5px !important; background: rgba(10, 15, 10, 0.85) !important; border: 0.5px solid rgba(0, 255, 128, 0.35) !important; border-radius: 4px !important; overflow: hidden !important; direction: ltr !important; z-index: 10 !important; }
-.straight-xp-fill { height: 100% !important; width: 0%; background: linear-gradient(180deg, #a3f78b 0%, #2ecc71 45%, #1b8a47 100%) !important; box-shadow: 0 0 6px #2ecc71 !important; transition: width 0.5s ease-out !important; }
+.xp-wrapper { position: absolute; bottom: 16.11px; left: 68.6px; width: 88px; height: 5px; background: rgba(10, 15, 10, 0.85); border: 0.5px solid rgba(0, 255, 128, 0.35); border-radius: 4px; overflow: hidden; direction: ltr; z-index: 10; }
+.straight-xp-fill { height: 100%; width: 0%; background: linear-gradient(180deg, #a3f78b 0%, #2ecc71 45%, #1b8a47 100%); box-shadow: 0 0 6px #2ecc71; transition: width 0.5s ease-out; }
 
-.bottom-stats-frame { position: absolute !important; top: 88.8px !important; left: 54% !important; transform: translateX(-50%) !important; width: 193px !important; height: 22px !important; background-image: url('Media/front/tape.webp') !important; background-size: 100% 100% !important; background-repeat: no-repeat !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) !important; z-index: 10 !important; display: flex !important; align-items: center !important; justify-content: space-around !important; padding: 0 22px !important; box-sizing: border-box !important; direction: ltr !important; }
-.stat-item { display: flex !important; align-items: center !important; gap: 3px !important; color: #ffea79 !important; font-size: 9.5px !important; font-weight: 800 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important; white-space: nowrap !important; }
-.stat-icon { font-size: 10px !important; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8)) !important; }
-.frame-divider { width: 1px !important; height: 12px !important; background: linear-gradient(180deg, transparent, #ffd700, transparent) !important; opacity: 0.6 !important; }
+.bottom-stats-frame { position: absolute; top: 88.8px; left: 54%; transform: translateX(-50%); width: 193px; height: 22px; background-image: url('Media/front/tape.webp'); background-size: 100% 100%; background-repeat: no-repeat; background-color: transparent; box-shadow: none; border-radius: 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); z-index: 10; display: flex; align-items: center; justify-content: space-around; padding: 0 22px; box-sizing: border-box; direction: ltr; }
+.stat-item { display: flex; align-items: center; gap: 3px; color: #ffea79; font-size: 9.5px; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,0.9); white-space: nowrap; }
+.stat-icon { font-size: 10px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8)); }
+.frame-divider { width: 1px; height: 12px; background: linear-gradient(180deg, transparent, #ffd700, transparent); opacity: 0.6; }
 
-.streak-text-format { display: flex !important; align-items: center !important; gap: 2px !important; }
-.tokens-number-ctrl { position: relative !important; top: 1.2px !important; }
-.streak-number-ctrl { position: relative !important; top: 1.2px !important; }
-.streak-text-ctrl { position: relative !important; top: 1px !important; font-size: 7.5px !important; color: #ffea79 !important; font-weight: 700 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.9) !important; }
-.streak-fire-ctrl { position: relative !important; top: 0px !important; }
+.streak-text-format { display: flex; align-items: center; gap: 2px; }
+.tokens-number-ctrl { position: relative; top: 1.2px; }
+.streak-number-ctrl { position: relative; top: 1.2px; }
+.streak-text-ctrl { position: relative; top: 1px; font-size: 7.5px; color: #ffea79; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
+.streak-fire-ctrl { position: relative; top: 0px; }
 
 /* القائمة الجانبية */
 .side-menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 9999999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
@@ -563,18 +563,17 @@ html[dir="ltr"] .side-menu-overlay.open .side-menu-panel { left: 0; }
 #turn-box-container {
     position: relative; 
     display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
-    background: linear-gradient(145deg, #2a2a35, #15141a) !important;
-    border: 1.5px solid #a88734 !important; 
-    box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.2) !important; 
+    background: linear-gradient(145deg, #2a2a35, #15141a);
+    border: 1.5px solid #a88734; 
+    box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.2); 
     padding: 4px 10px; border-radius: 20px; 
-    width: 190px !important; height: 55px !important; 
+    width: 190px; height: 55px; 
     box-sizing: border-box; transition: opacity 0.4s ease, visibility 0.4s ease;
-    margin: 0 !important; visibility: hidden; opacity: 0;
+    margin: 0; visibility: hidden; opacity: 0;
 }
 body.game-active #turn-box-container { visibility: visible; opacity: 1; }
-body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 
-#turn-indicator, #turn-countdown { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9) !important; }
+#turn-indicator, #turn-countdown { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.9); }
 #turn-indicator { color: white; font-size: 15px; font-weight: 600; margin: 0; }
 #turn-countdown { color: #fce8a1; font-weight: 600; font-size: 12px; height: 15px; }
 .thinking-dots { display: flex; align-items: center; justify-content: center; gap: 5px; height: 20px; }
@@ -585,31 +584,31 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 
 /* النوافذ الكبيرة */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; background: rgba(15, 18, 25, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-.fullscreen-modal-container { padding: 0 !important; }
+.fullscreen-modal-container { padding: 0; }
 
-#custom-alert-modal { z-index: 99999999 !important; }
+#custom-alert-modal { z-index: 99999999 !important; } /* Alert stays important to beat everything */
 #purchase-modal { z-index: 20000001 !important; }
 #lucky-spin-modal { z-index: 20000002 !important; }
 #level-up-modal { z-index: 20000003 !important; } 
 
-.settings-card { position: relative !important; background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; border-radius: 32px !important; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 2px 3px rgba(255,255,255,0.1) !important; text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+.settings-card { position: relative; background: linear-gradient(145deg, #2a2a35, #15141a); border: 1.5px solid #a88734; border-radius: 32px; padding: 35px 25px; width: 100%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 2px 3px rgba(255,255,255,0.1); text-align: center; max-height: 90vh; overflow-y: auto; animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
 
 #store-modal .settings-card, #themes-grid-overlay .settings-card { 
-    width: 90vw !important; max-width: 600px !important; height: 80vh !important; max-height: 800px !important; padding-top: 35px; display: flex; flex-direction: column;
+    width: 90vw; max-width: 600px; height: 80vh; max-height: 800px; padding-top: 35px; display: flex; flex-direction: column;
 }
 
 .room-full-screen { 
-    width: 100vw !important; 
-    height: 100dvh !important; 
-    max-width: none !important; 
-    max-height: none !important; 
-    border-radius: 0 !important; 
-    border:none !important; 
-    padding: 22px 20px 15px 20px !important; 
-    background-image: url('Media/front/room.webp') !important; 
-    background-size: cover !important; 
-    background-position: center !important; 
-    background-color: #1a1a24 !important; 
+    width: 100vw; 
+    height: 100dvh; 
+    max-width: none; 
+    max-height: none; 
+    border-radius: 0; 
+    border: none; 
+    padding: 22px 20px 15px 20px; 
+    background-image: url('Media/front/room.webp'); 
+    background-size: cover; 
+    background-position: center; 
+    background-color: #1a1a24; 
     display: flex; 
     flex-direction: column; 
 } 
@@ -622,66 +621,66 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .scrollable-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
 .scrollable-content::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
 
-.modal-close-btn { position: absolute; top: 15px; left: 15px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fce8a1; font-size: 16px; cursor: pointer; transition: all 0.3s ease; z-index: 10; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; padding: 0; }
-.modal-close-btn:hover { background: rgba(255,69,58,0.15) !important; border-color: rgba(255,69,58,0.4) !important; color: #ff453a; transform: scale(1.1); }
+.modal-close-btn { position: absolute; top: 15px; left: 15px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #fce8a1; font-size: 16px; cursor: pointer; transition: all 0.3s ease; z-index: 10; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); padding: 0; }
+.modal-close-btn:hover { background: rgba(255,69,58,0.15); border-color: rgba(255,69,58,0.4); color: #ff453a; transform: scale(1.1); }
 
 .settings-card h3 { color: #fce8a1; margin-top: 0; margin-bottom: 20px; font-size: 20px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 .settings-label { display: block; color: #a1a1aa; font-size: 13px; font-weight: 500; margin-bottom: 8px; text-align: start; padding: 0 10px; }
 
-.settings-card .online-input, .settings-card select, .custom-bet-trigger { width: 100%; height: 50px; margin-bottom: 15px; padding: 0 20px; border-radius: 50px !important; border: 1px solid rgba(255,255,255,0.1) !important; background: rgba(255, 255, 255, 0.06) !important; color: white; font-weight: 500; font-size: 14px; box-sizing: border-box; text-align: center; appearance: none; }
-.settings-card .online-input:focus, .settings-card select:focus { border-color: #d4af37 !important; background: rgba(255,255,255,0.1) !important; outline: none; }
+.settings-card .online-input, .settings-card select, .custom-bet-trigger { width: 100%; height: 50px; margin-bottom: 15px; padding: 0 20px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255, 255, 255, 0.06); color: white; font-weight: 500; font-size: 14px; box-sizing: border-box; text-align: center; appearance: none; }
+.settings-card .online-input:focus, .settings-card select:focus { border-color: #d4af37; background: rgba(255,255,255,0.1); outline: none; }
 
-.settings-card .save-settings-btn, .settings-card .store-buy-btn { width: 100%; height: 50px; padding: 0 20px; background: rgba(255,255,255,0.08) !important; border-radius: 50px !important; color: white !important; font-weight: 600; font-size: 15px; margin-top: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1) !important;}
-.settings-card .save-settings-btn:hover, .settings-card .store-buy-btn:hover { background: rgba(255, 255, 255, 0.15) !important; border-color: #d4af37 !important; transform: scale(0.98); }
+.settings-card .save-settings-btn, .settings-card .store-buy-btn { width: 100%; height: 50px; padding: 0 20px; background: rgba(255,255,255,0.08); border-radius: 50px; color: white; font-weight: 600; font-size: 15px; margin-top: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
+.settings-card .save-settings-btn:hover, .settings-card .store-buy-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: #d4af37; transform: scale(0.98); }
 
 .audio-controls { background: rgba(255, 255, 255, 0.04); padding: 15px; border-radius: 20px; margin-top: 10px; text-align: start; border: 1px solid rgba(255,255,255,0.05); }
 .audio-controls label { display: block; margin-bottom: 8px; font-weight: 500; color: #a1a1aa; font-size: 13px; }
 .audio-controls input[type="range"] { width: 100%; margin-bottom: 5px; accent-color: #d4af37; }
 
 .custom-nav-tabs { 
-    display: flex !important; 
-    gap: 3px !important; 
-    margin-bottom: 12px !important; 
-    background: rgba(15, 18, 25, 0.6) !important; 
-    padding: 4px !important; 
-    border-radius: 14px !important; 
-    border: 1px solid rgba(255, 255, 255, 0.1) !important; 
-    box-shadow: none !important; 
-    flex-wrap: nowrap !important; 
-    overflow-x: auto !important; 
-    width: 100% !important;
-    box-sizing: border-box !important;
+    display: flex; 
+    gap: 3px; 
+    margin-bottom: 12px; 
+    background: rgba(15, 18, 25, 0.6); 
+    padding: 4px; 
+    border-radius: 14px; 
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    box-shadow: none; 
+    flex-wrap: nowrap; 
+    overflow-x: auto; 
+    width: 100%;
+    box-sizing: border-box;
 }
-.custom-nav-tabs::-webkit-scrollbar { display: none !important; }
+.custom-nav-tabs::-webkit-scrollbar { display: none; }
 
 .custom-tab-button { 
-    flex: 1 !important; 
-    min-width: 0 !important; 
-    height: 34px !important; 
-    padding: 0 4px !important; 
-    border-radius: 10px !important; 
-    background: transparent !important; 
-    color: #a1a1aa !important; 
-    font-size: 11px !important; 
-    font-weight: 700 !important; 
-    cursor: pointer !important; 
-    transition: all 0.2s ease !important; 
-    border: none !important; 
-    outline: none !important; 
-    white-space: nowrap !important; 
-    text-shadow: none !important;
+    flex: 1; 
+    min-width: 0; 
+    height: 34px; 
+    padding: 0 4px; 
+    border-radius: 10px; 
+    background: transparent; 
+    color: #a1a1aa; 
+    font-size: 11px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    border: none; 
+    outline: none; 
+    white-space: nowrap; 
+    text-shadow: none;
 }
 
 .custom-tab-button.active {
-    background: rgba(212, 175, 55, 0.15) !important;
-    color: #ffd700 !important;
-    border: 1px solid rgba(212, 175, 55, 0.4) !important;
-    border-radius: 10px !important;
-    box-shadow: none !important;
+    background: rgba(212, 175, 55, 0.15);
+    color: #ffd700;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 10px;
+    box-shadow: none;
 }
 
 /* ========================================== */
-/* 🏆 التصميم الداخلي الكامل لنافذة متصدري الموسم 🏆 */
+/* 🏆 متصدري الموسم 🏆 */
 /* ========================================== */
 .leaderboard-full-screen { 
     width: 100vw; 
@@ -882,12 +881,12 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1 !important;
-    padding-top: 3px !important; 
-    box-sizing: border-box !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding-top: 3px; 
+    box-sizing: border-box;
     font-weight: 900;
     font-size: 15px;
     z-index: 10;
@@ -927,8 +926,8 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .rank-1 .lb-podium-avatar, 
 .rank-2 .lb-podium-avatar, 
 .rank-3 .lb-podium-avatar {
-    border: none !important;
-    box-shadow: none !important;
+    border: none;
+    box-shadow: none;
     width: 100%;
     height: 100%;
 }
@@ -951,18 +950,9 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     z-index: 5;
 }
 
-.podium-frame-container.king1 {
-    width: 85px; 
-    height: 85px;
-    padding: 12px;
-}
-
+.podium-frame-container.king1 { width: 85px; height: 85px; padding: 12px; }
 .podium-frame-container.king2,
-.podium-frame-container.king3 {
-    width: 75px; 
-    height: 75px;
-    padding: 10px;
-}
+.podium-frame-container.king3 { width: 75px; height: 75px; padding: 10px; }
 
 .lb-podium-name {
     font-size: 13px;
@@ -1048,11 +1038,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     overflow: hidden; 
 }
 
-.lb-avatar img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-}
+.lb-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 .lb-info { 
     display: flex; 
@@ -1069,9 +1055,7 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     gap: 5px;
 }
 
-.lb-badge-icon {
-    font-size: 11px;
-}
+.lb-badge-icon { font-size: 11px; }
 
 .lb-score { 
     font-size: 12px; 
@@ -1090,20 +1074,23 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
     margin-top: 8px;
 }
 
+/* ========================================== */
+/* المتجر والشبكات */
+/* ========================================== */
 .themes-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 5px 0; }
 .theme-grid-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 10px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 
 .theme-grid-item:hover { 
-    border-color: #d4af37 !important; 
-    background: rgba(212, 175, 55, 0.1) !important; 
+    border-color: #d4af37; 
+    background: rgba(212, 175, 55, 0.1); 
     transform: translateY(-2px);
 }
 
 .theme-grid-item.active {
-    border: 1.5px solid #30d158 !important; 
-    background: linear-gradient(135deg, rgba(48, 209, 88, 0.15), rgba(0, 0, 0, 0.4)) !important;
-    box-shadow: 0 0 15px rgba(48, 209, 88, 0.3), inset 0 0 8px rgba(48, 209, 88, 0.2) !important;
-    transform: scale(1.03) !important; 
+    border: 1.5px solid #30d158; 
+    background: linear-gradient(135deg, rgba(48, 209, 88, 0.15), rgba(0, 0, 0, 0.4));
+    box-shadow: 0 0 15px rgba(48, 209, 88, 0.3), inset 0 0 8px rgba(48, 209, 88, 0.2);
+    transform: scale(1.03); 
     position: relative;
     z-index: 5;
 }
@@ -1154,19 +1141,19 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 .store-item-card:hover { border-color: #d4af37; background: rgba(212, 175, 55, 0.05); }
 
 .store-buy-btn-small { 
-    height: 28px !important; 
-    font-size: 11px !important; 
-    font-weight: bold !important; 
-    border-radius: 14px !important; 
-    width: 85% !important; 
-    margin-top: auto !important;
-    margin-bottom: 2px !important;
-    padding: 0 !important;
-    cursor: pointer !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.2s ease !important;
+    height: 28px; 
+    font-size: 11px; 
+    font-weight: bold; 
+    border-radius: 14px; 
+    width: 85%; 
+    margin-top: auto;
+    margin-bottom: 2px;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
 }
 
 .loading-dots-container { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
@@ -1182,36 +1169,30 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 /* 🌟 التصميم الجديد: بطاقات اللاعبين المنفصلة 🌟 */
 /* ========================================== */
 #match-players-card { 
-    background: transparent !important; 
-    border: none !important; 
-    box-shadow: none !important; 
-    backdrop-filter: none !important; 
+    background: transparent; 
+    border: none; 
+    box-shadow: none; 
+    backdrop-filter: none; 
 }
 
-
-/* ========================================== */
-/* 🌟 التصميم الجديد: بطاقات اللاعبين المنفصلة (مضغوطة وأنيقة) 🌟 */
-/* ========================================== */
 .match-players-flex { 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    gap: 0px !important; 
+    gap: 0px; 
     flex: 1; 
     max-width: 135px; 
     position: relative; 
-    
-    background: linear-gradient(145deg, rgba(30, 32, 40, 0.95), rgba(15, 18, 25, 0.9)) !important;
-    border: 1.5px solid rgba(212, 175, 55, 0.3) !important;
-    border-radius: 16px !important; 
-    padding: 7px 4px 6px 4px !important; 
-    box-shadow: 0 8px 15px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.05) !important;
+    background: linear-gradient(145deg, rgba(30, 32, 40, 0.95), rgba(15, 18, 25, 0.9));
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    border-radius: 16px; 
+    padding: 7px 4px 6px 4px; 
+    box-shadow: 0 8px 15px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.05);
     backdrop-filter: blur(4px);
 }
 
-
 .match-players-avatar-me, .match-players-avatar-opp { font-size: 24px; width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid #d4af37; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; overflow: visible; background-color: rgba(255,255,255,0.05); }
-.match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fdf5c9 !important; display: flex; align-items: center; justify-content: center; }
+.match-players-name { font-weight: 600; font-size: 12px; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fdf5c9; display: flex; align-items: center; justify-content: center; }
 .match-vs-text { color: #d4af37; font-weight: 800; font-size: 16px; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
 .purchase-preview-box { width: 100px; height: 100px; margin: 20px auto; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); }
@@ -1222,33 +1203,33 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 /* ========================================== */
 
 #toast-notification {
-    position: fixed !important;
-    top: 100px !important;       
-    right: 0 !important;         
-    width: 260px !important;     
-    height: 50px !important;     
+    position: fixed;
+    top: 100px;       
+    right: 0;         
+    width: 260px;     
+    height: 50px;     
     
-    background: rgba(24, 23, 29, 0.95) !important; 
-    border: none !important;
-    border-right: 4px solid #00d2ff !important; 
-    border-radius: 12px 0 0 12px !important;
-    padding: 0 15px !important;  
+    background: rgba(24, 23, 29, 0.95); 
+    border: none;
+    border-right: 4px solid #00d2ff; 
+    border-radius: 12px 0 0 12px;
+    padding: 0 15px;  
     
-    color: #e0e0e0 !important;
-    font-weight: 700 !important;
-    font-size: 13px !important;
+    color: #e0e0e0;
+    font-weight: 700;
+    font-size: 13px;
     
-    z-index: 9999999 !important;
-    box-shadow: -5px 5px 15px rgba(0,0,0,0.6) !important;
-    backdrop-filter: blur(8px) !important;
-    pointer-events: none !important;
+    z-index: 9999999;
+    box-shadow: -5px 5px 15px rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    pointer-events: none;
     
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 10px !important;
-    white-space: normal !important;
-    direction: rtl !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    white-space: normal;
+    direction: rtl;
     
     -webkit-clip-path: inset(0 0 0 calc(100% - 4px));
     clip-path: inset(0 0 0 calc(100% - 4px));
@@ -1258,34 +1239,35 @@ body.online-mode-active #turn-box-container { margin-bottom: 5px !important; }
 }
 
 #toast-notification.show {
-    visibility: visible !important;opacity: 1 !important;
-    animation: cinematicToastAnim 4.5s cubic-bezier(0.25, 1, 0.5, 1) forwards !important; 
+    visibility: visible !important;
+    opacity: 1 !important;
+    animation: cinematicToastAnim 4.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; 
 }
 
 @keyframes cinematicToastAnim {
-    0% { opacity: 0; -webkit-clip-path: inset(0 0 0 calc(100% - 4px)); clip-path: inset(0 0 0 calc(100% - 4px)); }
-    2% { opacity: 1; -webkit-clip-path: inset(0 0 0 calc(100% - 4px)); clip-path: inset(0 0 0 calc(100% - 4px)); }
-    15% { opacity: 1; -webkit-clip-path: inset(0 0 0 calc(100% - 4px)); clip-path: inset(0 0 0 calc(100% - 4px)); }
-    22% { opacity: 1; -webkit-clip-path: inset(0 0 0 0); clip-path: inset(0 0 0 0); }
-    67% { opacity: 1; -webkit-clip-path: inset(0 0 0 0); clip-path: inset(0 0 0 0); }
-    74% { opacity: 1; -webkit-clip-path: inset(0 0 0 calc(100% - 4px)); clip-path: inset(0 0 0 calc(100% - 4px)); }
-    95% { opacity: 1; -webkit-clip-path: inset(0 0 0 calc(100% - 4px)); clip-path: inset(0 0 0 calc(100% - 4px)); }
-    100% { opacity: 0; -webkit-clip-path: inset(0 0 0 calc(100% - 4px)); clip-path: inset(0 0 0 calc(100% - 4px)); }
-
+    0% { opacity: 0; clip-path: inset(0 0 0 calc(100% - 4px)); }
+    2% { opacity: 1; clip-path: inset(0 0 0 calc(100% - 4px)); }
+    15% { opacity: 1; clip-path: inset(0 0 0 calc(100% - 4px)); }
+    22% { opacity: 1; clip-path: inset(0 0 0 0); }
+    67% { opacity: 1; clip-path: inset(0 0 0 0); }
+    74% { opacity: 1; clip-path: inset(0 0 0 calc(100% - 4px)); }
+    95% { opacity: 1; clip-path: inset(0 0 0 calc(100% - 4px)); }
+    100% { opacity: 0; clip-path: inset(0 0 0 calc(100% - 4px)); }
 }
 
-#game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a) !important; border: 1.5px solid #a88734 !important; backdrop-filter: blur(4px) saturate(150%) !important; border-radius: 36px !important; padding: 35px 25px !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;}
-#game-over-modal h3 { color: #fce8a1 !important; font-size: 24px !important; font-weight: 700 !important; margin-bottom: 25px !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+#game-over-modal > div { background: linear-gradient(145deg, #2a2a35, #15141a); border: 1.5px solid #a88734; backdrop-filter: blur(4px) saturate(150%); border-radius: 36px; padding: 35px 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+#game-over-modal h3 { color: #fce8a1; font-size: 24px; font-weight: 700; margin-bottom: 25px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 
 /* 🌟 التحكم الجذري بتبديل أزرار القائمة والحقيبة 🌟 */
 #bag-quick-btn {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    z-index: -999 !important;
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: -999;
 }
 
+/* (استثناء هام): استخدام !important للتحكم بالظهور والإخفاء بسبب تعارض JS inline styles */
 body.game-active:not(.online-mode-active) #hamburger-menu-btn,
 body.game-active:not(.online-mode-active) #room-portal-btn {
     display: none !important;
@@ -1302,24 +1284,35 @@ body.game-active:not(.online-mode-active) #bag-quick-btn {
     z-index: 850 !important; 
 }
 
-body.online-mode-active { padding-top: 15px !important; }
-body.online-mode-active #profile-badge, body.online-mode-active #hamburger-menu-btn, body.online-mode-active #bag-quick-btn, body.online-mode-active #undo-btn, body.online-mode-active #lucky-spin-portal-btn, body.online-mode-active #floating-quests-btn, body.online-mode-active #room-portal-btn { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
-body.online-mode-active #status-area { margin-top: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; order: 1 !important; }
+body.online-mode-active { padding-top: 15px; }
+body.online-mode-active #profile-badge, 
+body.online-mode-active #hamburger-menu-btn, 
+body.online-mode-active #bag-quick-btn, 
+body.online-mode-active #undo-btn, 
+body.online-mode-active #lucky-spin-portal-btn, 
+body.online-mode-active #floating-quests-btn, 
+body.online-mode-active #room-portal-btn { 
+    display: none !important; 
+    visibility: hidden !important; 
+    opacity: 0 !important; 
+    pointer-events: none !important; 
+}
+body.online-mode-active #status-area { margin-top: 0; display: flex; flex-direction: column; align-items: center; width: 100%; order: 1; }
 
 body.online-mode-active #match-players-card { 
-    width: 95vw !important; 
-    max-width: 480px !important; 
-    flex-direction: row !important; 
-    justify-content: space-between !important; 
-    align-items: center !important;
-    padding: 5px 10px !important; 
-    margin-bottom: 15px !important; 
-    gap: 5px !important;
+    width: 95vw; 
+    max-width: 480px; 
+    flex-direction: row; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 5px 10px; 
+    margin-bottom: 15px; 
+    gap: 5px;
 }
 
-body.online-mode-active .match-vs-text { font-size: 24px !important; font-weight: 800 !important; color: #d4af37 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-body.online-mode-active .scoreboard { order: 2 !important; }
-body.online-mode-active .game-container { order: 3 !important; }
+body.online-mode-active .match-vs-text { font-size: 24px; font-weight: 800; color: #d4af37; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+body.online-mode-active .scoreboard { order: 2; }
+body.online-mode-active .game-container { order: 3; }
 
 /* ========================================== */
 /* 🎡 عجلة الحظ (Lucky Spin) - CSS            */
@@ -1339,22 +1332,18 @@ body.online-mode-active .game-container { order: 3 !important; }
     pointer-events: none;
 }
 
-/* ========================================== */
-/* 🌟 التعديلات الجديدة: خلفية العجلة والدبوس الفخم 🌟 */
-/* ========================================== */
-
 #lucky-spin-modal .settings-card {
-    background-image: url('Media/front/عجلة.webp') !important;
-    background-size: cover !important;
-    background-position: center !important;
-    background-color: #0f1015 !important;
-    border: 2px solid #ffd700 !important;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 40px rgba(255, 215, 0, 0.15) !important;
+    background-image: url('Media/front/عجلة.webp');
+    background-size: cover;
+    background-position: center;
+    background-color: #0f1015;
+    border: 2px solid #ffd700;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 40px rgba(255, 215, 0, 0.15);
 }
 
 .wheel-pointer-wrapper { 
     position: absolute; 
-    top: -28px !important; 
+    top: -28px; 
     left: 50%; 
     transform: translateX(-50%); 
     z-index: 30; 
@@ -1367,8 +1356,8 @@ body.online-mode-active .game-container { order: 3 !important; }
 .wheel-pointer-shape {
     width: 28px; 
     height: 45px;
-    background: transparent !important; 
-    clip-path: none !important; 
+    background: transparent; 
+    clip-path: none; 
     position: relative;
 }
 
@@ -1428,7 +1417,7 @@ body.online-mode-active .game-container { order: 3 !important; }
     text-align: center; font-size: 16px; font-weight: 800; color: #fff; 
     text-shadow: 0px 2px 4px rgba(0,0,0,0.9), 0px 0px 8px rgba(0,0,0,0.5); 
     white-space: nowrap; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
-    direction: ltr !important; 
+    direction: ltr; 
 }
 
 
@@ -1449,11 +1438,11 @@ body.online-mode-active .game-container { order: 3 !important; }
 }
 
 #lucky-spin-modal h3 {
-    text-shadow: 0 2px 15px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,1) !important;
+    text-shadow: 0 2px 15px rgba(0,0,0,1), 0 0 5px rgba(0,0,0,1);
 }
 #lucky-spin-modal p {
-    text-shadow: 0 2px 5px rgba(0,0,0,1) !important;
-    font-weight: 800 !important;
+    text-shadow: 0 2px 5px rgba(0,0,0,1);
+    font-weight: 800;
 }
 
 /* ⏱️ صناديق الوقت (المطابقة للصورة 2) */
@@ -1471,18 +1460,8 @@ body.online-mode-active .game-container { order: 3 !important; }
     width: 90%;
     box-shadow: 0 4px 15px rgba(0,0,0,0.6);
 }
-.timer-label {
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 700;
-}
-.spin-timer-digits {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    direction: ltr;
-}
+.timer-label { color: #ffffff; font-size: 14px; font-weight: 700; }
+.spin-timer-digits { display: flex; align-items: center; justify-content: center; gap: 8px; direction: ltr; }
 .t-box {
     background: linear-gradient(180deg, #2a1f00 0%, #1a1300 100%);
     border: 1.5px solid #d4af37;
@@ -1496,36 +1475,30 @@ body.online-mode-active .game-container { order: 3 !important; }
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
     font-family: monospace;
 }
-.time-sep {
-    color: #ffd700;
-    font-size: 18px;
-    font-weight: 800;
-}
+.time-sep { color: #ffd700; font-size: 18px; font-weight: 800; }
 
 /* 🔘 أزرار اللف اللامعة الفخمة (المطابقة للصورة 3) */
 .spin-action-btn {
-    background: linear-gradient(180deg, #005cbf 0%, #001f4d 100%) !important;
-    border: 2px solid #ffd700 !important;
-    border-radius: 50px !important;
+    background: linear-gradient(180deg, #005cbf 0%, #001f4d 100%);
+    border: 2px solid #ffd700;
+    border-radius: 50px;
     width: 90%;
-    height: 60px !important;
-    margin: 0 auto !important;
-    display: flex !important;
+    height: 60px;
+    margin: 0 auto;
+    display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.3) !important;
-    transition: all 0.2s ease !important;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.3);
+    transition: all 0.2s ease;
     position: relative;
-    padding: 0 15px !important;
+    padding: 0 15px;
 }
 .spin-action-btn:active {
-    transform: translateY(3px) !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.8) !important;
+    transform: translateY(3px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.8);
 }
-.spin-action-btn:hover {
-    filter: brightness(1.15);
-}
+.spin-action-btn:hover { filter: brightness(1.15); }
 .spin-play-icon {
     width: 36px; height: 36px;
     background: linear-gradient(135deg, #ffe066, #b8860b);
@@ -1537,11 +1510,7 @@ body.online-mode-active .game-container { order: 3 !important; }
     padding-left: 3px; 
     flex-shrink: 0;
 }
-.spin-btn-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+.spin-btn-content { display: flex; align-items: center; justify-content: center; }
 .spin-btn-text {
     color: #ffd700;
     font-size: 20px;
@@ -1579,8 +1548,8 @@ body.online-mode-active .game-container { order: 3 !important; }
 /* ========================================== */
 /* الحفاظ على عمل التنسيقات للشاشات الداخلية  */
 /* ========================================== */
-#in-game-profile-modal .profile-avatar-capsule { position: relative !important; top: auto !important; left: auto !important; z-index: 1 !important; border: 2px solid #282a32 !important; width: 100% !important; height: 100% !important; }
-#in-game-profile-modal .level-badge-small { display: block; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: #ff453a !important; color: white !important; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; z-index: 10; white-space: nowrap; box-shadow: 0 2px 6px rgba(255, 69, 58, 0.5); }
+#in-game-profile-modal .profile-avatar-capsule { position: relative; top: auto; left: auto; z-index: 1; border: 2px solid #282a32; width: 100%; height: 100%; }
+#in-game-profile-modal .level-badge-small { display: block; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: #ff453a; color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 800; border: 1.5px solid #282a32; z-index: 10; white-space: nowrap; box-shadow: 0 2px 6px rgba(255, 69, 58, 0.5); }
 .avatar-wrapper { position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
 .rank-icon-small { font-size: 14px; margin-left: 4px; filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); }
 
@@ -1640,17 +1609,17 @@ body.online-mode-active .game-container { order: 3 !important; }
 }
 
 #friend-requests-modal {
-    align-items: flex-end !important;
-    padding: 0 !important;
+    align-items: flex-end;
+    padding: 0;
     z-index: 10000015 !important;
 }
 #friend-requests-modal .settings-card {
-    margin: 0 !important;
-    border-radius: 32px 32px 0 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    animation: slideUpBottomSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    padding-bottom: 40px !important;
+    margin: 0;
+    border-radius: 32px 32px 0 0;
+    width: 100%;
+    max-width: 100%;
+    animation: slideUpBottomSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    padding-bottom: 40px;
 }
 
 /* ========================================== */
@@ -1701,7 +1670,6 @@ body.online-mode-active .game-container { order: 3 !important; }
 /* =========================================
    ✨ إصلاح إطارات البروفايل والصور الدائرية
    ========================================= */
-
 #igp-avatar, 
 #mm-my-avatar, 
 #mm-opp-avatar,
@@ -1710,9 +1678,9 @@ body.online-mode-active .game-container { order: 3 !important; }
 #card-opp-avatar,
 #bet-p1-avatar,
 #bet-p2-avatar {
-    background-color: transparent !important;
-    border: none !important;
-    overflow: visible !important;
+    background-color: transparent;
+    border: none;
+    overflow: visible;
     border-radius: 50%;
 }
 
@@ -1723,8 +1691,8 @@ body.online-mode-active .game-container { order: 3 !important; }
 #card-opp-avatar img:first-child,
 #bet-p1-avatar img:first-child,
 #bet-p2-avatar img:first-child {
-    border-radius: 50% !important;
-    object-fit: cover !important;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 /* ========================================== */
@@ -1733,29 +1701,30 @@ body.online-mode-active .game-container { order: 3 !important; }
 
 body:not(.game-active) button#online-toggle-btn.premium-game-btn,
 body:not(.game-active) button#reset-btn.premium-game-btn {
-    position: fixed !important;
-    bottom: 74px !important; 
-    z-index: 800 !important; 
-    width: calc(50vw - 15px) !important; 
-    max-width: 180px !important;   
-    height: 66px !important;       
-    padding: 8px 10px !important;  
-    box-sizing: border-box !important;
+    position: fixed;
+    bottom: 74px; 
+    z-index: 800; 
+    width: calc(50vw - 15px); 
+    max-width: 180px;   
+    height: 66px;       
+    padding: 8px 10px;  
+    box-sizing: border-box;
 }
 
 body:not(.game-active) button#online-toggle-btn.premium-game-btn {
-    right: auto !important;
-    left: 10px !important;
-    transform: none !important;
+    right: auto;
+    left: 10px;
+    transform: none;
 }
 
 body:not(.game-active) button#reset-btn.premium-game-btn {
-    left: auto !important;
-    right: 10px !important;
-    transform: none !important;
-    display: flex !important; 
+    left: auto;
+    right: 10px;
+    transform: none;
+    display: flex; 
 }
 
+/* بسبب تدخل JS في التحكم بالظهور، يجب استخدام !important هنا فقط للحفاظ على واجهة اللعب النظيفة */
 body.game-active button#online-toggle-btn.premium-game-btn {
     display: none !important;
     visibility: hidden !important;
@@ -1764,29 +1733,29 @@ body.game-active button#online-toggle-btn.premium-game-btn {
 }
 
 body.game-active button#reset-btn.premium-game-btn {
-    position: relative !important;
-    right: auto !important;
-    left: auto !important;
-    bottom: auto !important;
-    width: auto !important;
-    min-width: 85px !important;
-    max-width: unset !important;
-    border-radius: 14px !important; 
-    height: 44px !important;
-    padding: 0 12px !important;
+    position: relative;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    width: auto;
+    min-width: 85px;
+    max-width: unset;
+    border-radius: 14px; 
+    height: 44px;
+    padding: 0 12px;
     display: inline-flex !important;
 }
 
 body.game-active button#reset-btn.premium-game-btn .btn-main-text { 
-    color: #ffffff !important; 
-    font-size: 14px !important; 
-    font-weight: bold !important; 
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
+    color: #ffffff; 
+    font-size: 14px; 
+    font-weight: bold; 
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
 }
 
 body.game-active button#reset-btn.premium-game-btn .btn-sub-text,
 body.game-active button#reset-btn.premium-game-btn .btn-icon {
-    display: none !important; 
+    display: none; 
 }
 
 body.online-mode-active button#reset-btn.premium-game-btn {
@@ -1801,31 +1770,31 @@ body.online-mode-active button#reset-btn.premium-game-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 18px !important; 
+    height: 18px; 
 }
 
 .rank-icon-small img { 
-    height: 18px !important;      
-    max-height: 18px !important;  
-    width: auto !important;       
-    object-fit: contain !important; 
-    transform: scale(1) !important; 
-    flex-shrink: 0 !important;    
+    height: 18px;      
+    max-height: 18px;  
+    width: auto;       
+    object-fit: contain; 
+    transform: scale(1); 
+    flex-shrink: 0;    
 }
 
 #igp-rank-display {
-    min-height: 35px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    min-height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 #igp-rank-display img {
-    height: 40px !important;      
-    max-height: 32px !important; 
-    width: auto !important;
-    object-fit: contain !important;
-    transform: translateY(-3px) scale(1.0) !important; 
-    flex-shrink: 0 !important;
+    height: 40px;      
+    max-height: 32px; 
+    width: auto;
+    object-fit: contain;
+    transform: translateY(-3px) scale(1.0); 
+    flex-shrink: 0;
 }
 
 /* ========================================== */
@@ -1842,88 +1811,48 @@ body.online-mode-active button#reset-btn.premium-game-btn {
 
 /* 🌟 إصلاح شكل أيقونة البوت (SVG) في جميع النوافذ لمنع التشوه 🌟 */
 .modern-bot-avatar {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .modern-bot-avatar svg {
-    width: 90% !important; 
-    height: auto !important; 
-    max-height: 85% !important; 
-    object-fit: contain !important;
-    display: block !important;
+    width: 90%; 
+    height: auto; 
+    max-height: 85%; 
+    object-fit: contain;
+    display: block;
 }
 
 /* ========================================== */
 /* 🌟 إصلاح المسافات ومنع السحب (Scroll) في وضع الأونلاين 🌟 */
 /* ========================================== */
 
-html, body {
-    overscroll-behavior-y: none !important; 
-}
+html, body { overscroll-behavior-y: none !important; }
 
 body.online-mode-active {
-    height: 100dvh !important; 
-    min-height: 100dvh !important;
-    overflow: hidden !important; 
-    padding-top: 15px !important;
-    padding-bottom: 75px !important; 
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-evenly !important; 
+    height: 100dvh; 
+    min-height: 100dvh;
+    overflow: hidden; 
+    padding-top: 15px;
+    padding-bottom: 75px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly; 
 }
 
-body.online-mode-active #status-area {
-    flex-shrink: 0 !important;
-    margin-bottom: 0 !important;
-}
-
-body.online-mode-active #match-players-card {
-    margin-bottom: 5px !important; 
-}
-
-body.online-mode-active .scoreboard {
-    flex-shrink: 0 !important;
-    margin-bottom: 5px !important;
-}
+body.online-mode-active #status-area { flex-shrink: 0; margin-bottom: 0; }
+body.online-mode-active #match-players-card { margin-bottom: 5px; }
+body.online-mode-active .scoreboard { flex-shrink: 0; margin-bottom: 5px; }
 
 body.online-mode-active .game-container {
-    flex: 1 !important; 
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    max-height: 52vh !important; 
-    overflow: hidden !important;
-}
-
-/* ========================================== */
-/* 🌟 انعكاس إطار البروفايل للغة الإنجليزية (LTR) 🌟 */
-/* ========================================== */
-html[dir="ltr"] #profile-badge.profile-badge-container {
-    right: 0px !important; 
-    left: auto !important;
-    transform-origin: top center !important;
-    transform: scale(0.85) scaleX(-1) !important;
-}
-
-html[dir="ltr"] #profile-badge.profile-badge-container:hover {
-    transform: scale(0.82) scaleX(-1) !important;
-}
-
-html[dir="ltr"] #profile-badge.profile-badge-container > .text-boundary,
-html[dir="ltr"] #profile-badge.profile-badge-container > .xp-wrapper,
-html[dir="ltr"] #profile-badge.profile-badge-container > .vertical-divider-free {
-    transform: scaleX(-1) !important;
-}
-
-html[dir="ltr"] #profile-badge.profile-badge-container > #badge-avatar {
-    transform: scaleX(-1) translateZ(0) !important;
-}
-
-html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
-    transform: translateX(-50%) scaleX(-1) !important;
+    flex: 1; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-height: 52vh; 
+    overflow: hidden;
 }
 
 /* ========================================== */
@@ -1943,7 +1872,7 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
     transition: all 0.1s ease;
 }
 #roll-dice-btn:active {
-    transform: translate(50%, calc(-50% + 4px)) !important;
+    transform: translate(50%, calc(-50% + 4px));
     box-shadow: 0 2px 8px rgba(0,0,0,0.6), 0 0 0 #b45f06;
 }
 
@@ -1951,84 +1880,23 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 /* 🎲 مكعب نرد 3D صلب وأنيق (بحجم أصغر 34px) 🎲 */
 /* ========================================== */
 
-#dice-container {
-    perspective: 1200px;
-    transform-style: preserve-3d;
-}
-
-.tawla-die {
-    width: 34px;  /* 🌟 تم التصغير هنا */
-    height: 34px; /* 🌟 تم التصغير هنا */
-    position: relative;
-    z-index: 50;
-    transform-style: preserve-3d;
-}
+#dice-container { perspective: 1200px; transform-style: preserve-3d; }
+.tawla-die { width: 34px; height: 34px; position: relative; z-index: 50; transform-style: preserve-3d; }
 
 /* 🌀 مسارات القفز */
 .roll-arc-1 { animation: arcJump1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 .roll-arc-2 { animation: arcJump2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 
-@keyframes arcJump1 {
-    0%   { transform: translate3d(-150px, -200px, 100px) scale(1.5); }
-    60%  { transform: translate3d(10px, 10px, 20px) scale(0.9); }
-    80%  { transform: translate3d(-5px, -10px, 30px) scale(1.05); }
-    100% { transform: translate3d(0, 0, 0) scale(1); }
-}
-
-@keyframes arcJump2 {
-    0%   { transform: translate3d(-100px, -250px, 100px) scale(1.5); }
-    60%  { transform: translate3d(-10px, 15px, 20px) scale(0.9); }
-    80%  { transform: translate3d(5px, -15px, 30px) scale(1.05); }
-    100% { transform: translate3d(0, 0, 0) scale(1); }
-}
+@keyframes arcJump1 { 0% { transform: translate3d(-150px, -200px, 100px) scale(1.5); } 60% { transform: translate3d(10px, 10px, 20px) scale(0.9); } 80% { transform: translate3d(-5px, -10px, 30px) scale(1.05); } 100% { transform: translate3d(0, 0, 0) scale(1); } }
+@keyframes arcJump2 { 0% { transform: translate3d(-100px, -250px, 100px) scale(1.5); } 60% { transform: translate3d(-10px, 15px, 20px) scale(0.9); } 80% { transform: translate3d(5px, -15px, 30px) scale(1.05); } 100% { transform: translate3d(0, 0, 0) scale(1); } }
 
 /* 🧊 حاوية المكعب */
-.dice-3d-wrapper {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-}
-
-/* 🧱 حشوة صلبة داخل المكعب */
-.dice-3d-wrapper::before {
-    content: '';
-    position: absolute;
-    top: 1px; left: 1px; right: 1px; bottom: 1px;
-    background-color: #f4f4f5;
-    transform: translateZ(0);
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-}
+.dice-3d-wrapper { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+.dice-3d-wrapper::before { content: ''; position: absolute; top: 1px; left: 1px; right: 1px; bottom: 1px; background-color: #f4f4f5; transform: translateZ(0); box-shadow: 0 0 15px rgba(0,0,0,0.5); }
 
 /* 🧊 الوجوه الستة للمكعب */
-.dice-face {
-    position: absolute;
-    width: 34px;  /* 🌟 تم التصغير هنا */
-    height: 34px; /* 🌟 تم التصغير هنا */
-    background: linear-gradient(145deg, #ffffff, #e6e6e6);
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    display: grid;
-    grid-template-areas: "a . c" "e g f" "d . b";
-    grid-template-rows: 1fr 1fr 1fr;
-    grid-template-columns: 1fr 1fr 1fr;
-    padding: 4px; /* 🌟 تقليل الحشوة ليتناسب مع الحجم الجديد */
-    box-sizing: border-box;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-}
-
-/* النقاط (Pips) */
-.dice-face .pip {
-    display: block;
-    width: 7px;   /* 🌟 تصغير النقاط قليلاً */
-    height: 7px;  /* 🌟 تصغير النقاط قليلاً */
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #4b5563, #111827);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
-    align-self: center;
-    justify-self: center;
-    transform: translateZ(1px);
-}
+.dice-face { position: absolute; width: 34px; height: 34px; background: linear-gradient(145deg, #ffffff, #e6e6e6); border: 1px solid #d1d5db; border-radius: 6px; display: grid; grid-template-areas: "a . c" "e g f" "d . b"; grid-template-rows: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr 1fr; padding: 4px; box-sizing: border-box; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+.dice-face .pip { display: block; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #4b5563, #111827); box-shadow: inset 0 1px 3px rgba(0,0,0,0.8); align-self: center; justify-self: center; transform: translateZ(1px); }
 
 /* توزيع النقاط لكل وجه */
 .face-1 .pip:nth-child(1) { grid-area: g; }
@@ -2038,7 +1906,7 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
 .face-5 .pip:nth-child(1) { grid-area: a; } .face-5 .pip:nth-child(2) { grid-area: c; } .face-5 .pip:nth-child(3) { grid-area: g; } .face-5 .pip:nth-child(4) { grid-area: d; } .face-5 .pip:nth-child(5) { grid-area: b; }
 .face-6 .pip:nth-child(1) { grid-area: a; } .face-6 .pip:nth-child(2) { grid-area: c; } .face-6 .pip:nth-child(3) { grid-area: e; } .face-6 .pip:nth-child(4) { grid-area: f; } .face-6 .pip:nth-child(5) { grid-area: d; } .face-6 .pip:nth-child(6) { grid-area: b; }
 
-/* 🧊 تشكيل المكعب هندسياً: نصف الحجم الجديد (34 / 2 = 17 بيكسل) 🌟 */
+/* 🧊 تشكيل المكعب هندسياً */
 .face-front  { transform: rotateY(0deg) translateZ(17px); }
 .face-back   { transform: rotateX(180deg) translateZ(17px); }
 .face-right  { transform: rotateY(90deg) translateZ(17px); }
