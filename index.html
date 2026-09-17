@@ -363,6 +363,7 @@
         }
         .auth-toggle-link:hover { opacity: 0.8; transform: translateY(-1px); }    
 
+
         /* ========================================== */
         /* 🌟 تصميم إطار آخر لعبة لعبت 🌟 */
         /* ========================================== */
@@ -373,14 +374,12 @@
             position: relative;
             margin: 10px auto 25px auto;
             cursor: pointer;
-            /* 👇 أزلنا border-radius و overflow حتى لا يتم قص الزوايا الذهبية المدببة */
-            transition: var(--transition);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.8), 0 0 15px rgba(197, 155, 66, 0.2);
+            transition: transform 0.3s ease;
+            /* أزلنا الـ box-shadow من هنا لمنع ظهور الظل المربع خلف الزوايا الشفافة */
         }
 
         #last-played-banner:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.9), 0 0 20px rgba(197, 155, 66, 0.4);
         }
 
         .last-played-frame {
@@ -391,30 +390,36 @@
             height: 100%;
             z-index: 2; 
             pointer-events: none;
-            /* 👇 استخدمنا fill بدلاً من cover لنجبر الإطار على الظهور بالكامل بدون Zoom */
             object-fit: fill;
+            /* 👇 وضعنا الظل على الصورة نفسها ليتماشى مع تعرجات الإطار الذهبي تماماً */
+            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8));
+            transition: filter 0.3s ease;
+        }
+
+        #last-played-banner:hover .last-played-frame {
+            filter: drop-shadow(0 20px 25px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(197, 155, 66, 0.4));
         }
 
         .last-played-image-container {
             position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 60%;
-            height: calc(100% - 4px); /* خصم 4 بكسل حتى لا تغطي صورة اللعبة على إطار الذهب */
+            /* 👇 إزاحة الحاوية للداخل قليلاً لتختبئ حوافها المربعة خلف الإطار الذهبي */
+            top: 6px; 
+            left: 6px; 
+            width: 52%; 
+            height: calc(100% - 12px); 
             z-index: 1;
             overflow: hidden;
-            /* 👇 أضفنا انحناء بسيط للزوايا اليسرى فقط لصورة اللعبة لكي لا تخرج خارج الإطار */
-            border-radius: 8px 0 0 8px; 
+            border-radius: 12px 0 0 12px; /* انحناء للزوايا اليسرى فقط */
+            background: #111; /* لون احتياطي أسود يمنع ظهور القلعة إذا كانت الصورة مفقودة */
         }
 
         #last-played-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.8);
+            filter: brightness(0.85);
             transition: transform 0.5s ease;
         }
-
 
         #last-played-banner:hover #last-played-img {
             transform: scale(1.1);
@@ -424,14 +429,14 @@
             position: absolute;
             top: 0;
             right: 0;
-            width: 45%;
+            width: 48%; /* لضبط النصوص فوق الجزء الأخضر بدقة */
             height: 100%;
             z-index: 3;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 15px;
+            padding: 10px;
             text-align: center;
         }
 
@@ -740,7 +745,8 @@
                 
                 <!-- صورة اللعبة تظهر تحت المنطقة الشفافة -->
                 <div class="last-played-image-container">
-                    <img id="last-played-img" src="" alt="Game">
+                    <!-- 👇 أضفنا onerror هنا لعلاج الصور المفقودة -->
+                    <img id="last-played-img" src="" alt="Game" onerror="this.src='Photo/1000138342.webp'">
                 </div>
                 
                 <!-- النصوص والزر تظهر فوق المنطقة الخضراء -->
@@ -750,6 +756,7 @@
                     <div class="last-played-play-btn">▶ العب</div>
                 </div>
             </div>
+
 
             <div class="cards-container">
                 <!-- بطاقة لعبة الدامة -->
