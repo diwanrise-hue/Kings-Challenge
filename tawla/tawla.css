@@ -1803,145 +1803,197 @@ body.online-mode-active .game-container {
 }
 
 /* ========================================== */
-/* 🎲 إضافات لوحة الطاولة (Tawla Board Layout) 🎲 */
+/* 🎲 ساحة اللعب والأحجار والنرد (النسخة الـ 3D الشاملة والنظيفة) 🎲 */
 /* ========================================== */
+
+/* --- 1. الحاوية الأساسية (التوسيط المثالي 100%) --- */
 .tawla-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 95vw;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 95% !important; /* يمنع الفراغ الأيمن */
     max-width: 500px;
     aspect-ratio: 1 / 1;
-    margin: 0 auto;
+    margin: 0 auto !important;
 }
 
+/* --- 2. غلاف الطاولة (تفعيل منظور الـ 3D) --- */
+#tawla-board-wrapper {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    perspective: 1200px !important;
+    transform-style: preserve-3d !important;
+    overflow: visible !important; 
+}
+
+/* --- 3. الساحة الخشبية (إمالة، سمك، وبدون أنيميشن مزعج) --- */
 #tawla-board {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* قسمين يفصل بينهما البار */
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     width: 100%;
     height: 100%;
     background-color: #3e2723;
     border: 12px solid transparent;
     border-image: repeating-linear-gradient(45deg, #5C3A21, #5C3A21 10px, #4A2E1B 10px, #4A2E1B 20px) 12;
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
-    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
     gap: 10px;
     position: relative;
-    margin: 50px auto; /* مساحة للأشرطة العلوية والسفلية مع التمركز التلقائي */
     box-sizing: border-box;
-    
+    margin: 0 !important;
+    transform-origin: center center !important;
+    transform: rotateX(10deg) translateY(-10px) !important;
+    box-shadow: 
+        0 12px 0 #2a1608,
+        0 25px 35px rgba(0,0,0,0.85),
+        inset 0 0 25px rgba(0,0,0,0.6) !important;
+    transform-style: preserve-3d !important;
+    border-bottom: 2px solid #1a0d04 !important;
 }
 
-
+/* --- 4. الأرباع والمثلثات الدقيقة (تحت الأحجار) --- */
 .board-quadrant {
     display: flex;
     justify-content: space-between;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.2); /* خلفية خفيفة للارباع */
+    background: rgba(0,0,0,0.2);
     position: relative;
 }
 
-/* ========================================== */
-/* 📐 رسم المثلثات بدقة متناهية تحت الأحجار 📐 */
-/* ========================================== */
+/* إخفاء الخلفية المشوهة القديمة */
+.board-quadrant::before { display: none !important; }
 
-/* إلغاء أي خلفية مشوهة سابقة */
-.board-quadrant::before {
-    display: none !important;
-}
+.point { position: relative; }
 
-/* رسم مثلث مستقل لكل نقطة (Point) */
+/* رسم المثلثات */
 .point::before {
     content: '';
     position: absolute;
     left: 0;
     width: 100%;
-    height: 90%; /* طول المثلث (يصل لـ 90% من النصف) */
-    z-index: 0; /* إجبار المثلث أن يكون "تحت" الأحجار */
-    pointer-events: none; /* لمنع إعاقة اللمس */
+    height: 90%; 
+    z-index: 0 !important; /* تحت الأحجار */
+    pointer-events: none; 
+}
+.top-right .point::before, .top-left .point::before { top: 0; clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
+.bottom-right .point::before, .bottom-left .point::before { bottom: 0; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+
+.point:nth-child(odd)::before { background-color: #2a1608; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+.point:nth-child(even)::before { background-color: #dcb68a; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+
+/* --- 5. الأحجار الـ 3D (أقراص الكازينو) --- */
+body[data-piece-style] .piece, .piece {
+    position: relative !important;
+    z-index: 10 !important; /* فوق المثلثات */
+    transform: translateZ(8px) !important; /* الرفع في الفراغ */
+    border: none !important;
+    border-radius: 50% !important;
+    transform-style: preserve-3d;
 }
 
-/* 🔻 النصف العلوي (الطاولة العليا): المثلثات تتجه للأسفل 🔻 */
-.top-right .point::before,
-.top-left .point::before {
-    top: 0;
-    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+/* إخفاء الدوائر الداخلية الوهمية القديمة */
+body[data-piece-style] .piece::before, body[data-piece-style] .piece::after, .piece::before, .piece::after {
+    display: none !important;
 }
 
-/* 🔺 النصف السفلي (الطاولة السفلى): المثلثات تتجه للأعلى 🔺 */
-.bottom-right .point::before,
-.bottom-left .point::before {
-    bottom: 0;
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+/* الحجر الأبيض */
+body[data-piece-style] .piece.white, .piece.white {
+    background: radial-gradient(circle at 50% 50%, #f9fafb 30%, #e5e7eb 70%, #9ca3af 100%) !important;
+    box-shadow: inset 0 4px 5px rgba(255,255,255,0.8), 0 4px 0 #9ca3af, 0 8px 6px rgba(0,0,0,0.6) !important;
 }
 
-/* 🎨 تلوين المثلثات بالتناوب (فاتح وغامق) 🎨 */
-/* المثلثات الفردية (غامق) */
-.point:nth-child(odd)::before {
-    background-color: #2a1608; /* لون خشبي غامق */
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5); /* تظليل داخلي للعمق */
+/* الحجر الأسود */
+body[data-piece-style] .piece.black, .piece.black {
+    background: radial-gradient(circle at 50% 50%, #4b5563 30%, #1f2937 70%, #030712 100%) !important;
+    box-shadow: inset 0 4px 5px rgba(255,255,255,0.2), 0 4px 0 #000000, 0 8px 6px rgba(0,0,0,0.8) !important;
 }
 
-/* المثلثات الزوجية (فاتح) */
-.point:nth-child(even)::before {
-    background-color: #dcb68a; /* لون خشبي فاتح (عاجي) */
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-}
+/* ترتيب الأحجار المتكدسة */
+.tawla-point { display: flex; flex-direction: column; align-items: center; position: relative; }
+.tawla-point.top-row { justify-content: flex-start; }
+.tawla-point.bottom-row { justify-content: flex-end; }
+.tawla-point .piece { margin-top: -18px; }
+.tawla-point .piece:first-child { margin-top: 0; }
 
+/* البار (منتصف الطاولة) */
 .tawla-bar {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    background: #5C3A21;
-    border-left: 2px solid #3e2723;
-    border-right: 2px solid #3e2723;
-    z-index: 5;
+    position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 20px; background: #5C3A21; border-left: 2px solid #3e2723; border-right: 2px solid #3e2723; z-index: 5;
 }
 
-.bear-off-zone {
-    width: 40px;
-    background: #4A2E1B;
-    border: 4px solid #5C3A21;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 5px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+/* --- 6. مكعبات النرد 3D (34px) الصلبة --- */
+#dice-container {
+    perspective: 1200px; transform-style: preserve-3d;
 }
-
 .tawla-die {
-    width: 40px;
-    height: 40px;
-    background: #fff;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #000;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);
-    animation: rollDice 0.5s ease-out;
+    width: 34px; height: 34px; position: relative; z-index: 50; transform-style: preserve-3d;
 }
 
-@keyframes rollDice {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(1.2); }
-    100% { transform: rotate(360deg) scale(1); }
+/* مسارات القفز 3D */
+.roll-arc-1 { animation: arcJump1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+.roll-arc-2 { animation: arcJump2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+@keyframes arcJump1 {
+    0%   { transform: translate3d(-150px, -200px, 100px) scale(1.5); }
+    60%  { transform: translate3d(10px, 10px, 20px) scale(0.9); }
+    80%  { transform: translate3d(-5px, -10px, 30px) scale(1.05); }
+    100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes arcJump2 {
+    0%   { transform: translate3d(-100px, -250px, 100px) scale(1.5); }
+    60%  { transform: translate3d(-10px, 15px, 20px) scale(0.9); }
+    80%  { transform: translate3d(5px, -15px, 30px) scale(1.05); }
+    100% { transform: translate3d(0, 0, 0) scale(1); }
 }
 
-@media (max-height: 700px) {
-    body.online-mode-active #tawla-board-wrapper, 
-    body.online-mode-active .tawla-container {
-        max-width: 48vh !important; 
-    }
+.dice-3d-wrapper { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+.dice-3d-wrapper::before {
+    content: ''; position: absolute; top: 1px; left: 1px; right: 1px; bottom: 1px;
+    background-color: #f4f4f5; transform: translateZ(0); box-shadow: 0 0 15px rgba(0,0,0,0.5);
 }
+
+.dice-face {
+    position: absolute; width: 34px; height: 34px;
+    background: linear-gradient(145deg, #ffffff, #e6e6e6);
+    border: 1px solid #d1d5db; border-radius: 6px; display: grid;
+    grid-template-areas: "a . c" "e g f" "d . b";
+    grid-template-rows: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr 1fr;
+    padding: 4px; box-sizing: border-box; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+}
+
+.dice-face .pip {
+    display: block; width: 7px; height: 7px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #4b5563, #111827);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+    align-self: center; justify-self: center; transform: translateZ(1px);
+}
+.face-1 .pip:nth-child(1) { grid-area: g; }
+.face-2 .pip:nth-child(1) { grid-area: a; } .face-2 .pip:nth-child(2) { grid-area: b; }
+.face-3 .pip:nth-child(1) { grid-area: a; } .face-3 .pip:nth-child(2) { grid-area: g; } .face-3 .pip:nth-child(3) { grid-area: b; }
+.face-4 .pip:nth-child(1) { grid-area: a; } .face-4 .pip:nth-child(2) { grid-area: c; } .face-4 .pip:nth-child(3) { grid-area: d; } .face-4 .pip:nth-child(4) { grid-area: b; }
+.face-5 .pip:nth-child(1) { grid-area: a; } .face-5 .pip:nth-child(2) { grid-area: c; } .face-5 .pip:nth-child(3) { grid-area: g; } .face-5 .pip:nth-child(4) { grid-area: d; } .face-5 .pip:nth-child(5) { grid-area: b; }
+.face-6 .pip:nth-child(1) { grid-area: a; } .face-6 .pip:nth-child(2) { grid-area: c; } .face-6 .pip:nth-child(3) { grid-area: e; } .face-6 .pip:nth-child(4) { grid-area: f; } .face-6 .pip:nth-child(5) { grid-area: d; } .face-6 .pip:nth-child(6) { grid-area: b; }
+
+.face-front  { transform: rotateY(0deg) translateZ(17px); }
+.face-back   { transform: rotateX(180deg) translateZ(17px); }
+.face-right  { transform: rotateY(90deg) translateZ(17px); }
+.face-left   { transform: rotateY(-90deg) translateZ(17px); }
+.face-top    { transform: rotateX(90deg) translateZ(17px); }
+.face-bottom { transform: rotateX(-90deg) translateZ(17px); }
+
+/* زر رمي النرد */
+#roll-dice-btn {
+    transform: translate(50%, -50%) translateZ(30px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.6), 0 4px 0 #b45f06, inset 0 2px 4px rgba(255,255,255,0.3);
+}
+#roll-dice-btn:active {
+    transform: translate(50%, -45%) translateZ(10px) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6), 0 0 0 #b45f06, inset 0 2px 4px rgba(255,255,255,0.1);
+}
+ 
+
 
 /* ========================================== */
 /* 🌟 انعكاس إطار البروفايل للغة الإنجليزية (LTR) 🌟 */
