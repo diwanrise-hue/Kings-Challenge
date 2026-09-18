@@ -2176,25 +2176,30 @@ html[dir="ltr"] #profile-badge.profile-badge-container > .bottom-stats-frame {
     border-bottom: 2px solid #1a0d04 !important;
 }
 
-/* 3. رفع الأحجار عن الطاولة وإعطاؤها سمكاً (كأقراص الكازينو) */
+/* 3. رفع الأحجار عن الطاولة وإعطاؤها سمكاً */
 body[data-piece-style] .piece {
-    transform: translateZ(8px) !important; /* رفع الأحجار في الفراغ */
+    transform: translateZ(8px) !important; 
     border: none !important;
 }
 
-/* ⚪ تصميم الحجر الأبيض 3D (متوافق مع كل الثيمات) ⚪ */
+/* 🚫 التعديل الأهم: إخفاء الدائرة الداخلية القديمة التي تسبب شكل "الحجرين" 🚫 */
+body[data-piece-style] .piece::before,
+body[data-piece-style] .piece::after {
+    display: none !important;
+}
+
+/* ⚪ تصميم الحجر الأبيض 3D (قطعة واحدة صلبة) ⚪ */
 body[data-piece-style] .piece.white {
     box-shadow: 
-        inset 0 3px 5px rgba(255,255,255,0.7), /* لمعة الإضاءة العلوية */
-        0 5px 0 #9ca3af, /* سمك الحجر (البعد الثالث) */
-        0 10px 8px rgba(0,0,0,0.6) !important; /* الظل الساقط على الطاولة */
+        inset 0 4px 5px rgba(255,255,255,0.8), /* لمعة الإضاءة العلوية */
+        0 4px 0 #9ca3af, /* 👈 سمك الحجر (قللناه لـ 4 ليكون مثالياً) */
+        0 8px 6px rgba(0,0,0,0.6) !important; /* الظل الساقط على الطاولة */
 }
 
-/* ⚫ تصميم الحجر الأسود 3D (متوافق مع كل الثيمات) ⚫ */
+/* ⚫ تصميم الحجر الأسود 3D (قطعة واحدة صلبة) ⚫ */
 body[data-piece-style] .piece.black {
     box-shadow: 
-        inset 0 3px 5px rgba(255,255,255,0.2), /* لمعة الإضاءة العلوية */
-        0 5px 0 #000000, /* سمك الحجر (البعد الثالث) */
-        0 10px 8px rgba(0,0,0,0.8) !important; /* الظل الساقط على الطاولة */
+        inset 0 4px 5px rgba(255,255,255,0.2), /* لمعة الإضاءة العلوية */
+        0 4px 0 #000000, /* 👈 سمك الحجر (قللناه لـ 4 ليكون مثالياً) */
+        0 8px 6px rgba(0,0,0,0.8) !important; /* الظل الساقط على الطاولة */
 }
-
