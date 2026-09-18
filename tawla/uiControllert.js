@@ -905,101 +905,89 @@ export const ui = {
     },
 
     
-    renderBoard(forceRebuild = false) {
+        renderBoard(forceRebuild = false) {
         const board = this.getEl('tawla-board');
         if (!board) return;
         
-        // بناء هيكل الطاولة النظيف لمرة واحدة فقط
+        // 1. بناء هيكل الطاولة (إذا كانت فارغة أو طلبنا إعادة البناء)
         if (board.children.length === 0 || forceRebuild) {
-            board.innerHTML = ''; 
-
-            const leftHalf = this.makeEl('div', 'board-half left-half');
-            const centerBar = this.makeEl('div', 'tawla-bar');
-            centerBar.innerHTML = `<div id="bar-white" data-index="bar" style="display:flex; flex-direction:column; align-items:center; flex:1;"></div><div id="bar-black" data-index="bar" style="display:flex; flex-direction:column-reverse; align-items:center; flex:1;"></div>`;
-            const rightHalf = this.makeEl('div', 'board-half right-half');
-
-            // دالة مساعدة لإنشاء صف مثلثات (6 مثلثات)
-            const createRow = (startIndex, isTop, extraClass) => {
-                const row = this.makeEl('div', `board-row ${isTop ? 'top' : 'bottom'} ${extraClass}`);
-                for (let i = 0; i < 6; i++) {
-                    let actualIndex = startIndex + i;
-                    let colorClass = (actualIndex % 2 === 0) ? 'light' : 'dark';
-                    let point = this.makeEl('div', `point ${colorClass}`);
-                    point.dataset.index = actualIndex;
-                    row.appendChild(point);
-                }
-                return row;
-            };
-
-            // توزيع الأرباع حسب نظام الطاولة الحقيقي
-            leftHalf.appendChild(createRow(6, true, 'quad-top-left'));     // 6-11
-            leftHalf.appendChild(createRow(12, false, 'quad-bottom-left'));// 12-17
+            board.innerHTML = `
+                <div class="board-quadrant top-left" id="quad-tl" style="flex-direction: row-reverse;"></div>
+                <div class="board-quadrant top-right" id="quad-tr" style="flex-direction: row-reverse;"></div>
+                <div class="board-quadrant bottom-left" id="quad-bl"></div>
+                <div class="board-quadrant bottom-right" id="quad-br"></div>
+                <div class="tawla-bar" id="tawla-bar" style="display:flex; flex-direction:column; justify-content:space-between; padding: 10px 0;">
+                    <div id="bar-white" data-index="bar-white" style="flex:1; display:flex; flex-direction:column; align-items:center; cursor:pointer;"></div>
+                    <div id="bar-black" data-index="bar-black" style="flex:1; display:flex; flex-direction:column-reverse; align-items:center; cursor:pointer;"></div>
+                </div>
+            `;
             
-            rightHalf.appendChild(createRow(0, true, 'quad-top-right'));   // 0-5
-            rightHalf.appendChild(createRow(18, false, 'quad-bottom-right'));// 18-23
-
-            board.appendChild(leftHalf);
-            board.appendChild(centerBar);
-            board.appendChild(rightHalf);
-
-            // أشرطة إخراج الأحجار (نظيفة وخفية إذا لم تستخدم)
+            // توزيع المثلثات الـ 24 على الأرباع
+            for(let i=0; i<24; i++) {
+                let q = (i>=0 && i<=5) ? 'quad-tr' : (i>=6 && i<=11) ? 'quad-tl' : (i>=12 && i<=17) ? 'quad-bl' : 'quad-br';
+                let pointDiv = document.createElement('div');
+                pointDiv.className = 'point'; pointDiv.dataset.index = i;
+                
+                // 🌟 إصلاح اللمس: تم إضافة height: 100% هنا لكي تستجيب المثلثات الفارغة للنقر
+                pointDiv.style.cssText = `width: 16.6%; height: 100%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
+                document.getElementById(q).appendChild(pointDiv);
+            }
+            
+            // إضافة أشرطة إخراج الأحجار (العلوي والسفلي) إذا لم تكن موجودة
             if(!document.getElementById('bear-off-top')) {
-                let boTop = this.makeEl('div', '', 'position:absolute; top:-40px; left:0; width:100%; height:35px; background:rgba(0,0,0,0.5); border-radius:8px; display:flex; padding:0 10px; z-index:20;');
-                boTop.id = 'bear-off-top'; boTop.innerHTML = `<div id="out-white" style="display:flex; align-items:center;"></div>`;
+                let boTop = document.createElement('div'); boTop.id = 'bear-off-top';
+                boTop.style.cssText = "position:absolute; top:-48px; left:0; width:100%; height:42px; background:#4A2E1B; border:3px solid #5C3A21; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20; box-sizing:border-box;";
+                boTop.innerHTML = `<div id="out-white" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
                 board.appendChild(boTop);
 
-                let boBottom = this.makeEl('div', '', 'position:absolute; bottom:-40px; left:0; width:100%; height:35px; background:rgba(0,0,0,0.5); border-radius:8px; display:flex; padding:0 10px; z-index:20;');
-                boBottom.id = 'bear-off-bottom'; boBottom.innerHTML = `<div id="out-black" style="display:flex; align-items:center;"></div>`;
+                let boBottom = document.createElement('div'); boBottom.id = 'bear-off-bottom';
+                boBottom.style.cssText = "position:absolute; bottom:-48px; left:0; width:100%; height:42px; background:#4A2E1B; border:3px solid #5C3A21; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20; box-sizing:border-box;";
+                boBottom.innerHTML = `<div id="out-black" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
                 board.appendChild(boBottom);
             }
         }
 
-        // مسح الأحجار القديمة ووضع الجديدة
+        // إيقاف الدالة إذا لم تكن بيانات اللوحة متوفرة
         if(!gameState.virtualBoard || !gameState.virtualBoard.points) return;
         
+        // 2. تفريغ الطاولة من الأحجار القديمة قبل رسم الجديدة
         for(let i=0; i<24; i++) { let pt = board.querySelector(`.point[data-index="${i}"]`); if(pt) pt.innerHTML = ''; }
         document.getElementById('bar-white').innerHTML = ''; document.getElementById('bar-black').innerHTML = '';
         document.getElementById('out-white').innerHTML = ''; document.getElementById('out-black').innerHTML = '';
 
-        // توزيع الأحجار
+        // 3. رسم الأحجار على المثلثات
         gameState.virtualBoard.points.forEach((pt, i) => {
             if(pt.count > 0) {
                 let pointDiv = board.querySelector(`.point[data-index="${i}"]`);
                 for(let c=0; c<pt.count; c++) {
-                    let piece = document.createElement('div'); 
-                    piece.className = `piece ${pt.color}`;
-                    // إذا زادت الأحجار عن 6، نعرض رقماً لتجنب خروج الأحجار من الشاشة
-                    if (c === 5 && pt.count > 6) {
-                        piece.innerHTML = `<span style="color:${pt.color==='white'?'#000':'#fff'}; font-weight:900; font-size:14px;">+${pt.count - 5}</span>`;
-                        pointDiv.appendChild(piece);
-                        break; 
-                    } else {
-                        pointDiv.appendChild(piece);
-                    }
+                    let piece = document.createElement('div'); piece.className = `piece ${pt.color}`;
+                    // تداخل الأحجار إذا زاد عددها عن 5 في نفس المثلث
+                    if(c > 4) piece.style.marginTop = '-25px'; 
+                    if(i >= 12 && c > 4) { piece.style.marginTop = '0'; piece.style.marginBottom = '-25px'; }
+                    pointDiv.appendChild(piece);
                 }
             }
         });
 
-        // أحجار البار (المأكولة)
+        // 4. رسم الأحجار المأكولة في البار (المنتصف)
         for(let c=0; c<gameState.virtualBoard.bar.white; c++) document.getElementById('bar-white').appendChild(this.makeEl('div', 'piece white'));
         for(let c=0; c<gameState.virtualBoard.bar.black; c++) document.getElementById('bar-black').appendChild(this.makeEl('div', 'piece black'));
         
-        // الأحجار المخرجة (Bearing off)
+        // 5. رسم الأحجار التي تم إخراجها (Bearing Off) أفقياً
         let outW = gameState.virtualBoard.out?.white || gameState.virtualBoard.bearOff?.white || 0;
-        for(let c=0; c<outW; c++) {
+        for(let c = 0; c < outW; c++) {
             let p = document.createElement('div'); p.className = 'piece white';
-            p.style.cssText = `width:25px!important; height:25px!important; margin-left:${c===0?'0':'-15px'}; box-shadow:-2px 0 5px rgba(0,0,0,0.5);`;
+            p.style.cssText = `width:32px !important; height:32px !important; min-width:32px; min-height:32px; margin-left:${c===0?'0':'-18px'}; position:relative; z-index:${c}; box-shadow: -2px 0 5px rgba(0,0,0,0.5);`;
             document.getElementById('out-white').appendChild(p);
         }
 
         let outB = gameState.virtualBoard.out?.black || gameState.virtualBoard.bearOff?.black || 0;
-        for(let c=0; c<outB; c++) {
+        for(let c = 0; c < outB; c++) {
             let p = document.createElement('div'); p.className = 'piece black';
-            p.style.cssText = `width:25px!important; height:25px!important; margin-left:${c===0?'0':'-15px'}; box-shadow:-2px 0 5px rgba(0,0,0,0.5);`;
+            p.style.cssText = `width:32px !important; height:32px !important; min-width:32px; min-height:32px; margin-left:${c===0?'0':'-18px'}; position:relative; z-index:${c}; box-shadow: -2px 0 5px rgba(0,0,0,0.5);`;
             document.getElementById('out-black').appendChild(p);
         }
     },
-
 
         updateDiceUI(isNewRoll = false) {
         const d1El = this.getEl('die1'); const d2El = this.getEl('die2');
