@@ -1884,45 +1884,56 @@ body.online-mode-active .game-container {
 .point:nth-child(odd)::before { background-color: #2a1608; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
 .point:nth-child(even)::before { background-color: #dcb68a; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
 
-/* --- 5. الأحجار الـ 3D (أقراص الكازينو) --- */
+//* --- 5. الأحجار (استعادة الشكل الكلاسيكي الجميل مع الحفاظ على الـ 3D) --- */
 body[data-piece-style] .piece, .piece {
     position: relative !important;
-    z-index: 10 !important; /* فوق المثلثات */
-    transform: translateZ(8px) !important; /* الرفع في الفراغ */
-    border: none !important;
+    z-index: 20 !important;
+    transform: translateZ(8px) !important; /* ضروري لتبقى بارزة فوق الساحة الـ 3D */
     border-radius: 50% !important;
     transform-style: preserve-3d;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important; 
 }
 
-/* إخفاء الدوائر الداخلية الوهمية القديمة */
-body[data-piece-style] .piece::before, body[data-piece-style] .piece::after, .piece::before, .piece::after {
-    display: none !important;
+/* 🌟 استعادة الدائرة الداخلية الأنيقة (لمنع شكل الحجر السادة) 🌟 */
+body[data-piece-style] .piece::before, .piece::before {
+    content: '' !important;
+    display: block !important;
+    position: absolute !important;
+    width: 45% !important; 
+    height: 45% !important; 
+    border-radius: 50% !important; 
+    pointer-events: none !important; 
+    border: 1px solid rgba(0,0,0,0.1) !important;
 }
 
-/* الحجر الأبيض */
+/* ⚪ الحجر الأبيض (ألوانك القديمة + سمك الـ 3D) ⚪ */
 body[data-piece-style] .piece.white, .piece.white {
-    background: radial-gradient(circle at 50% 50%, #f9fafb 30%, #e5e7eb 70%, #9ca3af 100%) !important;
-    box-shadow: inset 0 4px 5px rgba(255,255,255,0.8), 0 4px 0 #9ca3af, 0 8px 6px rgba(0,0,0,0.6) !important;
+    background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6) !important;
+    border: 1px solid #bdc3c7 !important;
+    box-shadow: 
+        inset -3px -3px 6px rgba(0,0,0,0.2), /* تظليلك الداخلي القديم */
+        0 4px 0 #9ca3af,                     /* سمك الـ 3D */
+        0 8px 6px rgba(0,0,0,0.6) !important; /* ظل الـ 3D الساقط */
+}
+body[data-piece-style] .piece.white::before, .piece.white::before {
+    background-color: rgba(0, 0, 0, 0.15) !important;
 }
 
-/* الحجر الأسود */
+/* ⚫ الحجر الأسود (ألوانك القديمة + سمك الـ 3D) ⚫ */
 body[data-piece-style] .piece.black, .piece.black {
-    background: radial-gradient(circle at 50% 50%, #4b5563 30%, #1f2937 70%, #030712 100%) !important;
-    box-shadow: inset 0 4px 5px rgba(255,255,255,0.2), 0 4px 0 #000000, 0 8px 6px rgba(0,0,0,0.8) !important;
+    background: radial-gradient(circle at 30% 30%, #68707a, #353b45, #1e1e24) !important;
+    border: 1px solid #1a1a24 !important;
+    box-shadow: 
+        inset -3px -3px 6px rgba(0,0,0,0.2), /* تظليلك الداخلي القديم */
+        0 4px 0 #000000,                     /* سمك الـ 3D */
+        0 8px 6px rgba(0,0,0,0.8) !important; /* ظل الـ 3D الساقط */
+}
+body[data-piece-style] .piece.black::before, .piece.black::before {
+    background-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-/* ترتيب الأحجار المتكدسة */
-.tawla-point { display: flex; flex-direction: column; align-items: center; position: relative; }
-.tawla-point.top-row { justify-content: flex-start; }
-.tawla-point.bottom-row { justify-content: flex-end; }
-.tawla-point .piece { margin-top: -18px; }
-.tawla-point .piece:first-child { margin-top: 0; }
-
-/* البار (منتصف الطاولة) */
-.tawla-bar {
-    position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 20px; background: #5C3A21; border-left: 2px solid #3e2723; border-right: 2px solid #3e2723; z-index: 5;
-}
 
 /* --- 6. مكعبات النرد 3D (34px) الصلبة --- */
 #dice-container {
@@ -2254,4 +2265,19 @@ body[data-piece-style] .piece.black {
         inset 0 4px 5px rgba(255,255,255,0.2), /* لمعة الإضاءة العلوية */
         0 4px 0 #000000, /* 👈 سمك الحجر (قللناه لـ 4 ليكون مثالياً) */
         0 8px 6px rgba(0,0,0,0.8) !important; /* الظل الساقط على الطاولة */
+}
+
+/* 4. رفع البار الخشبي (المنتصف) ليكون فوق المثلثات */
+.tawla-bar {
+    position: absolute !important; 
+    top: 0 !important; 
+    bottom: 0 !important; 
+    left: 50% !important; 
+    transform: translateX(-50%) !important;
+    width: 20px !important; 
+    background: #5C3A21 !important; 
+    border-left: 2px solid #3e2723 !important; 
+    border-right: 2px solid #3e2723 !important; 
+    z-index: 15 !important; /* 👈 رفعناه إلى 15 ليغطي أطراف المثلثات */
+    box-shadow: 0 0 15px rgba(0,0,0,0.8) !important; /* ظل يعطي إحساساً بأنه خشب بارز */
 }
