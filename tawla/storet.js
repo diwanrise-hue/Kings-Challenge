@@ -1,6 +1,6 @@
 /**
  * storet.js
- * النسخة النهائية المحدثة الشاملة المدمجة لمتجر الطاولة (متوافق 100% مع السيرفر)
+ * النسخة النهائية المحدثة الشاملة المدمجة لمتجر الطاولة (متوافق 100% مع السيرفر والـ 3D الجديد)
  */
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -634,12 +634,11 @@ export const storeManager = {
 
     injectDynamicPieceStyles() {
         if (document.getElementById('dynamic-pieces-css')) return;
-        
+
         let pieceStyles = `
-            #tawla-board .cell { display: flex !important; align-items: center !important; justify-content: center !important; }
             @keyframes goldenVaporAura { 0% { transform: scale(1); opacity: 0.8; filter: blur(2px); } 100% { transform: scale(1.6); opacity: 0; filter: blur(8px); } }
         `;
-        
+
         Object.keys(STORE_ITEMS).forEach(key => {
             const item = STORE_ITEMS[key];
             if (item.type === 'pc' && key !== 'pc_original') {
@@ -650,13 +649,8 @@ export const storeManager = {
                     let blackDamaImg = item.damaImagePathBlack || blackImg;
 
                     pieceStyles += `
-                        body[data-piece-style="${key}"] .piece { 
-                            background-color: transparent !important; border: none !important; box-shadow: 0 5px 10px rgba(0,0,0,0.5) !important; 
-                            position: relative; width: 85% !important; height: 85% !important; margin: 0 !important; 
-                        }
-                        body[data-piece-style="${key}"] .piece::before, body[data-piece-style="${key}"] .piece::after { display: none !important; }
-                        body[data-piece-style="${key}"] .piece.white { background-image: url('${whiteImg}') !important; background-size: 100% 100% !important; }
-                        body[data-piece-style="${key}"] .piece.black { background-image: url('${blackImg}') !important; background-size: 100% 100% !important; }
+                        body[data-piece-style="${key}"] .piece.white { background-image: url('${whiteImg}') !important; background-size: cover !important; background-position: center !important; }
+                        body[data-piece-style="${key}"] .piece.black { background-image: url('${blackImg}') !important; background-size: cover !important; background-position: center !important; }
                         body[data-piece-style="${key}"] .piece.white.tawla { background-image: url('${whiteDamaImg}') !important; border: 2px solid #FFD700 !important; box-shadow: 0 0 15px #FFD700, inset 0 0 10px rgba(255,215,0,0.5) !important; }
                         body[data-piece-style="${key}"] .piece.black.tawla { background-image: url('${blackDamaImg}') !important; border: 2px solid #FFD700 !important; box-shadow: 0 0 15px #FFD700, inset 0 0 10px rgba(255,215,0,0.5) !important; }
                         body[data-piece-style="${key}"] .piece.tawla::after {
@@ -673,16 +667,11 @@ export const storeManager = {
                     `;
                 }
                 if (item.customPseudoCss) { pieceStyles += item.customPseudoCss; }
-            } else if (item.type === 'pc' && key === 'pc_original') {
-                 pieceStyles += `
-                 body[data-piece-style="${key}"] .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6) !important; border: 1px solid #bdc3c7 !important; clip-path: none !important; border-radius: 50% !important; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2) !important; }
-                 body[data-piece-style="${key}"] .piece.black { background: radial-gradient(circle at 30% 30%, #68707a, #353b45, #1e1e24) !important; border: 1px solid #1a1a24 !important; clip-path: none !important; border-radius: 50% !important; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.5), 2px 2px 4px rgba(0,0,0,0.4) !important; }
-             `;
             }
         });
 
-        let styleEl = document.createElement('style'); 
-        styleEl.id = 'dynamic-pieces-css'; 
+        let styleEl = document.createElement('style');
+        styleEl.id = 'dynamic-pieces-css';
         styleEl.innerHTML = pieceStyles;
         document.head.appendChild(styleEl);
     },
@@ -729,7 +718,7 @@ export const storeManager = {
             // إزالة الأسطر المتعارضة من قاعدة بيانات الإطارات من المصدر
             let cleanCSS = item.customCSS
                 .replace(/left:\s*50%\s*!important;/g, '')
-                .replace(/transform:\s*translateX\(-50%\)\s*!important;/g, '')
+                .replace(/transform:\s*translateX\(-50\%\)\s*!important;/g, '')
                 .replace(/margin:\s*0\s*!important;/g, 'margin: 50px auto !important;');
             styleEl.innerHTML = cleanCSS;
         } else {
