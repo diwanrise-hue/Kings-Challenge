@@ -1258,3 +1258,4 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
     const purchaseModal = document.getElementById('purchase-modal');
     if(purchaseModal) purchaseModal.style.display = 'flex';
 };
+
