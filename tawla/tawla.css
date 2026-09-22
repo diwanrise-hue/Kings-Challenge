@@ -122,6 +122,7 @@ body {
     transform-style: preserve-3d !important;
     overflow: visible !important; 
 }
+
 /* --- 2. الطاولة (الإطار الخشبي الفخم والتفاصيل) --- */
 #tawla-board {
     display: grid !important;
@@ -141,11 +142,11 @@ body {
     gap: 24px !important;
     
     background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
-    border: 16px solid #3d2214 !important;
-    border-top-color: #5c3620 !important; 
-    border-bottom-color: #1f1008 !important; 
     
-    /* 🚨 التعديل الأول: جعل الزوايا حادة تماماً كالصناديق الحقيقية 🚨 */
+    /* 🚨 التعديل الجذري: لون واحد موحد لجميع الجهات الأربع لتبدو كقطعة واحدة 🚨 */
+    border: 16px solid #3d2214 !important;
+    /* (تم إزالة الألوان المختلفة للأعلى والأسفل التي كانت تسبب شكل القطع المنفصلة) */
+    
     border-radius: 0px !important;
     
     position: relative;
@@ -154,9 +155,10 @@ body {
     transform-origin: center center !important;
     transform: rotateX(4deg) translateY(0px) !important; 
     
+    /* تعويض الإضاءة باستخدام الظلال بدلاً من لون الإطار */
     box-shadow: 
         inset 0 0 25px rgba(0,0,0,0.9), 
-        inset 0 2px 3px rgba(255,255,255,0.15), 
+        inset 0 4px 6px rgba(255,255,255,0.1), /* إضاءة خفيفة من الداخل */
         0 8px 0 #170b05, 
         0 15px 25px rgba(0,0,0,0.7) !important; 
     transform-style: preserve-3d !important;
@@ -174,33 +176,31 @@ body {
 }
 .board-quadrant::before { display: none !important; }
 
-/* --- 3. الخشب الأوسط "البار" (يقطع الإطار ليفصل الطاولة) --- */
+/* --- 3. الخشب الأوسط "البار" (يندمج كلياً مع الإطار الموحد) --- */
 .tawla-bar {
     position: absolute !important; 
     left: 50% !important; 
     transform: translateX(-50%) !important;
     
-    /* 🚨 التعديل الثاني: تمديد البار للأعلى والأسفل بمقدار 16px ليقطع الإطار الخشبي ويلتصق بالنهايات 🚨 */
     top: -16px !important; 
     bottom: -16px !important; 
     
     width: 24px !important;
     
+    /* 🚨 أطراف التدرج (0% و 100%) متطابقة تماماً مع لون الإطار الخارجي (#3d2214) 🚨 */
     background: linear-gradient(to right, 
-        #5c3620 0%, #3d2214 38%,   
+        #3d2214 0%, #2b150c 38%,   
         #000000 38%, #1a0d08 50%, #000000 62%, 
-        #3d2214 62%, #5c3620 100%  
+        #2b150c 62%, #3d2214 100%  
     ) !important; 
     
-    border-left: 1px solid rgba(0,0,0,0.8) !important; 
-    border-right: 1px solid rgba(0,0,0,0.8) !important; 
+    border: none !important; 
     
-    /* رفع قيمة الـ z-index لضمان تغطية البار للإطار الخارجي */
     z-index: 25 !important; 
     
     box-shadow: 
-        inset 2px 0 3px rgba(255,255,255,0.15), 
-        inset -2px 0 3px rgba(255,255,255,0.15),
+        inset 2px 0 3px rgba(0,0,0,0.4), 
+        inset -2px 0 3px rgba(0,0,0,0.4),
         0 0 20px rgba(0,0,0,0.85) !important;
 }
 
