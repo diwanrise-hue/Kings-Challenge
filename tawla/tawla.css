@@ -122,7 +122,6 @@ body {
     transform-style: preserve-3d !important;
     overflow: visible !important; 
 }
-
 /* --- 2. الطاولة (الإطار الخشبي الفخم والتفاصيل) --- */
 #tawla-board {
     display: grid !important;
@@ -139,14 +138,15 @@ body {
     align-content: stretch !important;
     justify-content: stretch !important;
     
-    /* 🚨 تم تكبير الفجوة لتتسع لإطارين داخليين بدلاً من عمود واحد 🚨 */
     gap: 24px !important;
     
     background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
     border: 16px solid #3d2214 !important;
     border-top-color: #5c3620 !important; 
     border-bottom-color: #1f1008 !important; 
-    border-radius: 8px !important;
+    
+    /* 🚨 التعديل الأول: جعل الزوايا حادة تماماً كالصناديق الحقيقية 🚨 */
+    border-radius: 0px !important;
     
     position: relative;
     box-sizing: border-box;
@@ -174,64 +174,63 @@ body {
 }
 .board-quadrant::before { display: none !important; }
 
-/* --- 3. الخشب الأوسط "البار" (مقسم لإطارين مع مفصلات معدنية) --- */
+/* --- 3. الخشب الأوسط "البار" (يقطع الإطار ليفصل الطاولة) --- */
 .tawla-bar {
-    position: absolute !important; top: 0 !important; bottom: 0 !important; left: 50% !important; transform: translateX(-50%) !important;
+    position: absolute !important; 
+    left: 50% !important; 
+    transform: translateX(-50%) !important;
     
-    /* عرض البار يتناسب مع الفجوة الجديدة */
+    /* 🚨 التعديل الثاني: تمديد البار للأعلى والأسفل بمقدار 16px ليقطع الإطار الخشبي ويلتصق بالنهايات 🚨 */
+    top: -16px !important; 
+    bottom: -16px !important; 
+    
     width: 24px !important;
     
-    /* 🚨 الخدعة البصرية: تدرج لوني يرسم إطار أيسر، شق أسود عميق في المنتصف، وإطار أيمن 🚨 */
     background: linear-gradient(to right, 
-        #5c3620 0%, #3d2214 38%,   /* الإطار الداخلي الأيسر */
-        #000000 38%, #1a0d08 50%, #000000 62%, /* الشق الأوسط الداكن */
-        #3d2214 62%, #5c3620 100%  /* الإطار الداخلي الأيمن */
+        #5c3620 0%, #3d2214 38%,   
+        #000000 38%, #1a0d08 50%, #000000 62%, 
+        #3d2214 62%, #5c3620 100%  
     ) !important; 
     
     border-left: 1px solid rgba(0,0,0,0.8) !important; 
     border-right: 1px solid rgba(0,0,0,0.8) !important; 
-    z-index: 15 !important; 
     
-    /* ظلال تعطي لمعاناً لكل إطار داخلي */
+    /* رفع قيمة الـ z-index لضمان تغطية البار للإطار الخارجي */
+    z-index: 25 !important; 
+    
     box-shadow: 
         inset 2px 0 3px rgba(255,255,255,0.15), 
         inset -2px 0 3px rgba(255,255,255,0.15),
         0 0 20px rgba(0,0,0,0.85) !important;
 }
 
-/* 🔩 تصميم المفصلات المعدنية (الحديد) العلوية والسفلية 🔩 */
+/* 🔩 تصميم المفصلات المعدنية (الحديد) 🔩 */
 .tawla-bar::before, .tawla-bar::after {
     content: '' !important;
     position: absolute !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-    width: 14px !important; /* عرض قطعة الحديد */
-    height: 38px !important; /* طول قطعة الحديد */
+    width: 14px !important; 
+    height: 38px !important; 
     
-    /* ملمس معدني (ستيل) للمفصلة */
     background-color: #a6a6a6 !important;
     background-image: 
-        /* إضافة خط الحفر في المنتصف للمفصلة */
         linear-gradient(to bottom, transparent 48%, #111 48%, #111 52%, transparent 52%),
-        /* تدرج لمعان الحديد */
         linear-gradient(to right, #4a4a4a 0%, #c4c4c4 30%, #ffffff 50%, #c4c4c4 70%, #4a4a4a 100%) !important;
     
     border-radius: 2px !important;
     border-top: 1px solid #fff !important;
     border-bottom: 2px solid #111 !important;
     
-    /* ظل المفصلة على الخشب لتبدو بارزة وملحومة */
     box-shadow: 
         0 4px 6px rgba(0,0,0,0.9), 
         inset 0 0 3px rgba(0,0,0,0.6) !important;
         
-    z-index: 20 !important;
+    z-index: 30 !important;
 }
 
-/* تحديد أماكن المفصلات (واحدة في الأعلى والأخرى في الأسفل) */
 .tawla-bar::before { top: 15% !important; }
 .tawla-bar::after { bottom: 15% !important; }
-
 
 /* --- 4. الأرباع والمثلثات (الألوان الجديدة والالتصاق التام) --- */
 .point { 
