@@ -1828,53 +1828,71 @@ body.online-mode-active .game-container {
     overflow: visible !important; 
 }
 
-/* --- 2. الطاولة (الإطار الخشبي الفخم والفراغات الداخلية) --- */
+/* --- 2. الطاولة (الإطار الخشبي الفخم والتفاصيل) --- */
 #tawla-board {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    width: 100%;
-    height: 100%;
+    /* ... (احتفظ بإعدادات العرض والـ grid القديمة) ... */
     
-    padding: 10px !important; /* تقليل المسافة الداخلية لمنع الانضغاط */
-    gap: 15px; /* مساحة البار الأوسط */
+    /* إضاءة مركزية تملأ الفراغ وتبرز منتصف الطاولة */
+    background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
     
-    background: radial-gradient(circle at center, #2b170e 0%, #170b05 100%) !important;
-    
+    /* إطار بلمسة إضاءة علوية لمحاكاة العمق */
     border: 12px solid #3d2214 !important;
-    border-top-color: #4f2d1b !important;
-    border-bottom-color: #2b170e !important;
+    border-top-color: #5c3620 !important; /* إضاءة من الأعلى */
+    border-bottom-color: #1f1008 !important; /* ظل من الأسفل */
     border-radius: 8px !important;
     
-    position: relative;
-    box-sizing: border-box;
-    margin: 0 !important;
-    transform-origin: center center !important;
-    /* تقليل الـ rotateX من 12 إلى 4 لمنع تشوه المثلثات (Stretching) */
-    transform: rotateX(4deg) translateY(0px) !important; 
-    
+    /* ظل داخلي قوي + إضاءة حادة على الحافة الداخلية للإطار */
     box-shadow: 
-        inset 0 0 15px rgba(0,0,0,0.8),
+        inset 0 0 25px rgba(0,0,0,0.9), 
+        inset 0 2px 3px rgba(255,255,255,0.15), 
         0 8px 0 #170b05, 
         0 15px 25px rgba(0,0,0,0.7) !important; 
     transform-style: preserve-3d !important;
 }
 
-/* --- إصلاح طول المثلثات (الخانات) لكي لا تبدو ممطوطة --- */
+/* --- 3. الخشب الأوسط "البار" (مرتفع ومجسم باحترافية) --- */
+.tawla-bar {
+    position: absolute !important; top: 0 !important; bottom: 0 !important; left: 50% !important; transform: translateX(-50%) !important;
+    width: 26px !important;
+    /* تأثير أسطواني بلمعان في المنتصف */
+    background: linear-gradient(to right, #1a0d04 0%, #5c3a21 40%, #7a4f2e 50%, #5c3a21 60%, #1a0d04 100%) !important; 
+    border-left: 1px solid rgba(0,0,0,0.8) !important; 
+    border-right: 1px solid rgba(0,0,0,0.8) !important; 
+    z-index: 15 !important; 
+    /* إضاءة على حواف البار وظل قوي يسقط على الرقعة */
+    box-shadow: 
+        inset 1px 0 2px rgba(255,255,255,0.15), 
+        inset -1px 0 2px rgba(0,0,0,0.5),
+        0 0 20px rgba(0,0,0,0.85) !important;
+}
+
+/* --- 4. الأرباع والمثلثات (إبراز حواف المثلثات وظلالها) --- */
 .point { 
     position: relative; 
-    width: 16%; 
+    width: 16.4%; /* زيادة العرض قليلاً لتقليل الفراغات الجانبية */
+    /* إضافة ظل مجسم يتشكل حول حواف المثلث */
+    filter: drop-shadow(2px 0px 3px rgba(0,0,0,0.6)); 
 }
 .point::before { 
-    content: ''; 
-    position: absolute; 
-    left: 0; 
-    width: 100%; 
-    height: 90%; /* تقليل الطول قليلاً لمنع التداخل */
-    max-height: 220px; /* حد أقصى للطول */
-    z-index: 0 !important; 
-    pointer-events: none; 
+    content: ''; position: absolute; left: 0; width: 100%; height: 90%; max-height: 220px; z-index: 0 !important; pointer-events: none; 
 }
+
+/* المثلثات الداكنة (خشب الجوز الداكن المصقول) */
+.top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before { 
+    background: linear-gradient(to bottom, #2b170e, #0a0502 90%); 
+}
+.bottom-right .point:nth-child(odd)::before, .bottom-left .point:nth-child(odd)::before { 
+    background: linear-gradient(to top, #2b170e, #0a0502 90%); 
+}
+
+/* المثلثات الفاتحة (خشب السنديان الفاتح المصقول) */
+.top-right .point:nth-child(even)::before, .top-left .point:nth-child(even)::before { 
+    background: linear-gradient(to bottom, #e3c4a2, #9e754e 90%); 
+}
+.bottom-right .point:nth-child(even)::before, .bottom-left .point:nth-child(even)::before { 
+    background: linear-gradient(to top, #e3c4a2, #9e754e 90%); 
+}
+
 
 /* --- 5. الأحجار (إجبار الشكل الدائري 100% ومنع التسطيح) --- */
 body[data-piece-style] .piece, .piece {
@@ -1945,3 +1963,15 @@ body[data-piece-style] .piece.black::before, .piece.black::before { background-c
 /* --- 7. زر رمي النرد المعلق بـ 3D --- */
 #roll-dice-btn { transform: translate(50%, -50%) translateZ(30px); box-shadow: 0 8px 15px rgba(0,0,0,0.6), 0 4px 0 #b45f06, inset 0 2px 4px rgba(255,255,255,0.3); }
 #roll-dice-btn:active { transform: translate(50%, -45%) translateZ(10px) !important; box-shadow: 0 2px 8px rgba(0,0,0,0.6), 0 0 0 #b45f06, inset 0 2px 4px rgba(255,255,255,0.1); }
+
+
+/* --- أماكن إخراج الأحجار (العلوي والسفلي) لتبدو كجزء من الإطار الخشبي --- */
+#bear-off-top, #bear-off-bottom {
+    background: linear-gradient(to right, #3d2214, #5c3620 50%, #3d2214) !important;
+    border: 2px solid #1f1008 !important;
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 6px !important;
+    box-shadow: 
+        inset 0 5px 15px rgba(0,0,0,0.8), /* تجويف غائر للداخل */
+        0 5px 10px rgba(0,0,0,0.6) !important;
+}
