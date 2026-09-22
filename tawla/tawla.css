@@ -123,7 +123,11 @@ body {
     overflow: visible !important; 
 }
 
-/* --- 2. الطاولة (هندسة الطبقات للإطار فوق المثلثات) --- */
+/* ========================================== */
+/* 👑 هندسة الساحة الاحترافية (النسخة النهائية الفاخرة) 👑 */
+/* ========================================== */
+
+/* --- 2. الطاولة (صندوقان مستقلان بعمق واقعي) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -131,17 +135,14 @@ body {
     width: 100% !important;
     height: 100% !important;
     
-    /* 🚨 الحشوة تطابق سمك الإطار الخشبي تماماً لكي تتطابق الشبكة مع الداخل 🚨 */
-    padding: 16px !important;
+    padding: 16px !important; /* سمك الإطار الخشبي */
     
     align-content: stretch !important;
     justify-content: stretch !important;
     
-    /* الفجوة: 16 إطار أيمن + 4 شق + 16 إطار أيسر = 36px */
-    gap: 36px !important;
+    gap: 36px !important; /* مساحة الشق الأوسط مع الإطارات */
     
-    /* الأرضية الخشبية الداكنة للطاولة كلها */
-    background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
+    background: transparent !important;
     border: none !important;
     border-radius: 0 !important;
     
@@ -155,31 +156,36 @@ body {
     z-index: 1; 
 }
 
-/* 📦 الإطار الخشبي الأيسر (يجلس فوق المثلثات بفضل z-index: 10 ليقطع قواعدها) 📦 */
+/* 📦 الصندوق الخشبي الأيسر (أرضية خشب الجوز المضاءة) 📦 */
 #tawla-board::before {
     content: ''; position: absolute; top: 0; bottom: 0; left: 0;
     width: calc(50% - 2px); 
-    background: transparent !important; /* شفاف ليظهر الأرضية والمثلثات من تحته */
-    border: 16px solid #3d2214 !important;
-    border-radius: 4px !important; box-sizing: border-box !important;
-    z-index: 10 !important; /* يجلس فوق المثلثات ليخفي حوافها */
-    pointer-events: none; /* لكي لا يمنع لمس الأحجار */
+    /* إضاءة مركزية تبرز جمال الخشب وتظليل عميق عند الحواف */
+    background: radial-gradient(ellipse at center, #4a2818 0%, #291309 60%, #120501 100%) !important;
+    border: 16px solid #2e1509 !important; /* لون خشب الإطار */
+    border-radius: 4px !important; 
+    box-sizing: border-box !important;
+    z-index: -1; 
+    /* ظل داخلي عميق جداً + لمعة خفيفة على حافة الخشب الداخلية */
     box-shadow: 
-        inset 0 0 20px rgba(0,0,0,0.9), /* الظل الذي يسقط من الخشب على المثلثات */
-        0 15px 25px rgba(0,0,0,0.7) !important; /* الظل الخارجي للصندوق */
+        inset 0 0 35px rgba(0,0,0,0.95), 
+        inset 0 2px 5px rgba(255,255,255,0.08), 
+        0 15px 30px rgba(0,0,0,0.8) !important;
 }
 
-/* 📦 الإطار الخشبي الأيمن 📦 */
+/* 📦 الصندوق الخشبي الأيمن 📦 */
 #tawla-board::after {
     content: ''; position: absolute; top: 0; bottom: 0; right: 0;
     width: calc(50% - 2px); 
-    background: transparent !important; 
-    border: 16px solid #3d2214 !important;
-    border-radius: 4px !important; box-sizing: border-box !important;
-    z-index: 10 !important; pointer-events: none;
+    background: radial-gradient(ellipse at center, #4a2818 0%, #291309 60%, #120501 100%) !important;
+    border: 16px solid #2e1509 !important;
+    border-radius: 4px !important; 
+    box-sizing: border-box !important;
+    z-index: -1; 
     box-shadow: 
-        inset 0 0 20px rgba(0,0,0,0.9), 
-        0 15px 25px rgba(0,0,0,0.7) !important;
+        inset 0 0 35px rgba(0,0,0,0.95), 
+        inset 0 2px 5px rgba(255,255,255,0.08), 
+        0 15px 30px rgba(0,0,0,0.8) !important;
 }
 
 .board-quadrant { 
@@ -188,44 +194,76 @@ body {
 }
 .board-quadrant::before, .board-quadrant::after { display: none !important; }
 
+
 /* --- 3. الشق الأوسط والمفصلات المعدنية --- */
 .tawla-bar {
     position: absolute !important; left: 50% !important; transform: translateX(-50%) !important;
     top: 0 !important; bottom: 0 !important; 
-    width: 4px !important; background: #000000 !important; border: none !important; 
-    z-index: 15 !important; box-shadow: inset 0 0 5px #000 !important;
+    width: 4px !important; 
+    background: #050201 !important; /* سواد الشق الداخلي */
+    border: none !important; 
+    z-index: 15 !important; 
+    box-shadow: inset 0 0 8px rgba(0,0,0,1) !important;
 }
 
+/* 🔩 المفصلات المعدنية الفاخرة (Brushed Steel) 🔩 */
 .tawla-bar::before, .tawla-bar::after {
     content: '' !important; position: absolute !important; left: 50% !important; transform: translateX(-50%) !important;
-    width: 16px !important; height: 42px !important; 
-    background-color: #a6a6a6 !important;
-    background-image: linear-gradient(to bottom, transparent 48%, #000 48%, #000 52%, transparent 52%), linear-gradient(to right, #4a4a4a 0%, #c4c4c4 30%, #ffffff 50%, #c4c4c4 70%, #4a4a4a 100%) !important;
-    border-radius: 3px !important; border-top: 1px solid #fff !important; border-bottom: 2px solid #111 !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.9), inset 0 0 3px rgba(0,0,0,0.6) !important; z-index: 30 !important;
+    width: 16px !important; height: 44px !important; 
+    
+    background-color: #8c8c8c !important;
+    background-image: 
+        /* خط المفصلة الدقيق */
+        linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.9) 48%, rgba(0,0,0,0.9) 52%, transparent 52%), 
+        /* لمعان المعدن الأسطواني */
+        linear-gradient(to right, #2b2b2b 0%, #8f8f8f 25%, #ffffff 50%, #8f8f8f 75%, #2b2b2b 100%) !important;
+    
+    border-radius: 4px !important; 
+    border-top: 1px solid rgba(255,255,255,0.6) !important; 
+    border-bottom: 2px solid #000 !important;
+    
+    /* ظل المفصلة الواقعي على الخشب */
+    box-shadow: 
+        0 6px 12px rgba(0,0,0,0.9), 
+        inset 0 0 4px rgba(0,0,0,0.5) !important; 
+    z-index: 30 !important;
 }
-.tawla-bar::before { top: 15% !important; } .tawla-bar::after { bottom: 15% !important; }
+.tawla-bar::before { top: 12% !important; } .tawla-bar::after { bottom: 12% !important; }
 
-/* --- 4. الأرباع والمثلثات --- */
+
+/* --- 4. الأرباع والمثلثات (تطعيمات العاج والأزرق الملكي) --- */
 .point { 
     position: relative; width: 16.4%; height: 100% !important; margin: 0 !important; padding: 0 !important;
-    filter: drop-shadow(2px 0px 3px rgba(0,0,0,0.6)); z-index: 5 !important; 
+    /* ظل أسود حاد للمثلث لجعله يبدو بارزاً قليلاً أو محفوراً بدقة */
+    filter: drop-shadow(1px 0px 2px rgba(0,0,0,0.8)); 
+    z-index: 5 !important; 
 }
 .point::before { 
     content: ''; position: absolute; left: 0; width: 100%; height: 85%; 
     z-index: 5 !important; pointer-events: none; display: block; margin: 0 !important;
 }
 
-/* 🚨 دفع المثلثات لتنزلق تحت الإطار الخشبي (z-index 10 للإطار سيغطيها تماماً) 🚨 */
+/* انزلاق المثلثات تحت الإطار الخشبي */
 .top-right .point::before, .top-left .point::before { top: -10px !important; clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
 .bottom-right .point::before, .bottom-left .point::before { bottom: -10px !important; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
 
-/* الألوان */
-.top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before { background: linear-gradient(to bottom, #81d4fa, #29b6f6) !important; }
-.bottom-right .point:nth-child(odd)::before, .bottom-left .point:nth-child(odd)::before { background: linear-gradient(to top, #81d4fa, #29b6f6) !important; }
+/* 🔷 المثلثات الزرقاء الملكية (Royal Azure) مع مراعاة اتجاه الضوء */
+/* من الأعلى (الضوء في القاعدة، الظل في الرأس) */
+.top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before { 
+    background: linear-gradient(to bottom, #29b6f6 0%, #0277bd 100%) !important; 
+}
+/* من الأسفل (الضوء في القاعدة، الظل في الرأس) */
+.bottom-right .point:nth-child(odd)::before, .bottom-left .point:nth-child(odd)::before { 
+    background: linear-gradient(to top, #29b6f6 0%, #0277bd 100%) !important; 
+}
 
-.top-right .point:nth-child(even)::before, .top-left .point:nth-child(even)::before { background: linear-gradient(to bottom, #ffffff, #e0e0e0) !important; }
-.bottom-right .point:nth-child(even)::before, .bottom-left .point:nth-child(even)::before { background: linear-gradient(to top, #ffffff, #e0e0e0) !important; }
+/* 🤍 المثلثات العاجية (Ivory White) الفخمة */
+.top-right .point:nth-child(even)::before, .top-left .point:nth-child(even)::before { 
+    background: linear-gradient(to bottom, #fdfbf7 0%, #d1c4ab 100%) !important; 
+}
+.bottom-right .point:nth-child(even)::before, .bottom-left .point:nth-child(even)::before { 
+    background: linear-gradient(to top, #fdfbf7 0%, #d1c4ab 100%) !important; 
+}
 
 /* --- 5. الأحجار (شكل دائري كامل 100% ولمعان فائق) --- */
 body[data-piece-style] .piece, .piece {
