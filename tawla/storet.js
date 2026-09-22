@@ -17,9 +17,9 @@ export const STORE_ITEMS = {
 
     'fr_classic': { 
         type: 'fr', isDefault: true, nameAr: 'إطار خشبي كلاسيكي', nameEn: 'Classic Wood Frame',
-        cssBoard: 'border: none; border-image: none;', 
+        cssBoard: 'border: none; border-image: none;',
         customCSS: `
-            /* الحاويات الأم: تصفير لإلغاء أي إطار موروث */
+            /* الحاويات الأم: تصفير لإلغاء أي إطار قديم */
             .tawla-container, #tawla-board-wrapper {
                 background: transparent !important;
                 background-image: none !important;
@@ -29,30 +29,20 @@ export const STORE_ITEMS = {
                 box-shadow: none !important;
             }
 
-            /* الطاولة: الإطار الخارجي الخشبي الموحد والعميق */
+            /* 🌟 تنظيف الإعدادات للسماح لتصميم الصندوقين الجديد بالظهور بدون تعارض 🌟 */
             #tawla-board { 
-                border: 18px solid #200c04 !important; 
-                border-image: none !important;
-                border-image-source: none !important;
-                border-radius: 12px !important; 
-                box-shadow: 
-                    0 0 0 2px #d4af37,              
-                    0 20px 40px rgba(0,0,0,0.95),    
-                    inset 0 0 0 2px #b8860b,          
-                    inset 0 0 50px rgba(0,0,0,0.95),  
-                    inset 0 2px 6px rgba(255,255,255,0.12) !important; 
+                border: none !important; 
+                background-color: transparent !important;
                 box-sizing: border-box !important;
                 position: relative !important;
                 left: auto !important;
                 transform: rotateX(5deg) translateY(0px) !important;
                 margin: 0 auto !important;
-                padding: 0 !important;
                 aspect-ratio: auto !important;
                 transition: all 0.5s ease; 
             }
             
-            /* إيقاف العناصر الوهمية لمنع التداخلات */
-            #tawla-board::before, #tawla-board::after { display: none !important; }
+            /* تم حذف كود إيقاف العناصر الوهمية لتفعيل الصندوقين */
         `
     },
 
