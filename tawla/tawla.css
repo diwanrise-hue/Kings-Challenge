@@ -1830,16 +1830,16 @@ body.online-mode-active .game-container {
 
 /* --- 2. الطاولة (الإطار الخشبي الفخم والتفاصيل) --- */
 #tawla-board {
-    /* 🚨 الخصائص الهيكلية التي كانت مفقودة (شبكة الطاولة) 🚨 */
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     grid-template-rows: 1fr 1fr !important;
     width: 100% !important;
     height: 100% !important;
-    padding: 10px !important;
+    
+    /* 👇 التعديل هنا: 0 من الأعلى والأسفل ليلتصق بالإطار، و 15px من الجوانب لمسافة متساوية */
+    padding: 0px 15px !important;
     gap: 15px !important;
     
-    /* 🎨 التصميم والإضاءة 🎨 */
     background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
     border: 12px solid #3d2214 !important;
     border-top-color: #5c3620 !important; 
@@ -1858,7 +1858,7 @@ body.online-mode-active .game-container {
         0 8px 0 #170b05, 
         0 15px 25px rgba(0,0,0,0.7) !important; 
     transform-style: preserve-3d !important;
-}
+
 
 /* 🚨 كود ضروري لضمان عدم انهيار أرباع الطاولة 🚨 */
 .board-quadrant { 
@@ -1885,27 +1885,40 @@ body.online-mode-active .game-container {
 }
 
 /* --- 4. الأرباع والمثلثات (إبراز حواف المثلثات وظلالها) --- */
-.point { 
+..point { 
     position: relative; 
     width: 16.4%; 
+    height: 100%; /* ضمان ملء الطول بالكامل */
     filter: drop-shadow(2px 0px 3px rgba(0,0,0,0.6)); 
 }
 .point::before { 
-    content: ''; position: absolute; left: 0; width: 100%; height: 90%; max-height: 220px; z-index: 0 !important; pointer-events: none; 
+    content: ''; 
+    position: absolute; 
+    left: 0; 
+    width: 100%; 
+    height: 85%; /* طول المثلثات نحو المنتصف */
+    z-index: 0 !important; 
+    pointer-events: none; 
 }
 
-/* ألوان الخشب المطعم للمثلثات */
+/* الالتصاق المباشر بالإطار من الأعلى والأسفل */
+.top-right .point::before, .top-left .point::before { top: 0 !important; }
+.bottom-right .point::before, .bottom-left .point::before { bottom: 0 !important; }
+
+/* 🎨 المثلثات ذات اللون الأزرق الفاتح */
 .top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before { 
-    background: linear-gradient(to bottom, #2b170e, #0a0502 90%); 
+    background: linear-gradient(to bottom, #81d4fa, #29b6f6) !important; 
 }
 .bottom-right .point:nth-child(odd)::before, .bottom-left .point:nth-child(odd)::before { 
-    background: linear-gradient(to top, #2b170e, #0a0502 90%); 
+    background: linear-gradient(to top, #81d4fa, #29b6f6) !important; 
 }
+
+/* 🎨 المثلثات ذات اللون الأبيض */
 .top-right .point:nth-child(even)::before, .top-left .point:nth-child(even)::before { 
-    background: linear-gradient(to bottom, #e3c4a2, #9e754e 90%); 
+    background: linear-gradient(to bottom, #ffffff, #e0e0e0) !important; 
 }
 .bottom-right .point:nth-child(even)::before, .bottom-left .point:nth-child(even)::before { 
-    background: linear-gradient(to top, #e3c4a2, #9e754e 90%); 
+    background: linear-gradient(to top, #ffffff, #e0e0e0) !important; 
 }
 
 
