@@ -122,8 +122,6 @@ body {
     transform-style: preserve-3d !important;
     overflow: visible !important; 
 }
-
-/* --- 2. الطاولة (الإطار الخشبي الفخم والتفاصيل) --- */
 /* --- 2. الطاولة (الإطار الخشبي الفخم والتفاصيل) --- */
 #tawla-board {
     display: grid !important;
@@ -132,20 +130,21 @@ body {
     width: 100% !important;
     height: 100% !important;
     
-    /* 🚨 التعديل هنا: 0 من الأعلى والأسفل، و 14px من الجوانب لمساواة الأبعاد 🚨 */
     padding-top: 0px !important;
     padding-bottom: 0px !important;
-    padding-left: 14px !important;
-    padding-right: 14px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
     
     align-content: stretch !important;
     justify-content: stretch !important;
     
-    /* 🚨 التعديل الأهم: توسيع الفجوة لتصبح 28px لاحتواء البار (26px) وترك مسافة دقيقة جداً 🚨 */
-    gap: 28px !important;
+    /* 🚨 فجوة المنتصف لتستوعب البار الجديد (16px + 2px فراغ دقيق) 🚨 */
+    gap: 18px !important;
     
     background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
-    border: 12px solid #3d2214 !important;
+    
+    /* 🚨 توحيد سمك الإطار الخارجي ليكون 16px من الأطراف الأربعة 🚨 */
+    border: 16px solid #3d2214 !important;
     border-top-color: #5c3620 !important; 
     border-bottom-color: #1f1008 !important; 
     border-radius: 8px !important;
@@ -164,11 +163,10 @@ body {
     transform-style: preserve-3d !important;
 }
 
-
 .board-quadrant { 
     display: flex; 
     justify-content: space-between; 
-    align-items: stretch !important; /* 🚨 إجبار الأرباع على التمدد العمودي 🚨 */
+    align-items: stretch !important;
     width: 100%; 
     height: 100%; 
     margin: 0 !important;
@@ -180,7 +178,10 @@ body {
 /* --- 3. الخشب الأوسط "البار" (مرتفع ومجسم باحترافية) --- */
 .tawla-bar {
     position: absolute !important; top: 0 !important; bottom: 0 !important; left: 50% !important; transform: translateX(-50%) !important;
-    width: 26px !important;
+    
+    /* 🚨 توحيد سمك البار الأوسط ليكون 16px تماماً كالإطار الخارجي 🚨 */
+    width: 16px !important;
+    
     background: linear-gradient(to right, #1a0d04 0%, #5c3a21 40%, #7a4f2e 50%, #5c3a21 60%, #1a0d04 100%) !important; 
     border-left: 1px solid rgba(0,0,0,0.8) !important; 
     border-right: 1px solid rgba(0,0,0,0.8) !important; 
