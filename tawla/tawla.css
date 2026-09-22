@@ -190,11 +190,13 @@ body {
         0 0 20px rgba(0,0,0,0.85) !important;
 }
 
-/* --- 4. الأرباع والمثلثات (ألوان فاتحة والتصاق) --- */
+/* --- 4. الأرباع والمثلثات (الألوان الجديدة والالتصاق التام) --- */
 .point { 
     position: relative; 
     width: 16.4%; 
-    height: 100%; 
+    height: 100% !important; /* 🚨 ضمان أخذ الطول بالكامل 🚨 */
+    margin: 0 !important;
+    padding: 0 !important;
     filter: drop-shadow(2px 0px 3px rgba(0,0,0,0.6));
     z-index: 5 !important; 
 }
@@ -207,14 +209,16 @@ body {
     z-index: 5 !important; 
     pointer-events: none;
     display: block; 
+    margin: 0 !important;
 }
 
+/* 🚨 الالتصاق المباشر بالإطار من الأعلى والأسفل بقوة (-1px يخفي أي عيوب بكسلة) 🚨 */
 .top-right .point::before, .top-left .point::before { 
-    top: -1 !important; 
+    top: -1px !important; 
     clip-path: polygon(0% 0%, 100% 0%, 50% 100%); 
 }
 .bottom-right .point::before, .bottom-left .point::before { 
-    bottom: -1 !important; 
+    bottom: -1px !important; 
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%); 
 }
 
@@ -233,7 +237,6 @@ body {
 .bottom-right .point:nth-child(even)::before, .bottom-left .point:nth-child(even)::before { 
     background: linear-gradient(to top, #ffffff, #e0e0e0) !important; 
 }
-
 /* --- 5. الأحجار (شكل دائري كامل 100% ولمعان فائق) --- */
 body[data-piece-style] .piece, .piece {
     position: relative !important; z-index: 20 !important; transform: translateZ(5px) !important; border-radius: 50% !important; transform-style: preserve-3d; display: flex !important; align-items: center !important; justify-content: center !important; 
