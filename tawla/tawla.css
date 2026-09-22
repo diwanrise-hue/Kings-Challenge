@@ -131,7 +131,7 @@ body {
     width: 100% !important;
     height: 100% !important;
     
-    /* 🚨 الحشوة الداخلية للطاولة تطابق تماماً سمك إطار الصناديق (16px) 🚨 */
+    /* الحشوة الداخلية للطاولة تطابق تماماً سمك إطار الصناديق (16px) */
     padding-top: 16px !important;
     padding-bottom: 16px !important;
     padding-left: 16px !important;
@@ -140,10 +140,9 @@ body {
     align-content: stretch !important;
     justify-content: stretch !important;
     
-    /* 🚨 الفجوة المحسوبة هندسياً: 16 (إطار أيمن للصندوق الأيسر) + 4 (شق) + 16 (إطار أيسر للصندوق الأيمن) = 36px 🚨 */
+    /* الفجوة المحسوبة هندسياً: إطار أيمن (16) + شق (4) + إطار أيسر (16) = 36px */
     gap: 36px !important;
     
-    /* إزالة الخلفية والحدود من الحاوية لأننا سنبني صندوقين مستقلين كخلفية */
     background: transparent !important;
     border: none !important;
     
@@ -154,150 +153,102 @@ body {
     transform: rotateX(4deg) translateY(0px) !important; 
     box-shadow: none !important;
     transform-style: preserve-3d !important;
-    z-index: 1; /* سياق الطبقات */
+    z-index: 1; 
 }
 
-/* 📦 الصندوق الخشبي الأيسر المستقل 📦 */
+/* 📦 الصندوق الخشبي الأيسر 📦 */
 #tawla-board::before {
-    content: '';
-    position: absolute;
-    top: 0; bottom: 0; left: 0;
-    width: calc(50% - 2px); /* النصف ناقص 2 بكسل لترك الشق الأوسط */
+    content: ''; position: absolute; top: 0; bottom: 0; left: 0;
+    width: calc(50% - 2px); 
     background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
     border: 16px solid #3d2214 !important;
-    border-radius: 4px !important;
-    box-sizing: border-box !important;
-    z-index: -1; /* نجلس خلف المثلثات والأحجار */
-    box-shadow: 
-        inset 0 0 25px rgba(0,0,0,0.9), 
-        inset 0 2px 3px rgba(255,255,255,0.15), 
-        0 15px 25px rgba(0,0,0,0.7) !important;
+    border-radius: 4px !important; box-sizing: border-box !important;
+    z-index: -1; 
+    box-shadow: inset 0 0 25px rgba(0,0,0,0.9), inset 0 2px 3px rgba(255,255,255,0.15), 0 15px 25px rgba(0,0,0,0.7) !important;
 }
 
-/* 📦 الصندوق الخشبي الأيمن المستقل 📦 */
+/* 📦 الصندوق الخشبي الأيمن 📦 */
 #tawla-board::after {
-    content: '';
-    position: absolute;
-    top: 0; bottom: 0; right: 0;
-    width: calc(50% - 2px); /* النصف ناقص 2 بكسل لترك الشق الأوسط */
+    content: ''; position: absolute; top: 0; bottom: 0; right: 0;
+    width: calc(50% - 2px); 
     background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
     border: 16px solid #3d2214 !important;
-    border-radius: 4px !important;
-    box-sizing: border-box !important;
-    z-index: -1; /* نجلس خلف المثلثات والأحجار */
-    box-shadow: 
-        inset 0 0 25px rgba(0,0,0,0.9), 
-        inset 0 2px 3px rgba(255,255,255,0.15), 
-        0 15px 25px rgba(0,0,0,0.7) !important;
+    border-radius: 4px !important; box-sizing: border-box !important;
+    z-index: -1; 
+    box-shadow: inset 0 0 25px rgba(0,0,0,0.9), inset 0 2px 3px rgba(255,255,255,0.15), 0 15px 25px rgba(0,0,0,0.7) !important;
 }
 
 .board-quadrant { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: stretch !important;
-    width: 100%; 
-    height: 100%; 
-    margin: 0 !important;
-    padding: 0 !important;
-    position: relative; 
+    display: flex; justify-content: space-between; align-items: stretch !important;
+    width: 100%; height: 100%; margin: 0 !important; padding: 0 !important; position: relative; 
 }
 .board-quadrant::before { display: none !important; }
 
-/* --- 3. الشق الأوسط والمفصلات المعدنية --- */
-.tawla-bar {
-    position: absolute !important; 
-    left: 50% !important; 
-    transform: translateX(-50%) !important;
-    
-    top: 0 !important; 
-    bottom: 0 !important; 
-    
-    /* 🚨 الشق الأسود الذي يفصل الصندوقين تماماً 🚨 */
-    width: 4px !important;
-    background: #000000 !important; 
-    border: none !important; 
-    
-    z-index: 15 !important; 
-    box-shadow: inset 0 0 5px #000 !important;
-}
 
-/* 🔩 تصميم المفصلات المعدنية (الحديد) التي تمسك الصندوقين 🔩 */
-.tawla-bar::before, .tawla-bar::after {
-    content: '' !important;
-    position: absolute !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    
-    /* عرض المفصلة أكبر من الشق لتمسك بإطار الصندوق الأيمن والأيسر معاً */
-    width: 16px !important; 
-    height: 42px !important; 
-    
-    background-color: #a6a6a6 !important;
-    background-image: 
-        linear-gradient(to bottom, transparent 48%, #000 48%, #000 52%, transparent 52%),
-        linear-gradient(to right, #4a4a4a 0%, #c4c4c4 30%, #ffffff 50%, #c4c4c4 70%, #4a4a4a 100%) !important;
-    
-    border-radius: 3px !important;
-    border-top: 1px solid #fff !important;
-    border-bottom: 2px solid #111 !important;
-    
-    box-shadow: 
-        0 4px 10px rgba(0,0,0,0.9), 
-        inset 0 0 3px rgba(0,0,0,0.6) !important;
-        
-    z-index: 30 !important;
-}
-
-.tawla-bar::before { top: 15% !important; }
-.tawla-bar::after { bottom: 15% !important; }
-
-/* --- 4. الأرباع والمثلثات (الألوان الجديدة والالتصاق التام) --- */
-.point { 
-    position: relative; 
-    width: 16.4%; 
-    height: 100% !important; /* 🚨 ضمان أخذ الطول بالكامل 🚨 */
-    margin: 0 !important;
-    padding: 0 !important;
-    filter: drop-shadow(2px 0px 3px rgba(0,0,0,0.6));
-    z-index: 5 !important; 
-}
-.point::before { 
+/* 🚨 الحل السحري: إنشاء طبقة ظل وهمية تُسقط ظلاً أسوداً على المثلثات لتبدو غائرة 🚨 */
+.board-quadrant::after {
     content: ''; 
     position: absolute; 
-    left: 0; 
-    width: 100%; 
-    height: 85%; 
-    z-index: 5 !important; 
-    pointer-events: none;
-    display: block; 
-    margin: 0 !important;
+    left: 0; right: 0; top: 0; bottom: 0;
+    pointer-events: none; /* لكي لا تمنع اللمس */
+    z-index: 15 !important; /* تجلس فوق المثلثات لتسقط الظل عليها */
 }
 
-/* 🚨 الالتصاق المباشر بالإطار من الأعلى والأسفل بقوة (-1px يخفي أي عيوب بكسلة) 🚨 */
-.top-right .point::before, .top-left .point::before { 
-    top: -1px !important; 
-    clip-path: polygon(0% 0%, 100% 0%, 50% 100%); 
-}
-.bottom-right .point::before, .bottom-left .point::before { 
-    bottom: -1px !important; 
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%); 
+/* ظل أرباع الجزء العلوي */
+.top-left::after, .top-right::after {
+    box-shadow: 
+        inset 0 25px 20px -15px rgba(0,0,0,0.95), /* ظل قوي من الأعلى */
+        inset 20px 0 20px -15px rgba(0,0,0,0.95), /* ظل يسار */
+        inset -20px 0 20px -15px rgba(0,0,0,0.95) !important; /* ظل يمين */
 }
 
-/* المثلثات ذات اللون الأزرق الفاتح */
-.top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before { 
-    background: linear-gradient(to bottom, #81d4fa, #29b6f6) !important; 
-}
-.bottom-right .point:nth-child(odd)::before, .bottom-left .point:nth-child(odd)::before { 
-    background: linear-gradient(to top, #81d4fa, #29b6f6) !important; 
+/* ظل أرباع الجزء السفلي */
+.bottom-left::after, .bottom-right::after {
+    box-shadow: 
+        inset 0 -25px 20px -15px rgba(0,0,0,0.95), /* ظل قوي من الأسفل */
+        inset 20px 0 20px -15px rgba(0,0,0,0.95), /* ظل يسار */
+        inset -20px 0 20px -15px rgba(0,0,0,0.95) !important; /* ظل يمين */
 }
 
-/* المثلثات ذات اللون الأبيض */
-.top-right .point:nth-child(even)::before, .top-left .point:nth-child(even)::before { 
-    background: linear-gradient(to bottom, #ffffff, #e0e0e0) !important; 
+
+/* --- 3. الشق الأوسط والمفصلات المعدنية --- */
+.tawla-bar {
+    position: absolute !important; left: 50% !important; transform: translateX(-50%) !important;
+    top: 0 !important; bottom: 0 !important; 
+    width: 4px !important; background: #000000 !important; border: none !important; 
+    z-index: 15 !important; box-shadow: inset 0 0 5px #000 !important;
 }
-.bottom-right .point:nth-child(even)::before, .bottom-left .point:nth-child(even)::before { 
-    background: linear-gradient(to top, #ffffff, #e0e0e0) !important; 
+
+.tawla-bar::before, .tawla-bar::after {
+    content: '' !important; position: absolute !important; left: 50% !important; transform: translateX(-50%) !important;
+    width: 16px !important; height: 42px !important; 
+    background-color: #a6a6a6 !important;
+    background-image: linear-gradient(to bottom, transparent 48%, #000 48%, #000 52%, transparent 52%), linear-gradient(to right, #4a4a4a 0%, #c4c4c4 30%, #ffffff 50%, #c4c4c4 70%, #4a4a4a 100%) !important;
+    border-radius: 3px !important; border-top: 1px solid #fff !important; border-bottom: 2px solid #111 !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.9), inset 0 0 3px rgba(0,0,0,0.6) !important; z-index: 30 !important;
 }
+.tawla-bar::before { top: 15% !important; } .tawla-bar::after { bottom: 15% !important; }
+
+
+/* --- 4. الأرباع والمثلثات --- */
+.point { 
+    position: relative; width: 16.4%; height: 100% !important; margin: 0 !important; padding: 0 !important;
+    filter: drop-shadow(2px 0px 3px rgba(0,0,0,0.6)); z-index: 5 !important; 
+}
+.point::before { 
+    content: ''; position: absolute; left: 0; width: 100%; height: 85%; z-index: 5 !important; pointer-events: none; display: block; margin: 0 !important;
+}
+
+.top-right .point::before, .top-left .point::before { top: -1px !important; clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
+.bottom-right .point::before, .bottom-left .point::before { bottom: -1px !important; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+
+.top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before { background: linear-gradient(to bottom, #81d4fa, #29b6f6) !important; }
+.bottom-right .point:nth-child(odd)::before, .bottom-left .point:nth-child(odd)::before { background: linear-gradient(to top, #81d4fa, #29b6f6) !important; }
+
+.top-right .point:nth-child(even)::before, .top-left .point:nth-child(even)::before { background: linear-gradient(to bottom, #ffffff, #e0e0e0) !important; }
+.bottom-right .point:nth-child(even)::before, .bottom-left .point:nth-child(even)::before { background: linear-gradient(to top, #ffffff, #e0e0e0) !important; }
+
+
 /* --- 5. الأحجار (شكل دائري كامل 100% ولمعان فائق) --- */
 body[data-piece-style] .piece, .piece {
     position: relative !important; z-index: 20 !important; transform: translateZ(5px) !important; border-radius: 50% !important; transform-style: preserve-3d; display: flex !important; align-items: center !important; justify-content: center !important; 
