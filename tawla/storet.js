@@ -1,13 +1,13 @@
 /**
  * storet.js
- * النسخة النهائية المحدثة الشاملة المدمجة لمتجر الطاولة (متوافق 100% مع السيرفر)
+ * النسخة الأساسية (المفرغة من المنتجات) + متوافقة 100% مع الـ 3D الجديد
  */
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
 
 export const STORE_ITEMS = {
     // ===================================
-    // أولاً: الخلفيات واللوحات (Backgrounds & Boards)
+    // العناصر الافتراضية الأساسية (ضرورية لعمل اللعبة ولا يمكن مسحها)
     // ===================================
     
     'bg_wood': { 
@@ -15,90 +15,11 @@ export const STORE_ITEMS = {
         linkedScore: 'score_default'
     },
 
-    'bg_malachite': { 
-        type: 'bg', cost: 3000, isLegendary: true, nameAr: 'رخام الملاكيت الأخضر', nameEn: 'Malachite Green Marble',
-        isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134548.webp',
-        linkedScore: 'score_malachite'
-    },
-
-    'bg_carved_wood': { 
-        type: 'bg', cost: 1000, nameAr: 'الخشب المحفور', nameEn: 'Carved Wood',
-        cssLight: 'background: repeating-linear-gradient(45deg, #DEB887, #DEB887 10px, #D2A679 10px, #D2A679 20px); box-shadow: inset 0 0 15px rgba(100,50,0,0.5);',
-        cssDark: 'background: repeating-linear-gradient(-45deg, #8B4513, #8B4513 15px, #65320D 15px, #65320D 30px); box-shadow: inset 0 0 20px rgba(0,0,0,0.8);',
-        linkedScore: 'score_carved_wood'
-    },
-
-    'bg_mosaic': { 
-        type: 'bg', cost: 1500, nameAr: 'الموزاييك الملكي', nameEn: 'Royal Mosaic',
-        cssLight: 'background-color: #E2D4B7; background-image: radial-gradient(circle at 50% 50%, #4A2E15 15%, transparent 18%), repeating-conic-gradient(from 0deg at 50% 50%, #C4AE8D 0deg, #C4AE8D 15deg, transparent 15deg, transparent 30deg); box-shadow: inset 0 0 10px rgba(74,46,21,0.4); border: 1px solid rgba(74,46,21,0.2);',
-        cssDark: 'background-color: #3B2314; background-image: radial-gradient(circle at 50% 50%, #E2D4B7 10%, transparent 13%), radial-gradient(circle at 50% 50%, transparent 40%, #1E110A 45%, #1E110A 50%, transparent 55%), repeating-conic-gradient(from 15deg at 50% 50%, #2A170D 0deg, #2A170D 22.5deg, transparent 22.5deg, transparent 45deg); box-shadow: inset 0 0 15px rgba(0,0,0,0.8); border: 1px solid #1E110A;',
-        linkedScore: 'score_starburst'
-    },
-
-    'bg_image_royal': { 
-        type: 'bg', cost: 4000, isLegendary: true, nameAr: 'الساحة الملكية الفاخرة', nameEn: 'Premium Royal Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000133232.webp',
-        linkedScore: 'score_royal'
-    },
-
-    'bg_image_lava': { 
-        type: 'bg', cost: 4500, isLegendary: true, nameAr: 'ساحة الحمم البركانية', nameEn: 'Volcanic Lava Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000133390.webp',
-        linkedScore: 'score_lava'
-    },
-
-    'bg_custom_warrior': { 
-        type: 'bg', cost: 5000, isLegendary: true, nameAr: 'ساحة كتيبة الأبطال', nameEn: 'Hero Battalion Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134166.webp',
-        linkedScore: 'score_warrior'
-    },
-
-    'bg_ruby_amber': { 
-        type: 'bg', cost: 50000, isLegendary: true, nameAr: 'الياقوت والكهرمان الملكي', nameEn: 'Royal Ruby & Amber', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/10001320889.webp',
-        linkedScore: 'score_ruby_amber'
-    },
-
-    'bg_mahogany': { 
-        type: 'bg', cost: 2000, nameAr: 'ساحة الماهوجني الكلاسيكية', nameEn: 'Classic Mahogany Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134903.webp',
-        linkedScore: 'score_mahogany'
-    },
-
-    'bg_turquoise_geometric': {
-        type: 'bg', cost: 2200, nameAr: 'ساحة الفيروز والزخارف الهندسية', nameEn: 'Geometric Turquoise & Gold Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134417.webp', hasPurpleBorder: true,
-        linkedScore: 'score_turquoise'
-    },
-
-    'bg_black_gold_marble': {
-        type: 'bg', cost: 2500, nameAr: 'ساحة الرخام الأسود والعروق الذهبية', nameEn: 'Classic Black & Gold Marble Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000134427.webp', hasPurpleBorder: true,
-        linkedScore: 'score_black_gold'
-    },
-
-    'bg_blue_navy_marble': {
-        type: 'bg', cost: 2600, nameAr: 'ساحة الرخام الأزرق الداكن والبيج', nameEn: 'Navy Blue & Beige Marble Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136612.webp', hasPurpleBorder: true,
-        linkedScore: 'score_blue_navy'
-    },
-
-    'bg_brown_gold_leaves': {
-        type: 'bg', cost: 2800, nameAr: 'ساحة الرخام البني والزخارف الذهبية', nameEn: 'Brown Marble & Golden Leaves Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136622.webp', hasPurpleBorder: true,
-        linkedScore: 'score_brown_gold'
-    },
-
-    'bg_samurai_warriors': {
-        type: 'bg', cost: 100000, isLegendary: true, nameAr: 'ساحة محاربي الساموراي الأسطورية', nameEn: 'Legendary Samurai Warriors Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136302.webp',
-        linkedScore: 'score_samurai'
-    },
-
-    'bg_jester_theater': {
-        type: 'bg', cost: 150000, isLegendary: true, nameAr: 'ساحة مسرح جيستر', nameEn: 'Jester Theater Arena', isImage: true, imagePath: GITHUB_RAW_BASE + 'assets/bgs/1000136557.webp',
-        linkedScore: 'score_jester'
-    },
-
-    // ===================================
-    // ثانياً: الإطارات (Frames) 
-    // ===================================
-    
     'fr_classic': { 
         type: 'fr', isDefault: true, nameAr: 'إطار خشبي كلاسيكي', nameEn: 'Classic Wood Frame',
-        cssBoard: 'border: none; border-image: none;', // تنظيف قديم
+        cssBoard: 'border: none; border-image: none;', 
         customCSS: `
-            /* الحاويات الأم: تصفير لإلغاء أي إطار قديم */
+            /* الحاويات الأم: تصفير لإلغاء أي إطار موروث */
             .tawla-container, #tawla-board-wrapper {
                 background: transparent !important;
                 background-image: none !important;
@@ -108,7 +29,7 @@ export const STORE_ITEMS = {
                 box-shadow: none !important;
             }
 
-            /* الطاولة: الإطار الخارجي الخشبي الموحد */
+            /* الطاولة: الإطار الخارجي الخشبي الموحد والعميق */
             #tawla-board { 
                 border: 18px solid #200c04 !important; 
                 border-image: none !important;
@@ -126,411 +47,27 @@ export const STORE_ITEMS = {
                 transform: rotateX(5deg) translateY(0px) !important;
                 margin: 0 auto !important;
                 padding: 0 !important;
-                aspect-ratio: auto !important; /* الاعتماد على Grid */
+                aspect-ratio: auto !important;
                 transition: all 0.5s ease; 
             }
             
-            /* إيقاف العناصر الوهمية لمنع التداخل */
+            /* إيقاف العناصر الوهمية لمنع التداخلات */
             #tawla-board::before, #tawla-board::after { display: none !important; }
         `
     },
 
-
-    'fr_1000135477': { 
-        type: 'fr', cost: 3500, isLegendary: true, nameAr: 'إطار كتيبة الأبطال', nameEn: 'Hero Battalion Frame',
-        isImage: true, 
-        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000135477.webp',
-        customCSS: `
-            #tawla-board { 
-                border: 5vw solid transparent !important; 
-                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000135477.webp') 7.2% stretch !important; 
-                border-image-outset: 0 !important; 
-                border-radius: 0 !important; 
-                background-clip: padding-box !important; 
-                box-sizing: border-box !important;
-                position: relative !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                aspect-ratio: 1 / 1 !important;
-                transition: all 0.3s ease; 
-            }
-            .board-coordinates, 
-            .notation-322f9, 
-            .cg-wrap coords, 
-            svg text { 
-                display: none !important; 
-            }
-            @media (min-width: 768px) { 
-                #tawla-board { border-width: 25px !important; } 
-            }
-        `
-    },
-    
-    'fr_ruby_amber': { 
-        type: 'fr', cost: 40000, isLegendary: true, nameAr: 'إطار الياقوت والكهرمان الملكي', nameEn: 'Royal Ruby & Amber Frame',
-        isImage: true, 
-        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000134883.webp',
-        customCSS: `
-            #tawla-board { 
-                border: 8vw solid transparent !important; 
-                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000134883.webp') 9.5% stretch !important; 
-                border-radius: 0 !important; 
-                box-sizing: border-box !important;
-                position: relative !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                aspect-ratio: 1 / 1 !important;
-                transition: all 0.5s ease; 
-            }
-            @media (min-width: 768px) { #tawla-board { border-width: 45px !important; } }
-        `
+    'pc_original': { 
+        type: 'pc', isDefault: true, nameAr: 'النمط الأصلي', nameEn: 'Original', icon: '⚪' 
     },
 
-    'fr_mahogany': { 
-        type: 'fr', cost: 2500, nameAr: 'إطار الماهوجني المرقم', nameEn: 'Numbered Mahogany Frame',
-        isImage: true, 
-        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000134904.webp',
-        customCSS: `
-            #tawla-board { 
-                border: 6vw solid transparent !important; 
-                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000134904.webp') 5% stretch !important; 
-                border-radius: 0 !important; 
-                box-sizing: border-box !important;
-                position: relative !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                aspect-ratio: 1 / 1 !important;
-                transition: all 0.5s ease; 
-            }
-            @media (min-width: 768px) { #tawla-board { border-width: 45px !important; } }
-        `
-    },
-
-    'fr_samurai_warriors': { 
-        type: 'fr', cost: 70000, isLegendary: true, nameAr: 'إطار محاربي الساموراي', nameEn: 'Samurai Warriors Frame',
-        isImage: true, 
-        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000136304.webp',
-        customCSS: `
-            #tawla-board { 
-                border: 4.5vw solid transparent !important; 
-                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136304.webp') 5% stretch !important; 
-                border-radius: 0 !important; 
-                box-sizing: border-box !important;
-                position: relative !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                aspect-ratio: 1 / 1 !important;
-                transition: all 0.5s ease; 
-            }
-            @media (min-width: 768px) { #tawla-board { border-width: 28px !important; } }
-        `
-    },
-
-    'fr_jester_theater': { 
-        type: 'fr', cost: 85000, isLegendary: true, nameAr: 'إطار مسرح جيستر', nameEn: 'Jester Theater Frame',
-        isImage: true, 
-        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000136584.webp',
-        customCSS: `
-            #tawla-board { 
-                border: 6.5vw solid transparent !important; 
-                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136584.webp') 8% stretch !important; 
-                border-radius: 0 !important; 
-                box-sizing: border-box !important;
-                position: relative !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                aspect-ratio: 1 / 1 !important;
-                transition: all 0.5s ease; 
-            }
-            @media (min-width: 768px) { #tawla-board { border-width: 40px !important; } }
-        `
-    },
-
-    'fr_blue_navy_marble': { 
-        type: 'fr', cost: 3000, nameAr: 'إطار الرخام الأزرق الداكن المرقم', nameEn: 'Numbered Navy Blue Marble Frame',
-        isImage: true, 
-        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000136630.webp',
-        customCSS: `
-            #tawla-board { 
-                border: 5.5vw solid transparent !important; 
-                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136630.webp') 6% stretch !important; 
-                border-radius: 0 !important; 
-                box-sizing: border-box !important;
-                position: relative !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                aspect-ratio: 1 / 1 !important;
-                transition: all 0.5s ease; 
-            }
-            @media (min-width: 768px) { #tawla-board { border-width: 35px !important; } }
-        `
-    },
-
-    'fr_royal_luxury': { 
-        type: 'fr', cost: 6000, isLegendary: true, nameAr: 'الإطار الملكي الفاخر', nameEn: 'Royal Luxury Frame',
-        isImage: true, 
-        imagePath: GITHUB_RAW_BASE + 'assets/frames/1000136629.webp',
-        customCSS: `
-            #tawla-board { 
-                border: 7vw solid transparent !important; 
-                border-image: url('${GITHUB_RAW_BASE}assets/frames/1000136629.webp') 8% stretch !important; 
-                border-radius: 0 !important; 
-                box-sizing: border-box !important;
-                position: relative !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                aspect-ratio: 1 / 1 !important;
-                transition: all 0.5s ease; 
-            }
-            @media (min-width: 768px) { #tawla-board { border-width: 45px !important; } }
-        `
-    },
-
-    // ===================================
-    // ثالثاً: الأحجار والبيادق (Pieces & Stones)
-    // ===================================
-    
-    'pc_original': { type: 'pc', isDefault: true, nameAr: 'النمط الأصلي', nameEn: 'Original', icon: '⚪' },
-
-    'pc_carved_wood': { 
-        type: 'pc', cost: 150, nameAr: 'خشب محفور', nameEn: 'Carved Wood',
-        icon: '<div style="position: absolute; top: 17.5%; left: 17.5%; width: 65%; height: 65%; border-radius: 50%; background: inherit; box-shadow: inset 4px 4px 8px rgba(0,0,0,0.4), inset -3px -3px 6px rgba(255,255,255,0.3); pointer-events: none;"></div>',
-        wCss: `background: #E6C280; border: 2px solid #C08A4C; box-shadow: inset 0 0 10px rgba(0,0,0,0.2), 2px 2px 5px rgba(0,0,0,0.4);`,
-        bCss: `background: #5C3A21; border: 2px solid #3E2723; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 2px 2px 5px rgba(0,0,0,0.6);`,
-        customPseudoCss: `
-            body[data-piece-style="pc_carved_wood"] .piece::before {
-                content: ''; position: absolute; width: 65%; height: 65%; border-radius: 50%;
-                background: inherit; box-shadow: inset 4px 4px 8px rgba(0,0,0,0.4), inset -3px -3px 6px rgba(255,255,255,0.3);
-            }
-            body[data-piece-style="pc_carved_wood"] .piece.tawla::after {
-                content: '👑'; color: #FFD700; font-size: 16px; z-index: 2; text-shadow: 0 0 5px rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center;
-            }
-        `,
-        dCss: 'border: 3px solid #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);'
-    },
-
-    'pc_ebony_gold': { 
-        type: 'pc', cost: 1000, nameAr: 'الأبنوس الذهبي', nameEn: 'Royal Ebony Gold',
-        icon: '<div style="position: absolute; top: 32.5%; left: 32.5%; width: 35%; height: 35%; border-radius: 50%; border: 1.5px solid #D4AF37; background: rgba(0,0,0,0.1); pointer-events: none;"></div>',
-        wCss: `background: #FDFBF7; border: 2px solid #D4AF37; box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.2), 0 4px 8px rgba(0,0,0,0.3);`,
-        bCss: `background: #1A1A1A; border: 2px solid #D4AF37; box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 4px 8px rgba(0,0,0,0.5);`,
-        customPseudoCss: `
-            body[data-piece-style="pc_ebony_gold"] .piece::before {
-                content: ''; position: absolute; width: 65%; height: 65%;
-                border: 1.5px solid #D4AF37;
-                clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-                z-index: 1;
-            }
-            body[data-piece-style="pc_ebony_gold"] .piece::after {
-                content: ''; position: absolute; width: 35%; height: 35%;
-                border-radius: 50%; border: 1.5px solid #D4AF37;
-                z-index: 2; background: rgba(0,0,0,0.05);
-            }
-            body[data-piece-style="pc_ebony_gold"] .piece.black::after {
-                background: #222;
-            }
-            body[data-piece-style="pc_ebony_gold"] .piece.tawla::after {
-                content: '👑'; color: #FFF; font-size: 13px; background: #D4AF37; border: 1px solid #FFF; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 10px #D4AF37;
-            }
-        `,
-        dCss: 'border: 2px solid #FFF; box-shadow: 0 0 20px #D4AF37;'
-    },
-
-    'pc_custom_warrior': { 
-        type: 'pc', cost: 2500, isLegendary: true, nameAr: 'كتيبة الأبطال', nameEn: 'Hero Battalion',
-        isImage: true, 
-        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000133464.webp', 
-        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000133465.webp', 
-        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000133463.webp', 
-        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000133466.webp'  
-    },
-
-    'pc_samurai_legends': { 
-        type: 'pc', cost: 5000, isLegendary: true, nameAr: 'نمط محاربي الساموراي', nameEn: 'Samurai Legends',
-        isImage: true, 
-        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135430.webp', 
-        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135417.webp', 
-        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135428.webp', 
-        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135418.webp'  
-    },
-
-    'pc_death_skulls': { 
-        type: 'pc', cost: 5500, isLegendary: true, nameAr: 'جماجم الموت الأسطورية', nameEn: 'Legendary Death Skulls',
-        isImage: true, 
-        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135429.webp', 
-        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135421.webp', 
-        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135424.webp', 
-        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135420.webp'
-    },
-
-    'pc_oak_leaf': { 
-        type: 'pc', cost: 5000, isLegendary: true, nameAr: 'طاقم البلوط والتاج الملكي الأسطوري', nameEn: 'Royal Oak Leaf & Crown Set',
-        isImage: true, 
-        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135694.webp',     
-        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135693.webp',     
-        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135689.webp',  
-        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135692.webp'   
-    },
-
-    'pc_crane_emerald': {
-        type: 'pc', cost: 6000, isLegendary: true, nameAr: 'طاقم طائر الكركي والزمرد الأسطوري', nameEn: 'Legendary Emerald & Tiger Eye Crown Set',
-        isImage: true,
-        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135702.webp',     
-        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135701.webp',     
-        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135689.webp',  
-        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135692.webp'   
-    },
-
-    'pc_royal_sun': {
-        type: 'pc', cost: 6500, isLegendary: true, nameAr: 'طاقم شمس الرخام والبرونز الأسطوري', nameEn: 'Legendary Marble & Bronze Sun Set',
-        isImage: true,
-        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135759.webp',     
-        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135716.webp',     
-        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135689.webp',  
-        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135692.webp'   
-    },
-
-    'pc_broken_stone': {
-        type: 'pc', cost: 7500, isLegendary: true, nameAr: 'طاقم الحجر المكسور الأسطوري', nameEn: 'Legendary Broken Stone Set',
-        isImage: true,
-        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135713.webp',     
-        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135712.webp',     
-        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135689.webp',  
-        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135690.webp'   
-    },
-
-    'pc_marble_rose': {
-        type: 'pc',
-        cost: 8000,
-        isLegendary: true,
-        nameAr: 'طاقم الوردة الرخامية والذهب الأسطوري',
-        nameEn: 'Legendary Marble Rose & Gold Set',
-        isImage: true,
-        imagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135720.webp',     
-        imagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135743.webp',     
-        damaImagePathWhite: GITHUB_RAW_BASE + 'assets/pieces/1000135689.webp',  
-        damaImagePathBlack: GITHUB_RAW_BASE + 'assets/pieces/1000135690.webp'   
-    },
-
-    // ===================================
-    // رابعاً: الأشرطة المخفية (المرتبطة تلقائياً بالساحات)
-    // ===================================
     'score_default': { 
         type: 'score', isDefault: true, nameAr: 'الشريط الافتراضي', nameEn: 'Default Bar', 
         scoreBg1: 'linear-gradient(to bottom, #757b8a, #585d6b)', 
         scoreBg2: 'linear-gradient(to bottom, #99a0b3, #7a8194)',
         scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_classic_wood': { 
-        type: 'score', cost: 0, nameAr: 'خشب كلاسيكي (مزدوج)', nameEn: 'Classic Wood Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #7a3821, #572615)', 
-        scoreBg2: 'linear-gradient(to bottom, #ebd1b5, #c9b197)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_carved_wood': { 
-        type: 'score', cost: 0, nameAr: 'خشب محفور (مزدوج)', nameEn: 'Carved Wood Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #8a4e23, #613516)', 
-        scoreBg2: 'linear-gradient(to bottom, #e3cba8, #bfa888)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_mahogany': { 
-        type: 'score', cost: 0, nameAr: 'الماهوجني (مزدوج)', nameEn: 'Mahogany Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #692424, #471717)', 
-        scoreBg2: 'linear-gradient(to bottom, #edc6ad, #c4a187)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_starburst': { 
-        type: 'score', cost: 0, nameAr: 'زخارف شعاعية (مزدوج)', nameEn: 'Starburst Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #61402a, #42291a)', 
-        scoreBg2: 'linear-gradient(to bottom, #f5e4c6, #cca781)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_turquoise': { 
-        type: 'score', cost: 0, nameAr: 'الفيروزي (مزدوج)', nameEn: 'Turquoise Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #1c92a6, #126370)', 
-        scoreBg2: 'linear-gradient(to bottom, #ffffff, #e6dcc3)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_blue_navy': { 
-        type: 'score', cost: 0, nameAr: 'الرخام الأزرق (مزدوج)', nameEn: 'Navy Marble Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #39578c, #22385e)', 
-        scoreBg2: 'linear-gradient(to bottom, #f2eadc, #c7beab)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_black_gold': { 
-        type: 'score', cost: 0, nameAr: 'الأسود الذهبي (مزدوج)', nameEn: 'Black Gold Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #2b2b2b, #121212)', 
-        scoreBg2: 'linear-gradient(to bottom, #f2eadc, #d1c8b4)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_brown_gold': { 
-        type: 'score', cost: 0, nameAr: 'البني الذهبي (مزدوج)', nameEn: 'Brown Gold Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #6b4028, #472918)', 
-        scoreBg2: 'linear-gradient(to bottom, #cf9761, #9c6c41)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_malachite': { 
-        type: 'score', cost: 0, isLegendary: true, nameAr: 'الملاكيت الأخضر (مزدوج)', nameEn: 'Malachite Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #115c38, #0a3d24)', 
-        scoreBg2: 'linear-gradient(to bottom, #e3dac9, #c7beab)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_royal': { 
-        type: 'score', cost: 0, isLegendary: true, nameAr: 'الملكي الفاخر (مزدوج)', nameEn: 'Premium Royal Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #593199, #371d61)', 
-        scoreBg2: 'linear-gradient(to bottom, #9955ed, #703eb0)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_lava': { 
-        type: 'score', cost: 0, isLegendary: true, nameAr: 'الحمم البركانية (مزدوج)', nameEn: 'Lava Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #f26d07, #bd4e00)', 
-        scoreBg2: 'linear-gradient(to bottom, #3b1717, #1c0808)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_warrior': { 
-        type: 'score', cost: 0, isLegendary: true, nameAr: 'كتيبة الأبطال (مزدوج)', nameEn: 'Hero Battalion Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #4b5259, #2b3036)', 
-        scoreBg2: 'linear-gradient(to bottom, #c2c5c9, #989c9e)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_samurai': { 
-        type: 'score', cost: 0, isLegendary: true, nameAr: 'الساموراي البرونزي (مزدوج)', nameEn: 'Samurai Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #b58c28, #7a5c15)', 
-        scoreBg2: 'linear-gradient(to bottom, #e8e8e8, #a8a8a8)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_jester': { 
-        type: 'score', cost: 0, isLegendary: true, nameAr: 'مسرح جيستر (مزدوج)', nameEn: 'Jester Theater Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #6e3920, #452110)', 
-        scoreBg2: 'linear-gradient(to bottom, #d4a37b, #a67d5b)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
-    'score_ruby_amber': { 
-        type: 'score', cost: 0, isLegendary: true, nameAr: 'الياقوت والكهرمان (مزدوج)', nameEn: 'Ruby Amber Pair', 
-        scoreBg1: 'linear-gradient(to bottom, #941313, #5e0808)', 
-        scoreBg2: 'linear-gradient(to bottom, #e39d24, #b57712)', 
-        scoreBorder1: 'none', scoreBorder2: 'none' 
-    },
+    }
 
-    // ===================================
-    // خامساً: باقات المصباح والتلميحات (Offers & Hints)
-    // ===================================
-    'pack_hints_3':  { type: 'consumable', cost: 150, nameAr: 'باقة 3 تلميحات', nameEn: '3 Hints Pack', icon: '💡' },
-    'pack_hints_10': { type: 'consumable', cost: 400, nameAr: 'باقة 10 تلميحات', nameEn: '10 Hints Pack', icon: '💡' }
+    // يمكنك إضافة منتجاتك الجديدة والمعدلة هنا لاحقاً...
 };
 
 window.STORE_ITEMS = STORE_ITEMS;
@@ -611,11 +148,10 @@ export const storeManager = {
             }
             
             board.style.setProperty('position', 'relative', 'important');
-            board.style.setProperty('margin', '50px auto', 'important'); // مساحة للأشرطة
-            board.style.removeProperty('left');      // إزالة سبب التعارض
-            board.style.removeProperty('transform'); // إزالة سبب التعارض
+            board.style.setProperty('margin', '50px auto', 'important'); 
+            board.style.removeProperty('left');      
+            board.style.removeProperty('transform'); 
             board.style.setProperty('box-sizing', 'border-box', 'important');
-
 
             let el = board.parentElement;
             while (el && el.tagName !== 'BODY' && el.tagName !== 'HTML') {
@@ -655,12 +191,11 @@ export const storeManager = {
 
     injectDynamicPieceStyles() {
         if (document.getElementById('dynamic-pieces-css')) return;
-        
+
         let pieceStyles = `
-            #tawla-board .cell { display: flex !important; align-items: center !important; justify-content: center !important; }
             @keyframes goldenVaporAura { 0% { transform: scale(1); opacity: 0.8; filter: blur(2px); } 100% { transform: scale(1.6); opacity: 0; filter: blur(8px); } }
         `;
-        
+
         Object.keys(STORE_ITEMS).forEach(key => {
             const item = STORE_ITEMS[key];
             if (item.type === 'pc' && key !== 'pc_original') {
@@ -671,13 +206,8 @@ export const storeManager = {
                     let blackDamaImg = item.damaImagePathBlack || blackImg;
 
                     pieceStyles += `
-                        body[data-piece-style="${key}"] .piece { 
-                            background-color: transparent !important; border: none !important; box-shadow: 0 5px 10px rgba(0,0,0,0.5) !important; 
-                            position: relative; width: 85% !important; height: 85% !important; margin: 0 !important; 
-                        }
-                        body[data-piece-style="${key}"] .piece::before, body[data-piece-style="${key}"] .piece::after { display: none !important; }
-                        body[data-piece-style="${key}"] .piece.white { background-image: url('${whiteImg}') !important; background-size: 100% 100% !important; }
-                        body[data-piece-style="${key}"] .piece.black { background-image: url('${blackImg}') !important; background-size: 100% 100% !important; }
+                        body[data-piece-style="${key}"] .piece.white { background-image: url('${whiteImg}') !important; background-size: cover !important; background-position: center !important; }
+                        body[data-piece-style="${key}"] .piece.black { background-image: url('${blackImg}') !important; background-size: cover !important; background-position: center !important; }
                         body[data-piece-style="${key}"] .piece.white.tawla { background-image: url('${whiteDamaImg}') !important; border: 2px solid #FFD700 !important; box-shadow: 0 0 15px #FFD700, inset 0 0 10px rgba(255,215,0,0.5) !important; }
                         body[data-piece-style="${key}"] .piece.black.tawla { background-image: url('${blackDamaImg}') !important; border: 2px solid #FFD700 !important; box-shadow: 0 0 15px #FFD700, inset 0 0 10px rgba(255,215,0,0.5) !important; }
                         body[data-piece-style="${key}"] .piece.tawla::after {
@@ -694,16 +224,11 @@ export const storeManager = {
                     `;
                 }
                 if (item.customPseudoCss) { pieceStyles += item.customPseudoCss; }
-            } else if (item.type === 'pc' && key === 'pc_original') {
-                 pieceStyles += `
-                 body[data-piece-style="${key}"] .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #dcdde1, #95a5a6) !important; border: 1px solid #bdc3c7 !important; clip-path: none !important; border-radius: 50% !important; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 2px 2px 4px rgba(0,0,0,0.2) !important; }
-                 body[data-piece-style="${key}"] .piece.black { background: radial-gradient(circle at 30% 30%, #68707a, #353b45, #1e1e24) !important; border: 1px solid #1a1a24 !important; clip-path: none !important; border-radius: 50% !important; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.5), 2px 2px 4px rgba(0,0,0,0.4) !important; }
-             `;
             }
         });
 
-        let styleEl = document.createElement('style'); 
-        styleEl.id = 'dynamic-pieces-css'; 
+        let styleEl = document.createElement('style');
+        styleEl.id = 'dynamic-pieces-css';
         styleEl.innerHTML = pieceStyles;
         document.head.appendChild(styleEl);
     },
@@ -739,26 +264,23 @@ export const storeManager = {
         }
     },
 
-        applyFrameThemeCSS(frKey) {
+    applyFrameThemeCSS(frKey) {
         const item = STORE_ITEMS[frKey];
         if (!item || item.type !== 'fr') return;
 
         let styleEl = document.getElementById('dynamic-frame-css');
         if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-frame-css'; document.head.appendChild(styleEl); }
 
-         if (item.customCSS) {
-            // إزالة الأسطر المتعارضة من قاعدة بيانات الإطارات من المصدر
+        if (item.customCSS) {
             let cleanCSS = item.customCSS
                 .replace(/left:\s*50%\s*!important;/g, '')
-                .replace(/transform:\s*translateX\(-50%\)\s*!important;/g, '')
+                .replace(/transform:\s*translateX\(-50\%\)\s*!important;/g, '')
                 .replace(/margin:\s*0\s*!important;/g, 'margin: 50px auto !important;');
             styleEl.innerHTML = cleanCSS;
         } else {
             styleEl.innerHTML = '';
         }
-
     },
-
 
     applyScoreThemeCSS(scoreKey) {
         const item = STORE_ITEMS[scoreKey];
@@ -938,7 +460,10 @@ export const storeManager = {
             const isEquipped = (profile.equippedBg === key || profile.equippedPc === key || profile.equippedFr === key);
             const name = isAr ? item.nameAr : item.nameEn;
 
-            const legendaryClassCard = item.isLegendary ? 'legendary-card' : ''; const legendaryClassIcon = item.isLegendary ? 'legendary-icon' : ''; const legendaryClassText = item.isLegendary ? 'legendary-text' : ''; const legendaryClassBtn = item.isLegendary ? 'legendary-btn' : '';
+            const legendaryClassCard = item.isLegendary ? 'legendary-card' : ''; 
+            const legendaryClassIcon = item.isLegendary ? 'legendary-icon' : ''; 
+            const legendaryClassText = item.isLegendary ? 'legendary-text' : ''; 
+            const legendaryClassBtn = item.isLegendary ? 'legendary-btn' : '';
             const legendaryTag = item.isLegendary ? `<span style="position: absolute; top: -5px; right: -5px; background: linear-gradient(45deg, #ff007f, #7f00ff); color: white; font-size: 10px; padding: 3px 8px; border-radius: 8px; font-weight: bold; box-shadow: 0 0 10px #ff007f;">أسطوري</span>` : '';
             const legendaryBagBadge = item.isLegendary ? `<div style="font-size:10px; color:#ffd700; margin-bottom:5px; font-weight:bold;">★ أسطوري ★</div>` : '';
 
@@ -1211,7 +736,7 @@ window.openPurchaseModal = function(itemId, itemName, price, itemType) {
         return num;
     }
 
-  function updatePriceDisplay() {
+    function updatePriceDisplay() {
         if(!costEl) return;
         let ticketDiscount = (discountSelect && discountContainer && discountContainer.style.display !== 'none') ? (parseInt(discountSelect.value) || 0) : 0;
         let priceHtml = '';
