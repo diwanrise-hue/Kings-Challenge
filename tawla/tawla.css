@@ -100,22 +100,21 @@ body {
 /* 👑 ساحة اللعب والأحجار (النسخة الـ VIP الفاخرة) 👑 */
 /* ========================================== */
 
-/* --- 1. الحاويات الأساسية (إبادة تامة لأي خلفيات أو إطارات موروثة) --- */
+/* --- 1. الحاويات الأساسية (إبادة تامة للإطار المخطط الموروث) --- */
 .game-container,
 .tawla-container, 
 #tawla-board-wrapper,
-.game-container::before, .game-container::after,
 .tawla-container::before, .tawla-container::after,
 #tawla-board-wrapper::before, #tawla-board-wrapper::after {
     background: transparent !important; 
+    background-color: transparent !important;
     background-image: none !important;
     border: none !important;
     border-image: none !important;
     box-shadow: none !important;
 }
 
-.tawla-container, 
-#tawla-board-wrapper {
+.tawla-container {
     width: 100% !important;
     max-width: 550px;
     aspect-ratio: 3 / 4; 
@@ -127,10 +126,11 @@ body {
 }
 
 #tawla-board-wrapper {
+    width: 100% !important;
     height: 100% !important;
     perspective: 1200px !important; 
     transform-style: preserve-3d !important;
-    overflow: visible !important; 
+    position: relative !important;
 }
 
 
@@ -138,7 +138,7 @@ body {
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
 
-/* --- 2. الطاولة (الإطار الخشبي الفاخر المانع للتخطيط) --- */
+/* --- 2. الطاولة (الأرضية الخشبية ودفع المثلثات للداخل) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -148,13 +148,13 @@ body {
     box-sizing: border-box !important;
     margin: 0 auto !important;
     
-    /* 🚨 إعدام border-image نهائياً لمنع أي تخطيط قديم 🚨 */
-    border: 18px solid #200c04 !important;
+    /* إزالة أي إطارات أصلية قد تسبب مشاكل */
+    border: none !important;
     border-image: none !important;
-    border-image-source: none !important;
     outline: none !important;
-    border-radius: 12px !important;
-    padding: 0 !important;
+    
+    /* 🚨 دفع المثلثات للداخل لتوفير مساحة للإطار الخشبي 🚨 */
+    padding: 16px !important;
     gap: 28px !important; /* مساحة متناسقة للبار الأوسط */
     
     /* أرضية الخشب الحقيقية وإضاءة الـ Spotlight */
@@ -162,26 +162,39 @@ body {
     background-image: 
         radial-gradient(ellipse at center, rgba(90, 35, 15, 0.85) 0%, rgba(28, 9, 2, 0.98) 65%, #080200 100%),
         repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 6px) !important;
-    
-    /* 🚨 تطعيمات الذهب والعمق ثلاثي الأبعاد 🚨 */
-    box-shadow: 
-        0 0 0 2px #d4af37,              /* إطار ذهبي خارجي فخم يحدد الطاولة */
-        0 20px 40px rgba(0,0,0,0.95),    /* ظل واقعي للطاولة على خلفية المشهد */
-        inset 0 0 0 2px #b8860b,          /* إطار ذهبي داخلي محفور على حافة الخشب */
-        inset 0 0 50px rgba(0,0,0,0.95),  /* عمق ثلاثي الأبعاد غائر يسقط على أطراف المثلثات */
-        inset 0 2px 6px rgba(255,255,255,0.12) !important; /* لمعة طلاء الخشب المصقول */
         
+    position: relative !important;
     transform-origin: center center !important;
     transform: rotateX(5deg) translateY(0px) !important; 
     transform-style: preserve-3d !important;
     z-index: 1; 
+    
+    /* ظل واقعي للطاولة على خلفية المشهد */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.95) !important;
 }
 
-/* إيقاف العناصر الوهمية للطاولة لمنع أي تداخلات */
-#tawla-board::before, 
-#tawla-board::after { 
-    display: none !important; 
+/* 🚨 الإطار الخشبي الفاخر المنيع (طبقة فوقية لا تتأثر باللعبة) 🚨 */
+#tawla-board::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    pointer-events: none !important; /* يسمح بلمس الأحجار من خلاله */
+    z-index: 100 !important; /* يغطي كل شيء ليقص أطراف المثلثات */
+    
+    /* رسم الإطار الخشبي الفاخر */
+    border: 16px solid #200c04 !important;
+    border-radius: 12px !important;
+    
+    /* تطعيمات الذهب والعمق ثلاثي الأبعاد الغائر */
+    box-shadow: 
+        0 0 0 2px #d4af37,              /* إطار ذهبي خارجي فخم */
+        inset 0 0 0 2px #b8860b,          /* إطار ذهبي داخلي محفور */
+        inset 0 0 40px rgba(0,0,0,0.99),  /* عمق 3D قوي يسقط على أطراف المثلثات */
+        inset 0 2px 6px rgba(255,255,255,0.1) !important; /* لمعة طلاء الخشب */
 }
+
+/* تنظيف العنصر الوهمي الآخر */
+#tawla-board::before { display: none !important; }
 
 .board-quadrant { 
     display: flex; 
@@ -194,17 +207,14 @@ body {
     position: relative; 
     background: transparent !important; 
 }
-.board-quadrant::before, 
-.board-quadrant::after { 
-    display: none !important; 
-}
+.board-quadrant::before, .board-quadrant::after { display: none !important; }
 
 
 /* --- 3. الشق الأوسط والمفصلات المعدنية --- */
 .tawla-bar {
     position: absolute !important; 
     left: 50% !important; 
-    transform: translateX(-50%) translateZ(2px) !important; 
+    transform: translateX(-50%) translateZ(4px) !important; 
     top: 0 !important; 
     bottom: 0 !important; 
     width: 28px !important; 
@@ -212,7 +222,7 @@ body {
     background: linear-gradient(to right, #0a0301 0%, #200c04 25%, #050201 50%, #200c04 75%, #0a0301 100%) !important;
     border-left: 1px solid rgba(255,215,0,0.2) !important;
     border-right: 1px solid rgba(255,215,0,0.2) !important;
-    z-index: 15 !important; 
+    z-index: 110 !important; /* فوق الإطار الخارجي */
     box-shadow: 0 0 20px rgba(0,0,0,0.95) !important;
 }
 
@@ -236,7 +246,7 @@ body {
     border-bottom: 3px solid #332500 !important;
     
     box-shadow: 0 6px 12px rgba(0,0,0,0.9), inset 0 0 4px rgba(92,67,0,0.8) !important; 
-    z-index: 30 !important;
+    z-index: 120 !important;
 }
 .tawla-bar::before { top: 12% !important; } 
 .tawla-bar::after { bottom: 12% !important; }
