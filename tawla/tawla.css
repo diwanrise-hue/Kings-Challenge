@@ -61,322 +61,447 @@ body {
 
 .score-row { 
     display: flex; gap: 2px; flex-wrap: nowrap; 
-    justify-content: center; width: 100%; align-items: center; 
-    padding: 5px 8px; border-radius: 12px; 
-    transition: all 0.5s ease;
-    box-sizing: border-box;
-    background-size: cover;
-    background-position: center;
-    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-#my-score-row { background: var(--my-score-bg); border: var(--my-score-border); }
-#opponent-score-row { background: var(--opp-score-bg); border: var(--opp-score-border); }
-
-.mini-piece-empty { 
-    width: 18px; height: 18px; border-radius: 50%; 
-    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
-    flex: 0 0 18px; margin: 0;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-}
-
-.piece.mini { 
-    width: 18px !important; height: 18px !important; 
-    flex: 0 0 18px !important; 
-    min-width: 18px !important; min-height: 18px !important; 
-    max-width: 18px !important; max-height: 18px !important;
-    margin: 0 !important; padding: 0 !important; 
-    cursor: default; transform: none !important; 
-    animation: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.6) !important; 
-    border-radius: 50% !important;
-    display: inline-block !important;
-}
-.piece.mini::before, .piece.mini::after { display: none !important; }
-
-.game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
-
-
-
-/* ========================================== */
-/* 👑 ساحة اللعب والأحجار (النسخة الـ VIP الفاخرة) 👑 */
-/* ========================================== */
-
-/* --- 1. الحاوية الأساسية (توسيط وتنظيف الخلفيات القديمة) --- */
-.tawla-container {
-    width: 100% !important;
-    max-width: 550px;
-    aspect-ratio: 3 / 4; 
-    margin: 0 auto !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    /* 🚨 إجبار إزالة أي خلفيات أو إطارات قديمة من اللعبة 🚨 */
-    background: transparent !important; 
-    border: none !important;
-    box-shadow: none !important;
-}
-
-#tawla-board-wrapper {
-    width: 100% !important;
-    height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    perspective: 1200px !important; 
-    transform-style: preserve-3d !important;
-    overflow: visible !important; 
-    background: transparent !important;
-    border: none !important;
-}
-
-/* ========================================== */
-/* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
-/* ========================================== */
-
-/* --- 2. الطاولة (الأرضية الخشبية والإطار المنفصل) --- */
-#tawla-board {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    grid-template-rows: 1fr 1fr !important;
-    width: 100% !important;
-    height: 100% !important;
+    justify-co/* ========================================== */    
+/* رقعة اللعب ولوحات النقاط */    
+/* ========================================== */    
+.scoreboard {     
+    display: flex; flex-direction: column; gap: 3px; margin-bottom: 4px;     
     
-    /* 🚨 الحشوة تصنع مساحة لكي تستقر المثلثات داخل الإطار 🚨 */
-    padding: 16px !important; 
+    background: transparent !important; padding: 0; border-radius: 0;     
+    align-items: center; width: 95%; max-width: 380px; transition: all 0.4s ease;     
+    box-sizing: border-box; border: none !important; box-shadow: none !important;    
+    backdrop-filter: none; -webkit-backdrop-filter: none;    
+}    
     
-    align-content: stretch !important;
-    justify-content: stretch !important;
-    gap: 36px !important; 
+.score-row {     
+    display: flex; gap: 2px; flex-wrap: nowrap;     
+    justify-content: center; width: 100%; align-items: center;     
+    padding: 5px 8px; border-radius: 12px;     
+    transition: all 0.5s ease;    
+    box-sizing: border-box;    
+    background-size: cover;    
+    background-position: center;    
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);    
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);    
+}    
     
-    /* أرضية الخشب الحقيقية (Wood Grain & Spotlight) */
-    background-color: #2b1107 !important;
-    background-image: 
-        radial-gradient(ellipse at center, rgba(90, 35, 15, 0.8) 0%, rgba(25, 8, 2, 0.95) 60%, rgba(5, 0, 0, 1) 100%),
-        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px) !important;
+#my-score-row { background: var(--my-score-bg); border: var(--my-score-border); }    
+#opponent-score-row { background: var(--opp-score-bg); border: var(--opp-score-border); }    
     
-    /* 🚨 إجبار المتصفح على إزالة الإطار المخطط القديم 🚨 */
-    border: none !important;
-    border-image: none !important;
-    border-radius: 8px !important; 
+.mini-piece-empty {     
+    width: 18px; height: 18px; border-radius: 50%;     
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);     
+    flex: 0 0 18px; margin: 0;    
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);    
+}    
     
-    position: relative;
-    box-sizing: border-box;
-    margin: 0 !important;
-    transform-origin: center center !important;
-    transform: rotateX(5deg) translateY(0px) !important; 
+.piece.mini {     
+    width: 18px !important; height: 18px !important;     
+    flex: 0 0 18px !important;     
+    min-width: 18px !important; min-height: 18px !important;     
+    max-width: 18px !important; max-height: 18px !important;    
+    margin: 0 !important; padding: 0 !important;     
+    cursor: default; transform: none !important;     
+    animation: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;     
+    border-radius: 50% !important;    
+    display: inline-block !important;    
+}    
+.piece.mini::before, .piece.mini::after { display: none !important; }    
     
-    box-shadow: 0 20px 40px rgba(0,0,0,0.95) !important;
-    transform-style: preserve-3d !important;
-    z-index: 1; 
-}
-
-/* 📦 الإطار الأيسر والأيمن (برواز يرتفع فوق المثلثات ليقص أطرافها) 📦 */
-#tawla-board::before, #tawla-board::after {
+.game-container { 
+    display: flex; 
+    flex-direction: row; 
+    justify-content: center; 
+    align-items: center; 
+    width: 100%; 
+    box-sizing: border-box; 
+}    
+    
+    
+    
+/* ========================================== */    
+/* 👑 ساحة اللعب والأحجار (النسخة الـ VIP الفاخرة) 👑 */    
+/* ========================================== */    
+    
+/* --- 1. الحاوية الأساسية (توسيط وتنظيف الخلفيات القديمة) --- */    
+.tawla-container {    
+    width: 100% !important;    
+    max-width: 550px;    
+    aspect-ratio: 3 / 4;     
+    margin: 0 auto !important;    
+    display: flex !important;    
+    align-items: center !important;    
+    justify-content: center !important;    
+    /* 🚨 إجبار إزالة أي خلفيات أو إطارات قديمة من اللعبة 🚨 */    
+    background: transparent !important;     
+    border: none !important;    
+    box-shadow: none !important;    
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}    
+    
+#tawla-board-wrapper {    
+    width: 100% !important;    
+    height: 100% !important;    
+    display: flex !important;    
+    align-items: center !important;    
+    justify-content: center !important;    
+    perspective: 1200px !important;     
+    transform-style: preserve-3d !important;    
+    overflow: visible !important;     
+    background: transparent !important;    
+    border: none !important;    
+    box-sizing: border-box !important;
+}    
+    
+/* ========================================== */    
+/* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */    
+/* ========================================== */    
+    
+/* --- 2. الطاولة (الأرضية الخشبية والإطار المنفصل) --- */    
+#tawla-board {    
+    display: grid !important;    
+    grid-template-columns: 1fr 1fr !important;    
+    grid-template-rows: 1fr 1fr !important;    
+    width: 100% !important;    
+    height: 100% !important;    
+        
+    /* 🚨 الحشوة تصنع مساحة لكي تستقر المثلثات داخل الإطار 🚨 */    
+    padding: 16px !important;     
+        
+    align-content: stretch !important;    
+    justify-content: stretch !important;    
+    gap: 0 !important;     
+        
+    /* أرضية الخشب الحقيقية (Wood Grain & Spotlight) */    
+    background-color: #2b1107 !important;    
+    background-image:     
+        radial-gradient(ellipse at center, rgba(90, 35, 15, 0.8) 0%, rgba(25, 8, 2, 0.95) 60%, rgba(5, 0, 0, 1) 100%),    
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px) !important;    
+        
+    /* 🚨 إجبار المتصفح على إزالة الإطار المخطط القديم 🚨 */    
+    border: none !important;    
+    border-image: none !important;    
+    border-radius: 8px !important;     
+        
+    position: relative;    
+    box-sizing: border-box;    
+    margin: 0 !important;    
+    transform-origin: center center !important;    
+    transform: rotateX(5deg) translateY(0px) !important;     
+        
+    box-shadow: 0 20px 40px rgba(0,0,0,0.95) !important;    
+    transform-style: preserve-3d !important;    
+    z-index: 1;     
+}    
+    
+/* 📦 الإطار الأيسر والأيمن (برواز يرتفع فوق المثلثات ليقص أطرافها) 📦 */    
+#tawla-board::before, #tawla-board::after {    
+    content: '';     
+    position: absolute;     
+    top: 0; bottom: 0;     
+    width: calc(50% - 2px);     
+        
+    /* شفاف من الداخل لكي نرى المثلثات والأرضية */    
+    background: transparent !important;     
+        
+    /* 🚨 هذا هو الإطار الخشبي الفاخر الجديد 🚨 */    
+    border: 16px solid #1a0802 !important;     
+    border-radius: 8px !important;     
+    box-sizing: border-box !important;    
+        
+    /* مرفوع في البعد الثالث ليكون فوق المثلثات */    
+    transform: translateZ(5px) !important;     
+    z-index: 10 !important;     
+    pointer-events: none !important; /* لا يمنع اللمس أبداً */    
+        
+    /* ظلال الإطار (ظل داخلي قوي يعطي إحساس الصندوق العميق) */    
+    box-shadow:     
+        inset 0 0 50px rgba(0,0,0,0.95),     
+        inset 0 2px 10px rgba(255,255,255,0.05),     
+        0 0 0 1px #8b6508 !important;     
+}    
+    
+#tawla-board::before { left: 0; }    
+#tawla-board::after { right: 0; }    
+    
+.board-quadrant {     
+    display: flex; 
+    justify-content: space-between; 
+    align-items: stretch !important;    
+    width: 100%; 
+    height: 100%; 
+    margin: 0 !important; 
+    padding: 0 !important; 
+    position: relative;     
+}    
+    
+    
+/* --- 3. الشق الأوسط والمفصلات المعدنية --- */    
+.tawla-bar {    
+    position: absolute !important; 
+    left: 50% !important;     
+    transform: translateX(-50%) translateZ(6px) !important; /* مرفوع فوق الإطار الخارجي */    
+    top: 0 !important; 
+    bottom: 0 !important;     
+    width: 28px !important;     
+    background: linear-gradient(to right, #0a0301 0%, #1a0802 20%, #000 50%, #1a0802 80%, #0a0301 100%) !important;    
+    border-left: 1px solid rgba(255,215,0,0.15) !important;    
+    border-right: 1px solid rgba(255,215,0,0.15) !important;    
+    z-index: 15 !important;     
+    box-shadow: 0 0 20px rgba(0,0,0,0.9) !important;    
+}    
+    
+/* 🔩 المفصلات الذهبية العتيقة 🔩 */    
+.tawla-bar::before, .tawla-bar::after {    
+    content: '' !important; 
+    position: absolute !important; 
+    left: 50% !important; 
+    transform: translateX(-50%) !important;    
+    width: 20px !important; 
+    height: 48px !important;     
+    background-color: #b8860b !important;    
+    background-image:     
+        linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.9) 48%, rgba(0,0,0,0.9) 52%, transparent 52%),     
+        linear-gradient(to right, #5c4300 0%, #b8860b 25%, #ffeb99 50%, #b8860b 75%, #5c4300 100%) !important;    
+    border-radius: 4px !important; 
+    border-top: 1px solid #fff3a8 !important; 
+    border-bottom: 3px solid #332500 !important;    
+    box-shadow: 0 8px 15px rgba(0,0,0,0.9), inset 0 0 5px rgba(92,67,0,0.8) !important; 
+    z-index: 30 !important;    
+}    
+.tawla-bar::before { top: 12% !important; } 
+.tawla-bar::after { bottom: 12% !important; }    
+    
+    
+/* --- 4. الأرباع والمثلثات --- */    
+.point {     
+    position: relative; 
+    width: 16.6%; 
+    height: 100% !important; 
+    margin: 0 !important; 
+    padding: 0 !important;    
+    filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8));     
+    z-index: 5 !important;     
+    transform: translateZ(0px) !important; /* تبقى في الأسفل على الأرضية */    
+}    
+.point::before {     
     content: ''; 
     position: absolute; 
-    top: 0; bottom: 0; 
-    width: calc(50% - 2px); 
-    
-    /* شفاف من الداخل لكي نرى المثلثات والأرضية */
-    background: transparent !important; 
-    
-    /* 🚨 هذا هو الإطار الخشبي الفاخر الجديد 🚨 */
-    border: 16px solid #1a0802 !important; 
-    border-radius: 8px !important; 
-    box-sizing: border-box !important;
-    
-    /* مرفوع في البعد الثالث ليكون فوق المثلثات */
-    transform: translateZ(5px) !important; 
-    z-index: 10 !important; 
-    pointer-events: none !important; /* لا يمنع اللمس أبداً */
-    
-    /* ظلال الإطار (ظل داخلي قوي يعطي إحساس الصندوق العميق) */
-    box-shadow: 
-        inset 0 0 50px rgba(0,0,0,0.95), 
-        inset 0 2px 10px rgba(255,255,255,0.05), 
-        0 0 0 1px #8b6508 !important; 
-}
-
-#tawla-board::before { left: 0; }
-#tawla-board::after { right: 0; }
-
-.board-quadrant { 
-    display: flex; justify-content: space-between; align-items: stretch !important;
-    width: 100%; height: 100%; margin: 0 !important; padding: 0 !important; position: relative; 
-}
-
-
-/* --- 3. الشق الأوسط والمفصلات المعدنية --- */
-.tawla-bar {
-    position: absolute !important; left: 50% !important; 
-    transform: translateX(-50%) translateZ(6px) !important; /* مرفوع فوق الإطار الخارجي */
-    top: 0 !important; bottom: 0 !important; 
-    width: 28px !important; 
-    background: linear-gradient(to right, #0a0301 0%, #1a0802 20%, #000 50%, #1a0802 80%, #0a0301 100%) !important;
-    border-left: 1px solid rgba(255,215,0,0.15) !important;
-    border-right: 1px solid rgba(255,215,0,0.15) !important;
-    z-index: 15 !important; 
-    box-shadow: 0 0 20px rgba(0,0,0,0.9) !important;
-}
-
-/* 🔩 المفصلات الذهبية العتيقة 🔩 */
-.tawla-bar::before, .tawla-bar::after {
-    content: '' !important; position: absolute !important; left: 50% !important; transform: translateX(-50%) !important;
-    width: 20px !important; height: 48px !important; 
-    background-color: #b8860b !important;
-    background-image: 
-        linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.9) 48%, rgba(0,0,0,0.9) 52%, transparent 52%), 
-        linear-gradient(to right, #5c4300 0%, #b8860b 25%, #ffeb99 50%, #b8860b 75%, #5c4300 100%) !important;
-    border-radius: 4px !important; border-top: 1px solid #fff3a8 !important; border-bottom: 3px solid #332500 !important;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.9), inset 0 0 5px rgba(92,67,0,0.8) !important; z-index: 30 !important;
-}
-.tawla-bar::before { top: 12% !important; } .tawla-bar::after { bottom: 12% !important; }
-
-
-/* --- 4. الأرباع والمثلثات --- */
-.point { 
-    position: relative; width: 16.6%; height: 100% !important; margin: 0 !important; padding: 0 !important;
-    filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8)); 
+    left: 0; 
+    width: 100%; 
+    height: 85%;     
     z-index: 5 !important; 
-    transform: translateZ(0px) !important; /* تبقى في الأسفل على الأرضية */
-}
-.point::before { 
-    content: ''; position: absolute; left: 0; width: 100%; height: 85%; 
-    z-index: 5 !important; pointer-events: none; display: block; margin: 0 !important;
-}
-
-/* 🚨 انزلاق قواعد المثلثات تحت الإطار الخشبي المرتفع 🚨 */
-.top-right .point::before, .top-left .point::before { top: -10px !important; clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
-.bottom-right .point::before, .bottom-left .point::before { bottom: -10px !important; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
-
-/* 🔴 المثلثات الحمراء (Mystic Ruby) */
-.top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before { 
-    background: linear-gradient(to bottom, #d4002b 0%, #8a001a 30%, #4a000f 80%, #200006 100%) !important; 
-}
-.bottom-right .point:nth-child(odd)::before, .bottom-left .point:nth-child(odd)::before { 
-    background: linear-gradient(to top, #d4002b 0%, #8a001a 30%, #4a000f 80%, #200006 100%) !important; 
-}
-
-/* 🟡 المثلثات العاجية (Warm Ivory Gold) */
-.top-right .point:nth-child(even)::before, .top-left .point:nth-child(even)::before { 
-    background: linear-gradient(to bottom, #fffaeb 0%, #e6d3a8 30%, #b3904f 80%, #6e552a 100%) !important; 
-}
-.bottom-right .point:nth-child(even)::before, .bottom-left .point:nth-child(even)::before { 
-    background: linear-gradient(to top, #fffaeb 0%, #e6d3a8 30%, #b3904f 80%, #6e552a 100%) !important; 
-}
-
-/* --- 5. الأحجار (جودة AAA) --- */
-body[data-piece-style] .piece, .piece {
-    position: relative !important; z-index: 20 !important; transform: translateZ(8px) !important; border-radius: 50% !important; transform-style: preserve-3d; display: flex !important; align-items: center !important; justify-content: center !important; 
-    width: 90% !important; max-width: 42px !important; height: auto !important; aspect-ratio: 1 / 1 !important; margin: 0 auto;
+    pointer-events: none; 
+    display: block; 
+    margin: 0 !important;    
+}    
     
-    border: 2px solid #e0b953 !important; /* الإطار الذهبي الحاد */
-}
-
-/* ⚪ حجر اللؤلؤ والعاج الفاخر */
-body[data-piece-style] .piece.white, .piece.white {
-    background: radial-gradient(circle at 35% 25%, #ffffff 0%, #f4eade 40%, #c2a68c 80%, #8c735d 100%) !important;
-    box-shadow: 
-        inset 0 0 0 2px #8a6327, 
-        inset 3px 5px 10px rgba(255,255,255,0.9), 
-        inset -3px -5px 12px rgba(0,0,0,0.5), 
-        0 8px 12px rgba(0,0,0,0.85), 
-        0 15px 25px rgba(0,0,0,0.6) !important; 
-}
-
-/* ⚫ حجر السج الأسود (Obsidian) */
-body[data-piece-style] .piece.black, .piece.black {
-    background: radial-gradient(circle at 35% 25%, #5a5f66 0%, #1f2226 40%, #050505 80%, #000000 100%) !important;
-    box-shadow: 
-        inset 0 0 0 2px #8a6327,
-        inset 2px 4px 8px rgba(255,255,255,0.25), 
-        inset -3px -5px 12px rgba(0,0,0,0.9),
-        0 8px 12px rgba(0,0,0,0.85), 
-        0 15px 25px rgba(0,0,0,0.6) !important;
-}
-
-/* 🪙 حلقة ذهبية محفورة بدقة CNC داخل الحجر */
-body[data-piece-style] .piece::before, .piece::before {
-    content: '' !important; display: block !important; position: absolute !important;
-    width: 52% !important; height: 52% !important; border-radius: 50% !important; 
-    pointer-events: none !important;
+/* 🚨 انزلاق قواعد المثلثات تحت الإطار الخشبي المرتفع 🚨 */    
+.top-right .point::before, .top-left .point::before { 
+    top: -10px !important; 
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%); 
+}    
+.bottom-right .point::before, .bottom-left .point::before { 
+    bottom: -10px !important; 
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%); 
+}    
     
-    border: 1.5px solid #ffd700 !important; 
-    background: transparent !important;
+/* 🔴 المثلثات الحمراء (Mystic Ruby) */    
+.top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before {     
+    background: linear-gradient(to bottom, #d4002b 0%, #8a001a 30%, #4a000f 80%, #200006 100%) !important;     
+}    
+.bottom-right .point:nth-child(odd)::before, .bottom-left .point:nth-child(odd)::before {     
+    background: linear-gradient(to top, #d4002b 0%, #8a001a 30%, #4a000f 80%, #200006 100%) !important;     
+}    
     
-    box-shadow: 
-        inset 0 2px 4px rgba(0,0,0,0.7), 
-        0 1px 1px rgba(255,255,255,0.6), 
-        0 -1px 2px rgba(0,0,0,0.6) !important; 
-}
-
-/* ✨ تفاعل التحديد */
-.piece.selected { 
-    outline: none !important;
-    box-shadow: 
-        0 0 25px #ffea79, 
-        inset -3px -5px 8px rgba(0,0,0,0.6),
-        0 20px 30px rgba(0,0,0,0.9) !important; 
-    transform: translateZ(20px) scale(1.1) !important; 
-}
-
-/* --- 6. النرد (عظم عتيق مع نقاط حمراء/ذهبية) --- */
-#dice-container { 
-    perspective: 1200px; 
+/* 🟡 المثلثات العاجية (Warm Ivory Gold) */    
+.top-right .point:nth-child(even)::before, .top-left .point:nth-child(even)::before {     
+    background: linear-gradient(to bottom, #fffaeb 0%, #e6d3a8 30%, #b3904f 80%, #6e552a 100%) !important;     
+}    
+.bottom-right .point:nth-child(even)::before, .bottom-left .point:nth-child(even)::before {     
+    background: linear-gradient(to top, #fffaeb 0%, #e6d3a8 30%, #b3904f 80%, #6e552a 100%) !important;     
+}    
+    
+/* --- 5. الأحجار (جودة AAA) --- */    
+body[data-piece-style] .piece, .piece {    
+    position: relative !important; 
+    z-index: 20 !important; 
+    transform: translateZ(8px) !important; 
+    border-radius: 50% !important; 
     transform-style: preserve-3d; 
-    transform: translate(50%, -50%) translateZ(60px) !important;
-    z-index: 100 !important;
-    /* هالة سحرية خفيفة تحت النرد */
-    filter: drop-shadow(0 20px 20px rgba(0,0,0,0.9));
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important;     
+    width: 90% !important; 
+    max-width: 42px !important; 
+    height: auto !important; 
+    aspect-ratio: 1 / 1 !important; 
+    margin: 0 auto;    
+        
+    border: 2px solid #e0b953 !important; /* الإطار الذهبي الحاد */    
+}    
+    
+/* ⚪ حجر اللؤلؤ والعاج الفاخر */    
+body[data-piece-style] .piece.white, .piece.white {    
+    background: radial-gradient(circle at 35% 25%, #ffffff 0%, #f4eade 40%, #c2a68c 80%, #8c735d 100%) !important;    
+    box-shadow:     
+        inset 0 0 0 2px #8a6327,     
+        inset 3px 5px 10px rgba(255,255,255,0.9),     
+        inset -3px -5px 12px rgba(0,0,0,0.5),     
+        0 8px 12px rgba(0,0,0,0.85),     
+        0 15px 25px rgba(0,0,0,0.6) !important;     
+}    
+    
+/* ⚫ حجر السج الأسود (Obsidian) */    
+body[data-piece-style] .piece.black, .piece.black {    
+    background: radial-gradient(circle at 35% 25%, #5a5f66 0%, #1f2226 40%, #050505 80%, #000000 100%) !important;    
+    box-shadow:     
+        inset 0 0 0 2px #8a6327,    
+        inset 2px 4px 8px rgba(255,255,255,0.25),     
+        inset -3px -5px 12px rgba(0,0,0,0.9),    
+        0 8px 12px rgba(0,0,0,0.85),     
+        0 15px 25px rgba(0,0,0,0.6) !important;    
+}    
+    
+/* 🪙 حلقة ذهبية محفورة بدقة CNC داخل الحجر */    
+body[data-piece-style] .piece::before, .piece::before {    
+    content: '' !important; 
+    display: block !important; 
+    position: absolute !important;    
+    width: 52% !important; 
+    height: 52% !important; 
+    border-radius: 50% !important;     
+    pointer-events: none !important;    
+        
+    border: 1.5px solid #ffd700 !important;     
+    background: transparent !important;    
+        
+    box-shadow:     
+        inset 0 2px 4px rgba(0,0,0,0.7),     
+        0 1px 1px rgba(255,255,255,0.6),     
+        0 -1px 2px rgba(0,0,0,0.6) !important;     
+}    
+    
+/* ✨ تفاعل التحديد */    
+.piece.selected {     
+    outline: none !important;    
+    box-shadow:     
+        0 0 25px #ffea79,     
+        inset -3px -5px 8px rgba(0,0,0,0.6),    
+        0 20px 30px rgba(0,0,0,0.9) !important;     
+    transform: translateZ(20px) scale(1.1) !important;     
+}    
+    
+/* --- 6. النرد (عظم عتيق مع نقاط حمراء/ذهبية) --- */    
+#dice-container {     
+    perspective: 1200px;     
+    transform-style: preserve-3d;     
+    transform: translate(50%, -50%) translateZ(60px) !important;    
+    z-index: 100 !important;    
+    /* هالة سحرية خفيفة تحت النرد */    
+    filter: drop-shadow(0 20px 20px rgba(0,0,0,0.9));    
+}    
+    
+.tawla-die { 
+    width: 36px; 
+    height: 36px; 
+    position: relative; 
+    z-index: 50; 
+    transform-style: preserve-3d; 
+}    
+.roll-arc-1 { animation: arcJump1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }    
+.roll-arc-2 { animation: arcJump2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }    
+@keyframes arcJump1 { 
+    0% { transform: translate3d(-150px, -200px, 100px) scale(1.5) rotateX(720deg); } 
+    100% { transform: translate3d(0, 0, 0) scale(1) rotateX(0deg); } 
+}    
+@keyframes arcJump2 { 
+    0% { transform: translate3d(-100px, -250px, 100px) scale(1.5) rotateY(720deg); } 
+    100% { transform: translate3d(0, 0, 0) scale(1) rotateY(0deg); } 
+}    
+    
+.dice-3d-wrapper { 
+    width: 100%; 
+    height: 100%; 
+    position: relative; 
+    transform-style: preserve-3d; 
+}    
+    
+/* لون عظم عتيق (Aged Bone) للنرد */    
+.dice-face {     
+    position: absolute; 
+    width: 36px; 
+    height: 36px;     
+    background: linear-gradient(145deg, #fdf5c9, #d4af37);     
+    border: 1px solid #8b6508; 
+    border-radius: 6px;     
+    display: grid; 
+    grid-template-areas: "a . c" "e g f" "d . b"; 
+    grid-template-rows: 1fr 1fr 1fr; 
+    grid-template-columns: 1fr 1fr 1fr; 
+    padding: 4px; 
+    box-sizing: border-box;     
+    box-shadow: inset 0 0 10px rgba(139,101,8,0.5);     
+}    
+    
+/* نقاط النرد ياقوتية داكنة */    
+.dice-face .pip {     
+    display: block; 
+    width: 8px; 
+    height: 8px; 
+    border-radius: 50%;     
+    background: radial-gradient(circle at 30% 30%, #4a000f, #1a0005);     
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.9), 0 1px 1px rgba(255,255,255,0.4);     
+    align-self: center; 
+    justify-self: center; 
+    transform: translateZ(1px);     
+}    
+    
+/* ... (إعدادات الوجوه ومسافات الـ Z-translate تبقى كما هي) ... */    
+.face-1 .pip:nth-child(1) { grid-area: g; } 
+.face-2 .pip:nth-child(1) { grid-area: a; } 
+.face-2 .pip:nth-child(2) { grid-area: b; } 
+.face-3 .pip:nth-child(1) { grid-area: a; } 
+.face-3 .pip:nth-child(2) { grid-area: g; } 
+.face-3 .pip:nth-child(3) { grid-area: b; } 
+.face-4 .pip:nth-child(1) { grid-area: a; } 
+.face-4 .pip:nth-child(2) { grid-area: c; } 
+.face-4 .pip:nth-child(3) { grid-area: d; } 
+.face-4 .pip:nth-child(4) { grid-area: b; } 
+.face-5 .pip:nth-child(1) { grid-area: a; } 
+.face-5 .pip:nth-child(2) { grid-area: c; } 
+.face-5 .pip:nth-child(3) { grid-area: g; } 
+.face-5 .pip:nth-child(4) { grid-area: d; } 
+.face-5 .pip:nth-child(5) { grid-area: b; } 
+.face-6 .pip:nth-child(1) { grid-area: a; } 
+.face-6 .pip:nth-child(2) { grid-area: c; } 
+.face-6 .pip:nth-child(3) { grid-area: e; } 
+.face-6 .pip:nth-child(4) { grid-area: f; } 
+.face-6 .pip:nth-child(5) { grid-area: d; } 
+.face-6 .pip:nth-child(6) { grid-area: b; }    
+
+.face-front { transform: rotateY(0deg) translateZ(18px); } 
+.face-back { transform: rotateX(180deg) translateZ(18px); } 
+.face-right { transform: rotateY(90deg) translateZ(18px); } 
+.face-left { transform: rotateY(-90deg) translateZ(18px); } 
+.face-top { transform: rotateX(90deg) translateZ(18px); } 
+.face-bottom { transform: rotateX(-90deg) translateZ(18px); }    
+    
+/* --- 7. زر رمي النرد (معدن ذهبي فاخر) --- */    
+#roll-dice-btn {     
+    transform: translate(50%, -50%) translateZ(60px) !important;     
+    z-index: 110 !important;    
+    background: linear-gradient(135deg, #d4af37, #8b6508) !important;    
+    color: #fff !important;    
+    border: 1px solid #ffeb99 !important;    
+    text-shadow: 0 2px 2px rgba(0,0,0,0.8) !important;    
+    box-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 5px 0 #4a3500, inset 0 2px 4px rgba(255,255,255,0.5) !important;     
+}    
+#roll-dice-btn:active {     
+    transform: translate(50%, -45%) translateZ(30px) !important;     
+    box-shadow: 0 4px 10px rgba(0,0,0,0.8), 0 0 0 #4a3500, inset 0 2px 4px rgba(255,255,255,0.2) !important;     
 }
-
-.tawla-die { width: 36px; height: 36px; position: relative; z-index: 50; transform-style: preserve-3d; }
-.roll-arc-1 { animation: arcJump1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-.roll-arc-2 { animation: arcJump2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-@keyframes arcJump1 { 0% { transform: translate3d(-150px, -200px, 100px) scale(1.5) rotateX(720deg); } 100% { transform: translate3d(0, 0, 0) scale(1) rotateX(0deg); } }
-@keyframes arcJump2 { 0% { transform: translate3d(-100px, -250px, 100px) scale(1.5) rotateY(720deg); } 100% { transform: translate3d(0, 0, 0) scale(1) rotateY(0deg); } }
-
-.dice-3d-wrapper { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
-
-/* لون عظم عتيق (Aged Bone) للنرد */
-.dice-face { 
-    position: absolute; width: 36px; height: 36px; 
-    background: linear-gradient(145deg, #fdf5c9, #d4af37); 
-    border: 1px solid #8b6508; border-radius: 6px; 
-    display: grid; grid-template-areas: "a . c" "e g f" "d . b"; grid-template-rows: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr 1fr; padding: 4px; box-sizing: border-box; 
-    box-shadow: inset 0 0 10px rgba(139,101,8,0.5); 
-}
-
-/* نقاط النرد ياقوتية داكنة */
-.dice-face .pip { 
-    display: block; width: 8px; height: 8px; border-radius: 50%; 
-    background: radial-gradient(circle at 30% 30%, #4a000f, #1a0005); 
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.9), 0 1px 1px rgba(255,255,255,0.4); 
-    align-self: center; justify-self: center; transform: translateZ(1px); 
-}
-
-/* ... (إعدادات الوجوه ومسافات الـ Z-translate تبقى كما هي) ... */
-.face-1 .pip:nth-child(1) { grid-area: g; } .face-2 .pip:nth-child(1) { grid-area: a; } .face-2 .pip:nth-child(2) { grid-area: b; } .face-3 .pip:nth-child(1) { grid-area: a; } .face-3 .pip:nth-child(2) { grid-area: g; } .face-3 .pip:nth-child(3) { grid-area: b; } .face-4 .pip:nth-child(1) { grid-area: a; } .face-4 .pip:nth-child(2) { grid-area: c; } .face-4 .pip:nth-child(3) { grid-area: d; } .face-4 .pip:nth-child(4) { grid-area: b; } .face-5 .pip:nth-child(1) { grid-area: a; } .face-5 .pip:nth-child(2) { grid-area: c; } .face-5 .pip:nth-child(3) { grid-area: g; } .face-5 .pip:nth-child(4) { grid-area: d; } .face-5 .pip:nth-child(5) { grid-area: b; } .face-6 .pip:nth-child(1) { grid-area: a; } .face-6 .pip:nth-child(2) { grid-area: c; } .face-6 .pip:nth-child(3) { grid-area: e; } .face-6 .pip:nth-child(4) { grid-area: f; } .face-6 .pip:nth-child(5) { grid-area: d; } .face-6 .pip:nth-child(6) { grid-area: b; }
-.face-front { transform: rotateY(0deg) translateZ(18px); } .face-back { transform: rotateX(180deg) translateZ(18px); } .face-right { transform: rotateY(90deg) translateZ(18px); } .face-left { transform: rotateY(-90deg) translateZ(18px); } .face-top { transform: rotateX(90deg) translateZ(18px); } .face-bottom { transform: rotateX(-90deg) translateZ(18px); }
-
-/* --- 7. زر رمي النرد (معدن ذهبي فاخر) --- */
-#roll-dice-btn { 
-    transform: translate(50%, -50%) translateZ(60px) !important; 
-    z-index: 110 !important;
-    background: linear-gradient(135deg, #d4af37, #8b6508) !important;
-    color: #fff !important;
-    border: 1px solid #ffeb99 !important;
-    text-shadow: 0 2px 2px rgba(0,0,0,0.8) !important;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 5px 0 #4a3500, inset 0 2px 4px rgba(255,255,255,0.5) !important; 
-}
-#roll-dice-btn:active { 
-    transform: translate(50%, -45%) translateZ(30px) !important; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.8), 0 0 0 #4a3500, inset 0 2px 4px rgba(255,255,255,0.2) !important; 
-}
-
-
-
 
 /* ========================================== */
 /* الشريط السفلي و الأزرار المربعة            */
