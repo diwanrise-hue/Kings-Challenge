@@ -933,15 +933,18 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
+          
             // إضافة أشرطة إخراج الأحجار (العلوي والسفلي) إذا لم تكن موجودة
             if(!document.getElementById('bear-off-top')) {
                 let boTop = document.createElement('div'); boTop.id = 'bear-off-top';
-                boTop.style.cssText = "position:absolute; top:-48px; left:0; width:100%; height:42px; background:#4A2E1B; border:3px solid #5C3A21; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20; box-sizing:border-box;";
+                // تم التعديل هنا: top:-75px لإبعادها عن الطاولة، وتغيير الألوان والظلال لتبدو كصندوق فاخر مستقل
+                boTop.style.cssText = "position:absolute; top:-75px; left:0; width:100%; height:48px; background:linear-gradient(to right, #2b170e, #3d2214 50%, #2b170e); border:3px solid #1f1008; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 5px 15px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.7); z-index:20; box-sizing:border-box;";
                 boTop.innerHTML = `<div id="out-white" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
                 board.appendChild(boTop);
 
                 let boBottom = document.createElement('div'); boBottom.id = 'bear-off-bottom';
-                boBottom.style.cssText = "position:absolute; bottom:-48px; left:0; width:100%; height:42px; background:#4A2E1B; border:3px solid #5C3A21; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 0 10px rgba(0,0,0,0.8); z-index:20; box-sizing:border-box;";
+                // تم التعديل هنا: bottom:-75px لإبعادها عن الطاولة من الأسفل
+                boBottom.style.cssText = "position:absolute; bottom:-75px; left:0; width:100%; height:48px; background:linear-gradient(to right, #2b170e, #3d2214 50%, #2b170e); border:3px solid #1f1008; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 5px 15px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.7); z-index:20; box-sizing:border-box;";
                 boBottom.innerHTML = `<div id="out-black" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
                 board.appendChild(boBottom);
             }
