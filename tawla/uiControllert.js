@@ -961,10 +961,10 @@ export const ui = {
                 let pointDiv = board.querySelector(`.point[data-index="${i}"]`);
                 for(let c=0; c<pt.count; c++) {
                     let piece = document.createElement('div'); piece.className = `piece ${pt.color}`;
-                    // تداخل الأحجار إذا زاد عددها عن 5 في نفس المثلث
-                    if(c > 4) piece.style.marginTop = '-25px'; 
-                    if(i >= 12 && c > 4) { piece.style.marginTop = '0'; piece.style.marginBottom = '-25px'; }
-                    pointDiv.appendChild(piece);
+           // تداخل الأحجار الديناميكي بناءً على حجم الشاشة
+           if(c > 4) piece.style.marginTop = 'calc(-60%)'; 
+           if(i >= 12 && c > 4) { piece.style.marginTop = '0'; piece.style.marginBottom = 'calc(-60%)'; }
+           pointDiv.appendChild(piece);
                 }
             }
         });
