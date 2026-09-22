@@ -156,28 +156,23 @@ body {
     content: ''; position: absolute; top: 0; bottom: 0; 
     width: calc(50% - 2px); 
     
-    /* 🚨 توليد خامة الخشب (Wood Grain) وإضاءة الـ Spotlight 🚨 */
     background-color: #2b1107 !important;
     background-image: 
-        /* إضاءة سينمائية تركز في المنتصف وتظلم عند الحواف (Vignette) */
         radial-gradient(ellipse at center, rgba(90, 35, 15, 0.8) 0%, rgba(25, 8, 2, 0.95) 60%, rgba(5, 0, 0, 1) 100%),
-        /* تموجات خشبية دقيقة جداً */
         repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px) !important;
     
-    border: 16px solid #1a0802 !important; /* لون الإطار الخشبي العميق */
+    border: 16px solid #1a0802 !important; 
     border-radius: 6px !important; 
     box-sizing: border-box !important;
-    transform: translateZ(3px) !important;
-    z-index: 10 !important; 
-    pointer-events: none !important; 
+    transform: translateZ(0px) !important; /* إعادتها للصفر لمنع إخفاء ما بداخلها */
+    z-index: -1 !important; /* يجب أن تكون خلفية */
     
-    /* 🚨 ظلال محيطية عميقة + لمعة الورنيش على حافة الخشب 🚨 */
     box-shadow: 
-        inset 0 0 0 1px rgba(255, 215, 0, 0.15), /* لمعة ذهبية دقيقة على الحافة الداخلية */
-        inset 0 0 50px rgba(0,0,0,0.99), /* ظل محيطي (Ambient Occlusion) يغوص للداخل */
-        inset 0 2px 10px rgba(255,255,255,0.05), /* انعكاس ضوء خفيف من الأعلى */
-        0 0 0 1px #8b6508, /* إطار ذهبي خارجي رقيق */
-        0 20px 40px rgba(0,0,0,0.95) !important; /* ظل الصندوق الواقعي */
+        inset 0 0 0 1px rgba(255, 215, 0, 0.15), 
+        inset 0 0 50px rgba(0,0,0,0.99), 
+        inset 0 2px 10px rgba(255,255,255,0.05), 
+        0 0 0 1px #8b6508, 
+        0 20px 40px rgba(0,0,0,0.95) !important; 
 }
 
 #tawla-board::before { left: 0; }
@@ -189,14 +184,33 @@ body {
 }
 .board-quadrant::before, .board-quadrant::after { display: none !important; }
 
-/* --- 4. الأرباع والمثلثات (عمق ثلاثي الأبعاد، تدرج فاخر) --- */
+/* --- 3. الشق الأوسط والمفصلات المعدنية --- */
+.tawla-bar {
+    position: absolute !important; left: 50% !important; transform: translateX(-50%) !important;
+    top: 0 !important; bottom: 0 !important; 
+    width: 4px !important; background: #000000 !important; border: none !important; 
+    z-index: 15 !important; box-shadow: inset 0 0 5px #000 !important;
+}
+
+.tawla-bar::before, .tawla-bar::after {
+    content: '' !important; position: absolute !important; left: 50% !important; transform: translateX(-50%) !important;
+    width: 16px !important; height: 42px !important; 
+    background-color: #a6a6a6 !important;
+    background-image: linear-gradient(to bottom, transparent 48%, #000 48%, #000 52%, transparent 52%), linear-gradient(to right, #4a4a4a 0%, #c4c4c4 30%, #ffffff 50%, #c4c4c4 70%, #4a4a4a 100%) !important;
+    border-radius: 3px !important; border-top: 1px solid #fff !important; border-bottom: 2px solid #111 !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.9), inset 0 0 3px rgba(0,0,0,0.6) !important; z-index: 30 !important;
+}
+.tawla-bar::before { top: 15% !important; } .tawla-bar::after { bottom: 15% !important; }
+
+/* --- 4. الأرباع والمثلثات (إصلاح الظهور والقص) --- */
 .point { 
     position: relative; width: 16.4%; height: 100% !important; margin: 0 !important; padding: 0 !important;
-    /* ظل واقعي للمثلث يجعله يبرز عن الخشب */
     filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.8)) drop-shadow(0px 1px 2px rgba(0,0,0,0.9)); 
     z-index: 5 !important; 
     transform: translateZ(0px) !important;
 }
+
+/* 🚨 إعادة إدراج الـ clip-path لقص المثلثات بشكل سليم 🚨 */
 .point::before { 
     content: ''; position: absolute; left: 0; width: 100%; height: 85%; 
     z-index: 5 !important; pointer-events: none; display: block; margin: 0 !important;
@@ -207,7 +221,6 @@ body {
 
 /* 🔴 المثلثات الحمراء (Mystic Ruby - تأثير 3D مخملي) */
 .top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before { 
-    /* إضاءة في القاعدة وظل في الرأس */
     background: linear-gradient(to bottom, #d4002b 0%, #8a001a 30%, #4a000f 80%, #200006 100%) !important; 
 }
 .bottom-right .point:nth-child(odd)::before, .bottom-left .point:nth-child(odd)::before { 
@@ -228,20 +241,18 @@ body[data-piece-style] .piece, .piece {
     position: relative !important; z-index: 20 !important; transform: translateZ(8px) !important; border-radius: 50% !important; transform-style: preserve-3d; display: flex !important; align-items: center !important; justify-content: center !important; 
     width: 90% !important; max-width: 42px !important; height: auto !important; aspect-ratio: 1 / 1 !important; margin: 0 auto;
     
-    /* 🚨 الإطار الخارجي للحجر (حافة معدنية ذهبية حادة) 🚨 */
     border: 2px solid #e0b953 !important;
 }
 
 /* ⚪ حجر اللؤلؤ والعاج الفاخر */
 body[data-piece-style] .piece.white, .piece.white {
     background: radial-gradient(circle at 35% 25%, #ffffff 0%, #f4eade 40%, #c2a68c 80%, #8c735d 100%) !important;
-    /* ظلال متعددة الطبقات: إضاءة علوية، عمق داخلي، ظل سفلي ثقيل */
     box-shadow: 
-        inset 0 0 0 2px #8a6327, /* إطار داخلي للذهب */
-        inset 3px 5px 10px rgba(255,255,255,0.9), /* لمعة الضوء الساقط */
-        inset -3px -5px 12px rgba(0,0,0,0.5), /* ظل التجويف الداخلي */
-        0 8px 12px rgba(0,0,0,0.85), /* الظل المباشر للحجر */
-        0 15px 25px rgba(0,0,0,0.6) !important; /* الظل المحيطي الواسع */
+        inset 0 0 0 2px #8a6327, 
+        inset 3px 5px 10px rgba(255,255,255,0.9), 
+        inset -3px -5px 12px rgba(0,0,0,0.5), 
+        0 8px 12px rgba(0,0,0,0.85), 
+        0 15px 25px rgba(0,0,0,0.6) !important; 
 }
 
 /* ⚫ حجر السج الأسود (Obsidian) */
@@ -249,7 +260,7 @@ body[data-piece-style] .piece.black, .piece.black {
     background: radial-gradient(circle at 35% 25%, #5a5f66 0%, #1f2226 40%, #050505 80%, #000000 100%) !important;
     box-shadow: 
         inset 0 0 0 2px #8a6327,
-        inset 2px 4px 8px rgba(255,255,255,0.25), /* لمعة زجاجية خفيفة */
+        inset 2px 4px 8px rgba(255,255,255,0.25), 
         inset -3px -5px 12px rgba(0,0,0,0.9),
         0 8px 12px rgba(0,0,0,0.85), 
         0 15px 25px rgba(0,0,0,0.6) !important;
@@ -261,14 +272,13 @@ body[data-piece-style] .piece::before, .piece::before {
     width: 52% !important; height: 52% !important; border-radius: 50% !important; 
     pointer-events: none !important;
     
-    border: 1.5px solid #ffd700 !important; /* لون ذهبي صافي */
+    border: 1.5px solid #ffd700 !important; 
     background: transparent !important;
     
-    /* تأثير الحفر المتقن (Bevel & Emboss) */
     box-shadow: 
-        inset 0 2px 4px rgba(0,0,0,0.7), /* عمق الخاتم */
-        0 1px 1px rgba(255,255,255,0.6), /* إضاءة الحافة السفلية للحفرة */
-        0 -1px 2px rgba(0,0,0,0.6) !important; /* ظل الحافة العلوية للحفرة */
+        inset 0 2px 4px rgba(0,0,0,0.7), 
+        0 1px 1px rgba(255,255,255,0.6), 
+        0 -1px 2px rgba(0,0,0,0.6) !important; 
 }
 
 /* ✨ تفاعل التحديد (هالة ذهبية تتوهج) */
@@ -278,7 +288,7 @@ body[data-piece-style] .piece::before, .piece::before {
         0 0 25px #ffea79, 
         inset -3px -5px 8px rgba(0,0,0,0.6),
         0 20px 30px rgba(0,0,0,0.9) !important; 
-    transform: translateZ(20px) scale(1.1) !important; /* يرتفع الحجر للأعلى بواقعية */
+    transform: translateZ(20px) scale(1.1) !important; 
 }
 
 /* --- 6. النرد (عظم عتيق مع نقاط حمراء/ذهبية) --- */
