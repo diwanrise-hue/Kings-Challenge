@@ -123,7 +123,7 @@ body {
     overflow: visible !important; 
 }
 
-/* --- 2. الطاولة (صندوقان مستقلان كما في الواقع) --- */
+/* --- 2. الطاولة (هندسة الطبقات للإطار فوق المثلثات) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -131,20 +131,19 @@ body {
     width: 100% !important;
     height: 100% !important;
     
-    /* الحشوة الداخلية للطاولة تطابق تماماً سمك إطار الصناديق (16px) */
-    padding-top: 16px !important;
-    padding-bottom: 16px !important;
-    padding-left: 16px !important;
-    padding-right: 16px !important;
+    /* 🚨 الحشوة تطابق سمك الإطار الخشبي تماماً لكي تتطابق الشبكة مع الداخل 🚨 */
+    padding: 16px !important;
     
     align-content: stretch !important;
     justify-content: stretch !important;
     
-    /* الفجوة المحسوبة هندسياً: إطار أيمن (16) + شق (4) + إطار أيسر (16) = 36px */
+    /* الفجوة: 16 إطار أيمن + 4 شق + 16 إطار أيسر = 36px */
     gap: 36px !important;
     
-    background: transparent !important;
+    /* الأرضية الخشبية الداكنة للطاولة كلها */
+    background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
     border: none !important;
+    border-radius: 0 !important;
     
     position: relative;
     box-sizing: border-box;
@@ -156,60 +155,38 @@ body {
     z-index: 1; 
 }
 
-/* 📦 الصندوق الخشبي الأيسر 📦 */
+/* 📦 الإطار الخشبي الأيسر (يجلس فوق المثلثات بفضل z-index: 10 ليقطع قواعدها) 📦 */
 #tawla-board::before {
     content: ''; position: absolute; top: 0; bottom: 0; left: 0;
     width: calc(50% - 2px); 
-    background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
+    background: transparent !important; /* شفاف ليظهر الأرضية والمثلثات من تحته */
     border: 16px solid #3d2214 !important;
     border-radius: 4px !important; box-sizing: border-box !important;
-    z-index: -1; 
-    box-shadow: inset 0 0 25px rgba(0,0,0,0.9), inset 0 2px 3px rgba(255,255,255,0.15), 0 15px 25px rgba(0,0,0,0.7) !important;
+    z-index: 10 !important; /* يجلس فوق المثلثات ليخفي حوافها */
+    pointer-events: none; /* لكي لا يمنع لمس الأحجار */
+    box-shadow: 
+        inset 0 0 20px rgba(0,0,0,0.9), /* الظل الذي يسقط من الخشب على المثلثات */
+        0 15px 25px rgba(0,0,0,0.7) !important; /* الظل الخارجي للصندوق */
 }
 
-/* 📦 الصندوق الخشبي الأيمن 📦 */
+/* 📦 الإطار الخشبي الأيمن 📦 */
 #tawla-board::after {
     content: ''; position: absolute; top: 0; bottom: 0; right: 0;
     width: calc(50% - 2px); 
-    background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
+    background: transparent !important; 
     border: 16px solid #3d2214 !important;
     border-radius: 4px !important; box-sizing: border-box !important;
-    z-index: -1; 
-    box-shadow: inset 0 0 25px rgba(0,0,0,0.9), inset 0 2px 3px rgba(255,255,255,0.15), 0 15px 25px rgba(0,0,0,0.7) !important;
+    z-index: 10 !important; pointer-events: none;
+    box-shadow: 
+        inset 0 0 20px rgba(0,0,0,0.9), 
+        0 15px 25px rgba(0,0,0,0.7) !important;
 }
 
 .board-quadrant { 
     display: flex; justify-content: space-between; align-items: stretch !important;
     width: 100%; height: 100%; margin: 0 !important; padding: 0 !important; position: relative; 
 }
-.board-quadrant::before { display: none !important; }
-
-
-/* 🚨 الحل السحري: إنشاء طبقة ظل وهمية تُسقط ظلاً أسوداً على المثلثات لتبدو غائرة 🚨 */
-.board-quadrant::after {
-    content: ''; 
-    position: absolute; 
-    left: 0; right: 0; top: 0; bottom: 0;
-    pointer-events: none; /* لكي لا تمنع اللمس */
-    z-index: 15 !important; /* تجلس فوق المثلثات لتسقط الظل عليها */
-}
-
-/* ظل أرباع الجزء العلوي */
-.top-left::after, .top-right::after {
-    box-shadow: 
-        inset 0 25px 20px -15px rgba(0,0,0,0.95), /* ظل قوي من الأعلى */
-        inset 20px 0 20px -15px rgba(0,0,0,0.95), /* ظل يسار */
-        inset -20px 0 20px -15px rgba(0,0,0,0.95) !important; /* ظل يمين */
-}
-
-/* ظل أرباع الجزء السفلي */
-.bottom-left::after, .bottom-right::after {
-    box-shadow: 
-        inset 0 -25px 20px -15px rgba(0,0,0,0.95), /* ظل قوي من الأسفل */
-        inset 20px 0 20px -15px rgba(0,0,0,0.95), /* ظل يسار */
-        inset -20px 0 20px -15px rgba(0,0,0,0.95) !important; /* ظل يمين */
-}
-
+.board-quadrant::before, .board-quadrant::after { display: none !important; }
 
 /* --- 3. الشق الأوسط والمفصلات المعدنية --- */
 .tawla-bar {
@@ -229,25 +206,26 @@ body {
 }
 .tawla-bar::before { top: 15% !important; } .tawla-bar::after { bottom: 15% !important; }
 
-
 /* --- 4. الأرباع والمثلثات --- */
 .point { 
     position: relative; width: 16.4%; height: 100% !important; margin: 0 !important; padding: 0 !important;
     filter: drop-shadow(2px 0px 3px rgba(0,0,0,0.6)); z-index: 5 !important; 
 }
 .point::before { 
-    content: ''; position: absolute; left: 0; width: 100%; height: 85%; z-index: 5 !important; pointer-events: none; display: block; margin: 0 !important;
+    content: ''; position: absolute; left: 0; width: 100%; height: 85%; 
+    z-index: 5 !important; pointer-events: none; display: block; margin: 0 !important;
 }
 
-.top-right .point::before, .top-left .point::before { top: -1px !important; clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
-.bottom-right .point::before, .bottom-left .point::before { bottom: -1px !important; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+/* 🚨 دفع المثلثات لتنزلق تحت الإطار الخشبي (z-index 10 للإطار سيغطيها تماماً) 🚨 */
+.top-right .point::before, .top-left .point::before { top: -10px !important; clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
+.bottom-right .point::before, .bottom-left .point::before { bottom: -10px !important; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
 
+/* الألوان */
 .top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before { background: linear-gradient(to bottom, #81d4fa, #29b6f6) !important; }
 .bottom-right .point:nth-child(odd)::before, .bottom-left .point:nth-child(odd)::before { background: linear-gradient(to top, #81d4fa, #29b6f6) !important; }
 
 .top-right .point:nth-child(even)::before, .top-left .point:nth-child(even)::before { background: linear-gradient(to bottom, #ffffff, #e0e0e0) !important; }
 .bottom-right .point:nth-child(even)::before, .bottom-left .point:nth-child(even)::before { background: linear-gradient(to top, #ffffff, #e0e0e0) !important; }
-
 
 /* --- 5. الأحجار (شكل دائري كامل 100% ولمعان فائق) --- */
 body[data-piece-style] .piece, .piece {
