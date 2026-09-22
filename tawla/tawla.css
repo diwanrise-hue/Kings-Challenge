@@ -1,6 +1,6 @@
-/* ========================================== */
+/* ========= */
 /* tawla.css */
-/* ========================================== */
+/* ========= */
 :root {
     --point-light: #DEB887; 
     --point-dark: #8B4513;  
@@ -123,7 +123,7 @@ body {
     overflow: visible !important; 
 }
 
-/* --- 2. الطاولة (الإطار الخشبي الفخم والتفاصيل) --- */
+/* --- 2. الطاولة (صندوقان مستقلان كما في الواقع) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -131,37 +131,64 @@ body {
     width: 100% !important;
     height: 100% !important;
     
-    padding-top: 0px !important;
-    padding-bottom: 0px !important;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    /* 🚨 الحشوة الداخلية للطاولة تطابق تماماً سمك إطار الصناديق (16px) 🚨 */
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
     
     align-content: stretch !important;
     justify-content: stretch !important;
     
-    gap: 24px !important;
+    /* 🚨 الفجوة المحسوبة هندسياً: 16 (إطار أيمن للصندوق الأيسر) + 4 (شق) + 16 (إطار أيسر للصندوق الأيمن) = 36px 🚨 */
+    gap: 36px !important;
     
-    background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
-    
-    /* 🚨 التعديل الجذري: لون واحد موحد لجميع الجهات الأربع لتبدو كقطعة واحدة 🚨 */
-    border: 16px solid #3d2214 !important;
-    /* (تم إزالة الألوان المختلفة للأعلى والأسفل التي كانت تسبب شكل القطع المنفصلة) */
-    
-    border-radius: 0px !important;
+    /* إزالة الخلفية والحدود من الحاوية لأننا سنبني صندوقين مستقلين كخلفية */
+    background: transparent !important;
+    border: none !important;
     
     position: relative;
     box-sizing: border-box;
     margin: 0 !important;
     transform-origin: center center !important;
     transform: rotateX(4deg) translateY(0px) !important; 
-    
-    /* تعويض الإضاءة باستخدام الظلال بدلاً من لون الإطار */
+    box-shadow: none !important;
+    transform-style: preserve-3d !important;
+    z-index: 1; /* سياق الطبقات */
+}
+
+/* 📦 الصندوق الخشبي الأيسر المستقل 📦 */
+#tawla-board::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: calc(50% - 2px); /* النصف ناقص 2 بكسل لترك الشق الأوسط */
+    background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
+    border: 16px solid #3d2214 !important;
+    border-radius: 4px !important;
+    box-sizing: border-box !important;
+    z-index: -1; /* نجلس خلف المثلثات والأحجار */
     box-shadow: 
         inset 0 0 25px rgba(0,0,0,0.9), 
-        inset 0 4px 6px rgba(255,255,255,0.1), /* إضاءة خفيفة من الداخل */
-        0 8px 0 #170b05, 
-        0 15px 25px rgba(0,0,0,0.7) !important; 
-    transform-style: preserve-3d !important;
+        inset 0 2px 3px rgba(255,255,255,0.15), 
+        0 15px 25px rgba(0,0,0,0.7) !important;
+}
+
+/* 📦 الصندوق الخشبي الأيمن المستقل 📦 */
+#tawla-board::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; right: 0;
+    width: calc(50% - 2px); /* النصف ناقص 2 بكسل لترك الشق الأوسط */
+    background: radial-gradient(circle at center, #422415 0%, #2b170e 55%, #120803 100%) !important;
+    border: 16px solid #3d2214 !important;
+    border-radius: 4px !important;
+    box-sizing: border-box !important;
+    z-index: -1; /* نجلس خلف المثلثات والأحجار */
+    box-shadow: 
+        inset 0 0 25px rgba(0,0,0,0.9), 
+        inset 0 2px 3px rgba(255,255,255,0.15), 
+        0 15px 25px rgba(0,0,0,0.7) !important;
 }
 
 .board-quadrant { 
@@ -176,54 +203,46 @@ body {
 }
 .board-quadrant::before { display: none !important; }
 
-/* --- 3. الخشب الأوسط "البار" (يندمج كلياً مع الإطار الموحد) --- */
+/* --- 3. الشق الأوسط والمفصلات المعدنية --- */
 .tawla-bar {
     position: absolute !important; 
     left: 50% !important; 
     transform: translateX(-50%) !important;
     
-    top: -16px !important; 
-    bottom: -16px !important; 
+    top: 0 !important; 
+    bottom: 0 !important; 
     
-    width: 24px !important;
-    
-    /* 🚨 أطراف التدرج (0% و 100%) متطابقة تماماً مع لون الإطار الخارجي (#3d2214) 🚨 */
-    background: linear-gradient(to right, 
-        #3d2214 0%, #2b150c 38%,   
-        #000000 38%, #1a0d08 50%, #000000 62%, 
-        #2b150c 62%, #3d2214 100%  
-    ) !important; 
-    
+    /* 🚨 الشق الأسود الذي يفصل الصندوقين تماماً 🚨 */
+    width: 4px !important;
+    background: #000000 !important; 
     border: none !important; 
     
-    z-index: 25 !important; 
-    
-    box-shadow: 
-        inset 2px 0 3px rgba(0,0,0,0.4), 
-        inset -2px 0 3px rgba(0,0,0,0.4),
-        0 0 20px rgba(0,0,0,0.85) !important;
+    z-index: 15 !important; 
+    box-shadow: inset 0 0 5px #000 !important;
 }
 
-/* 🔩 تصميم المفصلات المعدنية (الحديد) 🔩 */
+/* 🔩 تصميم المفصلات المعدنية (الحديد) التي تمسك الصندوقين 🔩 */
 .tawla-bar::before, .tawla-bar::after {
     content: '' !important;
     position: absolute !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-    width: 14px !important; 
-    height: 38px !important; 
+    
+    /* عرض المفصلة أكبر من الشق لتمسك بإطار الصندوق الأيمن والأيسر معاً */
+    width: 16px !important; 
+    height: 42px !important; 
     
     background-color: #a6a6a6 !important;
     background-image: 
-        linear-gradient(to bottom, transparent 48%, #111 48%, #111 52%, transparent 52%),
+        linear-gradient(to bottom, transparent 48%, #000 48%, #000 52%, transparent 52%),
         linear-gradient(to right, #4a4a4a 0%, #c4c4c4 30%, #ffffff 50%, #c4c4c4 70%, #4a4a4a 100%) !important;
     
-    border-radius: 2px !important;
+    border-radius: 3px !important;
     border-top: 1px solid #fff !important;
     border-bottom: 2px solid #111 !important;
     
     box-shadow: 
-        0 4px 6px rgba(0,0,0,0.9), 
+        0 4px 10px rgba(0,0,0,0.9), 
         inset 0 0 3px rgba(0,0,0,0.6) !important;
         
     z-index: 30 !important;
