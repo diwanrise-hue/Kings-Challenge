@@ -101,7 +101,7 @@ body {
 /* 👑 ساحة اللعب: AAA Premium Mobile Game 👑 */
 /* ========================================== */
 
-/* --- 1. الطاولة (تأسيس المنظور والعمق) --- */
+/* --- 1. الطاولة (تأسيس المنظور والعمق والتوسيط) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -112,7 +112,7 @@ body {
     padding: 12px !important; 
     align-content: stretch !important;
     justify-content: stretch !important;
-    gap: 32px !important; /* مساحة للفاصل الأوسط والمفصلات */
+    gap: 32px !important; 
     
     background: transparent !important;
     border: none !important;
@@ -120,44 +120,46 @@ body {
     
     position: relative;
     box-sizing: border-box;
-    margin: 0 !important;
+    
+    /* 🚨 التعديل الأول: ضمان التوسيط الإجباري 🚨 */
+    margin: 0 auto !important; 
+    
     transform-origin: center center !important;
-    transform: rotateX(3deg) translateY(0px) !important; /* منظور خفيف غير مبالغ فيه */
+    transform: rotateX(3deg) translateY(0px) !important; 
     box-shadow: none !important;
     transform-style: preserve-3d !important;
     z-index: 1; 
 }
 
 /* 📦 2. أرضية الخشب البني الداكن الفاخر (يمين ويسار) 📦 */
-/* تطبيق إضاءة ناعمة، خامة مصقولة، وإطار ذهبي نحيف */
 #tawla-board::before, #tawla-board::after {
     content: ''; position: absolute; top: 0; bottom: 0; 
-    width: calc(50% - 2px); 
     
-    /* أرضية خشب بني داكن فاخر مع إضاءة مركزية (Spotlight) ناعمة */
+    /* 🚨 التعديل الثاني: الحساب الدقيق لعرض الصناديق (50% ناقص نصف الفجوة 16px) 🚨 */
+    width: calc(50% - 16px) !important; 
+    
     background: radial-gradient(ellipse at 50% 40%, #3d1c0c 0%, #210d04 60%, #0d0401 100%) !important;
     
-    /* إطار ذهبي نحيف جداً وأنيق */
     border: 2px solid #d4af37 !important; 
     border-radius: 6px !important; 
     box-sizing: border-box !important;
     z-index: -1; 
     
-    /* Ambient Occlusion (ظلال محيطية)، وانعكاسات الحواف، والظل الخارجي */
     box-shadow: 
-        inset 0 0 40px rgba(0,0,0,0.9), /* ظلال عميقة حول الحواف من الداخل */
-        inset 0 2px 4px rgba(255,255,255,0.1), /* لمعة انعكاس الضوء من الأعلى */
-        0 10px 25px rgba(0,0,0,0.8) !important; /* العمق الخارجي للطاولة */
+        inset 0 0 40px rgba(0,0,0,0.9), 
+        inset 0 2px 4px rgba(255,255,255,0.1), 
+        0 10px 25px rgba(0,0,0,0.8) !important; 
 }
 
-#tawla-board::before { left: 0; }
-#tawla-board::after { right: 0; }
+#tawla-board::before { left: 0 !important; }
+#tawla-board::after { right: 0 !important; }
 
 .board-quadrant { 
     display: flex; justify-content: space-between; align-items: stretch !important;
     width: 100%; height: 100%; margin: 0 !important; padding: 0 !important; position: relative; 
 }
 .board-quadrant::before, .board-quadrant::after { display: none !important; }
+
 
 /* --- 3. الفاصل الأوسط والمفصلات الذهبية الفاخرة --- */
 .tawla-bar {
