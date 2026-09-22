@@ -127,7 +127,7 @@ body {
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
 
-/* --- 2. الطاولة (الإطار الرئيسي والأرضية الخشبية) --- */
+/* --- 2. الطاولة (الإطار الرئيسي والأرضية) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -135,18 +135,20 @@ body {
     width: 100% !important;
     height: 100% !important;
     
-    /* الإطار الخشبي الفاخر مباشرة للحاوية الرئيسية */
+    /* 🚨 إعادة الإطار الخشبي إلى الحاوية الرئيسية لضمان ظهوره 🚨 */
     border: 16px solid #1a0802 !important; 
-    border-radius: 6px !important; 
+    border-radius: 8px !important; 
     
-    /* تفريغ الحشوة لكي تلتصق المثلثات بالإطار من الداخل */
+    /* جعل الحشوة 0 لكي تلتصق المثلثات بالإطار الداخلي */
     padding: 0 !important; 
     
     align-content: stretch !important;
     justify-content: stretch !important;
-    gap: 24px !important; /* مساحة للبار الأوسط */
     
-    /* أرضية الخشب الحقيقية وتأثير الإضاءة السينمائية */
+    /* فجوة المنتصف للبار الأوسط */
+    gap: 36px !important; 
+    
+    /* 🚨 أرضية الخشب الحقيقية (Wood Grain & Spotlight) 🚨 */
     background-color: #2b1107 !important;
     background-image: 
         radial-gradient(ellipse at center, rgba(90, 35, 15, 0.8) 0%, rgba(25, 8, 2, 0.95) 60%, rgba(5, 0, 0, 1) 100%),
@@ -158,25 +160,27 @@ body {
     transform-origin: center center !important;
     transform: rotateX(5deg) translateY(0px) !important; 
     
-    /* الظل الخارجي للطاولة والإطار الذهبي الخارجي */
-    box-shadow: 0 0 0 1px #8b6508, 0 20px 40px rgba(0,0,0,0.95) !important;
+    /* الظل الخارجي للصندوق + الإطار الذهبي الرقيق جداً */
+    box-shadow: 
+        0 0 0 1px #8b6508, 
+        0 20px 40px rgba(0,0,0,0.95) !important;
+    
     transform-style: preserve-3d !important;
     z-index: 1; 
 }
 
-/* طبقة تظليل داخلية تجلس فوق المثلثات لتغوص بها للداخل وتعطي واقعية الصندوق */
+/* 🚨 الطبقة السحرية: تظليل داخلي يجلس (فوق) المثلثات ليعطي إحساس العمق 🚨 */
 #tawla-board::before {
     content: ''; 
     position: absolute; 
     top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none !important; 
-    z-index: 10 !important; 
+    pointer-events: none !important; /* لا تمنع لمس الأحجار */
+    z-index: 10 !important; /* طبقة علوية */
     
-    /* ظل أسود قوي على أطراف المثلثات الداخلية + لمسة ذهبية للحافة */
     box-shadow: 
-        inset 0 0 0 1px rgba(255, 215, 0, 0.2), 
-        inset 0 0 40px rgba(0,0,0,0.99), 
-        inset 0 2px 10px rgba(255,255,255,0.05) !important;
+        inset 0 0 0 2px rgba(255, 215, 0, 0.15), /* لمعة الذهب الداخلية */
+        inset 0 0 50px rgba(0,0,0,0.95), /* الظل المحيطي (Ambient Occlusion) */
+        inset 0 2px 10px rgba(255,255,255,0.05) !important; /* لمعة الضوء العلوية */
 }
 
 #tawla-board::after { display: none !important; }
@@ -190,35 +194,43 @@ body {
 /* --- 3. الشق الأوسط والمفصلات المعدنية --- */
 .tawla-bar {
     position: absolute !important; left: 50% !important; 
-    transform: translateX(-50%) translateZ(2px) !important; /* مرفوع قليلاً */
+    transform: translateX(-50%) translateZ(4px) !important; /* مرفوع قليلاً ليبرز */
     top: 0 !important; bottom: 0 !important; 
-    width: 24px !important; 
+    width: 28px !important; /* عرض يملأ الفجوة بأناقة */
+    
+    /* شكل الشق الأوسط الخشبي */
     background: linear-gradient(to right, #0a0301 0%, #1a0802 20%, #000 50%, #1a0802 80%, #0a0301 100%) !important;
-    border-left: 1px solid rgba(255,215,0,0.1) !important;
-    border-right: 1px solid rgba(255,215,0,0.1) !important;
-    z-index: 15 !important; /* فوق طبقة التظليل */
+    border-left: 1px solid rgba(255,215,0,0.15) !important;
+    border-right: 1px solid rgba(255,215,0,0.15) !important;
+    z-index: 15 !important; 
     box-shadow: 0 0 20px rgba(0,0,0,0.9) !important;
 }
 
-/* 🔩 المفصلات المعدنية الفاخرة 🔩 */
+/* 🔩 المفصلات الذهبية العتيقة 🔩 */
 .tawla-bar::before, .tawla-bar::after {
     content: '' !important; position: absolute !important; left: 50% !important; transform: translateX(-50%) !important;
-    width: 18px !important; height: 42px !important; 
+    width: 20px !important; height: 48px !important; 
+    
     background-color: #b8860b !important;
     background-image: 
         linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.9) 48%, rgba(0,0,0,0.9) 52%, transparent 52%), 
         linear-gradient(to right, #5c4300 0%, #b8860b 25%, #ffeb99 50%, #b8860b 75%, #5c4300 100%) !important;
-    border-radius: 4px !important; border-top: 1px solid #fff3a8 !important; border-bottom: 3px solid #332500 !important;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.9), inset 0 0 5px rgba(92,67,0,0.8) !important; z-index: 30 !important;
+    
+    border-radius: 4px !important; 
+    border-top: 1px solid #fff3a8 !important; 
+    border-bottom: 3px solid #332500 !important;
+    
+    box-shadow: 0 8px 15px rgba(0,0,0,0.9), inset 0 0 5px rgba(92,67,0,0.8) !important; 
+    z-index: 30 !important;
 }
-.tawla-bar::before { top: 15% !important; } .tawla-bar::after { bottom: 15% !important; }
+.tawla-bar::before { top: 12% !important; } .tawla-bar::after { bottom: 12% !important; }
 
 
 /* --- 4. الأرباع والمثلثات --- */
 .point { 
-    position: relative; width: 16.4%; height: 100% !important; margin: 0 !important; padding: 0 !important;
-    filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.8)) drop-shadow(0px 1px 2px rgba(0,0,0,0.9)); 
-    z-index: 5 !important; /* تحت طبقة التظليل */
+    position: relative; width: 16.6%; height: 100% !important; margin: 0 !important; padding: 0 !important;
+    filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8)); 
+    z-index: 5 !important; /* تحت طبقة التظليل العلوية */
     transform: translateZ(0px) !important;
 }
 .point::before { 
@@ -226,7 +238,7 @@ body {
     z-index: 5 !important; pointer-events: none; display: block; margin: 0 !important;
 }
 
-/* جلوس المثلثات بشكل طبيعي بدون قيم سالبة */
+/* 🚨 التصاق تام للإطار العلوي والسفلي 🚨 */
 .top-right .point::before, .top-left .point::before { top: 0 !important; clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
 .bottom-right .point::before, .bottom-left .point::before { bottom: 0 !important; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
 
@@ -247,19 +259,17 @@ body {
 }
 
 
-/* --- 5. الأحجار (جودة AAA: إطارات ذهبية، لمعان كريستالي، ظلال متراكمة) --- */
+/* --- 5. الأحجار (جودة AAA) --- */
 body[data-piece-style] .piece, .piece {
     position: relative !important; z-index: 20 !important; transform: translateZ(8px) !important; border-radius: 50% !important; transform-style: preserve-3d; display: flex !important; align-items: center !important; justify-content: center !important; 
     width: 90% !important; max-width: 42px !important; height: auto !important; aspect-ratio: 1 / 1 !important; margin: 0 auto;
     
-    /* الإطار الخارجي للحجر (حافة معدنية ذهبية حادة) */
-    border: 2px solid #e0b953 !important;
+    border: 2px solid #e0b953 !important; /* الإطار الذهبي الحاد */
 }
 
 /* ⚪ حجر اللؤلؤ والعاج الفاخر */
 body[data-piece-style] .piece.white, .piece.white {
     background: radial-gradient(circle at 35% 25%, #ffffff 0%, #f4eade 40%, #c2a68c 80%, #8c735d 100%) !important;
-    /* ظلال متعددة الطبقات: إضاءة علوية، عمق داخلي، ظل سفلي ثقيل */
     box-shadow: 
         inset 0 0 0 2px #8a6327, 
         inset 3px 5px 10px rgba(255,255,255,0.9), 
@@ -288,14 +298,13 @@ body[data-piece-style] .piece::before, .piece::before {
     border: 1.5px solid #ffd700 !important; 
     background: transparent !important;
     
-    /* تأثير الحفر المتقن (Bevel & Emboss) */
     box-shadow: 
         inset 0 2px 4px rgba(0,0,0,0.7), 
         0 1px 1px rgba(255,255,255,0.6), 
         0 -1px 2px rgba(0,0,0,0.6) !important; 
 }
 
-/* ✨ تفاعل التحديد (هالة ذهبية تتوهج) */
+/* ✨ تفاعل التحديد */
 .piece.selected { 
     outline: none !important;
     box-shadow: 
