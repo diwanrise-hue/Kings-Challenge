@@ -97,44 +97,6 @@ body {
 .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
 
 /* ========================================== */
-/* 👑 ساحة اللعب والأحجار (النسخة الـ VIP الفاخرة) 👑 */
-/* ========================================== */
-
-/* --- 1. الحاويات الأساسية (إبادة تامة للإطار المخطط الموروث) --- */
-.game-container,
-.tawla-container, 
-#tawla-board-wrapper,
-.tawla-container::before, .tawla-container::after,
-#tawla-board-wrapper::before, #tawla-board-wrapper::after {
-    background: transparent !important; 
-    background-color: transparent !important;
-    background-image: none !important;
-    border: none !important;
-    border-image: none !important;
-    box-shadow: none !important;
-}
-
-.tawla-container {
-    width: 100% !important;
-    max-width: 550px;
-    aspect-ratio: 3 / 4; 
-    margin: 0 auto !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-}
-
-#tawla-board-wrapper {
-    width: 100% !important;
-    height: 100% !important;
-    perspective: 1200px !important; 
-    transform-style: preserve-3d !important;
-    position: relative !important;
-}
-
-
-/* ========================================== */
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
 
@@ -148,16 +110,13 @@ body {
     box-sizing: border-box !important;
     margin: 0 auto !important;
     
-    /* إزالة أي إطارات أصلية قد تسبب مشاكل */
     border: none !important;
     border-image: none !important;
     outline: none !important;
     
-    /* 🚨 دفع المثلثات للداخل لتوفير مساحة للإطار الخشبي 🚨 */
     padding: 16px !important;
-    gap: 28px !important; /* مساحة متناسقة للبار الأوسط */
+    gap: 28px !important; 
     
-    /* أرضية الخشب الحقيقية وإضاءة الـ Spotlight */
     background-color: #2b1107 !important;
     background-image: 
         radial-gradient(ellipse at center, rgba(90, 35, 15, 0.85) 0%, rgba(28, 9, 2, 0.98) 65%, #080200 100%),
@@ -169,31 +128,28 @@ body {
     transform-style: preserve-3d !important;
     z-index: 1; 
     
-    /* ظل واقعي للطاولة على خلفية المشهد */
     box-shadow: 0 20px 40px rgba(0,0,0,0.95) !important;
 }
 
-/* 🚨 الإطار الخشبي الفاخر المنيع (طبقة فوقية لا تتأثر باللعبة) 🚨 */
+/* 🚨 الإطار المنيع (أزرق فاتح أنيق بدون خط ذهبي داخلي) 🚨 */
 #tawla-board::after {
     content: '' !important;
     position: absolute !important;
     top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-    pointer-events: none !important; /* يسمح بلمس الأحجار من خلاله */
+    pointer-events: none !important; 
     z-index: 100 !important; /* يغطي كل شيء ليقص أطراف المثلثات */
     
-    /* رسم الإطار الخشبي الفاخر */
-    border: 16px solid #200c04 !important;
+    /* 🚨 لون الإطار الأزرق الفاتح قليلاً 🚨 */
+    border: 16px solid #43708f !important;
     border-radius: 12px !important;
     
-    /* تطعيمات الذهب والعمق ثلاثي الأبعاد الغائر */
+    /* تمت إزالة الخط الذهبي الداخلي والإبقاء على الظل الغائر واللمعة */
     box-shadow: 
         0 0 0 2px #d4af37,              /* إطار ذهبي خارجي فخم */
-        inset 0 0 0 2px #b8860b,          /* إطار ذهبي داخلي محفور */
         inset 0 0 40px rgba(0,0,0,0.99),  /* عمق 3D قوي يسقط على أطراف المثلثات */
-        inset 0 2px 6px rgba(255,255,255,0.1) !important; /* لمعة طلاء الخشب */
+        inset 0 2px 6px rgba(255,255,255,0.2) !important; /* لمعة طلاء الإطار */
 }
 
-/* تنظيف العنصر الوهمي الآخر */
 #tawla-board::before { display: none !important; }
 
 .board-quadrant { 
@@ -222,11 +178,10 @@ body {
     background: linear-gradient(to right, #0a0301 0%, #200c04 25%, #050201 50%, #200c04 75%, #0a0301 100%) !important;
     border-left: 1px solid rgba(255,215,0,0.2) !important;
     border-right: 1px solid rgba(255,215,0,0.2) !important;
-    z-index: 110 !important; /* فوق الإطار الخارجي */
+    z-index: 110 !important; 
     box-shadow: 0 0 20px rgba(0,0,0,0.95) !important;
 }
 
-/* 🔩 المفصلات الذهبية العتيقة 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
@@ -276,14 +231,15 @@ body {
     margin: 0 !important;
 }
 
+/* 🚨 انزلاق المثلثات بقوة تحت الإطار الأزرق 🚨 */
 .top-right .point::before, 
 .top-left .point::before { 
-    top: 0 !important; 
+    top: -15px !important; /* دفعت للأعلى لتختفي تحت الإطار */
     clip-path: polygon(0% 0%, 100% 0%, 50% 100%); 
 }
 .bottom-right .point::before, 
 .bottom-left .point::before { 
-    bottom: 0 !important; 
+    bottom: -15px !important; /* دفعت للأسفل لتختفي تحت الإطار */
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%); 
 }
 
@@ -325,7 +281,7 @@ body[data-piece-style] .piece,
     aspect-ratio: 1 / 1 !important; 
     margin: 0 auto;
     
-    border: 2px solid #e0b953 !important; /* الإطار المعدني الذهبي الحاد */
+    border: 2px solid #e0b953 !important; 
 }
 
 /* ⚪ حجر اللؤلؤ والعاج الفاخر */
