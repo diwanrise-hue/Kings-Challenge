@@ -98,10 +98,44 @@ body {
 
 
 /* ========================================== */
+/* 👑 ساحة اللعب والأحجار (النسخة الـ VIP الفاخرة) 👑 */
+/* ========================================== */
+
+/* --- 1. الحاوية الأساسية (إبادة أي خلفيات أو إطارات قديمة) --- */
+.tawla-container {
+    width: 100% !important;
+    max-width: 550px;
+    aspect-ratio: 3 / 4; 
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    
+    /* 🚨 إعدام الإطار المخطط القديم 🚨 */
+    background: transparent !important; 
+    border: none !important;
+    box-shadow: none !important;
+}
+
+#tawla-board-wrapper {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    perspective: 1200px !important; 
+    transform-style: preserve-3d !important;
+    overflow: visible !important; 
+    background: transparent !important;
+    border: none !important;
+}
+
+
+/* ========================================== */
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
 
-/* --- 2. الطاولة (الإطار الرئيسي والأرضية الخشبية) --- */
+/* --- 2. الطاولة (الصندوق الصلب الموحد المانع للتداخل) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -109,19 +143,20 @@ body {
     width: 100% !important;
     height: 100% !important;
     
-    /* 🚨 إلغاء أي حدود قديمة قد تتسبب في التداخل 🚨 */
-    border: none !important;
-    border-radius: 0 !important;
-    
-    /* حشوة تضمن استقرار المثلثات داخل الصندوقين */
-    padding: 16px !important; 
+    /* 🚨 بناء الإطار الفاخر كجدار صلب للطاولة نفسها 🚨 */
+    border: 16px solid #1a0802 !important; 
+    border-radius: 8px !important; 
+    padding: 0 !important; 
     
     align-content: stretch !important;
     justify-content: stretch !important;
-    gap: 36px !important; /* مساحة للبار الأوسط */
+    gap: 28px !important; /* فجوة للعمود الأوسط فقط */
     
-    /* أرضية الخشب الحقيقية */
-    background: transparent !important;
+    /* 🚨 الأرضية الخشبية تطمس أي شيء تحتها 🚨 */
+    background-color: #2b1107 !important;
+    background-image: 
+        radial-gradient(ellipse at center, rgba(90, 35, 15, 0.8) 0%, rgba(25, 8, 2, 0.95) 60%, rgba(5, 0, 0, 1) 100%),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px) !important;
     
     position: relative;
     box-sizing: border-box;
@@ -129,70 +164,48 @@ body {
     transform-origin: center center !important;
     transform: rotateX(5deg) translateY(0px) !important; 
     
-    box-shadow: none !important;
+    /* الظل الخارجي ولمعان الذهب الداخلي العميق */
+    box-shadow: 
+        inset 0 0 0 2px rgba(255, 215, 0, 0.15), 
+        inset 0 0 50px rgba(0,0,0,0.99), 
+        inset 0 2px 10px rgba(255,255,255,0.05),
+        0 0 0 1px #8b6508, 
+        0 20px 40px rgba(0,0,0,0.95) !important;
+        
     transform-style: preserve-3d !important;
     z-index: 1; 
 }
 
-/* 📦 الصندوق الخشبي الأيسر والأيمن (إطار حقيقي بارز في الـ 3D يمنع أي تداخل) 📦 */
-#tawla-board::before, #tawla-board::after {
-    content: ''; 
-    position: absolute; 
-    top: 0; bottom: 0; 
-    width: calc(50% - 2px); 
-    
-    /* شفاف من الداخل لكي تظهر المثلثات والأرضية من تحته */
-    background: transparent !important; 
-    
-    /* 🚨 الإطار الخشبي الفاخر المستقل 🚨 */
-    border: 16px solid #1a0802 !important; 
-    border-radius: 6px !important; 
-    box-sizing: border-box !important;
-    
-    /* رفع الإطار في البعد الثالث ليكون فوق كل شيء وبأبعاد دقيقة */
-    transform: translateZ(5px) !important; 
-    z-index: 10 !important; 
-    pointer-events: none !important; /* لكي لا يمنع لمس الأحجار */
-    
-    /* ظلال العمق والإضاءة المحيطية وتحديد ذهبي رقيق */
-    box-shadow: 
-        inset 0 0 40px rgba(0,0,0,0.95), 
-        inset 0 2px 8px rgba(255,255,255,0.05), 
-        0 0 0 1px #8b6508,
-        0 15px 35px rgba(0,0,0,0.9) !important; 
-}
-
-#tawla-board::before { left: 0; }
-#tawla-board::after { right: 0; }
+/* إخفاء العناصر الوهمية التي كانت تسبب المشاكل */
+#tawla-board::before, #tawla-board::after { display: none !important; }
 
 .board-quadrant { 
     display: flex; justify-content: space-between; align-items: stretch !important;
     width: 100%; height: 100%; margin: 0 !important; padding: 0 !important; position: relative; 
-    background: #2b1107 !important; /* أرضية الخشب لكل ربع */
-    background-image: 
-        radial-gradient(ellipse at center, rgba(90, 35, 15, 0.8) 0%, rgba(25, 8, 2, 0.95) 60%, rgba(5, 0, 0, 1) 100%),
-        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px) !important;
-    border-radius: 4px;
+    background: transparent !important; 
 }
 
 
 /* --- 3. الشق الأوسط والمفصلات المعدنية --- */
 .tawla-bar {
     position: absolute !important; left: 50% !important; 
-    transform: translateX(-50%) translateZ(6px) !important; 
+    transform: translateX(-50%) translateZ(2px) !important; 
     top: 0 !important; bottom: 0 !important; 
+    
+    /* عرض يغطي الفجوة تماماً */
     width: 28px !important; 
+    
     background: linear-gradient(to right, #0a0301 0%, #1a0802 20%, #000 50%, #1a0802 80%, #0a0301 100%) !important;
     border-left: 1px solid rgba(255,215,0,0.15) !important;
     border-right: 1px solid rgba(255,215,0,0.15) !important;
     z-index: 15 !important; 
-    box-shadow: 0 0 20px rgba(0,0,0,0.9) !important;
+    box-shadow: 0 0 20px rgba(0,0,0,0.95) !important;
 }
 
 /* 🔩 المفصلات الذهبية العتيقة 🔩 */
 .tawla-bar::before, .tawla-bar::after {
     content: '' !important; position: absolute !important; left: 50% !important; transform: translateX(-50%) !important;
-    width: 20px !important; height: 48px !important; 
+    width: 18px !important; height: 42px !important; 
     background-color: #b8860b !important;
     background-image: 
         linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.9) 48%, rgba(0,0,0,0.9) 52%, transparent 52%), 
@@ -210,16 +223,15 @@ body {
     border: none !important;
     filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8)); 
     z-index: 5 !important; 
-    transform: translateZ(0px) !important; 
 }
 .point::before { 
     content: ''; position: absolute; left: 0; width: 100%; height: 85%; 
     z-index: 5 !important; pointer-events: none; display: block; margin: 0 !important;
 }
 
-/* انزلاق قواعد المثلثات تحت الإطار الخشبي */
-.top-right .point::before, .top-left .point::before { top: -10px !important; clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
-.bottom-right .point::before, .bottom-left .point::before { bottom: -10px !important; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+/* 🚨 التصاق تام للإطار العلوي والسفلي 🚨 */
+.top-right .point::before, .top-left .point::before { top: 0 !important; clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
+.bottom-right .point::before, .bottom-left .point::before { bottom: 0 !important; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
 
 /* 🔴 المثلثات الحمراء (Mystic Ruby) */
 .top-right .point:nth-child(odd)::before, .top-left .point:nth-child(odd)::before { 
@@ -265,7 +277,7 @@ body[data-piece-style] .piece.black, .piece.black {
         inset 2px 4px 8px rgba(255,255,255,0.25), 
         inset -3px -5px 12px rgba(0,0,0,0.9),
         0 8px 12px rgba(0,0,0,0.85), 
-        0 15px 25px rgba(0,0,0,0.6) !important; 
+        0 15px 25px rgba(0,0,0,0.6) !important;
 }
 
 /* 🪙 حلقة ذهبية محفورة بدقة CNC داخل الحجر */
