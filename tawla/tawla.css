@@ -140,7 +140,8 @@ body {
     justify-content: stretch !important;
     gap: 36px !important; 
     
-    background: transparent !important;
+    /* 🚨 التعديل الأول: وضعنا لون خشب الماهوجني كأرضية رئيسية للطاولة هنا 🚨 */
+    background: radial-gradient(ellipse at center, #3a1508 0%, #1a0500 60%, #080100 100%) !important;
     border: none !important;
     border-radius: 0 !important;
     
@@ -148,42 +149,63 @@ body {
     box-sizing: border-box;
     margin: 0 !important;
     transform-origin: center center !important;
-    transform: rotateX(5deg) translateY(0px) !important; /* ميلان درامي خفيف */
+    transform: rotateX(5deg) translateY(0px) !important;
     box-shadow: none !important;
     transform-style: preserve-3d !important;
     z-index: 1; 
 }
 
-/* 📦 الصندوق الأيسر والأيمن (إطارات خشبية بحواف ذهبية) 📦 */
-#tawla-board::before, #tawla-board::after {
-    content: ''; position: absolute; top: 0; bottom: 0; 
+/* 📦 الإطار الأيسر (برواز خشبي وذهبي يجلس فوق المثلثات) 📦 */
+#tawla-board::before {
+    content: ''; position: absolute; top: 0; bottom: 0; left: 0;
     width: calc(50% - 2px); 
     
-    /* أرضية من خشب الماهوجني السحري المضاء من المنتصف */
-    background: radial-gradient(ellipse at center, #3a1508 0%, #1a0500 60%, #080100 100%) !important;
+    /* 🚨 التعديل الثاني: شفاف من الداخل ليظهر المثلثات والأرضية من تحته 🚨 */
+    background: transparent !important;
     
     /* لون الإطار الخشبي الداكن */
     border: 16px solid #1f0b04 !important; 
     border-radius: 6px !important; 
     box-sizing: border-box !important;
-    z-index: -1; 
     
-    /* 🚨 الخدعة الفاخرة: تطعيم الإطار الداخلي بالذهب العتيق وإضافة ظلال عميقة 🚨 */
+    /* 🚨 التعديل الثالث: رفعه فوق المثلثات ليقطع حوافها ويخفيها 🚨 */
+    z-index: 10 !important; 
+    pointer-events: none !important; /* ضروري جداً لكي لا يمنعك من لمس الأحجار */
+    
+    /* تطعيم الإطار الداخلي بالذهب العتيق وإضافة ظلال عميقة تسقط على المثلثات */
     box-shadow: 
-        inset 0 0 0 2px #b8860b, /* إطار ذهبي داخلي رقيق */
-        inset 0 0 40px rgba(0,0,0,0.95), /* عمق الساحة */
-        0 0 0 1px #d4af37, /* إطار ذهبي خارجي رقيق */
-        0 15px 35px rgba(0,0,0,0.9) !important; /* ظل الصندوق */
+        inset 0 0 0 2px #b8860b, 
+        inset 0 0 40px rgba(0,0,0,0.95), 
+        0 0 0 1px #d4af37, 
+        0 15px 35px rgba(0,0,0,0.9) !important; 
 }
 
-#tawla-board::before { left: 0; }
-#tawla-board::after { right: 0; }
+/* 📦 الإطار الأيمن 📦 */
+#tawla-board::after {
+    content: ''; position: absolute; top: 0; bottom: 0; right: 0;
+    width: calc(50% - 2px); 
+    
+    background: transparent !important;
+    border: 16px solid #1f0b04 !important; 
+    border-radius: 6px !important; 
+    box-sizing: border-box !important;
+    
+    z-index: 10 !important; 
+    pointer-events: none !important;
+    
+    box-shadow: 
+        inset 0 0 0 2px #b8860b, 
+        inset 0 0 40px rgba(0,0,0,0.95), 
+        0 0 0 1px #d4af37, 
+        0 15px 35px rgba(0,0,0,0.9) !important; 
+}
 
 .board-quadrant { 
     display: flex; justify-content: space-between; align-items: stretch !important;
     width: 100%; height: 100%; margin: 0 !important; padding: 0 !important; position: relative; 
 }
 .board-quadrant::before, .board-quadrant::after { display: none !important; }
+
 
 /* --- 3. الشق الأوسط والمفصلات (الذهب العتيق) --- */
 .tawla-bar {
