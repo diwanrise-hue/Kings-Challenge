@@ -114,9 +114,11 @@ body {
     border-image: none !important;
     outline: none !important;
     
+    /* دفع المثلثات للداخل لتوفير مساحة للإطار الخشبي */
     padding: 16px !important;
     gap: 28px !important; 
     
+    /* أرضية الخشب الحقيقية وإضاءة الـ Spotlight */
     background-color: #2b1107 !important;
     background-image: 
         radial-gradient(ellipse at center, rgba(90, 35, 15, 0.85) 0%, rgba(28, 9, 2, 0.98) 65%, #080200 100%),
@@ -128,26 +130,30 @@ body {
     transform-style: preserve-3d !important;
     z-index: 1; 
     
+    /* ظل واقعي للطاولة على خلفية المشهد */
     box-shadow: 0 20px 40px rgba(0,0,0,0.95) !important;
 }
 
-/* 🚨 الإطار المنيع (أزرق فاتح أنيق بدون خط ذهبي داخلي) 🚨 */
+/* 🚨 الإطار الخشبي المرتفع (سيعلو فوق الأحجار والمثلثات في الـ 3D) 🚨 */
 #tawla-board::after {
     content: '' !important;
     position: absolute !important;
     top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
     pointer-events: none !important; 
-    z-index: 100 !important; /* يغطي كل شيء ليقص أطراف المثلثات */
     
-    /* 🚨 لون الإطار الأزرق الفاتح قليلاً 🚨 */
-    border: 16px solid #43708f !important;
+    /* 🚨 رفع الإطار في البعد الثالث ليكون فوق الأحجار والمثلثات 🚨 */
+    transform: translateZ(12px) !important; 
+    z-index: 100 !important; 
+    
+    border: 16px solid #200c04 !important;
     border-radius: 12px !important;
     
-    /* تمت إزالة الخط الذهبي الداخلي والإبقاء على الظل الغائر واللمعة */
+    /* الخط الذهبي والظل العميق الذي سيسقط على الساحة من الأعلى */
     box-shadow: 
-        0 0 0 2px #d4af37,              /* إطار ذهبي خارجي فخم */
-        inset 0 0 40px rgba(0,0,0,0.99),  /* عمق 3D قوي يسقط على أطراف المثلثات */
-        inset 0 2px 6px rgba(255,255,255,0.2) !important; /* لمعة طلاء الإطار */
+        0 0 0 2px #d4af37,              
+        inset 0 0 0 2px #b8860b,          
+        inset 0 0 40px rgba(0,0,0,0.99),  
+        inset 0 2px 6px rgba(255,255,255,0.1) !important; 
 }
 
 #tawla-board::before { display: none !important; }
@@ -170,7 +176,10 @@ body {
 .tawla-bar {
     position: absolute !important; 
     left: 50% !important; 
-    transform: translateX(-50%) translateZ(4px) !important; 
+    
+    /* 🚨 رفع البار ليتساوى مع ارتفاع الإطار الجديد 🚨 */
+    transform: translateX(-50%) translateZ(12px) !important; 
+    
     top: 0 !important; 
     bottom: 0 !important; 
     width: 28px !important; 
@@ -182,12 +191,16 @@ body {
     box-shadow: 0 0 20px rgba(0,0,0,0.95) !important;
 }
 
+/* 🔩 المفصلات الذهبية العتيقة 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
     position: absolute !important; 
     left: 50% !important; 
-    transform: translateX(-50%) !important;
+    
+    /* رفع المفصلات لتكون القطعة الأعلى في الساحة */
+    transform: translateX(-50%) translateZ(2px) !important;
+    
     width: 20px !important; 
     height: 46px !important; 
     
@@ -218,6 +231,9 @@ body {
     border: none !important;
     filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8)); 
     z-index: 5 !important; 
+    
+    /* 🚨 إبقاء المثلثات في قاع الطاولة 🚨 */
+    transform: translateZ(0px) !important; 
 }
 .point::before { 
     content: ''; 
@@ -231,15 +247,15 @@ body {
     margin: 0 !important;
 }
 
-/* 🚨 انزلاق المثلثات بقوة تحت الإطار الأزرق 🚨 */
+/* 🚨 انزلاق قواعد المثلثات لتختفي تماماً تحت الإطار المرتفع والخط الذهبي 🚨 */
 .top-right .point::before, 
 .top-left .point::before { 
-    top: -15px !important; /* دفعت للأعلى لتختفي تحت الإطار */
+    top: -6px !important; 
     clip-path: polygon(0% 0%, 100% 0%, 50% 100%); 
 }
 .bottom-right .point::before, 
 .bottom-left .point::before { 
-    bottom: -15px !important; /* دفعت للأسفل لتختفي تحت الإطار */
+    bottom: -6px !important; 
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%); 
 }
 
@@ -269,7 +285,10 @@ body[data-piece-style] .piece,
 .piece {
     position: relative !important; 
     z-index: 20 !important; 
+    
+    /* 🚨 الأحجار مرتفعة بمقدار 8 بكسل (وبالتالي ستغوص تحت الإطار الذي ارتفاعه 12 بكسل) 🚨 */
     transform: translateZ(8px) !important; 
+    
     border-radius: 50% !important; 
     transform-style: preserve-3d; 
     display: flex !important; 
@@ -337,6 +356,7 @@ body[data-piece-style] .piece::before,
         0 20px 30px rgba(0,0,0,0.9) !important; 
     transform: translateZ(20px) scale(1.1) !important; 
 }
+
 
 
 /* --- 6. النرد (عظم عتيق مع نقاط حمراء/ذهبية) --- */
