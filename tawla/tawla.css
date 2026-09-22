@@ -97,31 +97,6 @@ body {
 .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
 
 
-/* ========================================== */
-/* 👑 ساحة اللعب والأحجار (النسخة الـ VIP الفاخرة) 👑 */
-/* ========================================== */
-
-/* --- 1. الحاوية الأساسية (توسيط وتناسق الأبعاد) --- */
-.tawla-container {
-    width: 100% !important;
-    max-width: 550px;
-    aspect-ratio: 3 / 4; 
-    margin: 0 auto !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-#tawla-board-wrapper {
-    width: 100% !important;
-    height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    perspective: 1200px !important; 
-    transform-style: preserve-3d !important;
-    overflow: visible !important; 
-}
 
 /* ========================================== */
 /* 👑 ساحة اللعب والأحجار (النسخة الـ VIP الفاخرة) 👑 */
