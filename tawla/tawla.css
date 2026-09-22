@@ -100,7 +100,7 @@ body {
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
 
-/* --- 2. الطاولة (الأرضية الخشبية ودفع المثلثات للداخل) --- */
+/* --- 2. الطاولة (نظام الصندوقين المنفصلين) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -110,15 +110,16 @@ body {
     box-sizing: border-box !important;
     margin: 0 auto !important;
     
+    /* إزالة الإطار الموحد القديم */
     border: none !important;
     border-image: none !important;
     outline: none !important;
     
-    /* دفع المثلثات للداخل لتوفير مساحة للإطار الخشبي */
+    /* حشوة لترك مساحة للإطارات، وفجوة 24px في المنتصف للفاصل */
     padding: 16px !important;
-    gap: 28px !important; 
+    gap: 24px !important; 
     
-    /* أرضية الخشب الحقيقية وإضاءة الـ Spotlight */
+    /* أرضية الخشب الحقيقية (المشتركة تحت الصندوقين) */
     background-color: #2b1107 !important;
     background-image: 
         radial-gradient(ellipse at center, rgba(90, 35, 15, 0.85) 0%, rgba(28, 9, 2, 0.98) 65%, #080200 100%),
@@ -129,34 +130,54 @@ body {
     transform: rotateX(5deg) translateY(0px) !important; 
     transform-style: preserve-3d !important;
     z-index: 1; 
-    
-    /* ظل واقعي للطاولة على خلفية المشهد */
-    box-shadow: 0 20px 40px rgba(0,0,0,0.95) !important;
 }
 
-/* 🚨 الإطار الخشبي المرتفع (سيعلو فوق الأحجار والمثلثات في الـ 3D) 🚨 */
-#tawla-board::after {
+/* 📦 الإطار الأيسر (الصندوق الأول) 📦 */
+#tawla-board::before {
     content: '' !important;
     position: absolute !important;
-    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-    pointer-events: none !important; 
+    top: 0 !important; bottom: 0 !important; left: 0 !important;
     
-    /* 🚨 رفع الإطار في البعد الثالث ليكون فوق الأحجار والمثلثات 🚨 */
-    transform: translateZ(12px) !important; 
+    /* العرض هو النصف بالضبط ناقص نصف الفجوة الوسطية */
+    width: calc(50% - 12px) !important; 
+    
+    pointer-events: none !important; 
+    transform: translateZ(12px) !important; /* مرتفع فوق الأحجار */
     z-index: 100 !important; 
     
     border: 16px solid #200c04 !important;
     border-radius: 12px !important;
     
-    /* الخط الذهبي والظل العميق الذي سيسقط على الساحة من الأعلى */
+    box-shadow: 
+        0 0 0 2px #d4af37,              /* إطار ذهبي خارجي */
+        0 20px 40px rgba(0,0,0,0.9),     /* ظل الصندوق الخارجي */
+        inset 0 0 0 2px #b8860b,          /* إطار ذهبي داخلي */
+        inset 0 0 40px rgba(0,0,0,0.99),  /* ظل داخلي للعمق */
+        inset 0 2px 6px rgba(255,255,255,0.1) !important; 
+}
+
+/* 📦 الإطار الأيمن (الصندوق الثاني) 📦 */
+#tawla-board::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; bottom: 0 !important; right: 0 !important;
+    
+    width: calc(50% - 12px) !important; 
+    
+    pointer-events: none !important; 
+    transform: translateZ(12px) !important; /* مرتفع فوق الأحجار */
+    z-index: 100 !important; 
+    
+    border: 16px solid #200c04 !important;
+    border-radius: 12px !important;
+    
     box-shadow: 
         0 0 0 2px #d4af37,              
+        0 20px 40px rgba(0,0,0,0.9),     
         inset 0 0 0 2px #b8860b,          
         inset 0 0 40px rgba(0,0,0,0.99),  
         inset 0 2px 6px rgba(255,255,255,0.1) !important; 
 }
-
-#tawla-board::before { display: none !important; }
 
 .board-quadrant { 
     display: flex; 
@@ -172,36 +193,38 @@ body {
 .board-quadrant::before, .board-quadrant::after { display: none !important; }
 
 
-/* --- 3. الشق الأوسط والمفصلات المعدنية --- */
+/* --- 3. الفاصل الوسطي (يربط بين الصندوقين) --- */
 .tawla-bar {
     position: absolute !important; 
     left: 50% !important; 
     
-    /* 🚨 رفع البار ليتساوى مع ارتفاع الإطار الجديد 🚨 */
-    transform: translateX(-50%) translateZ(12px) !important; 
+    /* يجلس بين الصندوقين، وتحت المفصلات */
+    transform: translateX(-50%) translateZ(6px) !important; 
     
     top: 0 !important; 
     bottom: 0 !important; 
-    width: 28px !important; 
+    
+    /* عرض يطابق الفجوة تماماً ليربط الصندوقين */
+    width: 24px !important; 
     
     background: linear-gradient(to right, #0a0301 0%, #200c04 25%, #050201 50%, #200c04 75%, #0a0301 100%) !important;
-    border-left: 1px solid rgba(255,215,0,0.2) !important;
-    border-right: 1px solid rgba(255,215,0,0.2) !important;
-    z-index: 110 !important; 
-    box-shadow: 0 0 20px rgba(0,0,0,0.95) !important;
+    border-left: 2px solid #d4af37 !important; /* خط ذهبي يلحم الصندوقين */
+    border-right: 2px solid #d4af37 !important;
+    z-index: 90 !important; 
+    box-shadow: 0 0 30px rgba(0,0,0,0.99) !important;
 }
 
-/* 🔩 المفصلات الذهبية العتيقة 🔩 */
+/* 🔩 المفصلات الذهبية (تمسك الصندوقين معاً) 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
     position: absolute !important; 
     left: 50% !important; 
     
-    /* رفع المفصلات لتكون القطعة الأعلى في الساحة */
-    transform: translateX(-50%) translateZ(2px) !important;
+    /* المفصلات هي أعلى قطعة في الساحة للواقعية */
+    transform: translateX(-50%) translateZ(14px) !important;
     
-    width: 20px !important; 
+    width: 32px !important; /* أعرض قليلاً لتمسك بالإطارين */
     height: 46px !important; 
     
     background-color: #b8860b !important;
@@ -209,11 +232,11 @@ body {
         linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.9) 48%, rgba(0,0,0,0.9) 52%, transparent 52%), 
         linear-gradient(to right, #5c4300 0%, #b8860b 25%, #ffeb99 50%, #b8860b 75%, #5c4300 100%) !important;
     
-    border-radius: 4px !important; 
+    border-radius: 6px !important; 
     border-top: 1px solid #fff3a8 !important; 
     border-bottom: 3px solid #332500 !important;
     
-    box-shadow: 0 6px 12px rgba(0,0,0,0.9), inset 0 0 4px rgba(92,67,0,0.8) !important; 
+    box-shadow: 0 10px 15px rgba(0,0,0,0.9), inset 0 0 4px rgba(92,67,0,0.8) !important; 
     z-index: 120 !important;
 }
 .tawla-bar::before { top: 12% !important; } 
@@ -232,7 +255,7 @@ body {
     filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8)); 
     z-index: 5 !important; 
     
-    /* 🚨 إبقاء المثلثات في قاع الطاولة 🚨 */
+    /* المثلثات على الأرضية الصلبة */
     transform: translateZ(0px) !important; 
 }
 .point::before { 
@@ -247,7 +270,7 @@ body {
     margin: 0 !important;
 }
 
-/* 🚨 انزلاق قواعد المثلثات لتختفي تماماً تحت الإطار المرتفع والخط الذهبي 🚨 */
+/* انزلاق قواعد المثلثات لتختفي تماماً تحت الإطارات المرتفعة */
 .top-right .point::before, 
 .top-left .point::before { 
     top: -6px !important; 
@@ -286,7 +309,7 @@ body[data-piece-style] .piece,
     position: relative !important; 
     z-index: 20 !important; 
     
-    /* 🚨 الأحجار مرتفعة بمقدار 8 بكسل (وبالتالي ستغوص تحت الإطار الذي ارتفاعه 12 بكسل) 🚨 */
+    /* الأحجار مرتفعة بمقدار 8 بكسل (تحت الإطارات التي ارتفاعها 12 بكسل) */
     transform: translateZ(8px) !important; 
     
     border-radius: 50% !important; 
