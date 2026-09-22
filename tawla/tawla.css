@@ -96,12 +96,24 @@ body {
 
 .game-container { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; }
 
-
 /* ========================================== */
 /* 👑 ساحة اللعب والأحجار (النسخة الـ VIP الفاخرة) 👑 */
 /* ========================================== */
 
-/* --- 1. الحاوية الأساسية (إلغاء أي إطار أو حشوة قديمة تماماً) --- */
+/* --- 1. الحاويات الأساسية (إبادة تامة لأي خلفيات أو إطارات موروثة) --- */
+.game-container,
+.tawla-container, 
+#tawla-board-wrapper,
+.game-container::before, .game-container::after,
+.tawla-container::before, .tawla-container::after,
+#tawla-board-wrapper::before, #tawla-board-wrapper::after {
+    background: transparent !important; 
+    background-image: none !important;
+    border: none !important;
+    border-image: none !important;
+    box-shadow: none !important;
+}
+
 .tawla-container, 
 #tawla-board-wrapper {
     width: 100% !important;
@@ -111,13 +123,6 @@ body {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    
-    /* 🚨 تصفير الحاوية لمنع ظهور أي إطار مخطط خارجي 🚨 */
-    background: transparent !important; 
-    background-image: none !important;
-    border: none !important;
-    border-image: none !important;
-    box-shadow: none !important;
     padding: 0 !important;
 }
 
@@ -133,7 +138,7 @@ body {
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
 
-/* --- 2. الطاولة (الإطار الخارجي الخشبي الملكي الموحد) --- */
+/* --- 2. الطاولة (الإطار الخشبي الفاخر المانع للتخطيط) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -143,8 +148,11 @@ body {
     box-sizing: border-box !important;
     margin: 0 auto !important;
     
-    /* 🚨 هذا هو الإطار الخارجي الفاخر الحقيقي (خشب ماهوجني صلب 18px) 🚨 */
+    /* 🚨 إعدام border-image نهائياً لمنع أي تخطيط قديم 🚨 */
     border: 18px solid #200c04 !important;
+    border-image: none !important;
+    border-image-source: none !important;
+    outline: none !important;
     border-radius: 12px !important;
     padding: 0 !important;
     gap: 28px !important; /* مساحة متناسقة للبار الأوسط */
@@ -169,7 +177,7 @@ body {
     z-index: 1; 
 }
 
-/* تنظيف كامل للعناصر الوهمية لمنع أي إطارات إضافية */
+/* إيقاف العناصر الوهمية للطاولة لمنع أي تداخلات */
 #tawla-board::before, 
 #tawla-board::after { 
     display: none !important; 
