@@ -149,17 +149,15 @@ body {
     border-image: none !important;
     outline: none !important;
     
-    /* 🌟 استرجاع الحشوة الأصلية المتناسقة مع الإطار (14px) 🌟 */
+    /* حشوة للأعلى والأسفل، وفجوة 2px في المنتصف */
     padding: 14px 0 !important;
     gap: 0 2px !important; 
     
     border-radius: 12px !important;
     
-    /* الإبقاء على الخلفية الخشبية الصلبة 100% (غير الشفافة) */
+    /* 🌟 التعديل: لون خشبي صافٍ وصلب 100% (بدون خطوط وبدون شفافية) 🌟 */
     background-color: #2b1107 !important;
-    background-image: 
-        repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 6px),
-        radial-gradient(ellipse at center, #a6592d 0%, #87411f 40%, #41190c 80%, #2b1107 100%) !important;
+    background-image: radial-gradient(ellipse at center, #9e5025 0%, #7d3515 40%, #41190c 80%, #2b1107 100%) !important;
         
     position: relative !important;
     transform-origin: center center !important;
