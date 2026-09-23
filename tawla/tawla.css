@@ -135,7 +135,7 @@ body {
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
 
-/* --- 2. الطاولة (نظام الصندوقين مع زوايا حادة وقطع معدنية زاوية مزودة بـ 3 براغي) --- */
+/* --- 2. الطاولة (نظام الصندوقين المنفصلين) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -149,12 +149,13 @@ body {
     border-image: none !important;
     outline: none !important;
     
+    /* حشوة للأعلى والأسفل، وفجوة 2px في المنتصف */
     padding: 14px 0 !important;
     gap: 0 2px !important; 
     
-    /* زوايا الطاولة العامة حادة */
-    border-radius: 4px !important;
+    border-radius: 12px !important;
     
+    /* 🌟 التعديل: لون خشبي صافٍ وصلب 100% (بدون خطوط وبدون شفافية) 🌟 */
     background-color: #2b1107 !important;
     background-image: radial-gradient(ellipse at center, #9e5025 0%, #7d3515 40%, #41190c 80%, #2b1107 100%) !important;
         
@@ -167,7 +168,7 @@ body {
     z-index: 1; 
 }
 
-/* 📦 الإطار الأيسر (الصندوق الأول - زوايا حادة + قطع ذهبية زاوية بـ 3 براغي) 📦 */
+/* 📦 الإطار الأيسر (الصندوق الأول) 📦 */
 #tawla-board::before {
     content: '' !important;
     position: absolute !important;
@@ -177,75 +178,14 @@ body {
     transform: translateZ(4px) !important; 
     z-index: 2 !important; 
     
+    /* 🌟 استرجاع الإطار البني الفاتح النظيف 🌟 */
     border: 12px solid #a67345 !important;
-    /* 🌟 زوايا حادة تماماً للإطار الخارجي 🌟 */
-    border-radius: 4px !important; 
+    border-radius: 12px !important;
     box-sizing: border-box !important;
     
-    /* 🌟 القطع المعدنية الذهبية في الزوايا الأربع + 3 براغي لكل زاوية 🌟 */
-    background-image: 
-        /* الزاوية العلوية اليسرى (زاوية مثلثية معدنية + 3 براغي) */
-        linear-gradient(135deg, #d4af37 20px, transparent 20px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        
-        /* الزاوية السفلية اليسرى */
-        linear-gradient(225deg, #d4af37 20px, transparent 20px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        
-        /* العمق الداخلي للإطار */
-        radial-gradient(transparent, transparent);
-
-    background-position: 
-        0 0, 5px 6px, 14px 6px, 6px 14px,     /* زاوية علوية يسرى وبراغيها */
-        0 100%, 5px calc(100% - 6px), 14px calc(100% - 6px), 6px calc(100% - 14px); /* زاوية سفلية يسرى وبراغيها */
-
-    background-repeat: no-repeat;
-    
+    /* 🌟 استرجاع الظل الداخلي الكلاسيكي للعمق 🌟 */
     box-shadow: inset 0 0 40px rgba(0,0,0,0.95), inset 0 2px 6px rgba(255,255,255,0.05) !important; 
 }
-
-/* 📦 الإطار الأيمن (الصندوق الثاني - زوايا حادة + قطع ذهبية زاوية بـ 3 براغي) 📦 */
-#tawla-board::after {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important; bottom: 0 !important; right: 0 !important;
-    width: calc(50% - 1px) !important; 
-    pointer-events: none !important; 
-    transform: translateZ(4px) !important; 
-    z-index: 2 !important; 
-    
-    border: 12px solid #a67345 !important;
-    /* 🌟 زوايا حادة تماماً للإطار الخارجي 🌟 */
-    border-radius: 4px !important; 
-    box-sizing: border-box !important;
-    
-    /* 🌟 القطع المعدنية الذهبية في الزوايا الأربع اليمنى + 3 براغي لكل زاوية 🌟 */
-    background-image: 
-        /* الزاوية العلوية اليمنى */
-        linear-gradient(225deg, #d4af37 20px, transparent 20px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        
-        /* الزاوية السفلية اليمنى */
-        linear-gradient(315deg, #d4af37 20px, transparent 20px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px);
-
-    background-position: 
-        100% 0, calc(100% - 5px) 6px, calc(100% - 14px) 6px, calc(100% - 6px) 14px,     /* زاوية علوية يمنى وبراغيها */
-        100% 100%, calc(100% - 5px) calc(100% - 6px), calc(100% - 14px) calc(100% - 6px), calc(100% - 6px) calc(100% - 14px); /* زاوية سفلية يمنى وبراغيها */
-
-    background-repeat: no-repeat;
-    
-    box-shadow: inset 0 0 40px rgba(0,0,0,0.95), inset 0 2px 6px rgba(255,255,255,0.05) !important; 
-}
-
 
 /* 📦 الإطار الأيمن (الصندوق الثاني) 📦 */
 #tawla-board::after {
@@ -284,7 +224,7 @@ body {
 }
 .board-quadrant::before, .board-quadrant::after { display: none !important; }
 
-/* --- 3. الفاصل الوسطي (مفصلات أبواب معدنية مسطحة مع 4 براغي) --- */
+/* --- 3. الفاصل الوسطي (يربط بين الصندوقين) --- */
 .tawla-bar {
     position: absolute !important; 
     left: 50% !important; 
@@ -292,54 +232,75 @@ body {
     top: 0 !important; 
     bottom: 0 !important; 
     
+    /* عرض الفاصل (الفراغ بين الإطارين) */
     width: 2px !important; 
+    
     background: transparent !important;
     border: none !important; 
     box-shadow: none !important;
     z-index: 110 !important; 
 }
 
-/* 🔩 مفصلات الأبواب المسطحة المزودة بـ 4 براغي 🔩 */
+/* 🔩 المفصلات المعدنية المسطحة (تصميم مفصلة باب مع 4 براغي) 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
     position: absolute !important; 
     left: 50% !important; 
+    
+    /* رفع المفصلة فوق الإطارات الخشبية */
     transform: translateX(-50%) translateZ(12px) !important;
     
-    /* 🌟 شكل مستطيل مسطح يربط بين الإطارين 🌟 */
-    width: 14px !important; 
-    height: 32px !important; 
+    /* 🌟 أبعاد المفصلة (مسطحة وعريضة قليلاً لتمسك الإطارين) 🌟 */
+    width: 26px !important; 
+    height: 22px !important; 
     
-    /* تدرج معدني ذهبي فاخر */
-    background: linear-gradient(135deg, #ffe47a 0%, #d4af37 50%, #9c730a 100%) !important;
-    
-    border-radius: 2px !important; 
-    border: 1px solid #4a3500 !important;
-    
-    /* 🌟 حيلة البراغي الأربعة باستخدام radial-gradient (نقط سوداء صغيرة في الزوايا) 🌟 */
+    /* 🌟 رسم البراغي والفاصل باستخدام CSS Magic 🌟 */
+    background-color: #b88344 !important;
     background-image: 
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px), /* البرغي العلوي الأيمن */
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px), /* البرغي العلوي الأيسر */
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px), /* البرغي السفلي الأيمن */
-        radial-gradient(circle, #261b00 1.5px, transparent 1.8px); /* البرغي السفلي الأيسر */
+        /* 1. برغي أعلى اليسار */
+        radial-gradient(circle, #1a0f05 40%, rgba(255,255,255,0.3) 80%, transparent 90%),
+        /* 2. برغي أسفل اليسار */
+        radial-gradient(circle, #1a0f05 40%, rgba(255,255,255,0.3) 80%, transparent 90%),
+        /* 3. برغي أعلى اليمين */
+        radial-gradient(circle, #1a0f05 40%, rgba(255,255,255,0.3) 80%, transparent 90%),
+        /* 4. برغي أسفل اليمين */
+        radial-gradient(circle, #1a0f05 40%, rgba(255,255,255,0.3) 80%, transparent 90%),
+        /* 5. خط الطي في منتصف المفصلة */
+        linear-gradient(to right, transparent 46%, #2b1706 46%, #2b1706 54%, transparent 54%),
+        /* 6. لون النحاس/المعدن الأساسي */
+        linear-gradient(to bottom, #d6a161 0%, #b88344 50%, #8f5a23 100%) !important;
     
-    background-position: 
-        3px 4px,   /* إحداثيات البرغي 1 */
-        11px 4px,  /* إحداثيات البرغي 2 */
-        3px 26px,  /* إحداثيات البرغي 3 */
-        11px 26px; /* إحداثيات البرغي 4 */
+    /* أحجام الطبقات (البراغي حجمها 4 بكسل) */
+    background-size: 
+        4px 4px, 
+        4px 4px, 
+        4px 4px, 
+        4px 4px, 
+        100% 100%, 
+        100% 100% !important;
         
-    background-repeat: no-repeat;
+    /* أماكن البراغي بدقة متناهية في الزوايا الأربع */
+    background-position: 
+        3px 3px,   /* أعلى يسار */
+        3px 15px,  /* أسفل يسار */
+        19px 3px,  /* أعلى يمين */
+        19px 15px, /* أسفل يمين */
+        center, 
+        center !important;
+        
+    background-repeat: no-repeat !important;
     
-    /* ظل واقعي يوضح أن المفصلة بارزة ومثبتة فوق الخشب */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.6) !important; 
+    /* حواف شبه حادة لتبدو كقطعة معدنية حقيقية */
+    border-radius: 3px !important; 
+    border: 1px solid #4a2b10 !important;
+    border-top: 1px solid #ffe3ad !important; /* إضاءة على الحافة العلوية للمعدن */
+    
+    box-shadow: 0 4px 8px rgba(0,0,0,0.8), inset 0 0 2px rgba(255,255,255,0.3) !important; 
     z-index: 120 !important;
 }
-
-.tawla-bar::before { top: 12% !important; } 
-.tawla-bar::after { bottom: 12% !important; }
-
+.tawla-bar::before { top: 15% !important; } 
+.tawla-bar::after { bottom: 15% !important; }
 
 /* --- 4. الأرباع والمثلثات --- */
 .point { 
