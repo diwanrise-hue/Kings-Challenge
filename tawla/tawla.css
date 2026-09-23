@@ -130,8 +130,8 @@ body {
     background: transparent !important;    
     border: none !important;    
     box-sizing: border-box !important;
-}   
 
+  
 /* ========================================== */
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
@@ -150,15 +150,16 @@ body {
     border-image: none !important;
     outline: none !important;
     
-    /* 🌟 التعديل: 14 بكسل للأعلى والأسفل، و 0 بكسل لليمين واليسار 🌟 */
+    /* حشوة 14px للأعلى والأسفل، وفجوة 2px في المنتصف */
     padding: 14px 0 !important;
     gap: 0 2px !important; 
     
     border-radius: 12px !important;
     
-    background-color: #2b1107 !important;
+    /* إضاءة خشبية دافئة وواسعة في المنتصف */
+    background-color: #4a2717 !important;
     background-image: 
-        radial-gradient(ellipse at center, rgba(90, 35, 15, 0.85) 0%, rgba(28, 9, 2, 0.98) 65%, #080200 100%),
+        radial-gradient(ellipse at center, rgba(165, 85, 45, 0.85) 0%, rgba(135, 65, 35, 0.8) 40%, rgba(65, 25, 12, 0.9) 80%, #2b1107 100%),
         repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 6px) !important;
         
     position: relative !important;
@@ -170,20 +171,20 @@ body {
     z-index: 1; 
 }
 
-
 /* 📦 الإطار الأيسر (الصندوق الأول) 📦 */
 #tawla-board::before {
     content: '' !important;
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; left: 0 !important;
     
-    /* 🌟 النصف ناقص نصف الفجوة (1 بكسل) 🌟 */
+    /* النصف ناقص نصف الفجوة (1px) */
     width: calc(50% - 1px) !important; 
     
     pointer-events: none !important; 
     transform: translateZ(4px) !important; 
     z-index: 2 !important; 
     
+    /* الإطار البني الفاتح */
     border: 12px solid #a67345 !important;
     border-radius: 12px !important;
     box-sizing: border-box !important;
@@ -197,13 +198,14 @@ body {
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; right: 0 !important;
     
-    /* 🌟 النصف ناقص نصف الفجوة (1 بكسل) 🌟 */
+    /* النصف ناقص نصف الفجوة (1px) */
     width: calc(50% - 1px) !important; 
     
     pointer-events: none !important; 
     transform: translateZ(4px) !important; 
     z-index: 2 !important; 
     
+    /* الإطار البني الفاتح */
     border: 12px solid #a67345 !important;
     border-radius: 12px !important;
     box-sizing: border-box !important;
@@ -220,14 +222,12 @@ body {
     height: 100%; 
     margin: 0 !important; 
     
-    /* 🌟 السر هنا: حشوة داخلية 14px من اليمين واليسار لتدفع المثلثات داخل الإطار البني 🌟 */
+    /* دفع المثلثات لكي تدخل ضمن الإطارات البنية */
     padding: 0 14px !important; 
     
     position: relative; 
     background: transparent !important; 
     z-index: 10 !important; 
-    
-    /* 🌟 ضروري جداً لكي يحسب المتصفح الحشوة من ضمن الحجم الكلي ولا يكسر التصميم 🌟 */
     box-sizing: border-box !important; 
 }
 .board-quadrant::before, .board-quadrant::after { display: none !important; }
@@ -241,17 +241,16 @@ body {
     top: 0 !important; 
     bottom: 0 !important; 
     
-    /* 🌟 عرض الفاصل أصبح 2 بكسل فقط 🌟 */
+    /* عرض يطابق الفجوة تماماً (2px) */
     width: 2px !important; 
     
-    /* 🌟 إزالة اللون الأسود والظل ليختفي الفراغ تماماً 🌟 */
     background: transparent !important;
     border: none !important; 
     box-shadow: none !important;
     z-index: 110 !important; 
 }
 
-/* 🔩 القطع المعدنية المسطحة (لم يتم المساس بحجمها) 🔩 */
+/* 🔩 القطع المعدنية المسطحة 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
@@ -275,6 +274,7 @@ body {
 .tawla-bar::before { top: 15% !important; } 
 .tawla-bar::after { bottom: 15% !important; }
 
+
 /* --- 4. الأرباع والمثلثات --- */
 .point { 
     position: relative; 
@@ -284,7 +284,10 @@ body {
     padding: 0 !important;
     background: transparent !important; 
     border: none !important;
-    filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8)); 
+    
+    /* إضافة تحديد حاد (Outline أسود) وظل منفصل لرفع التباين */
+    filter: drop-shadow(0px 0px 1.5px rgba(0, 0, 0, 1)) drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.6)); 
+    
     z-index: 5 !important; 
     transform: translateZ(0px) !important; 
 }
@@ -300,7 +303,7 @@ body {
     margin: 0 !important;
 }
 
-/* 🌟 تبدأ المثلثات من حافة الخشب الداخلي تماماً 🌟 */
+/* تبدأ المثلثات من حافة الخشب الداخلي تماماً */
 .top-right .point::before, 
 .top-left .point::before { 
     top: 0 !important; 
@@ -312,35 +315,33 @@ body {
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%); 
 }
 
-/* 🔴 المثلثات الحمراء (Mystic Ruby) */
+/* 🔴 المثلثات الحمراء (بألوان مشرقة لزيادة التباين) */
 .top-right .point:nth-child(odd)::before, 
 .top-left .point:nth-child(odd)::before { 
-    background: linear-gradient(to bottom, #d4002b 0%, #8a001a 35%, #4a000f 80%, #200006 100%) !important; 
+    background: linear-gradient(to bottom, #e61036 0%, #a6001f 40%, #700015 80%, #4a000e 100%) !important; 
 }
 .bottom-right .point:nth-child(odd)::before, 
 .bottom-left .point:nth-child(odd)::before { 
-    background: linear-gradient(to top, #d4002b 0%, #8a001a 35%, #4a000f 80%, #200006 100%) !important; 
+    background: linear-gradient(to top, #e61036 0%, #a6001f 40%, #700015 80%, #4a000e 100%) !important; 
 }
 
-/* 🟡 المثلثات العاجية (Warm Ivory Gold) */
+/* 🟡 المثلثات العاجية (بألوان مشرقة لزيادة التباين) */
 .top-right .point:nth-child(even)::before, 
 .top-left .point:nth-child(even)::before { 
-    background: linear-gradient(to bottom, #fffaeb 0%, #e6d3a8 35%, #b3904f 80%, #6e552a 100%) !important; 
+    background: linear-gradient(to bottom, #fffaeb 0%, #f0dca2 40%, #c49e54 80%, #8f6a31 100%) !important; 
 }
 .bottom-right .point:nth-child(even)::before, 
 .bottom-left .point:nth-child(even)::before { 
-    background: linear-gradient(to top, #fffaeb 0%, #e6d3a8 35%, #b3904f 80%, #6e552a 100%) !important; 
+    background: linear-gradient(to top, #fffaeb 0%, #f0dca2 40%, #c49e54 80%, #8f6a31 100%) !important; 
 }
 
-/* --- 5. الأحجار (تصميم كلاسيكي نظيف بدون ذهبي أو ظلال مبالغ فيها) --- */
+
+/* --- 5. الأحجار (إبراز الحواف والظلال) --- */
 body[data-piece-style] .piece, 
 .piece {
     position: relative !important; 
     z-index: 20 !important; 
-    
-    /* تقليل الارتفاع لأننا أزلنا الظلال الثقيلة */
     transform: translateZ(4px) !important; 
-    
     border-radius: 50% !important; 
     transform-style: preserve-3d; 
     display: flex !important; 
@@ -352,28 +353,34 @@ body[data-piece-style] .piece,
     aspect-ratio: 1 / 1 !important; 
     margin: 2px auto !important; 
     
-    /* إطار ناعم جداً بدلاً من الذهبي */
-    border: 1px solid rgba(0, 0, 0, 0.4) !important; 
+    /* خط أسود ناعم جداً يحمي الحافة الخارجية */
+    border: 1px solid rgba(0, 0, 0, 0.6) !important; 
 }
 
-/* ⚪ الحجر الأبيض (عاجي ناعم) */
+/* ⚪ الحجر الأبيض (عاجي) */
 body[data-piece-style] .piece.white, 
 .piece.white {
     background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e8e6e1 50%, #c4c1b9 100%) !important;
+    /* إضاءة ناصعة على الحافة + ظل محيطي يعزله عن الخلفية */
     box-shadow: 
+        inset 0 0 0 1.5px rgba(255, 255, 255, 0.7), 
         inset 2px 4px 6px rgba(255,255,255,0.9), 
         inset -2px -4px 6px rgba(0,0,0,0.3), 
-        0 2px 4px rgba(0,0,0,0.5) !important; /* ظل خفيف ملاصق للأرضية */
+        0 0 5px rgba(0,0,0,0.85), 
+        0 4px 6px rgba(0,0,0,0.5) !important; 
 }
 
-/* ⚫ الحجر الأسود (أبنوس ناعم) */
+/* ⚫ الحجر الأسود (أبنوس) */
 body[data-piece-style] .piece.black, 
 .piece.black {
     background: radial-gradient(circle at 30% 30%, #4a4a4a 0%, #262626 50%, #0a0a0a 100%) !important;
+    /* إضاءة خفيفة على الحافة + ظل محيطي يعزله عن الخلفية */
     box-shadow: 
-        inset 2px 3px 5px rgba(255,255,255,0.2), 
-        inset -2px -4px 6px rgba(0,0,0,0.8), 
-        0 2px 4px rgba(0,0,0,0.5) !important; /* ظل خفيف ملاصق للأرضية */
+        inset 0 0 0 1.5px rgba(255, 255, 255, 0.25), 
+        inset 2px 3px 5px rgba(255,255,255,0.3), 
+        inset -2px -4px 6px rgba(0,0,0,0.9), 
+        0 0 5px rgba(0,0,0,0.85), 
+        0 4px 6px rgba(0,0,0,0.5) !important; 
 }
 
 /* 🚫 إخفاء الحلقة الذهبية الداخلية تماماً */
@@ -386,7 +393,7 @@ body[data-piece-style] .piece::before,
 .piece.selected { 
     outline: none !important;
     box-shadow: 
-        0 0 15px rgba(48, 209, 88, 0.6), /* توهج أخضر ناعم بدلاً من الذهبي القوي */
+        0 0 15px rgba(48, 209, 88, 0.6), 
         inset -2px -4px 6px rgba(0,0,0,0.5),
         0 8px 12px rgba(0,0,0,0.6) !important; 
     transform: translateZ(12px) scale(1.05) !important; 
