@@ -150,14 +150,13 @@ body {
     border-image: none !important;
     outline: none !important;
     
-    /* 🌟 حساب دقيق: حشوة 16 بكسل لتدفع المثلثات للداخل، وفجوة 32 بكسل للوسط 🌟 */
+    /* 🌟 تقليل المسافة بين الإطارين إلى 0.2px فقط 🌟 */
     padding: 16px !important;
-    gap: 0 32px !important; 
+    gap: 0 0.2px !important; 
     
     border-radius: 12px !important;
-    overflow: hidden !important; /* لمنع خروج الخلفية من الزوايا */
+    overflow: hidden !important; 
     
-    /* أرضية الخشب الحقيقية */
     background-color: #2b1107 !important;
     background-image: 
         radial-gradient(ellipse at center, rgba(90, 35, 15, 0.85) 0%, rgba(28, 9, 2, 0.98) 65%, #080200 100%),
@@ -176,21 +175,19 @@ body {
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; left: 0 !important;
     
-    /* عرض الصندوق يطابق النصف ناقص نصف الفجوة (16 بكسل) */
-    width: calc(50% - 16px) !important; 
+    /* 🌟 ضبط العرض ليتناسب مع الفجوة المجهرية (0.1px هو نصف الـ 0.2px) 🌟 */
+    width: calc(50% - 0.1px) !important; 
     
     pointer-events: none !important; 
     transform: translateZ(12px) !important; 
     z-index: 100 !important; 
     
-    border: 16px solid #200c04 !important;
+    border: none !important;
     border-radius: 12px !important;
     box-sizing: border-box !important;
     
     box-shadow: 
-        0 0 0 2px #d4af37,              
         0 20px 40px rgba(0,0,0,0.9),     
-        inset 0 0 0 2px #b8860b,          
         inset 0 0 40px rgba(0,0,0,0.99),  
         inset 0 2px 6px rgba(255,255,255,0.1) !important; 
 }
@@ -201,38 +198,22 @@ body {
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; right: 0 !important;
     
-    /* عرض الصندوق يطابق النصف ناقص نصف الفجوة (16 بكسل) */
-    width: calc(50% - 16px) !important; 
+    /* 🌟 ضبط العرض ليتناسب مع الفجوة المجهرية 🌟 */
+    width: calc(50% - 0.1px) !important; 
     
     pointer-events: none !important; 
     transform: translateZ(12px) !important; 
     z-index: 100 !important; 
     
-    border: 16px solid #200c04 !important;
+    border: none !important;
     border-radius: 12px !important;
     box-sizing: border-box !important;
     
     box-shadow: 
-        0 0 0 2px #d4af37,              
         0 20px 40px rgba(0,0,0,0.9),     
-        inset 0 0 0 2px #b8860b,          
         inset 0 0 40px rgba(0,0,0,0.99),  
         inset 0 2px 6px rgba(255,255,255,0.1) !important; 
 }
-
-
-.board-quadrant { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: stretch !important;
-    width: 100%; 
-    height: 100%; 
-    margin: 0 !important; 
-    padding: 0 !important; 
-    position: relative; 
-    background: transparent !important; 
-}
-.board-quadrant::before, .board-quadrant::after { display: none !important; }
 
 
 /* --- 3. الفاصل الوسطي (يربط بين الصندوقين) --- */
@@ -243,40 +224,35 @@ body {
     top: 0 !important; 
     bottom: 0 !important; 
     
-    /* عرض يطابق الفجوة تماماً */
-    width: 32px !important; 
+    /* تصغير عرض الحاوية الوسطية لتناسب الفجوة الجديدة */
+    width: 1px !important; 
     
-    /* 🌟 إزالة الخشب والإطارات القديمة تماماً وجعله شفافاً 🌟 */
     background: transparent !important;
     border: none !important; 
     box-shadow: none !important;
     z-index: 110 !important; 
 }
 
-/* 🔩 القطع المعدنية المسطحة (تربط الصندوقين من الأعلى) 🔩 */
+/* 🔩 القطع المعدنية المسطحة (تم تصغيرها جداً) 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
     position: absolute !important; 
     left: 50% !important; 
     
-    /* رفعها فوق الإطارات الخشبية بالكامل */
     transform: translateX(-50%) translateZ(18px) !important;
     
-    /* 🌟 العرض أكبر من الفجوة (48px) لتمتد وتجلس فوق الإطارين كجسر معدني 🌟 */
-    width: 48px !important; 
-    height: 20px !important; /* ارتفاع أقل لجعلها مسطحة */
+    /* 🌟 عرض صغير جداً كأنه مسمار أو رابط معدني دقيق 🌟 */
+    width: 8px !important; 
+    height: 14px !important; 
     
-    /* 🌟 تدرج معدني ذهبي مسطح (Flat) وليس أسطواني 🌟 */
     background: linear-gradient(to bottom, #ffe47a 0%, #d4af37 40%, #b8860b 100%) !important;
     
-    /* 🌟 زوايا شبه حادة (مسطحة) 🌟 */
-    border-radius: 3px !important; 
+    border-radius: 2px !important; 
     border: 1px solid #5c4300 !important;
     border-top: 1px solid #fff9d6 !important;
     
-    /* ظل يسقط على الإطارات الخشبية ليوضح أنها مرتفعة ومسطحة */
-    box-shadow: 0 5px 8px rgba(0,0,0,0.8), inset 0 0 2px rgba(255,255,255,0.4) !important; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.8), inset 0 0 2px rgba(255,255,255,0.4) !important; 
     z-index: 120 !important;
 }
 .tawla-bar::before { top: 15% !important; } 
@@ -2155,7 +2131,6 @@ body.online-mode-active .game-container {
     align-items: center !important;
     justify-content: center !important;
     width: 100% !important;
-    max-height: 52vh !important; 
     overflow: hidden !important;
 }
 
