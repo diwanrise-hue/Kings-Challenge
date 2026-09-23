@@ -136,6 +136,7 @@ body {
 /* ========================================== */
 
 /* --- 2. الطاولة (نظام الصندوقين المنفصلين) --- */
+/* --- 2. الطاولة (نظام الصندوقين المنفصلين) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -149,15 +150,18 @@ body {
     border-image: none !important;
     outline: none !important;
     
-    /* حشوة للأعلى والأسفل، وفجوة 2px في المنتصف */
+    /* حشوة 14px للأعلى والأسفل، وفجوة 2px في المنتصف */
     padding: 14px 0 !important;
     gap: 0 2px !important; 
     
-    border-radius: 12px !important;
+    /* 🌟 زوايا حادة 90 درجة للطاولة الأساسية 🌟 */
+    border-radius: 0 !important;
     
-    /* 🌟 التعديل: لون خشبي صافٍ وصلب 100% (بدون خطوط وبدون شفافية) 🌟 */
-    background-color: #2b1107 !important;
-    background-image: radial-gradient(ellipse at center, #9e5025 0%, #7d3515 40%, #41190c 80%, #2b1107 100%) !important;
+    /* إضاءة خشبية دافئة وواسعة في المنتصف */
+    background-color: #4a2717 !important;
+    background-image: 
+        radial-gradient(ellipse at center, rgba(165, 85, 45, 0.85) 0%, rgba(135, 65, 35, 0.8) 40%, rgba(65, 25, 12, 0.9) 80%, #2b1107 100%),
+        repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 6px) !important;
         
     position: relative !important;
     transform-origin: center center !important;
@@ -173,17 +177,21 @@ body {
     content: '' !important;
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; left: 0 !important;
+    
+    /* النصف ناقص نصف الفجوة (1px) */
     width: calc(50% - 1px) !important; 
+    
     pointer-events: none !important; 
     transform: translateZ(4px) !important; 
     z-index: 2 !important; 
     
-    /* 🌟 استرجاع الإطار البني الفاتح النظيف 🌟 */
+    /* الإطار البني الفاتح */
     border: 12px solid #a67345 !important;
-    border-radius: 12px !important;
+    
+    /* 🌟 زوايا حادة 90 درجة للإطار الأيسر 🌟 */
+    border-radius: 0 !important;
     box-sizing: border-box !important;
     
-    /* 🌟 استرجاع الظل الداخلي الكلاسيكي للعمق 🌟 */
     box-shadow: inset 0 0 40px rgba(0,0,0,0.95), inset 0 2px 6px rgba(255,255,255,0.05) !important; 
 }
 
@@ -192,19 +200,24 @@ body {
     content: '' !important;
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; right: 0 !important;
+    
+    /* النصف ناقص نصف الفجوة (1px) */
     width: calc(50% - 1px) !important; 
+    
     pointer-events: none !important; 
     transform: translateZ(4px) !important; 
     z-index: 2 !important; 
     
-    /* 🌟 استرجاع الإطار البني الفاتح النظيف 🌟 */
+    /* الإطار البني الفاتح */
     border: 12px solid #a67345 !important;
-    border-radius: 12px !important;
+    
+    /* 🌟 زوايا حادة 90 درجة للإطار الأيمن 🌟 */
+    border-radius: 0 !important;
     box-sizing: border-box !important;
     
-    /* 🌟 استرجاع الظل الداخلي الكلاسيكي للعمق 🌟 */
     box-shadow: inset 0 0 40px rgba(0,0,0,0.95), inset 0 2px 6px rgba(255,255,255,0.05) !important; 
 }
+
 
 .board-quadrant { 
     display: flex; 
