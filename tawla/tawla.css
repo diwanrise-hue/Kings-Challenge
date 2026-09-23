@@ -417,12 +417,13 @@ body {
     background: transparent !important; 
     border: none !important;
     
-    /* إضافة تحديد حاد (Outline أسود) وظل منفصل لرفع التباين */
-    filter: drop-shadow(0px 0px 1.5px rgba(0, 0, 0, 1)) drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.6)); 
+    /* ✨ إزالة سطر filter: drop-shadow بالكامل لتبقى المثلثات مسطحة ونظيفة ✨ */
+    filter: none !important; 
     
     z-index: 5 !important; 
     transform: translateZ(0px) !important; 
 }
+
 .point::before { 
     content: ''; 
     position: absolute; 
