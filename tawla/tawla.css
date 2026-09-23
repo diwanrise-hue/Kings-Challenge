@@ -146,16 +146,18 @@ body {
     box-sizing: border-box !important;
     margin: 0 auto !important;
     
-    /* إزالة الإطار الموحد القديم */
     border: none !important;
     border-image: none !important;
     outline: none !important;
     
-    /* حشوة لترك مساحة للإطارات، وفجوة 24px في المنتصف للفاصل */
+    /* 🌟 حساب دقيق: حشوة 16 بكسل لتدفع المثلثات للداخل، وفجوة 32 بكسل للوسط 🌟 */
     padding: 16px !important;
-    gap: 24px !important; 
+    gap: 0 32px !important; 
     
-    /* أرضية الخشب الحقيقية (المشتركة تحت الصندوقين) */
+    border-radius: 12px !important;
+    overflow: hidden !important; /* لمنع خروج الخلفية من الزوايا */
+    
+    /* أرضية الخشب الحقيقية */
     background-color: #2b1107 !important;
     background-image: 
         radial-gradient(ellipse at center, rgba(90, 35, 15, 0.85) 0%, rgba(28, 9, 2, 0.98) 65%, #080200 100%),
@@ -174,8 +176,8 @@ body {
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; left: 0 !important;
     
-    /* العرض هو النصف بالضبط ناقص نصف الفجوة الوسطية */
-    width: calc(50% - 12px) !important; 
+    /* عرض الصندوق يطابق النصف ناقص نصف الفجوة (16 بكسل) */
+    width: calc(50% - 16px) !important; 
     
     pointer-events: none !important; 
     transform: translateZ(12px) !important; 
@@ -183,8 +185,6 @@ body {
     
     border: 16px solid #200c04 !important;
     border-radius: 12px !important;
-    
-    /* 🌟 الحل الجذري لمنع التمدد خارج الإطار 🌟 */
     box-sizing: border-box !important;
     
     box-shadow: 
@@ -201,7 +201,8 @@ body {
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; right: 0 !important;
     
-    width: calc(50% - 12px) !important; 
+    /* عرض الصندوق يطابق النصف ناقص نصف الفجوة (16 بكسل) */
+    width: calc(50% - 16px) !important; 
     
     pointer-events: none !important; 
     transform: translateZ(12px) !important; 
@@ -209,8 +210,6 @@ body {
     
     border: 16px solid #200c04 !important;
     border-radius: 12px !important;
-    
-    /* 🌟 الحل الجذري لمنع التمدد خارج الإطار 🌟 */
     box-sizing: border-box !important;
     
     box-shadow: 
@@ -240,50 +239,48 @@ body {
 .tawla-bar {
     position: absolute !important; 
     left: 50% !important; 
-    
-    /* يجلس بين الصندوقين، وتحت المفصلات */
     transform: translateX(-50%) translateZ(6px) !important; 
-    
     top: 0 !important; 
     bottom: 0 !important; 
     
-    /* عرض يطابق الفجوة تماماً ليربط الصندوقين */
-    width: 24px !important; 
+    /* عرض يطابق الفجوة تماماً */
+    width: 32px !important; 
     
-    background: linear-gradient(to right, #0a0301 0%, #200c04 25%, #050201 50%, #200c04 75%, #0a0301 100%) !important;
-    border-left: 2px solid #d4af37 !important; /* خط ذهبي يلحم الصندوقين */
-    border-right: 2px solid #d4af37 !important;
-    z-index: 90 !important; 
-    box-shadow: 0 0 30px rgba(0,0,0,0.99) !important;
+    /* 🌟 إزالة الخشب والإطارات القديمة تماماً وجعله شفافاً 🌟 */
+    background: transparent !important;
+    border: none !important; 
+    box-shadow: none !important;
+    z-index: 110 !important; 
 }
 
-/* 🔩 المفصلات الذهبية (تمسك الصندوقين معاً) 🔩 */
+/* 🔩 القطع المعدنية المسطحة (تربط الصندوقين من الأعلى) 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
     position: absolute !important; 
     left: 50% !important; 
     
-    /* المفصلات هي أعلى قطعة في الساحة للواقعية */
-    transform: translateX(-50%) translateZ(14px) !important;
+    /* رفعها فوق الإطارات الخشبية بالكامل */
+    transform: translateX(-50%) translateZ(18px) !important;
     
-    width: 32px !important; /* أعرض قليلاً لتمسك بالإطارين */
-    height: 46px !important; 
+    /* 🌟 العرض أكبر من الفجوة (48px) لتمتد وتجلس فوق الإطارين كجسر معدني 🌟 */
+    width: 48px !important; 
+    height: 20px !important; /* ارتفاع أقل لجعلها مسطحة */
     
-    background-color: #b8860b !important;
-    background-image: 
-        linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.9) 48%, rgba(0,0,0,0.9) 52%, transparent 52%), 
-        linear-gradient(to right, #5c4300 0%, #b8860b 25%, #ffeb99 50%, #b8860b 75%, #5c4300 100%) !important;
+    /* 🌟 تدرج معدني ذهبي مسطح (Flat) وليس أسطواني 🌟 */
+    background: linear-gradient(to bottom, #ffe47a 0%, #d4af37 40%, #b8860b 100%) !important;
     
-    border-radius: 6px !important; 
-    border-top: 1px solid #fff3a8 !important; 
-    border-bottom: 3px solid #332500 !important;
+    /* 🌟 زوايا شبه حادة (مسطحة) 🌟 */
+    border-radius: 3px !important; 
+    border: 1px solid #5c4300 !important;
+    border-top: 1px solid #fff9d6 !important;
     
-    box-shadow: 0 10px 15px rgba(0,0,0,0.9), inset 0 0 4px rgba(92,67,0,0.8) !important; 
+    /* ظل يسقط على الإطارات الخشبية ليوضح أنها مرتفعة ومسطحة */
+    box-shadow: 0 5px 8px rgba(0,0,0,0.8), inset 0 0 2px rgba(255,255,255,0.4) !important; 
     z-index: 120 !important;
 }
-.tawla-bar::before { top: 12% !important; } 
-.tawla-bar::after { bottom: 12% !important; }
+.tawla-bar::before { top: 15% !important; } 
+.tawla-bar::after { bottom: 15% !important; }
 
 
 /* --- 4. الأرباع والمثلثات --- */
@@ -297,8 +294,6 @@ body {
     border: none !important;
     filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8)); 
     z-index: 5 !important; 
-    
-    /* المثلثات على الأرضية الصلبة */
     transform: translateZ(0px) !important; 
 }
 .point::before { 
@@ -313,15 +308,15 @@ body {
     margin: 0 !important;
 }
 
-/* انزلاق قواعد المثلثات لتختفي تماماً تحت الإطارات المرتفعة */
+/* 🌟 تبدأ المثلثات من حافة الخشب الداخلي تماماً 🌟 */
 .top-right .point::before, 
 .top-left .point::before { 
-    top: -6px !important; 
+    top: 0 !important; 
     clip-path: polygon(0% 0%, 100% 0%, 50% 100%); 
 }
 .bottom-right .point::before, 
 .bottom-left .point::before { 
-    bottom: -6px !important; 
+    bottom: 0 !important; 
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%); 
 }
 
@@ -351,10 +346,7 @@ body[data-piece-style] .piece,
 .piece {
     position: relative !important; 
     z-index: 20 !important; 
-    
-    /* الأحجار مرتفعة بمقدار 8 بكسل (تحت الإطارات التي ارتفاعها 12 بكسل) */
     transform: translateZ(8px) !important; 
-    
     border-radius: 50% !important; 
     transform-style: preserve-3d; 
     display: flex !important; 
@@ -364,7 +356,9 @@ body[data-piece-style] .piece,
     max-width: 42px !important; 
     height: auto !important; 
     aspect-ratio: 1 / 1 !important; 
-    margin: 0 auto;
+    
+    /* 🌟 إبعاد خفيف للأحجار عن الجدران 🌟 */
+    margin: 2px auto !important; 
     
     border: 2px solid #e0b953 !important; 
 }
