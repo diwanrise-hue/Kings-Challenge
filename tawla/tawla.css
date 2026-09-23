@@ -135,7 +135,7 @@ body {
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
 
-/* --- 2. الطاولة (نظام الصندوقين المنفصلين) --- */
+/* --- 2. الطاولة (نظام الصندوقين مع زوايا حادة وقطع معدنية زاوية مزودة بـ 3 براغي) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -149,13 +149,12 @@ body {
     border-image: none !important;
     outline: none !important;
     
-    /* حشوة للأعلى والأسفل، وفجوة 2px في المنتصف */
     padding: 14px 0 !important;
     gap: 0 2px !important; 
     
-    border-radius: 12px !important;
+    /* زوايا الطاولة العامة حادة */
+    border-radius: 4px !important;
     
-    /* 🌟 التعديل: لون خشبي صافٍ وصلب 100% (بدون خطوط وبدون شفافية) 🌟 */
     background-color: #2b1107 !important;
     background-image: radial-gradient(ellipse at center, #9e5025 0%, #7d3515 40%, #41190c 80%, #2b1107 100%) !important;
         
@@ -168,7 +167,7 @@ body {
     z-index: 1; 
 }
 
-/* 📦 الإطار الأيسر (الصندوق الأول) 📦 */
+/* 📦 الإطار الأيسر (الصندوق الأول - زوايا حادة + قطع ذهبية زاوية بـ 3 براغي) 📦 */
 #tawla-board::before {
     content: '' !important;
     position: absolute !important;
@@ -178,14 +177,75 @@ body {
     transform: translateZ(4px) !important; 
     z-index: 2 !important; 
     
-    /* 🌟 استرجاع الإطار البني الفاتح النظيف 🌟 */
     border: 12px solid #a67345 !important;
-    border-radius: 12px !important;
+    /* 🌟 زوايا حادة تماماً للإطار الخارجي 🌟 */
+    border-radius: 4px !important; 
     box-sizing: border-box !important;
     
-    /* 🌟 استرجاع الظل الداخلي الكلاسيكي للعمق 🌟 */
+    /* 🌟 القطع المعدنية الذهبية في الزوايا الأربع + 3 براغي لكل زاوية 🌟 */
+    background-image: 
+        /* الزاوية العلوية اليسرى (زاوية مثلثية معدنية + 3 براغي) */
+        linear-gradient(135deg, #d4af37 20px, transparent 20px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        
+        /* الزاوية السفلية اليسرى */
+        linear-gradient(225deg, #d4af37 20px, transparent 20px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        
+        /* العمق الداخلي للإطار */
+        radial-gradient(transparent, transparent);
+
+    background-position: 
+        0 0, 5px 6px, 14px 6px, 6px 14px,     /* زاوية علوية يسرى وبراغيها */
+        0 100%, 5px calc(100% - 6px), 14px calc(100% - 6px), 6px calc(100% - 14px); /* زاوية سفلية يسرى وبراغيها */
+
+    background-repeat: no-repeat;
+    
     box-shadow: inset 0 0 40px rgba(0,0,0,0.95), inset 0 2px 6px rgba(255,255,255,0.05) !important; 
 }
+
+/* 📦 الإطار الأيمن (الصندوق الثاني - زوايا حادة + قطع ذهبية زاوية بـ 3 براغي) 📦 */
+#tawla-board::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; bottom: 0 !important; right: 0 !important;
+    width: calc(50% - 1px) !important; 
+    pointer-events: none !important; 
+    transform: translateZ(4px) !important; 
+    z-index: 2 !important; 
+    
+    border: 12px solid #a67345 !important;
+    /* 🌟 زوايا حادة تماماً للإطار الخارجي 🌟 */
+    border-radius: 4px !important; 
+    box-sizing: border-box !important;
+    
+    /* 🌟 القطع المعدنية الذهبية في الزوايا الأربع اليمنى + 3 براغي لكل زاوية 🌟 */
+    background-image: 
+        /* الزاوية العلوية اليمنى */
+        linear-gradient(225deg, #d4af37 20px, transparent 20px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        
+        /* الزاوية السفلية اليمنى */
+        linear-gradient(315deg, #d4af37 20px, transparent 20px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px),
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px);
+
+    background-position: 
+        100% 0, calc(100% - 5px) 6px, calc(100% - 14px) 6px, calc(100% - 6px) 14px,     /* زاوية علوية يمنى وبراغيها */
+        100% 100%, calc(100% - 5px) calc(100% - 6px), calc(100% - 14px) calc(100% - 6px), calc(100% - 6px) calc(100% - 14px); /* زاوية سفلية يمنى وبراغيها */
+
+    background-repeat: no-repeat;
+    
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.95), inset 0 2px 6px rgba(255,255,255,0.05) !important; 
+}
+
 
 /* 📦 الإطار الأيمن (الصندوق الثاني) 📦 */
 #tawla-board::after {
