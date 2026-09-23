@@ -136,7 +136,6 @@ body {
 /* ========================================== */
 
 /* --- 2. الطاولة (نظام الصندوقين المنفصلين) --- */
-/* --- 2. الطاولة (نظام الصندوقين المنفصلين) --- */
 #tawla-board {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -150,14 +149,11 @@ body {
     border-image: none !important;
     outline: none !important;
     
-    /* حشوة 14px للأعلى والأسفل، وفجوة 2px في المنتصف */
     padding: 14px 0 !important;
-    gap: 0 2px !important; 
+    gap: 0 2px !important; /* الفجوة بقيت 2 بكسل كما طلبت */
     
-    /* 🌟 زوايا حادة 90 درجة للطاولة الأساسية 🌟 */
     border-radius: 0 !important;
     
-    /* إضاءة خشبية دافئة وواسعة في المنتصف */
     background-color: #4a2717 !important;
     background-image: 
         radial-gradient(ellipse at center, rgba(165, 85, 45, 0.85) 0%, rgba(135, 65, 35, 0.8) 40%, rgba(65, 25, 12, 0.9) 80%, #2b1107 100%),
@@ -177,18 +173,13 @@ body {
     content: '' !important;
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; left: 0 !important;
-    
-    /* النصف ناقص نصف الفجوة (1px) */
     width: calc(50% - 1px) !important; 
-    
     pointer-events: none !important; 
     transform: translateZ(4px) !important; 
     z-index: 2 !important; 
     
-    /* الإطار البني الفاتح */
-    border: 12px solid #a67345 !important;
-    
-    /* 🌟 زوايا حادة 90 درجة للإطار الأيسر 🌟 */
+    /* 🌟 لون الإطار الجديد المأخوذ من صورتك (بدون تغيير الحجم) 🌟 */
+    border: 12px solid #733b1d !important;
     border-radius: 0 !important;
     box-sizing: border-box !important;
     
@@ -200,18 +191,13 @@ body {
     content: '' !important;
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; right: 0 !important;
-    
-    /* النصف ناقص نصف الفجوة (1px) */
     width: calc(50% - 1px) !important; 
-    
     pointer-events: none !important; 
     transform: translateZ(4px) !important; 
     z-index: 2 !important; 
     
-    /* الإطار البني الفاتح */
-    border: 12px solid #a67345 !important;
-    
-    /* 🌟 زوايا حادة 90 درجة للإطار الأيمن 🌟 */
+    /* 🌟 لون الإطار الجديد المأخوذ من صورتك (بدون تغيير الحجم) 🌟 */
+    border: 12px solid #733b1d !important;
     border-radius: 0 !important;
     box-sizing: border-box !important;
     
@@ -226,16 +212,14 @@ body {
     width: 100%; 
     height: 100%; 
     margin: 0 !important; 
-    
-    /* 🌟 استرجاع الحشوة الجانبية (14px) 🌟 */
     padding: 0 14px !important; 
-    
     position: relative; 
     background: transparent !important; 
     z-index: 10 !important; 
     box-sizing: border-box !important; 
 }
 .board-quadrant::before, .board-quadrant::after { display: none !important; }
+
 
 /* --- 3. الفاصل الوسطي (يربط بين الصندوقين) --- */
 .tawla-bar {
@@ -245,75 +229,76 @@ body {
     top: 0 !important; 
     bottom: 0 !important; 
     
-    /* عرض الفاصل (الفراغ بين الإطارين) */
+    /* 🌟 عرض الفاصل (2 بكسل) 🌟 */
     width: 2px !important; 
     
-    background: transparent !important;
+    /* 🌟 شق أسود عميق جداً يوحي بوجود فصل حقيقي بين الخشبتين 🌟 */
+    background: linear-gradient(to right, rgba(0,0,0,0.9), #000 50%, rgba(0,0,0,0.9)) !important;
     border: none !important; 
-    box-shadow: none !important;
+    box-shadow: inset 0 0 5px #000 !important;
     z-index: 110 !important; 
 }
 
-/* 🔩 المفصلات المعدنية المسطحة (تصميم مفصلة باب مع 4 براغي) 🔩 */
+/* 🔩 المفصلات المعدنية الواقعية (4 براغي + خط طي) 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
     position: absolute !important; 
     left: 50% !important; 
+    transform: translateX(-50%) translateZ(10px) !important;
     
-    /* رفع المفصلة فوق الإطارات الخشبية */
-    transform: translateX(-50%) translateZ(12px) !important;
+    /* 🌟 زيادة الارتفاع لتبدو واقعية 🌟 */
+    width: 22px !important; 
+    height: 36px !important; 
     
-    /* 🌟 أبعاد المفصلة (مسطحة وعريضة قليلاً لتمسك الإطارين) 🌟 */
-    width: 26px !important; 
-    height: 22px !important; 
+    background-color: #a8a08f !important;
     
-    /* 🌟 رسم البراغي والفاصل باستخدام CSS Magic 🌟 */
-    background-color: #b88344 !important;
+    /* 🌟 رسم البراغي وخط المفصلة باستخدام CSS Magic 🌟 */
     background-image: 
-        /* 1. برغي أعلى اليسار */
-        radial-gradient(circle, #1a0f05 40%, rgba(255,255,255,0.3) 80%, transparent 90%),
-        /* 2. برغي أسفل اليسار */
-        radial-gradient(circle, #1a0f05 40%, rgba(255,255,255,0.3) 80%, transparent 90%),
-        /* 3. برغي أعلى اليمين */
-        radial-gradient(circle, #1a0f05 40%, rgba(255,255,255,0.3) 80%, transparent 90%),
-        /* 4. برغي أسفل اليمين */
-        radial-gradient(circle, #1a0f05 40%, rgba(255,255,255,0.3) 80%, transparent 90%),
-        /* 5. خط الطي في منتصف المفصلة */
-        linear-gradient(to right, transparent 46%, #2b1706 46%, #2b1706 54%, transparent 54%),
-        /* 6. لون النحاس/المعدن الأساسي */
-        linear-gradient(to bottom, #d6a161 0%, #b88344 50%, #8f5a23 100%) !important;
-    
-    /* أحجام الطبقات (البراغي حجمها 4 بكسل) */
+        /* خط الطي الأوسط */
+        linear-gradient(to right, transparent 46%, #333 46%, #111 54%, transparent 54%),
+        /* برغي أعلى اليسار (شق + رأس البرغي) */
+        linear-gradient(45deg, transparent 40%, #111 40%, #111 60%, transparent 60%),
+        radial-gradient(circle, #cfc9bb 40%, #444 70%, transparent 75%),
+        /* برغي أسفل اليسار (شق + رأس البرغي) */
+        linear-gradient(-30deg, transparent 40%, #111 40%, #111 60%, transparent 60%),
+        radial-gradient(circle, #cfc9bb 40%, #444 70%, transparent 75%),
+        /* برغي أعلى اليمين (شق + رأس البرغي) */
+        linear-gradient(10deg, transparent 40%, #111 40%, #111 60%, transparent 60%),
+        radial-gradient(circle, #cfc9bb 40%, #444 70%, transparent 75%),
+        /* برغي أسفل اليمين (شق + رأس البرغي) */
+        linear-gradient(-60deg, transparent 40%, #111 40%, #111 60%, transparent 60%),
+        radial-gradient(circle, #cfc9bb 40%, #444 70%, transparent 75%),
+        /* لون وملمس المعدن العتيق */
+        linear-gradient(to right, #cfc9bb 0%, #a8a08f 20%, #827b6c 80%, #5c5548 100%) !important;
+        
     background-size: 
-        4px 4px, 
-        4px 4px, 
-        4px 4px, 
-        4px 4px, 
-        100% 100%, 
+        100% 100%,
+        6px 6px, 6px 6px, /* أحجام البراغي */
+        6px 6px, 6px 6px,
+        6px 6px, 6px 6px,
+        6px 6px, 6px 6px,
         100% 100% !important;
         
-    /* أماكن البراغي بدقة متناهية في الزوايا الأربع */
+    /* تحديد أماكن البراغي بدقة متناهية في الزوايا */
     background-position: 
-        3px 3px,   /* أعلى يسار */
-        3px 15px,  /* أسفل يسار */
-        19px 3px,  /* أعلى يمين */
-        19px 15px, /* أسفل يمين */
-        center, 
+        center,
+        2px 3px, 2px 3px,   /* أعلى اليسار */
+        2px 27px, 2px 27px, /* أسفل اليسار */
+        14px 3px, 14px 3px, /* أعلى اليمين */
+        14px 27px, 14px 27px, /* أسفل اليمين */
         center !important;
         
     background-repeat: no-repeat !important;
     
-    /* حواف شبه حادة لتبدو كقطعة معدنية حقيقية */
-    border-radius: 3px !important; 
-    border: 1px solid #4a2b10 !important;
-    border-top: 1px solid #ffe3ad !important; /* إضاءة على الحافة العلوية للمعدن */
+    border-radius: 4px !important; 
+    border: 1px solid #4a453d !important;
     
-    box-shadow: 0 4px 8px rgba(0,0,0,0.8), inset 0 0 2px rgba(255,255,255,0.3) !important; 
+    box-shadow: 0 5px 12px rgba(0,0,0,0.9), inset 0 1px 2px rgba(255,255,255,0.6) !important; 
     z-index: 120 !important;
 }
-.tawla-bar::before { top: 15% !important; } 
-.tawla-bar::after { bottom: 15% !important; }
+.tawla-bar::before { top: 12% !important; } 
+.tawla-bar::after { bottom: 12% !important; }
 
 /* --- 4. الأرباع والمثلثات --- */
 .point { 
