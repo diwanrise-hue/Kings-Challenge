@@ -330,51 +330,58 @@ body {
 }
 
 
-/* --- 5. الأحجار (إبراز الحواف والظلال) --- */
+/* --- 5. الأحجار (أحجار مسطحة كلاسيكية متلاصقة) --- */
 body[data-piece-style] .piece, 
 .piece {
     position: relative !important; 
     z-index: 20 !important; 
-    transform: translateZ(4px) !important; 
+    
+    transform: translateZ(2px) !important; /* بروز خفيف جداً */
     border-radius: 50% !important; 
     transform-style: preserve-3d; 
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important; 
-    width: 85% !important; 
-    max-width: 40px !important; 
+    
+    /* 🌟 تكبير الحجم وتقليل الفراغات لتصبح متلاصقة 🌟 */
+    width: 95% !important; 
+    max-width: 44px !important; 
     height: auto !important; 
     aspect-ratio: 1 / 1 !important; 
-    margin: 2px auto !important; 
     
-    /* خط أسود ناعم جداً يحمي الحافة الخارجية */
-    border: 1px solid rgba(0, 0, 0, 0.6) !important; 
+    /* 🌟 إزالة الفراغ العمودي بين الأحجار 🌟 */
+    margin: 0 auto !important; 
+    
+    border: 1px solid rgba(0, 0, 0, 0.8) !important; /* حافة دقيقة */
+    box-sizing: border-box !important;
 }
 
-/* ⚪ الحجر الأبيض (عاجي) */
+/* ⚪ الحجر الأبيض (مسطح من الأعلى) */
 body[data-piece-style] .piece.white, 
 .piece.white {
-    background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e8e6e1 50%, #c4c1b9 100%) !important;
-    /* إضاءة ناصعة على الحافة + ظل محيطي يعزله عن الخلفية */
+    /* 🌟 لون صلب بدلاً من التدرج الدائري ليعطي شكلاً مسطحاً 🌟 */
+    background: #eceadd !important;
+    
+    /* 🌟 ظلال توحي بحافة (Rim) مستوية ومسطحة من الأعلى 🌟 */
     box-shadow: 
-        inset 0 0 0 1.5px rgba(255, 255, 255, 0.7), 
-        inset 2px 4px 6px rgba(255,255,255,0.9), 
-        inset -2px -4px 6px rgba(0,0,0,0.3), 
-        0 0 5px rgba(0,0,0,0.85), 
-        0 4px 6px rgba(0,0,0,0.5) !important; 
+        inset 0 3px 3px rgba(255, 255, 255, 1),      /* إضاءة الحافة العلوية */
+        inset 0 -3px 4px rgba(0, 0, 0, 0.15),        /* ظل الحافة السفلية */
+        inset 0 0 0 2px rgba(200, 190, 170, 0.5),    /* حلقة داخلية خفيفة */
+        0 2px 3px rgba(0, 0, 0, 0.6) !important;     /* ظل السقوط */
 }
 
-/* ⚫ الحجر الأسود (أبنوس) */
+/* ⚫ الحجر الأسود (مسطح من الأعلى) */
 body[data-piece-style] .piece.black, 
 .piece.black {
-    background: radial-gradient(circle at 30% 30%, #4a4a4a 0%, #262626 50%, #0a0a0a 100%) !important;
-    /* إضاءة خفيفة على الحافة + ظل محيطي يعزله عن الخلفية */
+    /* 🌟 لون صلب ليعطي شكلاً مسطحاً 🌟 */
+    background: #1c1c1c !important;
+    
+    /* 🌟 ظلال توحي بحافة (Rim) مستوية ومسطحة من الأعلى 🌟 */
     box-shadow: 
-        inset 0 0 0 1.5px rgba(255, 255, 255, 0.25), 
-        inset 2px 3px 5px rgba(255,255,255,0.3), 
-        inset -2px -4px 6px rgba(0,0,0,0.9), 
-        0 0 5px rgba(0,0,0,0.85), 
-        0 4px 6px rgba(0,0,0,0.5) !important; 
+        inset 0 2px 2px rgba(255, 255, 255, 0.15),   /* إضاءة الحافة العلوية */
+        inset 0 -3px 4px rgba(0, 0, 0, 0.6),         /* ظل الحافة السفلية */
+        inset 0 0 0 2px rgba(0, 0, 0, 0.8),          /* حلقة داخلية داكنة */
+        0 2px 3px rgba(0, 0, 0, 0.6) !important;     /* ظل السقوط */
 }
 
 /* 🚫 إخفاء الحلقة الذهبية الداخلية تماماً */
@@ -387,11 +394,12 @@ body[data-piece-style] .piece::before,
 .piece.selected { 
     outline: none !important;
     box-shadow: 
-        0 0 15px rgba(48, 209, 88, 0.6), 
-        inset -2px -4px 6px rgba(0,0,0,0.5),
-        0 8px 12px rgba(0,0,0,0.6) !important; 
+        0 0 12px rgba(48, 209, 88, 0.8), 
+        inset 0 2px 2px rgba(255,255,255,0.5),
+        0 5px 8px rgba(0,0,0,0.6) !important; 
     transform: translateZ(12px) scale(1.05) !important; 
 }
+
 
 /* --- 6. النرد (عظم عتيق مع نقاط حمراء/ذهبية) --- */
 #dice-container { 
