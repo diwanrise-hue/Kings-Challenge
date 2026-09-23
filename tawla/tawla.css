@@ -178,18 +178,18 @@ body {
     z-index: 15 !important;
     box-sizing: border-box !important;
 
-    border-style: solid !important;
-    border-width: 12px !important;
+    /* إطار احتياطي */
+    border: 12px solid #733b1d !important;
     
-    /* 🌟 لون موحد (#733b1d) مع اختلاف 2% فقط لإجبار المتصفح على رسم خطوط الزوايا 🌟 */
-    border-color: #783d1e #70391b #693519 #753c1d !important; 
+    /* 🌟 تقنية SVG: لون موحد 100% مع خطوط قص (شقوق) واضحة جداً في الزوايا 🌟 */
+    border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Crect width='30' height='30' fill='%23733b1d'/%3E%3Cline x1='0' y1='0' x2='11' y2='11' stroke='%231a0802' stroke-width='1.5'/%3E%3Cline x1='30' y1='0' x2='19' y2='11' stroke='%231a0802' stroke-width='1.5'/%3E%3Cline x1='0' y1='30' x2='11' y2='19' stroke='%231a0802' stroke-width='1.5'/%3E%3Cline x1='30' y1='30' x2='19' y2='19' stroke='%231a0802' stroke-width='1.5'/%3E%3C/svg%3E") 10 stretch !important;
 
-    /* 🌟 جدران داخلية صلبة لعمق حقيقي بدون غيوم ضبابية 🌟 */
+    /* جدران داخلية صلبة لعمق حقيقي */
     box-shadow:
-        0 10px 20px rgba(0, 0, 0, 0.65),       /* ظل خارجي */
-        0 0 0 1px rgba(20, 7, 2, 0.85),        /* خط أسود خارجي نحيف */
-        inset 4px 4px 0px rgba(0, 0, 0, 0.8),  /* جدار داخلي مظلم (عمق وحفر) */
-        inset -2px -2px 0px rgba(255, 255, 255, 0.1) !important; /* انعكاس ضوء داخلي */
+        0 10px 20px rgba(0, 0, 0, 0.65),       
+        0 0 0 1px rgba(20, 7, 2, 0.85),        
+        inset 4px 4px 0px rgba(0, 0, 0, 0.8),  
+        inset -2px -2px 0px rgba(255, 255, 255, 0.1) !important; 
 
     border-radius: 2px !important;
     backface-visibility: hidden !important;
@@ -206,13 +206,13 @@ body {
     z-index: 15 !important;
     box-sizing: border-box !important;
 
-    border-style: solid !important;
-    border-width: 12px !important;
+    /* إطار احتياطي */
+    border: 12px solid #733b1d !important;
     
-    /* 🌟 لون موحد (#733b1d) مع اختلاف 2% فقط لإجبار المتصفح على رسم خطوط الزوايا 🌟 */
-    border-color: #783d1e #693519 #693519 #70391b !important; 
+    /* 🌟 تقنية SVG: لون موحد 100% مع خطوط قص (شقوق) واضحة جداً في الزوايا 🌟 */
+    border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Crect width='30' height='30' fill='%23733b1d'/%3E%3Cline x1='0' y1='0' x2='11' y2='11' stroke='%231a0802' stroke-width='1.5'/%3E%3Cline x1='30' y1='0' x2='19' y2='11' stroke='%231a0802' stroke-width='1.5'/%3E%3Cline x1='0' y1='30' x2='11' y2='19' stroke='%231a0802' stroke-width='1.5'/%3E%3Cline x1='30' y1='30' x2='19' y2='19' stroke='%231a0802' stroke-width='1.5'/%3E%3C/svg%3E") 10 stretch !important;
 
-    /* 🌟 جدران داخلية صلبة لعمق حقيقي بدون غيوم ضبابية 🌟 */
+    /* جدران داخلية صلبة لعمق حقيقي */
     box-shadow:
         0 10px 20px rgba(0, 0, 0, 0.65),
         0 0 0 1px rgba(20, 7, 2, 0.85),
