@@ -224,8 +224,7 @@ body {
 }
 .board-quadrant::before, .board-quadrant::after { display: none !important; }
 
-
-/* --- 3. الفاصل الوسطي (يربط بين الصندوقين) --- */
+/* --- 3. الفاصل الوسطي (مفصلات أبواب معدنية مسطحة مع 4 براغي) --- */
 .tawla-bar {
     position: absolute !important; 
     left: 50% !important; 
@@ -233,38 +232,53 @@ body {
     top: 0 !important; 
     bottom: 0 !important; 
     
-    /* عرض يطابق الفجوة تماماً (2px) */
     width: 2px !important; 
-    
     background: transparent !important;
     border: none !important; 
     box-shadow: none !important;
     z-index: 110 !important; 
 }
 
-/* 🔩 القطع المعدنية المسطحة 🔩 */
+/* 🔩 مفصلات الأبواب المسطحة المزودة بـ 4 براغي 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
     position: absolute !important; 
     left: 50% !important; 
+    transform: translateX(-50%) translateZ(12px) !important;
     
-    transform: translateX(-50%) translateZ(10px) !important;
+    /* 🌟 شكل مستطيل مسطح يربط بين الإطارين 🌟 */
+    width: 14px !important; 
+    height: 32px !important; 
     
-    width: 12px !important; 
-    height: 18px !important; 
-    
-    background: linear-gradient(to bottom, #ffe47a 0%, #d4af37 40%, #b8860b 100%) !important;
+    /* تدرج معدني ذهبي فاخر */
+    background: linear-gradient(135deg, #ffe47a 0%, #d4af37 50%, #9c730a 100%) !important;
     
     border-radius: 2px !important; 
-    border: 1px solid #5c4300 !important;
-    border-top: 1px solid #fff9d6 !important;
+    border: 1px solid #4a3500 !important;
     
-    box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 0 2px rgba(255,255,255,0.4) !important; 
+    /* 🌟 حيلة البراغي الأربعة باستخدام radial-gradient (نقط سوداء صغيرة في الزوايا) 🌟 */
+    background-image: 
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px), /* البرغي العلوي الأيمن */
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px), /* البرغي العلوي الأيسر */
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px), /* البرغي السفلي الأيمن */
+        radial-gradient(circle, #261b00 1.5px, transparent 1.8px); /* البرغي السفلي الأيسر */
+    
+    background-position: 
+        3px 4px,   /* إحداثيات البرغي 1 */
+        11px 4px,  /* إحداثيات البرغي 2 */
+        3px 26px,  /* إحداثيات البرغي 3 */
+        11px 26px; /* إحداثيات البرغي 4 */
+        
+    background-repeat: no-repeat;
+    
+    /* ظل واقعي يوضح أن المفصلة بارزة ومثبتة فوق الخشب */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.6) !important; 
     z-index: 120 !important;
 }
-.tawla-bar::before { top: 15% !important; } 
-.tawla-bar::after { bottom: 15% !important; }
+
+.tawla-bar::before { top: 12% !important; } 
+.tawla-bar::after { bottom: 12% !important; }
 
 
 /* --- 4. الأرباع والمثلثات --- */
