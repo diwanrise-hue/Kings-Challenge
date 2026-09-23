@@ -134,7 +134,6 @@ body {
 /* ========================================== */
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
-
 /* --- 2. الطاولة (نظام الصندوقين المنفصلين) --- */
 #tawla-board {
     display: grid !important;
@@ -146,13 +145,13 @@ body {
     margin: 0 auto !important;
     
     border: none !important;
-    border-image: none !important;
     outline: none !important;
     
+    /* 🌟 تأكيد الحشوة لكي لا تصطدم المثلثات بالإطار 🌟 */
     padding: 14px 0 !important;
-    gap: 0 2px !important; /* الفجوة بقيت 2 بكسل كما طلبت */
+    gap: 0 2px !important; 
     
-    border-radius: 0 !important;
+    border-radius: 2px !important;
     
     background-color: #4a2717 !important;
     background-image: 
@@ -167,6 +166,63 @@ body {
     box-shadow: 0 20px 40px rgba(0,0,0,0.9) !important;
     z-index: 1; 
 }
+
+/* 📦 الإطار الأيسر */
+#tawla-board::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; bottom: 0 !important; left: 0 !important;
+    width: calc(50% - 1px) !important;
+    pointer-events: none !important;
+    transform: translateZ(4px) !important;
+    z-index: 15 !important;
+    box-sizing: border-box !important;
+
+    /* 🌟 إطار صلب وآمن 100% بألوان الخشب الملكي 🌟 */
+    border-style: solid !important;
+    border-width: 12px !important;
+    /* الترتيب: أعلى (إضاءة) - يمين (ظل) - أسفل (ظل داكن) - يسار (إضاءة خفيفة) */
+    border-color: #8b4823 #3b1b0d #1f0d06 #6e3218 !important; 
+
+    /* 🌟 جدران داخلية صلبة لعمق حقيقي بدون غيوم ضبابية 🌟 */
+    box-shadow:
+        0 10px 20px rgba(0, 0, 0, 0.65),       /* ظل خارجي */
+        0 0 0 1px rgba(20, 7, 2, 0.85),        /* خط أسود خارجي نحيف */
+        inset 4px 4px 0px rgba(0, 0, 0, 0.8),  /* جدار داخلي مظلم (عمق وحفر) */
+        inset -2px -2px 0px rgba(255, 255, 255, 0.1) !important; /* انعكاس ضوء داخلي */
+
+    border-radius: 2px !important;
+    backface-visibility: hidden !important;
+}
+
+/* 📦 الإطار الأيمن */
+#tawla-board::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; bottom: 0 !important; right: 0 !important;
+    width: calc(50% - 1px) !important;
+    pointer-events: none !important;
+    transform: translateZ(4px) !important;
+    z-index: 15 !important;
+    box-sizing: border-box !important;
+
+    /* 🌟 إطار صلب وآمن 100% بألوان الخشب الملكي 🌟 */
+    border-style: solid !important;
+    border-width: 12px !important;
+    /* الترتيب: أعلى (إضاءة) - يمين (ظل داكن) - أسفل (ظل داكن) - يسار (ظل) */
+    border-color: #8b4823 #1f0d06 #1f0d06 #3b1b0d !important; 
+
+    /* 🌟 جدران داخلية صلبة لعمق حقيقي بدون غيوم ضبابية 🌟 */
+    box-shadow:
+        0 10px 20px rgba(0, 0, 0, 0.65),
+        0 0 0 1px rgba(20, 7, 2, 0.85),
+        inset 4px 4px 0px rgba(0, 0, 0, 0.8),
+        inset -2px -2px 0px rgba(255, 255, 255, 0.1) !important;
+
+    border-radius: 2px !important;
+    backface-visibility: hidden !important;
+}
+
 
 
 .board-quadrant { 
