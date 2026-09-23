@@ -136,10 +136,7 @@ body {
 /* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
 /* ========================================== */
 
-/* ========================================== */
-/* 👑 هندسة الساحة: AAA Premium Fantasy Edition 👑 */
-/* ========================================== */
-
+/* --- 2. الطاولة (نظام الصندوقين المنفصلين) --- */
 /* --- 2. الطاولة (نظام الصندوقين المنفصلين) --- */
 #tawla-board {
     display: grid !important;
@@ -154,8 +151,8 @@ body {
     border-image: none !important;
     outline: none !important;
     
-    /* 🌟 زيادة الحشوة العلوية والسفلية إلى 18px لضغط مساحة اللعب داخل الإطارات 🌟 */
-    padding: 18px 14px !important;
+    /* 🌟 التعديل: 14 بكسل للأعلى والأسفل، و 0 بكسل لليمين واليسار 🌟 */
+    padding: 14px 0 !important;
     gap: 0 2px !important; 
     
     border-radius: 12px !important;
@@ -174,12 +171,14 @@ body {
     z-index: 1; 
 }
 
+
 /* 📦 الإطار الأيسر (الصندوق الأول) 📦 */
 #tawla-board::before {
     content: '' !important;
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; left: 0 !important;
     
+    /* 🌟 النصف ناقص نصف الفجوة (1 بكسل) 🌟 */
     width: calc(50% - 1px) !important; 
     
     pointer-events: none !important; 
@@ -199,6 +198,7 @@ body {
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; right: 0 !important;
     
+    /* 🌟 النصف ناقص نصف الفجوة (1 بكسل) 🌟 */
     width: calc(50% - 1px) !important; 
     
     pointer-events: none !important; 
@@ -212,7 +212,7 @@ body {
     box-shadow: inset 0 0 40px rgba(0,0,0,0.95), inset 0 2px 6px rgba(255,255,255,0.05) !important; 
 }
 
-/* (القسم 3 يبقى كما هو بدون تعديل) */
+
 .board-quadrant { 
     display: flex; 
     justify-content: space-between; 
@@ -220,38 +220,56 @@ body {
     width: 100%; 
     height: 100%; 
     margin: 0 !important; 
-    padding: 0 !important; 
+    
+    /* 🌟 السر هنا: حشوة داخلية 14px من اليمين واليسار لتدفع المثلثات داخل الإطار البني 🌟 */
+    padding: 0 14px !important; 
+    
     position: relative; 
     background: transparent !important; 
     z-index: 10 !important; 
+    
+    /* 🌟 ضروري جداً لكي يحسب المتصفح الحشوة من ضمن الحجم الكلي ولا يكسر التصميم 🌟 */
+    box-sizing: border-box !important; 
 }
 .board-quadrant::before, .board-quadrant::after { display: none !important; }
 
+
+/* --- 3. الفاصل الوسطي (يربط بين الصندوقين) --- */
 .tawla-bar {
     position: absolute !important; 
     left: 50% !important; 
     transform: translateX(-50%) translateZ(6px) !important; 
     top: 0 !important; 
     bottom: 0 !important; 
+    
+    /* 🌟 عرض الفاصل أصبح 2 بكسل فقط 🌟 */
     width: 2px !important; 
+    
+    /* 🌟 إزالة اللون الأسود والظل ليختفي الفراغ تماماً 🌟 */
     background: transparent !important;
     border: none !important; 
     box-shadow: none !important;
     z-index: 110 !important; 
 }
 
+/* 🔩 القطع المعدنية المسطحة (لم يتم المساس بحجمها) 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
     position: absolute !important; 
     left: 50% !important; 
+    
     transform: translateX(-50%) translateZ(10px) !important;
+    
     width: 12px !important; 
     height: 18px !important; 
+    
     background: linear-gradient(to bottom, #ffe47a 0%, #d4af37 40%, #b8860b 100%) !important;
+    
     border-radius: 2px !important; 
     border: 1px solid #5c4300 !important;
     border-top: 1px solid #fff9d6 !important;
+    
     box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 0 2px rgba(255,255,255,0.4) !important; 
     z-index: 120 !important;
 }
@@ -264,21 +282,13 @@ body {
     width: 16.66% !important; 
     height: 100% !important; 
     margin: 0 !important; 
-    
-    /* 🌟 تفعيل Box-sizing لضمان عمل الحشوة الداخلية 🌟 */
-    box-sizing: border-box !important;
-    
+    padding: 0 !important;
     background: transparent !important; 
     border: none !important;
     filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8)); 
     z-index: 5 !important; 
     transform: translateZ(0px) !important; 
 }
-
-/* 🌟 إضافة حشوة لإبعاد الأحجار عن الإطارات العلوية والسفلية 🌟 */
-.top-right .point, .top-left .point { padding-top: 6px !important; }
-.bottom-right .point, .bottom-left .point { padding-bottom: 6px !important; }
-
 .point::before { 
     content: ''; 
     position: absolute; 
@@ -291,15 +301,15 @@ body {
     margin: 0 !important;
 }
 
-/* 🌟 إزاحة قواعد المثلثات لتبدأ بعد الإطار بـ 4 بكسل 🌟 */
+/* 🌟 تبدأ المثلثات من حافة الخشب الداخلي تماماً 🌟 */
 .top-right .point::before, 
 .top-left .point::before { 
-    top: 4px !important; 
+    top: 0 !important; 
     clip-path: polygon(0% 0%, 100% 0%, 50% 100%); 
 }
 .bottom-right .point::before, 
 .bottom-left .point::before { 
-    bottom: 4px !important; 
+    bottom: 0 !important; 
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%); 
 }
 
@@ -335,13 +345,12 @@ body[data-piece-style] .piece,
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important; 
-    
-    /* 🌟 تصغير بسيط للأحجار لتتسع بشكل مريح وتجنب الاحتكاك 🌟 */
-    width: 82% !important; 
-    max-width: 38px !important; 
+    /* 🌟 حجم مناسب للأحجار لكي لا تلتصق بالحواف 🌟 */
+    width: 85% !important; 
+    max-width: 40px !important; 
     height: auto !important; 
     aspect-ratio: 1 / 1 !important; 
-    margin: 1px auto !important; 
+    margin: 2px auto !important; 
     
     border: 2px solid #e0b953 !important; 
 }
@@ -399,7 +408,6 @@ body[data-piece-style] .piece::before,
         0 20px 30px rgba(0,0,0,0.9) !important; 
     transform: translateZ(20px) scale(1.1) !important; 
 }
-
 
 /* --- 6. النرد (عظم عتيق مع نقاط حمراء/ذهبية) --- */
 #dice-container { 
