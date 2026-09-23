@@ -150,10 +150,9 @@ body {
     border-image: none !important;
     outline: none !important;
     
-    /* 🌟 حشوة 14px لتدفع المثلثات للداخل بعيداً عن الإطار البني الجديد 🌟 */
-    /* 🌟 فجوة 6px في المنتصف لتجعل الفاصل الوسطي أسمك وأكثر وضوحاً 🌟 */
+    /* 🌟 تقليل الفجوة إلى 2 بكسل فقط (أقل مسافة آمنة) 🌟 */
     padding: 14px 16px !important;
-    gap: 0 6px !important; 
+    gap: 0 2px !important; 
     
     border-radius: 12px !important;
     
@@ -177,19 +176,17 @@ body {
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; left: 0 !important;
     
-    /* النصف ناقص نصف الفجوة (3px) */
-    width: calc(50% - 3px) !important; 
+    /* 🌟 النصف ناقص نصف الفجوة (1 بكسل) 🌟 */
+    width: calc(50% - 1px) !important; 
     
     pointer-events: none !important; 
     transform: translateZ(4px) !important; 
     z-index: 2 !important; 
     
-    /* 🌟 إضافة الإطار البني الفاتح من جميع الجهات 🌟 */
     border: 12px solid #a67345 !important;
     border-radius: 12px !important;
     box-sizing: border-box !important;
     
-    /* ظل داخلي لإعطاء عمق للصندوق */
     box-shadow: inset 0 0 40px rgba(0,0,0,0.95), inset 0 2px 6px rgba(255,255,255,0.05) !important; 
 }
 
@@ -199,19 +196,17 @@ body {
     position: absolute !important;
     top: 0 !important; bottom: 0 !important; right: 0 !important;
     
-    /* النصف ناقص نصف الفجوة (3px) */
-    width: calc(50% - 3px) !important; 
+    /* 🌟 النصف ناقص نصف الفجوة (1 بكسل) 🌟 */
+    width: calc(50% - 1px) !important; 
     
     pointer-events: none !important; 
     transform: translateZ(4px) !important; 
     z-index: 2 !important; 
     
-    /* 🌟 إضافة الإطار البني الفاتح من جميع الجهات 🌟 */
     border: 12px solid #a67345 !important;
     border-radius: 12px !important;
     box-sizing: border-box !important;
     
-    /* ظل داخلي لإعطاء عمق للصندوق */
     box-shadow: inset 0 0 40px rgba(0,0,0,0.95), inset 0 2px 6px rgba(255,255,255,0.05) !important; 
 }
 
@@ -239,16 +234,17 @@ body {
     top: 0 !important; 
     bottom: 0 !important; 
     
-    width: 6px !important; 
+    /* 🌟 عرض الفاصل أصبح 2 بكسل فقط 🌟 */
+    width: 2px !important; 
     
-    /* جعل مساحة المنتصف شفافة ليظهر التقاء الإطارين البنيين */
-    background: rgba(0,0,0,0.4) !important;
+    /* 🌟 إزالة اللون الأسود والظل ليختفي الفراغ تماماً 🌟 */
+    background: transparent !important;
     border: none !important; 
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.8) !important;
+    box-shadow: none !important;
     z-index: 110 !important; 
 }
 
-/* 🔩 القطع المعدنية المسطحة (بدون المساس بحجمها السابق) 🔩 */
+/* 🔩 القطع المعدنية المسطحة (لم يتم المساس بحجمها) 🔩 */
 .tawla-bar::before, 
 .tawla-bar::after {
     content: '' !important; 
@@ -257,7 +253,6 @@ body {
     
     transform: translateX(-50%) translateZ(10px) !important;
     
-    /* 🌟 الحجم بقي صغيراً كما طلبت سابقاً 🌟 */
     width: 12px !important; 
     height: 18px !important; 
     
@@ -272,7 +267,6 @@ body {
 }
 .tawla-bar::before { top: 15% !important; } 
 .tawla-bar::after { bottom: 15% !important; }
-
 
 /* --- 4. الأرباع والمثلثات --- */
 .point { 
