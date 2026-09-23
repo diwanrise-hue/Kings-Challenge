@@ -178,11 +178,11 @@ body {
     z-index: 15 !important;
     box-sizing: border-box !important;
 
-    /* 🌟 إطار صلب وآمن 100% بألوان الخشب الملكي 🌟 */
     border-style: solid !important;
     border-width: 12px !important;
-    /* الترتيب: أعلى (إضاءة) - يمين (ظل) - أسفل (ظل داكن) - يسار (إضاءة خفيفة) */
-    border-color: #8b4823 #3b1b0d #1f0d06 #6e3218 !important; 
+    
+    /* 🌟 لون موحد (#733b1d) مع اختلاف 2% فقط لإجبار المتصفح على رسم خطوط الزوايا 🌟 */
+    border-color: #783d1e #70391b #693519 #753c1d !important; 
 
     /* 🌟 جدران داخلية صلبة لعمق حقيقي بدون غيوم ضبابية 🌟 */
     box-shadow:
@@ -206,11 +206,11 @@ body {
     z-index: 15 !important;
     box-sizing: border-box !important;
 
-    /* 🌟 إطار صلب وآمن 100% بألوان الخشب الملكي 🌟 */
     border-style: solid !important;
     border-width: 12px !important;
-    /* الترتيب: أعلى (إضاءة) - يمين (ظل داكن) - أسفل (ظل داكن) - يسار (ظل) */
-    border-color: #8b4823 #1f0d06 #1f0d06 #3b1b0d !important; 
+    
+    /* 🌟 لون موحد (#733b1d) مع اختلاف 2% فقط لإجبار المتصفح على رسم خطوط الزوايا 🌟 */
+    border-color: #783d1e #693519 #693519 #70391b !important; 
 
     /* 🌟 جدران داخلية صلبة لعمق حقيقي بدون غيوم ضبابية 🌟 */
     box-shadow:
