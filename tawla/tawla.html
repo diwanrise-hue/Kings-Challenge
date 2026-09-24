@@ -599,17 +599,10 @@
             <!-- إخفاء إطار الدور القديم نهائياً (لم نعد بحاجة إليه) -->
     <div id="status-area" style="display: none !important;"></div>
     
-        <!-- 🎲 حاوية الطاولة الجديدة بدلاً من شبكة الدامة 🎲 -->
+    <!-- 🎲 حاوية الطاولة الجديدة بدلاً من شبكة الدامة 🎲 -->
     <div class="game-container" style="flex-direction: column;">
         <div id="tawla-board-wrapper" style="position: relative; width: 95vw; max-width: 500px; aspect-ratio: 3 / 4; margin: 0 auto;">
-            
-            <div id="tawla-board">
-                <!-- 🌟 1. صورة الساحة بالمسار والصيغة الصحيحة من المستودع 🌟 -->
-                <img src="storefile/bgs/Ph.webp" class="board-image" alt="لوحة الطاولة">
-                
-                <!-- 🌟 2. شبكة الطاولة التي يجب أن تُحقن بداخلها المثلثات والأحجار 🌟 -->
-                <div class="board-grid" id="board-grid-container"></div>
-            </div> 
+            <div id="tawla-board"></div> 
             
             <!-- 🎲 زر رمي النرد الجديد (يظهر فقط في دور اللاعب) 🎲 -->
             <button id="roll-dice-btn" style="display: none; position: absolute; top: 40%; right: 25%; transform: translate(50%, -50%); z-index: 60;">رمي النرد 🎲</button>
@@ -1893,3 +1886,4 @@
   
 </body>
 </html>
+
