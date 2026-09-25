@@ -7,38 +7,43 @@ const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-C
 
 export const STORE_ITEMS = {
     // ===================================
-    // العناصر الافتراضية الأساسية (ضرورية لعمل اللعبة)
+    // الساحات (الخلفيات)
     // ===================================
     
-    // 🌟 التعديل 1: جعل خلفية المتجر الافتراضية هي صورتك الملكية!
+    // 1. الساحة الافتراضية (Ph.webp)
     'bg_wood': { 
         type: 'bg', isDefault: true, nameAr: 'الطاولة الملكية', nameEn: 'Royal Board',
-        isImage: true, imagePath: 'storefile/bgs/Ph.webp', // مسار الصورة الخاص بك
+        isImage: true, imagePath: 'storefile/bgs/Ph.webp', 
         linkedScore: 'score_default'
     },
 
-    // 🌟 التعديل 2: تنظيف الإطار الكلاسيكي من الأكواد التي تعطل الـ 3D
+    // 2. الساحة الجديدة الأولى (1.webp)
+    'bg_new_1': { 
+        type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
+        isImage: true, imagePath: 'storefile/bgs/1.webp', 
+        linkedScore: 'score_default'
+    },
+
+    // 3. الساحة الجديدة الثانية (2.webp) - جعلناها أسطورية للتميز!
+    'bg_new_2': { 
+        type: 'bg', isDefault: false, cost: 15000, nameAr: 'الساحة الأسطورية', nameEn: 'Legendary Board',
+        isImage: true, imagePath: 'storefile/bgs/2.webp', 
+        isLegendary: true, // هذا سيجعل الكارت يلمع في المتجر
+        linkedScore: 'score_default'
+    },
+
+    // ===================================
+    // الإطارات والأحجار الافتراضية (لا تقم بحذفها)
+    // ===================================
     'fr_classic': { 
         type: 'fr', isDefault: true, nameAr: 'الإطار الملكي المدمج', nameEn: 'Royal Embedded Frame',
         cssBoard: 'border: none; border-image: none;',
         customCSS: `
-            /* إخفاء صورة الـ HTML (إن وجدت) لمنع التكرار والتعارض */
             .board-image { display: none !important; }
-
-            /* تنظيف الحاويات للحفاظ على تأثير 3D الخاص بك */
             .tawla-container, #tawla-board-wrapper {
-                background: transparent !important;
-                border: none !important;
-                padding: 0 !important;
-                box-shadow: none !important;
+                background: transparent !important; border: none !important; padding: 0 !important; box-shadow: none !important;
             }
-
-            #tawla-board { 
-                border: none !important; 
-                background-color: transparent !important;
-                box-sizing: border-box !important;
-                transition: all 0.5s ease; 
-            }
+            #tawla-board { border: none !important; background-color: transparent !important; box-sizing: border-box !important; transition: all 0.5s ease; }
         `
     },
 
