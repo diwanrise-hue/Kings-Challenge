@@ -3055,8 +3055,9 @@ const handleBearOffClick = e => {
             if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
             ui.playSound(sfx.move);
             
-            if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                socketManager.sendMoveToServer(gameState.virtualBoard, gameState.currentTurn, gameState.currentDice);
+           if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
+           socketManager.sendMoveToServer(gameState.selectedPoint, 'bearOff', dest.dieUsed);
+              }
             }
             checkTurnEnd();
         }
