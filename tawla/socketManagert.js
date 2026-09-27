@@ -918,7 +918,7 @@ export const socketManager = {
             if (data.board) gameState.virtualBoard = data.board;
             if (data.turn) gameState.currentTurn = data.turn;
             if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
-            if (data.dice) gameState.dice = data.dice;
+            if (data.dice) gameState.currentDice = data.dice;
             
             gameState.movesWithoutProgress = 0;
             gameState.boardHistoryStr = [];
@@ -998,7 +998,7 @@ export const socketManager = {
             
             gameState.virtualBoard = data.board;
             gameState.currentTurn = data.turn || 'white';
-            gameState.dice = data.dice || [];
+            gameState.currentDice = data.dice || [];
             
             if (typeof window.closeAppModal === 'function') window.closeAppModal('online-modal');
 
@@ -1148,7 +1148,7 @@ export const socketManager = {
 
             gameState.playerColor = gameState.myOnlineColor = data.color;
             gameState.virtualBoard = data.board;
-            gameState.dice = data.dice || [];
+            gameState.currentDice = data.dice || [];
             
             try {
                 if (typeof gameEngine.computeOnlineFlip === 'function') {
@@ -1207,7 +1207,7 @@ export const socketManager = {
             if (!data || !data.updatedBoard) return;
 
             gameState.virtualBoard = data.updatedBoard;
-            if (data.dice) gameState.dice = data.dice;
+            if (data.dice) gameState.currentDice = data.dice;
             
             gameState.currentTurn = data.nextTurn;
             gameState.turnTimeLeft = 45; 
@@ -1577,16 +1577,16 @@ export const socketManager = {
         }
     },
 
-    sendMoveToServer(boardState, nextTurn, diceInfo) {
+     sendMoveToServer(fromPoint, toPoint, dieUsed) {
         if (gameState.isOnlineMode && gameState.onlineRoomID && !gameState.isSpectator) {
             const profile = this._ensureUserProfile(); 
             
             socket.emit('makeMove', { 
                 roomID: String(gameState.onlineRoomID).trim(), 
-                nextTurn: nextTurn, 
                 guestId: profile.id, 
-                updatedBoard: boardState,
-                dice: diceInfo
+                from: fromPoint,
+                to: toPoint,
+                dieUsed: dieUsed
             });
         }
     },
