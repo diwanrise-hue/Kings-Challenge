@@ -153,6 +153,7 @@ window.selectLanguage = function(lang) {
     
     localStorage.setItem('app_lang', currentLang);
     localStorage.setItem('appLang', currentLang);
+    localStorage.setItem('lang_selected_once', 'true'); // ✅ تسجيل أنه أنهى خطوة اللغة
 
     document.documentElement.lang = currentLang;
     document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
@@ -171,6 +172,14 @@ window.selectLanguage = function(lang) {
     }
 
     closeLangModal();
+
+    // 🚀 التوجيه التلقائي: إذا لم يكن لديه حساب بعد اختيار اللغة، افتح نافذة التسجيل فوراً!
+    let globalProfile = localStorage.getItem('hub_user_profile');
+    if (!globalProfile) {
+        setTimeout(() => {
+            document.getElementById('hub-login-modal').style.display = 'flex';
+        }, 300); // تأخير بسيط لجمالية الأنيميشن
+    }
 };
 
 window.updateTranslations = function() {
@@ -768,25 +777,44 @@ window.addEventListener('load', () => {
 
 window.checkUserAuthentication = function() {
     let globalProfile = localStorage.getItem('hub_user_profile');
+    let langSelected = localStorage.getItem('lang_selected_once'); // 👈 التحقق هل اختار لغة من قبل؟
+
     if (globalProfile) {
         try {
             JSON.parse(globalProfile);
             document.getElementById('hub-login-modal').style.display = 'none';
+            document.getElementById('lang-select-modal').style.display = 'none';
             document.getElementById('game-selector').style.display = 'flex';
             document.getElementById('bottom-nav-bar').style.display = 'flex';
             syncHubProfile();
         } catch (e) {
             localStorage.removeItem('hub_user_profile');
-            document.getElementById('game-selector').style.display = 'none';
-            document.getElementById('bottom-nav-bar').style.display = 'none';
-            document.getElementById('hub-login-modal').style.display = 'flex';
+            showInitialOnboarding(langSelected);
         }
     } else {
-        document.getElementById('game-selector').style.display = 'none';
-        document.getElementById('bottom-nav-bar').style.display = 'none';
-        document.getElementById('hub-login-modal').style.display = 'flex';
+        showInitialOnboarding(langSelected);
     }
 };
+
+// 🌟 دالة مساعدة لتوجيه اللاعب الجديد
+function showInitialOnboarding(langSelected) {
+    document.getElementById('game-selector').style.display = 'none';
+    document.getElementById('bottom-nav-bar').style.display = 'none';
+
+    if (!langSelected) {
+        // لم يقم باختيار اللغة بعد! نظهر نافذة اللغات ونخفي زر الإغلاق لنجبره على الاختيار
+        document.getElementById('hub-login-modal').style.display = 'none';
+        const langModal = document.getElementById('lang-select-modal');
+        langModal.style.display = 'flex';
+        const closeBtn = langModal.querySelector('.modal-close-btn');
+        if(closeBtn) closeBtn.style.display = 'none'; // 🚫 إخفاء زر الـ X
+    } else {
+        // اختار اللغة مسبقاً، نظهر له نافذة التسجيل
+        document.getElementById('lang-select-modal').style.display = 'none';
+        document.getElementById('hub-login-modal').style.display = 'flex';
+    }
+}
+
 
 window.loginAsGuest = function() {
     const guestName = (typeof translations !== 'undefined') ? translations[currentLang].guest_name : "Guest_";
