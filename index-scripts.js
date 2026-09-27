@@ -259,6 +259,7 @@ socket.on('connect', () => {
 });
 
 window.getSafeProfile = function() {
+window.getSafeProfile = function() {
     const guestName = (typeof translations !== 'undefined') ? translations[currentLang].guest_name : "Guest_";
     const defaultProfile = {
         id: "GUEST-DEFAULT",
@@ -287,6 +288,19 @@ window.getSafeProfile = function() {
             if (parsed.popularity === undefined) parsed.popularity = 0;
             if (parsed.vipLevel === undefined) parsed.vipLevel = 0;
             if (parsed.vipPoints === undefined) parsed.vipPoints = 0;
+            
+            // 🛡️ الحماية الصارمة: التأكد من أن الاسم ليس فارغاً أو مسافات فقط
+            let checkedName = String(parsed.name || '').trim();
+            if (checkedName === '') {
+                // إذا كان فارغاً، نعطيه اسماً مبنياً على آخر 4 أرقام من الـ ID الخاص به
+                let safeIdSuffix = parsed.id ? String(parsed.id).slice(-4) : "0000";
+                parsed.name = "Guest_" + safeIdSuffix;
+                // تحديث الذاكرة المحلية فوراً لإنقاذ الحساب
+                localStorage.setItem('hub_user_profile', JSON.stringify(parsed));
+            } else {
+                parsed.name = checkedName;
+            }
+
             return parsed;
         }
     } catch (e) { }
