@@ -1,6 +1,7 @@
 /**
  * storet.js
  * النسخة المتوافقة بالكامل مع الساحة الملكية (Ph.webp) والتصميم الـ 3D
+ * 🌟 مُحدّث: نظام الإحداثيات الديناميكية لتوافق الأرباع وحجم الأحجار مع كل ساحة
  */
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -14,14 +15,36 @@ export const STORE_ITEMS = {
     'bg_wood': { 
         type: 'bg', isDefault: true, nameAr: 'الطاولة الملكية', nameEn: 'Royal Board',
         isImage: true, imagePath: 'storefile/bgs/Ph.webp', 
-        linkedScore: 'score_default'
+        linkedScore: 'score_default',
+        boardLayoutCSS: `
+            /* إحداثيات الأرباع للساحة الأصلية */
+            .top-left { top: 4.5%; left: 7.8%; width: 37.6%; height: 37.6%; }
+            .bottom-left { bottom: 6%; left: 6.85%; width: 37.6%; height: 37.6%; }
+            .top-right { top: 4.5%; right: 7.88%; width: 37.6%; height: 37.6%; }
+            .bottom-right { bottom: 6%; right: 7.9%; width: 37.6%; height: 37.6%; }
+            /* حجم الحجر والتداخل */
+            .piece { width: 13.66cqw !important; height: 13.66cqw !important; }
+            .top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -26%; }
+            .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -26%; }
+        `
     },
 
     // 2. الساحة الجديدة الأولى (1.webp)
     'bg_new_1': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
-        linkedScore: 'score_default'
+        linkedScore: 'score_default',
+        boardLayoutCSS: `
+            /* يمكنك هنا تغيير الأرقام لتناسب صورة ساحة الأبطال */
+            .top-left { top: 5%; left: 8.5%; width: 36%; height: 38%; }
+            .bottom-left { bottom: 5%; left: 8.5%; width: 36%; height: 38%; }
+            .top-right { top: 5%; right: 8.5%; width: 36%; height: 38%; }
+            .bottom-right { bottom: 5%; right: 8.5%; width: 36%; height: 38%; }
+            /* تصغير الحجر قليلاً وزيادة التداخل إذا كانت المثلثات أقصر */
+            .piece { width: 13cqw !important; height: 13cqw !important; }
+            .top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30%; }
+            .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30%; }
+        `
     },
 
     // 3. الساحة الجديدة الثانية (2.webp) - جعلناها أسطورية للتميز!
@@ -29,7 +52,18 @@ export const STORE_ITEMS = {
         type: 'bg', isDefault: false, cost: 15000, nameAr: 'الساحة الأسطورية', nameEn: 'Legendary Board',
         isImage: true, imagePath: 'storefile/bgs/2.webp', 
         isLegendary: true, // هذا سيجعل الكارت يلمع في المتجر
-        linkedScore: 'score_default'
+        linkedScore: 'score_default',
+        boardLayoutCSS: `
+            /* إحداثيات خاصة بالساحة الأسطورية */
+            .top-left { top: 6%; left: 7%; width: 38%; height: 36%; }
+            .bottom-left { bottom: 6%; left: 7%; width: 38%; height: 36%; }
+            .top-right { top: 6%; right: 7%; width: 38%; height: 36%; }
+            .bottom-right { bottom: 6%; right: 7%; width: 38%; height: 36%; }
+            /* تكبير الحجر إذا كانت المثلثات عريضة */
+            .piece { width: 14cqw !important; height: 14cqw !important; }
+            .top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -22%; }
+            .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -22%; }
+        `
     },
 
     // ===================================
@@ -172,7 +206,6 @@ export const storeManager = {
         if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-board-css'; document.head.appendChild(styleEl); }
 
         if (item.isImage) {
-            // 🌟 التعديل 4: حقن صورتك كخلفية (Background) قوية لا تمحوها أكواد الجافاسكريبت!
             styleEl.innerHTML = `
                 #tawla-board { 
                     background-image: url('${item.imagePath}') !important; 
@@ -181,16 +214,20 @@ export const storeManager = {
                     background-repeat: no-repeat !important;
                     background-color: transparent !important;
                     border-radius: 4px !important;
-                    filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.9)) !important; /* الظل الرائع للطاولة */
+                    filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.9)) !important;
                 }
                 .cell.light { background-color: transparent !important; border: none !important; transition: all 0.5s ease; }
                 .cell.dark { background-color: transparent !important; border: none !important; transition: all 0.5s ease; }
+                
+                /* 🌟 تطبيق إحداثيات الساحة المخصصة فوراً هنا 🌟 */
+                ${item.boardLayoutCSS || ''}
             `;
         } else if (item.cssLight && item.cssDark) {
             styleEl.innerHTML = `
                 #tawla-board { background-image: none !important; background-color: transparent !important; filter: none !important;}
                 .cell.light { ${item.cssLight} !important; transition: all 0.5s ease; } 
                 .cell.dark { ${item.cssDark} !important; transition: all 0.5s ease; }
+                ${item.boardLayoutCSS || ''}
             `;
         } else {
             document.documentElement.style.setProperty('--light-cell', item.light); document.documentElement.style.setProperty('--dark-cell', item.dark);
