@@ -1,6 +1,7 @@
 /**
  * storet.js
  * النسخة المتوافقة بالكامل مع الساحة الملكية (Ph.webp) والتصميم الـ 3D
+ * 🛡️ مُحدّث أمنياً: درع حماية ضد ضياع المنتجات (Ghost Sync Fix)
  * 🌟 مُحدّث: نظام الإحداثيات الديناميكية لتوافق الأرباع وحجم الأحجار مع كل ساحة
  */
 
@@ -35,12 +36,10 @@ export const STORE_ITEMS = {
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            /* يمكنك هنا تغيير الأرقام لتناسب صورة ساحة الأبطال */
             .top-left { top: 5%; left: 8.5%; width: 36%; height: 38%; }
             .bottom-left { bottom: 5%; left: 8.5%; width: 36%; height: 38%; }
             .top-right { top: 5%; right: 8.5%; width: 36%; height: 38%; }
             .bottom-right { bottom: 5%; right: 8.5%; width: 36%; height: 38%; }
-            /* تصغير الحجر قليلاً وزيادة التداخل إذا كانت المثلثات أقصر */
             .piece { width: 13cqw !important; height: 13cqw !important; }
             .top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30%; }
             .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30%; }
@@ -51,15 +50,13 @@ export const STORE_ITEMS = {
     'bg_new_2': { 
         type: 'bg', isDefault: false, cost: 15000, nameAr: 'الساحة الأسطورية', nameEn: 'Legendary Board',
         isImage: true, imagePath: 'storefile/bgs/2.webp', 
-        isLegendary: true, // هذا سيجعل الكارت يلمع في المتجر
+        isLegendary: true, 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            /* إحداثيات خاصة بالساحة الأسطورية */
             .top-left { top: 6%; left: 7%; width: 38%; height: 36%; }
             .bottom-left { bottom: 6%; left: 7%; width: 38%; height: 36%; }
             .top-right { top: 6%; right: 7%; width: 38%; height: 36%; }
             .bottom-right { bottom: 6%; right: 7%; width: 38%; height: 36%; }
-            /* تكبير الحجر إذا كانت المثلثات عريضة */
             .piece { width: 14cqw !important; height: 14cqw !important; }
             .top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -22%; }
             .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -22%; }
@@ -67,7 +64,7 @@ export const STORE_ITEMS = {
     },
 
     // ===================================
-    // الإطارات والأحجار الافتراضية (لا تقم بحذفها)
+    // الإطارات والأحجار الافتراضية
     // ===================================
     'fr_classic': { 
         type: 'fr', isDefault: true, nameAr: 'الإطار الملكي المدمج', nameEn: 'Royal Embedded Frame',
@@ -145,9 +142,6 @@ export const storeManager = {
     startGapKiller() {
         if (window.__gapKillerActive) return;
         window.__gapKillerActive = true;
-
-        // 🌟 التعديل 3: إيقاف الـ GapKiller القديم الذي كان يشوه أبعاد الساحة في الجوال 
-        // التصميم الجديد الخاص بك (.board-container) يتكفل بالأبعاد بشكل مثالي!
         console.log("GapKiller disabled: Letting the new 3D VIP container handle dimensions.");
     },
 
@@ -218,8 +212,6 @@ export const storeManager = {
                 }
                 .cell.light { background-color: transparent !important; border: none !important; transition: all 0.5s ease; }
                 .cell.dark { background-color: transparent !important; border: none !important; transition: all 0.5s ease; }
-                
-                /* 🌟 تطبيق إحداثيات الساحة المخصصة فوراً هنا 🌟 */
                 ${item.boardLayoutCSS || ''}
             `;
         } else if (item.cssLight && item.cssDark) {
@@ -243,7 +235,6 @@ export const storeManager = {
         if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-frame-css'; document.head.appendChild(styleEl); }
 
         if (item.customCSS) {
-            // تنظيف الإضافات التلقائية القديمة لمنع التخريب
             let cleanCSS = item.customCSS
                 .replace(/left:\s*50%\s*!important;/g, '')
                 .replace(/transform:\s*translateX\(-50\%\)\s*!important;/g, '')
@@ -265,22 +256,29 @@ export const storeManager = {
         }
     },
 
+    // 🛡️ التعديل الجذري للحماية: قراءة الذاكرة بقوة وعدم الاعتماد على الذاكرة العشوائية فقط
     getProfile() {
         let profile = null;
-        if (window.gameState && window.gameState.userProfile) { profile = window.gameState.userProfile; } 
-        else {
-            let p = localStorage.getItem('hub_user_profile');
-            if (p) { try { profile = JSON.parse(p); } catch(e) {} }
+        let localStr = localStorage.getItem('hub_user_profile');
+        
+        if (localStr) {
+            try { profile = JSON.parse(localStr); } catch(e) {}
         }
 
         if (profile) {
+            if (window.gameState) {
+                // دمج البيانات مع حماية المصفوفات من التلف
+                window.gameState.userProfile = { ...(window.gameState.userProfile || {}), ...profile };
+                profile = window.gameState.userProfile;
+            }
+
             if (!Array.isArray(profile.purchasedItems)) profile.purchasedItems = [];
             if (!profile.inventory || typeof profile.inventory !== 'object') profile.inventory = {};
             if (!profile.equippedBg || !STORE_ITEMS[profile.equippedBg]) profile.equippedBg = 'bg_wood';
             if (!profile.equippedFr || !STORE_ITEMS[profile.equippedFr]) profile.equippedFr = 'fr_classic';
             if (!profile.equippedPc || !STORE_ITEMS[profile.equippedPc]) profile.equippedPc = 'pc_original';
             if (!profile.equippedScore || !STORE_ITEMS[profile.equippedScore]) profile.equippedScore = 'score_default';
-            if (window.gameState) window.gameState.userProfile = profile;
+
             return profile;
         }
         return { purchasedItems: [], inventory: {}, equippedPc: 'pc_original', equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedScore: 'score_default' };
@@ -478,15 +476,38 @@ export const storeManager = {
                 clearInterval(socketCheck); 
                 if (!window.__STORE_SOCKET_INIT) {
                     window.__STORE_SOCKET_INIT = true;
+                    
+                    // 🛡️ درع الحماية: معالجة بيانات السيرفر بدقة لتجنب مسح العناصر
                     window['socket'].on('profileUpdated', (updatedProfile) => {
                         if (updatedProfile && window.gameState) {
-                            window.gameState.userProfile = { ...window.gameState.userProfile, ...updatedProfile };
+                            let oldProfile = window.gameState.userProfile || {};
+                            let oldPurchased = Array.isArray(oldProfile.purchasedItems) ? oldProfile.purchasedItems : [];
+                            let oldInventory = oldProfile.inventory || {};
+
+                            window.gameState.userProfile = { ...oldProfile, ...updatedProfile };
+
+                            let newPurchased = Array.isArray(updatedProfile.purchasedItems) ? updatedProfile.purchasedItems : [];
+                            oldPurchased.forEach(item => {
+                                if (!newPurchased.includes(item)) newPurchased.push(item);
+                            });
+                            window.gameState.userProfile.purchasedItems = newPurchased;
+
+                            let newInventory = updatedProfile.inventory || {};
+                            Object.keys(oldInventory).forEach(key => {
+                                if ((newInventory[key] || 0) < oldInventory[key]) {
+                                    newInventory[key] = oldInventory[key];
+                                }
+                            });
+                            window.gameState.userProfile.inventory = newInventory;
+
                             localStorage.setItem('hub_user_profile', JSON.stringify(window.gameState.userProfile));
                             if (typeof window.applyTheme === 'function') window.applyTheme(window.gameState.userProfile);
                         }
                         this.renderUI();
                     });
+                    
                     window['socket'].on('purchaseFailed', (msg) => { if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg); else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); });
+                    
                     window['socket'].on('purchaseSuccess', (data) => { 
                         let msg = typeof data === 'string' ? data : (data.message || 'تم الشراء بنجاح! 🎉');
                         if (window.ui && typeof window.ui.showCustomAlert === 'function') {
@@ -494,7 +515,8 @@ export const storeManager = {
                             window.ui.showCustomAlert(msg, title, () => { if (typeof window.ui.spawnCoinShower === 'function') window.ui.spawnCoinShower(); });
                         } else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
                         if (typeof window.triggerPurchaseCelebration === 'function') window.triggerPurchaseCelebration();
-                        if (prof && prof.id) window['socket'].emit('syncProfile', { id: prof.id });
+                        
+                        // ❌ تم إزالة كود الـ syncProfile من هنا لمنع تدمير البيانات (السباق البرمجي)
                         this.renderUI();
                     });
                 }
