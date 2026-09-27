@@ -3037,7 +3037,7 @@ ui.onClick('tawla-board', e => {
             
             ui.playSound(isHit ? sfx.piecesDied : sfx.move);
             if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                socketManager.sendMoveToServer(gameState.virtualBoard, gameState.currentTurn, gameState.currentDice);
+                socketManager.sendMoveToServer(gameState.selectedPoint, index, dest.dieUsed);
             }
             checkTurnEnd();
         } else { ui.clearHighlights(); gameState.selectedPoint = null; }
