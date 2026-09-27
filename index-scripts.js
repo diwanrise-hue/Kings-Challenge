@@ -273,7 +273,6 @@ socket.on('connect', () => {
 });
 
 window.getSafeProfile = function() {
-window.getSafeProfile = function() {
     const guestName = (typeof translations !== 'undefined') ? translations[currentLang].guest_name : "Guest_";
     const defaultProfile = {
         id: "GUEST-DEFAULT",
