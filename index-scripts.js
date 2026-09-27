@@ -616,11 +616,34 @@ window.triggerAlertSoon = function() {
 };
 
 window.submitManualAuthForm = function() {
-    const nameOrIdInput = document.getElementById('hub-login-name-input').value.trim();
+    const nameInputEl = document.getElementById('hub-login-name-input');
+    let nameOrIdInput = nameInputEl.value.trim();
     const passInput = document.getElementById('hub-login-password-input').value;
     const avatarSelect = document.getElementById('hub-login-avatar-select').value;
 
-    if (!nameOrIdInput) return showCustomPopup(isLoginMode ? "الرجاء إدخال المعرف (ID)" : (translations[currentLang].msg_no_name || "الرجاء إدخال الاسم"));
+    if (!isLoginMode) {
+        // حماية عند إنشاء حساب جديد
+        let cleanName = nameOrIdInput.replace(/[<>\"\']/g, "").trim();
+        
+        if (cleanName === "" || cleanName.length < 2) {
+            nameInputEl.value = cleanName; // نعيد له النص المنظف ليرى الخطأ
+            nameInputEl.focus(); // 👈 إجبار مؤشر الكتابة على البقاء في حقل الاسم
+            nameInputEl.style.border = "1px solid #ff453a"; // 👈 تلوين الحقل بالأحمر تنبيهاً له
+            
+            // إزالة اللون الأحمر بعد 3 ثوانٍ
+            setTimeout(() => nameInputEl.style.border = "1px solid rgba(255,255,255,0.1)", 3000);
+            
+            return showCustomPopup("الاسم غير صالح! يرجى إدخال حرفين على الأقل بدون رموز ممنوعة.");
+        }
+        nameOrIdInput = cleanName; // اعتماد الاسم النظيف
+    } else {
+        // حماية عند تسجيل الدخول (ID)
+        if (!nameOrIdInput) {
+            nameInputEl.focus();
+            return showCustomPopup("الرجاء إدخال المعرف (ID)");
+        }
+    }
+
     if (!passInput) return showCustomPopup(translations[currentLang].msg_no_pass || "الرجاء إدخال كلمة المرور");
     
     if (!isLoginMode && String(passInput).trim().length < 6) {
@@ -913,23 +936,45 @@ window.addEventListener('storage', (event) => {
     }
 });
 
-window.changePlayerName = function() {
+window.changePlayerName = function(invalidInput = null) {
     let profile = getSafeProfile();
     if(!profile) return;
     
-    showCustomPopup(translations[currentLang].msg_prompt_name, true, profile.name, true, (newName) => {
-        if (newName && newName.trim() !== "") {
-            profile.name = newName.trim();
+    // إذا كان هناك إدخال خاطئ سابق نضعه له ليعدله، وإلا نضع اسمه الحالي
+    let defaultText = invalidInput !== null ? invalidInput : profile.name;
+
+    showCustomPopup(translations[currentLang].msg_prompt_name, true, defaultText, true, (newName) => {
+        if (newName !== null) { // إذا لم يضغط على "إلغاء"
+            let cleanName = String(newName).trim();
+            cleanName = cleanName.replace(/[<>\"\']/g, ""); // تنظيف الرموز الممنوعة
+
+            // التحقق من صحة الاسم
+            if (cleanName === "" || cleanName.length < 2) {
+                setTimeout(() => {
+                    // إظهار رسالة الخطأ، وعندما يضغط "حسناً" نعيد فتح نافذة الكتابة فوراً!
+                    showCustomPopup("الاسم غير صالح أو قصير جداً! يجب كتابة حرفين على الأقل.", false, "", false, () => {
+                        setTimeout(() => window.changePlayerName(cleanName), 300); // 👈 إعادته للنافذة جبراً
+                    });
+                }, 300);
+                return;
+            }
+
+            // إذا كان الاسم صحيحاً يتم الحفظ
+            profile.name = cleanName;
             try {
                 localStorage.setItem('hub_user_profile', JSON.stringify(profile));
                 syncHubProfile();
                 if (socket && socket.connected) {
                     socket.emit('syncProfile', { id: profile.id, name: profile.name });
                 }
+                setTimeout(() => {
+                    showCustomPopup("تم تغيير الاسم بنجاح! ✨");
+                }, 300);
             } catch (err) {}
         }
     });
 };
+
 
 window.changeAvatarFromDropdown = function(val) {
     if(!val) return;
