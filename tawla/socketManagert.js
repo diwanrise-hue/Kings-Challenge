@@ -498,7 +498,7 @@ export const socketManager = {
             if (this.toastTimeout) clearTimeout(this.toastTimeout);
             this.toastTimeout = setTimeout(() => {
                 toast.classList.remove('show');
-            }, 5000); 
+            }, 2500); 
         }
     },
 
