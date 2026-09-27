@@ -912,19 +912,9 @@ export const socketManager = {
             this._showDisconnectUI();
         });
 
-        socket.on('syncGameState', (data) => {
+           socket.on('syncGameState', (data) => {
             if (!gameState.isOnlineMode || !data) return;
             
-            let missingFrom = null;
-            let missingTo = null;
-            
-            if (gameState.virtualBoard && data.board) {
-                const oppColor = gameState.myOnlineColor === 'white' ? 'black' : 'white';
-                for (let r = 0; r < 24; r++) { // التحديث للمحرك الجديد (24 خانة بدلاً من 8x8)
-                    // ... يجب إعادة كتابة المزامنة لتتوافق مع منطق الطاولة بدلاً من شبكة 8x8
-                }
-            }
-
             if (data.board) gameState.virtualBoard = data.board;
             if (data.turn) gameState.currentTurn = data.turn;
             if (data.turnEndTime) gameState.turnEndTime = data.turnEndTime;
@@ -938,6 +928,7 @@ export const socketManager = {
             ui.renderBoard(true);
             ui.startTurn();
         });
+
 
         socket.on('roomCreated', id => {
             gameState.isBotOpponent = false;
