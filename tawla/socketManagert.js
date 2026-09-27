@@ -623,13 +623,21 @@ export const socketManager = {
         try {
             const stored = localStorage.getItem('hub_user_profile');
             if (stored) {
-                const parsed = JSON.parse(stored);
+            
+              const parsed = JSON.parse(stored);
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                     if (isValidId(parsed.id)) {
+                        
+                        // 🛡️ معالجة الاسم قبل حفظه في اللعبة لمنع الفراغات
+                        let safeClientName = String(parsed.name || '').trim();
+                        if (safeClientName === '') {
+                            safeClientName = "Guest_" + String(parsed.id).slice(-4);
+                        }
+
                         gameState.userProfile = {
                             ...parsed, 
                             id: String(parsed.id).trim().toUpperCase(),
-                            name: String(parsed.name || 'Guest').trim(),
+                            name: safeClientName, // ✅ استخدام الاسم الآمن
                             avatar: String(parsed.avatar || '1000132081.webp').trim(),
                             authToken: parsed.authToken || generateAuthToken(), 
                             isCustomAvatar: !!parsed.isCustomAvatar,
