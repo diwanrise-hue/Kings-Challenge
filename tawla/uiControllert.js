@@ -2662,8 +2662,8 @@ window.showEquipNotification = function(itemType) {
     void toast.offsetWidth;
     toast.classList.add('show'); 
     
-    // إزالة الكلاس بعد 11.5 ثانية 
-    setTimeout(() => { toast.classList.remove('show'); }, 5000);
+    // إزالة الكلاس بعد 2.5 ثانية 
+    setTimeout(() => { toast.classList.remove('show'); }, 2500);
 
     setTimeout(() => {
         try {
