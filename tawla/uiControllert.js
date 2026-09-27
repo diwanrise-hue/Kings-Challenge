@@ -3056,8 +3056,7 @@ const handleBearOffClick = e => {
             ui.playSound(sfx.move);
             
            if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
-           socketManager.sendMoveToServer(gameState.selectedPoint, 'bearOff', dest.dieUsed);
-              }
+            socketManager.sendMoveToServer(gameState.selectedPoint, 'bearOff', dest.dieUsed);
             }
             checkTurnEnd();
         }
