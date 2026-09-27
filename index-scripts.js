@@ -102,7 +102,12 @@ window.closeHamburgerMenu = function() {
     document.getElementById('side-drawer').classList.remove('show');
 };
 
-window.openLangModal = function() { document.getElementById('lang-select-modal').style.display = 'flex'; };
+window.openLangModal = function() { 
+    const langModal = document.getElementById('lang-select-modal');
+    const closeBtn = langModal.querySelector('.modal-close-btn');
+    if(closeBtn) closeBtn.style.display = 'flex'; // ✅ إعادة إظهار زر الـ X للاعب الذي يفتحها من الإعدادات
+    langModal.style.display = 'flex'; 
+};
 window.closeLangModal = function() { document.getElementById('lang-select-modal').style.display = 'none'; };
 
 window.openBgModal = function() { document.getElementById('bg-select-modal').style.display = 'flex'; };
