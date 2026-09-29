@@ -36,13 +36,12 @@ export const STORE_ITEMS = {
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            .top-left { top: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 7px !important; }
-.bottom-left { bottom: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 7px !important; }
-.top-right { top: 6%; right: 7.5%; width: 36%; height: 38%; column-gap: 6.8px !important; }
-.bottom-right { bottom: 6%; right: 7.5%; width: 36%; height: 38%; column-gap: 7px !important; }
+            .top-left { top: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 7px; }
+.bottom-left { bottom: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 7px; }
+.top-right { top: 6%; right: 7.5%; width: 36%; height: 38%; column-gap: 6.8px; }
+.bottom-right { bottom: 6%; right: 7.5%; width: 36%; height: 38%; column-gap: 7px; }
 
 .piece { width: 13cqw !important; height: 13cqw !important; }
-
 .top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30%; }
 .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30%; }
         `
@@ -258,8 +257,7 @@ export const storeManager = {
         }
     },
 
-    // 🛡️ التعديل الجذري للحماية: قراءة الذاكرة بقوة وعدم الاعتماد على الذاكرة العشوائية فقط
-    getProfile() {
+        getProfile() {
         let profile = null;
         let localStr = localStorage.getItem('hub_user_profile');
         
@@ -273,6 +271,12 @@ export const storeManager = {
                 window.gameState.userProfile = { ...(window.gameState.userProfile || {}), ...profile };
                 profile = window.gameState.userProfile;
             }
+
+            // 🌟 تعديل هنا: التأكد من دمج المشتريات من المسارات المحتملة للطاولة
+            let allPurchased = [];
+            if (Array.isArray(profile.purchasedItems)) allPurchased = allPurchased.concat(profile.purchasedItems);
+            if (Array.isArray(profile.tawlaPurchasedItems)) allPurchased = allPurchased.concat(profile.tawlaPurchasedItems);
+            profile.purchasedItems = [...new Set(allPurchased)]; // إزالة التكرارات
 
             if (!Array.isArray(profile.purchasedItems)) profile.purchasedItems = [];
             if (!profile.inventory || typeof profile.inventory !== 'object') profile.inventory = {};
@@ -479,7 +483,7 @@ export const storeManager = {
                 if (!window.__STORE_SOCKET_INIT) {
                     window.__STORE_SOCKET_INIT = true;
                     
-                    // 🛡️ درع الحماية: معالجة بيانات السيرفر بدقة لتجنب مسح العناصر
+                         // 🛡️ درع الحماية: معالجة بيانات السيرفر بدقة لتجنب مسح العناصر
                     window['socket'].on('profileUpdated', (updatedProfile) => {
                         if (updatedProfile && window.gameState) {
                             let oldProfile = window.gameState.userProfile || {};
@@ -488,11 +492,15 @@ export const storeManager = {
 
                             window.gameState.userProfile = { ...oldProfile, ...updatedProfile };
 
-                            let newPurchased = Array.isArray(updatedProfile.purchasedItems) ? updatedProfile.purchasedItems : [];
+                            // 🌟 تعديل هنا: دمج المشتريات بشكل آمن من السيرفر
+                            let newPurchased = [];
+                            if (Array.isArray(updatedProfile.purchasedItems)) newPurchased = newPurchased.concat(updatedProfile.purchasedItems);
+                            if (Array.isArray(updatedProfile.tawlaPurchasedItems)) newPurchased = newPurchased.concat(updatedProfile.tawlaPurchasedItems);
+                            
                             oldPurchased.forEach(item => {
                                 if (!newPurchased.includes(item)) newPurchased.push(item);
                             });
-                            window.gameState.userProfile.purchasedItems = newPurchased;
+                            window.gameState.userProfile.purchasedItems = [...new Set(newPurchased)]; // إزالة التكرارات
 
                             let newInventory = updatedProfile.inventory || {};
                             Object.keys(oldInventory).forEach(key => {
