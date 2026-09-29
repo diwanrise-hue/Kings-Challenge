@@ -36,7 +36,7 @@ export const STORE_ITEMS = {
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            .top-left { top: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 7px; }
+            .top-left { top: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 18px; }
 .bottom-left { bottom: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 7px; }
 .top-right { top: 6%; right: 7.5%; width: 36%; height: 38%; column-gap: 6.8px; }
 .bottom-right { bottom: 6%; right: 7.5%; width: 36%; height: 38%; column-gap: 7px; }
