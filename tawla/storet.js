@@ -36,13 +36,15 @@ export const STORE_ITEMS = {
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            .top-left { top: 5%; left: 8.5%; width: 36%; height: 38%; }
-            .bottom-left { bottom: 5%; left: 8.5%; width: 36%; height: 38%; }
-            .top-right { top: 5%; right: 8.5%; width: 36%; height: 38%; }
-            .bottom-right { bottom: 5%; right: 8.5%; width: 36%; height: 38%; }
-            .piece { width: 13cqw !important; height: 13cqw !important; }
-            .top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30%; }
-            .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30%; }
+            .top-left { top: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 7px; }
+.bottom-left { bottom: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 7px; }
+.top-right { top: 6%; right: 7.5%; width: 36%; height: 38%; column-gap: 6.8px; }
+.bottom-right { bottom: 6%; right: 7.5%; width: 36%; height: 38%; column-gap: 7px; }
+
+.piece { width: 13cqw !important; height: 13cqw !important; }
+
+.top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30%; }
+.bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30%; }
         `
     },
 
