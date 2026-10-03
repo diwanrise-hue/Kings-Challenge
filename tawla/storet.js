@@ -6,7 +6,6 @@
  */
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
-
 export const STORE_ITEMS = {
     // ===================================
     // الساحات (الخلفيات)
@@ -18,11 +17,11 @@ export const STORE_ITEMS = {
         isImage: true, imagePath: 'storefile/bgs/Ph.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            /* 🌟 تم إضافة #tawla-board و !important لإجبار المتصفح على طاعة المتجر */
-            #tawla-board .top-left { top: 4.5% !important; left: 7.8% !important; width: 37.6% !important; height: 37.6% !important; display: flex !important; }
-            #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; display: flex !important; }
-            #tawla-board .top-right { top: 4.5% !important; right: 7.88% !important; width: 37.6% !important; height: 37.6% !important; display: flex !important; }
-            #tawla-board .bottom-right { bottom: 6% !important; right: 7.9% !important; width: 37.6% !important; height: 37.6% !important; display: flex !important; }
+            /* 🌟 تم تنظيف الكود من flex للعودة لنظام الشبكة (Grid) الصحيح */
+            #tawla-board .top-left { top: 4.5% !important; left: 7.8% !important; width: 37.6% !important; height: 37.6% !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; }
+            #tawla-board .top-right { top: 4.5% !important; right: 7.88% !important; width: 37.6% !important; height: 37.6% !important; }
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7.9% !important; width: 37.6% !important; height: 37.6% !important; }
             
             #tawla-board .piece { width: 13.66cqw !important; height: 13.66cqw !important; }
             
@@ -40,10 +39,10 @@ export const STORE_ITEMS = {
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            #tawla-board .top-left { top: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 18px !important; display: flex !important; }
-            #tawla-board .bottom-left { bottom: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; display: flex !important; }
-            #tawla-board .top-right { top: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 6.8px !important; display: flex !important; }
-            #tawla-board .bottom-right { bottom: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; display: flex !important; }
+            #tawla-board .top-left { top: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 18px !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; }
+            #tawla-board .top-right { top: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 6.8px !important; }
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; }
 
             #tawla-board .piece { width: 13cqw !important; height: 13cqw !important; }
             #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
@@ -99,6 +98,7 @@ export const STORE_ITEMS = {
         scoreBorder1: 'none', scoreBorder2: 'none' 
     }
 };
+
 
 window.STORE_ITEMS = STORE_ITEMS;
 
@@ -266,7 +266,7 @@ export const storeManager = {
         }
     },
 
-    getProfile() {
+        getProfile() {
         let profile = null;
         let localStr = localStorage.getItem('hub_user_profile');
         
