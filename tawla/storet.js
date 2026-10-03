@@ -19,10 +19,10 @@ export const STORE_ITEMS = {
         linkedScore: 'score_default',
         boardLayoutCSS: `
             /* 🌟 تم إضافة #tawla-board و !important لإجبار المتصفح على طاعة المتجر */
-            #tawla-board .top-left { top: 4.5% !important; left: 7.8% !important; width: 37.6% !important; height: 37.6% !important; }
-            #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; }
-            #tawla-board .top-right { top: 4.5% !important; right: 7.88% !important; width: 37.6% !important; height: 37.6% !important; }
-            #tawla-board .bottom-right { bottom: 6% !important; right: 7.9% !important; width: 37.6% !important; height: 37.6% !important; }
+            #tawla-board .top-left { top: 4.5% !important; left: 7.8% !important; width: 37.6% !important; height: 37.6% !important;display: flex !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important;display: flex !important; }
+            #tawla-board .top-right { top: 4.5% !important; right: 7.88% !important; width: 37.6% !important; height: 37.6% !important;display: flex !important; }
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7.9% !important; width: 37.6% !important; height: 37.6% !important;display: flex !important; }
             
             #tawla-board .piece { width: 13.66cqw !important; height: 13.66cqw !important; }
             
