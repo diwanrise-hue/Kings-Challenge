@@ -12,21 +12,21 @@ export const gameEngine = {
     initStandardTawlaBoard() {
         let points = Array(24).fill(null).map(() => ({ color: null, count: 0 }));
         
+        // --- النصف العلوي (صحيح كما هو) ---
         points[0] = { color: 'white', count: 2 };
         points[5] = { color: 'black', count: 5 };
         points[7] = { color: 'black', count: 3 };
         points[11] = { color: 'white', count: 5 };
-        points[12] = { color: 'black', count: 5 };
-        points[16] = { color: 'white', count: 3 };
-        points[18] = { color: 'white', count: 5 };
-        points[23] = { color: 'black', count: 2 };
+        
+        // --- النصف السفلي (تم التصحيح هنا ليتطابق مع القواعد العالمية) ---
+        points[13] = { color: 'white', count: 3 }; // 3 أحجار بيضاء 
+        points[17] = { color: 'black', count: 5 }; // 5 أحجار سوداء في أقصى اليسار
+        points[18] = { color: 'black', count: 2 }; // حجران أسودان في أقصى اليمين
+        points[23] = { color: 'white', count: 5 }; // 5 أحجار بيضاء
+        
+        return { points: points, bar: { white: 0, black: 0 }, out: { white: 0, black: 0 } };
+    }
 
-        return {
-            points: points,
-            bar: { white: 0, black: 0 },
-            bearOff: { white: 0, black: 0 }
-        };
-    },
 
     // 🎲 رمي النرد
     rollDice() {
