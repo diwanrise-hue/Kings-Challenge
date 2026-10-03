@@ -524,8 +524,23 @@ export const storeManager = {
                         this.renderUI();
                     });
                     
-                    window['socket'].on('purchaseFailed', (msg) => { if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg); else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); });
-                    
+                         window['socket'].on('purchaseFailed', (msg) => { 
+                        if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg); 
+                        else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
+                        
+                        // 🌟 التصحيح التلقائي: إذا كان السيرفر يقول أنك تملك العنصر، قم بتحديث ذاكرة المتصفح وانقله للحقيبة فوراً!
+                        if (msg && (msg.includes('تملك') || msg.includes('مسبقاً')) && window.currentPurchaseItem) {
+                            let profile = this.getProfile();
+                            if (!Array.isArray(profile.purchasedItems)) profile.purchasedItems = [];
+                            if (!profile.purchasedItems.includes(window.currentPurchaseItem.id)) {
+                                profile.purchasedItems.push(window.currentPurchaseItem.id);
+                                if (window.gameState) window.gameState.userProfile = profile;
+                                localStorage.setItem('hub_user_profile', JSON.stringify(profile));
+                                this.renderUI(); // إعادة رسم الواجهة لنقل العنصر من المتجر إلى الحقيبة
+                            }
+                        }
+                    });
+                 
                     window['socket'].on('purchaseSuccess', (data) => { 
                         let msg = typeof data === 'string' ? data : (data.message || 'تم الشراء بنجاح! 🎉');
                         if (window.ui && typeof window.ui.showCustomAlert === 'function') {
