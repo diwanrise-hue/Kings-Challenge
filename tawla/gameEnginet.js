@@ -26,7 +26,7 @@ export const gameEngine = {
         
         // تم توحيد الكلمة إلى bearOff لتعمل الدوال بشكل صحيح
         return { points: points, bar: { white: 0, black: 0 }, bearOff: { white: 0, black: 0 } };
-    }
+    },
 
     // 🎲 رمي النرد
     rollDice() {
