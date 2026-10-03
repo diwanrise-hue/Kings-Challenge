@@ -34,25 +34,17 @@ export const STORE_ITEMS = {
         `
     },
 
-    // 2. الساحة الجديدة الأولى (1.webp)
+        // 2. الساحة الجديدة الأولى (1.webp)
     'bg_new_1': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 18px !important; display: flex !important; }
-            #tawla-board .bottom-left { bottom: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; display: flex !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; display: flex !important; flex-direction: row-reverse !important; } /* 👈 إضافة الانعكاس هنا */
             #tawla-board .top-right { top: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 6.8px !important; display: flex !important; }
-            #tawla-board .bottom-right { bottom: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; display: flex !important; }
-
-            #tawla-board .piece { width: 13cqw !important; height: 13cqw !important; }
-            
-            #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, 
-            #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
-            
-            #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, 
-            #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
-        `
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; display: flex !important; flex-direction: row-reverse !important; } /* 👈 وإضافته هنا */
+      `
     },
 
     // 3. الساحة الجديدة الثانية (2.webp)
