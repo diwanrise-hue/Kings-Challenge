@@ -18,15 +18,19 @@ export const STORE_ITEMS = {
         isImage: true, imagePath: 'storefile/bgs/Ph.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            /* إحداثيات الأرباع للساحة الأصلية */
-            .top-left { top: 4.5%; left: 7.8%; width: 37.6%; height: 37.6%; }
-            .bottom-left { bottom: 6%; left: 6.85%; width: 37.6%; height: 37.6%; }
-            .top-right { top: 4.5%; right: 7.88%; width: 37.6%; height: 37.6%; }
-            .bottom-right { bottom: 6%; right: 7.9%; width: 37.6%; height: 37.6%; }
-            /* حجم الحجر والتداخل */
-            .piece { width: 13.66cqw !important; height: 13.66cqw !important; }
-            .top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -26%; }
-            .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -26%; }
+            /* 🌟 تم إضافة #tawla-board و !important لإجبار المتصفح على طاعة المتجر */
+            #tawla-board .top-left { top: 4.5% !important; left: 7.8% !important; width: 37.6% !important; height: 37.6% !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; }
+            #tawla-board .top-right { top: 4.5% !important; right: 7.88% !important; width: 37.6% !important; height: 37.6% !important; }
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7.9% !important; width: 37.6% !important; height: 37.6% !important; }
+            
+            #tawla-board .piece { width: 13.66cqw !important; height: 13.66cqw !important; }
+            
+            #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, 
+            #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -26% !important; }
+            
+            #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, 
+            #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -26% !important; }
         `
     },
 
@@ -36,31 +40,40 @@ export const STORE_ITEMS = {
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            .top-left { top: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 18px; }
-.bottom-left { bottom: 6%; left: 10.8%; width: 36%; height: 38%; column-gap: 7px; }
-.top-right { top: 6%; right: 7.5%; width: 36%; height: 38%; column-gap: 6.8px; }
-.bottom-right { bottom: 6%; right: 7.5%; width: 36%; height: 38%; column-gap: 7px; }
+            #tawla-board .top-left { top: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 18px !important; display: flex !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; display: flex !important; }
+            #tawla-board .top-right { top: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 6.8px !important; display: flex !important; }
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; display: flex !important; }
 
-.piece { width: 13cqw !important; height: 13cqw !important; }
-.top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30%; }
-.bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30%; }
+            #tawla-board .piece { width: 13cqw !important; height: 13cqw !important; }
+            
+            #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, 
+            #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
+            
+            #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, 
+            #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
         `
     },
 
-    // 3. الساحة الجديدة الثانية (2.webp) - جعلناها أسطورية للتميز!
+    // 3. الساحة الجديدة الثانية (2.webp)
     'bg_new_2': { 
         type: 'bg', isDefault: false, cost: 15000, nameAr: 'الساحة الأسطورية', nameEn: 'Legendary Board',
         isImage: true, imagePath: 'storefile/bgs/2.webp', 
         isLegendary: true, 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            .top-left { top: 6%; left: 7%; width: 38%; height: 36%; }
-            .bottom-left { bottom: 6%; left: 7%; width: 38%; height: 36%; }
-            .top-right { top: 6%; right: 7%; width: 38%; height: 36%; }
-            .bottom-right { bottom: 6%; right: 7%; width: 38%; height: 36%; }
-            .piece { width: 14cqw !important; height: 14cqw !important; }
-            .top-left .point .piece:nth-last-child(n+6) ~ .piece, .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -22%; }
-            .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -22%; }
+            #tawla-board .top-left { top: 6% !important; left: 7% !important; width: 38% !important; height: 36% !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 7% !important; width: 38% !important; height: 36% !important; }
+            #tawla-board .top-right { top: 6% !important; right: 7% !important; width: 38% !important; height: 36% !important; }
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7% !important; width: 38% !important; height: 36% !important; }
+            
+            #tawla-board .piece { width: 14cqw !important; height: 14cqw !important; }
+            
+            #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, 
+            #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -22% !important; }
+            
+            #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, 
+            #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -22% !important; }
         `
     },
 
