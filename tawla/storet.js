@@ -17,11 +17,10 @@ export const STORE_ITEMS = {
         isImage: true, imagePath: 'storefile/bgs/Ph.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            /* 🌟 تم تنظيف الكود من flex للعودة لنظام الشبكة (Grid) الصحيح */
             #tawla-board .top-left { top: 4.5% !important; left: 7.8% !important; width: 37.6% !important; height: 37.6% !important; }
-            #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; direction: ltr !important; } /* 👈 السر هنا */
             #tawla-board .top-right { top: 4.5% !important; right: 7.88% !important; width: 37.6% !important; height: 37.6% !important; }
-            #tawla-board .bottom-right { bottom: 6% !important; right: 7.9% !important; width: 37.6% !important; height: 37.6% !important; }
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7.9% !important; width: 37.6% !important; height: 37.6% !important; direction: ltr !important; } /* 👈 وهنا */
             
             #tawla-board .piece { width: 13.66cqw !important; height: 13.66cqw !important; }
             
@@ -40,9 +39,9 @@ export const STORE_ITEMS = {
         linkedScore: 'score_default',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 18px !important; }
-            #tawla-board .bottom-left { bottom: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; direction: ltr !important; }
             #tawla-board .top-right { top: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 6.8px !important; }
-            #tawla-board .bottom-right { bottom: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; }
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; column-gap: 7px !important; direction: ltr !important; }
 
             #tawla-board .piece { width: 13cqw !important; height: 13cqw !important; }
             #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
@@ -58,9 +57,9 @@ export const STORE_ITEMS = {
         linkedScore: 'score_default',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6% !important; left: 7% !important; width: 38% !important; height: 36% !important; }
-            #tawla-board .bottom-left { bottom: 6% !important; left: 7% !important; width: 38% !important; height: 36% !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 7% !important; width: 38% !important; height: 36% !important; direction: ltr !important; }
             #tawla-board .top-right { top: 6% !important; right: 7% !important; width: 38% !important; height: 36% !important; }
-            #tawla-board .bottom-right { bottom: 6% !important; right: 7% !important; width: 38% !important; height: 36% !important; }
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7% !important; width: 38% !important; height: 36% !important; direction: ltr !important; }
             
             #tawla-board .piece { width: 14cqw !important; height: 14cqw !important; }
             
