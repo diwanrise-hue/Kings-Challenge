@@ -32,24 +32,25 @@ export const STORE_ITEMS = {
         `
     },
 
-    // 2. الساحة الجديدة الأولى (1.webp) - ساحة الأبطال 🌟 (تم الضبط الدقيق هنا)
+    // 2. الساحة الجديدة الأولى (1.webp)
     'bg_new_1': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            /* استخدام عرض متطابق ومسافات مرنة (%) مع إلزام المتصفح بنظام الشبكة */
-            #tawla-board .top-left { top: 6% !important; left: 10.5% !important; width: 37.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 1.5% !important; }
-            #tawla-board .bottom-left { bottom: 6% !important; left: 10.5% !important; width: 37.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 1.5% !important; direction: ltr !important; }
-            #tawla-board .top-right { top: 6% !important; right: 7.5% !important; width: 37.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 1.5% !important; }
-            #tawla-board .bottom-right { bottom: 6% !important; right: 7.5% !important; width: 37.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 1.5% !important; direction: ltr !important; }
+            /* 🌟 السر هنا: قمنا بإلغاء الـ gap وضبطنا "موقع الصندوق" (left و right) و "عرضه" ليتطابق مع رسمة الخيول بدقة */
+            #tawla-board .top-left { top: 6.5% !important; left: 12.8% !important; width: 33.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; }
+            #tawla-board .bottom-left { bottom: 6.5% !important; left: 12.8% !important; width: 33.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; direction: ltr !important; }
+            #tawla-board .top-right { top: 6.5% !important; right: 10.5% !important; width: 33.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; }
+            #tawla-board .bottom-right { bottom: 6.5% !important; right: 10.5% !important; width: 33.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; direction: ltr !important; }
 
-            /* 🌟 تصغير الحجر قليلاً ليظهر الفراغ بوضوح دون تداخل */
-            #tawla-board .piece { width: 12.2cqw !important; height: 12.2cqw !important; }
+            /* 🌟 تصغير حجم الحجر قليلاً ليتناسب مع المثلثات النحيفة في هذه الساحة ويمنع التداخل البصري */
+            #tawla-board .piece { width: 11.2cqw !important; height: 11.2cqw !important; }
             #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
             #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
         `
     },
+
 
     // 3. الساحة الجديدة الثانية (2.webp)
     'bg_new_2': { 
