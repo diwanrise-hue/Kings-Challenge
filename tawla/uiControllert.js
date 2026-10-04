@@ -929,7 +929,7 @@ export const ui = {
                 pointDiv.className = 'point'; pointDiv.dataset.index = i;
                 
                 // 🌟 الحل هنا: أزلنا width: 16.6% لكي يطيع المثلث نظام الـ Grid والـ Gap الخاص بالساحة الديناميكية
-                pointDiv.style.cssText = `height: 100%; width: 100%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
+                pointDiv.style.cssText = `width: 100%; height: 100%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
                 document.getElementById(q).appendChild(pointDiv);
             }
             
