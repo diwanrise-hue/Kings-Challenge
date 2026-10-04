@@ -905,7 +905,7 @@ export const ui = {
     },
 
     
-        renderBoard(forceRebuild = false) {
+    renderBoard(forceRebuild = false) {
         const board = this.getEl('tawla-board');
         if (!board) return;
         
@@ -928,22 +928,19 @@ export const ui = {
                 let pointDiv = document.createElement('div');
                 pointDiv.className = 'point'; pointDiv.dataset.index = i;
                 
-                // 🌟 إصلاح اللمس: تم إضافة height: 100% هنا لكي تستجيب المثلثات الفارغة للنقر
-                pointDiv.style.cssText = `width: 16.6%; height: 100%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
+                // 🌟 الحل هنا: أزلنا width: 16.6% لكي يطيع المثلث نظام الـ Grid والـ Gap الخاص بالساحة الديناميكية
+                pointDiv.style.cssText = `height: 100%; width: 100%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-          
             // إضافة أشرطة إخراج الأحجار (العلوي والسفلي) إذا لم تكن موجودة
             if(!document.getElementById('bear-off-top')) {
                 let boTop = document.createElement('div'); boTop.id = 'bear-off-top';
-                // تم التعديل هنا: top:-75px لإبعادها عن الطاولة، وتغيير الألوان والظلال لتبدو كصندوق فاخر مستقل
                 boTop.style.cssText = "position:absolute; top:-75px; left:0; width:100%; height:48px; background:linear-gradient(to right, #2b170e, #3d2214 50%, #2b170e); border:3px solid #1f1008; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 5px 15px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.7); z-index:20; box-sizing:border-box;";
                 boTop.innerHTML = `<div id="out-white" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
                 board.appendChild(boTop);
 
                 let boBottom = document.createElement('div'); boBottom.id = 'bear-off-bottom';
-                // تم التعديل هنا: bottom:-75px لإبعادها عن الطاولة من الأسفل
                 boBottom.style.cssText = "position:absolute; bottom:-75px; left:0; width:100%; height:48px; background:linear-gradient(to right, #2b170e, #3d2214 50%, #2b170e); border:3px solid #1f1008; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 5px 15px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.7); z-index:20; box-sizing:border-box;";
                 boBottom.innerHTML = `<div id="out-black" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
                 board.appendChild(boBottom);
@@ -964,10 +961,10 @@ export const ui = {
                 let pointDiv = board.querySelector(`.point[data-index="${i}"]`);
                 for(let c=0; c<pt.count; c++) {
                     let piece = document.createElement('div'); piece.className = `piece ${pt.color}`;
-           // تداخل الأحجار الديناميكي بناءً على حجم الشاشة
-           if(c > 4) piece.style.marginTop = 'calc(-60%)'; 
-           if(i >= 12 && c > 4) { piece.style.marginTop = '0'; piece.style.marginBottom = 'calc(-60%)'; }
-           pointDiv.appendChild(piece);
+                    // تداخل الأحجار الديناميكي بناءً على حجم الشاشة
+                    if(c > 4) piece.style.marginTop = 'calc(-60%)'; 
+                    if(i >= 12 && c > 4) { piece.style.marginTop = '0'; piece.style.marginBottom = 'calc(-60%)'; }
+                    pointDiv.appendChild(piece);
                 }
             }
         });
@@ -991,6 +988,7 @@ export const ui = {
             document.getElementById('out-black').appendChild(p);
         }
     },
+
 
         updateDiceUI(isNewRoll = false) {
         const d1El = this.getEl('die1'); const d2El = this.getEl('die2');
