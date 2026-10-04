@@ -44,7 +44,7 @@ export const STORE_ITEMS = {
             #tawla-board .bottom-right { bottom: 5.3% !important; right: 11.7% !important; width: 35% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; direction: ltr !important; column-gap: 6.7% !important; }
 
             /* 🌟 السر لظهور المسافة: تصغير الحجر قليلاً ليسمح للفراغ بالظهور */
-            #tawla-board .piece { width: 13cqw !important;0 height: 13cqw !important; }
+            #tawla-board .piece { width: 13cqw !important; height: 13cqw !important; }
             
             #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, 
             #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
