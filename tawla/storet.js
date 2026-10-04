@@ -18,9 +18,9 @@ export const STORE_ITEMS = {
         linkedScore: 'score_default',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 4.5% !important; left: 7.8% !important; width: 37.6% !important; height: 37.6% !important; }
-            #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; direction: ltr !important; } /* 👈 السر هنا */
+            #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; direction: ltr !important; }
             #tawla-board .top-right { top: 4.5% !important; right: 7.88% !important; width: 37.6% !important; height: 37.6% !important; }
-            #tawla-board .bottom-right { bottom: 6% !important; right: 7.9% !important; width: 37.6% !important; height: 37.6% !important; direction: ltr !important; } /* 👈 وهنا */
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7.9% !important; width: 37.6% !important; height: 37.6% !important; direction: ltr !important; }
             
             #tawla-board .piece { width: 13.66cqw !important; height: 13.66cqw !important; }
             
@@ -32,25 +32,24 @@ export const STORE_ITEMS = {
         `
     },
 
-
-        // 2. الساحة الجديدة الأولى (1.webp)
+    // 2. الساحة الجديدة الأولى (1.webp) - ساحة الأبطال 🌟 (تم الضبط الدقيق هنا)
     'bg_new_1': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         boardLayoutCSS: `
-            /* 🌟 إضافة display: grid لتفعيل خاصية column-gap بنجاح */
-            #tawla-board .top-left { top: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 17px !important; }
-            #tawla-board .bottom-left { bottom: 6% !important; left: 10.8% !important; width: 36% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 12px !important; direction: ltr !important; }
-            #tawla-board .top-right { top: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 9.8px !important; }
-            #tawla-board .bottom-right { bottom: 6% !important; right: 7.5% !important; width: 36% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 16px !important; direction: ltr !important; }
+            /* استخدام عرض متطابق ومسافات مرنة (%) مع إلزام المتصفح بنظام الشبكة */
+            #tawla-board .top-left { top: 6% !important; left: 10.5% !important; width: 37.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 1.5% !important; }
+            #tawla-board .bottom-left { bottom: 6% !important; left: 10.5% !important; width: 37.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 1.5% !important; direction: ltr !important; }
+            #tawla-board .top-right { top: 6% !important; right: 7.5% !important; width: 37.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 1.5% !important; }
+            #tawla-board .bottom-right { bottom: 6% !important; right: 7.5% !important; width: 37.5% !important; height: 38% !important; display: grid !important; grid-template-columns: repeat(6, 1fr) !important; column-gap: 1.5% !important; direction: ltr !important; }
 
-            #tawla-board .piece { width: 13cqw !important; height: 13cqw !important; }
+            /* 🌟 تصغير الحجر قليلاً ليظهر الفراغ بوضوح دون تداخل */
+            #tawla-board .piece { width: 12.2cqw !important; height: 12.2cqw !important; }
             #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
             #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
         `
     },
-
 
     // 3. الساحة الجديدة الثانية (2.webp)
     'bg_new_2': { 
@@ -100,7 +99,6 @@ export const STORE_ITEMS = {
         scoreBorder1: 'none', scoreBorder2: 'none' 
     }
 };
-
 
 window.STORE_ITEMS = STORE_ITEMS;
 
@@ -268,7 +266,7 @@ export const storeManager = {
         }
     },
 
-        getProfile() {
+    getProfile() {
         let profile = null;
         let localStr = localStorage.getItem('hub_user_profile');
         
