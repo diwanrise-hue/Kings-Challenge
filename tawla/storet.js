@@ -33,7 +33,7 @@ export const STORE_ITEMS = {
     },
 
 
-    // 2. الساحة الجديدة الأولى (1.webp)
+        // 2. الساحة الجديدة الأولى (1.webp)
     'bg_new_1': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
@@ -50,6 +50,7 @@ export const STORE_ITEMS = {
             #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
         `
     },
+
 
     // 3. الساحة الجديدة الثانية (2.webp)
     'bg_new_2': { 
