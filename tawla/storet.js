@@ -40,9 +40,9 @@ export const STORE_ITEMS = {
         linkedScore: 'score_default',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
-            #tawla-board .bottom-left { bottom: 5.1% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important;}
+            #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important;}
             #tawla-board .top-right { top: 6.15% !important; right: 6.7% !important; width: 41.2% !important; height: 41.2% !important; }
-            #tawla-board .bottom-right { bottom: 5.1% !important; right: 6.7% !important; width: 41.1% !important; height: 41.1% !important;  }
+            #tawla-board .bottom-right { bottom: 4.5% !important; right: 6.7% !important; width: 41.1% !important; height: 41.1% !important;  }
 
             /* 🌟 السر لظهور المسافة: تصغير الحجر قليلاً ليسمح للفراغ بالظهور */
             #tawla-board .piece { width: 11.54cqw !important; height: 11.54cqw !important; }
