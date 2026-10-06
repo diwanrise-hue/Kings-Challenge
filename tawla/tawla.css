@@ -1973,3 +1973,93 @@ body.online-mode-active .game-container {
     overflow: hidden !important;
 }
 
+/* ========================================== */
+/* 🎲 تصميم النرد ثلاثي الأبعاد (3D Dice) 🎲 */
+/* ========================================== */
+.tawla-die {
+    width: 36px;
+    height: 36px;
+    perspective: 600px; /* لتفعيل المنظور ثلاثي الأبعاد */
+    z-index: 100;
+}
+
+.dice-3d-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d; /* مهم جداً للحفاظ على شكل المكعب */
+    /* سرعة دوران النرد أثناء الرمي */
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.dice-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f8f9fa, #e0e0e0); /* لون النرد (أبيض/رمادي) */
+    border: 1px solid #b0b0b0;
+    border-radius: 6px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
+    display: grid;
+    padding: 6px;
+    box-sizing: border-box;
+    backface-visibility: hidden; /* إخفاء الأوجه الخلفية أثناء الدوران */
+}
+
+/* 📐 أبعاد ومواقع أوجه المكعب الستة */
+.face-front  { transform: rotateY(0deg) translateZ(18px); }
+.face-back   { transform: rotateY(180deg) translateZ(18px); }
+.face-right  { transform: rotateY(90deg) translateZ(18px); }
+.face-left   { transform: rotateY(-90deg) translateZ(18px); }
+.face-top    { transform: rotateX(90deg) translateZ(18px); }
+.face-bottom { transform: rotateX(-90deg) translateZ(18px); }
+
+/* 🌑 تصميم النقاط السوداء (Pips) */
+.pip {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #222;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 1px rgba(255,255,255,0.8);
+    align-self: center;
+    justify-self: center;
+}
+
+/* 🔢 توزيع النقاط على الأوجه باستخدام CSS Grid */
+.face-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+
+.face-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.face-2 .pip:nth-child(1) { align-self: start; justify-self: start; }
+.face-2 .pip:nth-child(2) { align-self: end; justify-self: end; }
+
+.face-3 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+.face-3 .pip:nth-child(1) { align-self: start; justify-self: start; }
+.face-3 .pip:nth-child(2) { align-self: center; justify-self: center; grid-area: 2 / 2; }
+.face-3 .pip:nth-child(3) { align-self: end; justify-self: end; grid-area: 3 / 3; }
+
+.face-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+.face-5 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+.face-5 .pip:nth-child(1) { align-self: start; justify-self: start; grid-area: 1 / 1; }
+.face-5 .pip:nth-child(2) { align-self: start; justify-self: end; grid-area: 1 / 3; }
+.face-5 .pip:nth-child(3) { align-self: center; justify-self: center; grid-area: 2 / 2; }
+.face-5 .pip:nth-child(4) { align-self: end; justify-self: start; grid-area: 3 / 1; }
+.face-5 .pip:nth-child(5) { align-self: end; justify-self: end; grid-area: 3 / 3; }
+
+.face-6 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+
+/* 🚀 حركة النرد: القفز في الهواء (Arc Animations) */
+@keyframes rollArc1 {
+    0% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-80px) scale(1.1); }
+    100% { transform: translateY(0) scale(1); }
+}
+@keyframes rollArc2 {
+    0% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-100px) scale(1.15); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+.roll-arc-1 { animation: rollArc1 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
+.roll-arc-2 { animation: rollArc2 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
