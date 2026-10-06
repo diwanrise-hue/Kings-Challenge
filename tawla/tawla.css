@@ -1974,71 +1974,93 @@ body.online-mode-active .game-container {
 }
 
 /* ========================================== */
-/* 🎲 الإصلاح الجذري للنرد (منع التشوه) 🎲 */
+/* 🌟 إصلاح مشكلة انقطاع النرد واختراقه للطاولة 🌟 */
 /* ========================================== */
-.tawla-die {
-    width: 36px !important;
-    height: 36px !important;
-    position: relative !important;
-    perspective: 1200px !important; /* منظور مريح وواقعي */
-    z-index: 10000 !important;
-    margin: 0 5px !important;
-}
-
-.dice-3d-wrapper {
-    width: 100% !important;
-    height: 100% !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
+#dice-container {
+    /* الحفاظ على التوسيط + رفع النرد 80 بكسل للأعلى في البعد الثالث (Z) لكي يطفو فوق الطاولة المائلة */
+    transform: translate(50%, -50%) translateZ(80px) !important;
+    
+    /* السماح للمكعبات (الأبناء) بالحفاظ على شكلها الثلاثي الأبعاد */
     transform-style: preserve-3d !important;
-    transition: transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    
+    /* التأكد من ظهوره فوق جميع العناصر الأخرى */
+    z-index: 9999 !important;
+    
+    /* إزالة أي إخفاء للأجزاء البارزة */
+    overflow: visible !important;
 }
 
+/* ========================================== */
+/* 🎲 النرد ثلاثي الأبعاد (هندسة دقيقة ومغلقة) 🎲 */
+/* ========================================== */
+
+/* 1. الحاوية الخارجية للنرد */
+.tawla-die {
+    width: 32px !important;
+    height: 32px !important;
+    margin: 0 6px !important;
+    perspective: 800px !important;
+    /* 🌟 هذا السطر كان مفقوداً وهو ما يمنع التسطيح */
+    transform-style: preserve-3d !important; 
+    z-index: 1000 !important;
+}
+
+/* 2. الغلاف الداخلي الدوار */
+.dice-3d-wrapper {
+    position: relative !important;
+    width: 32px !important;
+    height: 32px !important;
+    transform-style: preserve-3d !important;
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+/* 3. أوجه النرد (بطاقات صلبة) */
 .dice-face {
     position: absolute !important;
-    width: 36px !important;
-    height: 36px !important;
+    width: 32px !important;
+    height: 32px !important;
     top: 0 !important;
     left: 0 !important;
     margin: 0 !important;
-    padding: 5px !important;
     box-sizing: border-box !important;
     
-    /* 🌟 ألوان النرد الفاخرة بدون استخدام Border لمنع كسر المقاسات */
-    background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%) !important;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.1), 0 0 1px rgba(0,0,0,0.5) !important;
-    border-radius: 6px !important;
+    /* خلفية الوجه وتنعيم الحواف */
+    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%) !important;
+    border: 1px solid #cccccc !important;
+    border-radius: 4px !important; /* تقليل الانحناء لإغلاق الزوايا بقوة */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1) !important;
     
+    /* ترتيب النقاط الداخلية */
     display: grid !important;
+    padding: 4px !important;
     
-    /* 🛡️ السر في منع التشوه: إخفاء الأوجه الخلفية الإجباري للهواتف */
+    /* منع ظهور الأوجه الخلفية */
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
 }
 
-/* 📐 بناء المكعب بدقة متناهية (النصف = 18 بكسل) */
-.face-front  { transform: rotateY(0deg) translateZ(18px) !important; }
-.face-back   { transform: rotateY(180deg) translateZ(18px) !important; }
-.face-right  { transform: rotateY(90deg) translateZ(18px) !important; }
-.face-left   { transform: rotateY(-90deg) translateZ(18px) !important; }
-.face-top    { transform: rotateX(90deg) translateZ(18px) !important; }
-.face-bottom { transform: rotateX(-90deg) translateZ(18px) !important; }
+/* 📐 4. إغلاق المكعب رياضياً (القطر 32.. نصفه 16 تماماً) */
+.face-front  { transform: rotateY(0deg) translateZ(16px) !important; }
+.face-back   { transform: rotateY(180deg) translateZ(16px) !important; }
+.face-right  { transform: rotateY(90deg) translateZ(16px) !important; }
+.face-left   { transform: rotateY(-90deg) translateZ(16px) !important; }
+.face-top    { transform: rotateX(90deg) translateZ(16px) !important; }
+.face-bottom { transform: rotateX(-90deg) translateZ(16px) !important; }
 
-/* 🌑 تصميم النقاط المحفورة */
+/* 🌑 5. النقاط المحفورة */
 .pip {
     display: block !important;
-    width: 7px !important;
-    height: 7px !important;
+    width: 6px !important;
+    height: 6px !important;
     border-radius: 50% !important;
     background-color: #111 !important;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,1) !important;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,1) !important;
     align-self: center !important;
     justify-self: center !important;
     margin: 0 !important;
 }
 
-/* 🔢 شبكة توزيع النقاط */
+/* 🔢 6. شبكة توزيع النقاط */
 .face-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
 .face-2 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
 .face-2 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; }
@@ -2056,34 +2078,17 @@ body.online-mode-active .game-container {
 .face-5 .pip:nth-child(5) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
 .face-6 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
 
-/* 🚀 أنيميشن القفز لتأثير التدحرج الواقعي */
+/* 🚀 7. أنيميشن القفز */
 @keyframes rollArc1 {
     0% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-70px) scale(1.1); }
+    50% { transform: translateY(-60px) scale(1.1); }
     100% { transform: translateY(0) scale(1); }
 }
 @keyframes rollArc2 {
     0% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-90px) scale(1.15); }
+    50% { transform: translateY(-80px) scale(1.15); }
     100% { transform: translateY(0) scale(1); }
 }
 
-.roll-arc-1 { animation: rollArc1 0.7s cubic-bezier(0.25, 1, 0.5, 1) !important; }
-.roll-arc-2 { animation: rollArc2 0.7s cubic-bezier(0.25, 1, 0.5, 1) !important; }
-
-/* ========================================== */
-/* 🌟 إصلاح مشكلة انقطاع النرد واختراقه للطاولة 🌟 */
-/* ========================================== */
-#dice-container {
-    /* الحفاظ على التوسيط + رفع النرد 80 بكسل للأعلى في البعد الثالث (Z) لكي يطفو فوق الطاولة المائلة */
-    transform: translate(50%, -50%) translateZ(80px) !important;
-    
-    /* السماح للمكعبات (الأبناء) بالحفاظ على شكلها الثلاثي الأبعاد */
-    transform-style: preserve-3d !important;
-    
-    /* التأكد من ظهوره فوق جميع العناصر الأخرى */
-    z-index: 9999 !important;
-    
-    /* إزالة أي إخفاء للأجزاء البارزة */
-    overflow: visible !important;
-}
+.roll-arc-1 { animation: rollArc1 0.6s cubic-bezier(0.25, 1, 0.5, 1) !important; }
+.roll-arc-2 { animation: rollArc2 0.6s cubic-bezier(0.25, 1, 0.5, 1) !important; }
