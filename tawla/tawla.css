@@ -1972,68 +1972,70 @@ body.online-mode-active .game-container {
     width: 100% !important;
     overflow: hidden !important;
 }
-
 /* ========================================== */
-/* 🎲 الإصلاح النهائي لتسطيح النرد في الهواتف 🎲 */
+/* 🎲 الإصلاح الجذري لمشكلة تسطيح النرد (3D Fix) 🎲 */
 /* ========================================== */
 
-/* 1. إجبار كامل الشاشة على عدم إخفاء الأبعاد */
-.game-container, 
-#tawla-board-wrapper {
-    overflow: visible !important;
+/* 1. حاوية النرد الجديدة (بدون Flexbox لمنع التسطيح) */
+.fixed-3d-dice-container {
+    position: absolute !important;
+    top: 50% !important;
+    right: 25% !important;
+    /* النرد حجمه 32px، نرفعه بمقدار 16px لكي يجلس تماماً على الطاولة، ونضيف قليلاً من الارتفاع للظل */
+    transform: translate(50%, -50%) translateZ(18px) !important;
     transform-style: preserve-3d !important;
     -webkit-transform-style: preserve-3d !important;
+    width: 80px !important;
+    height: 32px !important;
+    z-index: 9999 !important;
+    pointer-events: none !important;
 }
 
-/* 2. حاوية النرد (منظور الرؤية) */
-#dice-container {
-    perspective: 1000px !important;
-    -webkit-perspective: 1000px !important;
-    transform-style: preserve-3d !important;
-    -webkit-transform-style: preserve-3d !important;
-    z-index: 99999 !important;
-    overflow: visible !important;
-}
-
-/* 3. النرد الخارجي */
+/* 2. النرد الخارجي (تموضع مطلق بدلاً من Gap الخاص بـ Flexbox) */
 .tawla-die {
+    position: absolute !important;
+    top: 0 !important;
     width: 32px !important;
     height: 32px !important;
-    margin: 0 6px !important;
     transform-style: preserve-3d !important;
     -webkit-transform-style: preserve-3d !important;
 }
 
-/* 4. الغلاف الدوار */
+/* تفريق النردين عن بعضهما يميناً ويساراً */
+#die1 { left: 0 !important; }
+#die2 { right: 0 !important; }
+
+/* 3. الغلاف الدوار للمكعب */
 .dice-3d-wrapper {
     position: relative !important;
     width: 100% !important;
     height: 100% !important;
     transform-style: preserve-3d !important;
     -webkit-transform-style: preserve-3d !important;
-    transition: transform 0.6s ease-out !important;
+    /* إضافة ظلال حقيقية أسفل المكعب لتعزيز الواقعية */
+    filter: drop-shadow(0 15px 10px rgba(0, 0, 0, 0.4)) !important;
 }
 
-/* 5. أوجه النرد (تصميم مبسط جداً لكي لا ينهار في الهواتف) */
+/* 4. أوجه النرد */
 .dice-face {
     position: absolute !important;
     width: 32px !important;
     height: 32px !important;
     top: 0 !important;
     left: 0 !important;
-    background-color: #ffffff !important; /* لون ثابت بدلاً من التدرج لمنع الانهيار */
-    border: 1px solid #888888 !important;
+    background-color: #f8f9fa !important; 
+    border: 1px solid #d1d5db !important;
     border-radius: 4px !important;
     display: grid !important;
     padding: 4px !important;
     box-sizing: border-box !important;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1) !important;
     
-    /* منع ظهور الأوجه من الخلف */
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
 }
 
-/* 6. إغلاق المكعب (16 بكسل هو نصف 32) */
+/* 5. إغلاق المكعب (16px هي نصف حجم النرد 32px) */
 .face-front  { transform: rotateY(  0deg) translateZ(16px) !important; }
 .face-back   { transform: rotateY(180deg) translateZ(16px) !important; }
 .face-right  { transform: rotateY( 90deg) translateZ(16px) !important; }
@@ -2041,66 +2043,21 @@ body.online-mode-active .game-container {
 .face-top    { transform: rotateX( 90deg) translateZ(16px) !important; }
 .face-bottom { transform: rotateX(-90deg) translateZ(16px) !important; }
 
-/* 7. النقاط السوداء */
+/* 6. النقاط السوداء (Pips) */
 .pip {
     display: block !important;
-    width: 6px !important;
-    height: 6px !important;
+    width: 7px !important;
+    height: 7px !important;
     border-radius: 50% !important;
-    background-color: #000000 !important;
+    background-color: #1a1a24 !important;
+    box-shadow: inset 0 2px 3px rgba(255,255,255,0.4) !important;
     align-self: center !important;
     justify-self: center !important;
     margin: 0 !important;
 }
 
-/* 8. شبكة توزيع النقاط */
-.face-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
-.face-2 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
-.face-2 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; }
-.face-2 .pip:nth-child(2) { align-self: end !important; justify-self: end !important; }
-.face-3 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
-.face-3 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; }
-.face-3 .pip:nth-child(2) { align-self: center !important; justify-self: center !important; grid-area: 2 / 2 !important; }
-.face-3 .pip:nth-child(3) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
-.face-4 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
-.face-5 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
-.face-5 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; grid-area: 1 / 1 !important; }
-.face-5 .pip:nth-child(2) { align-self: start !important; justify-self: end !important; grid-area: 1 / 3 !important; }
-.face-5 .pip:nth-child(3) { align-self: center !important; justify-self: center !important; grid-area: 2 / 2 !important; }
-.face-5 .pip:nth-child(4) { align-self: end !important; justify-self: start !important; grid-area: 3 / 1 !important; }
-.face-5 .pip:nth-child(5) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
-.face-6 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
-
-/* 9. حركات القفز */
-@keyframes rollArc1 { 0% { transform: translateY(0); } 50% { transform: translateY(-50px); } 100% { transform: translateY(0); } }
-@keyframes rollArc2 { 0% { transform: translateY(0); } 50% { transform: translateY(-70px); } 100% { transform: translateY(0); } }
-.roll-arc-1 { animation: rollArc1 0.6s ease-in-out !important; }
-.roll-arc-2 { animation: rollArc2 0.6s ease-in-out !important; }
-/* ========================================== */
-/* 🛡️️ إصلاح اختفاء الأزرار السفلية وحماية الواجهة 🛡️ */
-/* ========================================== */
-
-/* 1. تحديد ارتفاع اللعبة لترك مساحة آمنة للشريط السفلي */
-.game-container {
-    max-height: calc(100dvh - 140px) !important; 
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: auto 0 !important;
-}
-
-/* 2. سحب جميع الأزرار والقوائم للأمام لتطفو فوق الطاولة المائلة */
-.control-panel,
-#bottom-control-panel,
-.side-menu-overlay,
-.modal-overlay,
-#status-area,
-#hamburger-menu-btn,
-#bag-quick-btn,
-#floating-quests-btn,
-#profile-badge,
-#toast-notification {
-    transform: translateZ(500px) !important; 
-    -webkit-transform: translateZ(500px) !important;
-    z-index: 9999999 !important;
-}
+/* 7. حركات القفز (تم تعديلها لتقفز في محور Z نحو الشاشة لتكون واقعية) */
+@keyframes rollArc1 { 0% { transform: translateZ(0); } 50% { transform: translateZ(60px); } 100% { transform: translateZ(0); } }
+@keyframes rollArc2 { 0% { transform: translateZ(0); } 50% { transform: translateZ(80px); } 100% { transform: translateZ(0); } }
+.roll-arc-1 { animation: rollArc1 0.6s cubic-bezier(0.25, 1, 0.5, 1) !important; }
+.roll-arc-2 { animation: rollArc2 0.6s cubic-bezier(0.25, 1, 0.5, 1) !important; }
