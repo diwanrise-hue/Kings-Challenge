@@ -2068,3 +2068,21 @@ body.online-mode-active .game-container {
 
 .roll-arc-1 { animation: rollArc1 0.8s cubic-bezier(0.25, 1, 0.5, 1) !important; }
 .roll-arc-2 { animation: rollArc2 0.8s cubic-bezier(0.25, 1, 0.5, 1) !important; }
+
+
+/* ========================================== */
+/* 🌟 إصلاح مشكلة انقطاع النرد واختراقه للطاولة 🌟 */
+/* ========================================== */
+#dice-container {
+    /* الحفاظ على التوسيط + رفع النرد 80 بكسل للأعلى في البعد الثالث (Z) لكي يطفو فوق الطاولة المائلة */
+    transform: translate(50%, -50%) translateZ(80px) !important;
+    
+    /* السماح للمكعبات (الأبناء) بالحفاظ على شكلها الثلاثي الأبعاد */
+    transform-style: preserve-3d !important;
+    
+    /* التأكد من ظهوره فوق جميع العناصر الأخرى */
+    z-index: 9999 !important;
+    
+    /* إزالة أي إخفاء للأجزاء البارزة */
+    overflow: visible !important;
+}
