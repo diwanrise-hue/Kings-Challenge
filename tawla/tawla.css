@@ -2076,3 +2076,31 @@ body.online-mode-active .game-container {
 @keyframes rollArc2 { 0% { transform: translateY(0); } 50% { transform: translateY(-70px); } 100% { transform: translateY(0); } }
 .roll-arc-1 { animation: rollArc1 0.6s ease-in-out !important; }
 .roll-arc-2 { animation: rollArc2 0.6s ease-in-out !important; }
+/* ========================================== */
+/* 🛡️️ إصلاح اختفاء الأزرار السفلية وحماية الواجهة 🛡️ */
+/* ========================================== */
+
+/* 1. تحديد ارتفاع اللعبة لترك مساحة آمنة للشريط السفلي */
+.game-container {
+    max-height: calc(100dvh - 140px) !important; 
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: auto 0 !important;
+}
+
+/* 2. سحب جميع الأزرار والقوائم للأمام لتطفو فوق الطاولة المائلة */
+.control-panel,
+#bottom-control-panel,
+.side-menu-overlay,
+.modal-overlay,
+#status-area,
+#hamburger-menu-btn,
+#bag-quick-btn,
+#floating-quests-btn,
+#profile-badge,
+#toast-notification {
+    transform: translateZ(500px) !important; 
+    -webkit-transform: translateZ(500px) !important;
+    z-index: 9999999 !important;
+}
