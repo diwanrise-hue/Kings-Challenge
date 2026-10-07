@@ -1981,8 +1981,8 @@ body.online-mode-active .game-container {
     position: absolute !important;
     top: 50% !important;
     right: 25% !important;
-    /* النرد حجمه 32px، نرفعه بمقدار 16px لكي يجلس تماماً على الطاولة، ونضيف قليلاً من الارتفاع للظل */
-    transform: translate(50%, -50%) translateZ(18px) !important;
+    /* تمت إضافة rotateX(7deg) هنا لترث نفس ميلان الطاولة تماماً */
+    transform: translate(50%, -50%) rotateX(7deg) translateZ(18px) !important;
     transform-style: preserve-3d !important;
     -webkit-transform-style: preserve-3d !important;
     width: 80px !important;
@@ -1990,6 +1990,7 @@ body.online-mode-active .game-container {
     z-index: 9999 !important;
     pointer-events: none !important;
 }
+
 
 /* 2. النرد الخارجي (تموضع مطلق بدلاً من Gap الخاص بـ Flexbox) */
 .tawla-die {
