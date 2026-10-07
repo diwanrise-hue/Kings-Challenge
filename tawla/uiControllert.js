@@ -928,7 +928,7 @@ export const ui = {
                 let pointDiv = document.createElement('div');
                 pointDiv.className = 'point'; pointDiv.dataset.index = i;
                 
-                // 🌟 الحل هنا: أزلنا width: 16.6% لكي يطيع المثلث نظام الـ Grid والـ Gap الخاص بالساحة الديناميكية
+                // 🌟  width: 100% لكي يطيع المثلث نظام الـ Grid والـ Gap الخاص بالساحة الديناميكية
                 pointDiv.style.cssText = `width: 100%; height: 100%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
                 document.getElementById(q).appendChild(pointDiv);
             }
@@ -989,97 +989,291 @@ export const ui = {
         }
     },
 
+  updateDiceUI(isNewRoll = false) {
 
-        updateDiceUI(isNewRoll = false) {
-        const d1El = this.getEl('die1'); const d2El = this.getEl('die2');
-        if(!d1El || !d2El) return;
-        
-        if(!gameState.currentDice || gameState.currentDice.length === 0) {
-            d1El.style.display = 'none'; d2El.style.display = 'none';
+    const d1El = this.getEl('die1');
+    const d2El = this.getEl('die2');
+
+    if (!d1El || !d2El) return;
+
+
+    /* =====================================================
+       إخفاء النرد إذا لا توجد نتيجة
+       ===================================================== */
+
+    if (
+        !gameState.currentDice ||
+        gameState.currentDice.length === 0
+    ) {
+        d1El.style.display = 'none';
+        d2El.style.display = 'none';
+        return;
+    }
+
+
+    /* =====================================================
+       إنشاء وجه النرد
+       ===================================================== */
+
+    const createFace = (num, faceClass) => {
+
+        let pips = '';
+
+        for (let i = 0; i < num; i++) {
+            pips += '<span class="pip"></span>';
+        }
+
+        return `
+            <div class="dice-face ${faceClass} face-${num}">
+                ${pips}
+            </div>
+        `;
+    };
+
+
+    /* =====================================================
+       إنشاء مكعب 3D كامل
+       ===================================================== */
+
+    const build3DCube = () => {
+
+        return `
+            <div class="dice-3d-wrapper">
+
+                ${createFace(1, 'face-front')}
+
+                ${createFace(6, 'face-back')}
+
+                ${createFace(3, 'face-right')}
+
+                ${createFace(4, 'face-left')}
+
+                ${createFace(2, 'face-top')}
+
+                ${createFace(5, 'face-bottom')}
+
+            </div>
+        `;
+    };
+
+
+    /* =====================================================
+       وضعية كل رقم
+       
+       ترتيب الأوجه عندنا:
+
+       Front  = 1
+       Back   = 6
+       Right  = 3
+       Left   = 4
+       Top    = 2
+       Bottom = 5
+       ===================================================== */
+
+    const getFinalRotation = (num) => {
+
+        switch (Number(num)) {
+
+            /* الوجه 1 أمام الكاميرا */
+            case 1:
+                return 'rotateX(0deg) rotateY(0deg)';
+
+            /* الوجه 6 أمام الكاميرا */
+            case 6:
+                return 'rotateX(0deg) rotateY(180deg)';
+
+            /* الوجه 3 أمام الكاميرا */
+            case 3:
+                return 'rotateX(0deg) rotateY(-90deg)';
+
+            /* الوجه 4 أمام الكاميرا */
+            case 4:
+                return 'rotateX(0deg) rotateY(90deg)';
+
+            /* الوجه 2 أمام الكاميرا */
+            case 2:
+                return 'rotateX(-90deg) rotateY(0deg)';
+
+            /* الوجه 5 أمام الكاميرا */
+            case 5:
+                return 'rotateX(90deg) rotateY(0deg)';
+
+            default:
+                return 'rotateX(0deg) rotateY(0deg)';
+        }
+    };
+
+
+    /* =====================================================
+       دوران عشوائي أولي
+       ===================================================== */
+
+    const getRandomStartRotation = () => {
+
+        const x =
+            Math.floor(Math.random() * 4) * 90 + 360;
+
+        const y =
+            Math.floor(Math.random() * 4) * 90 + 360;
+
+        const z =
+            Math.floor(Math.random() * 4) * 90;
+
+        return `rotateX(${x}deg)
+                rotateY(${y}deg)
+                rotateZ(${z}deg)`;
+    };
+
+
+    /* =====================================================
+       تجهيز النرد
+       ===================================================== */
+
+    const dice = [
+        {
+            el: d1El,
+            value: gameState.currentDice[0],
+            delay: 0
+        },
+        {
+            el: d2El,
+            value: gameState.currentDice[1],
+            delay: 90
+        }
+    ];
+
+
+    dice.forEach((die, index) => {
+
+        const el = die.el;
+        const value = die.value;
+
+
+        /* -----------------------------------------------
+           لا توجد قيمة
+           ----------------------------------------------- */
+
+        if (value === undefined || value === null) {
+
+            el.style.display = 'none';
+
             return;
         }
 
-        // دالة إنشاء الوجه مع النقاط
-        const createFace = (num, faceClass) => {
-            let pips = ''; for(let i=0; i<num; i++) pips += '<span class="pip"></span>';
-            return `<div class="dice-face ${faceClass} face-${num}">${pips}</div>`;
-        };
 
-        // دالة بناء المكعب بجميع الوجوه (العلوي، السفلي، والجانبية)
-        const build3DCube = () => `
-            <div class="dice-3d-wrapper">
-                ${createFace(1, 'face-front')}
-                ${createFace(6, 'face-back')}
-                ${createFace(3, 'face-right')}
-                ${createFace(4, 'face-left')}
-                ${createFace(2, 'face-top')}
-                ${createFace(5, 'face-bottom')}
-            </div>
-        `;
+        /* -----------------------------------------------
+           إظهار النرد
+           ----------------------------------------------- */
 
-        // حساب زوايا الاستقرار (مع إضافة 3 لفات كاملة = 1080 درجة للتدحرج)
-        const getTransform = (num) => {
-            let rotX = 1080, rotY = 1080;
-            switch(num) {
-                case 1: rotX += 0;   rotY += 0; break;
-                case 6: rotX += 180; rotY += 0; break;
-                case 3: rotX += 0;   rotY += -90; break;
-                case 4: rotX += 0;   rotY += 90; break;
-                case 2: rotX += -90; rotY += 0; break;
-                case 5: rotX += 90;  rotY += 0; break;
-            }
-            // إضافة ميلان خفيف جداً لتبدو الرمية طبيعية وليست روبوتية
-            let randomZ = Math.floor(Math.random() * 20) - 10;
-            return `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${randomZ}deg)`;
-        };
+        el.style.display = 'block';
 
-        // مسار القفز في الهواء (Arc)
-        if (isNewRoll) {
-            d1El.classList.remove('roll-arc-1', 'roll-arc-2'); 
-            d2El.classList.remove('roll-arc-1', 'roll-arc-2');
-            void d1El.offsetWidth; void d2El.offsetWidth; 
-            
-            d1El.classList.add('roll-arc-1');
-            setTimeout(() => d2El.classList.add('roll-arc-2'), 60);
+
+        /* -----------------------------------------------
+           إنشاء المكعب مرة واحدة
+           ----------------------------------------------- */
+
+        let wrapper =
+            el.querySelector('.dice-3d-wrapper');
+
+
+        if (!wrapper) {
+
+            el.innerHTML = build3DCube();
+
+            wrapper =
+                el.querySelector('.dice-3d-wrapper');
         }
 
-        // إظهار النرد وتدويره
-        [ { el: d1El, val: gameState.currentDice[0] }, 
-          { el: d2El, val: gameState.currentDice[1] } 
-        ].forEach((die, index) => {
-            if (die.val !== undefined) {
-                die.el.style.display = 'block';
-                
-                // بناء المكعب إذا لم يكن موجوداً
-                if (!die.el.querySelector('.dice-3d-wrapper')) {
-                    die.el.innerHTML = build3DCube();
-                }
-                
-                let wrapper = die.el.querySelector('.dice-3d-wrapper');
-                
-                if (isNewRoll) {
-                    // وضعية عشوائية قبل الرمية
-                    wrapper.style.transition = 'none';
-                    wrapper.style.transform = `rotateX(${Math.random()*360}deg) rotateY(${Math.random()*360}deg)`;
-                    
-                    // تشغيل الدوران الثلاثي الأبعاد العنيف
-                    setTimeout(() => {
-                        wrapper.style.transition = `transform ${0.8 + (index * 0.1)}s cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
-                        wrapper.style.transform = getTransform(die.val);
-                    }, 50);
-                } else {
-                    wrapper.style.transition = 'none';
-                    wrapper.style.transform = getTransform(die.val);
-                }
-            } else {
-                die.el.style.display = 'none';
-            }
-        });
-    },
+
+        if (!wrapper) return;
 
 
+        /* =================================================
+           رمية جديدة
+           ================================================= */
+
+        if (isNewRoll) {
+
+            /*
+              إزالة الأنيميشن القديم
+            */
+
+            el.classList.remove(
+                'roll-arc-1',
+                'roll-arc-2'
+            );
 
 
+            /*
+              إجبار المتصفح على إعادة تشغيل الأنيميشن
+            */
+
+            void el.offsetWidth;
+
+
+            /*
+              وضع المكعب في زاوية عشوائية
+            */
+
+            wrapper.style.transition = 'none';
+
+            wrapper.style.transform =
+                getRandomStartRotation();
+
+
+            /*
+              بدء القفزة
+            */
+
+            setTimeout(() => {
+
+                el.classList.add(
+                    index === 0
+                        ? 'roll-arc-1'
+                        : 'roll-arc-2'
+                );
+
+            }, die.delay);
+
+
+            /*
+              بعد بداية الرمية،
+              نجعل المكعب يستقر على الرقم الصحيح.
+            */
+
+            setTimeout(() => {
+
+                wrapper.style.transition =
+                    'transform 0.72s cubic-bezier(0.22, 0.75, 0.25, 1)';
+
+                wrapper.style.transform =
+                    getFinalRotation(value);
+
+            }, 90 + die.delay);
+
+        }
+
+
+        /* =================================================
+           لا توجد رمية جديدة
+           ================================================= */
+
+        else {
+
+            el.classList.remove(
+                'roll-arc-1',
+                'roll-arc-2'
+            );
+
+
+            wrapper.style.transition = 'none';
+
+            wrapper.style.transform =
+                getFinalRotation(value);
+        }
+
+    });
+  },
   
         drawEmptyBoard() {
         gameState.gameId = Date.now();
