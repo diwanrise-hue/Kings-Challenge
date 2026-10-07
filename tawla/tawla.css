@@ -1974,40 +1974,50 @@ body.online-mode-active .game-container {
 }
 
 /* =========================================================
-   🎲 TAWLA DICE — BULLETPROOF 3D CUBE FIX
+   🎲 TAWLA DICE - Dynamic Shading & Physics System
    ========================================================= */
 
-/* 1. حاوية النرد: أعدنا preserve-3d لتظل السلسلة متصلة ولا ينهار المكعب */
 .fixed-3d-dice-container {
     position: absolute !important;
     top: 50% !important;
-    right: 25% !important;
-    width: 80px !important;
-    height: 32px !important;
-    transform: translate(50%, -50%) rotateX(7deg) translateZ(10px) !important;
-    /* 🌟 سر عدم الانهيار: السلسلة المتصلة */
+    right: 28% !important;
+    width: 76px !important;
+    height: 36px !important;
+    transform: translate(50%, -50%) translateZ(12px) !important;
     transform-style: preserve-3d !important;
-    -webkit-transform-style: preserve-3d !important;
     z-index: 9999 !important;
     pointer-events: none !important;
 }
 
-/* 2. جسم النرد (المسؤول عن حركة القفز) */
 .tawla-die {
     position: absolute !important;
     top: 0 !important;
-    width: 32px !important;
-    height: 32px !important;
+    width: 24px !important;
+    height: 24px !important;
     transform-style: preserve-3d !important;
-    -webkit-transform-style: preserve-3d !important;
-    /* إجبار المعالج الرسومي للعمل لتجنب التقطيع */
     will-change: transform !important;
 }
 
-#die1 { left: 0 !important; }
-#die2 { right: 0 !important; }
+#die1 { left: 0px !important; top: -12px !important; }
+#die2 { right: 0px !important; top: 14px !important; }
 
-/* 3. الغلاف الدوار (المسؤول عن الدوران) */
+/* ظل التلامس الواقعي */
+.dice-contact-shadow {
+    position: absolute;
+    width: 30px;
+    height: 26px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.15) 50%, transparent 75%);
+    transform: translateZ(-11px);
+    pointer-events: none;
+    z-index: 1;
+    display: none;
+    will-change: transform, opacity;
+}
+
+#shadow1 { left: -3px; top: -8px; }
+#shadow2 { left: 49px; top: 18px; }
+
 .dice-3d-wrapper {
     position: absolute !important;
     left: 0 !important;
@@ -2015,54 +2025,60 @@ body.online-mode-active .game-container {
     width: 100% !important;
     height: 100% !important;
     transform-style: preserve-3d !important;
-    -webkit-transform-style: preserve-3d !important;
     will-change: transform !important;
+    z-index: 2;
 }
 
-/* 4. الأوجه */
+/* إضاءة الأوجه وتظليلها */
 .dice-face {
     position: absolute !important;
-    width: 32px !important;
-    height: 32px !important;
-    left: 0 !important;
-    top: 0 !important;
+    width: 24px !important;
+    height: 24px !important;
     box-sizing: border-box !important;
-    padding: 4px !important;
+    padding: 3px !important;
     display: grid !important;
-    background-color: #f8f9fa !important;
-    border: 1px solid #c0c0c0 !important;
-    border-radius: 4px !important;
-    box-shadow: inset 0 0 4px rgba(0,0,0,0.15) !important;
-    
-    /* 🌟 خط الدفاع الأقوى لمنع التداخل والشفافية */
+    border-radius: 1px !important;
     backface-visibility: hidden !important;
-    -webkit-backface-visibility: hidden !important;
+    border: 0px solid rgba(0, 0, 0, 0.2) !important;
+    box-shadow: none !important;
+    background: linear-gradient(145deg, #ffffff 0%, #fbfbfb 55%, #ececec 100%) !important;
+    filter: none !important;
+    --shade: 0;
 }
 
-/* 5. إغلاق المكعب بقوة 
-   (استخدمنا 15.6px بدلاً من 16px لكي تتداخل الحواف قليلاً جداً وتمنع ظهور الشقوق في الهواتف) */
-.face-front  { transform: rotateY(0deg) translateZ(15.6px) !important; }
-.face-back   { transform: rotateY(180deg) translateZ(15.6px) !important; }
-.face-right  { transform: rotateY(90deg) translateZ(15.6px) !important; }
-.face-left   { transform: rotateY(-90deg) translateZ(15.6px) !important; }
-.face-top    { transform: rotateX(90deg) translateZ(15.6px) !important; }
-.face-bottom { transform: rotateX(-90deg) translateZ(15.6px) !important; }
+.dice-face::before {
+    content: ""; position: absolute; inset: -0.5px; border-radius: 2px;
+    box-shadow: inset 0 0 2.2px rgba(0, 0, 0, 0.30), inset 0.6px 0.6px 0.9px rgba(255, 255, 255, 0.85);
+    pointer-events: none; z-index: 3;
+}
 
-/* 6. النقاط (Pips) */
+.dice-face::after {
+    content: ""; position: absolute; inset: -0.5px; border-radius: 2px;
+    background: #0a0510; opacity: var(--shade); transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.dice-3d-wrapper.rolling .dice-face::after { transition: none; }
+.dice-face.is-top    { --shade: 0; }
+.dice-face.is-side   { --shade: 0.45; }
+.dice-face.is-bottom { --shade: 0.7; }
+
+.face-front  { transform: rotateY(0deg) translateZ(12px) !important; }
+.face-back   { transform: rotateY(180deg) translateZ(12px) !important; }
+.face-right  { transform: rotateY(90deg) translateZ(12px) !important; }
+.face-left   { transform: rotateY(-90deg) translateZ(12px) !important; }
+.face-top    { transform: rotateX(90deg) translateZ(12px) !important; }
+.face-bottom { transform: rotateX(-90deg) translateZ(12px) !important; }
+
+/* نقاط النرد الحمراء */
 .pip {
-    display: block !important;
-    width: 6.5px !important;
-    height: 6.5px !important;
-    border-radius: 50% !important;
-    background-color: #1a1a24 !important;
-    box-shadow: inset 0 1px 3px rgba(255,255,255,0.5) !important;
-    align-self: center !important;
-    justify-self: center !important;
-    margin: 0 !important;
+    display: block !important; width: 4.8px !important; height: 4.8px !important;
+    border-radius: 50% !important; background: #111111 !important; box-shadow: none !important;
+    filter: none !important; align-self: center !important; justify-self: center !important; margin: 0 !important;
 }
 
-/* توزيع النقاط */
 .face-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
+.face-1 .pip { width: 6.5px !important; height: 6.5px !important; background: #e01616 !important; }
 .face-2 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
 .face-2 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; }
 .face-2 .pip:nth-child(2) { align-self: end !important; justify-self: end !important; }
@@ -2078,21 +2094,3 @@ body.online-mode-active .game-container {
 .face-5 .pip:nth-child(4) { align-self: end !important; justify-self: start !important; grid-area: 3 / 1 !important; }
 .face-5 .pip:nth-child(5) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
 .face-6 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
-
-/* 7. حركات القفز: استخدام translate3d يضمن بقاء المعالج في وضع التسريع الرسومي ولا يسقط للـ 2D */
-@keyframes diceJump1 {
-    0%   { transform: translate3d(0, 0, 0); }
-    50%  { transform: translate3d(-10px, -45px, 20px); }
-    100% { transform: translate3d(0, 0, 0); }
-}
-@keyframes diceJump2 {
-    0%   { transform: translate3d(0, 0, 0); }
-    50%  { transform: translate3d(10px, -65px, 30px); }
-    100% { transform: translate3d(0, 0, 0); }
-}
-
-.roll-arc-1 { animation: diceJump1 0.6s cubic-bezier(0.25, 1, 0.5, 1) both !important; }
-.roll-arc-2 { animation: diceJump2 0.6s cubic-bezier(0.25, 1, 0.5, 1) both !important; }
-
-/* منع أي ظلال وهمية تكسر الـ 3D */
-.tawla-die::after { display: none !important; }
