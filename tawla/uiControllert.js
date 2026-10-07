@@ -1236,15 +1236,57 @@ export const ui = {
         saveGameState(); this.updateProfileUI(); this.startTurn();
     },
 
-
     clearHighlights() {
         const board = this.getEl('tawla-board');
         if (!board) return;
+        
+        // مسح الخانات المظللة
         const highlighted = board.getElementsByClassName('highlight');
         while (highlighted.length > 0) highlighted[0].classList.remove('highlight');
-        const multiCells = board.getElementsByClassName('multi-choice-cell');
-        while (multiCells.length > 0) multiCells[0].classList.remove('multi-choice-cell');
+        
+        // مسح توهج الأحجار المتاحة
+        const playables = board.getElementsByClassName('playable-piece');
+        while (playables.length > 0) playables[0].classList.remove('playable-piece');
+
+        // إزالة حالة التحديد من الخانة
+        const selected = board.getElementsByClassName('selected-point');
+        while (selected.length > 0) selected[0].classList.remove('selected-point');
     },
+
+      highlightPlayablePieces() {
+        if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
+        if (!gameState.currentDice || gameState.currentDice.length === 0) return;
+
+        this.clearHighlights(); // تنظيف أي توهج قديم
+
+        // 1. الأولوية للبار: إذا كان لديك حجر مأكول، يجب أن تلعبه أولاً
+        if (gameState.virtualBoard.bar[gameState.playerColor] > 0) {
+            let validMoves = gameEngine.getValidMovesForPoint('bar', gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
+            if (validMoves.length > 0) {
+                let barContainer = document.getElementById(gameState.playerColor === 'white' ? 'bar-white' : 'bar-black');
+                if (barContainer && barContainer.lastChild) {
+                    barContainer.lastChild.classList.add('playable-piece');
+                }
+            }
+            return; // نوقف التنفيذ هنا لأن اللاعب مجبر على اللعب من البار
+        }
+
+        // 2. إذا لم يكن هناك أحجار في البار، نفحص باقي الخانات
+        for (let i = 0; i < 24; i++) {
+            let point = gameState.virtualBoard.points[i];
+            if (point.count > 0 && point.color === gameState.playerColor) {
+                let validMoves = gameEngine.getValidMovesForPoint(i, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
+                if (validMoves.length > 0) {
+                    let pointDiv = document.querySelector(`.point[data-index="${i}"]`);
+                    // إضاءة الحجر العلوي فقط في الخانة
+                    if (pointDiv && pointDiv.lastChild) {
+                        pointDiv.lastChild.classList.add('playable-piece');
+                    }
+                }
+            }
+        }
+    },
+
 
     highlightMove(from, to) {
         const board = this.getEl('tawla-board'); if (!board) return;
@@ -2852,16 +2894,20 @@ function hasPlayerMoved() {
         ui.updateDiceUI(true);
         ui.startTurnTimer();
 
-        // التحقق مما إذا كان هناك حركة متاحة بعد الرمي
-        if (!gameEngine.hasAnyValidMove(gameState.currentTurn, gameState.virtualBoard, gameState.currentDice)) {
-            setTimeout(() => {
+        // 🌟 ننتظر 1.2 ثانية (حتى ينتهي النرد من التدحرج ويستقر) ثم نفحص الحركات
+        setTimeout(() => {
+            if (!gameEngine.hasAnyValidMove(gameState.currentTurn, gameState.virtualBoard, gameState.currentDice)) {
                 ui.showCustomAlert("لا توجد حركات متاحة، انتقال الدور.");
                 gameState.currentTurn = gameState.currentTurn === 'white' ? 'black' : 'white';
                 gameState.currentDice = [];
                 ui.startTurn();
-            }, 1500);
-        }
+            } else {
+                // 🌟 إضاءة الأحجار المتاحة للعب!
+                ui.highlightPlayablePieces();
+            }
+        }, 1200);
     });
+
 
 ui.onClick('reset-btn', () => {
     if (gameState.isSpectator) {
