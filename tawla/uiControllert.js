@@ -998,7 +998,7 @@ export const ui = {
 
 
     /* =====================================================
-       إخفاء النرد إذا لا توجد نتيجة
+       لا توجد نتيجة نرد
        ===================================================== */
 
     if (
@@ -1012,19 +1012,19 @@ export const ui = {
 
 
     /* =====================================================
-       إنشاء وجه النرد
+       إنشاء وجه
        ===================================================== */
 
-    const createFace = (num, faceClass) => {
+    const createFace = (number, className) => {
 
         let pips = '';
 
-        for (let i = 0; i < num; i++) {
-            pips += '<span class="pip"></span>';
+        for (let i = 0; i < number; i++) {
+            pips += `<span class="pip"></span>`;
         }
 
         return `
-            <div class="dice-face ${faceClass} face-${num}">
+            <div class="dice-face ${className} face-${number}">
                 ${pips}
             </div>
         `;
@@ -1032,7 +1032,7 @@ export const ui = {
 
 
     /* =====================================================
-       إنشاء مكعب 3D كامل
+       إنشاء مكعب كامل
        ===================================================== */
 
     const build3DCube = () => {
@@ -1058,102 +1058,184 @@ export const ui = {
 
 
     /* =====================================================
-       وضعية كل رقم
+       وضعية الرقم النهائية
        
-       ترتيب الأوجه عندنا:
-
-       Front  = 1
-       Back   = 6
-       Right  = 3
-       Left   = 4
-       Top    = 2
-       Bottom = 5
+       لا نضع الوجه مباشرة أمام الكاميرا.
+       نضيف زاوية منظور ثابتة حتى تظهر:
+       
+       - الوجه الرئيسي
+       - الوجه العلوي
+       - الوجه الجانبي
+       
+       مثل النرد الموجود في الصورة الثانية.
        ===================================================== */
 
-    const getFinalRotation = (num) => {
+    const getFinalRotation = (number) => {
 
-        switch (Number(num)) {
+        const VIEW_X = -18;
+        const VIEW_Y = -18;
 
-            /* الوجه 1 أمام الكاميرا */
+        /*
+         * 3 دورات كاملة لإعطاء إحساس دوران حقيقي.
+         */
+        const SPIN_X = 720;
+        const SPIN_Y = 720;
+
+
+        switch (Number(number)) {
+
+            /*
+             * 1 أمام
+             */
             case 1:
-                return 'rotateX(0deg) rotateY(0deg)';
 
-            /* الوجه 6 أمام الكاميرا */
+                return `
+                    rotateX(${SPIN_X}deg)
+                    rotateY(${SPIN_Y}deg)
+                    rotateX(${VIEW_X}deg)
+                    rotateY(${VIEW_Y}deg)
+                `;
+
+
+            /*
+             * 6 أمام
+             */
             case 6:
-                return 'rotateX(0deg) rotateY(180deg)';
 
-            /* الوجه 3 أمام الكاميرا */
+                return `
+                    rotateX(${SPIN_X}deg)
+                    rotateY(${180 + SPIN_Y}deg)
+                    rotateX(${VIEW_X}deg)
+                    rotateY(${VIEW_Y}deg)
+                `;
+
+
+            /*
+             * 3 أمام
+             */
             case 3:
-                return 'rotateX(0deg) rotateY(-90deg)';
 
-            /* الوجه 4 أمام الكاميرا */
+                return `
+                    rotateX(${SPIN_X}deg)
+                    rotateY(${-90 + SPIN_Y}deg)
+                    rotateX(${VIEW_X}deg)
+                    rotateY(${VIEW_Y}deg)
+                `;
+
+
+            /*
+             * 4 أمام
+             */
             case 4:
-                return 'rotateX(0deg) rotateY(90deg)';
 
-            /* الوجه 2 أمام الكاميرا */
+                return `
+                    rotateX(${SPIN_X}deg)
+                    rotateY(${90 + SPIN_Y}deg)
+                    rotateX(${VIEW_X}deg)
+                    rotateY(${VIEW_Y}deg)
+                `;
+
+
+            /*
+             * 2 أعلى
+             */
             case 2:
-                return 'rotateX(-90deg) rotateY(0deg)';
 
-            /* الوجه 5 أمام الكاميرا */
+                return `
+                    rotateX(${-90 + SPIN_X}deg)
+                    rotateY(${SPIN_Y}deg)
+                    rotateX(${VIEW_X}deg)
+                    rotateY(${VIEW_Y}deg)
+                `;
+
+
+            /*
+             * 5 أسفل
+             */
             case 5:
-                return 'rotateX(90deg) rotateY(0deg)';
+
+                return `
+                    rotateX(${90 + SPIN_X}deg)
+                    rotateY(${SPIN_Y}deg)
+                    rotateX(${VIEW_X}deg)
+                    rotateY(${VIEW_Y}deg)
+                `;
+
 
             default:
-                return 'rotateX(0deg) rotateY(0deg)';
+
+                return `
+                    rotateX(${SPIN_X}deg)
+                    rotateY(${SPIN_Y}deg)
+                    rotateX(${VIEW_X}deg)
+                    rotateY(${VIEW_Y}deg)
+                `;
         }
     };
 
 
     /* =====================================================
-       دوران عشوائي أولي
+       وضعية بداية عشوائية
        ===================================================== */
 
-    const getRandomStartRotation = () => {
+    const getRandomRotation = () => {
 
         const x =
-            Math.floor(Math.random() * 4) * 90 + 360;
+            360 +
+            Math.floor(Math.random() * 4) * 90;
 
         const y =
-            Math.floor(Math.random() * 4) * 90 + 360;
+            360 +
+            Math.floor(Math.random() * 4) * 90;
 
         const z =
             Math.floor(Math.random() * 4) * 90;
 
-        return `rotateX(${x}deg)
-                rotateY(${y}deg)
-                rotateZ(${z}deg)`;
+        return `
+            rotateX(${x}deg)
+            rotateY(${y}deg)
+            rotateZ(${z}deg)
+        `;
     };
 
 
     /* =====================================================
-       تجهيز النرد
+       النردان
        ===================================================== */
 
     const dice = [
+
         {
             el: d1El,
             value: gameState.currentDice[0],
-            delay: 0
+            delay: 0,
+            animation: 'roll-arc-1'
         },
+
         {
             el: d2El,
             value: gameState.currentDice[1],
-            delay: 90
+            delay: 90,
+            animation: 'roll-arc-2'
         }
+
     ];
 
 
-    dice.forEach((die, index) => {
+    /* =====================================================
+       معالجة كل نرد
+       ===================================================== */
+
+    dice.forEach((die) => {
 
         const el = die.el;
         const value = die.value;
 
 
-        /* -----------------------------------------------
-           لا توجد قيمة
-           ----------------------------------------------- */
-
-        if (value === undefined || value === null) {
+        if (
+            value === undefined ||
+            value === null
+        ) {
 
             el.style.display = 'none';
 
@@ -1161,24 +1243,18 @@ export const ui = {
         }
 
 
-        /* -----------------------------------------------
-           إظهار النرد
-           ----------------------------------------------- */
-
         el.style.display = 'block';
 
 
-        /* -----------------------------------------------
-           إنشاء المكعب مرة واحدة
-           ----------------------------------------------- */
-
+        /* إنشاء المكعب */
         let wrapper =
             el.querySelector('.dice-3d-wrapper');
 
 
         if (!wrapper) {
 
-            el.innerHTML = build3DCube();
+            el.innerHTML =
+                build3DCube();
 
             wrapper =
                 el.querySelector('.dice-3d-wrapper');
@@ -1195,8 +1271,8 @@ export const ui = {
         if (isNewRoll) {
 
             /*
-              إزالة الأنيميشن القديم
-            */
+             * تنظيف الحركة السابقة
+             */
 
             el.classList.remove(
                 'roll-arc-1',
@@ -1205,57 +1281,54 @@ export const ui = {
 
 
             /*
-              إجبار المتصفح على إعادة تشغيل الأنيميشن
-            */
+             * إعادة تشغيل animation
+             */
 
             void el.offsetWidth;
 
 
             /*
-              وضع المكعب في زاوية عشوائية
-            */
+             * وضعية عشوائية
+             */
 
             wrapper.style.transition = 'none';
 
             wrapper.style.transform =
-                getRandomStartRotation();
+                getRandomRotation();
 
 
             /*
-              بدء القفزة
-            */
+             * بدء القفزة
+             */
 
             setTimeout(() => {
 
                 el.classList.add(
-                    index === 0
-                        ? 'roll-arc-1'
-                        : 'roll-arc-2'
+                    die.animation
                 );
 
             }, die.delay);
 
 
             /*
-              بعد بداية الرمية،
-              نجعل المكعب يستقر على الرقم الصحيح.
-            */
+             * دوران المكعب
+             */
 
             setTimeout(() => {
 
                 wrapper.style.transition =
-                    'transform 0.72s cubic-bezier(0.22, 0.75, 0.25, 1)';
+                    'transform .82s cubic-bezier(.18,.78,.25,1)';
 
                 wrapper.style.transform =
                     getFinalRotation(value);
 
-            }, 90 + die.delay);
+            }, 100 + die.delay);
 
         }
 
 
         /* =================================================
-           لا توجد رمية جديدة
+           عرض النرد بدون رمية
            ================================================= */
 
         else {
@@ -1266,7 +1339,8 @@ export const ui = {
             );
 
 
-            wrapper.style.transition = 'none';
+            wrapper.style.transition =
+                'none';
 
             wrapper.style.transform =
                 getFinalRotation(value);
