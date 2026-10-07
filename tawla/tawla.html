@@ -606,11 +606,15 @@
             <!-- 🌟 زر رمي النرد (تم نقله للخارج مع إضافة زاوية الميلان) -->
             <button id="roll-dice-btn" style="display: none; position: absolute; top: 40%; right: 25%; transform: translate(50%, -50%) rotateX(7deg) translateZ(40px); z-index: 100;">رمي النرد 🎲</button>
 
-            <!-- 🌟 حاوية النرد (تم نقلها للخارج) -->
-            <div id="dice-container" class="fixed-3d-dice-container">
-                <div id="die1" class="tawla-die" style="display: none;"></div>
-                <div id="die2" class="tawla-die" style="display: none;"></div>
-            </div>
+                    <!-- 🌟 حاوية النرد 3D 🌟 -->
+        <div id="dice-container" class="fixed-3d-dice-container">
+            <!-- الظلال منفصلة عن النرد حتى تبقى على مستوى الطاولة أثناء القفزة -->
+            <div id="shadow1" class="dice-contact-shadow"></div>
+            <div id="shadow2" class="dice-contact-shadow"></div>
+            <div id="die1" class="tawla-die" style="display: none;"></div>
+            <div id="die2" class="tawla-die" style="display: none;"></div>
+        </div>
+
 
         </div>
     </div>
