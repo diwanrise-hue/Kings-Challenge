@@ -594,30 +594,28 @@
         </div>
     </div>
 
-          <!-- 🎲 حاوية الطاولة الجديدة 🎲 -->
-    <div class="game-container" style="flex-direction: column; padding: 0 !important; width: 100vw !important; overflow: visible; perspective: 1200px;">
-    
-        <div id="tawla-board-wrapper" style="position: relative; width: 100vw; max-width: 550px; aspect-ratio: 1 / 1.35; margin: 0 auto; display: flex; justify-content: center; align-items: center; transform-style: preserve-3d;">
-            
-            <!-- الطاولة التي تملك الميلان 7 درجات -->
-            <div id="tawla-board" style="position: absolute; inset: 0; width: 100%; height: 100%; transform-style: preserve-3d;">
-            </div>
+<!-- 🎲 حاوية الطاولة الجديدة 🎲 -->
+<div class="game-container" style="flex-direction: column; padding: 0 !important; width: 100vw !important; overflow: visible; perspective: 1200px;">
 
-            <!-- 🌟 زر رمي النرد (تم نقله للخارج مع إضافة زاوية الميلان) -->
-            <button id="roll-dice-btn" style="display: none; position: absolute; top: 40%; right: 25%; transform: translate(50%, -50%) rotateX(7deg) translateZ(40px); z-index: 100;">رمي النرد 🎲</button>
+    <div id="tawla-board-wrapper" style="position: relative; width: 100vw; max-width: 550px; aspect-ratio: 1 / 1.35; margin: 0 auto; display: flex; justify-content: center; align-items: center; transform-style: preserve-3d;">
+        
+        <!-- 🌟 الطاولة (فارغة لأن الجافاسكربت سيرسم بداخلها) 🌟 -->
+        <div id="tawla-board" style="position: absolute; inset: 0; width: 100%; height: 100%;">
+        </div>
 
-                    <!-- 🌟 حاوية النرد 3D 🌟 -->
+        <!-- 🌟 الزر الحقيقي للعبة (تم إخراجه لحمايته من المسح) 🌟 -->
+        <button id="roll-dice-btn" style="display: none; position: absolute; top: 40%; right: 25%; transform: translate(50%, -50%) translateZ(40px); z-index: 100000; padding: 10px 20px; background: #ffd700; border: 2px solid #b8860b; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.5);">رمي النرد 🎲</button>
+
+        <!-- 🌟 حاوية النرد 3D (تم إخراجها أيضاً لحمايتها) 🌟 -->
         <div id="dice-container" class="fixed-3d-dice-container">
-            <!-- الظلال منفصلة عن النرد حتى تبقى على مستوى الطاولة أثناء القفزة -->
             <div id="shadow1" class="dice-contact-shadow"></div>
             <div id="shadow2" class="dice-contact-shadow"></div>
             <div id="die1" class="tawla-die" style="display: none;"></div>
             <div id="die2" class="tawla-die" style="display: none;"></div>
         </div>
 
-
-        </div>
     </div>
+</div>
 
     
     <div id="side-menu-overlay" class="side-menu-overlay" onclick="if(event.target === this) toggleSideMenu()">
