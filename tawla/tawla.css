@@ -1,6 +1,6 @@
-/* ========= */
+/* ==== */
 /* tawla.css */
-/* ========= */
+/* ==== */
 :root {
     --point-light: #DEB887; 
     --point-dark: #8B4513;  
@@ -1972,16 +1972,18 @@ body.online-mode-active .game-container {
     width: 100% !important;
     overflow: hidden !important;
 }
+
+
 /* ========================================== */
-/* 🎲 الإصلاح الجذري لمشكلة تسطيح النرد (3D Fix) 🎲 */
+/* 🎲 الإصلاح النهائي والجذري للنرد (3D Fix) 🎲 */
 /* ========================================== */
 
-/* 1. حاوية النرد الجديدة (بدون Flexbox لمنع التسطيح) */
+/* 1. حاوية النرد الأساسية */
 .fixed-3d-dice-container {
     position: absolute !important;
     top: 50% !important;
     right: 25% !important;
-    /* تمت إضافة rotateX(7deg) هنا لترث نفس ميلان الطاولة تماماً */
+    /* زاوية 7 درجات ليتماشى مع الطاولة، ورفعناه 18 بكسل ليجلس فوق السطح */
     transform: translate(50%, -50%) rotateX(7deg) translateZ(18px) !important;
     transform-style: preserve-3d !important;
     -webkit-transform-style: preserve-3d !important;
@@ -1991,8 +1993,7 @@ body.online-mode-active .game-container {
     pointer-events: none !important;
 }
 
-
-/* 2. النرد الخارجي (تموضع مطلق بدلاً من Gap الخاص بـ Flexbox) */
+/* 2. النرد الخارجي */
 .tawla-die {
     position: absolute !important;
     top: 0 !important;
@@ -2002,19 +2003,29 @@ body.online-mode-active .game-container {
     -webkit-transform-style: preserve-3d !important;
 }
 
-/* تفريق النردين عن بعضهما يميناً ويساراً */
 #die1 { left: 0 !important; }
 #die2 { right: 0 !important; }
 
-/* 3. الغلاف الدوار للمكعب */
+/* 3. الغلاف الدوار للمكعب (السر هنا: أزلنا الـ filter الذي كان يدمر الـ 3D) */
 .dice-3d-wrapper {
     position: relative !important;
     width: 100% !important;
     height: 100% !important;
     transform-style: preserve-3d !important;
     -webkit-transform-style: preserve-3d !important;
-    /* إضافة ظلال حقيقية أسفل المكعب لتعزيز الواقعية */
-    filter: drop-shadow(0 15px 10px rgba(0, 0, 0, 0.4)) !important;
+}
+
+/* 🌟 إضافة ظل وهمي للنرد لا يكسر البعد الثالث 🌟 */
+.tawla-die::after {
+    content: '';
+    position: absolute;
+    top: 5px; left: 2px;
+    width: 28px; height: 28px;
+    background: rgba(0, 0, 0, 0.4);
+    filter: blur(4px);
+    border-radius: 6px;
+    transform: translateZ(-16px); /* نضع الظل تحت النرد تماماً */
+    z-index: -1;
 }
 
 /* 4. أوجه النرد */
@@ -2026,17 +2037,18 @@ body.online-mode-active .game-container {
     left: 0 !important;
     background-color: #f8f9fa !important; 
     border: 1px solid #d1d5db !important;
-    border-radius: 4px !important;
+    border-radius: 6px !important; /* تدوير الزوايا قليلاً ليصبح أجمل */
     display: grid !important;
     padding: 4px !important;
     box-sizing: border-box !important;
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.1) !important;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.15) !important; /* تظليل داخلي لواقعية أكثر */
     
+    /* منع ظهور الوجوه الخلفية */
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
 }
 
-/* 5. إغلاق المكعب (16px هي نصف حجم النرد 32px) */
+/* 5. إغلاق المكعب بقوة (16 بكسل = نصف حجم النرد) */
 .face-front  { transform: rotateY(  0deg) translateZ(16px) !important; }
 .face-back   { transform: rotateY(180deg) translateZ(16px) !important; }
 .face-right  { transform: rotateY( 90deg) translateZ(16px) !important; }
@@ -2057,8 +2069,34 @@ body.online-mode-active .game-container {
     margin: 0 !important;
 }
 
-/* 7. حركات القفز (تم تعديلها لتقفز في محور Z نحو الشاشة لتكون واقعية) */
-@keyframes rollArc1 { 0% { transform: translateZ(0); } 50% { transform: translateZ(60px); } 100% { transform: translateZ(0); } }
-@keyframes rollArc2 { 0% { transform: translateZ(0); } 50% { transform: translateZ(80px); } 100% { transform: translateZ(0); } }
+/* توزيع النقاط */
+.face-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
+.face-2 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
+.face-2 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; }
+.face-2 .pip:nth-child(2) { align-self: end !important; justify-self: end !important; }
+.face-3 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
+.face-3 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; }
+.face-3 .pip:nth-child(2) { align-self: center !important; justify-self: center !important; grid-area: 2 / 2 !important; }
+.face-3 .pip:nth-child(3) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
+.face-4 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
+.face-5 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
+.face-5 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; grid-area: 1 / 1 !important; }
+.face-5 .pip:nth-child(2) { align-self: start !important; justify-self: end !important; grid-area: 1 / 3 !important; }
+.face-5 .pip:nth-child(3) { align-self: center !important; justify-self: center !important; grid-area: 2 / 2 !important; }
+.face-5 .pip:nth-child(4) { align-self: end !important; justify-self: start !important; grid-area: 3 / 1 !important; }
+.face-5 .pip:nth-child(5) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
+.face-6 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
+
+/* 7. حركات القفز المتطورة (تقفز للأعلى باتجاه الشاشة ثم تسقط) */
+@keyframes rollArc1 { 
+    0% { transform: translateZ(0); } 
+    50% { transform: translateZ(50px); } 
+    100% { transform: translateZ(0); } 
+}
+@keyframes rollArc2 { 
+    0% { transform: translateZ(0); } 
+    50% { transform: translateZ(70px); } 
+    100% { transform: translateZ(0); } 
+}
 .roll-arc-1 { animation: rollArc1 0.6s cubic-bezier(0.25, 1, 0.5, 1) !important; }
 .roll-arc-2 { animation: rollArc2 0.6s cubic-bezier(0.25, 1, 0.5, 1) !important; }
