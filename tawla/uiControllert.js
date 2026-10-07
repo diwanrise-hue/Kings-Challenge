@@ -116,6 +116,40 @@ function getUserIdLocally() {
 }
 
 // ==========================================
+// 🎲 ثوابت محرك النرد الفيزيائي 🎲
+// ==========================================
+const DIE_SIZE = 24;          
+const ROLL_DURATION = 1.15;   
+const ROLL_DECEL = 2.4;       
+const START_FRACTION = 0.40;  
+const rollFrames = [null, null];
+const valueToClass = { 1: 'face-front', 2: 'face-top', 3: 'face-right', 4: 'face-left', 5: 'face-bottom', 6: 'face-back' };
+const FACE_NORMALS = {
+    'face-front':  [0, 0, 1], 'face-back':   [0, 0, -1],
+    'face-right':  [1, 0, 0], 'face-left':   [-1, 0, 0],
+    'face-top':    [0, -1, 0], 'face-bottom': [0, 1, 0]
+};
+const DIE_VIEWS = [ { x: 9, y: -3 }, { x: 9, y: -2 } ];
+const LIGHT = (() => { const v = [-0.5, -0.55, 0.7]; const len = Math.hypot(v[0], v[1], v[2]); return v.map(c => c / len); })();
+const SHADE_GAIN = 0.62;   
+const SHADE_MAX  = 0.68;   
+
+function restingFaceLight(finalRot, topNormal) {
+    const n = new DOMMatrix(finalRot).transformPoint(new DOMPoint(topNormal[0], topNormal[1], topNormal[2], 0));
+    return n.x * LIGHT[0] + n.y * LIGHT[1] + n.z * LIGHT[2];
+}
+
+function applyFaceShading(faceInfo, m, refD) {
+    const dot = (n) => n.x * LIGHT[0] + n.y * LIGHT[1] + n.z * LIGHT[2];
+    const toView = (a) => m.transformPoint(new DOMPoint(a[0], a[1], a[2], 0));
+    faceInfo.forEach(f => {
+        const d = dot(toView(f.normal));
+        const shade = Math.min(SHADE_MAX, Math.max(0, SHADE_GAIN * (refD - d) / (refD + 0.4)));
+        f.el.style.setProperty('--shade', shade.toFixed(3));
+    });
+}
+
+// ==========================================
 // 🌟 الكائن الأساسي للتحكم بالواجهة (UI Controller)
 // ==========================================
 export const ui = {
@@ -989,107 +1023,166 @@ export const ui = {
         }
     },
 
-    updateDiceUI(isNewRoll = false) {
+      updateDiceUI(isNewRoll = false) {
         const d1El = this.getEl('die1');
         const d2El = this.getEl('die2');
+        const s1El = this.getEl('shadow1');
+        const s2El = this.getEl('shadow2');
+        const boardEl = this.getEl('tawla-board');
 
         if (!d1El || !d2El) return;
 
         if (!gameState.currentDice || gameState.currentDice.length === 0) {
             d1El.style.display = 'none';
             d2El.style.display = 'none';
+            if(s1El) s1El.style.display = 'none';
+            if(s2El) s2El.style.display = 'none';
             return;
         }
 
         const createFace = (num, faceClass) => {
             let pips = '';
-            for (let i = 0; i < num; i++) {
-                pips += '<span class="pip"></span>';
-            }
+            for (let i = 0; i < num; i++) { pips += '<span class="pip"></span>'; }
             return `<div class="dice-face ${faceClass} face-${num}">${pips}</div>`;
         };
 
-        const build3DCube = () => {
-            return `
-                <div class="dice-3d-wrapper">
-                    ${createFace(1, 'face-front')}
-                    ${createFace(6, 'face-back')}
-                    ${createFace(3, 'face-right')}
-                    ${createFace(4, 'face-left')}
-                    ${createFace(2, 'face-top')}
-                    ${createFace(5, 'face-bottom')}
-                </div>
-            `;
-        };
+        const build3DCube = () => `
+            <div class="dice-3d-wrapper">
+                ${createFace(1, 'face-front')}
+                ${createFace(6, 'face-back')}
+                ${createFace(3, 'face-right')}
+                ${createFace(4, 'face-left')}
+                ${createFace(2, 'face-top')}
+                ${createFace(5, 'face-bottom')}
+            </div>
+        `;
 
-        // الزوايا النهائية مع ميلان خفيف (Tilt) لتبدو واقعية وليست مسطحة أمام الكاميرا
-        const getFinalRotation = (num) => {
-            const tX = -10, tY = -15, tZ = 5; 
+        const getRotation = (num, rollDeg, view) => {
+            let faceTurn = "";
             switch (Number(num)) {
-                case 1: return `rotateX(${0+tX}deg) rotateY(${0+tY}deg) rotateZ(${tZ}deg)`;
-                case 6: return `rotateX(${0+tX}deg) rotateY(${180+tY}deg) rotateZ(${tZ}deg)`;
-                case 3: return `rotateX(${0+tX}deg) rotateY(${-90+tY}deg) rotateZ(${tZ}deg)`;
-                case 4: return `rotateX(${0+tX}deg) rotateY(${90+tY}deg) rotateZ(${tZ}deg)`;
-                case 2: return `rotateX(${-90+tX}deg) rotateY(${0+tY}deg) rotateZ(${tZ}deg)`;
-                case 5: return `rotateX(${90+tX}deg) rotateY(${0+tY}deg) rotateZ(${tZ}deg)`;
-                default: return 'rotateX(0deg) rotateY(0deg)';
+                case 1: faceTurn = "rotateX(0deg)"; break;
+                case 2: faceTurn = "rotateX(-90deg)"; break;
+                case 3: faceTurn = "rotateY(-90deg)"; break;
+                case 4: faceTurn = "rotateY(90deg)"; break;
+                case 5: faceTurn = "rotateX(90deg)"; break;
+                case 6: faceTurn = "rotateX(180deg)"; break;
+                default: faceTurn = "rotateX(0deg)"; break;
             }
+            return `rotateX(${view.x}deg) rotateX(${rollDeg}deg) rotateY(${view.y}deg) ${faceTurn}`;
         };
 
-        // دوران عشوائي قوي أثناء الرمية
-        const getRandomStartRotation = () => {
-            const x = Math.floor(Math.random() * 360) + 720;
-            const y = Math.floor(Math.random() * 360) + 720;
-            const z = Math.floor(Math.random() * 360) + 360;
-            return `rotateX(${x}deg) rotateY(${y}deg) rotateZ(${z}deg)`;
-        };
+        const boardH = (boardEl && boardEl.offsetHeight) || 700;
+        const baseTurns = Math.max(4, Math.round((boardH * START_FRACTION) / DIE_SIZE));
 
         const dice = [
-            { el: d1El, value: gameState.currentDice[0], delay: 0 },
-            { el: d2El, value: gameState.currentDice[1], delay: 80 } // تأخير بسيط للنرد الثاني
+            { el: d1El, shadow: s1El, value: gameState.currentDice[0], delay: 0, turns: baseTurns, view: DIE_VIEWS[0] },
+            { el: d2El, shadow: s2El, value: gameState.currentDice[1], delay: 90, turns: baseTurns - 1, view: DIE_VIEWS[1] }
         ];
 
         dice.forEach((die, index) => {
             const el = die.el;
+            const shadow = die.shadow;
             const value = die.value;
 
-            if (value === undefined || value === null) {
-                el.style.display = 'none';
-                return;
-            }
-
+            if (value === undefined || value === null) return;
             el.style.display = 'block';
+            if (shadow) shadow.style.display = 'block';
 
             let wrapper = el.querySelector('.dice-3d-wrapper');
             if (!wrapper) {
-                el.innerHTML = build3DCube();
+                el.insertAdjacentHTML('beforeend', build3DCube());
                 wrapper = el.querySelector('.dice-3d-wrapper');
             }
-            if (!wrapper) return;
 
-            if (isNewRoll) {
-                el.classList.remove('roll-arc-1', 'roll-arc-2');
-                void el.offsetWidth; // إجبار المتصفح على إعادة الرسوميات (Reflow)
-                
+            if (!isNewRoll) {
+                const finalRot = getRotation(value, 0, die.view);
                 wrapper.style.transition = 'none';
-                wrapper.style.transform = getRandomStartRotation();
-
-                setTimeout(() => {
-                    el.classList.add(index === 0 ? 'roll-arc-1' : 'roll-arc-2');
-                }, die.delay);
-
-                setTimeout(() => {
-                    wrapper.style.transition = 'transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1)';
-                    wrapper.style.transform = getFinalRotation(value);
-                }, 50 + die.delay);
-
-            } else {
-                el.classList.remove('roll-arc-1', 'roll-arc-2');
-                wrapper.style.transition = 'none';
-                wrapper.style.transform = getFinalRotation(value);
+                wrapper.style.transform = finalRot;
+                return;
             }
+
+            if (rollFrames[index]) cancelAnimationFrame(rollFrames[index]);
+
+            const finalRot = getRotation(value, 0, die.view);
+            const topNormal = FACE_NORMALS[valueToClass[value]];
+            const refD = restingFaceLight(finalRot, topNormal);
+            const faces = Array.from(wrapper.querySelectorAll('.dice-face'));
+            const faceInfo = faces.map(f => {
+                const cls = Object.keys(FACE_NORMALS).find(c => f.classList.contains(c));
+                return { el: f, normal: FACE_NORMALS[cls] };
+            });
+
+            faces.forEach(f => {
+                f.classList.remove('is-top', 'is-side', 'is-bottom');
+                f.style.removeProperty('--shade');
+            });
+
+            wrapper.style.transition = 'none';
+            wrapper.classList.add('rolling');
+
+            const travel = die.turns * DIE_SIZE;
+            const totalAngle = die.turns * 90;
+
+            const render = (p) => {
+                const e = 1 - Math.pow(1 - p, ROLL_DECEL);
+                const remaining = 1 - e;
+
+                const y = travel * remaining;
+                const roll = -totalAngle * remaining;
+
+                const rad = roll * Math.PI / 180;
+                const lift = DIE_SIZE / 2 * (Math.abs(Math.cos(rad)) + Math.abs(Math.sin(rad)) - 1);
+
+                el.style.transform = `translate3d(0px, ${y}px, ${lift}px)`;
+                const tf = getRotation(value, roll, die.view);
+                wrapper.style.transform = tf;
+
+                applyFaceShading(faceInfo, new DOMMatrix(tf), refD);
+
+                if (shadow) {
+                    shadow.style.transform = `translate3d(0px, ${y}px, -11px) scale(${1 + lift / 40})`;
+                    shadow.style.opacity = String(1 - lift / 14);
+                }
+            };
+
+            const finish = () => {
+                rollFrames[index] = null;
+                el.style.transform = 'translate3d(0px, 0px, 0px)';
+                wrapper.style.transform = finalRot;
+                if (shadow) {
+                    shadow.style.transform = 'translate3d(0px, 0px, -11px)';
+                    shadow.style.opacity = '1';
+                }
+
+                applyFaceShading(faceInfo, new DOMMatrix(finalRot), refD);
+                wrapper.classList.remove('rolling');
+
+                const topClass = valueToClass[value];
+                const bottomClass = valueToClass[7 - value];
+                const allClasses = ['face-front', 'face-back', 'face-right', 'face-left', 'face-top', 'face-bottom'];
+
+                faces.forEach(face => {
+                    const matchedClass = allClasses.find(cls => face.classList.contains(cls));
+                    if (matchedClass === topClass) face.classList.add('is-top');
+                    else if (matchedClass === bottomClass) face.classList.add('is-bottom');
+                    else face.classList.add('is-side');
+                });
+            };
+
+            const startTime = performance.now() + die.delay;
+
+            const step = (now) => {
+                const p = Math.min(Math.max(0, (now - startTime) / 1000) / ROLL_DURATION, 1);
+                render(p);
+                if (p < 1) rollFrames[index] = requestAnimationFrame(step);
+                else finish();
+            };
+
+            render(0);
+            rollFrames[index] = requestAnimationFrame(step);
         });
-    },
+    }, // ⚠️ تأكد من بقاء الفاصلة هنا
+
   
         drawEmptyBoard() {
         gameState.gameId = Date.now();
