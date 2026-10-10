@@ -2188,3 +2188,45 @@ body.online-mode-active .game-container {
     box-shadow: 0 10px 20px rgba(0,0,0,0.6), 0 0 20px #f1c40f !important;
     border: 2px solid #ffd700 !important;
 }
+
+/* =========================================================
+   🛡️ هندسة منطقة البار (المنتصف) وحركة الخصم
+   ========================================================= */
+
+/* وضع البار في منتصف اللوحة الخشبية تماماً */
+#tawla-board .tawla-bar {
+    position: absolute !important;
+    top: 4.5% !important;
+    bottom: 6% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 8% !important; /* عرض المفصل الخشبي */
+    z-index: 45 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    pointer-events: none !important;
+}
+
+#bar-white, #bar-black {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* 🌟 السحر هنا: نجعل حجر اللاعب دائماً في الأعلى وحجر الخصم في الأسفل 🌟 */
+body[data-player-color="white"] #bar-white { order: 1 !important; justify-content: flex-start !important; padding-top: 30% !important; }
+body[data-player-color="white"] #bar-black { order: 2 !important; justify-content: flex-end !important; padding-bottom: 30% !important; }
+
+body[data-player-color="black"] #bar-black { order: 1 !important; justify-content: flex-start !important; padding-top: 30% !important; }
+body[data-player-color="black"] #bar-white { order: 2 !important; justify-content: flex-end !important; padding-bottom: 30% !important; }
+
+/* 🌟 تظليل آخر حركة قام بها الخصم (أو البوت) 🌟 */
+.last-move-highlight {
+    background: rgba(245, 166, 35, 0.25) !important; /* برتقالي شفاف */
+    border: 1px dashed rgba(245, 166, 35, 0.8) !important;
+    border-radius: 4px !important;
+    z-index: 10 !important;
+}
