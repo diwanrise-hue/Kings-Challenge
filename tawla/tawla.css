@@ -2235,16 +2235,17 @@ body[data-player-color="black"] #bar-white { order: 2 !important; justify-conten
     0%   { filter: brightness(1); box-shadow: 0 0 10px 2px rgba(245, 166, 35, 0.6), inset 0 2px 4px rgba(255,255,255,0.6); }
     100% { filter: brightness(1.3); box-shadow: 0 0 25px 8px rgba(245, 166, 35, 1), inset 0 2px 4px rgba(255,255,255,0.6); }
 }
-
 /* =========================================================
-   🚀 تأثير الطيران للحجر (Cinematic Piece Animation)
+   🚀 تأثير الطيران السريع والواقعي (مطابق للفيديو)
    ========================================================= */
 .moving-piece-clone {
-    position: fixed !important; /* يطير فوق كل شيء في الشاشة */
+    position: fixed !important;
     z-index: 999999 !important;
     pointer-events: none !important;
-    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.1) !important;
-    /* ظل كبير ليوحي بأن الحجر مرتفع في الهواء */
-    box-shadow: 0 25px 35px rgba(0,0,0,0.7), 0 0 20px rgba(245, 166, 35, 0.4) !important;
-    border: 2px solid #ffd700 !important;
+    /* توقيت سريع (0.28 ثانية) مع تباطؤ ناعم عند الهبوط ليتطابق مع الفيديو */
+    transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    
+    /* 🌟 السر هنا: ظل عميق يرافق الحجر ليوحي بأنه معلق في الهواء 🌟 */
+    filter: drop-shadow(0px 18px 12px rgba(0,0,0,0.65)) !important;
+    border-radius: 50% !important;
 }
