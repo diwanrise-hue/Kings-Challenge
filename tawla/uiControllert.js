@@ -1433,7 +1433,7 @@ export const ui = {
            // 🌟 البوت ينتظر 1.2 ثانية (حتى يرى النرد يستقر) قبل أن يبدأ التفكير 🌟
           gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 1200);
       }
-
+  },
          
     async triggerComputerMove() {
         let aiColor = gameState.currentTurn;
@@ -3454,5 +3454,3 @@ document.addEventListener('click', (e) => {
         }
     }
 });
-
-    
