@@ -176,7 +176,6 @@ body {
 
 
 /* --- 4. المثلثات أو الخانات (Points) --- */
-/* توضيح: يقوم هذا القسم بتهيئة الأعمدة لتكديس الأحجار وتحديد اتجاهها (للأسفل في الساحات العلوية، وللأعلى في الساحات السفلية). */
 .point {
     position: relative !important;
     width: 100% !important;
@@ -185,6 +184,9 @@ body {
     flex-direction: column;
     align-items: center;
     z-index: 15 !important;
+    /* 👇 التعديل الجديد لضمان النقر على العمود 👇 */
+    pointer-events: auto !important;
+    cursor: pointer !important;
 }
 
 .top-left .point, .top-right .point { justify-content: flex-start; padding-top: 4px; }
@@ -192,7 +194,6 @@ body {
 
 
 /* --- 5. الهيكل الفيزيائي للأحجار وقواعد التداخل --- */
-/* توضيح: يضبط حجم الحجر ليكون متجاوباً (13.66cqw) ويطبق قاعدتك الذكية لتداخل الأحجار إذا زادت عن 5 قطع في الخانة الواحدة. */
 .piece {
     position: relative !important;
     z-index: 50 !important;
@@ -200,7 +201,6 @@ body {
     height: 13.66cqw !important;
     flex: none !important; 
     border-radius: 50% !important;
-    cursor: pointer;
     box-sizing: border-box !important;
     display: flex !important;
     align-items: center !important;
@@ -208,12 +208,61 @@ body {
     transform: translateZ(0) !important; 
     transform-style: preserve-3d;
     transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1.2), box-shadow 0.25s ease, filter 0.25s ease;
+    /* 👇 التعديل الجديد لمنع النقر على الحجر المفرد 👇 */
+    pointer-events: none !important; 
 }
 
+/* تداخل الأحجار عند زيادتها عن 5 */
 .top-left .point .piece:nth-last-child(n+6) ~ .piece, 
 .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -26%; }
 .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, 
 .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -26%; }
+
+
+/* =========================================================
+   ✨ تأثيرات التحديد والتوهج للأحجار (Top Piece Only)
+   ========================================================= */
+
+/* رفع وإضاءة الحجر العلوي (الأخير) فقط عند تحديد العمود */
+.selected-point .piece:last-child {
+    transform: translateZ(15px) scale(1.1) !important;
+    box-shadow: 0 15px 25px rgba(0,0,0,0.6), 0 0 20px #f1c40f !important;
+    border: 2px solid #ffd700 !important;
+    z-index: 150 !important;
+}
+
+/* توهج الحجر العلوي المتاح للعب (أخضر) */
+.playable-piece {
+    box-shadow: 0 0 15px 4px rgba(48, 209, 88, 0.9), inset 0 2px 4px rgba(255,255,255,0.6) !important;
+    animation: piece-pulse 1.2s infinite alternate !important;
+    z-index: 100 !important;
+}
+
+@keyframes piece-pulse {
+    0%   { filter: brightness(1); box-shadow: 0 0 10px 2px rgba(48, 209, 88, 0.6), inset 0 2px 4px rgba(255,255,255,0.6); }
+    100% { filter: brightness(1.2); box-shadow: 0 0 20px 6px rgba(48, 209, 88, 1), inset 0 2px 4px rgba(255,255,255,0.6); }
+}
+
+/* تظليل المثلث (الخانة) المتاح للنزول فيه */
+.highlight {
+    background: linear-gradient(to top, rgba(48, 209, 88, 0.4), transparent) !important;
+    border-bottom: 3px solid #30d158 !important;
+    border-radius: 4px;
+    z-index: 20 !important;
+    animation: target-pulse 1s infinite alternate;
+}
+
+/* عكس التظليل للخانات العلوية */
+.top-left .highlight, .top-right .highlight {
+    background: linear-gradient(to bottom, rgba(48, 209, 88, 0.4), transparent) !important;
+    border-top: 3px solid #30d158 !important;
+    border-bottom: none !important;
+}
+
+@keyframes target-pulse {
+    0%   { opacity: 0.6; }
+    100% { opacity: 1; }
+}
 
 
 /* --- 6. تفاصيل الأحجار الداخلية (النحت واللمعة الزجاجية) --- */
