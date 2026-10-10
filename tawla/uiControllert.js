@@ -1276,12 +1276,14 @@ export const ui = {
         }
     },
   
-      // 🚀 نظام الحركة السينمائي (طيران الحجر) 🚀
+    // 🚀 نظام الحركة السينمائي (طيران الحجر السريع) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
-        if (!board) return onComplete();
+        if (!board) {
+            if(onComplete) onComplete(false);
+            return;
+        }
 
-        // 1. تحديد مكان الانطلاق
         const getContainer = (idx, c) => {
             if (idx === 'bar') return document.getElementById(c === 'white' ? 'bar-white' : 'bar-black');
             if (idx === 'bearOff') return document.getElementById(c === 'white' ? 'bear-off-top' : 'bear-off-bottom');
@@ -1289,28 +1291,27 @@ export const ui = {
         };
 
         const startContainer = getContainer(fromIdx, color);
-        if (!startContainer) return onComplete();
+        if (!startContainer) {
+            if(onComplete) onComplete(false);
+            return;
+        }
 
-        // أخذ الحجر العلوي قبل تحريكه
+        // تحديد الحجر الفعلي بدقة (تجاهل التوهجات والظلال)
         let sourcePiece = startContainer.lastElementChild;
-        if (!sourcePiece) return onComplete();
+        if (!sourcePiece || !sourcePiece.classList.contains('piece')) {
+            const pieces = startContainer.querySelectorAll('.piece');
+            sourcePiece = pieces[pieces.length - 1];
+        }
+        
+        if (!sourcePiece) {
+            if(onComplete) onComplete(false);
+            return;
+        }
 
-        // حساب الإحداثيات الدقيقة على الشاشة
+        // 1. أخذ الإحداثيات الدقيقة قبل أي تغيير
         const startRect = sourcePiece.getBoundingClientRect();
 
-        // 2. صناعة "نسخة طائرة" من الحجر
-        const clone = sourcePiece.cloneNode(true);
-        clone.classList.add('moving-piece-clone');
-        clone.classList.remove('playable-piece', 'last-move-piece', 'selected-point');
-        
-        clone.style.left = `${startRect.left}px`;
-        clone.style.top = `${startRect.top}px`;
-        clone.style.width = `${startRect.width}px`;
-        clone.style.height = `${startRect.height}px`;
-        clone.style.margin = '0'; 
-        document.body.appendChild(clone);
-
-        // 3. تنفيذ الحركة برمجياً وإعادة رسم الطاولة
+        // 2. تنفيذ الحركة برمجياً في عقل اللعبة وإعادة رسم الطاولة فوراً
         let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
         let dieIdx = gameState.currentDice.indexOf(dieUsed);
         if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
@@ -1318,7 +1319,7 @@ export const ui = {
         this.clearHighlights(); 
         this.renderBoard(); 
 
-        // 4. تحديد مكان الهبوط (الحجر الجديد في مكانه الجديد)
+        // 3. العثور على الحجر في مكانه الجديد (لإخفائه ريثما يصل الحجر الطائر)
         const endContainer = getContainer(toIdx, color);
         let targetPiece = null;
 
@@ -1327,37 +1328,55 @@ export const ui = {
             targetPiece = pieces[pieces.length - 1];
         }
 
+        // 4. صناعة النسخة الطائرة (Clone)
+        const clone = sourcePiece.cloneNode(true);
+        clone.classList.add('moving-piece-clone');
+        clone.classList.remove('playable-piece', 'last-move-piece', 'selected-point');
+        
+        // إرجاع الخصائص للشكل الطبيعي وضبط نقطة الانطلاق
+        clone.style.transform = 'none';
+        clone.style.left = `${startRect.left}px`;
+        clone.style.top = `${startRect.top}px`;
+        clone.style.width = `${startRect.width}px`;
+        clone.style.height = `${startRect.height}px`;
+        clone.style.margin = '0'; 
+        document.body.appendChild(clone);
+
+        // 5. حساب المسافة إلى الهدف
         let deltaX = 0, deltaY = 0;
 
         if (targetPiece) {
             const endRect = targetPiece.getBoundingClientRect();
             deltaX = endRect.left - startRect.left;
             deltaY = endRect.top - startRect.top;
-            targetPiece.style.opacity = '0'; // إخفاء الحجر الحقيقي حتى يهبط الطائر
+            targetPiece.style.opacity = '0'; // إخفاء الحجر الأصلي
         } else {
+            // حالة الإخراج (Bear off)
             const endBox = endContainer.getBoundingClientRect();
-            deltaX = endBox.left - startRect.left;
-            deltaY = endBox.top - startRect.top;
+            deltaX = endBox.left - startRect.left + (endBox.width / 2) - (startRect.width / 2);
+            deltaY = endBox.top - startRect.top + (endBox.height / 2) - (startRect.height / 2);
         }
 
         this.playSound(isHit ? sfx.piecesDied : sfx.move);
 
-        // 5. انطلاق الحجر الطائر ✈️
-        void clone.offsetWidth; // إجبار المتصفح على معالجة الحركة
-        clone.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.1)`;
+        // 6. الانطلاق! (تكبير الحجر بنسبة 1.15 ليوحي بالارتفاع)
+        void clone.offsetWidth; // إجبار المتصفح على بدء الحركة
+        clone.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.15)`;
 
-        // 6. هبوط الحجر ومسح النسخة الطائرة
+        // 7. الهبوط (مدة متطابقة مع CSS: 280ms)
         setTimeout(() => {
             clone.remove();
-            if (targetPiece) targetPiece.style.opacity = '1';
+            if (targetPiece) {
+                targetPiece.style.opacity = '1'; // إظهار الحجر الحقيقي بعد الهبوط
+            }
 
-            // 🌟 إضاءة الحجر إذا كانت حركة الخصم 🌟
+            // إضاءة آخر حركة للخصم
             if (!isPlayerMove) {
                 this.highlightLastMoveTawla(fromIdx, toIdx, color);
             }
 
             if (onComplete) onComplete(isHit);
-        }, 350); // مدة الطيران (350 ملي ثانية)
+        }, 280); 
     },
 
     // أضف هذه الدالة هنا 👇
