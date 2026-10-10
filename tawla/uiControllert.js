@@ -3143,41 +3143,102 @@ window.addEventListener('message', (event) => {
     }
 });
 
+// =========================================================
+// 🛡️ جدار حماية حركة الأحجار (Game Logic Firewall)
+// =========================================================
 ui.onClick('tawla-board', e => {
-    if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
+    // 1. الحماية الأولى: هل اللعبة بدأت؟ وهل هو دورك؟
+    if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) {
+        // لا تظهر رسالة مزعجة، فقط تجاهل النقر
+        return;
+    }
+
+    // 2. الحماية الثانية: هل قمت برمي النرد أصلاً؟
+    if (!gameState.currentDice || gameState.currentDice.length === 0) {
+        return;
+    }
+
     let target = e.target.closest('.point, #bar-white, #bar-black');
     if (!target) return;
 
     let index = (target.id === 'bar-white' || target.id === 'bar-black') ? 'bar' : parseInt(target.dataset.index);
 
+    // ---------------------------------------------------------
+    // 🟢 الحالة أ: لا يوجد حجر محدد مسبقاً (نحاول تحديد حجر)
+    // ---------------------------------------------------------
     if (gameState.selectedPoint === null || gameState.selectedPoint === undefined) {
         let colorAtPoint = index === 'bar' ? gameState.playerColor : gameState.virtualBoard.points[index].color;
         let countAtPoint = index === 'bar' ? gameState.virtualBoard.bar[gameState.playerColor] : gameState.virtualBoard.points[index].count;
         
-        if (colorAtPoint === gameState.playerColor && countAtPoint > 0) {
-            if (gameState.virtualBoard.bar[gameState.playerColor] > 0 && index !== 'bar') {
-                ui.showCustomAlert(t('must_play_from_bar') || "يجب اللعب من البار أولاً!"); return;
+        // هل الخانة فارغة؟
+        if (countAtPoint === 0) return;
+
+        // 3. الحماية الثالثة: هل الحجر الذي تم النقر عليه يخصك؟
+        if (colorAtPoint !== gameState.playerColor) {
+            ui.showCustomAlert("لا يمكنك تحريك أحجار الخصم! 🛑"); 
+            return;
+        }
+
+        // 4. الحماية الرابعة: إذا كان لديك حجر مأكول في البار، أنت مجبر على لعبه أولاً
+        if (gameState.virtualBoard.bar[gameState.playerColor] > 0 && index !== 'bar') {
+            ui.showCustomAlert("يجب اللعب من البار أولاً لإدخال حجرك المأكول!"); 
+            return;
+        }
+        
+        // 👈 إذا نجحنا في كل الحمايات، نقوم بتحديد الحجر وإضاءة مساره
+        gameState.selectedPoint = index;
+        ui.clearHighlights(); // مسح أي تظليل قديم
+        target.classList.add('selected-point');
+
+        let validDests = gameEngine.getValidMovesForPoint(index, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
+        validDests.forEach(d => {
+            if (d.to === 'bearOff') { 
+                const bearOff = document.getElementById(gameState.playerColor === 'white' ? 'bear-off-top' : 'bear-off-bottom'); 
+                if (bearOff) bearOff.classList.add('highlight'); 
+            } else { 
+                let pt = document.querySelector(`.point[data-index="${d.to}"]`); 
+                if(pt) pt.classList.add('highlight'); 
             }
-            
+        });
+    } 
+    // ---------------------------------------------------------
+    // 🔵 الحالة ب: يوجد حجر محدد مسبقاً (نحاول النزول به أو تغيير التحديد)
+    // ---------------------------------------------------------
+    else {
+        // إذا قام بالنقر على نفس الحجر المحدد مرة أخرى (إلغاء التحديد)
+        if (gameState.selectedPoint === index) {
+            ui.clearHighlights(); 
+            gameState.selectedPoint = null; 
+            if (typeof ui.highlightPlayablePieces === 'function') ui.highlightPlayablePieces();
+            return;
+        }
+
+        // 🌟 ميزة ممتازة: إذا نقر على حجر آخر من أحجاره، نغير التحديد فوراً بدلاً من إلغائه
+        let clickedColor = index === 'bar' ? null : gameState.virtualBoard.points[index].color;
+        if (clickedColor === gameState.playerColor && index !== 'bar') {
+            ui.clearHighlights();
             gameState.selectedPoint = index;
-            // استخدام الدالة الجديدة الخاصة بالطاولة
+            target.classList.add('selected-point');
+            
             let validDests = gameEngine.getValidMovesForPoint(index, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
             validDests.forEach(d => {
                 if (d.to === 'bearOff') { 
                     const bearOff = document.getElementById(gameState.playerColor === 'white' ? 'bear-off-top' : 'bear-off-bottom'); 
                     if (bearOff) bearOff.classList.add('highlight'); 
-                } 
-                else { let pt = document.querySelector(`.point[data-index="${d.to}"]`); if(pt) pt.classList.add('highlight'); }
+                } else { 
+                    let pt = document.querySelector(`.point[data-index="${d.to}"]`); 
+                    if(pt) pt.classList.add('highlight'); 
+                }
             });
-            target.classList.add('selected-point');
+            return;
         }
-    } 
-    else {
+
+        // محاولة تنفيذ الحركة على الخانة الهدف
         let validDests = gameEngine.getValidMovesForPoint(gameState.selectedPoint, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
         let dest = validDests.find(d => d.to === index);
         
         if (dest) {
-            // تنفيذ الحركة باستخدام المحرك الجديد
+            // تنفيذ الحركة 🚀
             let isHit = gameEngine.executeMove(gameState.selectedPoint, index, gameState.playerColor, gameState.virtualBoard);
             let dieIdx = gameState.currentDice.indexOf(dest.dieUsed);
             if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
@@ -3187,12 +3248,20 @@ ui.onClick('tawla-board', e => {
                 socketManager.sendMoveToServer(gameState.selectedPoint, index, dest.dieUsed);
             }
             checkTurnEnd();
-        } else { ui.clearHighlights(); gameState.selectedPoint = null; }
+        } else { 
+            // إذا نقر على مسار غير صحيح، نلغي التحديد فقط ونعيد إضاءة الأحجار المتاحة
+            ui.clearHighlights(); 
+            gameState.selectedPoint = null; 
+            if (typeof ui.highlightPlayablePieces === 'function') ui.highlightPlayablePieces();
+        }
     }
 });
 
+// 🛡️ حماية حدث إخراج الأحجار (Bear Off)
 const handleBearOffClick = e => {
+    // يمنع إخراج الأحجار إذا لم يكن دورك!
     if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
+    
     if (gameState.selectedPoint !== null && gameState.selectedPoint !== undefined) {
         let validDests = gameEngine.getValidMovesForPoint(gameState.selectedPoint, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
         let dest = validDests.find(d => d.to === 'bearOff');
@@ -3212,6 +3281,7 @@ const handleBearOffClick = e => {
 
 ui.onClick('bear-off-top', handleBearOffClick);
 ui.onClick('bear-off-bottom', handleBearOffClick);
+
 
 function checkTurnEnd() {
     ui.clearHighlights(); gameState.selectedPoint = null; ui.renderBoard();
