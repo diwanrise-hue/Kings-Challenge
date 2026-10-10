@@ -1275,7 +1275,90 @@ export const ui = {
             tCell.lastChild.classList.add('last-move-piece');
         }
     },
+  
+      // 🚀 نظام الحركة السينمائي (طيران الحجر) 🚀
+    animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
+        const board = this.getEl('tawla-board');
+        if (!board) return onComplete();
 
+        // 1. تحديد مكان الانطلاق
+        const getContainer = (idx, c) => {
+            if (idx === 'bar') return document.getElementById(c === 'white' ? 'bar-white' : 'bar-black');
+            if (idx === 'bearOff') return document.getElementById(c === 'white' ? 'bear-off-top' : 'bear-off-bottom');
+            return board.querySelector(`.point[data-index="${idx}"]`);
+        };
+
+        const startContainer = getContainer(fromIdx, color);
+        if (!startContainer) return onComplete();
+
+        // أخذ الحجر العلوي قبل تحريكه
+        let sourcePiece = startContainer.lastElementChild;
+        if (!sourcePiece) return onComplete();
+
+        // حساب الإحداثيات الدقيقة على الشاشة
+        const startRect = sourcePiece.getBoundingClientRect();
+
+        // 2. صناعة "نسخة طائرة" من الحجر
+        const clone = sourcePiece.cloneNode(true);
+        clone.classList.add('moving-piece-clone');
+        clone.classList.remove('playable-piece', 'last-move-piece', 'selected-point');
+        
+        clone.style.left = `${startRect.left}px`;
+        clone.style.top = `${startRect.top}px`;
+        clone.style.width = `${startRect.width}px`;
+        clone.style.height = `${startRect.height}px`;
+        clone.style.margin = '0'; 
+        document.body.appendChild(clone);
+
+        // 3. تنفيذ الحركة برمجياً وإعادة رسم الطاولة
+        let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
+        let dieIdx = gameState.currentDice.indexOf(dieUsed);
+        if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
+
+        this.clearHighlights(); 
+        this.renderBoard(); 
+
+        // 4. تحديد مكان الهبوط (الحجر الجديد في مكانه الجديد)
+        const endContainer = getContainer(toIdx, color);
+        let targetPiece = null;
+
+        if (endContainer) {
+            const pieces = endContainer.querySelectorAll(`.piece.${color}`);
+            targetPiece = pieces[pieces.length - 1];
+        }
+
+        let deltaX = 0, deltaY = 0;
+
+        if (targetPiece) {
+            const endRect = targetPiece.getBoundingClientRect();
+            deltaX = endRect.left - startRect.left;
+            deltaY = endRect.top - startRect.top;
+            targetPiece.style.opacity = '0'; // إخفاء الحجر الحقيقي حتى يهبط الطائر
+        } else {
+            const endBox = endContainer.getBoundingClientRect();
+            deltaX = endBox.left - startRect.left;
+            deltaY = endBox.top - startRect.top;
+        }
+
+        this.playSound(isHit ? sfx.piecesDied : sfx.move);
+
+        // 5. انطلاق الحجر الطائر ✈️
+        void clone.offsetWidth; // إجبار المتصفح على معالجة الحركة
+        clone.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.1)`;
+
+        // 6. هبوط الحجر ومسح النسخة الطائرة
+        setTimeout(() => {
+            clone.remove();
+            if (targetPiece) targetPiece.style.opacity = '1';
+
+            // 🌟 إضاءة الحجر إذا كانت حركة الخصم 🌟
+            if (!isPlayerMove) {
+                this.highlightLastMoveTawla(fromIdx, toIdx, color);
+            }
+
+            if (onComplete) onComplete(isHit);
+        }, 350); // مدة الطيران (350 ملي ثانية)
+    },
 
     // أضف هذه الدالة هنا 👇
     highlightPlayablePieces() {
@@ -1440,7 +1523,6 @@ export const ui = {
     async triggerComputerMove() {
         let aiColor = gameState.currentTurn;
         
-        // 1. استدعاء عقل البوت لاختيار أفضل حركة بناءً على النرد
         let chosenMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, this.getVal('diff-quick-select', '3'), aiColor, gameState.currentDice);
         
         if (!chosenMove) {
@@ -1451,43 +1533,33 @@ export const ui = {
             return;
         }
 
-        // 2. ⏳ تأخير بشري: البوت يستغرق لحظة "لمسك" الحجر (بين 300 إلى 600 ملي ثانية)
         let grabDelay = Math.floor(Math.random() * 300) + 300;
         await new Promise(r => setTimeout(r, grabDelay));
 
-        // 3. تنفيذ الحركة في العقل
-        let isHit = gameEngine.executeMove(chosenMove.from, chosenMove.to, aiColor, gameState.virtualBoard);
-        
-        let dieIdx = gameState.currentDice.indexOf(chosenMove.dieUsed);
-        if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
-        
-        this.playSound(isHit ? sfx.piecesDied : sfx.move);
-        this.renderBoard(); 
-
-        // 4. 🌟 إضاءة الحركة التي قام بها البوت للتو لكي يراها اللاعب 🌟
-        this.highlightLastMoveTawla(chosenMove.from, chosenMove.to, aiColor);
-        
-        let winner = gameEngine.checkGameOver(gameState.virtualBoard);
-        if (winner) {
-            this.showResultsModal(winner);
-            return;
-        }
-
-        // 5. ⏳ تأخير بشري: فترة راحة قبل لعب النرد الثاني أو إنهاء الدور
-        let nextMoveDelay = Math.floor(Math.random() * 400) + 400;
-
-        if (gameState.currentDice.length === 0 || !gameEngine.hasAnyValidMove(aiColor, gameState.virtualBoard, gameState.currentDice)) {
-            gameState.currentTurn = gameState.playerColor; 
-            gameState.currentDice = [];
-            // إخفاء النرد قبل إعطاء الدور للاعب
-            let d1 = document.getElementById('die1'); let d2 = document.getElementById('die2');
-            if(d1) d1.style.display = 'none'; if(d2) d2.style.display = 'none';
+        // 🚀 استخدام الأنيميشن السينمائي بدلاً من النقل المباشر
+        this.animateAndExecuteMove(chosenMove.from, chosenMove.to, aiColor, chosenMove.dieUsed, false, (isHit) => {
             
-            setTimeout(() => this.startTurn(), nextMoveDelay);
-        } else { 
-            setTimeout(() => this.triggerComputerMove(), nextMoveDelay); 
-        }
+            let winner = gameEngine.checkGameOver(gameState.virtualBoard);
+            if (winner) {
+                this.showResultsModal(winner);
+                return;
+            }
+
+            let nextMoveDelay = Math.floor(Math.random() * 400) + 400;
+
+            if (gameState.currentDice.length === 0 || !gameEngine.hasAnyValidMove(aiColor, gameState.virtualBoard, gameState.currentDice)) {
+                gameState.currentTurn = gameState.playerColor; 
+                gameState.currentDice = [];
+                let d1 = document.getElementById('die1'); let d2 = document.getElementById('die2');
+                if(d1) d1.style.display = 'none'; if(d2) d2.style.display = 'none';
+                
+                setTimeout(() => this.startTurn(), nextMoveDelay);
+            } else { 
+                setTimeout(() => this.triggerComputerMove(), nextMoveDelay); 
+            }
+        });
     },
+
 
     showOnlineResultsModal(winnerColor) { this.showResultsModal(winnerColor); },
 
@@ -3265,18 +3337,13 @@ ui.onClick('tawla-board', e => {
         let dest = validDests.find(d => d.to === index);
         
         if (dest) {
-            // ✅ المسار صحيح: ننفذ الحركة حتى لو كان العمود يحتوي على أحجارك
-            let isHit = gameEngine.executeMove(gameState.selectedPoint, index, gameState.playerColor, gameState.virtualBoard);
-            
-            // خصم النرد المستخدم من عقل اللعبة
-            let dieIdx = gameState.currentDice.indexOf(dest.dieUsed);
-            if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
-            
-            ui.playSound(isHit ? sfx.piecesDied : sfx.move);
-            if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                socketManager.sendMoveToServer(gameState.selectedPoint, index, dest.dieUsed);
-            }
-            checkTurnEnd();
+            // 🚀 طيران الحجر للاعب
+            ui.animateAndExecuteMove(gameState.selectedPoint, index, gameState.playerColor, dest.dieUsed, true, () => {
+                if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                    socketManager.sendMoveToServer(gameState.selectedPoint, index, dest.dieUsed);
+                }
+                checkTurnEnd();
+            });
         } 
         else { 
             // ❌ المسار غير صحيح: الآن نفحص، هل ضغط على حجر آخر يخصه؟
@@ -3313,18 +3380,14 @@ const handleBearOffClick = e => {
         let validDests = gameEngine.getValidMovesForPoint(gameState.selectedPoint, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
         let dest = validDests.find(d => d.to === 'bearOff');
         if (dest) {
-            gameEngine.executeMove(gameState.selectedPoint, 'bearOff', gameState.playerColor, gameState.virtualBoard);
-            let dieIdx = gameState.currentDice.indexOf(dest.dieUsed);
-            if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
-            ui.playSound(sfx.move);
-            
-           if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
-            socketManager.sendMoveToServer(gameState.selectedPoint, 'bearOff', dest.dieUsed);
-            }
-            checkTurnEnd();
+            // 🚀 طيران الحجر للإخراج
+            ui.animateAndExecuteMove(gameState.selectedPoint, 'bearOff', gameState.playerColor, dest.dieUsed, true, () => {
+                if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                    socketManager.sendMoveToServer(gameState.selectedPoint, 'bearOff', dest.dieUsed);
+                }
+                checkTurnEnd();
+            });
         }
-    }
-};
 
 ui.onClick('bear-off-top', handleBearOffClick);
 ui.onClick('bear-off-bottom', handleBearOffClick);
