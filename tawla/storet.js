@@ -19,7 +19,7 @@ export const STORE_ITEMS = {
         boardLayoutCSS: `
             #tawla-board .top-left { top: 4.5% !important; left: 7.8% !important; width: 37.6% !important; height: 37.6% !important; }
             #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; direction: ltr !important; } /* 👈 السر هنا */
-            #tawla-board .top-right { top: 4.5% !important; right: 7.88% !important; width: 37.6% !important; height: 37.6% !important; }
+            #tawla-board .top-right { top: 4.5% !important; right: 7.8% !important; width: 37.6% !important; height: 37.6% !important; }
             #tawla-board .bottom-right { bottom: 6% !important; right: 7.9% !important; width: 37.6% !important; height: 37.6% !important; direction: ltr !important; } /* 👈 وهنا */
             
             #tawla-board .piece { width: 13.66cqw !important; height: 13.66cqw !important; }
