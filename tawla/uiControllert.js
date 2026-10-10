@@ -1219,6 +1219,9 @@ export const ui = {
         this.drawEmptyBoard(); 
         this.setTxt('reset-btn-txt', 'لعبة جديدة');
         
+        // 🌟 إخبار الصفحة بلون اللاعب لضبط البار في CSS 🌟
+        document.body.setAttribute('data-player-color', gameState.playerColor);
+
         gameState.botMoveCount = 0; gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
         const tutorialCheck = document.getElementById('tutorial-mode-checkbox');
         gameState.isTutorialMode = (!gameState.isOnlineMode && tutorialCheck) ? tutorialCheck.checked : false;
@@ -1240,17 +1243,36 @@ export const ui = {
         const board = this.getEl('tawla-board');
         if (!board) return;
         
-        // مسح الخانات المظللة
         const highlighted = board.getElementsByClassName('highlight');
         while (highlighted.length > 0) highlighted[0].classList.remove('highlight');
         
-        // مسح توهج الأحجار
         const playables = board.getElementsByClassName('playable-piece');
         while (playables.length > 0) playables[0].classList.remove('playable-piece');
 
-        // إزالة التحديد من العمود
         const selected = board.getElementsByClassName('selected-point');
         while (selected.length > 0) selected[0].classList.remove('selected-point');
+
+        // 🌟 مسح تظليل حركة الخصم بمجرد لمسك للطاولة 🌟
+        const lastMoves = board.getElementsByClassName('last-move-highlight');
+        while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move-highlight');
+    },
+
+    // 🌟 دالة إضاءة آخر حركة للخصم 🌟
+    highlightLastMoveTawla(fromIndex, toIndex, color) {
+        const board = this.getEl('tawla-board');
+        if (!board) return;
+        
+        const getCell = (idx) => {
+            if (idx === 'bar') return document.getElementById(color === 'white' ? 'bar-white' : 'bar-black');
+            if (idx === 'bearOff') return document.getElementById(color === 'white' ? 'bear-off-top' : 'bear-off-bottom');
+            return board.querySelector(`.point[data-index="${idx}"]`);
+        };
+
+        let fCell = getCell(fromIndex);
+        let tCell = getCell(toIndex);
+
+        if (fCell) fCell.classList.add('last-move-highlight');
+        if (tCell) tCell.classList.add('last-move-highlight');
     },
 
     // أضف هذه الدالة هنا 👇
@@ -1407,20 +1429,19 @@ export const ui = {
         }
 
         if (isBotTurn) {
-            clearTimeout(gameState.aiTimeout);
-            gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 500);
-        }
-    },
+          clearTimeout(gameState.aiTimeout);
+           // 🌟 البوت ينتظر 1.2 ثانية (حتى يرى النرد يستقر) قبل أن يبدأ التفكير 🌟
+          gameState.aiTimeout = setTimeout(() => this.triggerComputerMove(), 1200);
+      }
 
-
+         
     async triggerComputerMove() {
         let aiColor = gameState.currentTurn;
         
-        // استدعاء عقل البوت لاختيار أفضل حركة بناءً على النرد
+        // 1. استدعاء عقل البوت لاختيار أفضل حركة بناءً على النرد
         let chosenMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, this.getVal('diff-quick-select', '3'), aiColor, gameState.currentDice);
         
         if (!chosenMove) {
-            // لا توجد حركات للبوت
             ui.showCustomAlert("لا توجد حركات متاحة للخصم.");
             gameState.currentTurn = gameState.playerColor; 
             gameState.currentDice = []; 
@@ -1428,15 +1449,21 @@ export const ui = {
             return;
         }
 
-        // تنفيذ حركة البوت
+        // 2. ⏳ تأخير بشري: البوت يستغرق لحظة "لمسك" الحجر (بين 300 إلى 600 ملي ثانية)
+        let grabDelay = Math.floor(Math.random() * 300) + 300;
+        await new Promise(r => setTimeout(r, grabDelay));
+
+        // 3. تنفيذ الحركة في العقل
         let isHit = gameEngine.executeMove(chosenMove.from, chosenMove.to, aiColor, gameState.virtualBoard);
         
-        // خصم النرد المستخدم
         let dieIdx = gameState.currentDice.indexOf(chosenMove.dieUsed);
         if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
         
         this.playSound(isHit ? sfx.piecesDied : sfx.move);
         this.renderBoard(); 
+
+        // 4. 🌟 إضاءة الحركة التي قام بها البوت للتو لكي يراها اللاعب 🌟
+        this.highlightLastMoveTawla(chosenMove.from, chosenMove.to, aiColor);
         
         let winner = gameEngine.checkGameOver(gameState.virtualBoard);
         if (winner) {
@@ -1444,16 +1471,21 @@ export const ui = {
             return;
         }
 
-        // إذا كان يملك نرداً آخر، استمر باللعب، وإلا انتقل لدور اللاعب
+        // 5. ⏳ تأخير بشري: فترة راحة قبل لعب النرد الثاني أو إنهاء الدور
+        let nextMoveDelay = Math.floor(Math.random() * 400) + 400;
+
         if (gameState.currentDice.length === 0 || !gameEngine.hasAnyValidMove(aiColor, gameState.virtualBoard, gameState.currentDice)) {
             gameState.currentTurn = gameState.playerColor; 
             gameState.currentDice = [];
-            setTimeout(() => this.startTurn(), 600);
+            // إخفاء النرد قبل إعطاء الدور للاعب
+            let d1 = document.getElementById('die1'); let d2 = document.getElementById('die2');
+            if(d1) d1.style.display = 'none'; if(d2) d2.style.display = 'none';
+            
+            setTimeout(() => this.startTurn(), nextMoveDelay);
         } else { 
-            setTimeout(() => this.triggerComputerMove(), 600); 
+            setTimeout(() => this.triggerComputerMove(), nextMoveDelay); 
         }
     },
-
 
     showOnlineResultsModal(winnerColor) { this.showResultsModal(winnerColor); },
 
