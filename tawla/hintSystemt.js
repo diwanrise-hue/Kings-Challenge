@@ -1,5 +1,5 @@
-// hintSystem.js
-// 🌟 (مُحدّث جذرياً): حماية من انهيار القفز المتعدد، ترقية المصباح لمستوى الجراند ماستر، وحماية وقت الدور.
+// hintSystemt.js
+// 🌟 (مُحدّث جذرياً): توافق تام مع لعبة الطاولة، ترقية المصباح، وحماية وقت الدور.
 
 import { gameState } from './gameStatet.js';
 import { gameEngine } from './gameEnginet.js';
@@ -15,9 +15,9 @@ export const hintSystem = {
             if (gameState.isOnlineMode && gameState.currentTurn !== gameState.myOnlineColor) return;
             if (!gameState.isOnlineMode && gameState.currentTurn !== gameState.playerColor) return;
 
-            // 🚀 التحسين 1: منع التلميح أثناء القفز المتعدد (لمنع انهيار منطق اللعبة)
+            // 🚀 التحسين 1: منع التلميح أثناء وجود حركة إجبارية قيد التنفيذ
             if (gameState.isMultiJumping) {
-                ui.showCustomAlert("لا يمكنك استخدام التلميح في منتصف القفزة! أكمل حركتك الإجبارية أولاً.", "تنبيه ⚠️");
+                ui.showCustomAlert("لا يمكنك استخدام التلميح الآن! أكمل حركتك الإجبارية أولاً.", "تنبيه ⚠️");
                 return;
             }
 
@@ -48,8 +48,13 @@ export const hintSystem = {
             }
 
             let myColor = gameState.isOnlineMode ? gameState.myOnlineColor : gameState.playerColor;
-            let eleganceMoves = gameEngine.generateAllTurnMoves(myColor, gameState.virtualBoard);
-            if (eleganceMoves.length === 0) return;
+            
+            // 🛑 الإصلاح الحرج: تم تمرير النرد (gameState.currentDice) للدالة
+            let eleganceMoves = gameEngine.generateAllTurnMoves(myColor, gameState.virtualBoard, gameState.currentDice);
+            if (eleganceMoves.length === 0) {
+                ui.showCustomAlert("لا توجد حركات متاحة لك حالياً!");
+                return;
+            }
 
             const hintBtn = document.getElementById('hint-btn');
             if (hintBtn) {
@@ -59,8 +64,7 @@ export const hintSystem = {
             
             ui.setTxt('turn-countdown', 'المصباح يقرأ أفكار الخصم... 💡');
 
-            // 🚀 التحسين 3: رفع مستوى المصباح إلى 8 (جراند ماستر) ليعطي حركات أسطورية لا تقهر!
-            // 🚀 استدعاء البوت لإيجاد أفضل حركة في الطاولة
+            // 🚀 استدعاء البوت لإيجاد أفضل حركة في الطاولة بمستوى 8 (جراند ماستر)
             let bestMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, 8, myColor, gameState.currentDice);
                         
             // 🚀 التحسين 4: التحقق مما إذا كان الدور قد انتهى أو تغير أثناء تفكير المصباح
@@ -81,6 +85,7 @@ export const hintSystem = {
             }
 
             setTimeout(() => {
+                // إذا فشل البوت في إيجاد حركة، نأخذ أول حركة متاحة
                 this.showGlow(bestMove || eleganceMoves[0]);
             }, 200);
             
@@ -157,14 +162,22 @@ export const hintSystem = {
         let fGlow = createGlowElement();
         let tGlow = createGlowElement();
 
-        // 🌟 نضع التوهج فوق الحجر العلوي للخانة 🌟
-        if (fCell && fCell.lastChild) fCell.lastChild.appendChild(fGlow);
-        else if (fCell) fCell.appendChild(fGlow);
+        // 🌟 نضع التوهج فوق الحجر العلوي للخانة إذا كان موجوداً 🌟
+        if (fCell && fCell.lastChild && fCell.lastChild.classList.contains('piece')) {
+            fCell.lastChild.appendChild(fGlow);
+        } else if (fCell) {
+            fCell.appendChild(fGlow);
+        }
         
-        if (tCell) tCell.appendChild(tGlow);
+        if (tCell && tCell.lastChild && tCell.lastChild.classList.contains('piece')) {
+            tCell.lastChild.appendChild(tGlow);
+        } else if (tCell) {
+            tCell.appendChild(tGlow);
+        }
 
         setTimeout(() => { 
             if (fGlow && fGlow.parentNode) fGlow.parentNode.removeChild(fGlow);
             if (tGlow && tGlow.parentNode) tGlow.parentNode.removeChild(tGlow);
         }, 3500);
     }
+};
