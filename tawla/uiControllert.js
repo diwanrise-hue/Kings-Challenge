@@ -1415,26 +1415,43 @@ export const ui = {
 
     async triggerComputerMove() {
         let aiColor = gameState.currentTurn;
-        let moves = gameEngine.generateAllTurnMoves(aiColor, gameState.virtualBoard, gameState.currentDice);
-        if (moves.length === 0) {
-            gameState.currentTurn = gameState.playerColor; gameState.currentDice = []; this.startTurn(); return;
-        }
-        let chosenMove = moves[Math.floor(Math.random() * moves.length)];
-        gameState.virtualBoard = gameEngine.applyMoveToBoard(chosenMove, gameState.virtualBoard);
         
+        // استدعاء عقل البوت لاختيار أفضل حركة بناءً على النرد
+        let chosenMove = await gameAI.getBestMoveAsync(gameState.virtualBoard, this.getVal('diff-quick-select', '3'), aiColor, gameState.currentDice);
+        
+        if (!chosenMove) {
+            // لا توجد حركات للبوت
+            ui.showCustomAlert("لا توجد حركات متاحة للخصم.");
+            gameState.currentTurn = gameState.playerColor; 
+            gameState.currentDice = []; 
+            this.startTurn(); 
+            return;
+        }
+
+        // تنفيذ حركة البوت
+        let isHit = gameEngine.executeMove(chosenMove.from, chosenMove.to, aiColor, gameState.virtualBoard);
+        
+        // خصم النرد المستخدم
         let dieIdx = gameState.currentDice.indexOf(chosenMove.dieUsed);
         if(dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
         
-        this.playSound(chosenMove.isHit ? sfx.piecesDied : sfx.move);
-        this.renderBoard(); this.updateDiceUI();
-
+        this.playSound(isHit ? sfx.piecesDied : sfx.move);
+        this.renderBoard(); 
+        
         let winner = gameEngine.checkGameOver(gameState.virtualBoard);
-        if (winner) return;
+        if (winner) {
+            this.showResultsModal(winner);
+            return;
+        }
 
+        // إذا كان يملك نرداً آخر، استمر باللعب، وإلا انتقل لدور اللاعب
         if (gameState.currentDice.length === 0 || !gameEngine.hasAnyValidMove(aiColor, gameState.virtualBoard, gameState.currentDice)) {
-            gameState.currentTurn = gameState.playerColor; gameState.currentDice = [];
-            setTimeout(() => this.startTurn(), 800);
-        } else { setTimeout(() => this.triggerComputerMove(), 800); }
+            gameState.currentTurn = gameState.playerColor; 
+            gameState.currentDice = [];
+            setTimeout(() => this.startTurn(), 600);
+        } else { 
+            setTimeout(() => this.triggerComputerMove(), 600); 
+        }
     },
 
 
