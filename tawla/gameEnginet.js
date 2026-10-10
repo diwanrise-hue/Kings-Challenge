@@ -176,7 +176,7 @@ if (typeof window !== 'undefined') {
             let valid = this.getValidMovesForPoint('bar', color, board, diceMoves);
             valid.forEach(v => allMoves.push({ from: 'bar', to: v.to, dieUsed: v.dieUsed }));
             return allMoves;
-        }
+        },
 
         // فحص باقي الخانات
         for (let i = 0; i < 24; i++) {
