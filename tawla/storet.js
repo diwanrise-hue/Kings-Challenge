@@ -53,11 +53,11 @@ export const STORE_ITEMS = {
         `
     },
 
-    // 3. الساحة الجديدة الثانية (2.webp)
-    'bg_new_2': { 
-        type: 'bg', isDefault: false, cost: 15000, nameAr: 'الساحة الأسطورية', nameEn: 'Legendary Board',
+  
+     // 3. الساحة الجديدة الثالثة (2.webp)
+    'bg_new_3': { 
+        type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/2.webp', 
-        isLegendary: true, 
         linkedScore: 'score_default',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
@@ -72,7 +72,86 @@ export const STORE_ITEMS = {
             #tawla-board .piece { width: 11.54cqw !important; height: 11.54cqw !important; }
             #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
             #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
+        `
+    },
+     // 4. الساحة الجديدة الأولى (3.webp)
+    'bg_new_1': { 
+        type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
+        isImage: true, imagePath: 'storefile/bgs/3.webp', 
+        linkedScore: 'score_default',
+        boardLayoutCSS: `
+            #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
+            /* 🌟 إضافة direction: ltr !important; لإصلاح الترتيب المعكوس */
+            #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
+            
+            #tawla-board .top-right { top: 6.15% !important; right: 6.7% !important; width: 41.2% !important; height: 41.2% !important; }
+            /* 🌟 إضافة direction: ltr !important; لإصلاح الترتيب المعكوس */
+            #tawla-board .bottom-right { bottom: 4.5% !important; right: 6.7% !important; width: 41.1% !important; height: 41.1% !important; direction: ltr !important; }
 
+            /* 🌟 السر لظهور المسافة: تصغير الحجر قليلاً ليسمح للفراغ بالظهور */
+            #tawla-board .piece { width: 11.54cqw !important; height: 11.54cqw !important; }
+            #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
+            #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
+        `
+    },
+     // 5. الساحة الجديدة الأولى (4.webp)
+    'bg_new_1': { 
+        type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
+        isImage: true, imagePath: 'storefile/bgs/4.webp', 
+        linkedScore: 'score_default',
+        boardLayoutCSS: `
+            #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
+            /* 🌟 إضافة direction: ltr !important; لإصلاح الترتيب المعكوس */
+            #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
+            
+            #tawla-board .top-right { top: 6.15% !important; right: 6.7% !important; width: 41.2% !important; height: 41.2% !important; }
+            /* 🌟 إضافة direction: ltr !important; لإصلاح الترتيب المعكوس */
+            #tawla-board .bottom-right { bottom: 4.5% !important; right: 6.7% !important; width: 41.1% !important; height: 41.1% !important; direction: ltr !important; }
+
+            /* 🌟 السر لظهور المسافة: تصغير الحجر قليلاً ليسمح للفراغ بالظهور */
+            #tawla-board .piece { width: 11.54cqw !important; height: 11.54cqw !important; }
+            #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
+            #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
+        `
+    },
+     // 6. الساحة الجديدة الأولى (5.webp)
+    'bg_new_1': { 
+        type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
+        isImage: true, imagePath: 'storefile/bgs/5.webp', 
+        linkedScore: 'score_default',
+        boardLayoutCSS: `
+            #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
+            /* 🌟 إضافة direction: ltr !important; لإصلاح الترتيب المعكوس */
+            #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
+            
+            #tawla-board .top-right { top: 6.15% !important; right: 6.7% !important; width: 41.2% !important; height: 41.2% !important; }
+            /* 🌟 إضافة direction: ltr !important; لإصلاح الترتيب المعكوس */
+            #tawla-board .bottom-right { bottom: 4.5% !important; right: 6.7% !important; width: 41.1% !important; height: 41.1% !important; direction: ltr !important; }
+
+            /* 🌟 السر لظهور المسافة: تصغير الحجر قليلاً ليسمح للفراغ بالظهور */
+            #tawla-board .piece { width: 11.54cqw !important; height: 11.54cqw !important; }
+            #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
+            #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
+        `
+    },
+     // 7. الساحة الجديدة الأولى (6.webp)
+    'bg_new_1': { 
+        type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
+        isImage: true, imagePath: 'storefile/bgs/6.webp', 
+        linkedScore: 'score_default',
+        boardLayoutCSS: `
+            #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
+            /* 🌟 إضافة direction: ltr !important; لإصلاح الترتيب المعكوس */
+            #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
+            
+            #tawla-board .top-right { top: 6.15% !important; right: 6.7% !important; width: 41.2% !important; height: 41.2% !important; }
+            /* 🌟 إضافة direction: ltr !important; لإصلاح الترتيب المعكوس */
+            #tawla-board .bottom-right { bottom: 4.5% !important; right: 6.7% !important; width: 41.1% !important; height: 41.1% !important; direction: ltr !important; }
+
+            /* 🌟 السر لظهور المسافة: تصغير الحجر قليلاً ليسمح للفراغ بالظهور */
+            #tawla-board .piece { width: 11.54cqw !important; height: 11.54cqw !important; }
+            #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
+            #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
         `
     },
 
