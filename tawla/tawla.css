@@ -2223,10 +2223,16 @@ body[data-player-color="white"] #bar-black { order: 2 !important; justify-conten
 body[data-player-color="black"] #bar-black { order: 1 !important; justify-content: flex-start !important; padding-top: 30% !important; }
 body[data-player-color="black"] #bar-white { order: 2 !important; justify-content: flex-end !important; padding-bottom: 30% !important; }
 
-/* 🌟 تظليل آخر حركة قام بها الخصم (أو البوت) 🌟 */
-.last-move-highlight {
-    background: rgba(245, 166, 35, 0.25) !important; /* برتقالي شفاف */
-    border: 1px dashed rgba(245, 166, 35, 0.8) !important;
-    border-radius: 4px !important;
-    z-index: 10 !important;
+/* 🌟 تظليل الحجر الذي حرّكه الخصم للتو (توهج برتقالي للحجر نفسه) 🌟 */
+.last-move-piece {
+    box-shadow: 0 0 15px 5px rgba(245, 166, 35, 0.9), inset 0 2px 4px rgba(255,255,255,0.6) !important;
+    border: 2px solid #f5a623 !important;
+    animation: enemy-pulse 1.2s infinite alternate !important;
+    z-index: 100 !important;
 }
+
+@keyframes enemy-pulse {
+    0%   { filter: brightness(1); box-shadow: 0 0 10px 2px rgba(245, 166, 35, 0.6), inset 0 2px 4px rgba(255,255,255,0.6); }
+    100% { filter: brightness(1.3); box-shadow: 0 0 25px 8px rgba(245, 166, 35, 1), inset 0 2px 4px rgba(255,255,255,0.6); }
+}
+
