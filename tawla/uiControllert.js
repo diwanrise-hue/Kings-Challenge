@@ -1239,7 +1239,7 @@ export const ui = {
         saveGameState(); this.updateProfileUI(); this.startTurn();
     },
 
-    clearHighlights() {
+      clearHighlights() {
         const board = this.getEl('tawla-board');
         if (!board) return;
         
@@ -1252,28 +1252,30 @@ export const ui = {
         const selected = board.getElementsByClassName('selected-point');
         while (selected.length > 0) selected[0].classList.remove('selected-point');
 
-        // 🌟 مسح تظليل حركة الخصم بمجرد لمسك للطاولة 🌟
-        const lastMoves = board.getElementsByClassName('last-move-highlight');
-        while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move-highlight');
+        // مسح تظليل حجر الخصم
+        const lastMoves = board.getElementsByClassName('last-move-piece');
+        while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move-piece');
     },
 
-    // 🌟 دالة إضاءة آخر حركة للخصم 🌟
+    // 🌟 دالة إضاءة الحجر الذي حركه الخصم للتو 🌟
     highlightLastMoveTawla(fromIndex, toIndex, color) {
         const board = this.getEl('tawla-board');
         if (!board) return;
         
         const getCell = (idx) => {
             if (idx === 'bar') return document.getElementById(color === 'white' ? 'bar-white' : 'bar-black');
-            if (idx === 'bearOff') return document.getElementById(color === 'white' ? 'bear-off-top' : 'bear-off-bottom');
+            if (idx === 'bearOff') return null; // لا نضيء حجر الإخراج
             return board.querySelector(`.point[data-index="${idx}"]`);
         };
 
-        let fCell = getCell(fromIndex);
         let tCell = getCell(toIndex);
 
-        if (fCell) fCell.classList.add('last-move-highlight');
-        if (tCell) tCell.classList.add('last-move-highlight');
+        // 🌟 نستهدف الحجر العلوي فقط في الخانة الهدف ليتوهج بلون مميز 🌟
+        if (tCell && tCell.lastChild && tCell.lastChild.classList.contains('piece')) {
+            tCell.lastChild.classList.add('last-move-piece');
+        }
     },
+
 
     // أضف هذه الدالة هنا 👇
     highlightPlayablePieces() {
@@ -3454,3 +3456,5 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
+    
