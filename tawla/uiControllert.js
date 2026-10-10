@@ -1379,6 +1379,7 @@ export const ui = {
         }, 280); 
     },
 
+
     // أضف هذه الدالة هنا 👇
     highlightPlayablePieces() {
         if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
