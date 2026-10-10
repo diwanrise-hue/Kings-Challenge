@@ -165,3 +165,25 @@ export const gameEngine = {
 if (typeof window !== 'undefined') {
     window.gameEngine = gameEngine;
 }
+
+    // 🎲 استخراج جميع الحركات الممكنة للدور الحالي (تم إضافتها للبوت ونظام التلميح)
+    generateAllTurnMoves(color, board, diceMoves) {
+        let allMoves = [];
+        if (!diceMoves || diceMoves.length === 0) return allMoves;
+
+        // إذا كان هناك حجر في البار، يجب اللعب منه أولاً
+        if (board.bar[color] > 0) {
+            let valid = this.getValidMovesForPoint('bar', color, board, diceMoves);
+            valid.forEach(v => allMoves.push({ from: 'bar', to: v.to, dieUsed: v.dieUsed }));
+            return allMoves;
+        }
+
+        // فحص باقي الخانات
+        for (let i = 0; i < 24; i++) {
+            if (board.points[i].color === color && board.points[i].count > 0) {
+                let valid = this.getValidMovesForPoint(i, color, board, diceMoves);
+                valid.forEach(v => allMoves.push({ from: i, to: v.to, dieUsed: v.dieUsed }));
+            }
+        }
+        return allMoves;
+    },
