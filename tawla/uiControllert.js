@@ -3388,6 +3388,8 @@ const handleBearOffClick = e => {
                 checkTurnEnd();
             });
         }
+    }
+};
 
 ui.onClick('bear-off-top', handleBearOffClick);
 ui.onClick('bear-off-bottom', handleBearOffClick);
