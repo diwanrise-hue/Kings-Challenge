@@ -159,12 +159,7 @@ export const gameEngine = {
     isMars(winnerColor, board) {
         const loserColor = winnerColor === 'white' ? 'black' : 'white';
         return board.bearOff[loserColor] === 0;
-    }
-};
-
-if (typeof window !== 'undefined') {
-    window.gameEngine = gameEngine;
-}
+    }, // <-- تمت إضافة الفاصلة هنا لانتقال الكود للدالة التالية
 
     // 🎲 استخراج جميع الحركات الممكنة للدور الحالي (تم إضافتها للبوت ونظام التلميح)
     generateAllTurnMoves(color, board, diceMoves) {
@@ -176,7 +171,7 @@ if (typeof window !== 'undefined') {
             let valid = this.getValidMovesForPoint('bar', color, board, diceMoves);
             valid.forEach(v => allMoves.push({ from: 'bar', to: v.to, dieUsed: v.dieUsed }));
             return allMoves;
-        },
+        } // <-- تم تصحيح القوس هنا وإزالة الفاصلة الخاطئة
 
         // فحص باقي الخانات
         for (let i = 0; i < 24; i++) {
@@ -186,4 +181,10 @@ if (typeof window !== 'undefined') {
             }
         }
         return allMoves;
-    },
+    }
+}; // <-- إغلاق كائن gameEngine هنا
+
+// نقل هذا الكود لأسفل الملف بعد إغلاق الـ gameEngine
+if (typeof window !== 'undefined') {
+    window.gameEngine = gameEngine;
+}
