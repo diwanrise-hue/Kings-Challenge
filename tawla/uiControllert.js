@@ -1355,30 +1355,28 @@ export const ui = {
 
         this.playSound(isHit ? sfx.piecesDied : sfx.move);
 
-        // 5. محرك الفيزياء المأخوذ من الكود التجريبي
-        const duration = 560;
+              // 5. محرك الحركة بسرعة ثابتة (Linear Constant Speed)
+        const duration = 300; // ⏳ جعلتها 300 ملي ثانية لتكون الحركة سريعة ومنتظمة
         const startTime = performance.now();
-        const smooth = (t) => t * t * (3 - 2 * t);
         const clamp01 = (t) => Math.min(Math.max(t, 0), 1);
-        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-        const travelEase = (t) => 0.45 * smooth(t) + 0.55 * easeOutCubic(t);
         
         const LIFT_SCALE = 0;   // 0 يعني بدون أي تكبير
-        const ARC_HEIGHT = 1;   // 1 يعني شبه مستقيم ومسطح تماماً
+        const ARC_HEIGHT = 1;   // مسطح تماماً
 
         const animate = (currentTime) => {
             let elapsed = currentTime - startTime;
             let progress = clamp01(elapsed / duration);
 
-            let easedP = travelEase(progress);
+            // 🌟 السر هنا: نستخدم (progress) مباشرة بدون أي دوال تباطؤ أو تسارع 🌟
+            // هذا يعني أن السرعة ستكون ثابتة من البداية للنهاية تماماً
+            let currentX = deltaX * progress;
+            let currentY = deltaY * progress - Math.sin(progress * Math.PI) * ARC_HEIGHT;
 
-            let currentX = deltaX * easedP;
-            let currentY = deltaY * easedP - Math.sin(easedP * Math.PI) * ARC_HEIGHT;
-
-            const lift = smooth(clamp01(progress / 0.15)) * (1 - smooth(clamp01((progress - 0.8) / 0.2)));
+            // حساب الارتفاع الوهمي للظل ليبقى بسيطاً
+            const lift = Math.sin(progress * Math.PI);
             const currentScale = 1 + lift * LIFT_SCALE;
 
-            // تطبيق الحركة والظل المخفف جداً الذي صممناه
+            // تطبيق الحركة
             clone.style.setProperty('transform', `translate(${currentX}px, ${currentY}px) scale(${currentScale})`, 'important');
             clone.style.setProperty('filter', `drop-shadow(0px ${2 + lift * 2}px ${3 + lift * 2}px rgba(0,0,0,${0.35 + lift * 0.1}))`, 'important');
 
@@ -1394,7 +1392,8 @@ export const ui = {
         };
 
         requestAnimationFrame(animate);
-    },
+
+    };
 
   
     // أضف هذه الدالة هنا 👇
