@@ -1356,7 +1356,7 @@ export const ui = {
         this.playSound(isHit ? sfx.piecesDied : sfx.move);
 
               // 5. محرك الحركة بسرعة ثابتة (Linear Constant Speed)
-        const duration = 850; // ⏳ جعلتها 300 ملي ثانية لتكون الحركة سريعة ومنتظمة
+        const duration = 750; // ⏳ جعلتها 300 ملي ثانية لتكون الحركة سريعة ومنتظمة
         const startTime = performance.now();
         const clamp01 = (t) => Math.min(Math.max(t, 0), 1);
         
