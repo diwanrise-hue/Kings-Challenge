@@ -1393,7 +1393,7 @@ export const ui = {
 
         requestAnimationFrame(animate);
 
-    };
+    },
 
   
     // أضف هذه الدالة هنا 👇
