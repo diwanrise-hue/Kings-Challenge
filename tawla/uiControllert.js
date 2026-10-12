@@ -1276,7 +1276,7 @@ export const ui = {
         }
     },
   
-    // 🚀 نظام الحركة السينمائي (مطابق لفيزياء الكود التجريبي تماماً) 🚀
+    // 🚀 نظام الحركة السينمائي (مسطح، سريع، ومُحسّن لأقصى أداء GPU) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
         if (!board) {
@@ -1296,6 +1296,7 @@ export const ui = {
             return;
         }
 
+        // تحديد الحجر الفعلي بدقة (تجاهل التوهجات والظلال)
         let sourcePiece = startContainer.lastElementChild;
         if (!sourcePiece || !sourcePiece.classList.contains('piece')) {
             const pieces = startContainer.querySelectorAll('.piece');
@@ -1315,7 +1316,7 @@ export const ui = {
         clone.classList.add('moving-piece-clone');
         clone.classList.remove('playable-piece', 'last-move-piece', 'selected-point');
         
-        // كسر هيمنة الـ CSS للحفاظ على الحجم الحقيقي
+        // 🌟 كسر هيمنة الـ CSS للحفاظ على الحجم الحقيقي ومنع التكبير
         clone.style.setProperty('left', `${startRect.left}px`, 'important');
         clone.style.setProperty('top', `${startRect.top}px`, 'important');
         clone.style.setProperty('width', `${startRect.width}px`, 'important');
@@ -1353,46 +1354,64 @@ export const ui = {
             deltaY = endBox.top - startRect.top + (endBox.height / 2) - (startRect.height / 2);
         }
 
-        this.playSound(isHit ? sfx.piecesDied : sfx.move);
+        // 5. محرك الحركة — مطابق للفيديو المرجعي (تم قياسه إطاراً بإطار):
+        //    مسار مستقيم، تسارع خفيف في البداية، سرعة شبه ثابتة، ثم تباطؤ ناعم عند الهبوط
+        //    المنحنى المستخرج من الفيديو: cubic-bezier(0.35, 0.05, 0.75, 1) ، المدة ≈ 390ms لمسافة ≈ 180px
+        const dist = Math.hypot(deltaX, deltaY);
+        const duration = Math.min(560, Math.max(300, 200 + dist * 1.05));
+        const easing = 'cubic-bezier(0.35, 0.05, 0.75, 1)';
 
-              // 5. محرك الحركة بسرعة ثابتة (Linear Constant Speed)
-        const duration = 750; // ⏳ جعلتها 300 ملي ثانية لتكون الحركة سريعة ومنتظمة
-        const startTime = performance.now();
-        const clamp01 = (t) => Math.min(Math.max(t, 0), 1);
-        
-        const LIFT_SCALE = 0;   // 0 يعني بدون أي تكبير
-        const ARC_HEIGHT = 20;   // مسطح تماماً
+        // ظل ثابت (يُرسم مرة واحدة على طبقة GPU مستقلة ولا يُعاد حسابه أثناء الحركة)
+        clone.style.setProperty('filter', 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))', 'important');
+        clone.style.setProperty('will-change', 'transform', 'important');
 
-        const animate = (currentTime) => {
-            let elapsed = currentTime - startTime;
-            let progress = clamp01(elapsed / duration);
-
-            // 🌟 السر هنا: نستخدم (progress) مباشرة بدون أي دوال تباطؤ أو تسارع 🌟
-            // هذا يعني أن السرعة ستكون ثابتة من البداية للنهاية تماماً
-            let currentX = deltaX * progress;
-            let currentY = deltaY * progress - Math.sin(progress * Math.PI) * ARC_HEIGHT;
-
-            // حساب الارتفاع الوهمي للظل ليبقى بسيطاً
-            const lift = Math.sin(progress * Math.PI);
-            const currentScale = 1 + lift * LIFT_SCALE;
-
-            // تطبيق الحركة
-            clone.style.setProperty('transform', `translate(${currentX}px, ${currentY}px) scale(${currentScale})`, 'important');
-            clone.style.setProperty('filter', `drop-shadow(0px ${2 + lift * 2}px ${3 + lift * 2}px rgba(0,0,0,${0.35 + lift * 0.1}))`, 'important');
-
-            if (progress < 1) {
-                requestAnimationFrame(animate); 
-            } else {
-                // الهبوط النهائي
-                clone.remove();
-                if (targetPiece) targetPiece.style.opacity = '1'; // إظهار الحجر الحقيقي في مكانه
-                if (!isPlayerMove) this.highlightLastMoveTawla(fromIdx, toIdx, color);
-                if (onComplete) onComplete(isHit);
-            }
+        let finished = false;
+        const finish = () => {
+            if (finished) return;
+            finished = true;
+            clone.remove();
+            if (targetPiece) targetPiece.style.opacity = '1';
+            if (!isPlayerMove) this.highlightLastMoveTawla(fromIdx, toIdx, color);
+            if (onComplete) onComplete(isHit);
         };
 
-        requestAnimationFrame(animate);
+        // الصوت يُشغَّل بعد بدء الحركة بإطار واحد حتى لا يسبب تقطيعاً في أول الإطارات
+        requestAnimationFrame(() => this.playSound(isHit ? sfx.piecesDied : sfx.move));
 
+        if (typeof clone.animate === 'function') {
+            // ✅ Web Animations API: الحركة تعمل على خيط الـ compositor (GPU)
+            //    فلا تتأثر بأي عمل ثقيل على الخيط الرئيسي (renderBoard / الصوت / منطق اللعبة)
+            const anim = clone.animate(
+                [
+                    { transform: 'translate3d(0px, 0px, 0)' },
+                    { transform: `translate3d(${deltaX}px, ${deltaY}px, 0)` }
+                ],
+                { duration, easing, fill: 'forwards' }
+            );
+            anim.onfinish = finish;
+            anim.oncancel = finish;
+        } else {
+            // احتياطي للمتصفحات القديمة (نفس المنحنى بحساب يدوي)
+            const bez = (x1, y1, x2, y2) => (x) => {
+                let lo = 0, hi = 1, u = x;
+                for (let i = 0; i < 24; i++) {
+                    u = (lo + hi) / 2;
+                    const bx = 3*(1-u)*(1-u)*u*x1 + 3*(1-u)*u*u*x2 + u*u*u;
+                    if (bx < x) lo = u; else hi = u;
+                }
+                return 3*(1-u)*(1-u)*u*y1 + 3*(1-u)*u*u*y2 + u*u*u;
+            };
+            const ease = bez(0.35, 0.05, 0.75, 1);
+            let startTime = null; // 🌟 يبدأ من أول إطار فعلي لتجنب القفزة الأولى
+            const animate = (now) => {
+                if (startTime === null) startTime = now;
+                const p = Math.min((now - startTime) / duration, 1);
+                const e = ease(p);
+                clone.style.setProperty('transform', `translate3d(${deltaX * e}px, ${deltaY * e}px, 0)`, 'important');
+                if (p < 1) requestAnimationFrame(animate); else finish();
+            };
+            requestAnimationFrame(animate);
+        }
     },
 
   
