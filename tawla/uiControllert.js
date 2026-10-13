@@ -1257,25 +1257,6 @@ export const ui = {
         while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move-piece');
     },
 
-    // 🌟 دالة إضاءة الحجر الذي حركه الخصم للتو 🌟
-    highlightLastMoveTawla(fromIndex, toIndex, color) {
-        const board = this.getEl('tawla-board');
-        if (!board) return;
-        
-        const getCell = (idx) => {
-            if (idx === 'bar') return document.getElementById(color === 'white' ? 'bar-white' : 'bar-black');
-            if (idx === 'bearOff') return null; // لا نضيء حجر الإخراج
-            return board.querySelector(`.point[data-index="${idx}"]`);
-        };
-
-        let tCell = getCell(toIndex);
-
-        // 🌟 نستهدف الحجر العلوي فقط في الخانة الهدف ليتوهج بلون مميز 🌟
-        if (tCell && tCell.lastChild && tCell.lastChild.classList.contains('piece')) {
-            tCell.lastChild.classList.add('last-move-piece');
-        }
-    },
-  
     // 🚀 نظام الحركة السينمائي (مسطح، سريع، ومُحسّن لأقصى أداء GPU) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
@@ -1322,6 +1303,15 @@ export const ui = {
         clone.style.setProperty('width', `${startRect.width}px`, 'important');
         clone.style.setProperty('height', `${startRect.height}px`, 'important');
         clone.style.setProperty('margin', '0', 'important');
+        // 🌟 ضمان ظهور الحجر الطائر فوق كل شيء وإلغاء أي transition/animation من الـ CSS
+        clone.style.setProperty('position', 'fixed', 'important');
+        clone.style.setProperty('z-index', '99999', 'important');
+        clone.style.setProperty('pointer-events', 'none', 'important');
+        clone.style.setProperty('opacity', '1', 'important');
+        clone.style.setProperty('visibility', 'visible', 'important');
+        clone.style.setProperty('transition', 'none', 'important');
+        clone.style.setProperty('animation', 'none', 'important');
+        clone.style.setProperty('transform', 'translate3d(0px, 0px, 0)', 'important');
         document.body.appendChild(clone);
 
         // 3. تنفيذ الحركة في العقل وإعادة رسم اللوحة فوراً
@@ -1378,40 +1368,27 @@ export const ui = {
         // الصوت يُشغَّل بعد بدء الحركة بإطار واحد حتى لا يسبب تقطيعاً في أول الإطارات
         requestAnimationFrame(() => this.playSound(isHit ? sfx.piecesDied : sfx.move));
 
-        if (typeof clone.animate === 'function') {
-            // ✅ Web Animations API: الحركة تعمل على خيط الـ compositor (GPU)
-            //    فلا تتأثر بأي عمل ثقيل على الخيط الرئيسي (renderBoard / الصوت / منطق اللعبة)
-            const anim = clone.animate(
-                [
-                    { transform: 'translate3d(0px, 0px, 0)' },
-                    { transform: `translate3d(${deltaX}px, ${deltaY}px, 0)` }
-                ],
-                { duration, easing, fill: 'forwards' }
-            );
-            anim.onfinish = finish;
-            anim.oncancel = finish;
-        } else {
-            // احتياطي للمتصفحات القديمة (نفس المنحنى بحساب يدوي)
-            const bez = (x1, y1, x2, y2) => (x) => {
-                let lo = 0, hi = 1, u = x;
-                for (let i = 0; i < 24; i++) {
-                    u = (lo + hi) / 2;
-                    const bx = 3*(1-u)*(1-u)*u*x1 + 3*(1-u)*u*u*x2 + u*u*u;
-                    if (bx < x) lo = u; else hi = u;
-                }
-                return 3*(1-u)*(1-u)*u*y1 + 3*(1-u)*u*u*y2 + u*u*u;
-            };
-            const ease = bez(0.35, 0.05, 0.75, 1);
-            let startTime = null; // 🌟 يبدأ من أول إطار فعلي لتجنب القفزة الأولى
-            const animate = (now) => {
-                if (startTime === null) startTime = now;
-                const p = Math.min((now - startTime) / duration, 1);
-                const e = ease(p);
-                clone.style.setProperty('transform', `translate3d(${deltaX * e}px, ${deltaY * e}px, 0)`, 'important');
-                if (p < 1) requestAnimationFrame(animate); else finish();
-            };
-            requestAnimationFrame(animate);
-        }
+        // محرك يدوي (rAF) بنفس أسلوب الكود الأصلي كي يعمل مع أي CSS،
+        // لكن بمنحنى الفيديو، ويبدأ الزمن من أول إطار فعلي لتجنب القفزة
+        const bez = (x1, y1, x2, y2) => (x) => {
+            let lo = 0, hi = 1, u = x;
+            for (let i = 0; i < 24; i++) {
+                u = (lo + hi) / 2;
+                const bx = 3*(1-u)*(1-u)*u*x1 + 3*(1-u)*u*u*x2 + u*u*u;
+                if (bx < x) lo = u; else hi = u;
+            }
+            return 3*(1-u)*(1-u)*u*y1 + 3*(1-u)*u*u*y2 + u*u*u;
+        };
+        const ease = bez(0.35, 0.05, 0.75, 1);
+        let startTime = null;
+        const animate = (now) => {
+            if (startTime === null) startTime = now;
+            const p = Math.min((now - startTime) / duration, 1);
+            const e = ease(p);
+            clone.style.setProperty('transform', `translate3d(${deltaX * e}px, ${deltaY * e}px, 0)`, 'important');
+            if (p < 1) requestAnimationFrame(animate); else finish();
+        };
+        requestAnimationFrame(animate);
     },
 
   
