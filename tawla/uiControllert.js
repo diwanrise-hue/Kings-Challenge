@@ -1338,7 +1338,7 @@ export const ui = {
         this.playSound(isHit ? sfx.piecesDied : sfx.move);
 
         // 5. محرك الحركة بسرعة ثابتة (مُحسّن لأقصى أداء GPU)
-        const duration = 280; // ⏳ سرعة الانتقال ثابتة
+        const duration = 780; // ⏳ سرعة الانتقال ثابتة
         const startTime = performance.now();
         
         // 🌟 إعطاء الحجر ظلاً ثابتاً وتفعيل تسريع الكرت الرسومي (GPU) قبل الانطلاق
