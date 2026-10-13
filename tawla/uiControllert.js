@@ -1303,15 +1303,6 @@ export const ui = {
         clone.style.setProperty('width', `${startRect.width}px`, 'important');
         clone.style.setProperty('height', `${startRect.height}px`, 'important');
         clone.style.setProperty('margin', '0', 'important');
-        // 🌟 ضمان ظهور الحجر الطائر فوق كل شيء وإلغاء أي transition/animation من الـ CSS
-        clone.style.setProperty('position', 'fixed', 'important');
-        clone.style.setProperty('z-index', '99999', 'important');
-        clone.style.setProperty('pointer-events', 'none', 'important');
-        clone.style.setProperty('opacity', '1', 'important');
-        clone.style.setProperty('visibility', 'visible', 'important');
-        clone.style.setProperty('transition', 'none', 'important');
-        clone.style.setProperty('animation', 'none', 'important');
-        clone.style.setProperty('transform', 'translate3d(0px, 0px, 0)', 'important');
         document.body.appendChild(clone);
 
         // 3. تنفيذ الحركة في العقل وإعادة رسم اللوحة فوراً
@@ -1344,53 +1335,40 @@ export const ui = {
             deltaY = endBox.top - startRect.top + (endBox.height / 2) - (startRect.height / 2);
         }
 
-        // 5. محرك الحركة — مطابق للفيديو المرجعي (تم قياسه إطاراً بإطار):
-        //    مسار مستقيم، تسارع خفيف في البداية، سرعة شبه ثابتة، ثم تباطؤ ناعم عند الهبوط
-        //    المنحنى المستخرج من الفيديو: cubic-bezier(0.35, 0.05, 0.75, 1) ، المدة ≈ 390ms لمسافة ≈ 180px
-        const dist = Math.hypot(deltaX, deltaY);
-        const duration = Math.min(560, Math.max(300, 200 + dist * 1.05));
-        const easing = 'cubic-bezier(0.35, 0.05, 0.75, 1)';
+        this.playSound(isHit ? sfx.piecesDied : sfx.move);
 
-        // ظل ثابت (يُرسم مرة واحدة على طبقة GPU مستقلة ولا يُعاد حسابه أثناء الحركة)
+        // 5. محرك الحركة بسرعة ثابتة (مُحسّن لأقصى أداء GPU)
+        const duration = 280; // ⏳ سرعة الانتقال ثابتة
+        const startTime = performance.now();
+        
+        // 🌟 إعطاء الحجر ظلاً ثابتاً وتفعيل تسريع الكرت الرسومي (GPU) قبل الانطلاق
         clone.style.setProperty('filter', 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))', 'important');
-        clone.style.setProperty('will-change', 'transform', 'important');
+        clone.style.setProperty('will-change', 'transform', 'important'); 
 
-        let finished = false;
-        const finish = () => {
-            if (finished) return;
-            finished = true;
-            clone.remove();
-            if (targetPiece) targetPiece.style.opacity = '1';
-            if (!isPlayerMove) this.highlightLastMoveTawla(fromIdx, toIdx, color);
-            if (onComplete) onComplete(isHit);
-        };
+        const animate = (currentTime) => {
+            let elapsed = currentTime - startTime;
+            let progress = Math.min(elapsed / duration, 1);
 
-        // الصوت يُشغَّل بعد بدء الحركة بإطار واحد حتى لا يسبب تقطيعاً في أول الإطارات
-        requestAnimationFrame(() => this.playSound(isHit ? sfx.piecesDied : sfx.move));
+            // حساب الإحداثيات المستقيمة مباشرة (بدون تسارع أو تباطؤ)
+            let currentX = deltaX * progress;
+            let currentY = deltaY * progress;
 
-        // محرك يدوي (rAF) بنفس أسلوب الكود الأصلي كي يعمل مع أي CSS،
-        // لكن بمنحنى الفيديو، ويبدأ الزمن من أول إطار فعلي لتجنب القفزة
-        const bez = (x1, y1, x2, y2) => (x) => {
-            let lo = 0, hi = 1, u = x;
-            for (let i = 0; i < 24; i++) {
-                u = (lo + hi) / 2;
-                const bx = 3*(1-u)*(1-u)*u*x1 + 3*(1-u)*u*u*x2 + u*u*u;
-                if (bx < x) lo = u; else hi = u;
+            // 🌟 استخدام translate3d بدلاً من translate لضمان نعومة الحركة 100%
+            clone.style.setProperty('transform', `translate3d(${currentX}px, ${currentY}px, 0)`, 'important');
+
+            if (progress < 1) {
+                requestAnimationFrame(animate); 
+            } else {
+                // الهبوط النهائي
+                clone.remove();
+                if (targetPiece) targetPiece.style.opacity = '1'; // إظهار الحجر الحقيقي في مكانه
+                if (!isPlayerMove) this.highlightLastMoveTawla(fromIdx, toIdx, color);
+                if (onComplete) onComplete(isHit);
             }
-            return 3*(1-u)*(1-u)*u*y1 + 3*(1-u)*u*u*y2 + u*u*u;
         };
-        const ease = bez(0.35, 0.05, 0.75, 1);
-        let startTime = null;
-        const animate = (now) => {
-            if (startTime === null) startTime = now;
-            const p = Math.min((now - startTime) / duration, 1);
-            const e = ease(p);
-            clone.style.setProperty('transform', `translate3d(${deltaX * e}px, ${deltaY * e}px, 0)`, 'important');
-            if (p < 1) requestAnimationFrame(animate); else finish();
-        };
+
         requestAnimationFrame(animate);
     },
-
   
     // أضف هذه الدالة هنا 👇
     highlightPlayablePieces() {
