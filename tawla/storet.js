@@ -221,7 +221,7 @@ window.renderGiftsInBag = function() {
             giftCard.className = 'theme-grid-item';
             giftCard.innerHTML = `
                 <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border-radius: 8px;">
-                    <img src="${gift.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));" alt="${gift.nameAr}">
+                    <img src="${gift.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain; box-shadow(0 2px 4px rgba(0,0,0,0.6));" alt="${gift.nameAr}">
                 </div>
                 <span class="theme-grid-title" style="font-size: 11px; margin-top: 4px;">${gift.nameAr}</span>
                 <span style="color: #30d158; font-size: 11px; font-weight: bold;">العدد: x${count}</span>
@@ -290,7 +290,7 @@ export const storeManager = {
         document.head.appendChild(styleEl);
     },
 
-    applyBoardThemeCSS(bgKey) {
+  applyBoardThemeCSS(bgKey) {
         const item = STORE_ITEMS[bgKey];
         if (!item || item.type !== 'bg') return;
 
@@ -306,17 +306,19 @@ export const storeManager = {
                     background-repeat: no-repeat !important;
                     background-color: transparent !important;
                     border-radius: 4px !important;
-                    filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.9)) !important;
+                    /* 🌟 استبدال filter: drop-shadow بـ box-shadow لمنع التقطيع نهائياً 🌟 */
+                    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.9) !important;
+                    filter: none !important;
                 }
-                .cell.light { background-color: transparent !important; border: none !important; transition: all 0.5s ease; }
-                .cell.dark { background-color: transparent !important; border: none !important; transition: all 0.5s ease; }
+                .cell.light { background-color: transparent !important; border: none !important; }
+                .cell.dark { background-color: transparent !important; border: none !important; }
                 ${item.boardLayoutCSS || ''}
             `;
         } else if (item.cssLight && item.cssDark) {
             styleEl.innerHTML = `
-                #tawla-board { background-image: none !important; background-color: transparent !important; filter: none !important;}
-                .cell.light { ${item.cssLight} !important; transition: all 0.5s ease; } 
-                .cell.dark { ${item.cssDark} !important; transition: all 0.5s ease; }
+                #tawla-board { background-image: none !important; background-color: transparent !important; filter: none !important; }
+                .cell.light { ${item.cssLight} !important; } 
+                .cell.dark { ${item.cssDark} !important; }
                 ${item.boardLayoutCSS || ''}
             `;
         } else {
@@ -324,6 +326,7 @@ export const storeManager = {
             styleEl.innerHTML = '#tawla-board { background-image: none !important; filter: none !important; }';
         }
     },
+
 
     applyFrameThemeCSS(frKey) {
         const item = STORE_ITEMS[frKey];
