@@ -1257,7 +1257,7 @@ export const ui = {
         while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move-piece');
     },
 
-    // 🚀 نظام الحركة السينمائي (تأجيل renderBoard لما بعد الهبوط + تحريك بـ !important) 🚀
+    // 🚀 نظام الحركة المطابق للكود التجريبي 100% (بدون أي تحديث للوحة أثناء الطيران) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
         if (!board) {
@@ -1288,96 +1288,82 @@ export const ui = {
             return;
         }
 
-        // 1. إزالة أي تكبير ناتج عن تحديد الحجر قبل أخذ القياس
-        startContainer.classList.remove('selected-point');
-        sourcePiece.classList.remove('playable-piece', 'last-move-piece');
-        sourcePiece.style.setProperty('transition', 'none', 'important');
-        sourcePiece.style.setProperty('transform', 'translateZ(2px) scale(1)', 'important');
+        // إيقاف نبض اللوحة مؤقتاً لتصبح ساكنة مثل الكود التجريبي تماماً
+        board.classList.add('board-flying');
 
+        // 1. أخذ الإحداثيات الدقيقة لمكان الانطلاق
         const startRect = sourcePiece.getBoundingClientRect();
 
-        // 2. حساب مكان الهبوط باستخدام حجر وهمي خفيف (بدون استدعاء renderBoard أثناء الطيران!)
-        const endContainer = getContainer(toIdx, color);
+        // الحصول على الحجم الطبيعي للحجر من أي حجر غير مكبّر على اللوحة
+        const normalPiece = board.querySelector('.piece:not(.playable-piece)') || sourcePiece;
+        const pieceRect = normalPiece.getBoundingClientRect();
+
+        // 2. إيجاد الإحداثيات الدقيقة للهدف ثم إزالة الحجر الوهمي فوراً (كما في الكود التجريبي)
+        const targetContainer = getContainer(toIdx, color);
         let endLeft = startRect.left;
         let endTop = startRect.top;
-        let dummy = null;
 
-        if (endContainer && toIdx !== 'bearOff') {
-            const oppColor = color === 'white' ? 'black' : 'white';
-            const oppPieces = endContainer.querySelectorAll(`.piece.${oppColor}`);
-
-            if (oppPieces.length === 1) {
-                const oppRect = oppPieces[0].getBoundingClientRect();
-                endLeft = oppRect.left;
-                endTop = oppRect.top;
-            } else {
-                dummy = document.createElement('div');
-                dummy.className = `piece ${color}`;
-                dummy.style.setProperty('opacity', '0', 'important');
-                dummy.style.setProperty('pointer-events', 'none', 'important');
-                dummy.style.setProperty('transition', 'none', 'important');
-                endContainer.appendChild(dummy);
-                const dummyRect = dummy.getBoundingClientRect();
-                endLeft = dummyRect.left;
-                endTop = dummyRect.top;
-            }
-        } else if (endContainer) {
-            const endBox = endContainer.getBoundingClientRect();
-            endLeft = endBox.left + (endBox.width / 2) - (startRect.width / 2);
-            endTop = endBox.top + (endBox.height / 2) - (startRect.height / 2);
+        if (targetContainer && toIdx !== 'bearOff') {
+            const dummyPiece = document.createElement('div');
+            dummyPiece.className = `piece ${color}`;
+            dummyPiece.style.opacity = '0';
+            targetContainer.appendChild(dummyPiece);
+            const endRect = dummyPiece.getBoundingClientRect();
+            endLeft = endRect.left;
+            endTop = endRect.top;
+            dummyPiece.remove(); // 👈 يُحذف فوراً قبل بدء الحركة تماماً مثل الكود التجريبي
+        } else if (targetContainer) {
+            const endBox = targetContainer.getBoundingClientRect();
+            endLeft = endBox.left + (endBox.width / 2) - (pieceRect.width / 2);
+            endTop = endBox.top + (endBox.height / 2) - (pieceRect.height / 2);
         }
 
+        // 3. صناعة النسخة الطائرة بنفس طريقة الكود التجريبي
+        const clone = sourcePiece.cloneNode(true);
+        clone.className = `piece ${color} moving-piece-clone`;
+        clone.style.setProperty('left', `${startRect.left}px`, 'important');
+        clone.style.setProperty('top', `${startRect.top}px`, 'important');
+        clone.style.setProperty('width', `${pieceRect.width}px`, 'important');
+        clone.style.setProperty('height', `${pieceRect.height}px`, 'important');
+        clone.style.setProperty('margin', '0', 'important');
+        clone.style.setProperty('transition', 'none', 'important');
+        clone.style.setProperty('transform', 'translate3d(0px, 0px, 0px) scale(1)', 'important');
+        document.body.appendChild(clone);
+
+        // إخفاء الحجر الأصلي فقط دون مسح أو إعادة رسم اللوحة أثناء الطيران
+        sourcePiece.style.setProperty('opacity', '0', 'important');
+
+        // 4. حساب المسافة إلى الهدف
         const deltaX = endLeft - startRect.left;
         const deltaY = endTop - startRect.top;
 
-        // 3. صناعة النسخة الطائرة
-        const clone = sourcePiece.cloneNode(true);
-        clone.className = `piece ${color} moving-piece-clone`;
-        clone.style.setProperty('position', 'fixed', 'important');
-        clone.style.setProperty('left', `${startRect.left}px`, 'important');
-        clone.style.setProperty('top', `${startRect.top}px`, 'important');
-        clone.style.setProperty('width', `${startRect.width}px`, 'important');
-        clone.style.setProperty('height', `${startRect.height}px`, 'important');
-        clone.style.setProperty('margin', '0', 'important');
-        clone.style.setProperty('transition', 'none', 'important');
-        clone.style.setProperty('animation', 'none', 'important');
-        clone.style.setProperty('filter', 'none', 'important');
-        clone.style.setProperty('will-change', 'transform', 'important');
-        clone.style.setProperty('z-index', '999999', 'important');
-        clone.style.setProperty('pointer-events', 'none', 'important');
-        clone.style.setProperty('transform', 'translate3d(0px, 0px, 0px)', 'important');
-        document.body.appendChild(clone);
-
-        // إخفاء الحجر الأصلي ومسح التحديدات بهدوء بدون هدم اللوحة
-        sourcePiece.style.setProperty('opacity', '0', 'important');
-        this.clearHighlights();
-
-        // 4. تحريك الحجر بنعومة 60fps وبسرعة خطية ثابتة
-        const duration = 580;
-        let startTime = null;
+        // 5. نفس حلقة الحركة الموجودة في الكود التجريبي
+        const duration = 450;
+        const startTime = performance.now();
+        const clamp01 = (t) => Math.min(Math.max(t, 0), 1);
 
         const animate = (currentTime) => {
-            if (!startTime) startTime = currentTime; // يضمن البدء من الصفر بدون قفزة في الإطار الأول
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(Math.max(elapsed / duration, 0), 1);
+            let elapsed = currentTime - startTime;
+            let progress = clamp01(elapsed / duration);
 
-            const currentX = deltaX * progress;
-            const currentY = deltaY * progress;
+            let currentX = deltaX * progress;
+            let currentY = deltaY * progress;
 
-            clone.style.setProperty('transform', `translate3d(${currentX}px, ${currentY}px, 0px)`, 'important');
+            clone.style.setProperty('transform', `translate3d(${currentX}px, ${currentY}px, 0px) scale(1)`, 'important');
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                // 5. بعد وصول الحجر واستقراره 100%، نحدّث بيانات اللعبة ونرسم اللوحة
-                if (dummy) dummy.remove();
+                // الهبوط: الآن فقط نحدث بيانات اللعبة ونرسم اللوحة بعد انتهاء الحركة 100%
                 clone.remove();
+                board.classList.remove('board-flying');
 
                 let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
                 let dieIdx = gameState.currentDice.indexOf(dieUsed);
                 if (dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
 
                 this.playSound(isHit ? sfx.piecesDied : sfx.move);
+                this.clearHighlights();
                 this.renderBoard();
 
                 if (!isPlayerMove) {
