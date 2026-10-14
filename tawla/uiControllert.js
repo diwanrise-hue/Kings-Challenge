@@ -1257,8 +1257,7 @@ export const ui = {
         while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move-piece');
     },
 
-
-      // 🚀 نظام الحركة السينمائي (انزلاق سلس ومطابق للفيديو بدون تقطيع أو تكبير) 🚀
+    // 🚀 نظام الحركة السينمائي (تأجيل renderBoard لما بعد الهبوط + تحريك بـ !important) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
         if (!board) {
@@ -1289,16 +1288,49 @@ export const ui = {
             return;
         }
 
-        // 🌟 1. إلغاء تكبير التحديد (scale 1.1) فوراً قبل أخذ القياس لمنع تضخم الحجر عند الطيران
-        sourcePiece.style.setProperty('transition', 'none', 'important');
-        sourcePiece.style.setProperty('transform', 'translateZ(0) scale(1)', 'important');
+        // 1. إزالة أي تكبير ناتج عن تحديد الحجر قبل أخذ القياس
         startContainer.classList.remove('selected-point');
         sourcePiece.classList.remove('playable-piece', 'last-move-piece');
+        sourcePiece.style.setProperty('transition', 'none', 'important');
+        sourcePiece.style.setProperty('transform', 'translateZ(2px) scale(1)', 'important');
 
-        // قراءة الحجم والموقع الحقيقي للحجر (100% مطابق للأحجار الأخرى)
         const startRect = sourcePiece.getBoundingClientRect();
 
-        // 🌟 2. إنشاء النسخة الطائرة مع إيقاف الـ transition نهائياً لمنع التقطيع
+        // 2. حساب مكان الهبوط باستخدام حجر وهمي خفيف (بدون استدعاء renderBoard أثناء الطيران!)
+        const endContainer = getContainer(toIdx, color);
+        let endLeft = startRect.left;
+        let endTop = startRect.top;
+        let dummy = null;
+
+        if (endContainer && toIdx !== 'bearOff') {
+            const oppColor = color === 'white' ? 'black' : 'white';
+            const oppPieces = endContainer.querySelectorAll(`.piece.${oppColor}`);
+
+            if (oppPieces.length === 1) {
+                const oppRect = oppPieces[0].getBoundingClientRect();
+                endLeft = oppRect.left;
+                endTop = oppRect.top;
+            } else {
+                dummy = document.createElement('div');
+                dummy.className = `piece ${color}`;
+                dummy.style.setProperty('opacity', '0', 'important');
+                dummy.style.setProperty('pointer-events', 'none', 'important');
+                dummy.style.setProperty('transition', 'none', 'important');
+                endContainer.appendChild(dummy);
+                const dummyRect = dummy.getBoundingClientRect();
+                endLeft = dummyRect.left;
+                endTop = dummyRect.top;
+            }
+        } else if (endContainer) {
+            const endBox = endContainer.getBoundingClientRect();
+            endLeft = endBox.left + (endBox.width / 2) - (startRect.width / 2);
+            endTop = endBox.top + (endBox.height / 2) - (startRect.height / 2);
+        }
+
+        const deltaX = endLeft - startRect.left;
+        const deltaY = endTop - startRect.top;
+
+        // 3. صناعة النسخة الطائرة
         const clone = sourcePiece.cloneNode(true);
         clone.className = `piece ${color} moving-piece-clone`;
         clone.style.setProperty('position', 'fixed', 'important');
@@ -1309,66 +1341,45 @@ export const ui = {
         clone.style.setProperty('margin', '0', 'important');
         clone.style.setProperty('transition', 'none', 'important');
         clone.style.setProperty('animation', 'none', 'important');
-        clone.style.setProperty('transform', 'translate3d(0px, 0px, 0px)', 'important');
+        clone.style.setProperty('filter', 'none', 'important');
+        clone.style.setProperty('will-change', 'transform', 'important');
         clone.style.setProperty('z-index', '999999', 'important');
         clone.style.setProperty('pointer-events', 'none', 'important');
+        clone.style.setProperty('transform', 'translate3d(0px, 0px, 0px)', 'important');
         document.body.appendChild(clone);
 
-        // 🌟 3. تنفيذ الحركة برمجياً وإعادة رسم اللوحة في نفس اللحظة
-        let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
-        let dieIdx = gameState.currentDice.indexOf(dieUsed);
-        if (dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
-
+        // إخفاء الحجر الأصلي ومسح التحديدات بهدوء بدون هدم اللوحة
+        sourcePiece.style.setProperty('opacity', '0', 'important');
         this.clearHighlights();
-        this.renderBoard();
 
-        // 🌟 4. تحديد موقع الحجر الجديد وإخفاؤه فوراً قبل أن يرسمه المتصفح
-        const endContainer = getContainer(toIdx, color);
-        let targetPiece = null;
-        let deltaX = 0, deltaY = 0;
-
-        if (endContainer) {
-            const pieces = endContainer.querySelectorAll(`.piece.${color}`);
-            targetPiece = pieces[pieces.length - 1];
-        }
-
-        if (targetPiece) {
-            targetPiece.style.setProperty('transition', 'none', 'important');
-            const endRect = targetPiece.getBoundingClientRect();
-            deltaX = endRect.left - startRect.left;
-            deltaY = endRect.top - startRect.top;
-            targetPiece.style.setProperty('opacity', '0', 'important');
-        } else if (endContainer) {
-            const endBox = endContainer.getBoundingClientRect();
-            deltaX = endBox.left - startRect.left + (endBox.width / 2) - (startRect.width / 2);
-            deltaY = endBox.top - startRect.top + (endBox.height / 2) - (startRect.height / 2);
-        }
-
-        this.playSound(isHit ? sfx.piecesDied : sfx.move);
-
-        // 🌟 5. تحريك الحجر بانسيابية وسرعة مطابقة للفيديو عبر requestAnimationFrame
-        const duration = 320; // سرعة الانزلاق عبر اللوحة
-        const startTime = performance.now();
+        // 4. تحريك الحجر بنعومة 60fps وبسرعة خطية ثابتة
+        const duration = 680;
+        let startTime = null;
 
         const animate = (currentTime) => {
+            if (!startTime) startTime = currentTime; // يضمن البدء من الصفر بدون قفزة في الإطار الأول
             const elapsed = currentTime - startTime;
             const progress = Math.min(Math.max(elapsed / duration, 0), 1);
 
             const currentX = deltaX * progress;
             const currentY = deltaY * progress;
 
-            // إجبار المتصفح على تحريك الحجر متجاوزاً !important الموجودة في tawla.css
             clone.style.setProperty('transform', `translate3d(${currentX}px, ${currentY}px, 0px)`, 'important');
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                // الاستقرار النهائي في الخانة الجديدة
+                // 5. بعد وصول الحجر واستقراره 100%، نحدّث بيانات اللعبة ونرسم اللوحة
+                if (dummy) dummy.remove();
                 clone.remove();
-                if (targetPiece) {
-                    targetPiece.style.setProperty('opacity', '1', 'important');
-                    targetPiece.style.removeProperty('transition');
-                }
+
+                let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
+                let dieIdx = gameState.currentDice.indexOf(dieUsed);
+                if (dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
+
+                this.playSound(isHit ? sfx.piecesDied : sfx.move);
+                this.renderBoard();
+
                 if (!isPlayerMove) {
                     this.highlightLastMoveTawla(fromIdx, toIdx, color);
                 }
@@ -1379,6 +1390,7 @@ export const ui = {
         requestAnimationFrame(animate);
     },
 
+  
     // أضف هذه الدالة هنا 👇
     highlightPlayablePieces() {
         if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
