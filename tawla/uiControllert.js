@@ -1257,126 +1257,130 @@ export const ui = {
         while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move-piece');
     },
 
-    // 🚀 نظام الحركة المطابق للكود التجريبي 100% (بدون أي تحديث للوحة أثناء الطيران) 🚀
-    animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
-        const board = this.getEl('tawla-board');
-        if (!board) {
-            if (onComplete) onComplete(false);
-            return;
-        }
 
-        const getContainer = (idx, c) => {
-            if (idx === 'bar') return document.getElementById(c === 'white' ? 'bar-white' : 'bar-black');
-            if (idx === 'bearOff') return document.getElementById(c === 'white' ? 'bear-off-top' : 'bear-off-bottom');
-            return board.querySelector(`.point[data-index="${idx}"]`);
-        };
+// =========================================================
+// 🚀 ميكانيكا حركة الحجر السينمائية (المربوطة بالنرد)
+// =========================
+================================
+animateBtn.addEventListener('click', () => {
+    if (!currentDice || currentDice.length === 0) {
+        alert("إرمي النرد أولاً لتحديد عدد الخطوات! 🎲");
+        return;
+    }
 
-        const startContainer = getContainer(fromIdx, color);
-        if (!startContainer) {
-            if (onComplete) onComplete(false);
-            return;
-        }
+    const steps = currentDice[0]; // نأخذ قيمة النرد المطلوب
+    
+    // استخراج جميع خانات اللوحة الموجودة حالياً لتنفيذ القفز بينهم
+    const pointsList = Array.from(document.querySelectorAll('.point'));
+    
+    let sourceContainer = null;
+    let sourcePiece = null;
+    let currentIndex = -1;
 
-        let sourcePiece = startContainer.lastElementChild;
-        if (!sourcePiece || !sourcePiece.classList.contains('piece')) {
-            const pieces = startContainer.querySelectorAll('.piece');
-            sourcePiece = pieces[pieces.length - 1];
-        }
-
-        if (!sourcePiece) {
-            if (onComplete) onComplete(false);
-            return;
-        }
-
-        // إيقاف نبض اللوحة مؤقتاً لتصبح ساكنة مثل الكود التجريبي تماماً
-        board.classList.add('board-flying');
-
-        // 1. أخذ الإحداثيات الدقيقة لمكان الانطلاق
-        const startRect = sourcePiece.getBoundingClientRect();
-
-        // الحصول على الحجم الطبيعي للحجر من أي حجر غير مكبّر على اللوحة
-        const normalPiece = board.querySelector('.piece:not(.playable-piece)') || sourcePiece;
-        const pieceRect = normalPiece.getBoundingClientRect();
-
-        // 2. إيجاد الإحداثيات الدقيقة للهدف ثم إزالة الحجر الوهمي فوراً (كما في الكود التجريبي)
-        const targetContainer = getContainer(toIdx, color);
-        let endLeft = startRect.left;
-        let endTop = startRect.top;
-
-        if (targetContainer && toIdx !== 'bearOff') {
-            const dummyPiece = document.createElement('div');
-            dummyPiece.className = `piece ${color}`;
-            dummyPiece.style.opacity = '0';
-            targetContainer.appendChild(dummyPiece);
-            const endRect = dummyPiece.getBoundingClientRect();
-            endLeft = endRect.left;
-            endTop = endRect.top;
-            dummyPiece.remove(); // 👈 يُحذف فوراً قبل بدء الحركة تماماً مثل الكود التجريبي
-        } else if (targetContainer) {
-            const endBox = targetContainer.getBoundingClientRect();
-            endLeft = endBox.left + (endBox.width / 2) - (pieceRect.width / 2);
-            endTop = endBox.top + (endBox.height / 2) - (pieceRect.height / 2);
-        }
-
-        // 3. صناعة النسخة الطائرة بنفس طريقة الكود التجريبي
-        const clone = sourcePiece.cloneNode(true);
-        clone.className = `piece ${color} moving-piece-clone`;
-        clone.style.setProperty('left', `${startRect.left}px`, 'important');
-        clone.style.setProperty('top', `${startRect.top}px`, 'important');
-        clone.style.setProperty('width', `${pieceRect.width}px`, 'important');
-        clone.style.setProperty('height', `${pieceRect.height}px`, 'important');
-        clone.style.setProperty('margin', '0', 'important');
-        clone.style.setProperty('transition', 'none', 'important');
-        clone.style.setProperty('transform', 'translate3d(0px, 0px, 0px) scale(1)', 'important');
-        document.body.appendChild(clone);
-
-        // إخفاء الحجر الأصلي فقط دون مسح أو إعادة رسم اللوحة أثناء الطيران
-        sourcePiece.style.setProperty('opacity', '0', 'important');
-
-        // 4. حساب المسافة إلى الهدف
-        const deltaX = endLeft - startRect.left;
-        const deltaY = endTop - startRect.top;
-
-        // 5. نفس حلقة الحركة الموجودة في الكود التجريبي
-        const duration = 450;
-        const startTime = performance.now();
-        const clamp01 = (t) => Math.min(Math.max(t, 0), 1);
-
-        const animate = (currentTime) => {
-            let elapsed = currentTime - startTime;
-            let progress = clamp01(elapsed / duration);
-
-            let currentX = deltaX * progress;
-            let currentY = deltaY * progress;
-
-            clone.style.setProperty('transform', `translate3d(${currentX}px, ${currentY}px, 0px) scale(1)`, 'important');
-
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                // الهبوط: الآن فقط نحدث بيانات اللعبة ونرسم اللوحة بعد انتهاء الحركة 100%
-                clone.remove();
-                board.classList.remove('board-flying');
-
-                let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
-                let dieIdx = gameState.currentDice.indexOf(dieUsed);
-                if (dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
-
-                this.playSound(isHit ? sfx.piecesDied : sfx.move);
-                this.clearHighlights();
-                this.renderBoard();
-
-                if (!isPlayerMove) {
-                    this.highlightLastMoveTawla(fromIdx, toIdx, color);
-                }
-                if (onComplete) onComplete(isHit);
+    // 🌟 نبحث عن أول خانة بها حجر أبيض (من الأسفل للأعلى) لنحركه
+    for(let i = pointsList.length - 1; i >= 0; i--) {
+        if (pointsList[i].lastElementChild && pointsList[i].lastElementChild.classList.contains('white')) {
+            sourceContainer = pointsList[i];
+            sourcePiece = pointsList[i].lastElementChild;
+            currentIndex = i;
+            
+            // التأكد من أن القفزة بالخطوات المطلوبة ستبقيه داخل اللوحة
+            if (currentIndex - steps >= 0) {
+                break;
             }
-        };
+        }
+    }
 
-        requestAnimationFrame(animate);
-    },
+    if (!sourceContainer || currentIndex - steps < 0) {
+        alert("انتهى مسار الأحجار لهذه الخانة! اضغط النرد مرة أخرى لتجربة قفزة جديدة.");
+        return;
+    }
 
-  
+    // تحديد مكان النزول بناءً على خطوات النرد
+    const targetContainer = pointsList[currentIndex - steps];
+
+    animateBtn.disabled = true;
+
+    // 1. أخذ الإحداثيات الدقيقة لمكان الانطلاق
+    const startRect = sourcePiece.getBoundingClientRect();
+
+    // 2. إيجاد الإحداثيات الدقيقة للهدف
+    const dummyPiece = document.createElement('div');
+    dummyPiece.className = sourcePiece.className;
+    dummyPiece.style.opacity = '0'; // مخفي
+    targetContainer.appendChild(dummyPiece);
+    const endRect = dummyPiece.getBoundingClientRect();
+    dummyPiece.remove(); 
+
+    // 3. صناعة النسخة الطائرة
+    const clone = sourcePiece.cloneNode(true);
+    clone.classList.add('moving-piece-clone');
+    
+    // 🌟 التعديل السحري هنا: نستخدم setProperty مع 'important' لكسر هيمنة الـ CSS
+    clone.style.setProperty('left', `${startRect.left}px`, 'important');
+    clone.style.setProperty('top', `${startRect.top}px`, 'important');
+    clone.style.setProperty('width', `${startRect.width}px`, 'important');
+    clone.style.setProperty('height', `${startRect.height}px`, 'important');
+    clone.style.setProperty('margin', '0', 'important');
+    
+    document.body.appendChild(clone);
+
+    // 4. حساب المسافة إلى الهدف
+    const deltaX = endRect.left - startRect.left;
+    const deltaY = endRect.top - startRect.top;
+
+    // 5. حركة الحجر كما في اللعبة الأصلية:
+    //    رفع سريع (تكبير + ظل) ← انزلاق شبه مستقيم بسرعة شبه ثابتة ← تباطؤ ناعم ← هبوط وتصغير
+    const duration = 750;
+    const startTime = performance.now();
+    const smooth = (t) => t * t * (3 - 2 * t);
+    const clamp01 = (t) => Math.min(Math.max(t, 0), 1);
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+    // مزيج: بداية سريعة وثابتة تقريباً + نهاية متباطئة
+    const travelEase = (t) => 0.45 * smooth(t) + 0.55 * easeOutCubic(t);
+    const LIFT_SCALE = 0;   // مقدار التكبير عند الرفع
+    const ARC_HEIGHT = 25;     // قوس خفيف جداً (بكسل)
+
+    const animate = (currentTime) => {
+        let elapsed = currentTime - startTime;
+        let progress = clamp01(elapsed / duration);
+
+        let easedP = travelEase(progress);
+
+        let currentX = deltaX * easedP;
+        let currentY = deltaY * easedP - Math.sin(easedP * Math.PI) * ARC_HEIGHT;
+
+        // الارتفاع: يصعد في أول 15% ويهبط في آخر 20%
+        const lift = smooth(clamp01(progress / 0.15)) * (1 - smooth(clamp01((progress - 0.8) / 0.2)));
+        const currentScale = 1 + lift * LIFT_SCALE;
+
+        clone.style.setProperty('transform', `translate(${currentX}px, ${currentY}px) scale(${currentScale})`, 'important');
+        clone.style.setProperty('filter', `drop-shadow(0px ${2 + lift * 2}px ${3 + lift * 2}px rgba(0,0,0,${0.35 + lift * 0.1}))`, 'important');
+
+        if (progress < 1) {
+            requestAnimationFrame(animate); 
+        } else {
+            // الهبوط: نقل الحجر برمجياً وتحديث واجهة الأزرار
+            clone.remove();
+            sourcePiece.style.opacity = '1';
+            targetContainer.appendChild(sourcePiece); 
+            
+            // خصم النرد المستخدم من المصفوفة
+            currentDice.shift();
+            
+            if (currentDice.length > 0) {
+                animateBtn.innerText = `حرك النرد الثاني (${currentDice[0]} خطوات) 🚀`;
+                animateBtn.disabled = false;
+            } else {
+                animateBtn.innerText = "جرب حركة الحجر 🚀 (ارم النرد)";
+            }
+        }
+    };
+
+    // انطلاق الأنيميشن
+    requestAnimationFrame(animate);
+});
+
     // أضف هذه الدالة هنا 👇
     highlightPlayablePieces() {
         if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
