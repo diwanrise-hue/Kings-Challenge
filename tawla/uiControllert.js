@@ -1353,7 +1353,7 @@ export const ui = {
         this.clearHighlights();
 
         // 4. تحريك الحجر بنعومة 60fps وبسرعة خطية ثابتة
-        const duration = 680;
+        const duration = 580;
         let startTime = null;
 
         const animate = (currentTime) => {
