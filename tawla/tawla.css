@@ -2237,7 +2237,7 @@ body[data-player-color="black"] #bar-white { order: 2 !important; justify-conten
 }
 
 /* =========================================================
-   🚀 تأثير الطيران للحجر (سلس ومسطح مطابق للفيديو)
+   🚀 تثبيت اللوحة أثناء طيران الحجر لمنع التقطيع نهائياً
    ========================================================= */
 .moving-piece-clone {
     position: fixed !important;
@@ -2246,4 +2246,12 @@ body[data-player-color="black"] #bar-white { order: 2 !important; justify-conten
     transition: none !important;
     animation: none !important;
     border-radius: 50% !important;
+    will-change: transform !important;
+}
+
+#tawla-board.board-flying *,
+#tawla-board.board-flying *::before,
+#tawla-board.board-flying *::after {
+    animation-play-state: paused !important;
+    transition: none !important;
 }
