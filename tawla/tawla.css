@@ -2237,11 +2237,13 @@ body[data-player-color="black"] #bar-white { order: 2 !important; justify-conten
 }
 
 /* =========================================================
-   🚀 تأثير الطيران للحجر (Cinematic Piece Animation)
+   🚀 تأثير الطيران للحجر (سلس ومسطح مطابق للفيديو)
    ========================================================= */
 .moving-piece-clone {
     position: fixed !important;
     z-index: 999999 !important;
     pointer-events: none !important;
+    transition: none !important;
+    animation: none !important;
     border-radius: 50% !important;
 }
