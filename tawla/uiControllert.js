@@ -1257,7 +1257,21 @@ export const ui = {
         while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move-piece');
     },
 
-    // 🚀 نظام الحركة السينمائي (فصل الهبوط البصري عن تحديث اللوحة لمنع التقطيع قبل الجلوس) 🚀
+    // 🌟 دالة إضاءة الحجر الذي حركه الخصم للتو 🌟
+    highlightLastMoveTawla(fromIndex, toIndex, color) {
+        const board = this.getEl('tawla-board');
+        if (!board || toIndex === 'bearOff') return;
+
+        const tCell = (toIndex === 'bar')
+            ? document.getElementById(color === 'white' ? 'bar-white' : 'bar-black')
+            : board.querySelector(`.point[data-index="${toIndex}"]`);
+
+        if (tCell && tCell.lastElementChild && tCell.lastElementChild.classList.contains('piece')) {
+            tCell.lastElementChild.classList.add('last-move-piece');
+        }
+    },
+
+    // 🚀 نظام الحركة السينمائي (مسار قوسي بيضوي سلس بدون دوران الحجر حول نفسه وبدون تقطيع) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
         if (!board) {
@@ -1300,20 +1314,15 @@ export const ui = {
         const targetContainer = getContainer(toIdx, color);
         let endLeft = startRect.left;
         let endTop = startRect.top;
-        let endWidth = startRect.width;
-        let endHeight = startRect.height;
 
         if (targetContainer && toIdx !== 'bearOff') {
             const oppColor = color === 'white' ? 'black' : 'white';
             const oppPieces = targetContainer.querySelectorAll(`.piece.${oppColor}`);
 
             if (oppPieces.length === 1) {
-                // إذا كان هناك حجر وحيد للخصم (أكل)، فمكان الجلوس هو مكان حجر الخصم نفسه
                 const oppRect = oppPieces[0].getBoundingClientRect();
                 endLeft = oppRect.left;
                 endTop = oppRect.top;
-                endWidth = oppRect.width;
-                endHeight = oppRect.height;
             } else {
                 const dummyPiece = document.createElement('div');
                 dummyPiece.className = `piece ${color}`;
@@ -1323,8 +1332,6 @@ export const ui = {
                 const endRect = dummyPiece.getBoundingClientRect();
                 endLeft = endRect.left;
                 endTop = endRect.top;
-                endWidth = endRect.width;
-                endHeight = endRect.height;
                 dummyPiece.remove();
             }
         } else if (targetContainer) {
@@ -1353,24 +1360,37 @@ export const ui = {
         const deltaX = endLeft - startRect.left;
         const deltaY = endTop - startRect.top;
 
-        // 4. حلقة التحريك السلسة
-        const duration = 520; const ARC_HEIGHT = 25;     // قوس خفيف جداً (بكسل)
+        // 4. حلقة التحريك القوسية (البيضوية) بدون دوران الحجر حول نفسه
+        const duration = 520;
+        const ARC_HEIGHT = 28; // 👈 مقدار تقوس المسار (الارتفاع البيضوي بالبكسل)
         let startTime = null;
+
+        // إذا كانت الحركة عمودية بين النصف العلوي والسفلي، ينحني المسار بيضوياً نحو وسط اللوحة
+        const isMostlyVertical = Math.abs(deltaY) > Math.abs(deltaX) * 2;
+        const sideArcDir = startRect.left > (window.innerWidth / 2) ? -1 : 1;
 
         const animate = (currentTime) => {
             if (!startTime) startTime = currentTime;
             const elapsed = currentTime - startTime;
             const progress = Math.min(Math.max(elapsed / duration, 0), 1);
 
-            const currentX = deltaX * progress;
-            const currentY = deltaY * progress;
+            // حساب الانحناء البيضوي السلس
+            const arcOffset = Math.sin(progress * Math.PI) * ARC_HEIGHT;
 
-            clone.style.setProperty('transform', `translate3d(${currentX}px, ${currentY}px, 0px) scale(1)`, 'important');
+            const currentX = (deltaX * progress) + (isMostlyVertical ? arcOffset * sideArcDir : 0);
+            const currentY = (deltaY * progress) - arcOffset;
+
+            // تحريك الحجر على المسار القوسي بدون أي rotate وبحجم ثابت scale(1)
+            clone.style.setProperty(
+                'transform',
+                `translate3d(${currentX}px, ${currentY}px, 0px) scale(1)`,
+                'important'
+            );
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                // 🌟 المرحلة الأولى: إجلاس الحجر بصرياً فوراً (مثل الكود التجريبي تماماً بدون أي ثقل) 🌟
+                // 🌟 المرحلة الأولى: إجلاس الحجر بصرياً فوراً (بدون أي تقطيع) 🌟
                 if (targetContainer && toIdx !== 'bearOff') {
                     const oppColor = color === 'white' ? 'black' : 'white';
                     const oppPieces = targetContainer.querySelectorAll(`.piece.${oppColor}`);
@@ -1383,7 +1403,7 @@ export const ui = {
                 clone.remove();
                 board.classList.remove('board-flying');
 
-                // 🌟 المرحلة الثانية: بعد أن يرسم المتصفح الحجر جالساً في مكانه، نحدث المحرك في الإطار التالي 🌟
+                // 🌟 المرحلة الثانية: تحديث محرك اللعبة في الإطار التالي بعد استقرار الحجر 🌟
                 requestAnimationFrame(() => {
                     setTimeout(() => {
                         let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
