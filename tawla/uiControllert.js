@@ -939,6 +939,41 @@ export const ui = {
     },
 
     
+    // 🌟 دالة تقرأ حجم الحجر المولّد من كود المتجر (storet.js) للساحة المستخدمة حالياً 🌟
+    getStorePieceSize() {
+        const board = this.getEl('tawla-board');
+        if (!board) return { cssWidth: '34px', cssHeight: '34px', rectWidth: 34, rectHeight: 34 };
+
+        let sample = board.querySelector('.board-quadrant .piece:not(.playable-piece):not(.selected-point)')
+                  || board.querySelector('.board-quadrant .piece');
+        let tempCreated = false;
+
+        if (!sample) {
+            const quad = board.querySelector('.board-quadrant');
+            if (quad) {
+                sample = document.createElement('div');
+                sample.className = 'piece white';
+                sample.style.setProperty('visibility', 'hidden', 'important');
+                sample.style.setProperty('position', 'absolute', 'important');
+                quad.appendChild(sample);
+                tempCreated = true;
+            }
+        }
+
+        let cssWidth = '34px', cssHeight = '34px', rectWidth = 34, rectHeight = 34;
+        if (sample) {
+            const cs = window.getComputedStyle(sample);
+            const rect = sample.getBoundingClientRect();
+            cssWidth = cs.width || `${rect.width}px`;
+            cssHeight = cs.height || `${rect.height}px`;
+            rectWidth = rect.width || parseFloat(cssWidth) || 34;
+            rectHeight = rect.height || parseFloat(cssHeight) || 34;
+            if (tempCreated) sample.remove();
+        }
+
+        return { cssWidth, cssHeight, rectWidth, rectHeight };
+    },
+
     renderBoard(forceRebuild = false) {
         const board = this.getEl('tawla-board');
         if (!board) return;
@@ -956,19 +991,15 @@ export const ui = {
                 </div>
             `;
             
-            // توزيع المثلثات الـ 24 على الأرباع
-            for(let i=0; i<24; i++) {
-                let q = (i>=0 && i<=5) ? 'quad-tr' : (i>=6 && i<=11) ? 'quad-tl' : (i>=12 && i<=17) ? 'quad-bl' : 'quad-br';
+            for (let i = 0; i < 24; i++) {
+                let q = (i >= 0 && i <= 5) ? 'quad-tr' : (i >= 6 && i <= 11) ? 'quad-tl' : (i >= 12 && i <= 17) ? 'quad-bl' : 'quad-br';
                 let pointDiv = document.createElement('div');
                 pointDiv.className = 'point'; pointDiv.dataset.index = i;
-                
-                // 🌟  width: 100% لكي يطيع المثلث نظام الـ Grid والـ Gap الخاص بالساحة الديناميكية
                 pointDiv.style.cssText = `width: 100%; height: 100%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-            // إضافة أشرطة إخراج الأحجار (العلوي والسفلي) إذا لم تكن موجودة
-            if(!document.getElementById('bear-off-top')) {
+            if (!document.getElementById('bear-off-top')) {
                 let boTop = document.createElement('div'); boTop.id = 'bear-off-top';
                 boTop.style.cssText = "position:absolute; top:-75px; left:0; width:100%; height:48px; background:linear-gradient(to right, #2b170e, #3d2214 50%, #2b170e); border:3px solid #1f1008; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 5px 15px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.7); z-index:20; box-sizing:border-box;";
                 boTop.innerHTML = `<div id="out-white" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
@@ -981,49 +1012,66 @@ export const ui = {
             }
         }
 
-        // إيقاف الدالة إذا لم تكن بيانات اللوحة متوفرة
-        if(!gameState.virtualBoard || !gameState.virtualBoard.points) return;
+        if (!gameState.virtualBoard || !gameState.virtualBoard.points) return;
         
-        // 2. تفريغ الطاولة من الأحجار القديمة قبل رسم الجديدة
-        for(let i=0; i<24; i++) { let pt = board.querySelector(`.point[data-index="${i}"]`); if(pt) pt.innerHTML = ''; }
+        // 2. تفريغ الطاولة من الأحجار القديمة
+        for (let i = 0; i < 24; i++) { let pt = board.querySelector(`.point[data-index="${i}"]`); if (pt) pt.innerHTML = ''; }
         document.getElementById('bar-white').innerHTML = ''; document.getElementById('bar-black').innerHTML = '';
         document.getElementById('out-white').innerHTML = ''; document.getElementById('out-black').innerHTML = '';
 
         // 3. رسم الأحجار على المثلثات
         gameState.virtualBoard.points.forEach((pt, i) => {
-            if(pt.count > 0) {
+            if (pt.count > 0) {
                 let pointDiv = board.querySelector(`.point[data-index="${i}"]`);
-                for(let c=0; c<pt.count; c++) {
+                for (let c = 0; c < pt.count; c++) {
                     let piece = document.createElement('div'); piece.className = `piece ${pt.color}`;
-                    // تداخل الأحجار الديناميكي بناءً على حجم الشاشة
-                    if(c > 4) piece.style.marginTop = 'calc(-60%)'; 
-                    if(i >= 12 && c > 4) { piece.style.marginTop = '0'; piece.style.marginBottom = 'calc(-60%)'; }
+                    if (c > 4) piece.style.marginTop = 'calc(-60%)'; 
+                    if (i >= 12 && c > 4) { piece.style.marginTop = '0'; piece.style.marginBottom = 'calc(-60%)'; }
                     pointDiv.appendChild(piece);
                 }
             }
         });
 
-        // 4. رسم الأحجار المأكولة في البار (المنتصف)
-        for(let c=0; c<gameState.virtualBoard.bar.white; c++) document.getElementById('bar-white').appendChild(this.makeEl('div', 'piece white'));
-        for(let c=0; c<gameState.virtualBoard.bar.black; c++) document.getElementById('bar-black').appendChild(this.makeEl('div', 'piece black'));
+        // 🌟 4. رسم الأحجار المأكولة في البار بنفس الحجم المولّد من كود المتجر للساحة الحالية 🌟
+        const storeSize = this.getStorePieceSize();
+
+        for (let c = 0; c < gameState.virtualBoard.bar.white; c++) {
+            let p = this.makeEl('div', 'piece white');
+            p.style.setProperty('width', storeSize.cssWidth, 'important');
+            p.style.setProperty('height', storeSize.cssHeight, 'important');
+            p.style.setProperty('min-width', storeSize.cssWidth, 'important');
+            p.style.setProperty('min-height', storeSize.cssHeight, 'important');
+            if (c > 2) p.style.setProperty('margin-top', '-28%', 'important');
+            document.getElementById('bar-white').appendChild(p);
+        }
+
+        for (let c = 0; c < gameState.virtualBoard.bar.black; c++) {
+            let p = this.makeEl('div', 'piece black');
+            p.style.setProperty('width', storeSize.cssWidth, 'important');
+            p.style.setProperty('height', storeSize.cssHeight, 'important');
+            p.style.setProperty('min-width', storeSize.cssWidth, 'important');
+            p.style.setProperty('min-height', storeSize.cssHeight, 'important');
+            if (c > 2) p.style.setProperty('margin-bottom', '-28%', 'important');
+            document.getElementById('bar-black').appendChild(p);
+        }
         
-        // 5. رسم الأحجار التي تم إخراجها (Bearing Off) أفقياً
+        // 5. رسم الأحجار التي تم إخراجها (Bearing Off)
         let outW = gameState.virtualBoard.out?.white || gameState.virtualBoard.bearOff?.white || 0;
-        for(let c = 0; c < outW; c++) {
+        for (let c = 0; c < outW; c++) {
             let p = document.createElement('div'); p.className = 'piece white';
-            p.style.cssText = `width:32px !important; height:32px !important; min-width:32px; min-height:32px; margin-left:${c===0?'0':'-18px'}; position:relative; z-index:${c}; box-shadow: -2px 0 5px rgba(0,0,0,0.5);`;
+            p.style.cssText = `width:32px !important; height:32px !important; min-width:32px; min-height:32px; margin-left:${c === 0 ? '0' : '-18px'}; position:relative; z-index:${c}; box-shadow: -2px 0 5px rgba(0,0,0,0.5);`;
             document.getElementById('out-white').appendChild(p);
         }
 
         let outB = gameState.virtualBoard.out?.black || gameState.virtualBoard.bearOff?.black || 0;
-        for(let c = 0; c < outB; c++) {
+        for (let c = 0; c < outB; c++) {
             let p = document.createElement('div'); p.className = 'piece black';
-            p.style.cssText = `width:32px !important; height:32px !important; min-width:32px; min-height:32px; margin-left:${c===0?'0':'-18px'}; position:relative; z-index:${c}; box-shadow: -2px 0 5px rgba(0,0,0,0.5);`;
+            p.style.cssText = `width:32px !important; height:32px !important; min-width:32px; min-height:32px; margin-left:${c === 0 ? '0' : '-18px'}; position:relative; z-index:${c}; box-shadow: -2px 0 5px rgba(0,0,0,0.5);`;
             document.getElementById('out-black').appendChild(p);
         }
     },
 
-      updateDiceUI(isNewRoll = false) {
+    updateDiceUI(isNewRoll = false) {
         const d1El = this.getEl('die1');
         const d2El = this.getEl('die2');
         const s1El = this.getEl('shadow1');
@@ -1035,8 +1083,8 @@ export const ui = {
         if (!gameState.currentDice || gameState.currentDice.length === 0) {
             d1El.style.display = 'none';
             d2El.style.display = 'none';
-            if(s1El) s1El.style.display = 'none';
-            if(s2El) s2El.style.display = 'none';
+            if (s1El) s1El.style.display = 'none';
+            if (s2El) s2El.style.display = 'none';
             return;
         }
 
@@ -1181,10 +1229,9 @@ export const ui = {
             render(0);
             rollFrames[index] = requestAnimationFrame(step);
         });
-    }, // ⚠️ تأكد من بقاء الفاصلة هنا
+    },
 
-  
-        drawEmptyBoard() {
+    drawEmptyBoard() {
         gameState.gameId = Date.now();
         if (gameState.aiTimeout) { clearTimeout(gameState.aiTimeout); gameState.aiTimeout = null; }
         if (window.parent) window.parent.postMessage({ type: 'RESTORE_RADIO_VOLUME' }, '*');
@@ -1219,7 +1266,6 @@ export const ui = {
         this.drawEmptyBoard(); 
         this.setTxt('reset-btn-txt', 'لعبة جديدة');
         
-        // 🌟 إخبار الصفحة بلون اللاعب لضبط البار في CSS 🌟
         document.body.setAttribute('data-player-color', gameState.playerColor);
 
         gameState.botMoveCount = 0; gameState.boardHistory = []; gameState.boardHistoryStr = []; gameState.movesWithoutProgress = 0;
@@ -1239,7 +1285,7 @@ export const ui = {
         saveGameState(); this.updateProfileUI(); this.startTurn();
     },
 
-      clearHighlights() {
+    clearHighlights() {
         const board = this.getEl('tawla-board');
         if (!board) return;
         
@@ -1252,7 +1298,6 @@ export const ui = {
         const selected = board.getElementsByClassName('selected-point');
         while (selected.length > 0) selected[0].classList.remove('selected-point');
 
-        // مسح تظليل حجر الخصم
         const lastMoves = board.getElementsByClassName('last-move-piece');
         while (lastMoves.length > 0) lastMoves[0].classList.remove('last-move-piece');
     },
@@ -1271,7 +1316,7 @@ export const ui = {
         }
     },
 
-      // 🚀 نظام الحركة السينمائي (مصحح لحركة الخطوة الواحدة وجميع المسافات) 🚀
+    // 🚀 نظام الحركة السينمائي الشامل (يشمل طيران الحجر الأساسي + طيران الحجر المأكول للبار) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
         if (!board) {
@@ -1302,7 +1347,9 @@ export const ui = {
             return;
         }
 
-        // 1. مسح التحديدات وإيقاف أي انتقالات قبل أخذ القياسات لضمان دقة الحجم والموقع 100%
+        const storeSize = this.getStorePieceSize();
+
+        // 1. مسح التحديدات وتثبيت اللوحة قبل أخذ القياسات
         this.clearHighlights();
         board.classList.add('board-flying');
         sourcePiece.style.setProperty('transition', 'none', 'important');
@@ -1310,17 +1357,19 @@ export const ui = {
 
         const startRect = sourcePiece.getBoundingClientRect();
 
-        // 2. حساب إحداثيات نقطة الجلوس الدقيقة
+        // 2. فحص الخانة الهدف لمعرفة مكان الجلوس وهل يوجد حجر سيؤكل
         const targetContainer = getContainer(toIdx, color);
+        const oppColor = color === 'white' ? 'black' : 'white';
+        let capturedPieceEl = null;
         let endLeft = startRect.left;
         let endTop = startRect.top;
 
         if (targetContainer && toIdx !== 'bearOff') {
-            const oppColor = color === 'white' ? 'black' : 'white';
             const oppPieces = targetContainer.querySelectorAll(`.piece.${oppColor}`);
 
             if (oppPieces.length === 1) {
-                const oppRect = oppPieces[0].getBoundingClientRect();
+                capturedPieceEl = oppPieces[0];
+                const oppRect = capturedPieceEl.getBoundingClientRect();
                 endLeft = oppRect.left;
                 endTop = oppRect.top;
             } else {
@@ -1336,52 +1385,156 @@ export const ui = {
             }
         } else if (targetContainer) {
             const endBox = targetContainer.getBoundingClientRect();
-            endLeft = endBox.left + (endBox.width / 2) - (startRect.width / 2);
-            endTop = endBox.top + (endBox.height / 2) - (startRect.height / 2);
+            endLeft = endBox.left + (endBox.width / 2) - (storeSize.rectWidth / 2);
+            endTop = endBox.top + (endBox.height / 2) - (storeSize.rectHeight / 2);
         }
 
-        // 3. إنشاء النسخة الطائرة
+        // 3. إنشاء النسخة الطائرة للحجر المتحرك بالحجم الموحد للمتجر
         const clone = sourcePiece.cloneNode(true);
         clone.className = `piece ${color} moving-piece-clone`;
         clone.style.setProperty('position', 'fixed', 'important');
         clone.style.setProperty('left', `${startRect.left}px`, 'important');
         clone.style.setProperty('top', `${startRect.top}px`, 'important');
-        clone.style.setProperty('width', `${startRect.width}px`, 'important');
-        clone.style.setProperty('height', `${startRect.height}px`, 'important');
+        clone.style.setProperty('width', `${storeSize.rectWidth}px`, 'important');
+        clone.style.setProperty('height', `${storeSize.rectHeight}px`, 'important');
         clone.style.setProperty('margin', '0', 'important');
         clone.style.setProperty('transition', 'none', 'important');
         clone.style.setProperty('animation', 'none', 'important');
         clone.style.setProperty('transform', 'translate3d(0px, 0px, 0px) scale(1)', 'important');
         document.body.appendChild(clone);
 
-        // إخفاء الحجر الأصلي أثناء الطيران
         sourcePiece.style.setProperty('opacity', '0', 'important');
 
         const deltaX = endLeft - startRect.left;
         const deltaY = endTop - startRect.top;
 
-        // 🌟 4. تحديد اتجاه القوس بدقة بناءً على موقع الخانات في الساحة 🌟
+        // 4. حساب اتجاه القوس نحو وسط الساحة
         const boardRect = board.getBoundingClientRect();
         const boardCenterX = boardRect.left + (boardRect.width / 2);
         const boardCenterY = boardRect.top + (boardRect.height / 2);
 
-        const startCenterY = startRect.top + (startRect.height / 2);
-        const endCenterY = endTop + (startRect.height / 2);
-        const midX = ((startRect.left + endLeft) / 2) + (startRect.width / 2);
+        const startCenterY = startRect.top + (storeSize.rectHeight / 2);
+        const endCenterY = endTop + (storeSize.rectHeight / 2);
+        const midX = ((startRect.left + endLeft) / 2) + (storeSize.rectWidth / 2);
         const midY = (startCenterY + endCenterY) / 2;
 
-        // نفحص هل الحجر ينتقل فعلياً بين النصف العلوي والنصف السفلي للساحة؟
         const isCrossingHalves = (typeof fromIdx === 'number' && typeof toIdx === 'number')
             ? ((fromIdx < 12) !== (toIdx < 12))
             : ((startCenterY < boardCenterY) !== (endCenterY < boardCenterY));
 
-        // في النصف العلوي ينحني للأسفل (+1) نحو الوسط، وفي النصف السفلي ينحني للأعلى (-1) نحو الوسط
         const verticalArcDir = midY < boardCenterY ? 1 : -1;
         const sideArcDir = midX > boardCenterX ? -1 : 1;
 
-        const duration = 450;
+        const duration = 440;
         const ARC_HEIGHT = 26;
         let startTime = null;
+
+        const finalizeMove = () => {
+            board.classList.remove('board-flying');
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
+                    let dieIdx = gameState.currentDice.indexOf(dieUsed);
+                    if (dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
+
+                    this.renderBoard();
+
+                    if (!isPlayerMove) {
+                        this.highlightLastMoveTawla(fromIdx, toIdx, color);
+                    }
+                    if (onComplete) onComplete(isHit);
+                }, 0);
+            });
+        };
+
+        // 🌟 دالة تحريك الحجر المأكول من مكانه إلى منتصف الإطار (البار) 🌟
+        const animateCapturedPieceToBar = (victimEl) => {
+            const barContainer = document.getElementById(oppColor === 'white' ? 'bar-white' : 'bar-black');
+            if (!barContainer || !victimEl) {
+                finalizeMove();
+                return;
+            }
+
+            const victimStartRect = victimEl.getBoundingClientRect();
+
+            const barDummy = document.createElement('div');
+            barDummy.className = `piece ${oppColor}`;
+            barDummy.style.setProperty('width', storeSize.cssWidth, 'important');
+            barDummy.style.setProperty('height', storeSize.cssHeight, 'important');
+            barDummy.style.setProperty('min-width', storeSize.cssWidth, 'important');
+            barDummy.style.setProperty('min-height', storeSize.cssHeight, 'important');
+            barDummy.style.setProperty('opacity', '0', 'important');
+            barDummy.style.setProperty('transition', 'none', 'important');
+            const existingBarCount = barContainer.querySelectorAll('.piece').length;
+            if (existingBarCount > 2) {
+                barDummy.style.setProperty(oppColor === 'white' ? 'margin-top' : 'margin-bottom', '-28%', 'important');
+            }
+            barContainer.appendChild(barDummy);
+            const barEndRect = barDummy.getBoundingClientRect();
+            barDummy.remove();
+
+            const victimClone = victimEl.cloneNode(true);
+            victimClone.className = `piece ${oppColor} moving-piece-clone`;
+            victimClone.style.setProperty('position', 'fixed', 'important');
+            victimClone.style.setProperty('left', `${victimStartRect.left}px`, 'important');
+            victimClone.style.setProperty('top', `${victimStartRect.top}px`, 'important');
+            victimClone.style.setProperty('width', `${storeSize.rectWidth}px`, 'important');
+            victimClone.style.setProperty('height', `${storeSize.rectHeight}px`, 'important');
+            victimClone.style.setProperty('margin', '0', 'important');
+            victimClone.style.setProperty('transition', 'none', 'important');
+            victimClone.style.setProperty('animation', 'none', 'important');
+            victimClone.style.setProperty('transform', 'translate3d(0px, 0px, 0px) scale(1)', 'important');
+            document.body.appendChild(victimClone);
+
+            victimEl.style.setProperty('display', 'none', 'important');
+            sourcePiece.style.setProperty('width', storeSize.cssWidth, 'important');
+            sourcePiece.style.setProperty('height', storeSize.cssHeight, 'important');
+            targetContainer.appendChild(sourcePiece);
+            sourcePiece.style.setProperty('opacity', '1', 'important');
+
+            const hitDeltaX = barEndRect.left - victimStartRect.left;
+            const hitDeltaY = barEndRect.top - victimStartRect.top;
+            const hitMidY = ((victimStartRect.top + barEndRect.top) / 2) + (storeSize.rectHeight / 2);
+            const hitArcDir = hitMidY < boardCenterY ? 1 : -1;
+
+            const hitDuration = 400;
+            let hitStartTime = null;
+
+            const animateVictim = (now) => {
+                if (!hitStartTime) hitStartTime = now;
+                const hitElapsed = now - hitStartTime;
+                const hitProgress = Math.min(Math.max(hitElapsed / hitDuration, 0), 1);
+
+                const hitArcOffset = Math.sin(hitProgress * Math.PI) * ARC_HEIGHT;
+                const vx = hitDeltaX * hitProgress;
+                const vy = (hitDeltaY * hitProgress) + (hitArcOffset * hitArcDir);
+
+                victimClone.style.setProperty(
+                    'transform',
+                    `translate3d(${vx}px, ${vy}px, 0px) scale(1)`,
+                    'important'
+                );
+
+                if (hitProgress < 1) {
+                    requestAnimationFrame(animateVictim);
+                } else {
+                    victimEl.style.removeProperty('display');
+                    victimEl.style.setProperty('width', storeSize.cssWidth, 'important');
+                    victimEl.style.setProperty('height', storeSize.cssHeight, 'important');
+                    victimEl.style.setProperty('min-width', storeSize.cssWidth, 'important');
+                    victimEl.style.setProperty('min-height', storeSize.cssHeight, 'important');
+                    if (existingBarCount > 2) {
+                        victimEl.style.setProperty(oppColor === 'white' ? 'margin-top' : 'margin-bottom', '-28%', 'important');
+                    }
+                    barContainer.appendChild(victimEl);
+                    victimClone.remove();
+
+                    finalizeMove();
+                }
+            };
+
+            requestAnimationFrame(animateVictim);
+        };
 
         const animate = (currentTime) => {
             if (!startTime) startTime = currentTime;
@@ -1389,8 +1542,6 @@ export const ui = {
             const progress = Math.min(Math.max(elapsed / duration, 0), 1);
 
             const arcOffset = Math.sin(progress * Math.PI) * ARC_HEIGHT;
-
-            // إذا كان الحجر يتحرك في نفس النصف (مثل خطوة واحدة)، ينحني عمودياً نحو وسط الساحة فقط دون انحراف أفقي
             const currentX = (deltaX * progress) + (isCrossingHalves ? arcOffset * sideArcDir : 0);
             const currentY = (deltaY * progress) + (isCrossingHalves ? 0 : arcOffset * verticalArcDir);
 
@@ -1403,42 +1554,29 @@ export const ui = {
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                // المرحلة الأولى: إجلاس الحجر بصرياً فوراً
-                if (targetContainer && toIdx !== 'bearOff') {
-                    const oppColor = color === 'white' ? 'black' : 'white';
-                    const oppPieces = targetContainer.querySelectorAll(`.piece.${oppColor}`);
-                    if (oppPieces.length === 1) {
-                        oppPieces[0].style.setProperty('display', 'none', 'important');
-                    }
-                    targetContainer.appendChild(sourcePiece);
-                    sourcePiece.style.setProperty('opacity', '1', 'important');
-                }
                 clone.remove();
-                board.classList.remove('board-flying');
 
-                // المرحلة الثانية: تحديث محرك اللعبة في الإطار التالي بعد استقرار الحجر
-                requestAnimationFrame(() => {
-                    setTimeout(() => {
-                        let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
-                        let dieIdx = gameState.currentDice.indexOf(dieUsed);
-                        if (dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
-
-                        this.playSound(isHit ? sfx.piecesDied : sfx.move);
-                        this.renderBoard();
-
-                        if (!isPlayerMove) {
-                            this.highlightLastMoveTawla(fromIdx, toIdx, color);
-                        }
-                        if (onComplete) onComplete(isHit);
-                    }, 0);
-                });
+                if (capturedPieceEl) {
+                    this.playSound(sfx.piecesDied);
+                    animateCapturedPieceToBar(capturedPieceEl);
+                } else {
+                    this.playSound(sfx.move);
+                    if (targetContainer && toIdx !== 'bearOff') {
+                        sourcePiece.style.removeProperty('width');
+                        sourcePiece.style.removeProperty('height');
+                        sourcePiece.style.removeProperty('min-width');
+                        sourcePiece.style.removeProperty('min-height');
+                        targetContainer.appendChild(sourcePiece);
+                        sourcePiece.style.setProperty('opacity', '1', 'important');
+                    }
+                    finalizeMove();
+                }
             }
         };
 
         requestAnimationFrame(animate);
     },
-
-
+  
     // أضف هذه الدالة هنا 👇
     highlightPlayablePieces() {
         if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
