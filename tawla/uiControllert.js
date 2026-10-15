@@ -1354,7 +1354,7 @@ export const ui = {
         const deltaY = endTop - startRect.top;
 
         // 4. حلقة التحريك السلسة
-        const duration = 520;
+        const duration = 520; const ARC_HEIGHT = 25;     // قوس خفيف جداً (بكسل)
         let startTime = null;
 
         const animate = (currentTime) => {
