@@ -1270,8 +1270,7 @@ export const ui = {
             tCell.lastElementChild.classList.add('last-move-piece');
         }
     },
-
-    // 🚀 نظام الحركة السينمائي (مسار قوسي بيضوي سلس بدون دوران الحجر حول نفسه وبدون تقطيع) 🚀
+    // 🚀 نظام الحركة السينمائي (تقوس ذكي يتجه دائماً نحو وسط الساحة) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
         if (!board) {
@@ -1360,27 +1359,34 @@ export const ui = {
         const deltaX = endLeft - startRect.left;
         const deltaY = endTop - startRect.top;
 
-        // 4. حلقة التحريك القوسية (البيضوية) بدون دوران الحجر حول نفسه
-        const duration = 520;
-        const ARC_HEIGHT = 28; // 👈 مقدار تقوس المسار (الارتفاع البيضوي بالبكسل)
-        let startTime = null;
+        // 🌟 4. حساب مركز الساحة لتوجيه القوس دائماً نحو الداخل (وسط الساحة) 🌟
+        const boardRect = board.getBoundingClientRect();
+        const boardCenterX = boardRect.left + (boardRect.width / 2);
+        const boardCenterY = boardRect.top + (boardRect.height / 2);
 
-        // إذا كانت الحركة عمودية بين النصف العلوي والسفلي، ينحني المسار بيضوياً نحو وسط اللوحة
-        const isMostlyVertical = Math.abs(deltaY) > Math.abs(deltaX) * 2;
-        const sideArcDir = startRect.left > (window.innerWidth / 2) ? -1 : 1;
+        const midX = ((startRect.left + endLeft) / 2) + (startRect.width / 2);
+        const midY = ((startRect.top + endTop) / 2) + (startRect.height / 2);
+
+        // إذا كان الحجر في أعلى الساحة ينحني للأسفل (+1)، وإذا كان في أسفل الساحة ينحني للأعلى (-1)
+        const verticalArcDir = midY < boardCenterY ? 1 : -1;
+        // إذا كانت الحركة عمودية بين الأعلى والأسفل، ينحني القوس أفقياً نحو وسط الساحة
+        const isMostlyVertical = Math.abs(deltaY) > Math.abs(deltaX) * 1.5;
+        const sideArcDir = midX > boardCenterX ? -1 : 1;
+
+        const duration = 520;
+        const ARC_HEIGHT = 28; // مقدار التقوس نحو وسط الساحة
+        let startTime = null;
 
         const animate = (currentTime) => {
             if (!startTime) startTime = currentTime;
             const elapsed = currentTime - startTime;
             const progress = Math.min(Math.max(elapsed / duration, 0), 1);
 
-            // حساب الانحناء البيضوي السلس
             const arcOffset = Math.sin(progress * Math.PI) * ARC_HEIGHT;
 
             const currentX = (deltaX * progress) + (isMostlyVertical ? arcOffset * sideArcDir : 0);
-            const currentY = (deltaY * progress) - arcOffset;
+            const currentY = (deltaY * progress) + (isMostlyVertical ? 0 : arcOffset * verticalArcDir);
 
-            // تحريك الحجر على المسار القوسي بدون أي rotate وبحجم ثابت scale(1)
             clone.style.setProperty(
                 'transform',
                 `translate3d(${currentX}px, ${currentY}px, 0px) scale(1)`,
@@ -1390,7 +1396,7 @@ export const ui = {
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                // 🌟 المرحلة الأولى: إجلاس الحجر بصرياً فوراً (بدون أي تقطيع) 🌟
+                // المرحلة الأولى: إجلاس الحجر بصرياً فوراً
                 if (targetContainer && toIdx !== 'bearOff') {
                     const oppColor = color === 'white' ? 'black' : 'white';
                     const oppPieces = targetContainer.querySelectorAll(`.piece.${oppColor}`);
@@ -1403,7 +1409,7 @@ export const ui = {
                 clone.remove();
                 board.classList.remove('board-flying');
 
-                // 🌟 المرحلة الثانية: تحديث محرك اللعبة في الإطار التالي بعد استقرار الحجر 🌟
+                // المرحلة الثانية: تحديث محرك اللعبة في الإطار التالي بعد استقرار الحجر
                 requestAnimationFrame(() => {
                     setTimeout(() => {
                         let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
