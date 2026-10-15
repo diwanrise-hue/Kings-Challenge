@@ -1354,7 +1354,7 @@ export const ui = {
         const deltaY = endTop - startRect.top;
 
         // 4. حلقة التحريك السلسة
-        const duration = 320;
+        const duration = 520;
         let startTime = null;
 
         const animate = (currentTime) => {
