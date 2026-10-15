@@ -1271,7 +1271,7 @@ export const ui = {
         }
     },
 
-      // 🚀 نظام الحركة السينمائي (تقوس ذكي يتجه دائماً نحو وسط الساحة) 🚀
+      // 🚀 نظام الحركة السينمائي (مصحح لحركة الخطوة الواحدة وجميع المسافات) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
         if (!board) {
@@ -1360,22 +1360,27 @@ export const ui = {
         const deltaX = endLeft - startRect.left;
         const deltaY = endTop - startRect.top;
 
-        // 🌟 4. حساب مركز الساحة لتوجيه القوس دائماً نحو الداخل (وسط الساحة) 🌟
+        // 🌟 4. تحديد اتجاه القوس بدقة بناءً على موقع الخانات في الساحة 🌟
         const boardRect = board.getBoundingClientRect();
         const boardCenterX = boardRect.left + (boardRect.width / 2);
         const boardCenterY = boardRect.top + (boardRect.height / 2);
 
+        const startCenterY = startRect.top + (startRect.height / 2);
+        const endCenterY = endTop + (startRect.height / 2);
         const midX = ((startRect.left + endLeft) / 2) + (startRect.width / 2);
-        const midY = ((startRect.top + endTop) / 2) + (startRect.height / 2);
+        const midY = (startCenterY + endCenterY) / 2;
 
-        // إذا كان الحجر في أعلى الساحة ينحني للأسفل (+1)، وإذا كان في أسفل الساحة ينحني للأعلى (-1)
+        // نفحص هل الحجر ينتقل فعلياً بين النصف العلوي والنصف السفلي للساحة؟
+        const isCrossingHalves = (typeof fromIdx === 'number' && typeof toIdx === 'number')
+            ? ((fromIdx < 12) !== (toIdx < 12))
+            : ((startCenterY < boardCenterY) !== (endCenterY < boardCenterY));
+
+        // في النصف العلوي ينحني للأسفل (+1) نحو الوسط، وفي النصف السفلي ينحني للأعلى (-1) نحو الوسط
         const verticalArcDir = midY < boardCenterY ? 1 : -1;
-        // إذا كانت الحركة عمودية بين الأعلى والأسفل، ينحني القوس أفقياً نحو وسط الساحة
-        const isMostlyVertical = Math.abs(deltaY) > Math.abs(deltaX) * 1.5;
         const sideArcDir = midX > boardCenterX ? -1 : 1;
 
-        const duration = 520;
-        const ARC_HEIGHT = 28; // مقدار التقوس نحو وسط الساحة
+        const duration = 450;
+        const ARC_HEIGHT = 26;
         let startTime = null;
 
         const animate = (currentTime) => {
@@ -1385,8 +1390,9 @@ export const ui = {
 
             const arcOffset = Math.sin(progress * Math.PI) * ARC_HEIGHT;
 
-            const currentX = (deltaX * progress) + (isMostlyVertical ? arcOffset * sideArcDir : 0);
-            const currentY = (deltaY * progress) + (isMostlyVertical ? 0 : arcOffset * verticalArcDir);
+            // إذا كان الحجر يتحرك في نفس النصف (مثل خطوة واحدة)، ينحني عمودياً نحو وسط الساحة فقط دون انحراف أفقي
+            const currentX = (deltaX * progress) + (isCrossingHalves ? arcOffset * sideArcDir : 0);
+            const currentY = (deltaY * progress) + (isCrossingHalves ? 0 : arcOffset * verticalArcDir);
 
             clone.style.setProperty(
                 'transform',
