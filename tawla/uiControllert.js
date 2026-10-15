@@ -1270,7 +1270,8 @@ export const ui = {
             tCell.lastElementChild.classList.add('last-move-piece');
         }
     },
-    // 🚀 نظام الحركة السينمائي (تقوس ذكي يتجه دائماً نحو وسط الساحة) 🚀
+
+      // 🚀 نظام الحركة السينمائي (تقوس ذكي يتجه دائماً نحو وسط الساحة) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
         if (!board) {
@@ -1430,6 +1431,7 @@ export const ui = {
 
         requestAnimationFrame(animate);
     },
+
 
     // أضف هذه الدالة هنا 👇
     highlightPlayablePieces() {
