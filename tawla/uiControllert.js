@@ -1316,7 +1316,66 @@ export const ui = {
         }
     },
 
-    // 🚀 نظام الحركة السينمائي الشامل (يشمل طيران الحجر الأساسي + طيران الحجر المأكول للبار) 🚀
+    // 🌟 حساب جميع الأعمدة التي يمكن للحجر الوصول إليها (نرد مفرد + مجموع النردين + مكررات الدبل) 🌟
+    getAllReachableMovesForPoint(startIdx, color, board, dice) {
+        if (!dice || dice.length === 0) return [];
+        const resultsMap = new Map();
+
+        const explore = (currIdx, currBoard, remDice, pathSteps, hadHitBefore) => {
+            if (!remDice || remDice.length === 0) return;
+
+            const directMoves = gameEngine.getValidMovesForPoint(currIdx, color, currBoard, remDice) || [];
+            const triedDice = new Set();
+
+            directMoves.forEach(move => {
+                if (triedDice.has(move.dieUsed)) return;
+                triedDice.add(move.dieUsed);
+
+                const nextSteps = [...pathSteps, { from: currIdx, to: move.to, dieUsed: move.dieUsed }];
+
+                const oppColor = color === 'white' ? 'black' : 'white';
+                const isStepHit = (
+                    move.to !== 'bearOff' &&
+                    currBoard.points[move.to] &&
+                    currBoard.points[move.to].color === oppColor &&
+                    currBoard.points[move.to].count === 1
+                );
+
+                const existing = resultsMap.get(move.to);
+                if (!existing || nextSteps.length < existing.steps.length) {
+                    resultsMap.set(move.to, {
+                        to: move.to,
+                        dieUsed: move.dieUsed,
+                        steps: nextSteps,
+                        hasIntermediateHit: hadHitBefore
+                    });
+                }
+
+                // إذا خرج الحجر خارج اللوحة لا يمكن إكمال تحريكه
+                if (move.to === 'bearOff') return;
+
+                // محاكاة الخطوة التالية على لوحة افتراضية لإضاءة الأعمدة التراكمية التالية
+                if (remDice.length > 1) {
+                    const nextBoard = JSON.parse(JSON.stringify(currBoard));
+                    gameEngine.executeMove(currIdx, move.to, color, nextBoard);
+
+                    // إذا كان لا يزال هناك حجر آخر مأكول في البار، يجب إنزاله أولاً قبل إكمال المسير
+                    if (nextBoard.bar && nextBoard.bar[color] > 0) return;
+
+                    const nextDice = [...remDice];
+                    const dIdx = nextDice.indexOf(move.dieUsed);
+                    if (dIdx > -1) nextDice.splice(dIdx, 1);
+
+                    explore(move.to, nextBoard, nextDice, nextSteps, hadHitBefore || isStepHit);
+                }
+            });
+        };
+
+        explore(startIdx, board, dice, [], false);
+        return Array.from(resultsMap.values());
+    },
+
+    // 🚀 نظام الحركة السينمائي الشامل (يدعم الخطوة المفردة والقفزات التراكمية المتعددة) 🚀
     animateAndExecuteMove(fromIdx, toIdx, color, dieUsed, isPlayerMove = false, onComplete) {
         const board = this.getEl('tawla-board');
         if (!board) {
@@ -1349,7 +1408,6 @@ export const ui = {
 
         const storeSize = this.getStorePieceSize();
 
-        // 1. مسح التحديدات وتثبيت اللوحة قبل أخذ القياسات
         this.clearHighlights();
         board.classList.add('board-flying');
         sourcePiece.style.setProperty('transition', 'none', 'important');
@@ -1357,7 +1415,6 @@ export const ui = {
 
         const startRect = sourcePiece.getBoundingClientRect();
 
-        // 2. فحص الخانة الهدف لمعرفة مكان الجلوس وهل يوجد حجر سيؤكل
         const targetContainer = getContainer(toIdx, color);
         const oppColor = color === 'white' ? 'black' : 'white';
         let capturedPieceEl = null;
@@ -1389,7 +1446,6 @@ export const ui = {
             endTop = endBox.top + (endBox.height / 2) - (storeSize.rectHeight / 2);
         }
 
-        // 3. إنشاء النسخة الطائرة للحجر المتحرك بالحجم الموحد للمتجر
         const clone = sourcePiece.cloneNode(true);
         clone.className = `piece ${color} moving-piece-clone`;
         clone.style.setProperty('position', 'fixed', 'important');
@@ -1408,7 +1464,6 @@ export const ui = {
         const deltaX = endLeft - startRect.left;
         const deltaY = endTop - startRect.top;
 
-        // 4. حساب اتجاه القوس نحو وسط الساحة
         const boardRect = board.getBoundingClientRect();
         const boardCenterX = boardRect.left + (boardRect.width / 2);
         const boardCenterY = boardRect.top + (boardRect.height / 2);
@@ -1433,9 +1488,21 @@ export const ui = {
             board.classList.remove('board-flying');
             requestAnimationFrame(() => {
                 setTimeout(() => {
-                    let isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
-                    let dieIdx = gameState.currentDice.indexOf(dieUsed);
-                    if (dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
+                    let isHit = false;
+                    // إذا كانت الحركة مكونة من عدة خطوات مدمجة، ننفذها بالتسلسل في المحرك ونخصم النرد المستخدم
+                    if (Array.isArray(dieUsed)) {
+                        dieUsed.forEach(st => {
+                            if (gameEngine.executeMove(st.from, st.to, color, gameState.virtualBoard)) {
+                                isHit = true;
+                            }
+                            let dIdx = gameState.currentDice.indexOf(st.dieUsed);
+                            if (dIdx > -1) gameState.currentDice.splice(dIdx, 1);
+                        });
+                    } else {
+                        isHit = gameEngine.executeMove(fromIdx, toIdx, color, gameState.virtualBoard);
+                        let dieIdx = gameState.currentDice.indexOf(dieUsed);
+                        if (dieIdx > -1) gameState.currentDice.splice(dieIdx, 1);
+                    }
 
                     this.renderBoard();
 
@@ -1447,7 +1514,6 @@ export const ui = {
             });
         };
 
-        // 🌟 دالة تحريك الحجر المأكول من مكانه إلى منتصف الإطار (البار) 🌟
         const animateCapturedPieceToBar = (victimEl) => {
             const barContainer = document.getElementById(oppColor === 'white' ? 'bar-white' : 'bar-black');
             if (!barContainer || !victimEl) {
@@ -1576,6 +1642,7 @@ export const ui = {
 
         requestAnimationFrame(animate);
     },
+
   
     // أضف هذه الدالة هنا 👇
     highlightPlayablePieces() {
@@ -3488,13 +3555,44 @@ window.addEventListener('message', (event) => {
 
 
 // =========================================================
-// 🛡️ جدار حماية حركة الأحجار المطور (Game Logic Firewall)
+// 🛡️ جدار حماية حركة الأحجار المطور (يدعم إضاءة وتنفيذ جميع الحركات الممكنة)
 // =========================================================
 
+function executeSelectedDestination(dest) {
+    if (!dest || !dest.steps || dest.steps.length === 0) return;
+
+    // إذا كان المسار المتعدد يأكل حجراً للخصم في منتصف الطريق، ننفذ الخطوات خطوة بخطوة ليظهر أكل الحجر
+    if (dest.steps.length > 1 && dest.hasIntermediateHit) {
+        const runStep = (stepIdx) => {
+            if (stepIdx >= dest.steps.length) {
+                checkTurnEnd();
+                return;
+            }
+            const st = dest.steps[stepIdx];
+            ui.animateAndExecuteMove(st.from, st.to, gameState.playerColor, st.dieUsed, true, () => {
+                if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                    socketManager.sendMoveToServer(st.from, st.to, st.dieUsed);
+                }
+                runStep(stepIdx + 1);
+            });
+        };
+        runStep(0);
+    } else {
+        // انتقال مباشر سلس إلى العمود الذي اختاره اللاعب (سواء بخطوة واحدة أو عدة خطوات مدمجة)
+        const diePayload = dest.steps.length === 1 ? dest.steps[0].dieUsed : dest.steps;
+        ui.animateAndExecuteMove(gameState.selectedPoint, dest.to, gameState.playerColor, diePayload, true, () => {
+            if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
+                dest.steps.forEach(st => {
+                    socketManager.sendMoveToServer(st.from, st.to, st.dieUsed);
+                });
+            }
+            checkTurnEnd();
+        });
+    }
+}
+
 ui.onClick('tawla-board', e => {
-    // هل اللعبة نشطة وهل هو دورك؟
     if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
-    // هل قمت برمي النرد؟
     if (!gameState.currentDice || gameState.currentDice.length === 0) return;
 
     let target = e.target.closest('.point, #bar-white, #bar-black');
@@ -3509,31 +3607,27 @@ ui.onClick('tawla-board', e => {
         let colorAtPoint = index === 'bar' ? gameState.playerColor : gameState.virtualBoard.points[index].color;
         let countAtPoint = index === 'bar' ? gameState.virtualBoard.bar[gameState.playerColor] : gameState.virtualBoard.points[index].count;
         
-        // الخانة فارغة
         if (countAtPoint === 0) return;
-
-        // 1️⃣ حل المشكلة الأولى: تجاهل صامت لقطع الخصم (بدون إشعارات مزعجة)
         if (colorAtPoint !== gameState.playerColor) return;
 
-        // الإجبار على اللعب من البار أولاً
         if (gameState.virtualBoard.bar[gameState.playerColor] > 0 && index !== 'bar') {
             ui.showCustomAlert("يجب اللعب من البار أولاً لإدخال حجرك المأكول!"); 
             return;
         }
         
-        // تحديد الحجر وإضاءة مساره
+        // تحديد الحجر وإضاءة جميع الأعمدة التي يمكنه الوصول إليها
         gameState.selectedPoint = index;
         ui.clearHighlights(); 
         target.classList.add('selected-point');
 
-        let validDests = gameEngine.getValidMovesForPoint(index, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
+        let validDests = ui.getAllReachableMovesForPoint(index, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
         validDests.forEach(d => {
             if (d.to === 'bearOff') { 
                 const bearOff = document.getElementById(gameState.playerColor === 'white' ? 'bear-off-top' : 'bear-off-bottom'); 
                 if (bearOff) bearOff.classList.add('highlight'); 
             } else { 
                 let pt = document.querySelector(`.point[data-index="${d.to}"]`); 
-                if(pt) pt.classList.add('highlight'); 
+                if (pt) pt.classList.add('highlight'); 
             }
         });
     } 
@@ -3541,7 +3635,6 @@ ui.onClick('tawla-board', e => {
     // 🔵 الحالة ب: يوجد حجر محدد مسبقاً (محاولة الحركة أو تغيير التحديد)
     // ---------------------------------------------------------
     else {
-        // إذا ضغط على نفس الحجر، نلغي التحديد
         if (gameState.selectedPoint === index) {
             ui.clearHighlights(); 
             gameState.selectedPoint = null; 
@@ -3549,40 +3642,30 @@ ui.onClick('tawla-board', e => {
             return;
         }
 
-        // 4️⃣ حل المشكلة الرابعة: الأولوية لتنفيذ الحركة قبل تغيير التحديد
-        let validDests = gameEngine.getValidMovesForPoint(gameState.selectedPoint, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
+        let validDests = ui.getAllReachableMovesForPoint(gameState.selectedPoint, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
         let dest = validDests.find(d => d.to === index);
         
         if (dest) {
-            // 🚀 طيران الحجر للاعب
-            ui.animateAndExecuteMove(gameState.selectedPoint, index, gameState.playerColor, dest.dieUsed, true, () => {
-                if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                    socketManager.sendMoveToServer(gameState.selectedPoint, index, dest.dieUsed);
-                }
-                checkTurnEnd();
-            });
+            executeSelectedDestination(dest);
         } 
         else { 
-            // ❌ المسار غير صحيح: الآن نفحص، هل ضغط على حجر آخر يخصه؟
             let clickedColor = index === 'bar' ? null : gameState.virtualBoard.points[index].color;
             if (clickedColor === gameState.playerColor && index !== 'bar') {
-                // نغير التحديد للحجر الجديد
                 ui.clearHighlights();
                 gameState.selectedPoint = index;
                 target.classList.add('selected-point');
                 
-                let newValidDests = gameEngine.getValidMovesForPoint(index, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
+                let newValidDests = ui.getAllReachableMovesForPoint(index, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
                 newValidDests.forEach(d => {
                     if (d.to === 'bearOff') { 
                         const bearOff = document.getElementById(gameState.playerColor === 'white' ? 'bear-off-top' : 'bear-off-bottom'); 
                         if (bearOff) bearOff.classList.add('highlight'); 
                     } else { 
                         let pt = document.querySelector(`.point[data-index="${d.to}"]`); 
-                        if(pt) pt.classList.add('highlight'); 
+                        if (pt) pt.classList.add('highlight'); 
                     }
                 });
             } else {
-                // ضغط في الفراغ أو على حجر للخصم لا يمكن الوصول إليه
                 ui.clearHighlights(); 
                 gameState.selectedPoint = null; 
                 if (typeof ui.highlightPlayablePieces === 'function') ui.highlightPlayablePieces();
@@ -3594,19 +3677,14 @@ ui.onClick('tawla-board', e => {
 const handleBearOffClick = e => {
     if (!gameState.isGameActive || gameState.currentTurn !== gameState.playerColor) return;
     if (gameState.selectedPoint !== null && gameState.selectedPoint !== undefined) {
-        let validDests = gameEngine.getValidMovesForPoint(gameState.selectedPoint, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
+        let validDests = ui.getAllReachableMovesForPoint(gameState.selectedPoint, gameState.playerColor, gameState.virtualBoard, gameState.currentDice);
         let dest = validDests.find(d => d.to === 'bearOff');
         if (dest) {
-            // 🚀 طيران الحجر للإخراج
-            ui.animateAndExecuteMove(gameState.selectedPoint, 'bearOff', gameState.playerColor, dest.dieUsed, true, () => {
-                if (gameState.isOnlineMode && socketManager && typeof socketManager.sendMoveToServer === 'function') {
-                    socketManager.sendMoveToServer(gameState.selectedPoint, 'bearOff', dest.dieUsed);
-                }
-                checkTurnEnd();
-            });
+            executeSelectedDestination(dest);
         }
     }
 };
+
 
 ui.onClick('bear-off-top', handleBearOffClick);
 ui.onClick('bear-off-bottom', handleBearOffClick);
