@@ -581,17 +581,11 @@
 
         </div>
 
-        <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-            <div id="mini-disconnect-radar" data-icon="disconnectIcon" style="display: none; position: absolute; bottom: 22px; left: calc(50% + 138px); transform: translateX(-50%); width: 22px; height: 22px; z-index: 800; align-items: center; justify-content: center; pointer-events: none;"></div>
-            
-            <div id="turn-box-container">
-                <div id="idle-counter" style="position: absolute; top: 5px; left: 12px; font-size: 11px; font-weight: 800; color: #a1a1aa; background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 8px; display: none; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
-                <div id="repetition-counter" style="position: absolute; top: 28px; left: 12px; font-size: 10px; font-weight: 800; color: #f5a623; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 8px; display: none; border: 1px solid rgba(245, 166, 35, 0.3); box-shadow: 0 2px 4px rgba(0,0,0,0.5);"></div>
-                
-                <h3 id="turn-indicator">Your Turn</h3>
-                <div id="turn-countdown"></div>
-            </div>
+        <div style="position: relative; display: flex; align-items: center; justify-content: center; min-height: 20px;">
+            <div id="mini-disconnect-radar" data-icon="disconnectIcon" style="display: none; position: absolute; left: calc(50% + 70px); transform: translateX(-50%); width: 22px; height: 22px; z-index: 800; align-items: center; justify-content: center; pointer-events: none;"></div>
+            <div id="turn-countdown" style="background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; color: #ffd700; font-size: 13px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.9);"></div>
         </div>
+
     </div>
 
 <!-- 🎲 حاوية الطاولة الجديدة 🎲 -->
