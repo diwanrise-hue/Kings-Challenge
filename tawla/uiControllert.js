@@ -1327,13 +1327,14 @@ export const ui = {
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
         this.clearHighlights();
         
+        // 🌟 تم حذف إطار الدور (turn-indicator) نهائياً من الجافاسكربت وبقي الوقت فقط 🌟
         this.setTxt('turn-countdown', '');
+     
         this.setDisplay('roll-dice-btn', 'none');
 
         this.renderBoard(true); this.updateDiceUI();
     },
-
-
+  
     initBoard() {
         this.drawEmptyBoard(); 
         this.setTxt('reset-btn-txt', 'لعبة جديدة');
