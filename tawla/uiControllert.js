@@ -999,15 +999,45 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
+            // 🌟 أشرطة إخراج الأحجار الملكية الجديدة (فوق وتحت الربع الأيمن مباشرة) 🌟
+            const trayBaseStyle = `
+                position: absolute;
+                right: 6.7%;
+                width: 41.2%;
+                height: 26px;
+                background: linear-gradient(180deg, #140a05 0%, #26130a 50%, #0f0703 100%);
+                border: 1.5px solid rgba(212, 163, 89, 0.55);
+                border-radius: 9px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 6px;
+                cursor: pointer;
+                box-shadow: inset 0 3px 7px rgba(0,0,0,0.95), 0 3px 8px rgba(0,0,0,0.6);
+                z-index: 25;
+                box-sizing: border-box;
+            `;
+
             if (!document.getElementById('bear-off-top')) {
-                let boTop = document.createElement('div'); boTop.id = 'bear-off-top';
-                boTop.style.cssText = "position:absolute; top:-75px; left:0; width:100%; height:48px; background:linear-gradient(to right, #2b170e, #3d2214 50%, #2b170e); border:3px solid #1f1008; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 5px 15px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.7); z-index:20; box-sizing:border-box;";
-                boTop.innerHTML = `<div id="out-white" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
+                let boTop = document.createElement('div');
+                boTop.id = 'bear-off-top';
+                boTop.className = 'bear-off-tray';
+                boTop.style.cssText = trayBaseStyle + "top: -30px;";
+                boTop.innerHTML = `
+                    <div id="out-white" style="display:flex; flex-direction:row; align-items:center; flex:1; height:100%; overflow:hidden; padding-right:2px;"></div>
+                    <span id="out-white-count" style="font-size:10px; font-weight:800; color:#e6c27a; background:rgba(0,0,0,0.65); border:1px solid rgba(212,163,89,0.35); border-radius:6px; padding:1px 5px; margin-right:4px; flex-shrink:0;">0/15</span>
+                `;
                 board.appendChild(boTop);
 
-                let boBottom = document.createElement('div'); boBottom.id = 'bear-off-bottom';
-                boBottom.style.cssText = "position:absolute; bottom:-75px; left:0; width:100%; height:48px; background:linear-gradient(to right, #2b170e, #3d2214 50%, #2b170e); border:3px solid #1f1008; border-radius:8px; display:flex; flex-direction:row; align-items:center; padding:0 10px; cursor:pointer; box-shadow:inset 0 5px 15px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.7); z-index:20; box-sizing:border-box;";
-                boBottom.innerHTML = `<div id="out-black" style="display:flex; flex-direction:row; align-items:center; width:100%;"></div>`;
+                let boBottom = document.createElement('div');
+                boBottom.id = 'bear-off-bottom';
+                boBottom.className = 'bear-off-tray';
+                boBottom.style.cssText = trayBaseStyle + "bottom: -30px;";
+                boBottom.innerHTML = `
+                    <div id="out-black" style="display:flex; flex-direction:row; align-items:center; flex:1; height:100%; overflow:hidden; padding-right:2px;"></div>
+                    <span id="out-black-count" style="font-size:10px; font-weight:800; color:#e6c27a; background:rgba(0,0,0,0.65); border:1px solid rgba(212,163,89,0.35); border-radius:6px; padding:1px 5px; margin-right:4px; flex-shrink:0;">0/15</span>
+                `;
                 board.appendChild(boBottom);
             }
         }
@@ -1032,7 +1062,7 @@ export const ui = {
             }
         });
 
-        // 🌟 4. رسم الأحجار المأكولة في البار بنفس الحجم المولّد من كود المتجر للساحة الحالية 🌟
+        // 4. رسم الأحجار المأكولة في البار بنفس الحجم المولّد من كود المتجر للساحة الحالية
         const storeSize = this.getStorePieceSize();
 
         for (let c = 0; c < gameState.virtualBoard.bar.white; c++) {
@@ -1055,18 +1085,22 @@ export const ui = {
             document.getElementById('bar-black').appendChild(p);
         }
         
-        // 5. رسم الأحجار التي تم إخراجها (Bearing Off)
+        // 🌟 5. رسم الأحجار المخرجة (Bearing Off) بحجم متناسق داخل الحوض مع تحديث العدّاد 🌟
         let outW = gameState.virtualBoard.out?.white || gameState.virtualBoard.bearOff?.white || 0;
+        const outWCountEl = document.getElementById('out-white-count');
+        if (outWCountEl) outWCountEl.textContent = `${outW}/15`;
         for (let c = 0; c < outW; c++) {
             let p = document.createElement('div'); p.className = 'piece white';
-            p.style.cssText = `width:32px !important; height:32px !important; min-width:32px; min-height:32px; margin-left:${c === 0 ? '0' : '-18px'}; position:relative; z-index:${c}; box-shadow: -2px 0 5px rgba(0,0,0,0.5);`;
+            p.style.cssText = `width:18px !important; height:18px !important; min-width:18px !important; min-height:18px !important; margin-right:${c === 0 ? '0' : '-11px'} !important; position:relative !important; z-index:${c + 1} !important; box-shadow: -1px 0 3px rgba(0,0,0,0.7) !important; pointer-events:none !important;`;
             document.getElementById('out-white').appendChild(p);
         }
 
         let outB = gameState.virtualBoard.out?.black || gameState.virtualBoard.bearOff?.black || 0;
+        const outBCountEl = document.getElementById('out-black-count');
+        if (outBCountEl) outBCountEl.textContent = `${outB}/15`;
         for (let c = 0; c < outB; c++) {
             let p = document.createElement('div'); p.className = 'piece black';
-            p.style.cssText = `width:32px !important; height:32px !important; min-width:32px; min-height:32px; margin-left:${c === 0 ? '0' : '-18px'}; position:relative; z-index:${c}; box-shadow: -2px 0 5px rgba(0,0,0,0.5);`;
+            p.style.cssText = `width:18px !important; height:18px !important; min-width:18px !important; min-height:18px !important; margin-right:${c === 0 ? '0' : '-11px'} !important; position:relative !important; z-index:${c + 1} !important; box-shadow: -1px 0 3px rgba(0,0,0,0.7) !important; pointer-events:none !important;`;
             document.getElementById('out-black').appendChild(p);
         }
     },
@@ -1293,14 +1327,12 @@ export const ui = {
         if (typeof restoreOfflineHintSystem === 'function') { restoreOfflineHintSystem(); }
         this.clearHighlights();
         
-        const tInd = this.getEl('turn-indicator');
-        if (tInd) { tInd.textContent = t('press_start'); tInd.style.color = "#a1a1aa"; }
         this.setTxt('turn-countdown', '');
-     
         this.setDisplay('roll-dice-btn', 'none');
 
         this.renderBoard(true); this.updateDiceUI();
     },
+
 
     initBoard() {
         this.drawEmptyBoard(); 
