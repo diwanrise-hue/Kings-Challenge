@@ -1794,7 +1794,7 @@ export const ui = {
             gameState.turnTimeLeft = 45;
         }
         // (تم إزالة القوس الزائد الذي كان يسبب انهيار الملف هنا)
-
+            
         const updateTimerDisplay = () => {
             this.setTxt('turn-countdown', `${t('time_left')} ${gameState.turnTimeLeft}s`);
             
