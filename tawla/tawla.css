@@ -2144,13 +2144,16 @@ body.online-mode-active .game-container {
 .face-bottom { transform: rotateX(-90deg) translateZ(10px) !important; }
 
 /* النقاط المحفورة بعمق ثلاثي الأبعاد */
+/* النقاط المحفورة بعمق ثلاثي الأبعاد */
 .pip {
     display: block !important;
-    width: 4.4px !important;    
-    height: 4.4px !important;   
+    width: 5px !important;         /* 🌟 العرض (رقم صحيح) */
+    height: 5px !important;        /* 🌟 الارتفاع (رقم صحيح مطابق) */
+    min-width: 5px !important;     /* 🌟 إجبار المتصفح لمنع الانضغاط */
+    min-height: 5px !important;
+    aspect-ratio: 1 / 1 !important; /* 🌟 فرض الشكل المربع ليصبح دائرة مثالية */
     border-radius: 50% !important;
     background: radial-gradient(circle at 38% 35%, #3a3530 0%, #1a1614 45%, #050404 100%) !important;
-    /* 🌟 تخفيف الظلال لمنع تعرج الدائرة 🌟 */
     box-shadow:
         inset 0 1px 1.5px rgba(0, 0, 0, 0.9),
         0 0.8px 0.5px rgba(255, 255, 255, 0.8) !important;
@@ -2159,16 +2162,16 @@ body.online-mode-active .game-container {
     margin: 0 !important;
     position: relative;
     z-index: 3;
-    /* 🌟 فرض النعومة الدائرية وحواف مانعة للتشوه 🌟 */
     outline: 1px solid transparent !important; 
     transform: translateZ(0.1px) !important; 
 }
 
-/* 🌟 إزالة جميع مسافات الـ gap التي كانت تضغط النقاط 🌟 */
-.face-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
+/* النقطة الحمراء الكبيرة للرقم 1 */
 .face-1 .pip {
-    width: 6.2px !important;  
-    height: 6.2px !important; 
+    width: 7px !important;         /* 🌟 العرض (رقم صحيح أكبر) */
+    height: 7px !important;        /* 🌟 الارتفاع (مساوي للعرض) */
+    min-width: 7px !important;
+    min-height: 7px !important;
     background: radial-gradient(circle at 35% 30%, #ff5e5e 0%, #d91414 48%, #6e0404 100%) !important;
     box-shadow:
         inset 0 1px 1.5px rgba(60, 0, 0, 0.9),
