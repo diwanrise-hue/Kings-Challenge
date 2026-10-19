@@ -2023,7 +2023,7 @@ body.online-mode-active .game-container {
 }
 
 /* =========================================================
-   🎲 TAWLA DICE - Dynamic Shading & Physics System
+   🎲 TAWLA DICE - Luxury Ivory 3D Edition (نفس زاوية العرض)
    ========================================================= */
 
 .fixed-3d-dice-container {
@@ -2050,13 +2050,19 @@ body.online-mode-active .game-container {
 #die1 { left: 0px !important; top: -12px !important; }
 #die2 { right: 0px !important; top: 14px !important; }
 
-/* ظل التلامس الواقعي */
+/* ظل التلامس الواقعي المزدوج على خشب الطاولة */
 .dice-contact-shadow {
     position: absolute;
-    width: 30px;
-    height: 26px;
-    border-radius: 50%;
-    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.15) 50%, transparent 75%);
+    width: 32px;
+    height: 28px;
+    border-radius: 42%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(15, 6, 0, 0.78) 0%,
+        rgba(20, 8, 0, 0.45) 38%,
+        rgba(0, 0, 0, 0.15) 65%,
+        transparent 80%
+    );
     transform: translateZ(-11px);
     pointer-events: none;
     z-index: 1;
@@ -2064,8 +2070,8 @@ body.online-mode-active .game-container {
     will-change: transform, opacity;
 }
 
-#shadow1 { left: -3px; top: -8px; }
-#shadow2 { left: 49px; top: 18px; }
+#shadow1 { left: -4px; top: -9px; }
+#shadow2 { left: 48px; top: 17px; }
 
 .dice-3d-wrapper {
     position: absolute !important;
@@ -2078,40 +2084,63 @@ body.online-mode-active .game-container {
     z-index: 2;
 }
 
-/* إضاءة الأوجه وتظليلها */
+/* خامة العاج الملكي المصقول للأوجه الستة */
 .dice-face {
     position: absolute !important;
     width: 24px !important;
     height: 24px !important;
     box-sizing: border-box !important;
-    padding: 3px !important;
+    padding: 3.2px !important;
     display: grid !important;
-    border-radius: 1px !important;
+    border-radius: 2.5px !important;
     backface-visibility: hidden !important;
-    border: 0px solid rgba(0, 0, 0, 0.2) !important;
-    box-shadow: none !important;
-    background: linear-gradient(145deg, #ffffff 0%, #fbfbfb 55%, #ececec 100%) !important;
+    border: 0.5px solid rgba(180, 145, 95, 0.45) !important;
+    background:
+        radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 48%),
+        radial-gradient(circle at 50% 50%, #fffdf9 0%, #f7efe0 58%, #e5d2b5 100%) !important;
+    box-shadow:
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.95),
+        inset 1px 0 1.5px rgba(255, 255, 255, 0.8),
+        inset 0 -1.5px 2.5px rgba(135, 95, 45, 0.45),
+        inset -1.5px 0 2.5px rgba(135, 95, 45, 0.35),
+        inset 0 0 3px rgba(160, 115, 60, 0.25) !important;
     filter: none !important;
     --shade: 0;
 }
 
+/* الحافة المشطوفة (Bevel) واللمعة الزجاجية */
 .dice-face::before {
-    content: ""; position: absolute; inset: -0.5px; border-radius: 2px;
-    box-shadow: inset 0 0 2.2px rgba(0, 0, 0, 0.30), inset 0.6px 0.6px 0.9px rgba(255, 255, 255, 0.85);
-    pointer-events: none; z-index: 3;
+    content: "";
+    position: absolute;
+    inset: 0.8px;
+    border-radius: 2px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 42%);
+    box-shadow:
+        inset 0 0 0 0.6px rgba(255, 255, 255, 0.7),
+        0 0 1.5px rgba(120, 80, 30, 0.25);
+    pointer-events: none;
+    z-index: 3;
 }
 
+/* طبقة التظليل الفيزيائي الدافئ (تتفاعل مع الإضاءة والخشب) */
 .dice-face::after {
-    content: ""; position: absolute; inset: -0.5px; border-radius: 2px;
-    background: #0a0510; opacity: var(--shade); transition: opacity 0.4s ease;
+    content: "";
+    position: absolute;
+    inset: -0.5px;
+    border-radius: 2.5px;
+    background: linear-gradient(160deg, #241409 0%, #0f0702 100%);
+    opacity: var(--shade);
+    transition: opacity 0.4s ease;
     pointer-events: none;
+    z-index: 4;
 }
 
 .dice-3d-wrapper.rolling .dice-face::after { transition: none; }
 .dice-face.is-top    { --shade: 0; }
-.dice-face.is-side   { --shade: 0.45; }
-.dice-face.is-bottom { --shade: 0.7; }
+.dice-face.is-side   { --shade: 0.42; }
+.dice-face.is-bottom { --shade: 0.68; }
 
+/* ثبات مواقع وزوايا الأوجه الـ 3D كما هي تماماً */
 .face-front  { transform: rotateY(0deg) translateZ(12px) !important; }
 .face-back   { transform: rotateY(180deg) translateZ(12px) !important; }
 .face-right  { transform: rotateY(90deg) translateZ(12px) !important; }
@@ -2119,29 +2148,57 @@ body.online-mode-active .game-container {
 .face-top    { transform: rotateX(90deg) translateZ(12px) !important; }
 .face-bottom { transform: rotateX(-90deg) translateZ(12px) !important; }
 
-/* نقاط النرد الحمراء */
+/* النقاط المحفورة بعمق ثلاثي الأبعاد (Engraved Pips) */
 .pip {
-    display: block !important; width: 4.8px !important; height: 4.8px !important;
-    border-radius: 50% !important; background: #111111 !important; box-shadow: none !important;
-    filter: none !important; align-self: center !important; justify-self: center !important; margin: 0 !important;
+    display: block !important;
+    width: 4.8px !important;
+    height: 4.8px !important;
+    border-radius: 50% !important;
+    background: radial-gradient(circle at 38% 35%, #3a3530 0%, #1a1614 45%, #050404 100%) !important;
+    box-shadow:
+        inset 0 1.2px 1.6px rgba(0, 0, 0, 0.95),
+        inset 0 -0.6px 0.8px rgba(255, 235, 200, 0.25),
+        0 0.8px 0.6px rgba(255, 255, 255, 0.9),
+        0 -0.4px 0.5px rgba(110, 75, 35, 0.5) !important;
+    filter: none !important;
+    align-self: center !important;
+    justify-self: center !important;
+    margin: 0 !important;
+    position: relative;
+    z-index: 3;
 }
 
+/* نقطة الآص الياقوتية (رقم 1) بحلقة ذهبية دقيقة */
 .face-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
-.face-1 .pip { width: 6.5px !important; height: 6.5px !important; background: #e01616 !important; }
+.face-1 .pip {
+    width: 6.8px !important;
+    height: 6.8px !important;
+    background: radial-gradient(circle at 35% 30%, #ff5e5e 0%, #d91414 48%, #6e0404 100%) !important;
+    box-shadow:
+        inset 0 1.3px 1.8px rgba(60, 0, 0, 0.9),
+        inset 0 -0.8px 1px rgba(255, 180, 180, 0.45),
+        0 0 0 0.7px rgba(195, 150, 70, 0.75),
+        0 0.9px 0.8px rgba(255, 255, 255, 0.95) !important;
+}
+
 .face-2 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
 .face-2 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; }
 .face-2 .pip:nth-child(2) { align-self: end !important; justify-self: end !important; }
+
 .face-3 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
 .face-3 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; }
 .face-3 .pip:nth-child(2) { align-self: center !important; justify-self: center !important; grid-area: 2 / 2 !important; }
 .face-3 .pip:nth-child(3) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
+
 .face-4 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
+
 .face-5 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
 .face-5 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; grid-area: 1 / 1 !important; }
 .face-5 .pip:nth-child(2) { align-self: start !important; justify-self: end !important; grid-area: 1 / 3 !important; }
 .face-5 .pip:nth-child(3) { align-self: center !important; justify-self: center !important; grid-area: 2 / 2 !important; }
 .face-5 .pip:nth-child(4) { align-self: end !important; justify-self: start !important; grid-area: 3 / 1 !important; }
 .face-5 .pip:nth-child(5) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
+
 .face-6 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
 
 
