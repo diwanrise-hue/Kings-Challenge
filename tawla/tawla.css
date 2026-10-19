@@ -105,7 +105,7 @@ body {
 /* توضيح: هذه الحاوية تضبط حجم الطاولة وتفعل البعد الثالث (3D)، مع ظل خارجي يعطي واقعية مفرطة. */
 .board-container {
     width: min(94vw, 540px);
-    aspect-ratio: 1 / 1.35;
+    aspect-ratio: 1 / 1;
     max-height: 87vh;
     position: relative;
     display: flex;
