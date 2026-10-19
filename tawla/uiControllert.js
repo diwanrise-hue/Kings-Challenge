@@ -116,10 +116,10 @@ function getUserIdLocally() {
 }
 
 // ==========================================
-// 🎲 ثوابت محرك النرد الفيزيائي 🎲
+// 🎲 ثوابت محرك النرد الفيزيائي السريع 🎲
 // ==========================================
-const DIE_SIZE = 24;          
-const ROLL_DURATION = 1.15;   
+const DIE_SIZE = 20;          // 🌟 تم تصغير الحجم إلى 20
+const ROLL_DURATION = 0.75;   // 🌟 تم زيادة السرعة (تقليل مدة الرمية)
 const ROLL_DECEL = 2.4;       
 const START_FRACTION = 0.40;  
 const rollFrames = [null, null];
@@ -148,6 +148,7 @@ function applyFaceShading(faceInfo, m, refD) {
         f.el.style.setProperty('--shade', shade.toFixed(3));
     });
 }
+
 
 // ==========================================
 // 🌟 الكائن الأساسي للتحكم بالواجهة (UI Controller)
@@ -1110,7 +1111,6 @@ export const ui = {
         const d2El = this.getEl('die2');
         const s1El = this.getEl('shadow1');
         const s2El = this.getEl('shadow2');
-        const boardEl = this.getEl('tawla-board');
         const diceContainer = this.getEl('dice-container') || (d1El ? d1El.parentElement : null);
 
         if (!d1El || !d2El) return;
@@ -1123,13 +1123,11 @@ export const ui = {
             return;
         }
 
-        // 🌟 تحديد ما إذا كانت الرمية للاعب (الجهة اليمنى) أم للخصم (الجهة اليسرى) 🌟
         const myColor = gameState.isOnlineMode
             ? (gameState.myOnlineColor || gameState.playerColor || 'white')
             : (gameState.playerColor || 'white');
         const isMyRoll = (gameState.currentTurn === myColor);
 
-        // نقل حاوية النرد إلى وسط النصف الأيمن (للاعب) أو وسط النصف الأيسر (للخصم)
         if (diceContainer) {
             if (isMyRoll) {
                 diceContainer.style.setProperty('right', '27%', 'important');
@@ -1159,7 +1157,6 @@ export const ui = {
             </div>
         `;
 
-        // 🌟 الدوران حول المحور Y ليتدحرج النرد أفقياً من الجانب 🌟
         const getRotation = (num, rollDeg, view) => {
             let faceTurn = "";
             switch (Number(num)) {
@@ -1174,28 +1171,28 @@ export const ui = {
             return `rotateX(${view.x}deg) rotateY(${view.y}deg) rotateY(${rollDeg}deg) ${faceTurn}`;
         };
 
-        // حساب مسافة الانطلاق الأفقية بناءً على عرض الساحة لتبدأ من حافة الإطار الجانبي
-        const boardW = (boardEl && boardEl.offsetWidth) || 420;
-        const baseTurns = Math.max(4, Math.round((boardW * 0.24) / DIE_SIZE));
-
-        // اتجاه الانطلاق: (+1) من أقصى اليمين للوسط الأيمن، (-1) من أقصى اليسار للوسط الأيسر
         const sideSign = isMyRoll ? 1 : -1;
+
+        // 🌟 حساب مسافة الانطلاق من خارج الشاشة 🌟
+        // نصف عرض الشاشة + 120 بكسل ضمان لبدء النرد من خارج حافة الهاتف تماماً
+        const travelDistance = (window.innerWidth / 2) + 120; 
+        const baseAngle = (travelDistance / DIE_SIZE) * 90;
 
         const dice = [
             {
                 el: d1El,
                 shadow: s1El,
                 value: gameState.currentDice[0],
-                delay: isMyRoll ? 0 : 90,
-                turns: isMyRoll ? baseTurns : baseTurns - 1,
+                delay: isMyRoll ? 0 : 50, // 🌟 تقليل زمن التأخير للتسريع
+                totalAngle: isMyRoll ? baseAngle : baseAngle - 90,
                 view: DIE_VIEWS[0]
             },
             {
                 el: d2El,
                 shadow: s2El,
                 value: gameState.currentDice[1],
-                delay: isMyRoll ? 90 : 0,
-                turns: isMyRoll ? baseTurns - 1 : baseTurns,
+                delay: isMyRoll ? 50 : 0, // 🌟 تقليل زمن التأخير للتسريع
+                totalAngle: isMyRoll ? baseAngle - 90 : baseAngle,
                 view: DIE_VIEWS[1]
             }
         ];
@@ -1241,19 +1238,19 @@ export const ui = {
             wrapper.style.transition = 'none';
             wrapper.classList.add('rolling');
 
-            const travel = die.turns * DIE_SIZE;
-            const totalAngle = die.turns * 90;
+            const travel = travelDistance;
+            const totalAngle = die.totalAngle;
 
             const render = (p) => {
                 const e = 1 - Math.pow(1 - p, ROLL_DECEL);
                 const remaining = 1 - e;
 
-                // حركة أفقية على محور X من طرف الساحة إلى منتصف النصف الخاص باللاعب
                 const x = sideSign * travel * remaining;
                 const roll = sideSign * totalAngle * remaining;
 
+                // 🌟 القفز أثناء التدحرج متناسق مع الحجم الجديد
                 const rad = roll * Math.PI / 180;
-                const lift = DIE_SIZE / 2 * (Math.abs(Math.cos(rad)) + Math.abs(Math.sin(rad)) - 1);
+                const lift = (DIE_SIZE / 1.5) * (Math.abs(Math.cos(rad)) + Math.abs(Math.sin(rad)) - 1);
 
                 el.style.transform = `translate3d(${x}px, 0px, ${lift}px)`;
                 const tf = getRotation(value, roll, die.view);
