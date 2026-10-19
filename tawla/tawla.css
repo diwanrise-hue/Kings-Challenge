@@ -2087,10 +2087,10 @@ body.online-mode-active .game-container {
 /* خامة العاج الملكي المصقول للأوجه الستة */
 .dice-face {
     position: absolute !important;
-    width: 20px !important;  /* 🌟 تم التصغير 🌟 */
-    height: 20px !important; /* 🌟 تم التصغير 🌟 */
+    width: 20px !important;  
+    height: 20px !important; 
     box-sizing: border-box !important;
-    padding: 2.5px !important; /* 🌟 تم تعديل الحواف 🌟 */
+    padding: 2px !important; /* 🌟 تقليل الحواف لإعطاء مساحة داخلية مريحة للنقاط 🌟 */
     display: grid !important;
     border-radius: 2px !important;
     backface-visibility: hidden !important;
@@ -2114,9 +2114,7 @@ body.online-mode-active .game-container {
     inset: 0.8px;
     border-radius: 2px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 42%);
-    box-shadow:
-        inset 0 0 0 0.6px rgba(255, 255, 255, 0.7),
-        0 0 1.5px rgba(120, 80, 30, 0.25);
+    box-shadow: inset 0 0 0 0.6px rgba(255, 255, 255, 0.7), 0 0 1.5px rgba(120, 80, 30, 0.25);
     pointer-events: none;
     z-index: 3;
 }
@@ -2138,7 +2136,6 @@ body.online-mode-active .game-container {
 .dice-face.is-side   { --shade: 0.42; }
 .dice-face.is-bottom { --shade: 0.68; }
 
-/* 🌟 الأبعاد الجديدة (10px) لتكوين المكعب بعد تصغيره إلى 20px 🌟 */
 .face-front  { transform: rotateY(0deg) translateZ(10px) !important; }
 .face-back   { transform: rotateY(180deg) translateZ(10px) !important; }
 .face-right  { transform: rotateY(90deg) translateZ(10px) !important; }
@@ -2149,85 +2146,54 @@ body.online-mode-active .game-container {
 /* النقاط المحفورة بعمق ثلاثي الأبعاد */
 .pip {
     display: block !important;
-    width: 4.5px !important;
-    height: 4.5px !important;
-    min-width: 4.5px !important;   /* 🌟 إجبار المتصفح على عدم ضغط العرض */
-    min-height: 4.5px !important;  /* 🌟 إجبار المتصفح على عدم ضغط الارتفاع */
-    aspect-ratio: 1 / 1 !important; /* 🌟 ضمان الشكل المربع 100% لتشكيل دائرة مثالية */
+    width: 4.4px !important;    
+    height: 4.4px !important;   
     border-radius: 50% !important;
     background: radial-gradient(circle at 38% 35%, #3a3530 0%, #1a1614 45%, #050404 100%) !important;
+    /* 🌟 تخفيف الظلال لمنع تعرج الدائرة 🌟 */
     box-shadow:
-        inset 0 1px 1.4px rgba(0, 0, 0, 0.95),
-        inset 0 -0.5px 0.6px rgba(255, 235, 200, 0.25),
-        0 0.6px 0.5px rgba(255, 255, 255, 0.9),
-        0 -0.3px 0.4px rgba(110, 75, 35, 0.5) !important;
-    filter: none !important;
+        inset 0 1px 1.5px rgba(0, 0, 0, 0.9),
+        0 0.8px 0.5px rgba(255, 255, 255, 0.8) !important;
     align-self: center !important;
     justify-self: center !important;
     margin: 0 !important;
     position: relative;
     z-index: 3;
-    box-sizing: border-box !important;
+    /* 🌟 فرض النعومة الدائرية وحواف مانعة للتشوه 🌟 */
+    outline: 1px solid transparent !important; 
+    transform: translateZ(0.1px) !important; 
 }
 
+/* 🌟 إزالة جميع مسافات الـ gap التي كانت تضغط النقاط 🌟 */
 .face-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
 .face-1 .pip {
-    width: 6px !important;
-    height: 6px !important;
-    min-width: 6px !important;
-    min-height: 6px !important;
+    width: 6.2px !important;  
+    height: 6.2px !important; 
     background: radial-gradient(circle at 35% 30%, #ff5e5e 0%, #d91414 48%, #6e0404 100%) !important;
     box-shadow:
         inset 0 1px 1.5px rgba(60, 0, 0, 0.9),
-        inset 0 -0.6px 0.8px rgba(255, 180, 180, 0.45),
-        0 0 0 0.5px rgba(195, 150, 70, 0.75),
-        0 0.7px 0.6px rgba(255, 255, 255, 0.95) !important;
+        0 0.8px 0.5px rgba(255, 255, 255, 0.9) !important;
 }
 
-/* 🌟 إصلاح الوجه رقم 2 (نقطتان متقابلتان قطرياً) 🌟 */
-.face-2 { 
-    grid-template-columns: 1fr 1fr 1fr !important; 
-    grid-template-rows: 1fr 1fr 1fr !important; 
-}
+.face-2 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
 .face-2 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; grid-area: 1 / 1 !important; }
 .face-2 .pip:nth-child(2) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
 
-/* الوجه رقم 3 (قطري من الزاوية للزاوية) */
-.face-3 { 
-    grid-template-columns: 1fr 1fr 1fr !important; 
-    grid-template-rows: 1fr 1fr 1fr !important; 
-}
+.face-3 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
 .face-3 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; grid-area: 1 / 1 !important; }
 .face-3 .pip:nth-child(2) { align-self: center !important; justify-self: center !important; grid-area: 2 / 2 !important; }
 .face-3 .pip:nth-child(3) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
 
-/* الوجه رقم 4 (4 نقاط في الزوايا) */
-.face-4 { 
-    grid-template-columns: 1fr 1fr !important; 
-    grid-template-rows: 1fr 1fr !important; 
-    gap: 3px !important; /* مسافة بين النقاط */
-}
-.face-4 .pip { align-self: center !important; justify-self: center !important; }
+.face-4 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
 
-/* الوجه رقم 5 (4 نقاط في الزوايا + 1 في المنتصف) */
-.face-5 { 
-    grid-template-columns: 1fr 1fr 1fr !important; 
-    grid-template-rows: 1fr 1fr 1fr !important; 
-}
+.face-5 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
 .face-5 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; grid-area: 1 / 1 !important; }
 .face-5 .pip:nth-child(2) { align-self: start !important; justify-self: end !important; grid-area: 1 / 3 !important; }
 .face-5 .pip:nth-child(3) { align-self: center !important; justify-self: center !important; grid-area: 2 / 2 !important; }
 .face-5 .pip:nth-child(4) { align-self: end !important; justify-self: start !important; grid-area: 3 / 1 !important; }
 .face-5 .pip:nth-child(5) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
 
-/* الوجه رقم 6 (عمودين، كل عمود 3 نقاط) */
-.face-6 { 
-    grid-template-columns: 1fr 1fr !important; 
-    grid-template-rows: 1fr 1fr 1fr !important; 
-    gap: 1px 3px !important;
-}
-.face-6 .pip { align-self: center !important; justify-self: center !important; }
-
+.face-6 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
 
 /* =========================================================
    ✨ تأثيرات التوهج (Highlights) للأحجار والخانات
