@@ -2023,15 +2023,15 @@ body.online-mode-active .game-container {
 }
 
 /* =========================================================
-   🎲 TAWLA DICE - Luxury Ivory 3D Edition (نفس زاوية العرض)
+   🎲 TAWLA DICE - Luxury Ivory 3D Edition (حجم أصغر 20px)
    ========================================================= */
 
 .fixed-3d-dice-container {
     position: absolute !important;
     top: 50% !important;
     right: 28% !important;
-    width: 76px !important;
-    height: 36px !important;
+    width: 60px !important;
+    height: 30px !important;
     transform: translate(50%, -50%) translateZ(12px) !important;
     transform-style: preserve-3d !important;
     z-index: 9999 !important;
@@ -2041,20 +2041,20 @@ body.online-mode-active .game-container {
 .tawla-die {
     position: absolute !important;
     top: 0 !important;
-    width: 24px !important;
-    height: 24px !important;
+    width: 20px !important;    /* 🌟 تم التصغير 🌟 */
+    height: 20px !important;   /* 🌟 تم التصغير 🌟 */
     transform-style: preserve-3d !important;
     will-change: transform !important;
 }
 
-#die1 { left: 0px !important; top: -12px !important; }
-#die2 { right: 0px !important; top: 14px !important; }
+#die1 { left: 0px !important; top: -10px !important; }
+#die2 { right: 0px !important; top: 12px !important; }
 
 /* ظل التلامس الواقعي المزدوج على خشب الطاولة */
 .dice-contact-shadow {
     position: absolute;
-    width: 32px;
-    height: 28px;
+    width: 26px; /* 🌟 تم التصغير 🌟 */
+    height: 22px; /* 🌟 تم التصغير 🌟 */
     border-radius: 42%;
     background: radial-gradient(
         ellipse at center,
@@ -2070,8 +2070,8 @@ body.online-mode-active .game-container {
     will-change: transform, opacity;
 }
 
-#shadow1 { left: -4px; top: -9px; }
-#shadow2 { left: 48px; top: 17px; }
+#shadow1 { left: -3px; top: -7px; }
+#shadow2 { left: 40px; top: 15px; }
 
 .dice-3d-wrapper {
     position: absolute !important;
@@ -2087,12 +2087,12 @@ body.online-mode-active .game-container {
 /* خامة العاج الملكي المصقول للأوجه الستة */
 .dice-face {
     position: absolute !important;
-    width: 24px !important;
-    height: 24px !important;
+    width: 20px !important;  /* 🌟 تم التصغير 🌟 */
+    height: 20px !important; /* 🌟 تم التصغير 🌟 */
     box-sizing: border-box !important;
-    padding: 3.2px !important;
+    padding: 2.5px !important; /* 🌟 تم تعديل الحواف 🌟 */
     display: grid !important;
-    border-radius: 2.5px !important;
+    border-radius: 2px !important;
     backface-visibility: hidden !important;
     border: 0.5px solid rgba(180, 145, 95, 0.45) !important;
     background:
@@ -2108,7 +2108,6 @@ body.online-mode-active .game-container {
     --shade: 0;
 }
 
-/* الحافة المشطوفة (Bevel) واللمعة الزجاجية */
 .dice-face::before {
     content: "";
     position: absolute;
@@ -2122,7 +2121,6 @@ body.online-mode-active .game-container {
     z-index: 3;
 }
 
-/* طبقة التظليل الفيزيائي الدافئ (تتفاعل مع الإضاءة والخشب) */
 .dice-face::after {
     content: "";
     position: absolute;
@@ -2140,26 +2138,26 @@ body.online-mode-active .game-container {
 .dice-face.is-side   { --shade: 0.42; }
 .dice-face.is-bottom { --shade: 0.68; }
 
-/* ثبات مواقع وزوايا الأوجه الـ 3D كما هي تماماً */
-.face-front  { transform: rotateY(0deg) translateZ(12px) !important; }
-.face-back   { transform: rotateY(180deg) translateZ(12px) !important; }
-.face-right  { transform: rotateY(90deg) translateZ(12px) !important; }
-.face-left   { transform: rotateY(-90deg) translateZ(12px) !important; }
-.face-top    { transform: rotateX(90deg) translateZ(12px) !important; }
-.face-bottom { transform: rotateX(-90deg) translateZ(12px) !important; }
+/* 🌟 الأبعاد الجديدة (10px) لتكوين المكعب بعد تصغيره إلى 20px 🌟 */
+.face-front  { transform: rotateY(0deg) translateZ(10px) !important; }
+.face-back   { transform: rotateY(180deg) translateZ(10px) !important; }
+.face-right  { transform: rotateY(90deg) translateZ(10px) !important; }
+.face-left   { transform: rotateY(-90deg) translateZ(10px) !important; }
+.face-top    { transform: rotateX(90deg) translateZ(10px) !important; }
+.face-bottom { transform: rotateX(-90deg) translateZ(10px) !important; }
 
-/* النقاط المحفورة بعمق ثلاثي الأبعاد (Engraved Pips) */
+/* النقاط المحفورة بعمق ثلاثي الأبعاد */
 .pip {
     display: block !important;
-    width: 4.8px !important;
-    height: 4.8px !important;
+    width: 4px !important;    /* 🌟 تم التصغير 🌟 */
+    height: 4px !important;   /* 🌟 تم التصغير 🌟 */
     border-radius: 50% !important;
     background: radial-gradient(circle at 38% 35%, #3a3530 0%, #1a1614 45%, #050404 100%) !important;
     box-shadow:
-        inset 0 1.2px 1.6px rgba(0, 0, 0, 0.95),
-        inset 0 -0.6px 0.8px rgba(255, 235, 200, 0.25),
-        0 0.8px 0.6px rgba(255, 255, 255, 0.9),
-        0 -0.4px 0.5px rgba(110, 75, 35, 0.5) !important;
+        inset 0 1px 1.4px rgba(0, 0, 0, 0.95),
+        inset 0 -0.5px 0.6px rgba(255, 235, 200, 0.25),
+        0 0.6px 0.5px rgba(255, 255, 255, 0.9),
+        0 -0.3px 0.4px rgba(110, 75, 35, 0.5) !important;
     filter: none !important;
     align-self: center !important;
     justify-self: center !important;
@@ -2168,17 +2166,16 @@ body.online-mode-active .game-container {
     z-index: 3;
 }
 
-/* نقطة الآص الياقوتية (رقم 1) بحلقة ذهبية دقيقة */
 .face-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
 .face-1 .pip {
-    width: 6.8px !important;
-    height: 6.8px !important;
+    width: 5.8px !important;  /* 🌟 تم التصغير 🌟 */
+    height: 5.8px !important; /* 🌟 تم التصغير 🌟 */
     background: radial-gradient(circle at 35% 30%, #ff5e5e 0%, #d91414 48%, #6e0404 100%) !important;
     box-shadow:
-        inset 0 1.3px 1.8px rgba(60, 0, 0, 0.9),
-        inset 0 -0.8px 1px rgba(255, 180, 180, 0.45),
-        0 0 0 0.7px rgba(195, 150, 70, 0.75),
-        0 0.9px 0.8px rgba(255, 255, 255, 0.95) !important;
+        inset 0 1px 1.5px rgba(60, 0, 0, 0.9),
+        inset 0 -0.6px 0.8px rgba(255, 180, 180, 0.45),
+        0 0 0 0.5px rgba(195, 150, 70, 0.75),
+        0 0.7px 0.6px rgba(255, 255, 255, 0.95) !important;
 }
 
 .face-2 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
