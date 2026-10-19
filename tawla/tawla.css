@@ -2149,8 +2149,11 @@ body.online-mode-active .game-container {
 /* النقاط المحفورة بعمق ثلاثي الأبعاد */
 .pip {
     display: block !important;
-    width: 4px !important;    /* 🌟 تم التصغير 🌟 */
-    height: 4px !important;   /* 🌟 تم التصغير 🌟 */
+    width: 4.5px !important;
+    height: 4.5px !important;
+    min-width: 4.5px !important;   /* 🌟 إجبار المتصفح على عدم ضغط العرض */
+    min-height: 4.5px !important;  /* 🌟 إجبار المتصفح على عدم ضغط الارتفاع */
+    aspect-ratio: 1 / 1 !important; /* 🌟 ضمان الشكل المربع 100% لتشكيل دائرة مثالية */
     border-radius: 50% !important;
     background: radial-gradient(circle at 38% 35%, #3a3530 0%, #1a1614 45%, #050404 100%) !important;
     box-shadow:
@@ -2164,12 +2167,15 @@ body.online-mode-active .game-container {
     margin: 0 !important;
     position: relative;
     z-index: 3;
+    box-sizing: border-box !important;
 }
 
 .face-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
 .face-1 .pip {
-    width: 5.8px !important;  /* 🌟 تم التصغير 🌟 */
-    height: 5.8px !important; /* 🌟 تم التصغير 🌟 */
+    width: 6px !important;
+    height: 6px !important;
+    min-width: 6px !important;
+    min-height: 6px !important;
     background: radial-gradient(circle at 35% 30%, #ff5e5e 0%, #d91414 48%, #6e0404 100%) !important;
     box-shadow:
         inset 0 1px 1.5px rgba(60, 0, 0, 0.9),
@@ -2178,25 +2184,49 @@ body.online-mode-active .game-container {
         0 0.7px 0.6px rgba(255, 255, 255, 0.95) !important;
 }
 
-.face-2 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
-.face-2 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; }
-.face-2 .pip:nth-child(2) { align-self: end !important; justify-self: end !important; }
+/* 🌟 إصلاح الوجه رقم 2 (نقطتان متقابلتان قطرياً) 🌟 */
+.face-2 { 
+    grid-template-columns: 1fr 1fr 1fr !important; 
+    grid-template-rows: 1fr 1fr 1fr !important; 
+}
+.face-2 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; grid-area: 1 / 1 !important; }
+.face-2 .pip:nth-child(2) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
 
-.face-3 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
-.face-3 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; }
+/* الوجه رقم 3 (قطري من الزاوية للزاوية) */
+.face-3 { 
+    grid-template-columns: 1fr 1fr 1fr !important; 
+    grid-template-rows: 1fr 1fr 1fr !important; 
+}
+.face-3 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; grid-area: 1 / 1 !important; }
 .face-3 .pip:nth-child(2) { align-self: center !important; justify-self: center !important; grid-area: 2 / 2 !important; }
 .face-3 .pip:nth-child(3) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
 
-.face-4 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
+/* الوجه رقم 4 (4 نقاط في الزوايا) */
+.face-4 { 
+    grid-template-columns: 1fr 1fr !important; 
+    grid-template-rows: 1fr 1fr !important; 
+    gap: 3px !important; /* مسافة بين النقاط */
+}
+.face-4 .pip { align-self: center !important; justify-self: center !important; }
 
-.face-5 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
+/* الوجه رقم 5 (4 نقاط في الزوايا + 1 في المنتصف) */
+.face-5 { 
+    grid-template-columns: 1fr 1fr 1fr !important; 
+    grid-template-rows: 1fr 1fr 1fr !important; 
+}
 .face-5 .pip:nth-child(1) { align-self: start !important; justify-self: start !important; grid-area: 1 / 1 !important; }
 .face-5 .pip:nth-child(2) { align-self: start !important; justify-self: end !important; grid-area: 1 / 3 !important; }
 .face-5 .pip:nth-child(3) { align-self: center !important; justify-self: center !important; grid-area: 2 / 2 !important; }
 .face-5 .pip:nth-child(4) { align-self: end !important; justify-self: start !important; grid-area: 3 / 1 !important; }
 .face-5 .pip:nth-child(5) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
 
-.face-6 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
+/* الوجه رقم 6 (عمودين، كل عمود 3 نقاط) */
+.face-6 { 
+    grid-template-columns: 1fr 1fr !important; 
+    grid-template-rows: 1fr 1fr 1fr !important; 
+    gap: 1px 3px !important;
+}
+.face-6 .pip { align-self: center !important; justify-self: center !important; }
 
 
 /* =========================================================
