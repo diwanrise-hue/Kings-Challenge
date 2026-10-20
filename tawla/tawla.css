@@ -2196,7 +2196,19 @@ body.online-mode-active .game-container {
 .face-5 .pip:nth-child(4) { align-self: end !important; justify-self: start !important; grid-area: 3 / 1 !important; }
 .face-5 .pip:nth-child(5) { align-self: end !important; justify-self: end !important; grid-area: 3 / 3 !important; }
 
+/* ========================================================= */
+/* 🌟 إصلاح الوجه رقم 6 (فصل النقاط المتصلة بتوزيعها للأطراف) 🌟 */
+/* ========================================================= */
 .face-6 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr 1fr !important; }
+
+/* 1. التوزيع العمودي (دفع الصف الأول للأعلى والأخير للأسفل) */
+.face-6 .pip:nth-child(1), .face-6 .pip:nth-child(2) { align-self: start !important; }
+.face-6 .pip:nth-child(3), .face-6 .pip:nth-child(4) { align-self: center !important; }
+.face-6 .pip:nth-child(5), .face-6 .pip:nth-child(6) { align-self: end !important; }
+
+/* 2. التوزيع الأفقي (دفع العمود الأيسر لليسار والأيمن لليمين) */
+.face-6 .pip:nth-child(1), .face-6 .pip:nth-child(3), .face-6 .pip:nth-child(5) { justify-self: start !important; }
+.face-6 .pip:nth-child(2), .face-6 .pip:nth-child(4), .face-6 .pip:nth-child(6) { justify-self: end !important; }
 
 /* =========================================================
    ✨ تأثيرات التوهج (Highlights) للأحجار والخانات
