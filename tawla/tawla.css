@@ -2323,13 +2323,17 @@ body[data-player-color="black"] #bar-white { order: 2 !important; justify-conten
 /* =========================================================
    ✨ إضاءة إطار إخراج الأحجار عند إتاحة الإخراج (Bearing Off)
    ========================================================= */
-.bear-off-tray.highlight {
-    border: none !important;
+/* ✨ إضاءة الحفرة الزرقاء الداخلية عند إتاحة الإخراج (Bearing Off) */
+.bear-off-tray.highlight > div {
     box-shadow: 
-        inset 0px 8px 10px rgba(0,0,0,0.95), 
-        inset 0px -2px 6px rgba(0,0,0,0.9),
-        inset 4px 0px 8px rgba(0,0,0,0.9),
-        inset -4px 0px 8px rgba(0,0,0,0.9),
-        inset 0 0 20px rgba(52, 199, 89, 0.6), /* التوهج الأخضر من الداخل */
-        0px 1px 1px rgba(255,255,255,0.15) !important;
+        inset 0px 6px 8px rgba(0,0,0,0.95), 
+        inset 0px -2px 4px rgba(0,0,0,0.7),
+        inset 4px 0px 6px rgba(0,0,0,0.9),
+        inset -4px 0px 6px rgba(0,0,0,0.9),
+        inset 0 0 20px rgba(52, 199, 89, 0.7), /* توهج أخضر من داخل المخمل */
+        0px 0px 8px rgba(52, 199, 89, 0.4) !important;
+}
+
+.bear-off-tray.highlight {
+    border-color: #30d158 !important; /* لمسة خضراء خفيفة على الخشب الخارجي */
 }
