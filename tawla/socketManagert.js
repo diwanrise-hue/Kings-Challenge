@@ -507,19 +507,18 @@ export const socketManager = {
         if (!pingEl) {
             pingEl = document.createElement('div');
             pingEl.id = 'real-ping-indicator';
+            // 🌟 نقل البينج إلى أعلى يسار الشاشة (فوق مكان الخصم) 🌟
             pingEl.style.cssText = `
-                position: absolute; bottom: -1px; left: calc(50% + 118px); 
-                background: transparent; color: #66bb6a; 
-                font-family: monospace; font-size: 11px; font-weight: 700; 
-                z-index: 800; display: flex; align-items: center; justify-content: flex-start; gap: 4px;
+                position: fixed; top: 15px; left: 15px; 
+                background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+                color: #66bb6a; font-family: monospace; font-size: 11px; font-weight: 700; 
+                z-index: 9999; display: flex; align-items: center; justify-content: flex-start; gap: 6px;
                 flex-direction: row; flex-wrap: nowrap; white-space: nowrap; 
                 pointer-events: none; opacity: 0.95; transition: opacity 0.5s ease;
-                text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.8), 1px -1px 1px rgba(0,0,0,0.8), -1px 1px 1px rgba(0,0,0,0.8); 
+                box-shadow: 0 2px 5px rgba(0,0,0,0.5);
             `;
-            pingEl.innerHTML = `<div id="ping-dot" style="width:5px;height:5px;border-radius:50%;background:#66bb6a;box-shadow:0 0 3px #66bb6a, 0 0 0 1px rgba(0,0,0,0.5); flex-shrink:0;"></div><span id="ping-text" style="white-space: nowrap;">... ms</span>`;
-            const turnBoxWrapper = document.getElementById('turn-box-container')?.parentElement;
-            if (turnBoxWrapper) { turnBoxWrapper.style.position = 'relative'; turnBoxWrapper.appendChild(pingEl); } 
-            else { document.body.appendChild(pingEl); }
+            pingEl.innerHTML = `<div id="ping-dot" style="width:6px;height:6px;border-radius:50%;background:#66bb6a;box-shadow:0 0 4px #66bb6a; flex-shrink:0;"></div><span id="ping-text" style="white-space: nowrap;">... ms</span>`;
+            document.body.appendChild(pingEl);
         }
 
         if (this.pingIntervalId) clearInterval(this.pingIntervalId);
@@ -549,6 +548,7 @@ export const socketManager = {
         });
     },
 
+    // 🌟 دالة تحديث لون البينج تبقى كما هي 🌟
     _updatePingUI(latency) {
         if (this.lastPingValue !== null && Math.abs(this.lastPingValue - latency) < 15 && latency !== 999) return;
         this.lastPingValue = latency;
@@ -563,12 +563,21 @@ export const socketManager = {
         if (latency >= 999) color = '#ef5350'; 
         pingEl.style.color = color;
         pingDot.style.background = color;
-        pingDot.style.boxShadow = `0 0 3px ${color}, 0 0 0 1px rgba(0,0,0,0.5)`; 
+        pingDot.style.boxShadow = `0 0 4px ${color}`; 
     },
 
     _showDisconnectUI() {
         let miniRadar = document.getElementById('mini-disconnect-radar');
-        if (miniRadar) miniRadar.style.setProperty('display', 'flex', 'important');
+        if (miniRadar) {
+            // 🌟 نقل شارة انقطاع الإنترنت لتكون بجانب البينج في الأعلى 🌟
+            miniRadar.style.setProperty('position', 'fixed', 'important');
+            miniRadar.style.setProperty('top', '15px', 'important');
+            miniRadar.style.setProperty('left', '95px', 'important');
+            miniRadar.style.setProperty('bottom', 'auto', 'important');
+            miniRadar.style.setProperty('transform', 'none', 'important');
+            miniRadar.style.setProperty('z-index', '9999', 'important');
+            miniRadar.style.setProperty('display', 'flex', 'important');
+        }
         if (this.hidePingTimer) clearTimeout(this.hidePingTimer);
         this.hidePingTimer = setTimeout(() => {
             const pingEl = document.getElementById('real-ping-indicator');
