@@ -507,9 +507,12 @@ export const socketManager = {
         if (!pingEl) {
             pingEl = document.createElement('div');
             pingEl.id = 'real-ping-indicator';
-            // 🌟 نقل البينج إلى أعلى يسار الشاشة (فوق مكان الخصم) 🌟
+            
+            // 🌟 ربط البينج بالساحة ليظهر فوق إطار الخصم مباشرة 🌟
             pingEl.style.cssText = `
-                position: fixed; top: 15px; left: 15px; 
+                position: absolute; 
+                top: -65px;          /* أعلى من الإطار الذي يقع عند -30px */
+                right: 6.7%;         /* محاذاة دقيقة مع حافة إطار الإخراج */
                 background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
                 color: #66bb6a; font-family: monospace; font-size: 11px; font-weight: 700; 
                 z-index: 9999; display: flex; align-items: center; justify-content: flex-start; gap: 6px;
@@ -518,7 +521,14 @@ export const socketManager = {
                 box-shadow: 0 2px 5px rgba(0,0,0,0.5);
             `;
             pingEl.innerHTML = `<div id="ping-dot" style="width:6px;height:6px;border-radius:50%;background:#66bb6a;box-shadow:0 0 4px #66bb6a; flex-shrink:0;"></div><span id="ping-text" style="white-space: nowrap;">... ms</span>`;
-            document.body.appendChild(pingEl);
+            
+            // إضافته داخل حاوية اللوحة ليتحرك معها
+            const boardWrapper = document.getElementById('tawla-board-wrapper');
+            if (boardWrapper) {
+                boardWrapper.appendChild(pingEl);
+            } else {
+                document.body.appendChild(pingEl);
+            }
         }
 
         if (this.pingIntervalId) clearInterval(this.pingIntervalId);
@@ -548,7 +558,7 @@ export const socketManager = {
         });
     },
 
-    // 🌟 دالة تحديث لون البينج تبقى كما هي 🌟
+    // 🌟 دالة تحديث الألوان تبقى كما هي 🌟
     _updatePingUI(latency) {
         if (this.lastPingValue !== null && Math.abs(this.lastPingValue - latency) < 15 && latency !== 999) return;
         this.lastPingValue = latency;
@@ -569,10 +579,17 @@ export const socketManager = {
     _showDisconnectUI() {
         let miniRadar = document.getElementById('mini-disconnect-radar');
         if (miniRadar) {
-            // 🌟 نقل شارة انقطاع الإنترنت لتكون بجانب البينج في الأعلى 🌟
-            miniRadar.style.setProperty('position', 'fixed', 'important');
-            miniRadar.style.setProperty('top', '15px', 'important');
-            miniRadar.style.setProperty('left', '95px', 'important');
+            // نقل الرادار إلى حاوية اللوحة ليكون بجانب البينج فوق إطار الخصم
+            const boardWrapper = document.getElementById('tawla-board-wrapper');
+            if (boardWrapper && miniRadar.parentElement !== boardWrapper) {
+                boardWrapper.appendChild(miniRadar);
+            }
+
+            // 🌟 ضبط موقع الرادار ليكون بجانب البينج مباشرة 🌟
+            miniRadar.style.setProperty('position', 'absolute', 'important');
+            miniRadar.style.setProperty('top', '-63px', 'important'); 
+            miniRadar.style.setProperty('right', 'calc(6.7% + 80px)', 'important'); /* بجانب البينج */
+            miniRadar.style.setProperty('left', 'auto', 'important');
             miniRadar.style.setProperty('bottom', 'auto', 'important');
             miniRadar.style.setProperty('transform', 'none', 'important');
             miniRadar.style.setProperty('z-index', '9999', 'important');
