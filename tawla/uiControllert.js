@@ -1045,12 +1045,30 @@ export const ui = {
                 align-items: center;
                 justify-content: center;
                 height: 100%;
-                min-width: 34px;
+                min-width: 38px; /* تم زيادة العرض قليلاً لراحة النص */
+                margin: 0;
+                padding: 0;
                 background: linear-gradient(to bottom, #944b1c 0%, #7a3a12 100%); /* خشب صافي */
                 border-radius: 2px;
                 border: 1px solid #4a2107; /* حواف غامقة لقصة الخشب */
                 box-shadow: inset 0 1px 1px rgba(255,255,255,0.15); /* لمعة زاوية الخشب */
                 flex-shrink: 0;
+                box-sizing: border-box;
+            `;
+
+            // 🌟 تنسيق الرقم المحفور (إجبار التوسيط 100%) 🌟
+            const countTextStyle = `
+                font-size: 11px; 
+                font-weight: 900; 
+                color: #210d02; 
+                text-shadow: 0px 1px 0px rgba(255,255,255,0.25), 0px -1px 0px rgba(0,0,0,0.5); 
+                letter-spacing: 0.5px;
+                margin: 0; 
+                padding: 0; 
+                width: 100%; 
+                text-align: center; 
+                display: block; 
+                direction: ltr; /* يمنع انعكاس الأرقام بسبب اللغة العربية */
             `;
 
             if (!document.getElementById('bear-off-top')) {
@@ -1063,7 +1081,7 @@ export const ui = {
                         <div id="out-white" style="position:relative; display:flex; flex-direction:row; align-items:center; width:100%; height:100%;"></div>
                     </div>
                     <div style="${carvedWoodBlockStyle}">
-                        <span id="out-white-count" style="font-size:11px; font-weight:900; color:#210d02; text-shadow: 0px 1px 0px rgba(255,255,255,0.25), 0px -1px 0px rgba(0,0,0,0.5); letter-spacing:0.5px;">0/15</span>
+                        <span id="out-white-count" style="${countTextStyle}">0/15</span>
                     </div>
                 `;
                 board.appendChild(boTop);
@@ -1077,7 +1095,7 @@ export const ui = {
                         <div id="out-black" style="position:relative; display:flex; flex-direction:row; align-items:center; width:100%; height:100%;"></div>
                     </div>
                     <div style="${carvedWoodBlockStyle}">
-                        <span id="out-black-count" style="font-size:11px; font-weight:900; color:#210d02; text-shadow: 0px 1px 0px rgba(255,255,255,0.25), 0px -1px 0px rgba(0,0,0,0.5); letter-spacing:0.5px;">0/15</span>
+                        <span id="out-black-count" style="${countTextStyle}">0/15</span>
                     </div>
                 `;
                 board.appendChild(boBottom);
