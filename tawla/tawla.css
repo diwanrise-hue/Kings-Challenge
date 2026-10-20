@@ -2323,8 +2323,8 @@ body[data-player-color="black"] #bar-white { order: 2 !important; justify-conten
 /* =========================================================
    ✨ إضاءة إطار إخراج الأحجار عند إتاحة الإخراج (Bearing Off)
    ========================================================= */
-/* ✨ إضاءة الحفرة الزرقاء الداخلية عند إتاحة الإخراج (Bearing Off) */
-.bear-off-tray.highlight > div {
+/* ✨ إضاءة الحفرة الزرقاء الداخلية فقط عند إتاحة الإخراج (Bearing Off) */
+.bear-off-tray.highlight > div:first-child {
     box-shadow: 
         inset 0px 6px 8px rgba(0,0,0,0.95), 
         inset 0px -2px 4px rgba(0,0,0,0.7),
