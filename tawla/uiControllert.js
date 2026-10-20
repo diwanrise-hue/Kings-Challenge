@@ -1000,11 +1000,11 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-                        // 🌟 الإطار الخشبي الخارجي 🌟
+                        // 🌟 الإطار الخشبي الخارجي (تم ضبط العرض والمكان ليطابق الطرف الأيمن للساحة تماماً) 🌟
             const trayBaseStyle = `
                 position: absolute;
-                right: 7%;
-                width: 40.5%;
+                right: 7.9%;      /* 🌟 محاذاة دقيقة مع بداية الطرف الأيمن 🌟 */
+                width: 37.6%;     /* 🌟 نفس عرض الطرف الأيمن للساحة بالضبط 🌟 */
                 height: 32px;
                 background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%);
                 border: 1px solid #3d1e03;
@@ -1013,8 +1013,8 @@ export const ui = {
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
-                padding: 3px; /* سمك الإطار */
-                gap: 4px; /* مسافة بين الحفرة الزرقاء والمربع الخشبي للرقم */
+                padding: 3px; 
+                gap: 4px; 
                 cursor: pointer;
                 box-shadow: 0px 2px 5px rgba(0,0,0,0.5);
                 z-index: 25;
@@ -1026,7 +1026,7 @@ export const ui = {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                flex: 1; /* يأخذ باقي المساحة */
+                flex: 1; 
                 height: 100%;
                 background: linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%);
                 border-radius: 2px;
@@ -1045,18 +1045,18 @@ export const ui = {
                 align-items: center;
                 justify-content: center;
                 height: 100%;
-                min-width: 38px; /* تم زيادة العرض قليلاً لراحة النص */
+                min-width: 38px; 
                 margin: 0;
                 padding: 0;
-                background: linear-gradient(to bottom, #944b1c 0%, #7a3a12 100%); /* خشب صافي */
+                background: linear-gradient(to bottom, #944b1c 0%, #7a3a12 100%); 
                 border-radius: 2px;
-                border: 1px solid #4a2107; /* حواف غامقة لقصة الخشب */
-                box-shadow: inset 0 1px 1px rgba(255,255,255,0.15); /* لمعة زاوية الخشب */
+                border: 1px solid #4a2107; 
+                box-shadow: inset 0 1px 1px rgba(255,255,255,0.15); 
                 flex-shrink: 0;
                 box-sizing: border-box;
             `;
 
-            // 🌟 تنسيق الرقم المحفور (إجبار التوسيط 100%) 🌟
+            // 🌟 تنسيق الرقم المحفور 🌟
             const countTextStyle = `
                 font-size: 11px; 
                 font-weight: 900; 
@@ -1068,7 +1068,7 @@ export const ui = {
                 width: 100%; 
                 text-align: center; 
                 display: block; 
-                direction: ltr; /* يمنع انعكاس الأرقام بسبب اللغة العربية */
+                direction: ltr; 
             `;
 
             if (!document.getElementById('bear-off-top')) {
