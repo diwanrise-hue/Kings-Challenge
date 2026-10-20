@@ -1000,47 +1000,55 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-            // 🌟 أشرطة إخراج الأحجار الملكية الجديدة (فوق وتحت الربع الأيمن مباشرة) 🌟
+                        // 🌟 تصميم الحفرة الخشبية الغائرة (Carved Hole Design) 🌟
             const trayBaseStyle = `
                 position: absolute;
-                right: 6.7%;
-                width: 41.2%;
-                height: 26px;
-                background: linear-gradient(180deg, #140a05 0%, #26130a 50%, #0f0703 100%);
-                border: 1.5px solid rgba(212, 163, 89, 0.55);
-                border-radius: 9px;
+                right: 7%;
+                width: 40.5%;
+                height: 28px;
+                background: #080402; /* لون قاع الحفرة المظلم */
+                background-image: radial-gradient(circle at 50% 0%, #150a05 0%, #050201 100%);
+                border-radius: 3px; /* زوايا شبه حادة لتبدو كقص خشبي حقيقي */
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
-                padding: 0 6px;
+                padding: 0 4px;
                 cursor: pointer;
-                box-shadow: inset 0 3px 7px rgba(0,0,0,0.95), 0 3px 8px rgba(0,0,0,0.6);
+                /* السحر هنا: ظلال داخلية عميقة جداً لإنشاء جدران الحفرة، ولمعة بيضاء خفيفة في الأسفل لتبين حافة القص */
+                box-shadow: 
+                    inset 0px 8px 10px rgba(0,0,0,0.95), 
+                    inset 0px -2px 6px rgba(0,0,0,0.9),
+                    inset 4px 0px 8px rgba(0,0,0,0.9),
+                    inset -4px 0px 8px rgba(0,0,0,0.9),
+                    0px 1px 1px rgba(255,255,255,0.15);
                 z-index: 25;
                 box-sizing: border-box;
+                border: none; /* إزالة أي حدود خارجية */
             `;
 
             if (!document.getElementById('bear-off-top')) {
                 let boTop = document.createElement('div');
                 boTop.id = 'bear-off-top';
                 boTop.className = 'bear-off-tray';
-                boTop.style.cssText = trayBaseStyle + "top: -30px;";
+                boTop.style.cssText = trayBaseStyle + "top: -26px;"; // ضبط الموقع ليتداخل مع الخشب
                 boTop.innerHTML = `
                     <div id="out-white" style="display:flex; flex-direction:row; align-items:center; flex:1; height:100%; overflow:hidden; padding-right:2px;"></div>
-                    <span id="out-white-count" style="font-size:10px; font-weight:800; color:#e6c27a; background:rgba(0,0,0,0.65); border:1px solid rgba(212,163,89,0.35); border-radius:6px; padding:1px 5px; margin-right:4px; flex-shrink:0;">0/15</span>
+                    <span id="out-white-count" style="font-size:11px; font-weight:900; color:rgba(255,255,255,0.4); text-shadow: 0 1px 1px rgba(255,255,255,0.1), 0 -1px 1px rgba(0,0,0,0.9); margin-right:4px; flex-shrink:0;">0/15</span>
                 `;
                 board.appendChild(boTop);
 
                 let boBottom = document.createElement('div');
                 boBottom.id = 'bear-off-bottom';
                 boBottom.className = 'bear-off-tray';
-                boBottom.style.cssText = trayBaseStyle + "bottom: -30px;";
+                boBottom.style.cssText = trayBaseStyle + "bottom: -26px;"; // ضبط الموقع ليتداخل مع الخشب
                 boBottom.innerHTML = `
                     <div id="out-black" style="display:flex; flex-direction:row; align-items:center; flex:1; height:100%; overflow:hidden; padding-right:2px;"></div>
-                    <span id="out-black-count" style="font-size:10px; font-weight:800; color:#e6c27a; background:rgba(0,0,0,0.65); border:1px solid rgba(212,163,89,0.35); border-radius:6px; padding:1px 5px; margin-right:4px; flex-shrink:0;">0/15</span>
+                    <span id="out-black-count" style="font-size:11px; font-weight:900; color:rgba(255,255,255,0.4); text-shadow: 0 1px 1px rgba(255,255,255,0.1), 0 -1px 1px rgba(0,0,0,0.9); margin-right:4px; flex-shrink:0;">0/15</span>
                 `;
                 board.appendChild(boBottom);
             }
+
         }
 
         if (!gameState.virtualBoard || !gameState.virtualBoard.points) return;
