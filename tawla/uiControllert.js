@@ -1075,7 +1075,7 @@ export const ui = {
                 boTop.className = 'bear-off-tray';
                 
                 // 👇 هنا تتحكم في الإطار العلوي (الخصم) فقط 👇
-                boTop.style.cssText = trayBaseCommonStyle + "width: 42.6%; right: 7.9%; top: -32px;";
+                boTop.style.cssText = trayBaseCommonStyle + "width: 52.6%; right: 7.9%; top: -32px;";
                 
                 boTop.innerHTML = `
                     <div style="${innerHoleStyle}">
