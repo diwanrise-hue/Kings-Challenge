@@ -1000,55 +1000,69 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-                        // 🌟 تصميم الحفرة الخشبية الغائرة (Carved Hole Design) 🌟
+          // 🌟 تصميم إطار خشبي بداخله حفرة مخملية زرقاء (Wooden Frame & Blue Velvet Hole) 🌟
             const trayBaseStyle = `
                 position: absolute;
                 right: 7%;
                 width: 40.5%;
-                height: 28px;
-                background: #080402; /* لون قاع الحفرة المظلم */
-                background-image: radial-gradient(circle at 50% 0%, #150a05 0%, #050201 100%);
-                border-radius: 3px; /* زوايا شبه حادة لتبدو كقص خشبي حقيقي */
+                height: 32px; /* تم تكبير الارتفاع قليلاً لاستيعاب الإطار الخشبي */
+                background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%); /* لون الإطار الخشبي */
+                border: 1px solid #3d1e03; /* حد خشبي غامق خارجي */
+                border-radius: 4px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center; /* توسيط الحفرة الداخلية */
+                padding: 4px; /* سُمك الإطار الخشبي */
+                cursor: pointer;
+                box-shadow: 0px 2px 5px rgba(0,0,0,0.5); /* ظل للإطار الخشبي الخارجي */
+                z-index: 25;
+                box-sizing: border-box;
+            `;
+
+            // 🌟 تصميم الحفرة الزرقاء المظلمة من الداخل 🌟
+            const innerHoleStyle = `
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%); /* قماش مخملي أزرق */
+                border-radius: 2px;
                 padding: 0 4px;
-                cursor: pointer;
-                /* السحر هنا: ظلال داخلية عميقة جداً لإنشاء جدران الحفرة، ولمعة بيضاء خفيفة في الأسفل لتبين حافة القص */
                 box-shadow: 
-                    inset 0px 8px 10px rgba(0,0,0,0.95), 
-                    inset 0px -2px 6px rgba(0,0,0,0.9),
-                    inset 4px 0px 8px rgba(0,0,0,0.9),
-                    inset -4px 0px 8px rgba(0,0,0,0.9),
-                    0px 1px 1px rgba(255,255,255,0.15);
-                z-index: 25;
-                box-sizing: border-box;
-                border: none; /* إزالة أي حدود خارجية */
+                    inset 0px 6px 8px rgba(0,0,0,0.95),   /* ظل أسود قوي من الأعلى */
+                    inset 0px -2px 4px rgba(0,0,0,0.7),   /* ظل سفلي */
+                    inset 4px 0px 6px rgba(0,0,0,0.9),    /* ظل يسار */
+                    inset -4px 0px 6px rgba(0,0,0,0.9);   /* ظل يمين */
             `;
 
             if (!document.getElementById('bear-off-top')) {
                 let boTop = document.createElement('div');
                 boTop.id = 'bear-off-top';
                 boTop.className = 'bear-off-tray';
-                boTop.style.cssText = trayBaseStyle + "top: -26px;"; // ضبط الموقع ليتداخل مع الخشب
+                boTop.style.cssText = trayBaseStyle + "top: -32px;";
                 boTop.innerHTML = `
-                    <div id="out-white" style="display:flex; flex-direction:row; align-items:center; flex:1; height:100%; overflow:hidden; padding-right:2px;"></div>
-                    <span id="out-white-count" style="font-size:11px; font-weight:900; color:rgba(255,255,255,0.4); text-shadow: 0 1px 1px rgba(255,255,255,0.1), 0 -1px 1px rgba(0,0,0,0.9); margin-right:4px; flex-shrink:0;">0/15</span>
+                    <div style="${innerHoleStyle}">
+                        <div id="out-white" style="display:flex; flex-direction:row; align-items:center; flex:1; height:100%; overflow:hidden; padding-right:2px;"></div>
+                        <span id="out-white-count" style="font-size:11px; font-weight:900; color:rgba(255,255,255,0.6); text-shadow: 0 1px 1px rgba(0,0,0,0.9); margin-right:4px; flex-shrink:0;">0/15</span>
+                    </div>
                 `;
                 board.appendChild(boTop);
 
                 let boBottom = document.createElement('div');
                 boBottom.id = 'bear-off-bottom';
                 boBottom.className = 'bear-off-tray';
-                boBottom.style.cssText = trayBaseStyle + "bottom: -26px;"; // ضبط الموقع ليتداخل مع الخشب
+                boBottom.style.cssText = trayBaseStyle + "bottom: -32px;";
                 boBottom.innerHTML = `
-                    <div id="out-black" style="display:flex; flex-direction:row; align-items:center; flex:1; height:100%; overflow:hidden; padding-right:2px;"></div>
-                    <span id="out-black-count" style="font-size:11px; font-weight:900; color:rgba(255,255,255,0.4); text-shadow: 0 1px 1px rgba(255,255,255,0.1), 0 -1px 1px rgba(0,0,0,0.9); margin-right:4px; flex-shrink:0;">0/15</span>
+                    <div style="${innerHoleStyle}">
+                        <div id="out-black" style="display:flex; flex-direction:row; align-items:center; flex:1; height:100%; overflow:hidden; padding-right:2px;"></div>
+                        <span id="out-black-count" style="font-size:11px; font-weight:900; color:rgba(255,255,255,0.6); text-shadow: 0 1px 1px rgba(0,0,0,0.9); margin-right:4px; flex-shrink:0;">0/15</span>
+                    </div>
                 `;
                 board.appendChild(boBottom);
             }
-
         }
 
         if (!gameState.virtualBoard || !gameState.virtualBoard.points) return;
