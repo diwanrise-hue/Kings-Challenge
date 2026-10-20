@@ -1000,11 +1000,9 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-                        // 🌟 الإطار الخشبي الخارجي (تم ضبط العرض والمكان ليطابق الطرف الأيمن للساحة تماماً) 🌟
-            const trayBaseStyle = `
+                        // 🌟 الإطار الخشبي الخارجي المشترك (تم إزالة العرض والمكان منه لنتمكن من فصلهما) 🌟
+            const trayBaseCommonStyle = `
                 position: absolute;
-                right: 7.9%;      /* 🌟 محاذاة دقيقة مع بداية الطرف الأيمن 🌟 */
-                width: 37.6%;     /* 🌟 نفس عرض الطرف الأيمن للساحة بالضبط 🌟 */
                 height: 32px;
                 background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%);
                 border: 1px solid #3d1e03;
@@ -1075,7 +1073,10 @@ export const ui = {
                 let boTop = document.createElement('div');
                 boTop.id = 'bear-off-top';
                 boTop.className = 'bear-off-tray';
-                boTop.style.cssText = trayBaseStyle + "top: -32px;";
+                
+                // 👇 هنا تتحكم في الإطار العلوي (الخصم) فقط 👇
+                boTop.style.cssText = trayBaseCommonStyle + "width: 42.6%; right: 7.9%; top: -32px;";
+                
                 boTop.innerHTML = `
                     <div style="${innerHoleStyle}">
                         <div id="out-white" style="position:relative; display:flex; flex-direction:row; align-items:center; width:100%; height:100%;"></div>
@@ -1089,7 +1090,10 @@ export const ui = {
                 let boBottom = document.createElement('div');
                 boBottom.id = 'bear-off-bottom';
                 boBottom.className = 'bear-off-tray';
-                boBottom.style.cssText = trayBaseStyle + "bottom: -32px;";
+                
+                // 👇 وهنا تتحكم في الإطار السفلي (أنت) فقط 👇
+                boBottom.style.cssText = trayBaseCommonStyle + "width: 37.6%; right: 7.9%; bottom: -32px;";
+                
                 boBottom.innerHTML = `
                     <div style="${innerHoleStyle}">
                         <div id="out-black" style="position:relative; display:flex; flex-direction:row; align-items:center; width:100%; height:100%;"></div>
