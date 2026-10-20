@@ -1000,42 +1000,57 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-          // 🌟 تصميم إطار خشبي بداخله حفرة مخملية زرقاء (Wooden Frame & Blue Velvet Hole) 🌟
+                        // 🌟 الإطار الخشبي الخارجي 🌟
             const trayBaseStyle = `
                 position: absolute;
                 right: 7%;
                 width: 40.5%;
-                height: 32px; /* تم تكبير الارتفاع قليلاً لاستيعاب الإطار الخشبي */
-                background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%); /* لون الإطار الخشبي */
-                border: 1px solid #3d1e03; /* حد خشبي غامق خارجي */
+                height: 32px;
+                background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%);
+                border: 1px solid #3d1e03;
                 border-radius: 4px;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                justify-content: center; /* توسيط الحفرة الداخلية */
-                padding: 4px; /* سُمك الإطار الخشبي */
+                justify-content: space-between;
+                padding: 3px; /* سمك الإطار */
+                gap: 4px; /* مسافة بين الحفرة الزرقاء والمربع الخشبي للرقم */
                 cursor: pointer;
-                box-shadow: 0px 2px 5px rgba(0,0,0,0.5); /* ظل للإطار الخشبي الخارجي */
+                box-shadow: 0px 2px 5px rgba(0,0,0,0.5);
                 z-index: 25;
                 box-sizing: border-box;
             `;
 
-            // 🌟 تصميم الحفرة الزرقاء المظلمة من الداخل 🌟
+            // 🌟 الحفرة الزرقاء المخملية للأحجار 🌟
             const innerHoleStyle = `
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                justify-content: space-between;
-                width: 100%;
+                flex: 1; /* يأخذ باقي المساحة */
                 height: 100%;
-                background: linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%); /* قماش مخملي أزرق */
+                background: linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%);
                 border-radius: 2px;
                 padding: 0 4px;
                 box-shadow: 
-                    inset 0px 6px 8px rgba(0,0,0,0.95),   /* ظل أسود قوي من الأعلى */
-                    inset 0px -2px 4px rgba(0,0,0,0.7),   /* ظل سفلي */
-                    inset 4px 0px 6px rgba(0,0,0,0.9),    /* ظل يسار */
-                    inset -4px 0px 6px rgba(0,0,0,0.9);   /* ظل يمين */
+                    inset 0px 6px 8px rgba(0,0,0,0.95), 
+                    inset 0px -2px 4px rgba(0,0,0,0.7),
+                    inset 4px 0px 6px rgba(0,0,0,0.9),
+                    inset -4px 0px 6px rgba(0,0,0,0.9);
+                overflow: hidden;
+            `;
+
+            // 🌟 المربع الخشبي الذي يحتوي على الرقم المحفور 🌟
+            const carvedWoodBlockStyle = `
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                min-width: 34px;
+                background: linear-gradient(to bottom, #944b1c 0%, #7a3a12 100%); /* خشب صافي */
+                border-radius: 2px;
+                border: 1px solid #4a2107; /* حواف غامقة لقصة الخشب */
+                box-shadow: inset 0 1px 1px rgba(255,255,255,0.15); /* لمعة زاوية الخشب */
+                flex-shrink: 0;
             `;
 
             if (!document.getElementById('bear-off-top')) {
@@ -1045,8 +1060,10 @@ export const ui = {
                 boTop.style.cssText = trayBaseStyle + "top: -32px;";
                 boTop.innerHTML = `
                     <div style="${innerHoleStyle}">
-                        <div id="out-white" style="display:flex; flex-direction:row; align-items:center; flex:1; height:100%; overflow:hidden; padding-right:2px;"></div>
-                        <span id="out-white-count" style="font-size:11px; font-weight:900; color:rgba(255,255,255,0.6); text-shadow: 0 1px 1px rgba(0,0,0,0.9); margin-right:4px; flex-shrink:0;">0/15</span>
+                        <div id="out-white" style="position:relative; display:flex; flex-direction:row; align-items:center; width:100%; height:100%;"></div>
+                    </div>
+                    <div style="${carvedWoodBlockStyle}">
+                        <span id="out-white-count" style="font-size:11px; font-weight:900; color:#210d02; text-shadow: 0px 1px 0px rgba(255,255,255,0.25), 0px -1px 0px rgba(0,0,0,0.5); letter-spacing:0.5px;">0/15</span>
                     </div>
                 `;
                 board.appendChild(boTop);
@@ -1057,12 +1074,15 @@ export const ui = {
                 boBottom.style.cssText = trayBaseStyle + "bottom: -32px;";
                 boBottom.innerHTML = `
                     <div style="${innerHoleStyle}">
-                        <div id="out-black" style="display:flex; flex-direction:row; align-items:center; flex:1; height:100%; overflow:hidden; padding-right:2px;"></div>
-                        <span id="out-black-count" style="font-size:11px; font-weight:900; color:rgba(255,255,255,0.6); text-shadow: 0 1px 1px rgba(0,0,0,0.9); margin-right:4px; flex-shrink:0;">0/15</span>
+                        <div id="out-black" style="position:relative; display:flex; flex-direction:row; align-items:center; width:100%; height:100%;"></div>
+                    </div>
+                    <div style="${carvedWoodBlockStyle}">
+                        <span id="out-black-count" style="font-size:11px; font-weight:900; color:#210d02; text-shadow: 0px 1px 0px rgba(255,255,255,0.25), 0px -1px 0px rgba(0,0,0,0.5); letter-spacing:0.5px;">0/15</span>
                     </div>
                 `;
                 board.appendChild(boBottom);
             }
+
         }
 
         if (!gameState.virtualBoard || !gameState.virtualBoard.points) return;
