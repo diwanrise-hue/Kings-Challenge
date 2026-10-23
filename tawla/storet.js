@@ -3,7 +3,8 @@
  * النسخة المتوافقة بالكامل مع الساحة الملكية (Ph.webp) والتصميم الـ 3D
  * 🛡️ مُحدّث أمنياً: درع حماية ضد ضياع المنتجات (Ghost Sync Fix)
  * 🌟 مُحدّث: نظام الإحداثيات الديناميكية لتوافق الأرباع وحجم الأحجار مع كل ساحة
- * 🎨 مُحدّث: دعم الألوان الديناميكية لإطار الإخراج والحفرة المخملية ولون النص المحفور حسب الساحة
+ * 🎨 مُحدّث: دعم الألوان الديناميكية لإطار الإخراج والحفرة المخملية
+ * 🗑️ مُحدّث: تمت إزالة نظام "أشرطة التقييم" (Score Bars) لتبسيط الواجهة
  */
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -15,11 +16,10 @@ export const STORE_ITEMS = {
     // الساحات (الخلفيات)
     // ===================================
     
-    // 1. الساحة الافتراضية (Ph.webp) - خشب كلاسيكي ومخمل عنابي
+    // 1. الساحة الافتراضية (Ph.webp)
     'bg_wood': { 
         type: 'bg', isDefault: true, nameAr: 'الطاولة الملكية', nameEn: 'Royal Board',
         isImage: true, imagePath: 'storefile/bgs/Ph.webp', 
-        linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%)', 
         trayHoleBg: 'linear-gradient(to bottom, #4a0d0d 0%, #6b1414 40%, #2a0505 100%)',
         trayTextColor: '#210d02',
@@ -40,22 +40,14 @@ export const STORE_ITEMS = {
         `
     },
 
-    // 2. الساحة الجديدة الأولى (1.webp) - معدن باهت وحفرة بيضاء باهتة
+    // 2. الساحة الجديدة الأولى (1.webp)
     'bg_new_1': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
-        linkedScore: 'score_default',
-        
-        // 🌟 الإطار: رمادي فحمي باهت (مطفي) ليطابق حافة الساحة تماماً 🌟
         trayFrameBg: 'linear-gradient(to bottom, #4a4d52 0%, #35383c 50%, #222426 100%)',
-        
-        // 🌟 الحفرة: أبيض باهت (رمادي فاتح جداً) ليتناسب مع التصميم 🌟
         trayHoleBg: 'linear-gradient(to bottom, #d0d3d4 0%, #e5e7e9 40%, #b2babb 100%)',
-        
-        // النص: أبيض ساطع مع ظل غامق ليظهر بوضوح على المربع الرمادي
         trayTextColor: '#ffffff',
         trayTextShadow: '0px 1px 1px rgba(255,255,255,0.15), 0px -1px 2px rgba(0,0,0,0.9)',
-        
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -72,11 +64,10 @@ export const STORE_ITEMS = {
         `
     },
 
-    // 3. الساحة الجديدة الثانية (2.webp) - رمادي حديدي وأسود
+    // 3. الساحة الجديدة الثانية (2.webp)
     'bg_new_2': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة المحاربين', nameEn: 'Warriors Board',
         isImage: true, imagePath: 'storefile/bgs/2.webp', 
-        linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #2c2c2c 0%, #404040 50%, #1a1a1a 100%)', 
         trayHoleBg: 'linear-gradient(to bottom, #111111 0%, #1f1f1f 40%, #050505 100%)',
         trayTextColor: '#e0e0e0',
@@ -97,11 +88,10 @@ export const STORE_ITEMS = {
         `
     },
 
-     // 4. الساحة الجديدة الثالثة (3.webp) - ذهبي معتق
+     // 4. الساحة الجديدة الثالثة (3.webp)
     'bg_new_3': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأسطورة', nameEn: 'Legend Board',
         isImage: true, imagePath: 'storefile/bgs/3.webp', 
-        linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #8a6523, #4a340e)', 
         trayHoleBg: 'linear-gradient(to bottom, #1a1a1a, #050505)',
         trayTextColor: '#fff3cd',
@@ -122,11 +112,10 @@ export const STORE_ITEMS = {
         `
     },
 
-     // 5. الساحة الجديدة الرابعة (4.webp) - ماهوجني ومخمل عنابي
+     // 5. الساحة الجديدة الرابعة (4.webp)
     'bg_new_4': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'الساحة المخملية', nameEn: 'Velvet Board',
         isImage: true, imagePath: 'storefile/bgs/4.webp', 
-        linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #2b1111, #140505)', 
         trayHoleBg: 'linear-gradient(to bottom, #590d22, #2d0611)',
         trayTextColor: '#ffcce0',
@@ -147,11 +136,10 @@ export const STORE_ITEMS = {
         `
     },
 
-     // 6. الساحة الجديدة الخامسة (5.webp) - خشب زمردي
+     // 6. الساحة الجديدة الخامسة (5.webp)
     'bg_new_5': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة التحدي', nameEn: 'Challenge Board',
         isImage: true, imagePath: 'storefile/bgs/5.webp', 
-        linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #112b1c, #06140d)', 
         trayHoleBg: 'linear-gradient(to bottom, #002200, #001100)',
         trayTextColor: '#ccffcc',
@@ -172,11 +160,10 @@ export const STORE_ITEMS = {
         `
     },
 
-     // 7. الساحة الجديدة السادسة (6.webp) - تيتانيوم وكحلي
+     // 7. الساحة الجديدة السادسة (6.webp)
     'bg_new_6': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة النخبة', nameEn: 'Elite Board',
         isImage: true, imagePath: 'storefile/bgs/6.webp', 
-        linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #5b6467, #2d3133)', 
         trayHoleBg: 'linear-gradient(to bottom, #0d1b2a, #040914)',
         trayTextColor: '#e0f7fa',
@@ -214,13 +201,6 @@ export const STORE_ITEMS = {
 
     'pc_original': { 
         type: 'pc', isDefault: true, nameAr: 'النمط الأصلي', nameEn: 'Original', icon: '⚪' 
-    },
-
-    'score_default': { 
-        type: 'score', isDefault: true, nameAr: 'الشريط الافتراضي', nameEn: 'Default Bar', 
-        scoreBg1: 'linear-gradient(to bottom, #757b8a, #585d6b)', 
-        scoreBg2: 'linear-gradient(to bottom, #99a0b3, #7a8194)',
-        scoreBorder1: 'none', scoreBorder2: 'none' 
     }
 };
 
@@ -257,7 +237,7 @@ window.renderGiftsInBag = function() {
             giftCard.className = 'theme-grid-item';
             giftCard.innerHTML = `
                 <div style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border-radius: 8px;">
-                    <img src="${gift.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain; box-shadow(0 2px 4px rgba(0,0,0,0.6));" alt="${gift.nameAr}">
+                    <img src="${gift.imagePath}" style="max-width: 85%; max-height: 85%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));" alt="${gift.nameAr}">
                 </div>
                 <span class="theme-grid-title" style="font-size: 11px; margin-top: 4px;">${gift.nameAr}</span>
                 <span style="color: #30d158; font-size: 11px; font-weight: bold;">العدد: x${count}</span>
@@ -333,13 +313,11 @@ export const storeManager = {
         let styleEl = document.getElementById('dynamic-board-css');
         if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-board-css'; document.head.appendChild(styleEl); }
 
-        // 🌟 استخراج ألوان إطار الإخراج والخط من الساحة المختارة 🌟
         let trayFrame = item.trayFrameBg || 'linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%)';
         let trayHole = item.trayHoleBg || 'linear-gradient(to bottom, #4a0d0d 0%, #6b1414 40%, #2a0505 100%)';
         let trayText = item.trayTextColor || '#210d02';
         let trayShadow = item.trayTextShadow || '0px 1px 0px rgba(255,255,255,0.25), 0px -1px 0px rgba(0,0,0,0.5)';
         
-        // 🌟 حقن المتغيرات في جذر المستند لتتغير الألوان فوراً وتنعكس على رقم العداد 🌟
         let rootVars = `
             :root {
                 --tray-frame-bg: ${trayFrame} !important;
@@ -399,18 +377,7 @@ export const storeManager = {
         }
     },
 
-    applyScoreThemeCSS(scoreKey) {
-        const item = STORE_ITEMS[scoreKey];
-        const root = document.documentElement;
-        if (item && item.type === 'score') {
-            root.style.setProperty('--my-score-bg', item.scoreBg1 || 'rgba(30, 32, 40, 0.6)');
-            root.style.setProperty('--opp-score-bg', item.scoreBg2 || 'rgba(30, 32, 40, 0.6)');
-            root.style.setProperty('--my-score-border', item.scoreBorder1 || 'none');
-            root.style.setProperty('--opp-score-border', item.scoreBorder2 || 'none');
-        }
-    },
-
-        getProfile() {
+    getProfile() {
         let profile = null;
         let localStr = localStorage.getItem('hub_user_profile');
         
@@ -420,27 +387,24 @@ export const storeManager = {
 
         if (profile) {
             if (window.gameState) {
-                // دمج البيانات مع حماية المصفوفات من التلف
                 window.gameState.userProfile = { ...(window.gameState.userProfile || {}), ...profile };
                 profile = window.gameState.userProfile;
             }
 
-            // 🌟 تعديل هنا: التأكد من دمج المشتريات من المسارات المحتملة للطاولة
             let allPurchased = [];
             if (Array.isArray(profile.purchasedItems)) allPurchased = allPurchased.concat(profile.purchasedItems);
             if (Array.isArray(profile.tawlaPurchasedItems)) allPurchased = allPurchased.concat(profile.tawlaPurchasedItems);
-            profile.purchasedItems = [...new Set(allPurchased)]; // إزالة التكرارات
+            profile.purchasedItems = [...new Set(allPurchased)]; 
 
             if (!Array.isArray(profile.purchasedItems)) profile.purchasedItems = [];
             if (!profile.inventory || typeof profile.inventory !== 'object') profile.inventory = {};
             if (!profile.equippedBg || !STORE_ITEMS[profile.equippedBg]) profile.equippedBg = 'bg_wood';
             if (!profile.equippedFr || !STORE_ITEMS[profile.equippedFr]) profile.equippedFr = 'fr_classic';
             if (!profile.equippedPc || !STORE_ITEMS[profile.equippedPc]) profile.equippedPc = 'pc_original';
-            if (!profile.equippedScore || !STORE_ITEMS[profile.equippedScore]) profile.equippedScore = 'score_default';
 
             return profile;
         }
-        return { purchasedItems: [], inventory: {}, equippedPc: 'pc_original', equippedBg: 'bg_wood', equippedFr: 'fr_classic', equippedScore: 'score_default' };
+        return { purchasedItems: [], inventory: {}, equippedPc: 'pc_original', equippedBg: 'bg_wood', equippedFr: 'fr_classic' };
     },
 
     buyItem(itemId, itemType = 'item') {
@@ -486,10 +450,9 @@ export const storeManager = {
         if (window['socket'] && window['socket'].connected) { 
             window['socket'].emit('requestEquip', { guestId: profile.id, userId: profile.id, itemId: itemId, itemType: item ? item.type : 'pc' }); 
             if (item) {
-                if (item.type === 'bg') { profile.equippedBg = itemId; if(item.linkedScore) profile.equippedScore = item.linkedScore; }
+                if (item.type === 'bg') profile.equippedBg = itemId;
                 else if (item.type === 'fr') profile.equippedFr = itemId;
                 else if (item.type === 'pc') profile.equippedPc = itemId;
-                else if (item.type === 'score') profile.equippedScore = itemId;
                 
                 if (window.gameState) window.gameState.userProfile = profile;
                 if (window.applyTheme) window.applyTheme(profile);
@@ -497,10 +460,9 @@ export const storeManager = {
             }
         } else {
             if (!item) return;
-            if (item.type === 'bg') { profile.equippedBg = itemId; if (item.linkedScore) { profile.equippedScore = item.linkedScore; } } 
-            else if (item.type === 'fr') { profile.equippedFr = itemId; } 
-            else if (item.type === 'pc') { profile.equippedPc = itemId; }
-            else if (item.type === 'score') { profile.equippedScore = itemId; }
+            if (item.type === 'bg') profile.equippedBg = itemId; 
+            else if (item.type === 'fr') profile.equippedFr = itemId;
+            else if (item.type === 'pc') profile.equippedPc = itemId;
             
             if (window.gameState) window.gameState.userProfile = profile; 
             if (window.applyTheme) window.applyTheme(profile);
@@ -540,7 +502,6 @@ export const storeManager = {
         sortedKeys.forEach(key => {
             const item = STORE_ITEMS[key];
             const targetSection = item.type; 
-            if (targetSection === 'score') return;
             
             const safePurchased = Array.isArray(profile.purchasedItems) ? profile.purchasedItems : [];
             const isPurchased = item.isDefault || safePurchased.includes(key);
@@ -596,7 +557,6 @@ export const storeManager = {
             } else {
                 const storeCard = document.createElement('div');
                 storeCard.className = `store-item-card ${legendaryClassCard}`; storeCard.style.position = 'relative'; 
-                if (item.hasPurpleBorder) { storeCard.style.border = '1px solid rgba(168, 85, 247, 0.6)'; storeCard.style.boxShadow = '0 0 12px rgba(168, 85, 247, 0.15), inset 0 0 6px rgba(0,0,0,0.9)'; }
 
                 storeCard.innerHTML = `${legendaryTag} <div class="${legendaryClassText}" style="color: white; font-weight: 600; font-size: 14px; text-align: center; margin-top: ${item.isLegendary ? '10px' : '0'}; line-height: 1.2;">${name}</div> ${visualHtml} <div style="color: #f5a623; font-size: 13px; font-weight: bold; margin-bottom: 2px; margin-top: auto;"><img src="../Photo/coin.webp" class="app-coin-icon"> ${item.cost}</div>`;
                 
@@ -636,7 +596,6 @@ export const storeManager = {
                 if (!window.__STORE_SOCKET_INIT) {
                     window.__STORE_SOCKET_INIT = true;
                     
-                         // 🛡️ درع الحماية: معالجة بيانات السيرفر بدقة لتجنب مسح العناصر
                     window['socket'].on('profileUpdated', (updatedProfile) => {
                         if (updatedProfile && window.gameState) {
                             let oldProfile = window.gameState.userProfile || {};
@@ -645,7 +604,6 @@ export const storeManager = {
 
                             window.gameState.userProfile = { ...oldProfile, ...updatedProfile };
 
-                            // 🌟 تعديل هنا: دمج المشتريات بشكل آمن من السيرفر
                             let newPurchased = [];
                             if (Array.isArray(updatedProfile.purchasedItems)) newPurchased = newPurchased.concat(updatedProfile.purchasedItems);
                             if (Array.isArray(updatedProfile.tawlaPurchasedItems)) newPurchased = newPurchased.concat(updatedProfile.tawlaPurchasedItems);
@@ -653,7 +611,7 @@ export const storeManager = {
                             oldPurchased.forEach(item => {
                                 if (!newPurchased.includes(item)) newPurchased.push(item);
                             });
-                            window.gameState.userProfile.purchasedItems = [...new Set(newPurchased)]; // إزالة التكرارات
+                            window.gameState.userProfile.purchasedItems = [...new Set(newPurchased)]; 
 
                             let newInventory = updatedProfile.inventory || {};
                             Object.keys(oldInventory).forEach(key => {
@@ -669,11 +627,10 @@ export const storeManager = {
                         this.renderUI();
                     });
                     
-                         window['socket'].on('purchaseFailed', (msg) => { 
+                    window['socket'].on('purchaseFailed', (msg) => { 
                         if (window.socketManager && typeof window.socketManager._showToast === 'function') window.socketManager._showToast(msg); 
                         else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
                         
-                        // 🌟 التصحيح التلقائي: إذا كان السيرفر يقول أنك تملك العنصر، قم بتحديث ذاكرة المتصفح وانقله للحقيبة فوراً!
                         if (msg && (msg.includes('تملك') || msg.includes('مسبقاً')) && window.currentPurchaseItem) {
                             let profile = this.getProfile();
                             if (!Array.isArray(profile.purchasedItems)) profile.purchasedItems = [];
@@ -681,7 +638,7 @@ export const storeManager = {
                                 profile.purchasedItems.push(window.currentPurchaseItem.id);
                                 if (window.gameState) window.gameState.userProfile = profile;
                                 localStorage.setItem('hub_user_profile', JSON.stringify(profile));
-                                this.renderUI(); // إعادة رسم الواجهة لنقل العنصر من المتجر إلى الحقيبة
+                                this.renderUI(); 
                             }
                         }
                     });
@@ -708,7 +665,7 @@ window.storeManager = storeManager;
 
 window.applyTheme = function(profile) {
     if (!profile) return;
-    if (profile.equippedBg) { storeManager.applyBoardThemeCSS(profile.equippedBg); let bgItem = STORE_ITEMS[profile.equippedBg]; if (bgItem && bgItem.linkedScore) { storeManager.applyScoreThemeCSS(bgItem.linkedScore); } else if (profile.equippedScore) { storeManager.applyScoreThemeCSS(profile.equippedScore); } } else if (profile.equippedScore) { storeManager.applyScoreThemeCSS(profile.equippedScore); }
+    if (profile.equippedBg) storeManager.applyBoardThemeCSS(profile.equippedBg);
     if (profile.equippedFr) storeManager.applyFrameThemeCSS(profile.equippedFr);
     if (profile.equippedPc) document.body.setAttribute('data-piece-style', profile.equippedPc);
 };
