@@ -1092,7 +1092,7 @@ export const ui = {
                 boBottom.className = 'bear-off-tray';
                 
                 // 👇 وهنا تتحكم في الإطار السفلي (أنت) فقط 👇
-                boBottom.style.cssText = trayBaseCommonStyle + "width: 49.6%; right: 0.4%; bottom: -32px;";
+                boBottom.style.cssText = trayBaseCommonStyle + "width: 49%; right: 0.6%; bottom: -32px;";
                 
                 boBottom.innerHTML = `
                     <div style="${innerHoleStyle}">
