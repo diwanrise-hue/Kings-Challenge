@@ -3,6 +3,7 @@
  * النسخة المتوافقة بالكامل مع الساحة الملكية (Ph.webp) والتصميم الـ 3D
  * 🛡️ مُحدّث أمنياً: درع حماية ضد ضياع المنتجات (Ghost Sync Fix)
  * 🌟 مُحدّث: نظام الإحداثيات الديناميكية لتوافق الأرباع وحجم الأحجار مع كل ساحة
+ * 🎨 مُحدّث: دعم الألوان الديناميكية لإطار الإخراج والحفرة المخملية حسب الساحة
  */
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -19,6 +20,8 @@ export const STORE_ITEMS = {
         type: 'bg', isDefault: true, nameAr: 'الطاولة الملكية', nameEn: 'Royal Board',
         isImage: true, imagePath: 'storefile/bgs/Ph.webp', 
         linkedScore: 'score_default',
+        trayFrameBg: 'linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%)', 
+        trayHoleBg: 'linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 4.5% !important; left: 7.8% !important; width: 37.6% !important; height: 37.6% !important; }
             #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; direction: ltr !important; }
@@ -40,6 +43,8 @@ export const STORE_ITEMS = {
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
+        trayFrameBg: 'linear-gradient(to bottom, #2c3e50, #1a252f)',
+        trayHoleBg: 'linear-gradient(to bottom, #5c0000, #330000)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -61,6 +66,8 @@ export const STORE_ITEMS = {
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة المحاربين', nameEn: 'Warriors Board',
         isImage: true, imagePath: 'storefile/bgs/2.webp', 
         linkedScore: 'score_default',
+        trayFrameBg: 'linear-gradient(to bottom, #434343, #1c1c1c)', 
+        trayHoleBg: 'linear-gradient(to bottom, #111111, #000000)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -82,6 +89,8 @@ export const STORE_ITEMS = {
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأسطورة', nameEn: 'Legend Board',
         isImage: true, imagePath: 'storefile/bgs/3.webp', 
         linkedScore: 'score_default',
+        trayFrameBg: 'linear-gradient(to bottom, #8a6523, #4a340e)', 
+        trayHoleBg: 'linear-gradient(to bottom, #1a1a1a, #050505)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -103,6 +112,8 @@ export const STORE_ITEMS = {
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'الساحة المخملية', nameEn: 'Velvet Board',
         isImage: true, imagePath: 'storefile/bgs/4.webp', 
         linkedScore: 'score_default',
+        trayFrameBg: 'linear-gradient(to bottom, #2b1111, #140505)', 
+        trayHoleBg: 'linear-gradient(to bottom, #590d22, #2d0611)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -124,6 +135,8 @@ export const STORE_ITEMS = {
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة التحدي', nameEn: 'Challenge Board',
         isImage: true, imagePath: 'storefile/bgs/5.webp', 
         linkedScore: 'score_default',
+        trayFrameBg: 'linear-gradient(to bottom, #112b1c, #06140d)', 
+        trayHoleBg: 'linear-gradient(to bottom, #002200, #001100)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -145,6 +158,8 @@ export const STORE_ITEMS = {
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة النخبة', nameEn: 'Elite Board',
         isImage: true, imagePath: 'storefile/bgs/6.webp', 
         linkedScore: 'score_default',
+        trayFrameBg: 'linear-gradient(to bottom, #5b6467, #2d3133)', 
+        trayHoleBg: 'linear-gradient(to bottom, #0d1b2a, #040914)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -290,15 +305,27 @@ export const storeManager = {
         document.head.appendChild(styleEl);
     },
 
-  applyBoardThemeCSS(bgKey) {
+    applyBoardThemeCSS(bgKey) {
         const item = STORE_ITEMS[bgKey];
         if (!item || item.type !== 'bg') return;
 
         let styleEl = document.getElementById('dynamic-board-css');
         if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-board-css'; document.head.appendChild(styleEl); }
 
+        // 🌟 استخراج ألوان إطار الإخراج من الساحة المختارة، وإلا استخدام الخشبي الافتراضي 🌟
+        let trayFrame = item.trayFrameBg || 'linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%)';
+        let trayHole = item.trayHoleBg || 'linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%)';
+        
+        // 🌟 حقن المتغيرات في جذر المستند لتتغير الألوان فوراً 🌟
+        let rootVars = `
+            :root {
+                --tray-frame-bg: ${trayFrame} !important;
+                --tray-hole-bg: ${trayHole} !important;
+            }
+        `;
+
         if (item.isImage) {
-            styleEl.innerHTML = `
+            styleEl.innerHTML = rootVars + `
                 #tawla-board { 
                     background-image: url('${item.imagePath}') !important; 
                     background-size: 100% 100% !important; 
@@ -306,7 +333,6 @@ export const storeManager = {
                     background-repeat: no-repeat !important;
                     background-color: transparent !important;
                     border-radius: 4px !important;
-                    /* 🌟 استبدال filter: drop-shadow بـ box-shadow لمنع التقطيع نهائياً 🌟 */
                     box-shadow: 0 16px 32px rgba(0, 0, 0, 0.9) !important;
                     filter: none !important;
                 }
@@ -315,7 +341,7 @@ export const storeManager = {
                 ${item.boardLayoutCSS || ''}
             `;
         } else if (item.cssLight && item.cssDark) {
-            styleEl.innerHTML = `
+            styleEl.innerHTML = rootVars + `
                 #tawla-board { background-image: none !important; background-color: transparent !important; filter: none !important; }
                 .cell.light { ${item.cssLight} !important; } 
                 .cell.dark { ${item.cssDark} !important; }
@@ -323,7 +349,7 @@ export const storeManager = {
             `;
         } else {
             document.documentElement.style.setProperty('--light-cell', item.light); document.documentElement.style.setProperty('--dark-cell', item.dark);
-            styleEl.innerHTML = '#tawla-board { background-image: none !important; filter: none !important; }';
+            styleEl.innerHTML = rootVars + '#tawla-board { background-image: none !important; filter: none !important; }';
         }
     },
 
