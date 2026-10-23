@@ -45,10 +45,17 @@ export const STORE_ITEMS = {
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
-        trayFrameBg: 'linear-gradient(to bottom, #2c3e50, #1a252f)',
+        
+        // 🌟 الإطار: أسود معدني فحمي مع لمعة فضية وحديد مصقول 🌟
+        trayFrameBg: 'linear-gradient(to bottom, #525961 0%, #23272b 20%, #3a4148 50%, #15181a 80%, #090a0c 100%)',
+        
+        // الحفرة: أحمر عنابي داكن
         trayHoleBg: 'linear-gradient(to bottom, #5c0000, #330000)',
-        trayTextColor: '#ecf0f1',
-        trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
+        
+        // النص: لون فضي فاتح مع ظل يوحي بأنه محفور في المعدن
+        trayTextColor: '#e8eaed',
+        trayTextShadow: '0px 1px 1px rgba(255,255,255,0.15), 0px -1px 2px rgba(0,0,0,0.9)',
+        
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
