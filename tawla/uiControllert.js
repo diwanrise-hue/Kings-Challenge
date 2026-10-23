@@ -1075,7 +1075,7 @@ export const ui = {
                 boTop.className = 'bear-off-tray';
                 
                 // 👇 هنا تتحكم في الإطار العلوي (الخصم) فقط 👇
-                boTop.style.cssText = trayBaseCommonStyle + "width: 52.6%; right: 1.9%; top: -32px;";
+                boTop.style.cssText = trayBaseCommonStyle + "width: 49.6%; right: 0.8%; top: -32px;";
                 
                 boTop.innerHTML = `
                     <div style="${innerHoleStyle}">
@@ -1092,7 +1092,7 @@ export const ui = {
                 boBottom.className = 'bear-off-tray';
                 
                 // 👇 وهنا تتحكم في الإطار السفلي (أنت) فقط 👇
-                boBottom.style.cssText = trayBaseCommonStyle + "width: 37.6%; right: 7.9%; bottom: -32px;";
+                boBottom.style.cssText = trayBaseCommonStyle + "width: 49.6%; right: 0.4%; bottom: -32px;";
                 
                 boBottom.innerHTML = `
                     <div style="${innerHoleStyle}">
