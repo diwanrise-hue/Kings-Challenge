@@ -1000,12 +1000,12 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-                        // 🌟 الإطار الخشبي الخارجي المشترك (تم إزالة العرض والمكان منه لنتمكن من فصلهما) 🌟
+            // 🌟 الإطار الخارجي (يقرأ لونه من الساحة، أو يضع الخشبي كافتراضي) 🌟
             const trayBaseCommonStyle = `
                 position: absolute;
                 height: 32px;
-                background: linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%);
-                border: 1px solid #3d1e03;
+                background: var(--tray-frame-bg, linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%));
+                border: 1px solid rgba(0,0,0,0.7);
                 border-radius: 4px;
                 display: flex;
                 flex-direction: row;
@@ -1019,14 +1019,14 @@ export const ui = {
                 box-sizing: border-box;
             `;
 
-            // 🌟 الحفرة الزرقاء المخملية للأحجار 🌟
+            // 🌟 الحفرة المخملية (تقرأ لونها من الساحة، أو تضع الأزرق كافتراضي) 🌟
             const innerHoleStyle = `
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 flex: 1; 
                 height: 100%;
-                background: linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%);
+                background: var(--tray-hole-bg, linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%));
                 border-radius: 2px;
                 padding: 0 4px;
                 box-shadow: 
@@ -1037,7 +1037,7 @@ export const ui = {
                 overflow: hidden;
             `;
 
-            // 🌟 المربع الخشبي الذي يحتوي على الرقم المحفور 🌟
+            // 🌟 المربع الخاص بالرقم (يأخذ نفس لون الإطار الخارجي ليظهر كأنه قطعة منه) 🌟
             const carvedWoodBlockStyle = `
                 display: flex;
                 align-items: center;
@@ -1046,10 +1046,10 @@ export const ui = {
                 min-width: 38px; 
                 margin: 0;
                 padding: 0;
-                background: linear-gradient(to bottom, #944b1c 0%, #7a3a12 100%); 
+                background: var(--tray-frame-bg, linear-gradient(to bottom, #944b1c 0%, #7a3a12 100%)); 
                 border-radius: 2px;
-                border: 1px solid #4a2107; 
-                box-shadow: inset 0 1px 1px rgba(255,255,255,0.15); 
+                border: 1px solid rgba(0,0,0,0.6); 
+                box-shadow: inset 0 1px 1px rgba(255,255,255,0.2); 
                 flex-shrink: 0;
                 box-sizing: border-box;
             `;
@@ -1075,7 +1075,7 @@ export const ui = {
                 boTop.className = 'bear-off-tray';
                 
                 // 👇 هنا تتحكم في الإطار العلوي (الخصم) فقط 👇
-                boTop.style.cssText = trayBaseCommonStyle + "width: 49%; right: 0.5%; top: -32px;";
+                boTop.style.cssText = trayBaseCommonStyle + "width: 52.6%; right: 1.9%; top: -32px;";
                 
                 boTop.innerHTML = `
                     <div style="${innerHoleStyle}">
@@ -1092,7 +1092,7 @@ export const ui = {
                 boBottom.className = 'bear-off-tray';
                 
                 // 👇 وهنا تتحكم في الإطار السفلي (أنت) فقط 👇
-                boBottom.style.cssText = trayBaseCommonStyle + "width: 49%; right: 0.9%; bottom: -32px;";
+                boBottom.style.cssText = trayBaseCommonStyle + "width: 37.6%; right: 7.9%; bottom: -32px;";
                 
                 boBottom.innerHTML = `
                     <div style="${innerHoleStyle}">
