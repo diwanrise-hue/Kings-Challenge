@@ -3,7 +3,7 @@
  * النسخة المتوافقة بالكامل مع الساحة الملكية (Ph.webp) والتصميم الـ 3D
  * 🛡️ مُحدّث أمنياً: درع حماية ضد ضياع المنتجات (Ghost Sync Fix)
  * 🌟 مُحدّث: نظام الإحداثيات الديناميكية لتوافق الأرباع وحجم الأحجار مع كل ساحة
- * 🎨 مُحدّث: دعم الألوان الديناميكية لإطار الإخراج والحفرة المخملية حسب الساحة
+ * 🎨 مُحدّث: دعم الألوان الديناميكية لإطار الإخراج والحفرة المخملية ولون النص المحفور حسب الساحة
  */
 
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/diwanrise-hue/Kings-Challenge/main/";
@@ -15,13 +15,15 @@ export const STORE_ITEMS = {
     // الساحات (الخلفيات)
     // ===================================
     
-    // 1. الساحة الافتراضية (Ph.webp)
+    // 1. الساحة الافتراضية (Ph.webp) - خشب كلاسيكي ومخمل عنابي
     'bg_wood': { 
         type: 'bg', isDefault: true, nameAr: 'الطاولة الملكية', nameEn: 'Royal Board',
         isImage: true, imagePath: 'storefile/bgs/Ph.webp', 
         linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%)', 
-        trayHoleBg: 'linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%)',
+        trayHoleBg: 'linear-gradient(to bottom, #4a0d0d 0%, #6b1414 40%, #2a0505 100%)',
+        trayTextColor: '#210d02',
+        trayTextShadow: '0px 1px 0px rgba(255,255,255,0.25), 0px -1px 0px rgba(0,0,0,0.5)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 4.5% !important; left: 7.8% !important; width: 37.6% !important; height: 37.6% !important; }
             #tawla-board .bottom-left { bottom: 6% !important; left: 6.85% !important; width: 37.6% !important; height: 37.6% !important; direction: ltr !important; }
@@ -38,13 +40,15 @@ export const STORE_ITEMS = {
         `
     },
 
-    // 2. الساحة الجديدة الأولى (1.webp)
+    // 2. الساحة الجديدة الأولى (1.webp) - معدن غامق أحمر
     'bg_new_1': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #2c3e50, #1a252f)',
         trayHoleBg: 'linear-gradient(to bottom, #5c0000, #330000)',
+        trayTextColor: '#ecf0f1',
+        trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -61,13 +65,15 @@ export const STORE_ITEMS = {
         `
     },
 
-    // 3. الساحة الجديدة الثانية (2.webp)
+    // 3. الساحة الجديدة الثانية (2.webp) - رمادي حديدي وأسود
     'bg_new_2': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة المحاربين', nameEn: 'Warriors Board',
         isImage: true, imagePath: 'storefile/bgs/2.webp', 
         linkedScore: 'score_default',
-        trayFrameBg: 'linear-gradient(to bottom, #434343, #1c1c1c)', 
-        trayHoleBg: 'linear-gradient(to bottom, #111111, #000000)',
+        trayFrameBg: 'linear-gradient(to bottom, #2c2c2c 0%, #404040 50%, #1a1a1a 100%)', 
+        trayHoleBg: 'linear-gradient(to bottom, #111111 0%, #1f1f1f 40%, #050505 100%)',
+        trayTextColor: '#e0e0e0',
+        trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -84,13 +90,15 @@ export const STORE_ITEMS = {
         `
     },
 
-     // 4. الساحة الجديدة الثالثة (3.webp)
+     // 4. الساحة الجديدة الثالثة (3.webp) - ذهبي معتق
     'bg_new_3': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأسطورة', nameEn: 'Legend Board',
         isImage: true, imagePath: 'storefile/bgs/3.webp', 
         linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #8a6523, #4a340e)', 
         trayHoleBg: 'linear-gradient(to bottom, #1a1a1a, #050505)',
+        trayTextColor: '#fff3cd',
+        trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -107,13 +115,15 @@ export const STORE_ITEMS = {
         `
     },
 
-     // 5. الساحة الجديدة الرابعة (4.webp)
+     // 5. الساحة الجديدة الرابعة (4.webp) - ماهوجني ومخمل عنابي
     'bg_new_4': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'الساحة المخملية', nameEn: 'Velvet Board',
         isImage: true, imagePath: 'storefile/bgs/4.webp', 
         linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #2b1111, #140505)', 
         trayHoleBg: 'linear-gradient(to bottom, #590d22, #2d0611)',
+        trayTextColor: '#ffcce0',
+        trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -130,13 +140,15 @@ export const STORE_ITEMS = {
         `
     },
 
-     // 6. الساحة الجديدة الخامسة (5.webp)
+     // 6. الساحة الجديدة الخامسة (5.webp) - خشب زمردي
     'bg_new_5': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة التحدي', nameEn: 'Challenge Board',
         isImage: true, imagePath: 'storefile/bgs/5.webp', 
         linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #112b1c, #06140d)', 
         trayHoleBg: 'linear-gradient(to bottom, #002200, #001100)',
+        trayTextColor: '#ccffcc',
+        trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -153,13 +165,15 @@ export const STORE_ITEMS = {
         `
     },
 
-     // 7. الساحة الجديدة السادسة (6.webp)
+     // 7. الساحة الجديدة السادسة (6.webp) - تيتانيوم وكحلي
     'bg_new_6': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة النخبة', nameEn: 'Elite Board',
         isImage: true, imagePath: 'storefile/bgs/6.webp', 
         linkedScore: 'score_default',
         trayFrameBg: 'linear-gradient(to bottom, #5b6467, #2d3133)', 
         trayHoleBg: 'linear-gradient(to bottom, #0d1b2a, #040914)',
+        trayTextColor: '#e0f7fa',
+        trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
             #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
@@ -312,15 +326,21 @@ export const storeManager = {
         let styleEl = document.getElementById('dynamic-board-css');
         if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'dynamic-board-css'; document.head.appendChild(styleEl); }
 
-        // 🌟 استخراج ألوان إطار الإخراج من الساحة المختارة، وإلا استخدام الخشبي الافتراضي 🌟
+        // 🌟 استخراج ألوان إطار الإخراج والخط من الساحة المختارة 🌟
         let trayFrame = item.trayFrameBg || 'linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%)';
-        let trayHole = item.trayHoleBg || 'linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%)';
+        let trayHole = item.trayHoleBg || 'linear-gradient(to bottom, #4a0d0d 0%, #6b1414 40%, #2a0505 100%)';
+        let trayText = item.trayTextColor || '#210d02';
+        let trayShadow = item.trayTextShadow || '0px 1px 0px rgba(255,255,255,0.25), 0px -1px 0px rgba(0,0,0,0.5)';
         
-        // 🌟 حقن المتغيرات في جذر المستند لتتغير الألوان فوراً 🌟
+        // 🌟 حقن المتغيرات في جذر المستند لتتغير الألوان فوراً وتنعكس على رقم العداد 🌟
         let rootVars = `
             :root {
                 --tray-frame-bg: ${trayFrame} !important;
                 --tray-hole-bg: ${trayHole} !important;
+            }
+            #out-white-count, #out-black-count {
+                color: ${trayText} !important;
+                text-shadow: ${trayShadow} !important;
             }
         `;
 
@@ -667,7 +687,6 @@ export const storeManager = {
                         } else if (window['triggerCustomAlertNotification']) window['triggerCustomAlertNotification'](msg); 
                         if (typeof window.triggerPurchaseCelebration === 'function') window.triggerPurchaseCelebration();
                         
-                        // ❌ تم إزالة كود الـ syncProfile من هنا لمنع تدمير البيانات (السباق البرمجي)
                         this.renderUI();
                     });
                 }
