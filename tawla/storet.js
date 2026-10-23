@@ -40,20 +40,20 @@ export const STORE_ITEMS = {
         `
     },
 
-    // 2. الساحة الجديدة الأولى (1.webp) - معدن غامق أحمر
+    // 2. الساحة الجديدة الأولى (1.webp) - معدن باهت وحفرة بيضاء باهتة
     'bg_new_1': { 
         type: 'bg', isDefault: false, cost: 5000, nameAr: 'ساحة الأبطال', nameEn: 'Heroes Board',
         isImage: true, imagePath: 'storefile/bgs/1.webp', 
         linkedScore: 'score_default',
         
-        // 🌟 الإطار: أسود معدني فحمي مع لمعة فضية وحديد مصقول 🌟
-        trayFrameBg: 'linear-gradient(to bottom, #525961 0%, #23272b 20%, #3a4148 50%, #15181a 80%, #090a0c 100%)',
+        // 🌟 الإطار: رمادي فحمي باهت (مطفي) ليطابق حافة الساحة تماماً 🌟
+        trayFrameBg: 'linear-gradient(to bottom, #4a4d52 0%, #35383c 50%, #222426 100%)',
         
-        // الحفرة: أحمر عنابي داكن
-        trayHoleBg: 'linear-gradient(to bottom, #5c0000, #330000)',
+        // 🌟 الحفرة: أبيض باهت (رمادي فاتح جداً) ليتناسب مع التصميم 🌟
+        trayHoleBg: 'linear-gradient(to bottom, #d0d3d4 0%, #e5e7e9 40%, #b2babb 100%)',
         
-        // النص: لون فضي فاتح مع ظل يوحي بأنه محفور في المعدن
-        trayTextColor: '#e8eaed',
+        // النص: أبيض ساطع مع ظل غامق ليظهر بوضوح على المربع الرمادي
+        trayTextColor: '#ffffff',
         trayTextShadow: '0px 1px 1px rgba(255,255,255,0.15), 0px -1px 2px rgba(0,0,0,0.9)',
         
         boardLayoutCSS: `
