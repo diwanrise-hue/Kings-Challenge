@@ -151,7 +151,7 @@ export const STORE_ITEMS = {
          #tawla-board .bottom-right { bottom: 10.7% !important; right: 9.33% !important; width: 37.8% !important; height: 37.8% !important; }
   
 
-            #tawla-board .piece { width: 11.54cqw !important; height: 11.54cqw !important; }
+            #tawla-board .piece { width: 13.66cqw !important; height: 13.66cqw !important; }
             #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
             #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
 
