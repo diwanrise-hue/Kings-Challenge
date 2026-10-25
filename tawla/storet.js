@@ -97,12 +97,13 @@ export const STORE_ITEMS = {
         trayTextColor: '#fff3cd',
         trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
         boardLayoutCSS: `
-            #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
-            #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
-            #tawla-board .top-right { top: 6.15% !important; right: 6.7% !important; width: 41.2% !important; height: 41.2% !important; }
-            #tawla-board .bottom-right { bottom: 4.5% !important; right: 6.7% !important; width: 41.1% !important; height: 41.1% !important; direction: ltr !important; }
+#tawla-board .top-left { top: 6.2% !important; left: 7.8% !important; width: 38.4% !important; height: 37.6% !important;  }
+#tawla-board .bottom-left { bottom: 7.2% !important; left: 7.4% !important; width: 38.7% !important; height: 38.7% !important; }
+#tawla-board .top-right { top: 6.2% !important; right: 7.3% !important; width: 38.6% !important; height: 38.6% !important; }
+#tawla-board .bottom-right { bottom: 7.2% !important; right: 7.2% !important; width: 38.7% !important; height: 38.7% !important; }
+  
 
-            #tawla-board .piece { width: 11.54cqw !important; height: 11.54cqw !important; }
+            #tawla-board .piece { width: 11.9cqw !important; height: 11.9cqw !important; }
             #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
             #tawla-board .bottom-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .bottom-right .point .piece:nth-last-child(n+6) ~ .piece { margin-bottom: -30% !important; }
 
