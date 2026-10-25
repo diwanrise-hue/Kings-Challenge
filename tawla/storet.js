@@ -145,10 +145,10 @@ export const STORE_ITEMS = {
         trayTextColor: '#ccffcc',
         trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
         boardLayoutCSS: `
-         #tawla-board .top-left { top: 7.6% !important; left: 9.21% !important; width: 37.6% !important; height: 37.6% !important;  }
-         #tawla-board .bottom-left { bottom: 10.7% !important; left: 9% !important; width: 37.8% !important; height: 37.8% !important; }
-         #tawla-board .top-right { top: 7.6% !important; right: 9.51% !important; width: 37.6% !important; height: 37.6% !important; }
-         #tawla-board .bottom-right { bottom: 10.7% !important; right: 9.33% !important; width: 37.8% !important; height: 37.8% !important; }
+#tawla-board .top-left { top: 7.6% !important; left: 9.21% !important; width: 37.6% !important; height: 37.6% !important;  }
+#tawla-board .bottom-left { bottom: 10% !important; left: 9% !important; width: 37.8% !important; height: 37.8% !important; }
+#tawla-board .top-right { top: 7.6% !important; right: 9.51% !important; width: 37.6% !important; height: 37.6% !important; }
+#tawla-board .bottom-right { bottom: 10% !important; right: 9.33% !important; width: 37.8% !important; height: 37.8% !important; }
   
 
             #tawla-board .piece { width: 13.66cqw !important; height: 13.66cqw !important; }
