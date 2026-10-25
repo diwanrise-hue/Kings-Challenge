@@ -123,9 +123,9 @@ export const STORE_ITEMS = {
         trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
         boardLayoutCSS: `
 #tawla-board .top-left { top: 4.2% !important; left: 6.5% !important; width: 39% !important; height: 39% !important;  }
-#tawla-board .bottom-left { bottom: 7.2% !important; left: 6.2% !important; width: 38.7% !important; height: 38.7% !important; }
+#tawla-board .bottom-left { bottom: 6.8% !important; left: 6.2% !important; width: 38.7% !important; height: 38.7% !important; }
 #tawla-board .top-right { top: 4.2% !important; right: 7.2% !important; width: 38.7% !important; height: 38.7% !important; }
-#tawla-board .bottom-right { bottom: 7.2% !important; right: 7.2% !important; width: 38.7% !important; height: 38.7% !important; }
+#tawla-board .bottom-right { bottom: 6.8% !important; right: 7.2% !important; width: 38.7% !important; height: 38.7% !important; }
 
 
             #tawla-board .piece { width: 12.2cqw !important; height: 12.2cqw !important; }
