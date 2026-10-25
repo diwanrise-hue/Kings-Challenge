@@ -145,10 +145,11 @@ export const STORE_ITEMS = {
         trayTextColor: '#ccffcc',
         trayTextShadow: '0px 1px 2px rgba(0,0,0,0.9)',
         boardLayoutCSS: `
-            #tawla-board .top-left { top: 6.15% !important; left: 6.5% !important; width: 41.2% !important; height: 41.2% !important; }
-            #tawla-board .bottom-left { bottom: 4.5% !important; left: 6.4% !important; width: 41.2% !important; height: 41.2% !important; direction: ltr !important; }
-            #tawla-board .top-right { top: 6.15% !important; right: 6.7% !important; width: 41.2% !important; height: 41.2% !important; }
-            #tawla-board .bottom-right { bottom: 4.5% !important; right: 6.7% !important; width: 41.1% !important; height: 41.1% !important; direction: ltr !important; }
+         #tawla-board .top-left { top: 7.6% !important; left: 9.21% !important; width: 37.6% !important; height: 37.6% !important;  }
+         #tawla-board .bottom-left { bottom: 10.7% !important; left: 9% !important; width: 37.8% !important; height: 37.8% !important; }
+         #tawla-board .top-right { top: 7.6% !important; right: 9.51% !important; width: 37.6% !important; height: 37.6% !important; }
+         #tawla-board .bottom-right { bottom: 10.7% !important; right: 9.33% !important; width: 37.8% !important; height: 37.8% !important; }
+  
 
             #tawla-board .piece { width: 11.54cqw !important; height: 11.54cqw !important; }
             #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -30% !important; }
