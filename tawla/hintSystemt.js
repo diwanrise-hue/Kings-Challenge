@@ -181,3 +181,4 @@ export const hintSystem = {
         }, 3500);
     }
 };
+
