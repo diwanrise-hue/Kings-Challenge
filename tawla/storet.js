@@ -26,9 +26,9 @@ export const STORE_ITEMS = {
         trayTextShadow: '0px 1px 0px rgba(255,255,255,0.25), 0px -1px 0px rgba(0,0,0,0.5)',
         boardLayoutCSS: `
             #tawla-board .top-left { top: 2.2% !important; left: 2.41% !important; width: 45% !important; height: 45% !important;  }
-#tawla-board .bottom-left { bottom: 3% !important; left: 2.4% !important; width: 45% !important; height: 45% !important; }
+#tawla-board .bottom-left { bottom: 3.3% !important; left: 2.4% !important; width: 45% !important; height: 45% !important; }
 #tawla-board .top-right { top: 2.2% !important; right: 2.7% !important; width: 45% !important; height: 45% !important; }
-#tawla-board .bottom-right { bottom: 3% !important; right: 2.5% !important; width: 45% !important; height: 45% !important; }
+#tawla-board .bottom-right { bottom: 3.3% !important; right: 2.5% !important; width: 45% !important; height: 45% !important; }
   
             #tawla-board .piece { width: 14cqw !important; height: 14cqw !important; }
             #tawla-board .top-left .point .piece:nth-last-child(n+6) ~ .piece, #tawla-board .top-right .point .piece:nth-last-child(n+6) ~ .piece { margin-top: -26% !important; }
