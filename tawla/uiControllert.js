@@ -999,123 +999,138 @@ export const ui = {
                 pointDiv.style.cssText = `width: 100%; height: 100%; display: flex; align-items: center; cursor: pointer; position: relative; z-index:10; flex-direction: ${i < 12 ? 'column' : 'column-reverse'}; justify-content: flex-start;`;
                 document.getElementById(q).appendChild(pointDiv);
             }
+                        
+            // ==========================================================
+            // 🌟 إطار إخراج الأحجار (مطابق للصورة) 🌟
+            // ==========================================================
             
-            // ==========================================================
-            // 🌟 تصميم إطار إخراج الأحجار (التصميم الصارم لمنع التشويه) 🌟
-            // ==========================================================
-
+            // الإطار الخشبي الخارجي: حدود بألوان مختلفة لكل جهة، فتظهر زوايا مائلة (Miter) كما في الصورة
             const trayBaseCommonStyle = `
                 position: absolute !important;
-                height: 42px !important; 
-                background: var(--tray-frame-bg, linear-gradient(to bottom, #bd6b44 0%, #a45a38 50%, #874528 100%)) !important;
-                border: 2px solid rgba(0,0,0,0.8) !important;
-                border-radius: 4px !important;
+                height: 42px !important;
                 display: flex !important;
                 flex-direction: row !important;
                 align-items: stretch !important;
                 padding: 0 !important;
                 cursor: pointer !important;
-                box-shadow: 0px 4px 10px rgba(0,0,0,0.8) !important;
-                z-index: 25 !important;
-                box-sizing: border-box !important;
                 overflow: hidden !important;
+                box-sizing: border-box !important;
+                z-index: 25 !important;
+                background: #a85a36 !important;
+                border-style: solid !important;
+                border-width: 4px 5px 4px 5px !important;
+                border-color: #d98a60 #bd6540 #a14e2d #94482a !important;
+                border-radius: 2px !important;
+                box-shadow: 0px 4px 10px rgba(0,0,0,0.8) !important;
             `;
-
+            
+            // القطعة الخشبية اليسرى (فيها المربع الداكن)
             const carvedWoodBlockStyle = `
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                width: 48px !important; 
-                min-width: 48px !important;
-                max-width: 48px !important;
-                background: var(--tray-frame-bg, linear-gradient(to right, #b4633d, #9c5432)) !important;
-                border-right: 2px solid rgba(0,0,0,0.8) !important;
-                position: relative !important;
+                width: 46% !important;
                 flex-shrink: 0 !important;
+                position: relative !important;
                 padding: 0 !important;
                 margin: 0 !important;
                 box-sizing: border-box !important;
+                background:
+                    repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 3px),
+                    var(--tray-frame-bg, linear-gradient(to bottom, #c26d46 0%, #b96339 50%, #b05c38 100%)) !important;
+                border-right: 2px solid #6f3419 !important;
+                box-shadow: inset 0 2px 3px rgba(0,0,0,0.35), inset 0 -1px 2px rgba(0,0,0,0.25) !important;
             `;
-
+            
+            // المربع الداكن المحفور (إطار خارجي غائر)
             const innerDarkBoxStyle = `
-                width: 75% !important; 
-                height: 70% !important;
-                background: rgba(0,0,0,0.35) !important; 
-                border: 1px solid rgba(0,0,0,0.8) !important;
+                height: 84% !important;
+                aspect-ratio: 1.25 / 1 !important;
+                padding: 3px !important;
+                box-sizing: border-box !important;
+                background: #3f312b !important;
+                border: 1px solid #2a1d19 !important;
                 border-radius: 2px !important;
-                box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.2) !important;
+                box-shadow: inset 0 0 4px rgba(0,0,0,0.9), 0 1px 0 rgba(255,255,255,0.15) !important;
+                position: relative !important;
+            `;
+            
+            // سطح المربع الداكن (رمادي-بني بعروق أفقية)
+            const innerDarkFaceStyle = `
+                width: 100% !important;
+                height: 100% !important;
+                box-sizing: border-box !important;
+                position: relative !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                position: relative !important;
-                box-sizing: border-box !important;
+                background:
+                    repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px),
+                    linear-gradient(to bottom, #6a5850, #574740) !important;
+                border: 1px solid rgba(0,0,0,0.55) !important;
+                box-shadow: inset 0 1px 2px rgba(255,255,255,0.12), inset 0 -2px 3px rgba(0,0,0,0.35) !important;
             `;
-
+            
+            // الشكل المنقوش (معين بجوانب مقعّرة) بطبقتين: ظل + إضاءة
+            const starClip = "clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);";
             const diamondIcon = `
-                <div style="width: 7px !important; height: 7px !important; background: rgba(255,255,255,0.25) !important; transform: rotate(45deg) !important; box-shadow: inset 1px 1px 2px rgba(255,255,255,0.4), inset -1px -1px 2px rgba(0,0,0,0.6) !important; position: absolute !important; top: 50% !important; left: 50% !important; margin-top: -3.5px !important; margin-left: -3.5px !important; z-index: 5 !important;"></div>
+                <div style="position:absolute !important; width:11px !important; height:11px !important; top:50% !important; left:50% !important; margin:-4.5px 0 0 -4.5px !important; background:rgba(0,0,0,0.55) !important; ${starClip}"></div>
+                <div style="position:absolute !important; width:11px !important; height:11px !important; top:50% !important; left:50% !important; margin:-6px 0 0 -6px !important; background:rgba(255,255,255,0.22) !important; ${starClip}"></div>
             `;
-
+            
+            // التجويف الأزرق
             const innerHoleStyle = `
                 display: flex !important;
                 flex-direction: row !important;
                 align-items: center !important;
-                flex: 1 !important; 
-                background: var(--tray-hole-bg, linear-gradient(to bottom, #183e6b 0%, #255286 30%, #224d7f 70%, #15375e 100%)) !important;
-                box-shadow: inset 0px 8px 12px rgba(0,0,0,0.8), inset 0px -4px 8px rgba(0,0,0,0.6), inset 10px 0px 15px rgba(0,0,0,0.7), inset -10px 0px 15px rgba(0,0,0,0.7) !important;
+                flex: 1 !important;
+                background: var(--tray-hole-bg, linear-gradient(to bottom, #12305a 0%, #1f4a80 35%, #26578f 70%, #2c619c 100%)) !important;
+                box-shadow:
+                    inset 0px 7px 10px rgba(0,0,0,0.75),
+                    inset 0px -3px 6px rgba(0,0,0,0.4),
+                    inset 8px 0px 12px rgba(0,0,0,0.55),
+                    inset -8px 0px 12px rgba(0,0,0,0.35) !important;
+                border: 1px solid rgba(0,0,0,0.55) !important;
                 position: relative !important;
                 padding: 0 !important;
                 margin: 0 !important;
                 box-sizing: border-box !important;
             `;
-
-            const holeCurveLeft = `<div style="position: absolute !important; left: 0 !important; top: 0 !important; bottom: 0 !important; width: 10px !important; background: linear-gradient(to right, rgba(0,0,0,0.7), transparent) !important; pointer-events: none !important;"></div>`;
-            const holeCurveRight = `<div style="position: absolute !important; right: 0 !important; top: 0 !important; bottom: 0 !important; width: 10px !important; background: linear-gradient(to left, rgba(0,0,0,0.7), transparent) !important; pointer-events: none !important;"></div>`;
-
-            const countTextStyle = `
-                display: none !important; 
-            `;
-
+            
+            // الحواف المنحنية داخل التجويف (يسار داكن، يمين فاتح)
+            const holeCurveLeft = `<div style="position:absolute !important; left:0 !important; top:0 !important; bottom:0 !important; width:14px !important; background:linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.15) 65%, transparent) !important; border-radius:0 100% 100% 0 / 0 50% 50% 0 !important; pointer-events:none !important;"></div>`;
+            const holeCurveRight = `<div style="position:absolute !important; right:0 !important; top:0 !important; bottom:0 !important; width:14px !important; background:linear-gradient(to left, rgba(130,175,230,0.28), rgba(0,0,0,0.1) 70%, transparent) !important; border-radius:100% 0 0 100% / 50% 0 0 50% !important; pointer-events:none !important;"></div>`;
+            
+            const countTextStyle = `display: none !important;`;
+            
+            const createTray = (trayId, color, extraStyle) => {
+                const tray = document.createElement('div');
+                tray.id = trayId;
+                tray.className = 'bear-off-tray';
+                tray.style.cssText = trayBaseCommonStyle + extraStyle;
+                tray.innerHTML = `
+                    <div style="${carvedWoodBlockStyle}">
+                        <div style="${innerDarkBoxStyle}">
+                            <div style="${innerDarkFaceStyle}">
+                                ${diamondIcon}
+                                <span id="out-${color}-count" style="${countTextStyle}">0/15</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="${innerHoleStyle}">
+                        ${holeCurveLeft}
+                        <div id="out-${color}" style="position:relative !important; display:flex !important; flex-direction:row-reverse !important; align-items:center !important; width:100% !important; height:100% !important; padding-right: 12px !important;"></div>
+                        ${holeCurveRight}
+                    </div>
+                `;
+                board.appendChild(tray);
+            };
+            
             if (!document.getElementById('bear-off-top')) {
-                let boTop = document.createElement('div');
-                boTop.id = 'bear-off-top';
-                boTop.className = 'bear-off-tray';
-                boTop.style.cssText = trayBaseCommonStyle + "width: 49.3% !important; right: 0.9% !important; top: -50px !important;";
-                
-                boTop.innerHTML = `
-                    <div style="${carvedWoodBlockStyle}">
-                        <div style="${innerDarkBoxStyle}">
-                            ${diamondIcon}
-                            <span id="out-white-count" style="${countTextStyle}">0/15</span> 
-                        </div>
-                    </div>
-                    <div style="${innerHoleStyle}">
-                        ${holeCurveLeft}
-                        <div id="out-white" style="position:relative !important; display:flex !important; flex-direction:row-reverse !important; align-items:center !important; width:100% !important; height:100% !important; padding-right: 5px !important;"></div>
-                        ${holeCurveRight}
-                    </div>
-                `;
-                board.appendChild(boTop);
-
-                let boBottom = document.createElement('div');
-                boBottom.id = 'bear-off-bottom';
-                boBottom.className = 'bear-off-tray';
-                boBottom.style.cssText = trayBaseCommonStyle + "width: 48.9% !important; right: 1% !important; bottom: -50px !important;";
-                
-                boBottom.innerHTML = `
-                    <div style="${carvedWoodBlockStyle}">
-                        <div style="${innerDarkBoxStyle}">
-                            ${diamondIcon}
-                            <span id="out-black-count" style="${countTextStyle}">0/15</span>
-                        </div>
-                    </div>
-                    <div style="${innerHoleStyle}">
-                        ${holeCurveLeft}
-                        <div id="out-black" style="position:relative !important; display:flex !important; flex-direction:row-reverse !important; align-items:center !important; width:100% !important; height:100% !important; padding-right: 5px !important;"></div>
-                        ${holeCurveRight}
-                    </div>
-                `;
-                board.appendChild(boBottom);
+                createTray('bear-off-top', 'white', "width: 49.3% !important; right: 0.9% !important; top: -50px !important;");
+                createTray('bear-off-bottom', 'black', "width: 48.9% !important; right: 1% !important; bottom: -50px !important;");
             }
+         
         }
 
         if (!gameState.virtualBoard || !gameState.virtualBoard.points) return;
