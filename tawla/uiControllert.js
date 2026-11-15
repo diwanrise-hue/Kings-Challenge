@@ -1170,7 +1170,7 @@ export const ui = {
             p.style.cssText = `width:18px !important; height:18px !important; min-width:18px !important; min-height:18px !important; margin-right:${c === 0 ? '0' : '-11px'} !important; position:relative !important; z-index:${c + 1} !important; box-shadow: -1px 0 3px rgba(0,0,0,0.7) !important; pointer-events:none !important;`;
             document.getElementById('out-black').appendChild(p);
         }
-    }
+    },
 
 
     updateDiceUI(isNewRoll = false) {
