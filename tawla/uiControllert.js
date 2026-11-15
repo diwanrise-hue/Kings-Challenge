@@ -975,11 +975,11 @@ export const ui = {
         return { cssWidth, cssHeight, rectWidth, rectHeight };
     },
 
-    renderBoard(forceRebuild = false) {
+      renderBoard(forceRebuild = false) {
         const board = this.getEl('tawla-board');
         if (!board) return;
         
-        // 1. بناء هيكل الطاولة (إذا كانت فارغة أو طلبنا إعادة البناء)
+        // 1. بناء هيكل الطاولة
         if (board.children.length === 0 || forceRebuild) {
             board.innerHTML = `
                 <div class="board-quadrant top-left" id="quad-tl" style="flex-direction: row-reverse;"></div>
@@ -1000,89 +1000,89 @@ export const ui = {
                 document.getElementById(q).appendChild(pointDiv);
             }
             
-            // 🌟 الإطار الخارجي (يقرأ لونه من الساحة، أو يضع الخشبي كافتراضي) 🌟
+            // ==========================================================
+            // 🌟 تصميم إطار إخراج الأحجار (التصميم الجديد المطبق تماماً) 🌟
+            // ==========================================================
+
             const trayBaseCommonStyle = `
                 position: absolute;
-                height: 32px;
-                background: var(--tray-frame-bg, linear-gradient(to bottom, #8B4513 0%, #A0522D 50%, #6B3410 100%));
-                border: 1px solid rgba(0,0,0,0.7);
+                height: 38px;
+                background: var(--tray-frame-bg, linear-gradient(to bottom, #bd6b44 0%, #a45a38 50%, #874528 100%));
+                border: 2px solid rgba(0,0,0,0.8);
                 border-radius: 4px;
                 display: flex;
                 flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-                padding: 3px; 
-                gap: 4px; 
+                align-items: stretch; 
+                padding: 0; 
                 cursor: pointer;
-                box-shadow: 0px 2px 5px rgba(0,0,0,0.5);
+                box-shadow: 0px 4px 10px rgba(0,0,0,0.8);
                 z-index: 25;
                 box-sizing: border-box;
+                overflow: hidden; 
             `;
 
-            // 🌟 الحفرة المخملية (تقرأ لونها من الساحة، أو تضع الأزرق كافتراضي) 🌟
+            const carvedWoodBlockStyle = `
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 48px; 
+                background: var(--tray-frame-bg, linear-gradient(to right, #b4633d, #9c5432));
+                border-right: 2px solid rgba(0,0,0,0.8); 
+                position: relative;
+                flex-shrink: 0;
+            `;
+
+            const innerDarkBoxStyle = `
+                width: 80%;
+                height: 70%;
+                background: rgba(0,0,0,0.3); 
+                border: 1px solid rgba(0,0,0,0.6);
+                border-radius: 2px;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 1px rgba(255,255,255,0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+            `;
+
+            const diamondIcon = `
+                <div style="width: 6px; height: 6px; background: rgba(255,255,255,0.2); transform: rotate(45deg); box-shadow: inset 1px 1px 2px rgba(255,255,255,0.3), inset -1px -1px 2px rgba(0,0,0,0.5);"></div>
+            `;
+
             const innerHoleStyle = `
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 flex: 1; 
-                height: 100%;
-                background: var(--tray-hole-bg, linear-gradient(to bottom, #112233 0%, #1a3a5a 40%, #0d1b2a 100%));
-                border-radius: 2px;
-                padding: 0 4px;
-                box-shadow: 
-                    inset 0px 6px 8px rgba(0,0,0,0.95), 
-                    inset 0px -2px 4px rgba(0,0,0,0.7),
-                    inset 4px 0px 6px rgba(0,0,0,0.9),
-                    inset -4px 0px 6px rgba(0,0,0,0.9);
-                overflow: hidden;
+                background: var(--tray-hole-bg, linear-gradient(to bottom, #183e6b 0%, #255286 30%, #224d7f 70%, #15375e 100%));
+                box-shadow: inset 0px 8px 12px rgba(0,0,0,0.8), inset 0px -4px 8px rgba(0,0,0,0.6), inset 10px 0px 15px rgba(0,0,0,0.7), inset -10px 0px 15px rgba(0,0,0,0.7);
+                position: relative;
             `;
 
-            // 🌟 المربع الخاص بالرقم (يأخذ نفس لون الإطار الخارجي ليظهر كأنه قطعة منه) 🌟
-            const carvedWoodBlockStyle = `
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 100%;
-                min-width: 38px; 
-                margin: 0;
-                padding: 0;
-                background: var(--tray-frame-bg, linear-gradient(to bottom, #944b1c 0%, #7a3a12 100%)); 
-                border-radius: 2px;
-                border: 1px solid rgba(0,0,0,0.6); 
-                box-shadow: inset 0 1px 1px rgba(255,255,255,0.2); 
-                flex-shrink: 0;
-                box-sizing: border-box;
-            `;
+            const holeCurveLeft = `<div style="position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: linear-gradient(to right, rgba(0,0,0,0.6), transparent);"></div>`;
+            const holeCurveRight = `<div style="position: absolute; right: 0; top: 0; bottom: 0; width: 8px; background: linear-gradient(to left, rgba(0,0,0,0.6), transparent);"></div>`;
 
-            // 🌟 تنسيق الرقم المحفور 🌟
             const countTextStyle = `
-                font-size: 11px; 
-                font-weight: 900; 
-                color: #210d02; 
-                text-shadow: 0px 1px 0px rgba(255,255,255,0.25), 0px -1px 0px rgba(0,0,0,0.5); 
-                letter-spacing: 0.5px;
-                margin: 0; 
-                padding: 0; 
-                width: 100%; 
-                text-align: center; 
-                display: block; 
-                direction: ltr; 
+                display: none; 
             `;
 
             if (!document.getElementById('bear-off-top')) {
                 let boTop = document.createElement('div');
                 boTop.id = 'bear-off-top';
                 boTop.className = 'bear-off-tray';
-                
-                // 👇 هنا تتحكم في الإطار العلوي (الخصم) فقط 👇
-                boTop.style.cssText = trayBaseCommonStyle + "width: 49.3%; right: 0.9%; top: -36px;";
+                boTop.style.cssText = trayBaseCommonStyle + "width: 49.3%; right: 0.9%; top: -48px;";
                 
                 boTop.innerHTML = `
-                    <div style="${innerHoleStyle}">
-                        <div id="out-white" style="position:relative; display:flex; flex-direction:row; align-items:center; width:100%; height:100%;"></div>
-                    </div>
                     <div style="${carvedWoodBlockStyle}">
-                        <span id="out-white-count" style="${countTextStyle}">0/15</span>
+                        <div style="${innerDarkBoxStyle}">
+                            ${diamondIcon}
+                            <span id="out-white-count" style="${countTextStyle}">0/15</span> 
+                        </div>
+                    </div>
+                    <div style="${innerHoleStyle}">
+                        ${holeCurveLeft}
+                        <div id="out-white" style="position:relative; display:flex; flex-direction:row-reverse; align-items:center; width:100%; height:100%; padding-right: 5px;"></div>
+                        ${holeCurveRight}
                     </div>
                 `;
                 board.appendChild(boTop);
@@ -1090,26 +1090,28 @@ export const ui = {
                 let boBottom = document.createElement('div');
                 boBottom.id = 'bear-off-bottom';
                 boBottom.className = 'bear-off-tray';
-                
-                // 👇 وهنا تتحكم في الإطار السفلي (أنت) فقط 👇
-                boBottom.style.cssText = trayBaseCommonStyle + "width: 48.9%; right: 1%; bottom: -36px;";
+                boBottom.style.cssText = trayBaseCommonStyle + "width: 48.9%; right: 1%; bottom: -48px;";
                 
                 boBottom.innerHTML = `
-                    <div style="${innerHoleStyle}">
-                        <div id="out-black" style="position:relative; display:flex; flex-direction:row; align-items:center; width:100%; height:100%;"></div>
-                    </div>
                     <div style="${carvedWoodBlockStyle}">
-                        <span id="out-black-count" style="${countTextStyle}">0/15</span>
+                        <div style="${innerDarkBoxStyle}">
+                            ${diamondIcon}
+                            <span id="out-black-count" style="${countTextStyle}">0/15</span>
+                        </div>
+                    </div>
+                    <div style="${innerHoleStyle}">
+                        ${holeCurveLeft}
+                        <div id="out-black" style="position:relative; display:flex; flex-direction:row-reverse; align-items:center; width:100%; height:100%; padding-right: 5px;"></div>
+                        ${holeCurveRight}
                     </div>
                 `;
                 board.appendChild(boBottom);
             }
-
         }
 
         if (!gameState.virtualBoard || !gameState.virtualBoard.points) return;
         
-        // 2. تفريغ الطاولة من الأحجار القديمة
+        // 2. تفريغ الطاولة
         for (let i = 0; i < 24; i++) { let pt = board.querySelector(`.point[data-index="${i}"]`); if (pt) pt.innerHTML = ''; }
         document.getElementById('bar-white').innerHTML = ''; document.getElementById('bar-black').innerHTML = '';
         document.getElementById('out-white').innerHTML = ''; document.getElementById('out-black').innerHTML = '';
@@ -1127,9 +1129,9 @@ export const ui = {
             }
         });
 
-        // 4. رسم الأحجار المأكولة في البار بنفس الحجم المولّد من كود المتجر للساحة الحالية
         const storeSize = this.getStorePieceSize();
 
+        // 4. البار
         for (let c = 0; c < gameState.virtualBoard.bar.white; c++) {
             let p = this.makeEl('div', 'piece white');
             p.style.setProperty('width', storeSize.cssWidth, 'important');
@@ -1150,7 +1152,7 @@ export const ui = {
             document.getElementById('bar-black').appendChild(p);
         }
         
-        // 🌟 5. رسم الأحجار المخرجة (Bearing Off) بحجم متناسق داخل الحوض مع تحديث العدّاد 🌟
+        // 5. المخرج (Bearing Off)
         let outW = gameState.virtualBoard.out?.white || gameState.virtualBoard.bearOff?.white || 0;
         const outWCountEl = document.getElementById('out-white-count');
         if (outWCountEl) outWCountEl.textContent = `${outW}/15`;
@@ -1168,7 +1170,8 @@ export const ui = {
             p.style.cssText = `width:18px !important; height:18px !important; min-width:18px !important; min-height:18px !important; margin-right:${c === 0 ? '0' : '-11px'} !important; position:relative !important; z-index:${c + 1} !important; box-shadow: -1px 0 3px rgba(0,0,0,0.7) !important; pointer-events:none !important;`;
             document.getElementById('out-black').appendChild(p);
         }
-    },
+    }
+
 
     updateDiceUI(isNewRoll = false) {
         const d1El = this.getEl('die1');
