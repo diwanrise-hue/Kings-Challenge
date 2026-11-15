@@ -1001,76 +1001,85 @@ export const ui = {
             }
             
             // ==========================================================
-            // 🌟 تصميم إطار إخراج الأحجار (التصميم الجديد المطبق تماماً) 🌟
+            // 🌟 تصميم إطار إخراج الأحجار (التصميم الصارم لمنع التشويه) 🌟
             // ==========================================================
 
             const trayBaseCommonStyle = `
-                position: absolute;
-                height: 38px;
-                background: var(--tray-frame-bg, linear-gradient(to bottom, #bd6b44 0%, #a45a38 50%, #874528 100%));
-                border: 2px solid rgba(0,0,0,0.8);
-                border-radius: 4px;
-                display: flex;
-                flex-direction: row;
-                align-items: stretch; 
-                padding: 0; 
-                cursor: pointer;
-                box-shadow: 0px 4px 10px rgba(0,0,0,0.8);
-                z-index: 25;
-                box-sizing: border-box;
-                overflow: hidden; 
+                position: absolute !important;
+                height: 42px !important; 
+                background: var(--tray-frame-bg, linear-gradient(to bottom, #bd6b44 0%, #a45a38 50%, #874528 100%)) !important;
+                border: 2px solid rgba(0,0,0,0.8) !important;
+                border-radius: 4px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: stretch !important;
+                padding: 0 !important;
+                cursor: pointer !important;
+                box-shadow: 0px 4px 10px rgba(0,0,0,0.8) !important;
+                z-index: 25 !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             `;
 
             const carvedWoodBlockStyle = `
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 48px; 
-                background: var(--tray-frame-bg, linear-gradient(to right, #b4633d, #9c5432));
-                border-right: 2px solid rgba(0,0,0,0.8); 
-                position: relative;
-                flex-shrink: 0;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 48px !important; 
+                min-width: 48px !important;
+                max-width: 48px !important;
+                background: var(--tray-frame-bg, linear-gradient(to right, #b4633d, #9c5432)) !important;
+                border-right: 2px solid rgba(0,0,0,0.8) !important;
+                position: relative !important;
+                flex-shrink: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
             `;
 
             const innerDarkBoxStyle = `
-                width: 80%;
-                height: 70%;
-                background: rgba(0,0,0,0.3); 
-                border: 1px solid rgba(0,0,0,0.6);
-                border-radius: 2px;
-                box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 1px rgba(255,255,255,0.2);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
+                width: 75% !important; 
+                height: 70% !important;
+                background: rgba(0,0,0,0.35) !important; 
+                border: 1px solid rgba(0,0,0,0.8) !important;
+                border-radius: 2px !important;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.2) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                position: relative !important;
+                box-sizing: border-box !important;
             `;
 
             const diamondIcon = `
-                <div style="width: 6px; height: 6px; background: rgba(255,255,255,0.2); transform: rotate(45deg); box-shadow: inset 1px 1px 2px rgba(255,255,255,0.3), inset -1px -1px 2px rgba(0,0,0,0.5);"></div>
+                <div style="width: 7px !important; height: 7px !important; background: rgba(255,255,255,0.25) !important; transform: rotate(45deg) !important; box-shadow: inset 1px 1px 2px rgba(255,255,255,0.4), inset -1px -1px 2px rgba(0,0,0,0.6) !important; position: absolute !important; top: 50% !important; left: 50% !important; margin-top: -3.5px !important; margin-left: -3.5px !important; z-index: 5 !important;"></div>
             `;
 
             const innerHoleStyle = `
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                flex: 1; 
-                background: var(--tray-hole-bg, linear-gradient(to bottom, #183e6b 0%, #255286 30%, #224d7f 70%, #15375e 100%));
-                box-shadow: inset 0px 8px 12px rgba(0,0,0,0.8), inset 0px -4px 8px rgba(0,0,0,0.6), inset 10px 0px 15px rgba(0,0,0,0.7), inset -10px 0px 15px rgba(0,0,0,0.7);
-                position: relative;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                flex: 1 !important; 
+                background: var(--tray-hole-bg, linear-gradient(to bottom, #183e6b 0%, #255286 30%, #224d7f 70%, #15375e 100%)) !important;
+                box-shadow: inset 0px 8px 12px rgba(0,0,0,0.8), inset 0px -4px 8px rgba(0,0,0,0.6), inset 10px 0px 15px rgba(0,0,0,0.7), inset -10px 0px 15px rgba(0,0,0,0.7) !important;
+                position: relative !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
             `;
 
-            const holeCurveLeft = `<div style="position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: linear-gradient(to right, rgba(0,0,0,0.6), transparent);"></div>`;
-            const holeCurveRight = `<div style="position: absolute; right: 0; top: 0; bottom: 0; width: 8px; background: linear-gradient(to left, rgba(0,0,0,0.6), transparent);"></div>`;
+            const holeCurveLeft = `<div style="position: absolute !important; left: 0 !important; top: 0 !important; bottom: 0 !important; width: 10px !important; background: linear-gradient(to right, rgba(0,0,0,0.7), transparent) !important; pointer-events: none !important;"></div>`;
+            const holeCurveRight = `<div style="position: absolute !important; right: 0 !important; top: 0 !important; bottom: 0 !important; width: 10px !important; background: linear-gradient(to left, rgba(0,0,0,0.7), transparent) !important; pointer-events: none !important;"></div>`;
 
             const countTextStyle = `
-                display: none; 
+                display: none !important; 
             `;
 
             if (!document.getElementById('bear-off-top')) {
                 let boTop = document.createElement('div');
                 boTop.id = 'bear-off-top';
                 boTop.className = 'bear-off-tray';
-                boTop.style.cssText = trayBaseCommonStyle + "width: 49.3%; right: 0.9%; top: -48px;";
+                boTop.style.cssText = trayBaseCommonStyle + "width: 49.3% !important; right: 0.9% !important; top: -50px !important;";
                 
                 boTop.innerHTML = `
                     <div style="${carvedWoodBlockStyle}">
@@ -1081,7 +1090,7 @@ export const ui = {
                     </div>
                     <div style="${innerHoleStyle}">
                         ${holeCurveLeft}
-                        <div id="out-white" style="position:relative; display:flex; flex-direction:row-reverse; align-items:center; width:100%; height:100%; padding-right: 5px;"></div>
+                        <div id="out-white" style="position:relative !important; display:flex !important; flex-direction:row-reverse !important; align-items:center !important; width:100% !important; height:100% !important; padding-right: 5px !important;"></div>
                         ${holeCurveRight}
                     </div>
                 `;
@@ -1090,7 +1099,7 @@ export const ui = {
                 let boBottom = document.createElement('div');
                 boBottom.id = 'bear-off-bottom';
                 boBottom.className = 'bear-off-tray';
-                boBottom.style.cssText = trayBaseCommonStyle + "width: 48.9%; right: 1%; bottom: -48px;";
+                boBottom.style.cssText = trayBaseCommonStyle + "width: 48.9% !important; right: 1% !important; bottom: -50px !important;";
                 
                 boBottom.innerHTML = `
                     <div style="${carvedWoodBlockStyle}">
@@ -1101,7 +1110,7 @@ export const ui = {
                     </div>
                     <div style="${innerHoleStyle}">
                         ${holeCurveLeft}
-                        <div id="out-black" style="position:relative; display:flex; flex-direction:row-reverse; align-items:center; width:100%; height:100%; padding-right: 5px;"></div>
+                        <div id="out-black" style="position:relative !important; display:flex !important; flex-direction:row-reverse !important; align-items:center !important; width:100% !important; height:100% !important; padding-right: 5px !important;"></div>
                         ${holeCurveRight}
                     </div>
                 `;
